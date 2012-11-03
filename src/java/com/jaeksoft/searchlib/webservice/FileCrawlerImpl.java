@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 	@Override
 	public CommonResult fileCrawler(String use, String login, String key,
-			WebCrawlerActionEnum action, int timeOut) {
+			WebCrawlerActionEnum action, int timeOut, boolean runOnce) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (timeOut == 0)
@@ -48,7 +48,7 @@ public class FileCrawlerImpl extends WebCrawlerImpl implements FileCrawler {
 			if (isLoggedWebStartStop(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				return webCrawlerAction(client.getFileCrawlMaster(), timeOut,
-						action);
+						runOnce, action);
 			}
 		} catch (SearchLibException e) {
 			new WebServiceException(e);

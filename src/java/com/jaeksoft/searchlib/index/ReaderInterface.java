@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collection;
 
 import org.apache.lucene.index.Term;
@@ -70,8 +69,6 @@ public interface ReaderInterface {
 			SearchLibException;
 
 	public void reload() throws SearchLibException;
-
-	public void push(URI dest) throws SearchLibException;
 
 	public long getVersion() throws SearchLibException;
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -54,6 +54,7 @@ public class WebCrawlerServlet extends AbstractServlet {
 			action = transaction.getParameterString("cmd");
 		}
 		int timeOut = transaction.getParameterInteger("timeout", 1200);
+		boolean runOnce = transaction.getParameterBoolean("runOnce", false);
 
 		if (Action.STOP.name().equalsIgnoreCase(action)) {
 			crawlMaster.abort();
@@ -62,7 +63,7 @@ public class WebCrawlerServlet extends AbstractServlet {
 			else
 				transaction.addXmlResponse("Info", InfoStatus.STOPPING.name());
 		} else if (Action.START.name().equalsIgnoreCase(action)) {
-			crawlMaster.start();
+			crawlMaster.start(runOnce);
 			if (crawlMaster.waitForStart(timeOut))
 				transaction.addXmlResponse("Info", InfoStatus.STARTED.name());
 			else

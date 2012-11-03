@@ -42,7 +42,7 @@ public class WebCrawlerImpl extends CommonServicesImpl implements WebCrawler {
 
 	@Override
 	public CommonResult webCrawler(String use, String login, String key,
-			WebCrawlerActionEnum action, int timeOut) {
+			WebCrawlerActionEnum action, int timeOut, boolean runOnce) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (timeOut == 0)
@@ -50,7 +50,8 @@ public class WebCrawlerImpl extends CommonServicesImpl implements WebCrawler {
 			if (isLoggedWebStartStop(use, login, key)) {
 				Client client = ClientCatalog.getClient(use);
 				WebCrawlMaster webCrawlMaster = client.getWebCrawlMaster();
-				return webCrawlerAction(webCrawlMaster, timeOut, action);
+				return webCrawlerAction(webCrawlMaster, timeOut, runOnce,
+						action);
 			}
 		} catch (SearchLibException e) {
 			new WebServiceException(e);
@@ -66,7 +67,7 @@ public class WebCrawlerImpl extends CommonServicesImpl implements WebCrawler {
 	}
 
 	protected CommonResult webCrawlerAction(CrawlMasterAbstract webCrawlMaster,
-			int timeOut, WebCrawlerActionEnum action) {
+			int timeOut, boolean runOnce, WebCrawlerActionEnum action) {
 		if (WebCrawlerActionEnum.STOP.name().equalsIgnoreCase(action.name())) {
 			webCrawlMaster.abort();
 			if (webCrawlMaster.waitForEnd(timeOut))
@@ -75,7 +76,7 @@ public class WebCrawlerImpl extends CommonServicesImpl implements WebCrawler {
 				return new CommonResult(true, InfoStatus.STOPPING.name());
 		} else if (WebCrawlerActionEnum.START.name().equalsIgnoreCase(
 				action.name())) {
-			webCrawlMaster.start();
+			webCrawlMaster.start(runOnce);
 			if (webCrawlMaster.waitForStart(timeOut))
 				return new CommonResult(true, InfoStatus.STARTED.name());
 			else

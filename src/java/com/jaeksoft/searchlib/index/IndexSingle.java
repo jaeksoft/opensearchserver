@@ -25,11 +25,12 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
@@ -52,6 +53,8 @@ public class IndexSingle extends IndexAbstract {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
+	private IndexDirectory indexDirectory = null;
+
 	private ReaderInterface reader = null;
 	private WriterInterface writer = null;
 
@@ -68,10 +71,37 @@ public class IndexSingle extends IndexAbstract {
 			writer = new WriterNativeOSSE(configDir, indexConfig,
 					(ReaderNativeOSSE) reader);
 		} else {
-			reader = ReaderLocal.fromConfig(configDir, indexConfig,
-					createIfNotExists);
-			writer = new WriterLocal(indexConfig, (ReaderLocal) reader);
+			boolean bCreate = false;
+			File indexDir = new File(configDir, "index");
+			if (!indexDir.exists()) {
+				if (!createIfNotExists)
+					return;
+				indexDir.mkdir();
+				bCreate = true;
+			} else
+				indexDir = findIndexDirOrSub(indexDir);
+			indexDirectory = new IndexDirectory(indexDir);
+			writer = new WriterLocal(indexConfig, this, indexDirectory);
+			if (bCreate)
+				((WriterLocal) writer).create();
+			reader = new ReaderLocal(indexConfig, indexDirectory);
 		}
+	}
+
+	/**
+	 * Check if there is old style index sub directory
+	 * 
+	 * @param indexDir
+	 * @return
+	 */
+	private File findIndexDirOrSub(File indexDir) {
+		File[] dirs = indexDir
+				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+		if (dirs == null)
+			return indexDir;
+		if (dirs.length == 0)
+			return indexDir;
+		return dirs[dirs.length - 1];
 	}
 
 	@Override
@@ -80,6 +110,7 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader != null)
 				reader.close();
+			indexDirectory.close();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -351,21 +382,6 @@ public class IndexSingle extends IndexAbstract {
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	@Override
-	public void push(URI dest) throws SearchLibException {
-		if (reader == null)
-			return;
-		IndexMode oldMode = indexConfig.getReadWriteMode();
-		setReadWriteMode(IndexMode.READ_ONLY);
-		rwl.r.lock();
-		try {
-			reader.push(dest);
-		} finally {
-			rwl.r.unlock();
-		}
-		setReadWriteMode(oldMode);
 	}
 
 	@Override

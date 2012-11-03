@@ -55,21 +55,6 @@ public class CrawlWebController extends CrawlerController {
 		return sheetRows;
 	}
 
-	public void onRun() throws IOException, SearchLibException {
-		if (!isWebCrawlerStartStopRights())
-			throw new SearchLibException("Not allowed");
-		WebPropertyManager propertyManager = getClient()
-				.getWebPropertyManager();
-		if (getWebCrawlMaster().isRunning()) {
-			propertyManager.getCrawlEnabled().setValue(false);
-			getWebCrawlMaster().abort();
-		} else {
-			propertyManager.getCrawlEnabled().setValue(true);
-			getWebCrawlMaster().start();
-		}
-		reloadPage();
-	}
-
 	public WebPropertyManager getProperties() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -84,7 +69,8 @@ public class CrawlWebController extends CrawlerController {
 		return fetchIntervalUnitValues;
 	}
 
-	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
+	@Override
+	public WebCrawlMaster getCrawlMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -101,30 +87,20 @@ public class CrawlWebController extends CrawlerController {
 		return list;
 	}
 
-	public boolean isRefresh() throws SearchLibException {
-		WebCrawlMaster webCrawlMaster = getWebCrawlMaster();
-		if (webCrawlMaster == null)
-			return false;
-		return webCrawlMaster.isRunning() || webCrawlMaster.isAborting();
-	}
-
-	public boolean isNotRefresh() throws SearchLibException {
-		return !isRefresh();
-	}
-
-	public String getRunButtonLabel() throws SearchLibException {
-		WebCrawlMaster webCrawlMaster = getWebCrawlMaster();
-		if (webCrawlMaster == null)
-			return null;
-		if (webCrawlMaster.isAborting())
-			return "Aborting...";
-		else if (webCrawlMaster.isRunning())
-			return "Running - Click to stop";
-		else
-			return "Not running - Click to start";
-	}
-
-	public void onTimer() throws SearchLibException {
+	public void onRun() throws SearchLibException, IOException {
+		if (!isWebCrawlerStartStopRights())
+			throw new SearchLibException("Not allowed");
+		WebPropertyManager propertyManager = getClient()
+				.getWebPropertyManager();
+		if (getCrawlMaster().isRunning()) {
+			propertyManager.getCrawlEnabled().setValue(false);
+			getCrawlMaster().abort();
+		} else {
+			boolean once = RunMode.RunOnce == getRunMode();
+			if (!once)
+				propertyManager.getCrawlEnabled().setValue(true);
+			getCrawlMaster().start(once);
+		}
 		reloadPage();
 	}
 

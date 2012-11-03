@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 
@@ -43,19 +44,23 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 
 	protected CrawlStatistics currentStats;
 
+	private final ReadWriteLock rwl = new ReadWriteLock();
+
+	private boolean runOnce;
+
 	protected CrawlMasterAbstract(Config config) {
 		super(config);
 		status = CrawlStatus.NOT_RUNNING;
 		statistics = new LinkedList<CrawlStatistics>();
 	}
 
-	public void start() {
+	public void start(boolean once) {
 		if (isRunning())
 			return;
 		try {
+			setOnce(once);
 			setStatus(CrawlStatus.STARTING);
-			indexPluginList = new IndexPluginList(getConfig()
-					.getIndexPluginTemplateList());
+			createIndexPluginList();
 		} catch (SearchLibException e) {
 			Logging.error(e.getMessage(), e);
 			setStatus(CrawlStatus.ERROR);
@@ -65,14 +70,38 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 		execute();
 	}
 
+	private void createIndexPluginList() throws SearchLibException {
+		rwl.w.lock();
+		try {
+			indexPluginList = new IndexPluginList(getConfig()
+					.getIndexPluginTemplateList());
+
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isOnce() {
+		rwl.r.lock();
+		try {
+			return runOnce;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public CrawlStatus getStatus() {
-		synchronized (this) {
+		rwl.r.lock();
+		try {
 			return status;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public String getStatusInfo() {
-		synchronized (this) {
+		rwl.r.lock();
+		try {
 			StringBuffer sb = new StringBuffer();
 			sb.append(status);
 			String info = getInfo();
@@ -83,29 +112,56 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 				sb.append(')');
 			}
 			return sb.toString();
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public void setStatus(CrawlStatus status) {
-		synchronized (this) {
+		rwl.w.lock();
+		try {
 			this.status = status;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private void setOnce(boolean runOnce) {
+		rwl.w.lock();
+		try {
+			this.runOnce = runOnce;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	protected void addStatistics(CrawlStatistics stats) {
-		synchronized (statistics) {
+		rwl.w.lock();
+		try {
 			if (statistics.size() >= 10)
 				statistics.removeLast();
 			statistics.addFirst(stats);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public List<CrawlStatistics> getStatistics() {
-		return statistics;
+		rwl.r.lock();
+		try {
+			return statistics;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public IndexPluginList getIndexPluginList() {
-		return indexPluginList;
+		rwl.r.lock();
+		try {
+			return indexPluginList;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override

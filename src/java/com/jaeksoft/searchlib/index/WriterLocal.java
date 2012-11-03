@@ -24,24 +24,18 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.AlreadyClosedException;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -61,47 +55,28 @@ public class WriterLocal extends WriterAbstract {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	private ReaderLocal readerLocal;
+	private IndexDirectory indexDirectory;
+
+	private IndexSingle indexSingle;
 
 	private String similarityClass;
 
 	private int maxNumSegments;
 
-	protected WriterLocal(IndexConfig indexConfig, ReaderLocal readerLocal)
-			throws IOException {
+	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
+			IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
-		this.readerLocal = readerLocal;
+		this.indexSingle = indexSingle;
+		this.indexDirectory = indexDirectory;
 		this.similarityClass = indexConfig.getSimilarityClass();
 		this.maxNumSegments = indexConfig.getMaxNumSegments();
-	}
-
-	public void unlock() {
-		lock.rl.lock();
-		try {
-			Directory dir = readerLocal.getDirectory();
-			if (!IndexWriter.isLocked(dir))
-				return;
-			IndexWriter.unlock(dir);
-		} catch (IOException e) {
-			Logging.error(e.getMessage(), e);
-		} finally {
-			lock.rl.unlock();
-		}
 	}
 
 	private IndexWriter close(IndexWriter indexWriter) {
 		if (indexWriter == null)
 			return null;
-		synchronized (indexWriterList) {
-			if (indexWriterList.size() > 1)
-				logIndexWriterList();
-		}
 		try {
-			indexWriter.waitForMerges();
-			indexWriter.close();
-			synchronized (indexWriterList) {
-				indexWriterList.remove(indexWriter);
-			}
+			indexWriter.close(true);
 			return null;
 		} catch (AlreadyClosedException e) {
 			Logging.warn(e.getMessage(), e);
@@ -110,87 +85,41 @@ public class WriterLocal extends WriterAbstract {
 			Logging.warn(e.getMessage(), e);
 			return indexWriter;
 		} finally {
-			unlock();
+			indexDirectory.unlock();
 		}
 	}
 
-	public static class ThreadInfo {
-		public String info;
-		public StackTraceElement[] stackTrace;
-
-		public ThreadInfo() {
-			Thread thread = Thread.currentThread();
-			info = thread.getId() + " - " + thread.getName();
-			stackTrace = thread.getStackTrace();
+	public final void create() throws CorruptIndexException,
+			LockObtainFailedException, IOException {
+		IndexWriter indexWriter = null;
+		lock.rl.lock();
+		try {
+			indexWriter = open(true);
+			indexWriter = close(indexWriter);
+		} finally {
+			lock.rl.unlock();
+			close(indexWriter);
 		}
 	}
 
-	private final Map<IndexWriter, ThreadInfo> indexWriterList = new HashMap<IndexWriter, ThreadInfo>();
-
-	private final void logIndexWriterList() {
-		synchronized (indexWriterList) {
-			Logging.warn("IndexWriterList size " + indexWriterList.size());
-			if (indexWriterList.size() > 1)
-				for (ThreadInfo threadInfo : indexWriterList.values())
-					Logging.warn("IndexWriter " + threadInfo.info,
-							threadInfo.stackTrace);
-		}
+	private final IndexWriter open(boolean create)
+			throws CorruptIndexException, LockObtainFailedException,
+			IOException {
+		return new IndexWriter(indexDirectory.getDirectory(), null, create,
+				IndexWriter.MaxFieldLength.UNLIMITED);
 	}
 
 	private IndexWriter open() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		IndexWriter indexWriter = openIndexWriter(readerLocal.getDirectory(),
-				false);
-		synchronized (indexWriterList) {
-			if (indexWriterList.size() > 0)
-				logIndexWriterList();
-			indexWriterList.put(indexWriter, new ThreadInfo());
-		}
+		IndexWriter indexWriter = open(false);
 		indexWriter.setMaxMergeDocs(1000000);
 		if (similarityClass != null) {
 			Similarity similarity = (Similarity) Class.forName(similarityClass)
 					.newInstance();
 			indexWriter.setSimilarity(similarity);
 		}
+		indexWriter.setMergeScheduler(new SerialMergeScheduler());
 		return indexWriter;
-	}
-
-	private static IndexWriter openIndexWriter(Directory directory,
-			boolean create) throws IOException {
-		return new IndexWriter(directory, null, create,
-				IndexWriter.MaxFieldLength.UNLIMITED);
-	}
-
-	private final static SimpleDateFormat dateDirFormat = new SimpleDateFormat(
-			"yyyyMMddHHmmss");
-
-	protected static File createIndex(File rootDir) throws IOException {
-
-		File dataDir = new File(rootDir, dateDirFormat.format(new Date()));
-
-		Directory directory = null;
-		IndexWriter indexWriter = null;
-		try {
-			dataDir.mkdirs();
-			directory = FSDirectory.open(dataDir);
-			indexWriter = openIndexWriter(directory, true);
-			return dataDir;
-		} finally {
-			if (indexWriter != null) {
-				try {
-					indexWriter.close();
-				} catch (IOException e) {
-					Logging.error(e.getMessage(), e);
-				}
-			}
-			if (directory != null) {
-				try {
-					directory.close();
-				} catch (IOException e) {
-					Logging.error(e.getMessage(), e);
-				}
-			}
-		}
 	}
 
 	@Deprecated
@@ -245,7 +174,7 @@ public class WriterLocal extends WriterAbstract {
 			boolean updated = updateDocNoLock(indexWriter, schema, document);
 			indexWriter = close(indexWriter);
 			if (updated)
-				readerLocal.reload();
+				indexSingle.reload();
 			return updated;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -284,7 +213,7 @@ public class WriterLocal extends WriterAbstract {
 					count++;
 			indexWriter = close(indexWriter);
 			if (count > 0)
-				readerLocal.reload();
+				indexSingle.reload();
 			return count;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -346,6 +275,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = open();
 			optimizing = true;
 			indexWriter.optimize(maxNumSegments, true);
+			optimizing = false;
 			indexWriter = close(indexWriter);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -375,12 +305,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = readerLocal.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
 			indexWriter = close(indexWriter);
-			readerLocal.reload();
-			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
+			indexSingle.reload();
+			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -414,13 +344,13 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = readerLocal.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
 			indexWriter = close(indexWriter);
 			if (terms.length > 0)
-				readerLocal.reload();
-			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
+				indexSingle.reload();
+			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -465,12 +395,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = readerLocal.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
 			indexWriter = close(indexWriter);
-			readerLocal.reload();
-			l = readerLocal.getStatistics().getNumDeletedDocs() - l;
+			indexSingle.reload();
+			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -505,7 +435,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = open();
 			indexWriter.deleteAll();
 			indexWriter = close(indexWriter);
-			readerLocal.reload();
+			indexSingle.reload();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {

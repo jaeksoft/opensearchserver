@@ -232,10 +232,6 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reloadPage();
 	}
 
-	public void onTimer() throws SearchLibException {
-		super.reloadPage();
-	}
-
 	private DatabaseCrawl getDatabaseCrawlItem(Component comp) {
 		if (comp == null)
 			return null;
@@ -270,7 +266,8 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reloadPage();
 	}
 
-	private DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
+	@Override
+	public DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -308,6 +305,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		}
 	}
 
+	@Override
 	public boolean isRefresh() throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)

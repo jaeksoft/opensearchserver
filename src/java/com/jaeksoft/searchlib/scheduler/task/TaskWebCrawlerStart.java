@@ -26,14 +26,21 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskWebCrawlerStart extends TaskAbstract {
+
+	final private TaskPropertyDef propRunOnce = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Run once", 10);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propRunOnce };
 
 	@Override
 	public String getName() {
@@ -42,16 +49,20 @@ public class TaskWebCrawlerStart extends TaskAbstract {
 
 	@Override
 	public TaskPropertyDef[] getPropertyList() {
-		return null;
+		return taskPropertyDefs;
 	}
 
 	@Override
 	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propRunOnce)
+			return ClassPropertyEnum.BOOLEAN_LIST;
 		return null;
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propRunOnce)
+			return ClassPropertyEnum.BOOLEAN_LIST[0];
 		return null;
 	}
 
@@ -63,10 +74,14 @@ public class TaskWebCrawlerStart extends TaskAbstract {
 			taskLog.setInfo("Already running");
 			return;
 		}
-		crawlMaster.start();
+		boolean runOnce = Boolean
+				.parseBoolean(properties.getValue(propRunOnce));
+		crawlMaster.start(runOnce);
 		if (!crawlMaster.waitForStart(600))
 			taskLog.setInfo("Not started after 10 minutes");
 		else
 			taskLog.setInfo("Started");
+		if (runOnce)
+			crawlMaster.waitForEnd(60 * 24 * 30);
 	}
 }

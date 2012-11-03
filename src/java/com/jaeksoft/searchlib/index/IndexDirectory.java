@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,37 +27,49 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class IndexDirectory {
 
 	private Directory directory;
-	private File indexDir;
-	private String name;
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	protected IndexDirectory(String name, File indexDir) throws IOException {
-		this.indexDir = indexDir;
-		this.name = name;
+	protected IndexDirectory(File indexDir) throws IOException {
 		directory = FSDirectory.open(indexDir);
 	}
 
 	public Directory getDirectory() {
-		synchronized (this) {
+		rwl.r.lock();
+		try {
 			return directory;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
-	public String getName() {
-		synchronized (this) {
-			return name;
+	public void unlock() {
+		rwl.w.lock();
+		try {
+			if (directory == null)
+				return;
+			if (!IndexWriter.isLocked(directory))
+				return;
+			IndexWriter.unlock(directory);
+		} catch (IOException e) {
+			Logging.warn(e);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public void close() {
-		synchronized (this) {
+		rwl.w.lock();
+		try {
 			if (directory == null)
 				return;
 			try {
@@ -66,23 +78,8 @@ public class IndexDirectory {
 				Logging.warn(e.getMessage(), e);
 			}
 			directory = null;
-		}
-	}
-
-	static void deleteDir(File dir) {
-		if (dir == null)
-			return;
-		File files[] = dir.listFiles();
-		if (files != null)
-			for (File f : files)
-				f.delete();
-		dir.delete();
-	}
-
-	public void delete() {
-		synchronized (this) {
-			close();
-			deleteDir(this.indexDir);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 

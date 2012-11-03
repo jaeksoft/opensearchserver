@@ -58,7 +58,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		if (filePropertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("The file crawler is starting for "
 					+ config.getIndexName());
-			start();
+			start(false);
 		}
 	}
 
@@ -105,6 +105,9 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 				config.getFileManager().reload(true, null);
 			}
 
+			if (isOnce())
+				break;
+			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);
 		}
 		fileCrawlQueue.index(true);

@@ -57,12 +57,14 @@ public class CrawlFileController extends CrawlerController {
 		if (!isFileCrawlerStartStopRights())
 			throw new SearchLibException("Not allowed");
 		FilePropertyManager propertyManager = getProperties();
-		if (getFileCrawlMaster().isRunning()) {
+		if (getCrawlMaster().isRunning()) {
 			propertyManager.getCrawlEnabled().setValue(false);
-			getFileCrawlMaster().abort();
+			getCrawlMaster().abort();
 		} else {
-			propertyManager.getCrawlEnabled().setValue(true);
-			getFileCrawlMaster().start();
+			boolean once = RunMode.RunOnce == getRunMode();
+			if (!once)
+				propertyManager.getCrawlEnabled().setValue(true);
+			getCrawlMaster().start(once);
 		}
 		reloadPage();
 	}
@@ -74,34 +76,12 @@ public class CrawlFileController extends CrawlerController {
 		return client.getFilePropertyManager();
 	}
 
-	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
+	@Override
+	public CrawlFileMaster getCrawlMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		return client.getFileCrawlMaster();
-	}
-
-	public boolean isRefresh() throws SearchLibException {
-		CrawlFileMaster crawlFileMaster = getFileCrawlMaster();
-		if (crawlFileMaster == null)
-			return false;
-		return crawlFileMaster.isRunning() || crawlFileMaster.isAborting();
-	}
-
-	public String getRunButtonLabel() throws SearchLibException {
-		CrawlFileMaster crawlFileMaster = getFileCrawlMaster();
-		if (crawlFileMaster == null)
-			return null;
-		if (crawlFileMaster.isAborting())
-			return "Aborting...";
-		else if (crawlFileMaster.isRunning())
-			return "Running - Click to stop";
-		else
-			return "Not running - Click to start";
-	}
-
-	public void onTimer() throws SearchLibException {
-		reloadPage();
 	}
 
 }

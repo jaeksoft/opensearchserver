@@ -24,11 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -58,7 +55,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.Logging;
@@ -71,7 +67,6 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -87,7 +82,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private IndexDirectory indexDirectory;
+	private final IndexDirectory indexDirectory;
 	private IndexSearcher indexSearcher;
 	private IndexReader indexReader;
 
@@ -96,26 +91,21 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private FieldCache fieldCache;
 	private SpellCheckerCache spellCheckerCache;
 
-	private File rootDir;
-	private File dataDir;
-
 	private String similarityClass;
 
-	private ReaderLocal(IndexConfig indexConfig, File rootDir, File dataDir)
+	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory)
 			throws IOException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(indexConfig);
 		indexSearcher = null;
 		indexReader = null;
 		this.similarityClass = indexConfig.getSimilarityClass();
-		this.rootDir = rootDir;
-		this.dataDir = dataDir;
+		this.indexDirectory = indexDirectory;
 		init();
 	}
 
 	private void init() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException {
-		this.indexDirectory = new IndexDirectory("index", dataDir);
 		this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
 				indexConfig.getReadWriteMode() == IndexMode.READ_ONLY);
 		indexSearcher = new IndexSearcher(indexReader);
@@ -124,19 +114,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 					.newInstance();
 			indexSearcher.setSimilarity(similarity);
 		}
-	}
-
-	private void initCache(IndexConfig indexConfig) {
-		rwl.w.lock();
-		try {
-			this.searchCache = new SearchCache(indexConfig);
-			this.filterCache = new FilterCache(indexConfig);
-			this.fieldCache = new FieldCache(indexConfig);
-			// TODO replace value 100 by number of field in schema
-			this.spellCheckerCache = new SpellCheckerCache(100);
-		} finally {
-			rwl.w.unlock();
-		}
+		this.searchCache = new SearchCache(indexConfig);
+		this.filterCache = new FilterCache(indexConfig);
+		this.fieldCache = new FieldCache(indexConfig);
+		// TODO replace value 100 by number of field in schema
+		this.spellCheckerCache = new SpellCheckerCache(100);
 	}
 
 	private void resetCache() {
@@ -148,24 +130,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			spellCheckerCache.clear();
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	protected File getRootDir() {
-		rwl.r.lock();
-		try {
-			return rootDir;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected File getDatadir() {
-		rwl.r.lock();
-		try {
-			return dataDir;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
@@ -277,10 +241,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			org.apache.lucene.search.FieldCache.DEFAULT.purge(indexReader);
 			indexReader.close();
 			indexReader = null;
-		}
-		if (indexDirectory != null) {
-			indexDirectory.close();
-			indexDirectory = null;
 		}
 	}
 
@@ -415,67 +375,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public void xmlInfo(PrintWriter writer) {
 		rwl.r.lock();
 		try {
-			writer.println("<index name=\"" + indexDirectory.getName()
-					+ "\" path=\"" + indexDirectory.getDirectory() + "\"/>");
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	private static ReaderLocal findMostRecent(File rootDir,
-			IndexConfig indexConfig) {
-		ReaderLocal reader = null;
-		for (File f : rootDir.listFiles()) {
-			if (f.getName().startsWith("."))
-				continue;
-			try {
-				ReaderLocal r = new ReaderLocal(indexConfig, rootDir, f);
-				if (reader == null)
-					reader = r;
-				else if (r.getVersion() > reader.getVersion())
-					reader = r;
-			} catch (IOException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (InstantiationException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (IllegalAccessException e) {
-				Logging.error(e.getMessage(), e);
-			} catch (ClassNotFoundException e) {
-				Logging.error(e.getMessage(), e);
-			}
-		}
-		return reader;
-	}
-
-	public static ReaderLocal fromConfig(File configDir,
-			IndexConfig indexConfig, boolean createIfNotExists)
-			throws IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-
-		if (indexConfig.getRemoteUri() != null)
-			return null;
-
-		File indexDir = new File(configDir, "index");
-		if (!indexDir.exists() && createIfNotExists)
-			indexDir.mkdirs();
-
-		ReaderLocal reader = ReaderLocal.findMostRecent(indexDir, indexConfig);
-
-		if (reader == null) {
-			if (!createIfNotExists)
-				return null;
-			File dataDir = WriterLocal.createIndex(indexDir);
-			reader = new ReaderLocal(indexConfig, indexDir, dataDir);
-		}
-
-		reader.initCache(indexConfig);
-		return reader;
-	}
-
-	public Directory getDirectory() {
-		rwl.r.lock();
-		try {
-			return indexDirectory.getDirectory();
+			writer.println("<index  path=\"" + indexDirectory.getDirectory()
+					+ "\"/>");
 		} finally {
 			rwl.r.unlock();
 		}
@@ -626,45 +527,6 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	private void pushFile(File file, URI uri) throws URISyntaxException,
-			IOException {
-		StringBuffer query = new StringBuffer();
-		query.append("?version=");
-		query.append(getVersion());
-		query.append("&fileName=");
-		query.append(file.getName());
-		uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),
-				uri.getPort(), uri.getPath() + "/push", query.toString(),
-				uri.getFragment());
-		UriWriteStream uws = null;
-		try {
-			uws = new UriWriteStream(uri, file);
-		} finally {
-			if (uws != null)
-				uws.close();
-		}
-	}
-
-	@Override
-	public void push(URI dest) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			File[] files = dataDir.listFiles();
-			for (File file : files) {
-				if (file.getName().charAt(0) == '.')
-					continue;
-				pushFile(file, dest);
-			}
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
-		}
-
 	}
 
 	public SpellChecker getSpellChecker(String fieldName) throws IOException {

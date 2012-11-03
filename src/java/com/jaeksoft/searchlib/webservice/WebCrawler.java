@@ -34,5 +34,6 @@ public interface WebCrawler extends CommonServices {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "action") WebCrawlerActionEnum action,
-			@WebParam(name = "timeout") int timeOut);
+			@WebParam(name = "timeout") int timeOut,
+			@WebParam(name = "runOnce") boolean runOnce);
 }

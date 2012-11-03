@@ -84,7 +84,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		newHostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
-			start();
+			start(false);
 		}
 	}
 
@@ -146,6 +146,9 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
 				TaskManager.executeJob(config.getIndexName(), schedulerJobName);
 			}
+
+			if (isOnce())
+				break;
 			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);
 		}

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collection;
 
 import org.apache.lucene.index.Term;
@@ -81,12 +80,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	public long getVersion() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void push(URI dest) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

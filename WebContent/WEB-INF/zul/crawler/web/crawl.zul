@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -87,18 +87,24 @@
 			<row>
 				<cell>
 					<textbox readonly="true" cols="50"
-						value="@{crawlProcess.webCrawlMaster.statusInfo}" />
+						value="@{crawlProcess.crawlMaster.statusInfo}" />
 					<space />
-					<button id="runButton"
+					<listbox
 						visible="@{crawlProcess.webCrawlerStartStopRights}"
-						disabled="@{crawlProcess.webCrawlMaster.aborting}"
+						model="@{crawlProcess.runModes}" mold="select"
+						disabled="@{crawlProcess.crawlMaster.running}"
+						selectedItem="@{crawlProcess.runMode}" />
+					<space />
+					<button
+						visible="@{crawlProcess.webCrawlerStartStopRights}"
+						disabled="@{crawlProcess.crawlMaster.aborting}"
 						label="@{crawlProcess.runButtonLabel}" forward="onRun" />
 				</cell>
 			</row>
 		</rows>
 	</grid>
 	<separator />
-	<listbox model="@{crawlProcess.webCrawlMaster.statistics}"
+	<listbox model="@{crawlProcess.crawlMaster.statistics}"
 		hflex="min">
 		<auxhead>
 			<auxheader colspan="18"
@@ -166,8 +172,8 @@
 		</listitem>
 	</listbox>
 	<separator />
-	<listbox model="@{crawlProcess.webCrawlMaster.threads}"
-		mold="paging" pageSize="20" hflex="min">
+	<listbox model="@{crawlProcess.crawlMaster.threads}" mold="paging"
+		pageSize="20" hflex="min">
 		<auxhead>
 			<auxheader colspan="12" label="Thread list" />
 		</auxhead>
