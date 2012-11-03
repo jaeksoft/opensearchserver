@@ -35,6 +35,7 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 	protected PropertyItem<Integer> indexDocumentBufferSize;
 	protected PropertyItem<Boolean> crawlEnabled;
 	protected PropertyItem<Integer> maxThreadNumber;
+	private PropertyItem<String> schedulerAfterSession;
 
 	protected AbstractPropertyManager(File file) throws IOException {
 		super(file);
@@ -42,6 +43,7 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 				1000, null, null);
 		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
+		schedulerAfterSession = newStringProperty("schedulerAfterSession", "");
 	}
 
 	public PropertyItem<Boolean> getCrawlEnabled() {
@@ -54,6 +56,10 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 
 	public PropertyItem<Integer> getMaxThreadNumber() {
 		return maxThreadNumber;
+	}
+
+	public PropertyItem<String> getSchedulerAfterSession() {
+		return schedulerAfterSession;
 	}
 
 }

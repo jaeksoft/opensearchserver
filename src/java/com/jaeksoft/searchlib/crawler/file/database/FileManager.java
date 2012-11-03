@@ -41,6 +41,7 @@ import java.util.Map;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
+import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
@@ -506,26 +507,62 @@ public class FileManager extends AbstractManager {
 		return true;
 	}
 
-	public void updateCrawls(List<CrawlFile> crawls) throws SearchLibException {
+	public void updateCrawlUriDb(List<CrawlFile> crawls)
+			throws SearchLibException {
+		List<IndexDocument> documents = new ArrayList<IndexDocument>(
+				crawls.size());
 		try {
-			// Update target index
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					crawls.size());
 			for (CrawlFile crawl : crawls) {
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				if (indexDocument != null)
-					documents.add(indexDocument);
-			}
-			targetClient.updateDocuments(documents);
-
-			// Update FilePath DB
-			documents.clear();
-			for (CrawlFile crawl : crawls) {
+				if (crawl == null)
+					continue;
 				IndexDocument indexDocument = crawl.getFileItem()
 						.getIndexDocument(fileItemFieldEnum);
 				documents.add(indexDocument);
 			}
 			fileDbClient.updateDocuments(documents);
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public void updateCrawlTarget(List<CrawlFile> crawls)
+			throws SearchLibException {
+		try {
+			if (crawls == null)
+				return;
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
+					crawls.size());
+			List<String> documentsToDelete = new ArrayList<String>(
+					crawls.size());
+			for (CrawlFile crawl : crawls) {
+				if (crawl == null)
+					continue;
+				IndexDocument indexDocument = crawl.getTargetIndexDocument();
+				if (indexDocument == null)
+					continue;
+				TargetStatus targetStatus = crawl.getFileItem()
+						.getIndexStatus().targetStatus;
+				if (targetStatus == TargetStatus.TARGET_UPDATE)
+					documentsToUpdate.add(indexDocument);
+				else if (targetStatus == TargetStatus.TARGET_DELETE)
+					documentsToDelete.add(crawl.getFileItem().getUri());
+			}
+			if (documentsToUpdate.size() > 0)
+				targetClient.updateDocuments(documentsToUpdate);
+			if (documentsToDelete.size() > 0)
+				targetClient.deleteDocuments(documentsToDelete);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

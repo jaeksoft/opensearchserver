@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class CrawlFileMaster extends CrawlMasterAbstract {
 
@@ -65,8 +66,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 	@Override
 	public void runner() throws Exception {
 		Config config = getConfig();
-		FilePropertyManager filePropertyManager = config
-				.getFilePropertyManager();
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
 
 		while (!isAborted()) {
 
@@ -74,8 +74,9 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			addStatistics(currentStats);
 			fileCrawlQueue.setStatistiques(currentStats);
 
-			int threadNumber = filePropertyManager.getMaxThreadNumber()
-					.getValue();
+			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
+			String schedulerJobName = propertyManager
+					.getSchedulerAfterSession().getValue();
 
 			synchronized (filePathList) {
 				filePathList.clear();
@@ -103,6 +104,11 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 			if (fileCrawlQueue.hasContainedData()) {
 				setStatus(CrawlStatus.OPTIMIZATION);
 				config.getFileManager().reload(true, null);
+			}
+
+			if (schedulerJobName != null && schedulerJobName.length() > 0) {
+				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
+				TaskManager.executeJob(config.getIndexName(), schedulerJobName);
 			}
 
 			if (isOnce())

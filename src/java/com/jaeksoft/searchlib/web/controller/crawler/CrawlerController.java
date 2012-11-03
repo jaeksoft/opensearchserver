@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,10 @@
  **/
 package com.jaeksoft.searchlib.web.controller.crawler;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.user.Role;
@@ -227,6 +231,16 @@ public class CrawlerController extends CommonController {
 				return "Running - Click to stop";
 		} else
 			return "Not running - Click to run";
+	}
+
+	public List<String> getSchedulerTaskList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> list = new ArrayList<String>(0);
+		list.add("");
+		client.getJobList().populateNameList(list);
+		return list;
 	}
 
 	public void onTimer() throws SearchLibException {

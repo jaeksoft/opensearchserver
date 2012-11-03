@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.exec.OS;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -40,7 +42,10 @@ public class IndexDirectory {
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected IndexDirectory(File indexDir) throws IOException {
-		directory = FSDirectory.open(indexDir);
+		if (OS.isFamilyWindows())
+			directory = FSDirectory.open(indexDir);
+		else
+			directory = NIOFSDirectory.open(indexDir);
 	}
 
 	public Directory getDirectory() {

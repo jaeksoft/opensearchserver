@@ -24,8 +24,6 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -75,16 +73,6 @@ public class CrawlWebController extends CrawlerController {
 		if (client == null)
 			return null;
 		return client.getWebCrawlMaster();
-	}
-
-	public List<String> getSchedulerTaskList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		List<String> list = new ArrayList<String>(0);
-		list.add("");
-		client.getJobList().populateNameList(list);
-		return list;
 	}
 
 	public void onRun() throws SearchLibException, IOException {

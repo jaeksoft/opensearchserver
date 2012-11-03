@@ -43,7 +43,6 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	private PropertyItem<Integer> maxUrlPerHost;
 	private PropertyItem<Integer> maxUrlPerSession;
 	private PropertyItem<String> userAgent;
-	private PropertyItem<String> schedulerAfterSession;
 	private PropertyItem<Boolean> exclusionEnabled;
 	private PropertyItem<Boolean> inclusionEnabled;
 	private PropertyItem<Boolean> robotsTxtEnabled;
@@ -69,7 +68,6 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1,
 				null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
-		schedulerAfterSession = newStringProperty("schedulerAfterSession", "");
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
@@ -125,10 +123,6 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public PropertyItem<String> getFetchIntervalUnit() {
 		return fetchIntervalUnit;
-	}
-
-	public PropertyItem<String> getSchedulerAfterSession() {
-		return schedulerAfterSession;
 	}
 
 	public PropertyItem<Boolean> getInclusionEnabled() {

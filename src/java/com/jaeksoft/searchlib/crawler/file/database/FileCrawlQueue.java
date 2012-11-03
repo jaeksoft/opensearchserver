@@ -153,7 +153,9 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			return false;
 
 		FileManager manager = getConfig().getFileManager();
-		manager.updateCrawls(workUpdateCrawlList);
+		manager.updateCrawlTarget(workUpdateCrawlList);
+		manager.updateCrawlUriDb(workUpdateCrawlList);
+
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 		setContainedData();

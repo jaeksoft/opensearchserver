@@ -17,21 +17,46 @@
 <window id="crawlFileProcess"
 	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
 	<panel title="Current status" collapsible="false" border="normal">
-		<toolbar>
-			<textbox readonly="true"
-				value="@{crawlFileProcess.crawlMaster.statusInfo}" />
-			<space />
-			<listbox
-				visible="@{crawlFileProcess.webCrawlerStartStopRights}"
-				model="@{crawlFileProcess.runModes}" mold="select"
-				disabled="@{crawlFileProcess.crawlMaster.running}"
-				selectedItem="@{crawlFileProcess.runMode}" />
-			<space />
-			<button id="runButton"
-				visible="@{crawlFileProcess.fileCrawlerStartStopRights}"
-				disabled="@{crawlFileProcess.crawlMaster.aborting}"
-				label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
-		</toolbar>
+		<panelchildren>
+			<grid
+				visible="@{crawlFileProcess.fileCrawlerParametersRights}"
+				sizedByContent="true">
+				<columns visible="false">
+					<column align="right" />
+					<column />
+				</columns>
+				<rows>
+					<row>
+						<label
+							value="Job to run when each session ends: " />
+						<cell>
+							<label visible="@{crawlFileProcess.refresh}"
+								value="@{crawlFileProcess.properties.schedulerAfterSession.value}" />
+							<listbox
+								visible="@{crawlFileProcess.notRefresh}"
+								model="@{crawlFileProcess.schedulerTaskList}" mold="select"
+								selectedItem="@{crawlFileProcess.properties.schedulerAfterSession.value}" />
+						</cell>
+					</row>
+					<row>
+						<textbox readonly="true"
+							value="@{crawlFileProcess.crawlMaster.statusInfo}" />
+						<cell>
+							<listbox
+								visible="@{crawlFileProcess.webCrawlerStartStopRights}"
+								model="@{crawlFileProcess.runModes}" mold="select"
+								disabled="@{crawlFileProcess.crawlMaster.running}"
+								selectedItem="@{crawlFileProcess.runMode}" />
+							<space />
+							<button id="runButton"
+								visible="@{crawlFileProcess.fileCrawlerStartStopRights}"
+								disabled="@{crawlFileProcess.crawlMaster.aborting}"
+								label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
+						</cell>
+					</row>
+				</rows>
+			</grid>
+		</panelchildren>
 	</panel>
 	<separator />
 	<panel title="Statistics for prior sessions" collapsible="true"
