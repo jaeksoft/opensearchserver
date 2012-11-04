@@ -1,0 +1,72 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@{renderer.currentRenderer.fields}"
+	selectedItem="@{renderer.selectedRendererField}">
+	<listhead>
+		<listheader label="Field / Snippet" />
+		<listheader label="URL Field" />
+		<listheader label="Action" align="center" width="150px" />
+	</listhead>
+	<auxhead>
+		<auxheader>
+			<listbox model="@{renderer.fieldTypeList}"
+				selectedItem="@{renderer.currentRendererField.fieldType}"
+				onSelect="renderer.onReload()" mold="select" />
+			<listbox model="@{renderer.fieldOrSnippetList}"
+				selectedItem="@{renderer.currentRendererField.fieldName}"
+				mold="select" />
+		</auxheader>
+		<auxheader>
+			<listbox model="@{renderer.fieldList}"
+				selectedItem="@{renderer.currentRendererField.urlFieldName}"
+				mold="select" />
+		</auxheader>
+		<auxheader align="center">
+			<button tooltiptext="Add a field"
+				visible="@{renderer.notFieldSelected}"
+				image="/images/action_add.png"
+				onClick="renderer.onRendererFieldSave()" />
+			<hbox visible="@{renderer.fieldSelected}">
+				<button tooltiptext="Save a field" label="Save"
+					onClick="renderer.onRendererFieldSave()" />
+				<button tooltiptext="Save a field" label="Cancel"
+					onClick="renderer.onRendererFieldCancel()" />
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<listitem self="@{each=rendererFieldItem}">
+		<custom-attributes rendererFieldItem="@{rendererFieldItem}" />
+		<listcell>
+			<label value="@{rendererFieldItem.fieldType}" />
+			<label value=": " />
+			<label value="@{rendererFieldItem.fieldName}" />
+		</listcell>
+		<listcell label="@{rendererFieldItem.urlFieldName}" />
+		<listcell>
+			<button tooltiptext="Move the field up"
+				image="/images/arrow_top.png"
+				onClick="renderer.onRendererFieldUp(self)" />
+			<button tooltiptext="Move the field down"
+				image="/images/arrow_down.png"
+				onClick="renderer.onRendererFieldDown(self)" />
+			<space />
+			<button tooltiptext="Remove a field"
+				image="/images/action_delete.png"
+				onClick="renderer.onRendererFieldRemove(self)" />
+		</listcell>
+	</listitem>
+</listbox>

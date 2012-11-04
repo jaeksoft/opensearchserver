@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel title="@{renderer.currentEditMode}" border="normal">
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" hflex="min" />
+				<column align="left" />
+				<column align="right" hflex="min" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Renderer name: " />
+					<textbox value="@{renderer.currentRenderer.name}"
+						readonly="@{renderer.selected}" cols="50" />
+					<label value="Request name: " />
+					<combobox model="@{renderer.requestList}"
+						onChange="renderer.reloadPage()" width="200px"
+						value="@{renderer.currentRenderer.requestName}" />
+				</row>
+				<row>
+					<label value="Search button label: " />
+					<textbox
+						value="@{renderer.currentRenderer.searchButtonLabel}" cols="50" />
+					<label value="No result text: " />
+					<textbox
+						value="@{renderer.currentRenderer.noResultFoundText}" cols="50" />
+				</row>
+				<row>
+					<label value="One result text: " />
+					<textbox
+						value="@{renderer.currentRenderer.oneResultFoundText}" cols="50" />
+					<label value="Many results text: " />
+					<textbox
+						value="@{renderer.currentRenderer.resultsFoundText}" cols="50" />
+				</row>
+				<row>
+					<label value="Facet width  " />
+					<textbox
+						value="@{renderer.currentRenderer.facetWidth}" />
+					<cell colspan="2" />
+				</row>
+				<row>
+					<label value="Header (HTML)" />
+					<textbox value="@{renderer.currentRenderer.header}"
+						cols="80" rows="5" multiline="true" />
+					<label value="Footer (HTML)" />
+					<textbox value="@{renderer.currentRenderer.footer}"
+						cols="80" rows="5" multiline="true" />
+				</row>
+			</rows>
+		</grid>
+	</panelchildren>
+</panel>

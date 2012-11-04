@@ -1,0 +1,41 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="snippet"
+	use="com.jaeksoft.searchlib.web.controller.query.SnippetController">
+	<grid model="@{snippet.request.snippetFieldList.list}"
+		rowRenderer="@{snippet.snippetFieldRenderer}">
+		<columns>
+			<column label="Field" />
+			<column label="Fragmenter" />
+			<column label="Tag" />
+			<column label="Separator" />
+			<column label="Max snippet size" />
+			<column label="Action" />
+		</columns>
+		<foot visible="@{snippet.fieldLeft}">
+			<footer span="4">
+				<listbox mold="select"
+					selectedItem="@{snippet.selectedSnippet}"
+					model="@{snippet.snippetFieldLeft}">
+					<listitem self="@{each=snippetField}"
+						label="@{snippetField}" />
+				</listbox>
+				<button label="add snippet" forward="onSnippetAdd" />
+			</footer>
+		</foot>
+	</grid>
+</window>

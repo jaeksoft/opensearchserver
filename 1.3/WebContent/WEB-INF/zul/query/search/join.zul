@@ -1,0 +1,85 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="joins"
+	use="com.jaeksoft.searchlib.web.controller.query.JoinController">
+	<listbox id="joinListbox" model="@{joins.request.joinList.toArray}"
+		selectedItem="@{joins.selected}">
+		<listhead>
+			<listheader label="#" hflex="min" />
+			<listheader label="Index" hflex="min">
+				<vbox>
+					<listbox selectedItem="@{joins.currentIndexName}"
+						mold="select" model="@{joins.indexList}" />
+				</vbox>
+			</listheader>
+			<listheader label="Query template" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@{joins.current.queryTemplate}" mold="select"
+						model="@{joins.queryList}" />
+				</vbox>
+			</listheader>
+			<listheader label="Query string" hflex="min">
+				<vbox>
+					<textbox value="@{joins.current.queryString}"
+						cols="20" />
+				</vbox>
+			</listheader>
+			<listheader label="Local field" hflex="min">
+				<vbox>
+					<listbox selectedItem="@{joins.current.localField}"
+						mold="select" model="@{joins.localFieldList}" />
+				</vbox>
+			</listheader>
+			<listheader label="Foreign field" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@{joins.current.foreignField}" mold="select"
+						model="@{joins.foreignFieldList}" />
+				</vbox>
+			</listheader>
+			<listheader label="Return fields" hflex="min">
+				<vbox>
+					<checkbox checked="@{joins.current.returnFields}" />
+				</vbox>
+			</listheader>
+			<listheader label="Action">
+				<hbox>
+					<button label="Add" forward="onSave"
+						visible="@{joins.notSelected}" />
+					<button label="Save" forward="onSave"
+						visible="@{joins.selected}" />
+					<button label="Cancel" forward="onCancel"
+						visible="@{joins.selected}" />
+				</hbox>
+			</listheader>
+		</listhead>
+		<listitem self="@{each=join}">
+			<custom-attributes joinItem="@{join}" />
+			<listcell label="@{join.paramPosition}" />
+			<listcell label="@{join.indexName}" />
+			<listcell label="@{join.queryTemplate}" />
+			<listcell label="@{join.queryString}" />
+			<listcell label="@{join.localField}" />
+			<listcell label="@{join.foreignField}" />
+			<listcell label="@{join.returnFields}" />
+			<listcell>
+				<button label="Remove" onClick="joins.onRemove(self)" />
+			</listcell>
+		</listitem>
+	</listbox>
+</window>
