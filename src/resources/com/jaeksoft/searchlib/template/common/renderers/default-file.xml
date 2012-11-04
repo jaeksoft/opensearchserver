@@ -17,53 +17,48 @@
 <!-- WARRANTY; without even the implied warranty of -->
 <!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 <!-- -->
-<renderer name="default" request="search" searchButtonLabel="Search">
-	<style>
-<![CDATA[
-font-family: arial,sans-serif;
-font-size: small;
-]]>
-	</style>
-	<autocompleteStyle>
-<![CDATA[
-margin: 0;
-float: left;
+<renderer name="default" request="search" searchButtonLabel="Search"
+	noResultFoundText="No result found" oneResultFoundText="1 result found"
+	resultsFoundText="results found">
+<css>.osscmnrdr { font-family: arial,sans-serif;
+font-size: 14px;
+ }
+.ossinputrdr { font-size:inherit;
+ }
+.ossbuttonrdr { font-size:inherit;
+ }
+#ossautocomplete { margin: 0;
 cursor: pointer;
 padding-left:3px;
 padding-right:3px;
-]]>
-	</autocompleteStyle>
-	<autocompleteListStyle>
-<![CDATA[
-background-color: #FFFFFF;
+ }
+#ossautocompletelist { background-color: #FFFFFF;
 text-align: left;
 border-left: 1px solid #D3D3D3;
 border-bottom: 1px solid #D3D3D3;
 border-right: 1px solid #D3D3D3;
-]]>
-	</autocompleteListStyle>
-	<autocompleteLinkStyle>
-<![CDATA[
-color:#222222;
-font-size: 14px;
-background-color:
-		#FFFFFF;padding: 2px 6px 2px 6px;
-]]>
-	</autocompleteLinkStyle>
-	<autocompleteLinkHoverStyle>
-<![CDATA[
-color:#222222;
-font-size: 14px;
+ }
+.ossautocomplete_link { color:#222222;
+background-color: #FFFFFF;
+padding: 2px 6px 2px 6px;
+ }
+.ossautocomplete_link_over { color:#222222;
 background-color: #F5F5F5;
 padding: 2px 6px 2px 6px;
-]]>
-	</autocompleteLinkHoverStyle>
-
-	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri">
-		<cssStyle>font-size:medium;</cssStyle>
-	</field>
+ }
+.ossnumfound { padding-bottom:10px;
+padding-top:10px;
+ }
+.oss-paging { text-align: center;
+ }
+.oss-facet { padding: 1em;
+ }
+.ossfieldrdr1 { font-size:120%;
+ }
+.ossfieldrdr3 { color: #0E774A;
+ }
+</css>
+	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri" />
 	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
-	<field fieldName="uri" fieldType="FIELD" urlFieldName="">
-		<cssStyle>color: #0E774A;</cssStyle>
-	</field>
+	<field fieldName="uri" fieldType="FIELD" urlFieldName="" />
 </renderer>
