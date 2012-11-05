@@ -228,7 +228,7 @@ class OssSearch extends OssSearchAbstract {
 
     // Negative Filters
     foreach ((array) $this->negativeFilter as $negativeFilter) {
-      if (empty($filter)) {
+      if (empty($negativeFilter)) {
         continue;
       }
       $queryChunks[] = 'fqn=' . urlencode($negativeFilter);
