@@ -40,6 +40,7 @@ class OssSearch extends OssSearchAbstract {
   protected $rows;
   protected $lang;
   protected $filter;
+  protected $negativeFilter;
   protected $field;
   protected $sort;
   protected $operator;
@@ -59,6 +60,7 @@ class OssSearch extends OssSearchAbstract {
 
     $this->field  = array();
     $this->filter  = array();
+    $this->negativeFilter  = array();
     $this->sort    = array();
     $this->facet  = array();
     $this->query = NULL;
@@ -108,6 +110,14 @@ class OssSearch extends OssSearchAbstract {
    */
   public function filter($filter = NULL) {
     $this->filter[] = $filter;
+    return $this;
+  }
+
+  /**
+   * @return OssSearch
+   */
+  public function negativeFilter($negativeFilter = NULL) {
+    $this->negativeFilter[] = $negativeFilter;
     return $this;
   }
 
@@ -214,6 +224,14 @@ class OssSearch extends OssSearchAbstract {
         continue;
       }
       $queryChunks[] = 'fq=' . urlencode($filter);
+    }
+
+    // Negative Filters
+    foreach ((array) $this->negativeFilter as $negativeFilter) {
+      if (empty($filter)) {
+        continue;
+      }
+      $queryChunks[] = 'fqn=' . urlencode($negativeFilter);
     }
 
     // Fields
