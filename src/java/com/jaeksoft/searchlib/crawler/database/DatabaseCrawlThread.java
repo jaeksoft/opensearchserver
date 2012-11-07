@@ -340,7 +340,11 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 			for (int i = 1; i <= columnCount; i++)
 				columns.add(metaData.getColumnLabel(i));
 
-			if (databaseCrawl.getUniqueKeyDeleteField() != null)
+			String ukDeleteField = databaseCrawl.getUniqueKeyDeleteField();
+			if (ukDeleteField != null && ukDeleteField.length() == 0)
+				ukDeleteField = null;
+
+			if (ukDeleteField != null)
 				runner_delete(transaction, resultSet, columns);
 			else
 				runner_update(transaction, resultSet, columns);
