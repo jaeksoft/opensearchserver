@@ -149,7 +149,6 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 			if (isOnce())
 				break;
-			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);
 		}
 		urlCrawlQueue.index(true);

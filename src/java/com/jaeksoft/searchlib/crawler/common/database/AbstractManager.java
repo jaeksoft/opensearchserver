@@ -90,7 +90,7 @@ public abstract class AbstractManager {
 			}
 			Thread.sleep(1000);
 		}
-		Logging.warn("Wait for task  " + taskAbstract.getName());
+		Logging.warn("Wait for task " + taskAbstract.getName());
 		return false;
 	}
 

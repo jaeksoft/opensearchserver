@@ -67,20 +67,6 @@ public abstract class CrawlThreadAbstract extends ThreadAbstract {
 		}
 	}
 
-	protected void sleepMs(long ms, boolean withStatus) {
-		if (withStatus)
-			setStatus(CrawlStatus.WAITING);
-		sleepMs(ms);
-	}
-
-	protected void sleepSec(int sec, boolean withStatus) {
-		if (sec == 0)
-			return;
-		if (withStatus)
-			setStatus(CrawlStatus.WAITING);
-		sleepSec(sec);
-	}
-
 	public String getDebugInfo() {
 		synchronized (this) {
 			StringBuffer sb = new StringBuffer();
@@ -113,6 +99,12 @@ public abstract class CrawlThreadAbstract extends ThreadAbstract {
 			else
 				setStatus(CrawlStatus.COMPLETE);
 		}
+	}
+
+	@Override
+	protected void sleepMs(long ms) {
+		setStatus(CrawlStatus.WAITING);
+		super.sleepMs(ms);
 	}
 
 }

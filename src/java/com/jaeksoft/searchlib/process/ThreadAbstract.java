@@ -177,9 +177,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	protected void sleepSec(int sec) {
 		if (sec == 0)
 			return;
-		long finalTime = System.currentTimeMillis() + sec * 1000;
-		while (System.currentTimeMillis() < finalTime)
-			sleepMs(500);
+		sleepMs(sec * 1000);
 	}
 
 	protected void idle() {

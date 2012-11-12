@@ -113,7 +113,6 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 
 			if (isOnce())
 				break;
-			setStatus(CrawlStatus.BREAK);
 			sleepSec(5);
 		}
 		fileCrawlQueue.index(true);
