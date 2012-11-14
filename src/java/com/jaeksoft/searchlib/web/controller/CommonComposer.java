@@ -160,6 +160,6 @@ public abstract class CommonComposer extends GenericForwardComposer implements
 	public final void onEvent(Event event) throws Exception {
 		super.onEvent(event);
 		EventDispatch.dispatch(this, event);
-
 	}
+
 }

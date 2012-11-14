@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.web.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Execution;
@@ -40,6 +42,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zkplus.databind.AnnotateDataBinder;
+import org.zkoss.zul.Tab;
 import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
@@ -307,7 +310,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 	@Override
 	final public void onEvent(Event event) throws UiException {
 		EventDispatch.dispatch(this, event);
-
 	}
 
 	protected abstract void reset() throws SearchLibException;
@@ -386,4 +388,40 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getLoggedUser().hasAnyRole(getIndexName(), Role.INDEX_SCHEMA);
 	}
 
+	protected final static void buildTabPath(Component component,
+			List<String> tabPath) throws SearchLibException {
+		if (component == null)
+			return;
+		if (!component.isVisible())
+			return;
+		if (component instanceof Tab) {
+			Tab tab = (Tab) component;
+			if (tab.isSelected()) {
+				String lbl = tab.getTooltiptext();
+				if (lbl == null || lbl.length() == 0)
+					lbl = tab.getLabel();
+				tabPath.add(lbl);
+			}
+		}
+		@SuppressWarnings("unchecked")
+		List<Object> children = component.getChildren();
+		if (children == null)
+			return;
+		for (Object child : children) {
+			if (!(child instanceof Component))
+				continue;
+			buildTabPath((Component) child, tabPath);
+		}
+	}
+
+	final public void onHelp() throws SearchLibException,
+			UnsupportedEncodingException {
+		List<String> tabPath = new ArrayList<String>();
+		buildTabPath(getRoot(), tabPath);
+		String path = URLEncoder.encode(StringUtils.join(tabPath, " - "),
+				"UTF-8");
+		Executions.getCurrent().sendRedirect(
+				"http://www.open-search-server.com/confluence/display/EN/Inline+help+-+"
+						+ path, "_blank");
+	}
 }
