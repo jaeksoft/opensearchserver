@@ -51,7 +51,11 @@ public class ThreadsController extends CommonController {
 
 		public ThreadInfo(Thread thread) {
 			this.name = thread.getName();
-			location = ErrorParserLogger.getLocation(thread.getStackTrace());
+			StackTraceElement[] elements = thread.getStackTrace();
+			String l = ErrorParserLogger.getLocation(elements);
+			if (l == null)
+				l = ErrorParserLogger.getFirstLocation(elements);
+			this.location = l;
 			this.state = thread.getState();
 		}
 

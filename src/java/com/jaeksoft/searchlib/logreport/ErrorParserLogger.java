@@ -53,6 +53,15 @@ public class ErrorParserLogger {
 		return null;
 	}
 
+	public final static String getFirstLocation(StackTraceElement[] stackTrace) {
+		for (StackTraceElement element : stackTrace) {
+			String ele = element.toString();
+			if (ele != null && ele.length() > 0)
+				return ele;
+		}
+		return null;
+	}
+
 	public final static void log(String url, String filename, String filePath,
 			Throwable t) throws SearchLibException {
 		StringBuffer sb = new StringBuffer('\t');
