@@ -87,10 +87,12 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		return (WebCrawlMaster) getCrawlMasterAbstract();
 	}
 
-	private void sleepInterval() {
+	private void sleepInterval(long max) {
 		long ms = nextTimeTarget - System.currentTimeMillis();
 		if (ms < 0)
 			return;
+		if (ms > max)
+			ms = max;
 		sleepMs(ms);
 	}
 
@@ -107,9 +109,8 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 
 			ListType listType = hostUrlList.getListType();
 			if (listType == ListType.NEW_URL || listType == ListType.OLD_URL) {
-				if (isAborted() || crawlMaster.isAborted())
+				if (crawlMaster.isAborted())
 					break;
-
 				if (crawlMaster.urlLeft() < 0)
 					break;
 			}
@@ -122,6 +123,8 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			else
 				crawlQueue.delete(currentStats, currentUrlItem.getUrl());
 
+			if (isAborted())
+				break;
 		}
 
 		setStatus(CrawlStatus.INDEXATION);
@@ -166,7 +169,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 			// Fetch started
 			currentStats.incFetchedCount();
 
-			sleepInterval();
+			sleepInterval(60000);
 			setStatus(CrawlStatus.CRAWL);
 			// NextTimeTarget is immediate by default
 			nextTimeTarget = System.currentTimeMillis();

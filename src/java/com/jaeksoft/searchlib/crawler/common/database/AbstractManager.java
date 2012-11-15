@@ -80,7 +80,7 @@ public abstract class AbstractManager {
 		return getCurrentTaskLog() != null;
 	}
 
-	public boolean waitForTask(TaskAbstract taskAbstract, int secTimeOut)
+	public boolean waitForTask(TaskAbstract taskAbstract, long secTimeOut)
 			throws InterruptedException {
 		long timeOut = System.currentTimeMillis() + 1000 * secTimeOut;
 		while (timeOut > System.currentTimeMillis()) {

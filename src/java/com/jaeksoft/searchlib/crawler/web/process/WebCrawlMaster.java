@@ -135,6 +135,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 					sleepSec(5);
 			}
 
+			setStatus(CrawlStatus.WAITING_CHILD);
 			waitForChild(600);
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);

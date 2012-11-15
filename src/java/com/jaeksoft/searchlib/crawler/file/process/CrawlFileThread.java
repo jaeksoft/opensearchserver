@@ -65,12 +65,14 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 		this.filePathItem = filePathItem;
 	}
 
-	private void sleepInterval() {
+	private void sleepInterval(long max) {
 		long c = System.currentTimeMillis();
 		long ms = nextTimeTarget - c;
 		nextTimeTarget = c + delayBetweenAccesses;
 		if (ms < 0)
 			return;
+		if (ms > max)
+			ms = max;
 		sleepMs(ms);
 	}
 
@@ -118,7 +120,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	private CrawlFile crawl(FileInstanceAbstract fileInstance)
 			throws SearchLibException {
 
-		sleepInterval();
+		sleepInterval(60000);
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();

@@ -40,6 +40,8 @@
 				visible="@{runtime.adminOrNoUser}" />
 			<tab id="tabRuntimeAdvanced" label="Advanced"
 				visible="@{runtime.adminOrNoUser}" />
+			<tab id="tabRuntimeThreads" label="Threads"
+				visible="@{runtime.adminOrNoUser}" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -71,6 +73,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeAdvanced.onSelect">
 				<include src="WEB-INF/zul/runtime/advanced.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntimeThreads.onSelect">
+				<include src="WEB-INF/zul/runtime/threads.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>

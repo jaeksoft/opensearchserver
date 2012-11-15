@@ -205,7 +205,8 @@ public class JobItem extends ExecutionAbstract {
 		try {
 			boolean indexHasChanged = false;
 			long originalVersion = client.getIndex().getVersion();
-			for (TaskItem task : getTaskListCopy()) {
+			List<TaskItem> taskList = getTaskListCopy();
+			for (TaskItem task : taskList) {
 				taskLog = new TaskLog(task, indexHasChanged);
 				addTaskLog(taskLog);
 				task.run(client, taskLog);

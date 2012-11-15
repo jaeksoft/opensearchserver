@@ -142,7 +142,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 
 	}
 
-	public boolean waitForStart(int secTimeOut) {
+	public boolean waitForStart(long secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (getStartTime() == 0) {
 			if (secTimeOut != 0)
@@ -153,7 +153,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		return true;
 	}
 
-	public boolean waitForEnd(int secTimeOut) {
+	public boolean waitForEnd(long secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (isRunning()) {
 			if (isAborted())
@@ -189,7 +189,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		}
 	}
 
-	protected boolean isIdleTimeExhausted(int seconds) {
+	protected boolean isIdleTimeExhausted(long seconds) {
 		rwl.r.lock();
 		try {
 			if (seconds == 0)
