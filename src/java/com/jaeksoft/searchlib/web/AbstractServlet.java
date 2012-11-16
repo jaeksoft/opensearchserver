@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
@@ -82,6 +83,8 @@ public abstract class AbstractServlet extends HttpServlet {
 		ServletTransaction transaction = new ServletTransaction(this, request,
 				method, response);
 
+		StringWriter sw = null;
+		PrintWriter pw = null;
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			serverURL = getCurrentServerURL(request);
@@ -90,8 +93,8 @@ public abstract class AbstractServlet extends HttpServlet {
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 					XML_CALL_KEY_STATUS_ERROR);
 			transaction.addXmlResponse(XML_CALL_KEY_EXCEPTION, e.toString());
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 			Throwable t = e;
 			while ((t = t.getCause()) != null) {
@@ -102,6 +105,10 @@ public abstract class AbstractServlet extends HttpServlet {
 			pw.close();
 			Logging.error(e);
 		} finally {
+			if (pw != null)
+				IOUtils.closeQuietly(pw);
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
 			try {
 				transaction.writeXmlResponse();
 			} catch (Exception e) {

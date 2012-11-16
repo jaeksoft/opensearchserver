@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
@@ -65,7 +66,9 @@ public class JoinResult {
 	public void setForeignResult(ResultSearchSingle foreignResult) {
 		this.foreignResult = foreignResult;
 		fieldNameSet = new TreeSet<String>();
-		foreignResult.getRequest().getReturnFieldList().populate(fieldNameSet);
+		SearchRequest request = foreignResult.getRequest();
+		request.getReturnFieldList().populate(fieldNameSet);
+		request.getSnippetFieldList().populate(fieldNameSet);
 	}
 
 	public AbstractResultSearch getForeignResult() {
