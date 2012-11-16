@@ -49,12 +49,15 @@ public class ThreadsController extends CommonController {
 
 		private final State state;
 
+		private final String fullStackTrace;
+
 		public ThreadInfo(Thread thread) {
 			this.name = thread.getName();
 			StackTraceElement[] elements = thread.getStackTrace();
 			String l = ErrorParserLogger.getLocation(elements);
 			if (l == null)
 				l = ErrorParserLogger.getFirstLocation(elements);
+			this.fullStackTrace = ErrorParserLogger.getFullStackTrace(elements);
 			this.location = l;
 			this.state = thread.getState();
 		}
@@ -69,6 +72,10 @@ public class ThreadsController extends CommonController {
 
 		public State getState() {
 			return state;
+		}
+
+		public String getFullStackTrace() {
+			return fullStackTrace;
 		}
 	}
 

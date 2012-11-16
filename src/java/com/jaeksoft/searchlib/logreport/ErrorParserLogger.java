@@ -24,7 +24,11 @@
 
 package com.jaeksoft.searchlib.logreport;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+
+import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -60,6 +64,23 @@ public class ErrorParserLogger {
 				return ele;
 		}
 		return null;
+	}
+
+	public final static String getFullStackTrace(StackTraceElement[] stackTrace) {
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		try {
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
+			for (StackTraceElement element : stackTrace)
+				pw.println(element);
+			return sw.toString();
+		} finally {
+			if (pw != null)
+				IOUtils.closeQuietly(pw);
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
+		}
 	}
 
 	public final static void log(String url, String filename, String filePath,

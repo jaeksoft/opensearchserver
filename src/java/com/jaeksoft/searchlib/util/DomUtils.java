@@ -165,8 +165,8 @@ public class DomUtils {
 		return nodes;
 	}
 
-	private static DocumentBuilder getDocumentBuilder(boolean errorSilent)
-			throws ParserConfigurationException {
+	private static synchronized DocumentBuilder getDocumentBuilder(
+			boolean errorSilent) throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
 		dbf.setValidating(false);

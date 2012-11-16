@@ -25,7 +25,8 @@
 		<listitem self="@{each='item'}">
 			<listcell label="@{item.name}" />
 			<listcell label="@{item.state}" />
-			<listcell label="@{item.location}" />
+			<listcell label="@{item.location}"
+				tooltiptext="@{item.fullStackTrace}" />
 		</listitem>
 	</listbox>
 </window>
