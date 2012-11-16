@@ -57,6 +57,11 @@
 					<checkbox checked="@{joins.current.returnFields}" />
 				</vbox>
 			</listheader>
+			<listheader label="Return scores" hflex="min">
+				<vbox>
+					<checkbox checked="@{joins.current.returnScores}" />
+				</vbox>
+			</listheader>
 			<listheader label="Action">
 				<hbox>
 					<button label="Add" forward="onSave"
@@ -77,6 +82,7 @@
 			<listcell label="@{join.localField}" />
 			<listcell label="@{join.foreignField}" />
 			<listcell label="@{join.returnFields}" />
+			<listcell label="@{join.returnScores}" />
 			<listcell>
 				<button label="Remove" onClick="joins.onRemove(self)" />
 			</listcell>

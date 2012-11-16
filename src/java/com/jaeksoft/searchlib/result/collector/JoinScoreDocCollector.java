@@ -31,8 +31,8 @@ public class JoinScoreDocCollector extends JoinDocCollector implements
 
 	public final static JoinScoreDocCollector EMPTY = new JoinScoreDocCollector();
 
-	private float maxScore;
-	protected final float[] scores;
+	private final float maxScore;
+	private final float[] scores;
 
 	public JoinScoreDocCollector() {
 		super();
@@ -47,9 +47,24 @@ public class JoinScoreDocCollector extends JoinDocCollector implements
 	}
 
 	private JoinScoreDocCollector(JoinScoreDocCollector src) {
-		super(src);
-		maxScore = src.getMaxScore();
-		this.scores = ArrayUtils.clone(src.getScores());
+		super(src.joinResultSize, validSize(src.ids), src.maxDoc);
+		scores = new float[ids.length];
+		int i1 = 0;
+		int i2 = 0;
+		float msc = 0;
+		for (int id : src.ids) {
+			if (id != -1) {
+				ids[i1] = id;
+				float score = src.scores[i2];
+				scores[i1] = score;
+				if (score > msc)
+					msc = score;
+				foreignDocIdsArray[i1++] = ArrayUtils
+						.clone(src.foreignDocIdsArray[i2]);
+			}
+			i2++;
+		}
+		maxScore = msc;
 	}
 
 	@Override
@@ -65,6 +80,14 @@ public class JoinScoreDocCollector extends JoinDocCollector implements
 	@Override
 	public float getMaxScore() {
 		return maxScore;
+	}
+
+	@Override
+	final public void setForeignDocId(int pos, int joinResultPos,
+			int foreignDocId, float foreignScore) {
+		super.setForeignDocId(pos, joinResultPos, foreignDocId, foreignScore);
+		float score = this.scores[pos] * foreignScore;
+		this.scores[pos] = score;
 	}
 
 	@Override

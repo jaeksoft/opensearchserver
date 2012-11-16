@@ -102,7 +102,6 @@ public abstract class AbstractServlet extends HttpServlet {
 				t.printStackTrace(pw);
 			}
 			transaction.addXmlResponse(XML_CALL_KEY_TRACE, sw.toString());
-			pw.close();
 			Logging.error(e);
 		} finally {
 			if (pw != null)
