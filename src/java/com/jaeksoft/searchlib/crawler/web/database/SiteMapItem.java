@@ -24,9 +24,21 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -74,5 +86,35 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 	@Override
 	public int compareTo(SiteMapItem o) {
 		return this.uri.compareTo(o.uri);
+	}
+
+	public List<String> getListOfUrls(HttpDownloader httpDownloader) {
+		List<String> urls = new ArrayList<String>();
+		InputStream inputStream = null;
+		try {
+			DownloadItem downloadItem = httpDownloader.get(new URI(uri), null);
+			inputStream = downloadItem.getContentInputStream();
+			Document doc = DomUtils.readXml(new InputSource(inputStream), true);
+			if (doc != null) {
+				List<Node> nodes = DomUtils.getAllNodes(doc, "loc");
+				if (nodes != null) {
+					for (Node node : nodes) {
+						String href = DomUtils.getText(node);
+						if (href != null && !href.equalsIgnoreCase("")) {
+							// check url format
+							URL newUrl = new URL(href);
+							urls.add(newUrl.toExternalForm());
+						}
+					}
+				}
+			}
+		} catch (Exception ex) {
+			Logging.warn(ex);
+		} finally {
+			if (inputStream != null)
+				IOUtils.closeQuietly(inputStream);
+			httpDownloader.release();
+		}
+		return urls;
 	}
 }

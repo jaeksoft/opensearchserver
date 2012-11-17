@@ -33,10 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -57,10 +53,10 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
-import com.jaeksoft.searchlib.util.DomUtils;
 
 public class WebCrawlMaster extends CrawlMasterAbstract {
 
@@ -179,12 +175,12 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	private void extractSiteMapList() throws SearchLibException {
 		SiteMapList siteMapList = getConfig().getSiteMapList();
-
 		if (siteMapList != null && siteMapList.getArray() != null) {
 			UrlManager urlManager = getConfig().getUrlManager();
 			List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
 			for (SiteMapItem siteMap : siteMapList.getArray()) {
-				List<String> urls = getListOfUrls(siteMap.getUri());
+				List<String> urls = siteMap
+						.getListOfUrls(getNewHttpDownloader());
 				for (String uri : urls) {
 					if (!urlManager.exists(uri)) {
 						workInsertUrlList.add(urlManager
@@ -198,28 +194,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 		}
 	}
 
-	private List<String> getListOfUrls(String uri) {
-		List<String> urls = new ArrayList<String>();
-		try {
-			// parse using builder to get DOM representation of the XML file
-			Document doc = DomUtils.readXml(new InputSource(uri), true);
-			if (doc != null) {
-				List<Node> nodes = DomUtils.getAllNodes(doc, "loc");
-				if (nodes != null) {
-					for (Node node : nodes) {
-						String href = DomUtils.getText(node);
-						if (href != null && !href.equalsIgnoreCase("")) {
-							// check url format
-							URL newUrl = new URL(href);
-							urls.add(newUrl.toExternalForm());
-						}
-					}
-				}
-			}
-		} catch (Exception ex) {
-			Logging.warn(ex);
-		}
-		return urls;
+	public HttpDownloader getNewHttpDownloader() throws SearchLibException {
+		Config config = getConfig();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		return new HttpDownloader(propertyManager.getUserAgent().getValue(),
+				false, propertyManager.getProxyHandler());
 	}
 
 	private NamedItem getNextHost() {

@@ -44,6 +44,7 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.BasicHttpContext;
@@ -69,15 +70,19 @@ public class HttpDownloader {
 		redirectStrategy = new DefaultRedirectStrategy();
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
+		// No more than one 1 minute to establish the connection
+		HttpConnectionParams.setConnectionTimeout(params, 1000 * 60);
+		// No more than 10 minutes without data
+		HttpConnectionParams.setSoTimeout(params, 1000 * 60 * 10);
+		// Checking it the connection stale
+		HttpConnectionParams.setStaleCheckingEnabled(params, true);
 		// paramsBean.setVersion(HttpVersion.HTTP_1_1);
 		// paramsBean.setContentCharset("UTF-8");
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
 		this.proxyHandler = proxyHandler;
-		;
-		// TIMEOUT ?
-		// RETRY HANDLER ?
+		// TODO RETRY HANDLER ?
 	}
 
 	public void release() {
