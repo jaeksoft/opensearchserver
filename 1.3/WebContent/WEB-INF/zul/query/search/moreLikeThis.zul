@@ -1,0 +1,90 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="mlt"
+	use="com.jaeksoft.searchlib.web.controller.query.MoreLikeThisController">
+	<grid>
+		<columns>
+			<column align="right" hflex="min" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Document query: " />
+				<textbox width="95%" value="@{mlt.request.docQuery}"
+					multiline="true" height="3" />
+			</row>
+			<row>
+				<label value="Like text: " />
+				<textbox width="95%" value="@{mlt.request.likeText}"
+					multiline="true" height="3" />
+			</row>
+			<row>
+				<label>Language:</label>
+				<listbox mold="select"
+					selectedItem="@{mlt.request.lang}" model="@{mlt.languageEnum}">
+					<listitem self="@{each=langEnum}"
+						label="@{langEnum.name}" value="@{langEnum}" />
+				</listbox>
+			</row>
+			<row>
+				<label>Analyzer:</label>
+				<listbox mold="select"
+					selectedItem="@{mlt.request.analyzerName}"
+					model="@{mlt.analyzerNameList}" />
+			</row>
+			<row>
+				<label value="Fields: " />
+				<listbox model="@{mlt.request.fieldList.list}">
+					<listhead>
+						<listheader>
+							<listbox model="@{mlt.fieldsLeft}"
+								mold="select" selectedItem="@{mlt.selectedField}" />
+						</listheader>
+						<listheader width="50px" align="center">
+							<button tooltiptext="Add a field"
+								image="/images/action_add.png" forward="onAddField" />
+						</listheader>
+					</listhead>
+					<listitem self="@{each=mltField}">
+						<listcell label="@{mltField.name}" />
+						<listcell>
+							<custom-attributes mltField="@{mltField}" />
+							<button tooltiptext="Remove the field"
+								image="/images/action_delete.png"
+								onClick="mlt.onRemoveField(self)" />
+						</listcell>
+					</listitem>
+				</listbox>
+			</row>
+			<row>
+				<label value="Stop words: " />
+				<listbox model="@{mlt.stopWordsList}" mold="select"
+					selectedItem="@{mlt.request.stopWords}" />
+			</row>
+			<row>
+				<label>Start offset:</label>
+				<intbox cols="5" constraint="no empty, no negative"
+					value="@{mlt.request.start}" />
+			</row>
+			<row>
+				<label>Number of rows:</label>
+				<intbox cols="5" constraint="no empty, no negative"
+					value="@{mlt.request.rows}" />
+			</row>
+		</rows>
+	</grid>
+</window>

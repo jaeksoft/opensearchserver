@@ -1,0 +1,40 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer Enterprise
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	
+	This file is part of Jaeksoft OpenSearchServer Enterprise.
+	See the License for more details. You should have received a
+	copy of the License along with Jaeksoft OpenSearchServer.
+	If not, see http://www.open-search-server.com
+-->
+<panel title="List of existing classifier" border="normal">
+	<panelchildren>
+		<listbox model="@{classifier.classifiers}" mold="paging"
+			selectedItem="@{classifier.selectedClassifier}" pageSize="10">
+			<auxhead>
+				<auxheader colspan="5">
+					<button label="New classifier..."
+						onClick="classifier.onNewClassifier()" />
+				</auxheader>
+			</auxhead>
+			<listhead>
+				<listheader label="Name" />
+				<listheader label="Field" width="150px" />
+				<listheader label="Method" width="150px" />
+				<listheader tooltiptext="Query count" label="Count"
+					width="80px" />
+				<listheader tooltiptext="Active" label="A" width="50px" />
+			</listhead>
+			<listitem self="@{each=item}">
+				<listcell label="@{item.name}" />
+				<listcell label="@{item.fieldName}" />
+				<listcell label="@{item.method.label}" />
+				<listcell label="@{item.valueSetSize}" />
+				<listcell>
+					<image src="images/action_check.png"
+						visible="@{item.active}" />
+				</listcell>
+			</listitem>
+		</listbox>
+	</panelchildren>
+</panel>

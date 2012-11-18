@@ -1,0 +1,62 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="exclusion"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.ExclusionController">
+	<vbox width="99%"
+		visible="@{exclusion.webCrawlerEditPatternsRights}">
+		<checkbox label="Enabled" checked="@{exclusion.enabled.value}" />
+		<separator />
+		<label>For example:</label>
+		<label>
+			Enter http://www.open-search-server.com if you only want to
+			exclude the home page
+		</label>
+		<label>
+			Enter http://www.open-search-server.com/* if you want to
+			exclude all the content
+		</label>
+		<label>
+			Enter http://www.open-search-server.com/*wiki* if you only
+			wish to exlude URLs containing the word "wiki" within the
+			open-search-server.com domain.
+		</label>
+		<textbox multiline="true" rows="10" width="100%"
+			value="@{exclusion.pattern}" />
+		<button label="Add" forward="onAdd" />
+	</vbox>
+	<separator />
+	<hbox>
+		<label>Filter:</label>
+		<textbox cols="20" value="@{pattern.like}" />
+		<space />
+		<button label="Search" forward="onSearch" />
+	</hbox>
+	<separator />
+	<listbox checkmark="@{exclusion.WebCrawlerEditPatternsRights}"
+		multiple="@{exclusion.WebCrawlerEditPatternsRights}"
+		model="@{exclusion.patternList}" itemRenderer="@{exclusion}">
+		<listfoot>
+			<listfooter>
+				<paging id="paging" detailed="true"
+					totalSize="@{exclusion.totalSize}" pageSize="@{exclusion.pageSize}"
+					activePage="@{exclusion.activePage}" />
+			</listfooter>
+		</listfoot>
+	</listbox>
+	<button label="delete" visible="@{exclusion.selectionRemovable}"
+		forward="onDelete" />
+</window>
