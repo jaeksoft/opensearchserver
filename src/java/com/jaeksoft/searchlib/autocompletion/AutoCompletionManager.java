@@ -34,8 +34,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -49,8 +47,6 @@ public class AutoCompletionManager {
 	private AutoCompletionBuildThread buildThread;
 
 	private File propFile;
-
-	private SchemaField termField;
 
 	private int propRows;
 
@@ -83,9 +79,6 @@ public class AutoCompletionManager {
 				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
 		buildThread = new AutoCompletionBuildThread((Client) config,
 				autoCompClient);
-		SchemaFieldList schemaFieldList = autoCompClient.getSchema()
-				.getFieldList();
-		termField = schemaFieldList.get(autoCompletionSchemaFieldTerm);
 	}
 
 	private void saveProperties() throws IOException {

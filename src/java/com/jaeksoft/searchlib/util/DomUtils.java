@@ -165,9 +165,17 @@ public class DomUtils {
 		return nodes;
 	}
 
-	private static synchronized DocumentBuilder getDocumentBuilder(
-			boolean errorSilent) throws ParserConfigurationException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	private final static SimpleLock dbfLock = new SimpleLock();
+
+	private static DocumentBuilder getDocumentBuilder(boolean errorSilent)
+			throws ParserConfigurationException {
+		DocumentBuilderFactory dbf = null;
+		dbfLock.rl.lock();
+		try {
+			dbf = DocumentBuilderFactory.newInstance();
+		} finally {
+			dbfLock.rl.unlock();
+		}
 
 		dbf.setValidating(false);
 		dbf.setIgnoringComments(false);
