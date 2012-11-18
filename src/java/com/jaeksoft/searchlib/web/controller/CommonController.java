@@ -228,7 +228,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 			binder.loadAll();
 	}
 
-	public void onReload() throws IOException, URISyntaxException,
+	final public void onReload() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
 		reloadPage();
@@ -276,8 +276,7 @@ public abstract class CommonController extends Window implements AfterCompose,
 			if (!(child instanceof Component))
 				continue;
 			Component comp = (Component) child;
-			if (comp.isVisible())
-				sendReload(comp);
+			sendReload(comp);
 		}
 	}
 

@@ -25,7 +25,7 @@
 		<rows>
 			<row>
 				<label value="Reload the index: " />
-				<button label="Reload" forward="onReload"
+				<button label="Reload" forward="onReloadClient"
 					disabled="@{commands.offline}" />
 				<label />
 			</row>

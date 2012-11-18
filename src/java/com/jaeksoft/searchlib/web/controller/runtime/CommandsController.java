@@ -108,8 +108,7 @@ public class CommandsController extends CommonController {
 		isTaskRunning();
 	}
 
-	@Override
-	public void onReload() throws SearchLibException {
+	public void onReloadClient() throws SearchLibException {
 		synchronized (this) {
 			getClient().reload();
 			reloadPage();

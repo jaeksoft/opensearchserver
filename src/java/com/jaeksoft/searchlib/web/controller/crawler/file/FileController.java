@@ -332,13 +332,6 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	@Override
-	public void onReload() throws SearchLibException {
-		synchronized (this) {
-			reloadPage();
-		}
-	}
-
 	private SearchRequest getSearchRequest(FileManager fileManager,
 			SearchTemplate fileSearchTemplate) throws SearchLibException {
 		return fileManager.fileQuery(fileSearchTemplate, getRepository(),
@@ -481,10 +474,12 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
+	@Override
 	public void onTimer() {
 		reloadComponent("taskLogInfo");
 	}
 
+	@Override
 	public boolean isRefresh() throws SearchLibException {
 		FileManager fileManager = getFileManager();
 		if (fileManager == null)

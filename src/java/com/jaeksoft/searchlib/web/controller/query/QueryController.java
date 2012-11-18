@@ -124,6 +124,12 @@ public final class QueryController extends AbstractQueryController {
 		reloadPage();
 	}
 
+	@Override
+	public void eventClientChange() throws SearchLibException {
+		reset();
+		reloadPage();
+	}
+
 	public void setRequest(AbstractRequest request) {
 		ScopeAttribute.QUERY_REQUEST.set(this, request);
 	}

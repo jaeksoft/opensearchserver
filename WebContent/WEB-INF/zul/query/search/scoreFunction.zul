@@ -36,7 +36,7 @@
 					selectedItem="@{window$composer.scoreItem.direction}" />
 			</auxheader>
 			<auxheader>
-				<intbox value="@{window$composer.scoreItem.weight}" />
+				<doublebox value="@{window$composer.scoreItem.weight}" />
 			</auxheader>
 			<auxheader>
 				<button label="add" forward="onSave"

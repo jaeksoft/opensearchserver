@@ -42,12 +42,12 @@ public class AdvancedScoreItem {
 
 	private String fieldName;
 
-	private int weight;
+	private float weight;
 
 	public AdvancedScoreItem() {
 		fieldName = null;
 		ascending = false;
-		weight = 1;
+		weight = 1.0F;
 	}
 
 	public AdvancedScoreItem(AdvancedScoreItem from) {
@@ -65,7 +65,7 @@ public class AdvancedScoreItem {
 				SCORE_ITEM_FIELD_ATTR);
 		this.ascending = "true".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, SCORE_ITEM_ASCENDING_ATTR));
-		this.weight = XPathParser.getAttributeValue(node,
+		this.weight = XPathParser.getAttributeFloat(node,
 				SCORE_ITEM_WEIGHT_ATTR);
 	}
 
@@ -114,7 +114,7 @@ public class AdvancedScoreItem {
 	/**
 	 * @return the weight
 	 */
-	public int getWeight() {
+	public float getWeight() {
 		return weight;
 	}
 
@@ -122,7 +122,7 @@ public class AdvancedScoreItem {
 	 * @param weight
 	 *            the weight to set
 	 */
-	public void setWeight(int weight) {
+	public void setWeight(float weight) {
 		this.weight = weight;
 	}
 
@@ -130,7 +130,7 @@ public class AdvancedScoreItem {
 		xmlWriter.startElement(AdvancedScore.ADVANCED_SCORE_ITEM_NODE,
 				SCORE_ITEM_FIELD_ATTR, fieldName, SCORE_ITEM_ASCENDING_ATTR,
 				Boolean.toString(ascending), SCORE_ITEM_WEIGHT_ATTR,
-				Integer.toString(weight));
+				Float.toString(weight));
 		xmlWriter.endElement();
 	}
 
