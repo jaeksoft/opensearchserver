@@ -108,6 +108,13 @@ public class RendererServlet extends AbstractServlet {
 				}
 			}
 			transaction.setRequestAttribute("getUrl", getUrl.toString());
+			StringBuffer autocompUrl = new StringBuffer("autocompletion?use=");
+			autocompUrl
+					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
+			if (user != null)
+				user.appendApiCallParameters(autocompUrl);
+			transaction.setRequestAttribute("autocompUrl",
+					autocompUrl.toString());
 			transaction.forward("/WEB-INF/jsp/renderer.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);

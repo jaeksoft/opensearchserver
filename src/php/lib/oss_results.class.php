@@ -84,9 +84,15 @@ class OssResults {
   /**
    *  GETTER
    */
-  public function getField($position, $fieldName, $modeSnippet = FALSE, $highlightedOnly = FALSE) {
+  public function getField($position, $fieldName, $modeSnippet = FALSE, $highlightedOnly = FALSE, $joinPosition = NULL) {
     $field = NULL;
-    $doc = $this->result->xpath('result/doc[@pos="' . $position . '"]');
+    $joinPrefix = '';
+
+    if ($joinPosition != null) {
+      $joinPrefix = '/join[@paramPosition="jq' . (int)$joinPosition . '"]';
+    }
+
+    $doc = $this->result->xpath('result/doc[@pos="' . $position . '"]' . $joinPrefix);
 
     if (isset($doc[0]) && is_array($doc)) {
       $value = NULL;

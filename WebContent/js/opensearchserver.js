@@ -20,7 +20,11 @@
  * You should have received a copy of the GNU General Public License along with
  * OpenSearchServer. If not, see <http://www.gnu.org/licenses/>.
  */
-function getXmlHttpRequestObject() {
+
+if (typeof (OpenSearchServer) == "undefined")
+	OpenSearchServer = {};
+
+OpenSearchServer.getXmlHttpRequestObject = function() {
 	if (window.XMLHttpRequest) {
 		return new XMLHttpRequest();
 	} else if (window.ActiveXObject) {
@@ -28,84 +32,87 @@ function getXmlHttpRequestObject() {
 	} else {
 		return null;
 	}
-}
+};
 
-var xmlHttp = getXmlHttpRequestObject();
+OpenSearchServer.xmlHttp = OpenSearchServer.getXmlHttpRequestObject();
 
-function setAutocomplete(value) {
-	var ac = document.getElementById('ossautocomplete');
+OpenSearchServer.setAutocomplete = function(divautocompid, value) {
+	var ac = document.getElementById(divautocompid);
 	ac.innerHTML = value;
 	return ac;
-}
+};
 
-var selectedAutocomplete = 0;
-var autocompleteSize = 0;
+OpenSearchServer.getselectedautocompletediv = function(divautocompid, n) {
+	return document.getElementById(divautocompid + 'item' + n);
+};
 
-function getselectedautocompletediv(n) {
-	return document.getElementById('autocompleteitem' + n);
-}
-
-function autosuggest(event) {
-	var keynum = null;
+OpenSearchServer.autosuggest = function(event, urlwithparam, formid, textid,
+		divautocompid) {
+	var oldSelected = OpenSearchServer.getSelected(divautocompid);
+	var newSelected = 0;
+	var keynum = 0;
 	if (window.event) { // IE
 		keynum = event.keyCode;
 	} else if (event.which) { // Netscape/Firefox/Opera
 		keynum = event.which;
 	}
 	if (keynum == 38 || keynum == 40) {
-		if (selectedAutocomplete > 0) {
-			autocompleteLinkOut(selectedAutocomplete);
-		}
 		if (keynum == 38) {
-			if (selectedAutocomplete > 0) {
-				selectedAutocomplete--;
+			if (oldSelected > 0) {
+				newSelected = oldSelected - 1;
 			}
 		} else if (keynum == 40) {
-			if (selectedAutocomplete < autocompleteSize) {
-				selectedAutocomplete++;
+			if (OpenSearchServer.getselectedautocompletediv(divautocompid,
+					oldSelected + 1) != null) {
+				newSelected = oldSelected + 1;
 			}
 		}
-		if (selectedAutocomplete > 0) {
-			var dv = getselectedautocompletediv(selectedAutocomplete);
-			autocompleteLinkOver(selectedAutocomplete);
-			setKeywords(dv.innerHTML);
+		if (newSelected > 0) {
+			var dv = OpenSearchServer.getselectedautocompletediv(divautocompid,
+					newSelected);
+			OpenSearchServer.autocompleteLinkOver(divautocompid, newSelected,
+					oldSelected);
+			OpenSearchServer.setKeywords(textid, dv.innerHTML);
 		}
 		return false;
 	}
 
-	if (xmlHttp.readyState != 4 && xmlHttp.readyState != 0)
+	if (OpenSearchServer.xmlHttp.readyState != 4
+			&& OpenSearchServer.xmlHttp.readyState != 0)
 		return;
-	var str = document.getElementById('query').value;
+	var str = escape(document.getElementById(textid).value);
 	if (str.length == 0) {
-		setAutocomplete('');
+		OpenSearchServer.setAutocomplete(divautocompid, '');
 		return;
 	}
-	var request_url = build_url(str);
-	xmlHttp.open("GET", request_url, true);
-	xmlHttp.onreadystatechange = handleAutocomplete;
-	xmlHttp.send(null);
+
+	OpenSearchServer.xmlHttp.open("GET", urlwithparam + str, true);
+	OpenSearchServer.xmlHttp.onreadystatechange = function() {
+		OpenSearchServer.handleAutocomplete(formid, textid, divautocompid);
+	}
+	OpenSearchServer.xmlHttp.send(null);
 	return true;
-}
+};
 
-function build_url(query) {
-	var login = getParameter("login");
-	var key = getParameter("key");
-	var build_url = 'autocompletion?use=' + getParameter("use") + '&query='
-			+ encodeURI(query);
-	if (login != null && typeof (login) != 'undefined') {
-		build_url += '&login=' + login;
-	}
-	if (login != null && typeof (key) != 'undefined') {
-		build_url += '&key=' + key;
-	}
-	return build_url;
-}
+OpenSearchServer.getSelected = function(divautocompid) {
+	var i = 1;
+	do {
+		dv = OpenSearchServer.getselectedautocompletediv(divautocompid, i);
+		if (dv == null)
+			return 0;
+		if (dv.className == 'ossautocomplete_link_over') {
+			return i;
+		}
+		i++;
+	} while (dv != null);
+	return 0;
+};
 
-function handleAutocomplete() {
-	if (xmlHttp.readyState != 4)
+OpenSearchServer.handleAutocomplete = function(formid, textid, divautocompid) {
+	if (OpenSearchServer.xmlHttp.readyState != 4)
 		return;
-	var ac = setAutocomplete('');
-	var resp = xmlHttp.responseText;
+	var ac = OpenSearchServer.setAutocomplete(divautocompid, '');
+	var resp = OpenSearchServer.xmlHttp.responseText;
 	if (resp == null) {
 		return;
 	}
@@ -113,60 +120,61 @@ function handleAutocomplete() {
 		return;
 	}
 	var str = resp.split("\n");
-	var content = '<div id="ossautocompletelist">';
-	var i = 0;
-	var end = (str.length) - 1;
-	for (i = 0; i < end; i++) {
+	var content = '<div id="' + divautocompid + 'list">';
+	for ( var i = 0; i < str.length - 1; i++) {
 		var j = i + 1;
-		content += '<div id="autocompleteitem' + j + '" ';
-		content += 'onmouseover="javascript:autocompleteLinkOver(' + j + ');" ';
-		content += 'onmouseout="javascript:autocompleteLinkOut(' + j + ');" ';
-		content += 'onclick="javascript:setsetKeywords_onClick(this.innerHTML);" ';
+		content += '<div id="' + divautocompid + 'item' + j + '" ';
+		content += 'onmouseover="javascript:OpenSearchServer.autocompleteLinkOver(\''
+				+ divautocompid + '\',' + j + ');" ';
+		content += 'onmouseout="javascript:OpenSearchServer.autocompleteLinkOut(\''
+				+ divautocompid + '\',' + j + ');" ';
+		content += 'onclick="javascript:OpenSearchServer.setKeywords_onClick(\''
+				+ formid
+				+ '\',\''
+				+ textid
+				+ '\',this.innerHTML,\''
+				+ divautocompid + '\');" ';
 		content += 'class="ossautocomplete_link">' + str[i] + '</div>';
 	}
 	content += '</div>';
 	ac.innerHTML = content;
-	selectedAutocomplete = 0;
-	autocompleteSize = str.length - 1;
-}
+};
 
-function autocompleteLinkOver(n) {
-	if (selectedAutocomplete > 0) {
-		autocompleteLinkOut(selectedAutocomplete);
+OpenSearchServer.autocompleteLinkOver = function(divautocompid, newSelected,
+		oldSelected) {
+	if (oldSelected == null) {
+		oldSelected = OpenSearchServer.getSelected(divautocompid);
 	}
-	var dv = getselectedautocompletediv(n);
+	if (oldSelected > 0) {
+		OpenSearchServer.autocompleteLinkOut(divautocompid, oldSelected);
+	}
+	var dv = OpenSearchServer.getselectedautocompletediv(divautocompid,
+			newSelected);
 	dv.className = 'ossautocomplete_link_over';
-	selectedAutocomplete = n;
-}
+};
 
-function autocompleteLinkOut(n) {
-	var dv = getselectedautocompletediv(n);
-	if (dv != null) {
-		dv.className = 'ossautocomplete_link';
-	}
-}
-function setsetKeywords_onClick(value) {
-	var dv = document.getElementById('query');
-	if (dv != null) {
-		dv.value = value;
-		dv.focus();
-		setAutocomplete('');
-	}
-}
-function setKeywords(value) {
-	var dv = document.getElementById('query');
+OpenSearchServer.autocompleteLinkOut = function(divautocompid, oldSelected) {
+	var dv = OpenSearchServer.getselectedautocompletediv(divautocompid,
+			oldSelected);
+	dv.className = 'ossautocomplete_link';
+};
+
+OpenSearchServer.setKeywords_onClick = function(formid, textid, value,
+		divautocompid) {
+	var dv = document.getElementById(textid);
 	if (dv != null) {
 		dv.value = value;
 		dv.focus();
+		OpenSearchServer.setAutocomplete(divautocompid, '');
+		document.forms[formid].submit();
+		return true;
 	}
-}
-function getParameter(name) {
-	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-	var regexS = "[\\?&]" + name + "=([^&#]*)";
-	var regex = new RegExp(regexS);
-	var results = regex.exec(window.location.href);
-	if (results == null)
-		return "";
-	else
-		return decodeURIComponent(results[1].replace(/\+/g, " "));
-}
+};
+
+OpenSearchServer.setKeywords = function(textid, value) {
+	var dv = document.getElementById(textid);
+	if (dv != null) {
+		dv.value = value;
+		dv.focus();
+	}
+};

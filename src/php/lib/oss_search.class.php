@@ -46,6 +46,7 @@ class OssSearch extends OssSearchAbstract {
   protected $operator;
   protected $collapse;
   protected $facet;
+  protected $join;
 
   /**
    * @param $enginePath The URL to access the OSS Engine
@@ -63,6 +64,7 @@ class OssSearch extends OssSearchAbstract {
     $this->negativeFilter  = array();
     $this->sort    = array();
     $this->facet  = array();
+    $this->join = array();
     $this->query = NULL;
     $this->lang = NULL;
     $this->operator = NULL;
@@ -187,6 +189,11 @@ class OssSearch extends OssSearchAbstract {
     return $this;
   }
 
+  public function join($position, $value) {
+    $intpos = (int) $position;
+    $this->join[$intpos] = $value;
+    return $this;
+  }
 
   protected function addParams($queryChunks = NULL) {
 
@@ -254,6 +261,11 @@ class OssSearch extends OssSearchAbstract {
         $facet .= '(' . $options['min'] . ')';
       }
       $queryChunks[] = $facet;
+    }
+
+    // Join parameters
+    foreach ((array)$this->join as $position => $value) {
+      $queryChunks[] = 'jq'.$position.'='.urlencode($value);
     }
 
     // Collapsing
