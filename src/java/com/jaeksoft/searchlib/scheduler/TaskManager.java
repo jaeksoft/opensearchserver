@@ -145,11 +145,13 @@ public class TaskManager implements Job {
 	 * @param client
 	 * @param jobItem
 	 * @return
+	 * @throws InterruptedException
 	 */
-	public static ImmediateExecution executeJob(Client client, JobItem jobItem) {
+	public static ImmediateExecution executeJob(Client client, JobItem jobItem)
+			throws InterruptedException {
 		ImmediateExecution execution = new ImmediateExecution(client, jobItem);
 		client.getThreadPool().execute(execution);
-		execution.waitForStart(600);
+		jobItem.waitForStart(600);
 		return execution;
 	}
 

@@ -55,6 +55,7 @@ public class SchedulerListController extends SchedulerController {
 		return client.getJobList().getJobs();
 	}
 
+	@Override
 	public boolean isRefresh() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -78,7 +79,7 @@ public class SchedulerListController extends SchedulerController {
 	}
 
 	public void doExecute(Component comp) throws SearchLibException,
-			NamingException {
+			NamingException, InterruptedException {
 		JobItem job = getCompJobItem(comp);
 		if (job == null)
 			return;

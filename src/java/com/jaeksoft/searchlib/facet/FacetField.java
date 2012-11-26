@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -147,8 +148,13 @@ public class FacetField extends AbstractField<FacetField> {
 				"multivalued"));
 		boolean postCollapsing = "yes".equals(XPathParser.getAttributeString(
 				node, "postCollapsing"));
-		FacetField facetField = new FacetField(source.get(fieldName).getName(),
-				minCount, multivalued, postCollapsing);
+		if (source == null)
+			return;
+		SchemaField field = source.get(fieldName);
+		if (field == null)
+			return;
+		FacetField facetField = new FacetField(field.getName(), minCount,
+				multivalued, postCollapsing);
 		target.put(facetField);
 	}
 
