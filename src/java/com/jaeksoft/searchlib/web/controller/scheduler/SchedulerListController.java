@@ -88,7 +88,7 @@ public class SchedulerListController extends SchedulerController {
 		if (job.isRunning())
 			throw new SearchLibException("The job " + job.getName()
 					+ " is already running.");
-		TaskManager.executeJob(client.getIndexName(), job.getName());
+		TaskManager.executeJob(client, job);
 		reloadPage();
 	}
 
@@ -98,6 +98,7 @@ public class SchedulerListController extends SchedulerController {
 		reloadSchedulerPages();
 	}
 
+	@Override
 	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}

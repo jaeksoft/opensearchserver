@@ -140,6 +140,20 @@ public class TaskManager implements Job {
 	}
 
 	/**
+	 * Asynchronous execution of a full Job
+	 * 
+	 * @param client
+	 * @param jobItem
+	 * @return
+	 */
+	public static ImmediateExecution executeJob(Client client, JobItem jobItem) {
+		ImmediateExecution execution = new ImmediateExecution(client, jobItem);
+		client.getThreadPool().execute(execution);
+		execution.waitForStart(600);
+		return execution;
+	}
+
+	/**
 	 * Asynchronous execution of a Task
 	 * 
 	 * @param client

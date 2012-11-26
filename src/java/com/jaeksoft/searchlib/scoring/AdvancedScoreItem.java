@@ -93,7 +93,7 @@ public class AdvancedScoreItem {
 	}
 
 	public void setDirection(String direction) {
-		ascending = "asc".equalsIgnoreCase(ASCENDING) ? true : false;
+		ascending = ASCENDING.equalsIgnoreCase(ASCENDING) ? true : false;
 	}
 
 	/**
