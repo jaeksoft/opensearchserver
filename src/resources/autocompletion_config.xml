@@ -48,8 +48,8 @@
 	</schema>
 	<requests>
 		<request name="search" defaultOperator="and" start="0" rows="0"
-			allowLeadingWildcard="yes" collapseMode="optimized" collapseField="cluster"
-			collapseMax="1">
+			allowLeadingWildcard="yes" collapseType="optimized" collapseField="cluster"
+			collapseMode="cluster" collapseMax="1">
 			<query>term:("$$")</query>
 			<returnFields>term</returnFields>
 			<sort>

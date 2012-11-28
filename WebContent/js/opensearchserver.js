@@ -80,15 +80,16 @@ OpenSearchServer.autosuggest = function(event, urlwithparam, formid, textid,
 	if (OpenSearchServer.xmlHttp.readyState != 4
 			&& OpenSearchServer.xmlHttp.readyState != 0)
 		return;
-	var str = escape(document.getElementById(textid).value);
+	var str = document.getElementById(textid).value;
 	if (str.length == 0) {
 		OpenSearchServer.setAutocomplete(divautocompid, '');
 		return;
 	}
 
-	OpenSearchServer.xmlHttp.open("GET", urlwithparam + str, true);
+	OpenSearchServer.xmlHttp.open("GET",
+			urlwithparam + encodeURIComponent(str), true);
 	OpenSearchServer.xmlHttp.onreadystatechange = function() {
-		OpenSearchServer.handleAutocomplete(formid, textid, divautocompid);
+		OpenSearchServer.handleAutocomplete(formid, textid, divautocompid, str);
 	}
 	OpenSearchServer.xmlHttp.send(null);
 	return true;
@@ -108,7 +109,8 @@ OpenSearchServer.getSelected = function(divautocompid) {
 	return 0;
 };
 
-OpenSearchServer.handleAutocomplete = function(formid, textid, divautocompid) {
+OpenSearchServer.handleAutocomplete = function(formid, textid, divautocompid,
+		keyword) {
 	if (OpenSearchServer.xmlHttp.readyState != 4)
 		return;
 	var ac = OpenSearchServer.setAutocomplete(divautocompid, '');
@@ -134,7 +136,10 @@ OpenSearchServer.handleAutocomplete = function(formid, textid, divautocompid) {
 				+ textid
 				+ '\',this.innerHTML,\''
 				+ divautocompid + '\');" ';
-		content += 'class="ossautocomplete_link">' + str[i] + '</div>';
+		line = '<span class="ossautocomplete_chars">'
+				+ str[i].substring(0, keyword.length) + '</span>'
+				+ str[i].substring(keyword.length);
+		content += 'class="ossautocomplete_link">' + line + '</div>';
 	}
 	content += '</div>';
 	ac.innerHTML = content;
@@ -163,7 +168,7 @@ OpenSearchServer.setKeywords_onClick = function(formid, textid, value,
 		divautocompid) {
 	var dv = document.getElementById(textid);
 	if (dv != null) {
-		dv.value = value;
+		dv.value = value.replace(/(<([^>]+)>)/ig, "");
 		dv.focus();
 		OpenSearchServer.setAutocomplete(divautocompid, '');
 		document.forms[formid].submit();
@@ -174,7 +179,7 @@ OpenSearchServer.setKeywords_onClick = function(formid, textid, value,
 OpenSearchServer.setKeywords = function(textid, value) {
 	var dv = document.getElementById(textid);
 	if (dv != null) {
-		dv.value = value;
+		dv.value = value.replace(/(<([^>]+)>)/ig, "");
 		dv.focus();
 	}
 };
