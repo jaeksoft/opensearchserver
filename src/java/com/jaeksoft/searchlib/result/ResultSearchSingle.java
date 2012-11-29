@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -89,6 +90,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					.getSorter(notCollapsedDocs, reader).quickSort(t);
 			t.duration();
 			numFound = notCollapsedDocs.getSize();
+			if (this.facetList == null)
+				this.facetList = new FacetList();
+			for (JoinResult joinResult : joinResults)
+				joinResult.populate(this.facetList);
 			joinTimer.duration();
 		}
 

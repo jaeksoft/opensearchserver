@@ -55,6 +55,12 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		buildCacheKey();
 	}
 
+	public void clear() {
+		this.fieldList.clear();
+		this.fieldMap.clear();
+		buildCacheKey();
+	}
+
 	/**
 	 * This constructor build a new list and copy the content of the list passed
 	 * as parameter (fl).

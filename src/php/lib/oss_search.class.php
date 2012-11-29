@@ -207,7 +207,7 @@ class OssSearch extends OssSearchAbstract {
    */
   public function joinFilter($position, $filter = NULL) {
     $intpos = (int) $position;
-    if (!array_key_exists($this->joinFilter, $intpos)) {
+    if (!array_key_exists($intpos, $this->joinFilter)) {
       $this->joinFilter[$intpos] = array();
     }
     $this->joinFilter[$intpos][] = $filter;
@@ -219,7 +219,7 @@ class OssSearch extends OssSearchAbstract {
    */
   public function joinNegativeFilter($position, $negativeFilter = NULL) {
     $intpos = (int) $position;
-    if (!array_key_exists($this->joinNegativeFilter, $intpos)) {
+    if (!array_key_exists($intpos, $this->joinNegativeFilter)) {
       $this->joinFilter[$intpos] = array();
     }
     $this->joinNegativeFilter[$intpos][] = $negativeFilter;

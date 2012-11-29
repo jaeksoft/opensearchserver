@@ -224,4 +224,5 @@ public class FacetField extends AbstractField<FacetField> {
 		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];
 		return facetFieldArray.toArray(stringIndexArray);
 	}
+
 }

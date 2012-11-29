@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
+import java.io.IOException;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
@@ -171,6 +173,16 @@ public class JoinDocCollector implements JoinDocInterface {
 		return getForeignDocIds(foreignDocIdsArray, pos, joinPosition);
 	}
 
+	final public static DocIdInterface getDocIdInterface(int maxDoc,
+			int joinPosition, JoinDocCollector joinDocColletor)
+			throws IOException {
+		DocIdCollector docIdCollector = new DocIdCollector(maxDoc,
+				joinDocColletor.getIds().length);
+		for (int[] foreinDocs : joinDocColletor.getForeignDocIdsArray())
+			docIdCollector.collect(foreinDocs[joinPosition]);
+		return docIdCollector;
+	}
+
 	final public static DocIdInterface join(DocIdInterface docs,
 			StringIndex doc1StringIndex, DocIdInterface docs2,
 			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos,
@@ -234,4 +246,5 @@ public class JoinDocCollector implements JoinDocInterface {
 	public int[][] getForeignDocIdsArray() {
 		return foreignDocIdsArray;
 	}
+
 }

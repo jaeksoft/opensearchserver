@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -51,12 +53,15 @@ public class JoinResult {
 
 	private TreeSet<String> fieldNameSet;
 
+	private FacetList facetList;
+
 	public JoinResult(int joinPosition, String paramPosition,
 			boolean returnFields) {
 		this.joinPosition = joinPosition;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
 		this.fieldNameSet = null;
+		this.facetList = null;
 	}
 
 	public String getParamPosition() {
@@ -92,5 +97,18 @@ public class JoinResult {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public void add(Facet facet) {
+		if (facetList == null)
+			facetList = new FacetList();
+		facetList.add(facet);
+	}
+
+	public void populate(FacetList facets) {
+		if (facetList == null)
+			return;
+		for (Facet facet : facetList)
+			facets.add(facet);
 	}
 }
