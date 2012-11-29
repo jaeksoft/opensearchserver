@@ -113,11 +113,8 @@ public class JoinList implements Iterable<JoinItem> {
 	}
 
 	public void setFromServlet(ServletTransaction transaction) {
-		for (JoinItem item : joinList) {
-			String q = transaction.getParameterString(item.getParamPosition());
-			if (q != null)
-				item.setQueryString(q);
-		}
+		for (JoinItem item : joinList)
+			item.setFromServlet(transaction);
 	}
 
 }

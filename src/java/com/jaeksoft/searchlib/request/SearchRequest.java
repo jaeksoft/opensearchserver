@@ -840,8 +840,8 @@ public class SearchRequest extends AbstractRequest implements
 	}
 
 	/**
-	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le
-	 * fichier de config XML.
+	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
+	 * config XML.
 	 * 
 	 * @param config
 	 * @param xpp
@@ -1081,21 +1081,7 @@ public class SearchRequest extends AbstractRequest implements
 
 			String[] values;
 
-			if ((values = transaction.getParameterValues("fq")) != null) {
-				for (String value : values)
-					if (value != null)
-						if (value.trim().length() > 0)
-							filterList.add(new QueryFilter(value, false,
-									FilterAbstract.Source.REQUEST, null));
-			}
-
-			if ((values = transaction.getParameterValues("fqn")) != null) {
-				for (String value : values)
-					if (value != null)
-						if (value.trim().length() > 0)
-							filterList.add(new QueryFilter(value, true,
-									FilterAbstract.Source.REQUEST, null));
-			}
+			filterList.addFromServlet(transaction, null);
 
 			if ((values = transaction.getParameterValues("rf")) != null) {
 				for (String value : values)

@@ -122,4 +122,20 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			filter.setFromServlet(transaction);
 	}
 
+	private void addFromServlet(String[] values, boolean negative) {
+		if (values == null)
+			return;
+		for (String value : values)
+			if (value != null)
+				if (value.trim().length() > 0)
+					filterList.add(new QueryFilter(value, negative,
+							FilterAbstract.Source.REQUEST, null));
+	}
+
+	public void addFromServlet(ServletTransaction transaction, String prefix) {
+		if (prefix == null)
+			prefix = "";
+		addFromServlet(transaction.getParameterValues(prefix + "fq"), false);
+		addFromServlet(transaction.getParameterValues(prefix + "fqn"), true);
+	}
 }
