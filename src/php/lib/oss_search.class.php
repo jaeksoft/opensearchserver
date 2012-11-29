@@ -47,6 +47,8 @@ class OssSearch extends OssSearchAbstract {
   protected $collapse;
   protected $facet;
   protected $join;
+  protected $joinFilter;
+  protected $joinNegativeFilter;
 
   /**
    * @param $enginePath The URL to access the OSS Engine
@@ -65,6 +67,8 @@ class OssSearch extends OssSearchAbstract {
     $this->sort    = array();
     $this->facet  = array();
     $this->join = array();
+    $this->joinFilter  = array();
+    $this->joinNegativeFilter  = array();
     $this->query = NULL;
     $this->lang = NULL;
     $this->operator = NULL;
@@ -189,9 +193,36 @@ class OssSearch extends OssSearchAbstract {
     return $this;
   }
 
+  /**
+   * @return OssSearch
+   */
   public function join($position, $value) {
     $intpos = (int) $position;
     $this->join[$intpos] = $value;
+    return $this;
+  }
+
+  /**
+   * @return OssSearch
+   */
+  public function joinFilter($position, $filter = NULL) {
+    $intpos = (int) $position;
+    if (!array_key_exists($this->joinFilter, $intpos)) {
+      $this->joinFilter[$intpos] = array();
+    }
+    $this->joinFilter[$intpos][] = $filter;
+    return $this;
+  }
+
+  /**
+   * @return OssSearch
+   */
+  public function joinNegativeFilter($position, $negativeFilter = NULL) {
+    $intpos = (int) $position;
+    if (!array_key_exists($this->joinNegativeFilter, $intpos)) {
+      $this->joinFilter[$intpos] = array();
+    }
+    $this->joinNegativeFilter[$intpos][] = $negativeFilter;
     return $this;
   }
 
@@ -263,9 +294,29 @@ class OssSearch extends OssSearchAbstract {
       $queryChunks[] = $facet;
     }
 
-    // Join parameters
+    // Join query parameter
     foreach ((array)$this->join as $position => $value) {
       $queryChunks[] = 'jq'.$position.'='.urlencode($value);
+    }
+
+    // Join filters
+    foreach ((array) $this->joinFilter as $position => $filters) {
+      foreach ((array) $filters as $filter) {
+        if (empty($filter)) {
+          continue;
+        }
+        $queryChunks[] = 'jq'.$position.'.fq=' . urlencode($filter);
+      }
+    }
+
+    // Join negative Filters
+    foreach ((array) $this->joinNegativeFilter as $position => $negativeFilters) {
+      foreach ((array) $negativeFilters as $negativeFilter) {
+        if (empty($negativeFilter)) {
+          continue;
+        }
+        $queryChunks[] = 'jq'.$position.'.fqn=' . urlencode($negativeFilter);
+      }
     }
 
     // Collapsing
