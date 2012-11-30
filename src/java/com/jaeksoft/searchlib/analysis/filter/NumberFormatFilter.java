@@ -38,10 +38,13 @@ public class NumberFormatFilter extends FilterFactory {
 
 	private String format = DEFAULT_FORMAT;
 
+	private String defaultValue = "0";
+
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.NUMBER_FORMAT, DEFAULT_FORMAT, null);
+		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null);
 	}
 
 	@Override
@@ -52,6 +55,10 @@ public class NumberFormatFilter extends FilterFactory {
 		if (prop == ClassPropertyEnum.NUMBER_FORMAT) {
 			new DecimalFormat(value);
 			format = value;
+		} else if (prop == ClassPropertyEnum.DEFAULT_VALUE) {
+			defaultValue = value;
+			if (defaultValue != null && defaultValue.length() == 0)
+				defaultValue = null;
 		}
 	}
 
@@ -74,9 +81,15 @@ public class NumberFormatFilter extends FilterFactory {
 			current = captureState();
 			if (!input.incrementToken())
 				return false;
-			String term = numberFormat.format(new Double(termAtt.term()));
-			if (term != null)
-				createToken(term);
+			try {
+				String term = numberFormat.format(new Double(termAtt.term()));
+				if (term != null)
+					createToken(term);
+			} catch (NumberFormatException e) {
+				if (defaultValue == null)
+					return false;
+				createToken(defaultValue);
+			}
 			return true;
 		}
 	}
