@@ -10,6 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchServer 1.3.1
 
 New features:
+- 244: Exportable autocompletion index
 - 242: Be able to run only one crawl session
 - 240: Several HTML parser configuration per index
 

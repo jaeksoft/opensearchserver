@@ -340,6 +340,9 @@ public class ReplicationItem implements Comparable<ReplicationItem> {
 				return config.getUrlManager().getUrlDbClient().getDirectory();
 			case FILE_CRAWLER_URI_DATABASE:
 				return config.getFileManager().getFileDbClient().getDirectory();
+			case AUTOCOMPLETION_INDEX:
+				return config.getAutoCompletionManager()
+						.getAutoCompletionClient().getDirectory();
 			default:
 				throw new SearchLibException("Unsupported replication");
 			}

@@ -97,7 +97,9 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 			if (!fieldName.equals(term.field()))
 				break;
 			IndexDocument indexDocument = new IndexDocument();
-			indexDocument.addString("term", term.text());
+			String t = term.text();
+			indexDocument.addString("term", t);
+			indexDocument.addString("cluster", t);
 			indexDocument.addString("freq",
 					Integer.toString(termEnum.docFreq()));
 			buffer.add(indexDocument);

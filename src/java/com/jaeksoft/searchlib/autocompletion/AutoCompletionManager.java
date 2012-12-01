@@ -90,6 +90,15 @@ public class AutoCompletionManager {
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
+	public Client getAutoCompletionClient() {
+		rwl.r.lock();
+		try {
+			return autoCompClient;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public String getField() {
 		rwl.r.lock();
 		try {

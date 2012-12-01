@@ -38,6 +38,9 @@ public enum ReplicationType {
 			ReplicationItem.NOT_PUSHED_PATH),
 
 	FILE_CRAWLER_URI_DATABASE("File crawler URI database",
+			ReplicationItem.NOT_PUSHED_PATH),
+
+	AUTOCOMPLETION_INDEX("Autocompletion index",
 			ReplicationItem.NOT_PUSHED_PATH);
 
 	private final String label;
