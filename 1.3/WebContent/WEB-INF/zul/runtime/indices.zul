@@ -1,0 +1,67 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="index"
+	use="com.jaeksoft.searchlib.web.controller.runtime.IndexController">
+	<grid model="@{index.indices}">
+		<auxhead>
+			<auxheader colspan="3" label="Cache" align="center" />
+			<auxheader colspan="3" />
+			<auxheader colspan="6" label="Statistics &amp; status"
+				align="center" />
+			<auxheader />
+		</auxhead>
+		<columns>
+			<column label="search" tooltiptext="searchCache"
+				hflex="min" />
+			<column label="filter" tooltiptext="filterCache"
+				hflex="min" />
+			<column label="field" tooltiptext="fieldCache" hflex="min" />
+			<column label="remoteUrl" hflex="min" />
+			<column label="keyField" hflex="min" />
+			<column label="keyMd5RegExp" hflex="min" />
+			<column label="numDocs" hflex="min"
+				tooltiptext="Total number of documents" />
+			<column label="maxDoc" hflex="min"
+				tooltiptext="Total number of documents including deleted one" />
+			<column label="deletions?" hflex="min"
+				tooltiptext="Contains delete document" />
+			<column label="numDeletedDocs" hflex="min"
+				tooltiptext="Number of deleted documents" />
+			<column label="optimized?" hflex="min"
+				tooltiptext="Is the index optimized" />
+			<column label="read/write" hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row self="@{each=index}">
+				<label value="@{index.indexConfig.searchCache}" />
+				<label value="@{index.indexConfig.filterCache}" />
+				<label value="@{index.indexConfig.fieldCache}" />
+				<label value="@{index.indexConfig.remoteUri}" />
+				<label value="@{index.indexConfig.keyField}" />
+				<label value="@{index.indexConfig.keyMd5RegExp}" />
+				<label value="@{index.statistics.numDocs}" />
+				<label value="@{index.statistics.maxDoc}" />
+				<label value="@{index.statistics.deletions}" />
+				<label value="@{index.statistics.numDeletedDocs}" />
+				<label value="@{index.statistics.optimized}" />
+				<label value="@{index.indexConfig.readWriteMode}" />
+				<label value="" />
+			</row>
+		</rows>
+	</grid>
+</window>
