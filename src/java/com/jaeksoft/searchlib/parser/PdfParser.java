@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.ocr.HocrDocument;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -156,24 +157,23 @@ public class PdfParser extends Parser {
 	private void doOcr(OcrManager ocr, LanguageEnum lang, PDXObjectImage image)
 			throws IOException, SearchLibException {
 		File imageFile = null;
-		File textFile = null;
+		File hocrFile = null;
 		try {
 			String suffix = image.getSuffix();
 			imageFile = File.createTempFile("osspdfimg", '.' + suffix);
 
-			textFile = File.createTempFile("ossocr", ".txt");
+			hocrFile = File.createTempFile("ossocr", ".html");
 			image.write2file(imageFile);
 			if (imageFile.length() == 0)
 				throw new IOException("PDF/OCR: Image file is empty");
-			ocr.ocerize(imageFile, textFile, lang);
-			addField(ParserFieldEnum.ocr_content,
-					FileUtils.readFileToString(textFile, "UTF-8"));
-
+			ocr.ocerize(imageFile, hocrFile, lang, true);
+			new HocrDocument(hocrFile).putContentToParserField(this,
+					ParserFieldEnum.ocr_content);
 		} finally {
 			if (imageFile != null)
 				FileUtils.deleteQuietly(imageFile);
-			if (textFile != null)
-				FileUtils.deleteQuietly(textFile);
+			if (hocrFile != null)
+				FileUtils.deleteQuietly(hocrFile);
 		}
 	}
 

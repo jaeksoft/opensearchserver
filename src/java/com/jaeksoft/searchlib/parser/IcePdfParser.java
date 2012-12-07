@@ -26,10 +26,12 @@ package com.jaeksoft.searchlib.parser;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -41,6 +43,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.ocr.HocrDocument;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImageUtils;
@@ -128,12 +131,19 @@ public class IcePdfParser extends Parser {
 	private void imageOcr(Image image, float rotation, LanguageEnum lang,
 			OcrManager ocr) throws InterruptedException, IOException,
 			SearchLibException {
-		BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-		if (rotation != 0)
-			bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
-		String ocr_content = ocr.ocerizeImage(bufferedImage, lang);
-		if (ocr_content != null)
-			addField(ParserFieldEnum.ocr_content, ocr_content);
+		File hocrFile = null;
+		try {
+			BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
+			if (rotation != 0)
+				bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
+			hocrFile = File.createTempFile("ossocr", ".html");
+			ocr.ocerizeImage(bufferedImage, hocrFile, lang, true);
+			new HocrDocument(hocrFile).putContentToParserField(this,
+					ParserFieldEnum.ocr_content);
+		} finally {
+			if (hocrFile != null)
+				FileUtils.deleteQuietly(hocrFile);
+		}
 	}
 
 	private void extractImagesForOCR(Document pdf, LanguageEnum lang)

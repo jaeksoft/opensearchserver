@@ -39,7 +39,7 @@ public abstract class HtmlNodeAbstract<T> {
 
 	public abstract String getTextNode(String... path);
 
-	public abstract String getNodeValue();
+	public abstract String getText();
 
 	public abstract void getNodes(List<HtmlNodeAbstract<?>> nodes,
 			String... path);

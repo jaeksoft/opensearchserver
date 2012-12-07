@@ -48,7 +48,7 @@ public class JSoupHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
-	public String getNodeValue() {
+	public String getText() {
 		TextNode textNode = (TextNode) node;
 		return textNode.text();
 	}

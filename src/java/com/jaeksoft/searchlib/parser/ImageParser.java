@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.ocr.HocrDocument;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
@@ -45,7 +46,7 @@ public class ImageParser extends Parser {
 			ParserFieldEnum.image_width, ParserFieldEnum.image_height,
 			ParserFieldEnum.image_area_size, ParserFieldEnum.image_number,
 			ParserFieldEnum.image_format, ParserFieldEnum.file_name,
-			ParserFieldEnum.ocr_content, };
+			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes };
 
 	public ImageParser() {
 		super(fl);
@@ -59,7 +60,7 @@ public class ImageParser extends Parser {
 
 	private void doOCR(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		File textFile = null;
+		File hocrFile = null;
 		try {
 			OcrManager ocr = ClientCatalog.getOcrManager();
 			if (ocr == null || ocr.isDisabled())
@@ -67,15 +68,18 @@ public class ImageParser extends Parser {
 			if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 				return;
 
-			textFile = File.createTempFile("ossocr", ".txt");
-			ocr.ocerize(streamLimiter.getFile(), textFile, lang);
-			addField(ParserFieldEnum.ocr_content,
-					FileUtils.readFileToString(textFile, "UTF-8"));
+			hocrFile = File.createTempFile("ossocr", ".html");
+			ocr.ocerize(streamLimiter.getFile(), hocrFile, lang, true);
+			HocrDocument hocrDoc = new HocrDocument(hocrFile);
+			hocrDoc.putContentToParserField(this, ParserFieldEnum.ocr_content);
+			if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
+				addField(ParserFieldEnum.image_ocr_boxes, hocrDoc
+						.getJsonBoxMap().toJSONString());
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		} finally {
-			if (textFile != null)
-				FileUtils.deleteQuietly(textFile);
+			if (hocrFile != null)
+				FileUtils.deleteQuietly(hocrFile);
 		}
 	}
 

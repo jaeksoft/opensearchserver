@@ -48,7 +48,7 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 		try {
 			Long l = fileInstance.getFileSize();
 			if (l != null)
-				if (l > limit)
+				if (limit != 0 && l > limit)
 					throw new LimitException("File instance "
 							+ fileInstance.getFileName() + " larger than "
 							+ limit + " bytes.");

@@ -175,7 +175,7 @@ public class HtmlParser extends Parser {
 		}
 
 		if (node.isTextNode()) {
-			String text = node.getNodeValue();
+			String text = node.getText();
 			text = text.replaceAll("\\r", " ");
 			text = text.replaceAll("\\n", " ");
 			text = StringUtils.replaceConsecutiveSpaces(text, " ");

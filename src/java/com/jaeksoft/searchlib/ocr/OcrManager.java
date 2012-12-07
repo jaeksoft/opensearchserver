@@ -188,8 +188,27 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	public void ocerize(File input, File output, LanguageEnum lang)
-			throws SearchLibException, IOException {
+	private String checkOutputPath(File outputFile, boolean hocr)
+			throws SearchLibException {
+		String outputPath = outputFile.getAbsolutePath();
+		if (hocr) {
+			if (!outputPath.endsWith(".html"))
+				throw new SearchLibException(
+						"Output file must ends with .txt OR .html ("
+								+ outputPath + ")");
+			outputPath = outputPath.substring(0, outputPath.length() - 5);
+		} else {
+			if (!outputPath.endsWith(".txt"))
+				throw new SearchLibException(
+						"Output file must ends with .txt OR .html ("
+								+ outputPath + ")");
+			outputPath = outputPath.substring(0, outputPath.length() - 4);
+		}
+		return outputPath;
+	}
+
+	public void ocerize(File input, File outputFile, LanguageEnum lang,
+			boolean hocr) throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
@@ -198,17 +217,14 @@ public class OcrManager implements Closeable {
 				throw new SearchLibException("No path for the OCR");
 			CommandLine cmdLine = CommandLine.parse(tesseractPath);
 			cmdLine.addArgument(input.getAbsolutePath());
-			String txtPath = output.getAbsolutePath();
-			if (!txtPath.endsWith(".txt"))
-				throw new SearchLibException(
-						"Output file must ends with .txt (" + txtPath + ")");
-			txtPath = txtPath.substring(0, txtPath.length() - 4);
-			cmdLine.addArgument(txtPath);
+			cmdLine.addArgument(checkOutputPath(outputFile, hocr));
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
 			if (tle == null)
 				tle = defaultLanguage;
 			if (tle != null && tle != TesseractLanguageEnum.None)
 				cmdLine.addArgument("-l " + tle.option);
+			if (hocr)
+				cmdLine.addArgument("hocr");
 			int ev = run(cmdLine, 3600, null, null);
 			if (ev == 3)
 				Logging.warn("Image format not supported by Tesseract ("
@@ -220,27 +236,23 @@ public class OcrManager implements Closeable {
 
 	private final static String OCR_IMAGE_FORMAT = "jpg";
 
-	public String ocerizeImage(Image image, LanguageEnum lang)
-			throws InterruptedException, IOException, SearchLibException {
-		File textFile = null;
+	public void ocerizeImage(Image image, File outputFile, LanguageEnum lang,
+			boolean hocr) throws InterruptedException, IOException,
+			SearchLibException {
 		File imageFile = null;
 		try {
 			RenderedImage renderedImage = ImageUtils.toBufferedImage(image);
-			textFile = File.createTempFile("ossocrtxt", ".txt");
 			imageFile = File
 					.createTempFile("ossocrimg", '.' + OCR_IMAGE_FORMAT);
 			ImageIO.write(renderedImage, OCR_IMAGE_FORMAT, imageFile);
 			image.flush();
 			if (imageFile.length() == 0)
-				return null;
-			ocerize(imageFile, textFile, lang);
-			return FileUtils.readFileToString(textFile, "UTF-8");
+				return;
+			ocerize(imageFile, outputFile, lang, hocr);
 		} finally {
 			Logging.debug(imageFile);
 			if (imageFile != null)
 				FileUtils.deleteQuietly(imageFile);
-			if (textFile != null)
-				FileUtils.deleteQuietly(textFile);
 		}
 	}
 

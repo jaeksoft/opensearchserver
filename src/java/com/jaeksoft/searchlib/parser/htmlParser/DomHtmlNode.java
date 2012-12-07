@@ -48,6 +48,11 @@ public class DomHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
+	public String getText() {
+		return DomUtils.getText(node);
+	}
+
+	@Override
 	public String getAttributeText(String name) {
 		return DomUtils.getAttributeText(node, name);
 	}
@@ -96,11 +101,6 @@ public class DomHtmlNode extends HtmlNodeAbstract<Node> {
 	@Override
 	public String getAttribute(String name) {
 		return DomUtils.getAttributeText(node, name);
-	}
-
-	@Override
-	public String getNodeValue() {
-		return node.getNodeValue();
 	}
 
 }

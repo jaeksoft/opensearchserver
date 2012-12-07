@@ -122,6 +122,8 @@ public enum ParserFieldEnum {
 
 	ocr_content,
 
+	image_ocr_boxes,
+
 	image_height,
 
 	image_width,
