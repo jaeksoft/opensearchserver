@@ -1,0 +1,2 @@
+http://www.open-search-server.com/*
+http://www.open-search-server.com/*confluence*

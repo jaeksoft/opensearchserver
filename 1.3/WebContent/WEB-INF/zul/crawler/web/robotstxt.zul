@@ -1,0 +1,72 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="robotsTxtCtrl"
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.RobotsTxtController">
+	<checkbox label="Enabled" checked="@{robotsTxtCtrl.enabled.value}" />
+	<separator />
+	<listbox fixedLayout="true" model="@{robotsTxtCtrl.robotsTxtList}"
+		multiple="false" checkmark="false" mold="paging"
+		selectedItem="@{robotsTxtCtrl.selectedItem}"
+		pageSize="@{robotsTxtCtrl.pageSize}">
+		<listhead sizable="true">
+			<listheader label="Hostname" />
+			<listheader label="Download date" />
+			<listheader label="Expiration date" />
+		</listhead>
+		<auxhead>
+			<auxheader colspan="3">
+				<hbox width="100%">
+					<textbox cols="70"
+						value="@{robotsTxtCtrl.searchString}" />
+					<button label="Search / Refresh" forward="onSearch" />
+					<space />
+					<button label="Reset" forward="onReset" />
+				</hbox>
+			</auxheader>
+		</auxhead>
+		<listitem self="@{each='robotsTxt'}">
+			<listcell label="@{robotsTxt.crawl.urlItem.URL}" />
+			<listcell label="@{robotsTxt.crawlDate}" />
+			<listcell label="@{robotsTxt.expirationDate}" />
+		</listitem>
+	</listbox>
+	<separator height="10px" />
+	<hbox width="100%">
+		<panel title="RobotsTxt content" border="normal">
+			<panelchildren>
+				<listbox
+					model="@{robotsTxtCtrl.selectedItem.disallowList.map}">
+					<listitem self="@{each='entry'}">
+						<listcell>
+							<panel title="@{entry.key}">
+								<panelchildren>
+									<listbox
+										model="@{entry.value.set}">
+										<listitem
+											self="@{each='entry2'}">
+											<listcell label="@{entry2}" />
+										</listitem>
+									</listbox>
+								</panelchildren>
+							</panel>
+						</listcell>
+					</listitem>
+				</listbox>
+			</panelchildren>
+		</panel>
+	</hbox>
+</window>
