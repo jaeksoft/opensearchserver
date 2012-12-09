@@ -1,0 +1,117 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="query"
+	use="com.jaeksoft.searchlib.web.controller.query.QueryController">
+
+	<vlayout visible="@{query.isNotEditing}">
+		<grid>
+			<auxhead>
+				<auxheader colspan="3" label="Create a new query" />
+			</auxhead>
+			<columns sizable="false" visible="false">
+				<column align="right" hflex="min" />
+				<column align="left" hflex="min" />
+				<column align="left" label="Help" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Query name" />
+					<textbox value="@{query.requestName}" cols="50" />
+					<label value="Enter the name of the new query" />
+				</row>
+				<row>
+					<label value="Type" />
+					<listbox model="@{query.requestTypeList}"
+						selectedItem="@{query.requestType}" mold="select">
+						<listitem self="@{each=type}"
+							label="@{type.label}" />
+					</listbox>
+					<label value="Select the type of the new query" />
+				</row>
+				<row>
+					<cell colspan="3" align="center">
+						<button label="New query..." forward="onNew"
+							tooltiptext="Create a new query template" />
+						<button label="New copied query..."
+							disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
+							tooltiptext="Create a new query template copied from the selected query" />
+					</cell>
+				</row>
+			</rows>
+		</grid>
+		<separator />
+		<listbox model="@{query.requests}" mold="paging"
+			selectedItem="@{query.selectedRequest}" pageSize="10">
+			<auxhead>
+				<auxheader colspan="4" label="List of existing queries" />
+			</auxhead>
+			<listhead>
+				<listheader label="Name" hflex="min" />
+				<listheader label="Type" hflex="min" />
+				<listheader label="Info" />
+				<listheader label="Action" hflex="min" align="center" />
+			</listhead>
+			<listitem self="@{each=item}">
+				<custom-attributes requestentry="@{item}" />
+				<listcell label="@{item.key}"
+					onDoubleClick="query.doEditQuery(self)" />
+				<listcell onDoubleClick="query.doEditQuery(self)"
+					label="@{item.value.type.label}" />
+				<listcell onDoubleClick="query.doEditQuery(self)"
+					label="@{item.value.info}" />
+				<listcell>
+					<hbox align="center">
+						<button label="Edit"
+							onClick="query.doEditQuery(self)" />
+						<space width="10px" />
+						<button label="Delete"
+							onClick="query.doDeleteQuery(self)" />
+					</hbox>
+				</listcell>
+			</listitem>
+		</listbox>
+	</vlayout>
+
+	<window title="@{query.abstractRequest.nameType}"
+		visible="@{query.isEditing}" border="normal">
+		<caption>
+			<button label="Cancel" onClick="query.onCancel()" />
+			<space width="10px" />
+			<button label="Save" onClick="query.onSave()" />
+		</caption>
+		<include src="WEB-INF/zul/query/requestSearch.zul"
+			visible="@{query.isEditingSearch}" />
+		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
+			visible="@{query.isEditingSpellCheck}" />
+		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
+			visible="@{query.isEditingMoreLikeThis}" />
+		<include src="WEB-INF/zul/query/requestDocuments.zul"
+			visible="@{query.isEditingDocuments}" />
+		<vbox width="100%" align="center">
+			<button label="Search" onClick="query.onSearch()" />
+		</vbox>
+		<separator />
+		<include src="WEB-INF/zul/query/resultSearch.zul"
+			visible="@{query.resultSearch}" />
+		<include src="WEB-INF/zul/query/resultSpellCheck.zul"
+			visible="@{query.resultSpellCheck}" />
+		<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
+			visible="@{query.resultMoreLikeThis}" />
+		<include src="WEB-INF/zul/query/resultDocuments.zul"
+			visible="@{query.resultDocuments}" />
+	</window>
+</window>
