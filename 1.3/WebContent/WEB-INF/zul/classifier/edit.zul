@@ -1,0 +1,157 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel title="@{classifier.currentEditMode}" border="normal">
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" width="200px" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Classifier name: " />
+					<textbox
+						value="@{classifier.currentClassifier.name}"
+						readonly="@{classifier.selected}" cols="50" />
+				</row>
+				<row>
+					<label value="Value is copied to field: " />
+					<combobox model="@{classifier.fieldList}" cols="50"
+						value="@{classifier.currentClassifier.fieldName}" />
+				</row>
+				<row>
+					<label value="Score is copied to field: " />
+					<combobox model="@{classifier.fieldList}" cols="50"
+						value="@{classifier.currentClassifier.scoreFieldName}" />
+				</row>
+				<row>
+					<label value="Method: " />
+					<listbox model="@{classifier.methodList}"
+						mold="select"
+						selectedItem="@{classifier.currentClassifier.method}">
+						<listitem label="@{classifierMethod.label}"
+							self="@{each='classifierMethod'}" />
+					</listbox>
+				</row>
+				<row>
+					<label value="Active: " />
+					<checkbox label="enabled"
+						checked="@{classifier.currentClassifier.active}" />
+				</row>
+				<row>
+					<label value="Default value: " />
+					<textbox
+						value="@{classifier.currentClassifier.defaultValue}"
+						multiline="true" rows="2" cols="50" />
+				</row>
+				<row>
+					<label value="Item list: " />
+					<listbox mold="paging" pageSize="20"
+						selectedItem="@{classifier.selectedClassifierItem}"
+						model="@{classifier.currentClassifier.valueSet}">
+						<listhead>
+							<listheader label="Value" width="250px" />
+							<listheader label="Boost" width="80px" />
+							<listheader label="Query template"
+								width="200px" />
+							<listheader label="Query keywords" />
+							<listheader label="Action" width="150px"
+								align="center" />
+						</listhead>
+						<auxhead>
+							<auxheader>
+								<textbox width="95%"
+									value="@{classifier.currentClassifierItem.value}" />
+							</auxheader>
+							<auxheader>
+								<doublebox width="95%"
+									value="@{classifier.currentClassifierItem.boost}" />
+							</auxheader>
+							<auxheader>
+								<combobox
+									model="@{classifier.requestList}" width="95%"
+									value="@{classifier.currentClassifierItem.requestName}" />
+							</auxheader>
+							<auxheader>
+								<textbox width="95%" height="60px"
+									multiline="true"
+									value="@{classifier.currentClassifierItem.query}" />
+							</auxheader>
+							<auxheader align="center">
+								<vbox align="center"
+									visible="@{classifier.notItemSelected}">
+									<button
+										tooltiptext="Add a classifier item"
+										image="/images/action_add.png"
+										onClick="classifier.onSaveClassifierItem()" />
+									<button label="Test"
+										onClick="classifier.onTestClassifierItem()" />
+								</vbox>
+								<vbox align="center"
+									visible="@{classifier.itemSelected}">
+									<button label="Save"
+										onClick="classifier.onSaveClassifierItem()" />
+									<button label="Cancel"
+										onClick="classifier.onCancelClassifierItem()" />
+									<button label="Test"
+										onClick="classifier.onTestClassifierItem()" />
+								</vbox>
+							</auxheader>
+						</auxhead>
+						<listitem self="@{each='classifierItem'}">
+							<listcell label="@{classifierItem.value}" />
+							<listcell label="@{classifierItem.boost}" />
+							<listcell
+								label="@{classifierItem.requestName}" />
+							<listcell label="@{classifierItem.query}" />
+							<listcell>
+								<custom-attributes
+									classifierItem="@{classifierItem}" />
+								<button tooltiptext="Remove the item"
+									image="/images/action_delete.png"
+									onClick="classifier.onRemoveClassifierItem(self)" />
+							</listcell>
+						</listitem>
+					</listbox>
+				</row>
+			</rows>
+			<foot>
+				<footer span="2">
+					<vbox width="100%" align="center">
+						<hbox visible="@{classifier.selected}">
+							<button label="Cancel"
+								onClick="classifier.onCancel()" />
+							<space width="10px" />
+							<button label="Save"
+								onClick="classifier.onSave()" />
+							<space width="30px" />
+							<button label="Delete"
+								onClick="classifier.onDelete()" />
+						</hbox>
+						<hbox visible="@{classifier.notSelected}">
+							<button label="Cancel"
+								onClick="classifier.onCancel()" />
+							<space width="10px" />
+							<button label="Create"
+								onClick="classifier.onSave()" />
+						</hbox>
+					</vbox>
+				</footer>
+			</foot>
+		</grid>
+	</panelchildren>
+</panel>

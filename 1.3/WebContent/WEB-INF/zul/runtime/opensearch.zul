@@ -1,0 +1,93 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="opensearch" border="none"
+	use="com.jaeksoft.searchlib.web.controller.runtime.OpenSearchController">
+<grid>
+		<columns>
+			<column align="right" width="30%"/>
+			<column align="left" />
+			 
+		</columns>
+		<rows>
+		 
+			<row>
+				<label value="Select the query template" />
+				<combobox id="searchRequest" model="@{opensearch.requestList}"  onSelect="opensearch.onReload()" width="200px" selectedItem="@{opensearch.searchTemplate}" readonly="true"/>
+				<space />
+			</row>
+				<row>
+				<label value="Map the fields for OpenSearch" />
+				 		<listbox model="@{opensearch.list}" id="openSearchFields">
+		<listhead>
+			<listheader label="Field/Snippets" />
+			<listheader label="OpenSearch Fields" />
+			<listheader label="Action" />
+		</listhead>
+				<auxhead>
+					<auxheader>
+					<listbox
+						model="@{opensearch.fields}"
+						selectedItem="@{opensearch.fieldType}"
+						onSelect="opensearch.onReload()" 
+						mold="select" />
+							<listbox
+								model="@{opensearch.fieldList}"
+								selectedItem="@{opensearch.currentField}"
+								mold="select" />
+					</auxheader>
+					<auxheader>
+					<combobox
+								model="@{opensearch.openSearchFields}"
+								selectedItem="@{opensearch.currentOpenSearchField}" readonly="true"
+								 />
+					</auxheader>
+					<auxheader>
+						
+								<button tooltiptext="Add a field"
+										image="/images/action_add.png"
+										onClick="opensearch.onAdd()" />
+					</auxheader>
+				</auxhead>
+		 <listitem self="@{each='openSearchFieldList'}" value="@{list}" >  
+        <listcell label="@{openSearchFieldList.field}" />
+        <listcell label="@{openSearchFieldList.openSearchField}" />
+        <listcell>
+  		<button image="/images/action_delete.png" id="deleteField" forward="onClick=onDelete()">
+                <custom-attributes fieldId="@{openSearchFieldList.openSearchField}" />
+		</button>
+                </listcell>                
+     </listitem>
+	</listbox>
+				<space />
+			</row>
+	 	
+		</rows>
+		<foot>
+		<footer span="2">
+	<vbox width="100%" align="center">
+	<hbox>
+	   <button tooltiptext="Save" id="openSearchsave" label="Save" 	 onClick="opensearch.onSave()" />
+		<button tooltiptext="View" id="openSearchview" label="View" href="@{opensearch.requestApiCall}"/>
+	</hbox>
+    </vbox>
+		</footer>
+		</foot>
+</grid>		
+
+			 
+	
+</window>
