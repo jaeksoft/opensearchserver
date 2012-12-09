@@ -53,6 +53,8 @@ public enum FilterEnum {
 
 	GroupAllTokensFilter("This filter group all tokens to one"),
 
+	IndexLookupFilter("This filter extracts terms found in a search request"),
+
 	ISOLatin1AccentFilter(
 			"This filter replaces accented characters (characters with diacritics) in the ISO latin 1 character set (ISO-8859-1) with the unaccented (no diacritics) equivalent."),
 

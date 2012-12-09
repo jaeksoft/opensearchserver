@@ -36,7 +36,8 @@ public abstract class FilterFactory extends ClassFactory {
 
 	final private static String FILTER_PACKAGE = "com.jaeksoft.searchlib.analysis.filter";
 
-	public abstract TokenStream create(TokenStream tokenStream);
+	public abstract TokenStream create(TokenStream tokenStream)
+			throws SearchLibException;
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("filter", getAttributes());

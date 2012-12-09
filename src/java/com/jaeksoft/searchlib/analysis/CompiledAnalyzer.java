@@ -80,10 +80,14 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 
 	@Override
 	public TokenStream tokenStream(String fieldname, Reader reader) {
-		TokenStream ts = tokenizer.create(reader);
-		for (FilterFactory filter : filters)
-			ts = filter.create(ts);
-		return ts;
+		try {
+			TokenStream ts = tokenizer.create(reader);
+			for (FilterFactory filter : filters)
+				ts = filter.create(ts);
+			return ts;
+		} catch (SearchLibException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public boolean isAnyToken(String fieldName, String value)
@@ -93,7 +97,8 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		return tokenStream(fieldName, new StringReader(value)).incrementToken();
 	}
 
-	public List<DebugTokenFilter> test(String text) throws IOException {
+	public List<DebugTokenFilter> test(String text) throws IOException,
+			SearchLibException {
 		List<DebugTokenFilter> list = new ArrayList<DebugTokenFilter>(0);
 		StringReader reader = new StringReader(text);
 		DebugTokenFilter lastDebugTokenFilter = new DebugTokenFilter(tokenizer,

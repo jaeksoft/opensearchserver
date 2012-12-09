@@ -169,6 +169,16 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public static String[] DAILYMOTION_DATA_LIST = { "title", "full (json)" };
 
+	public final static ClassPropertyEnum INDEX_LIST = new ClassPropertyEnum(
+			true, "index", "Index", "Select an index");
+
+	public final static ClassPropertyEnum SEARCH_REQUEST = new ClassPropertyEnum(
+			true, "request", "Search Request", "The search request");
+
+	public final static ClassPropertyEnum RETURN_FIELD = new ClassPropertyEnum(
+			true, "returnField", "Return field",
+			"The field which contains the term");
+
 	public static ClassPropertyEnum VIMEO_DATA = new ClassPropertyEnum(true,
 			"vimeo_data", "Vimeo Field", "The vimeo API data");
 
