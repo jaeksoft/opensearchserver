@@ -46,6 +46,10 @@
 				<label value="Maximum number of tokens parsed: " />
 				<intbox value="@{mlt.request.maxNumTokensParsed}" />
 			</row>
+			<row>
+				<label value="Boost enabled: " />
+				<checkbox checked="@{mlt.request.boost}" />
+			</row>
 		</rows>
 	</grid>
 </window>

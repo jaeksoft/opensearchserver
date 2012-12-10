@@ -73,6 +73,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	private int minTermFreq;
 	private int maxNumTokensParsed;
 	private int maxQueryTerms;
+	private boolean boost;
 	private String stopWords;
 	private ReturnFieldList returnFieldList;
 	private FilterList filterList;
@@ -103,6 +104,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.minTermFreq = MoreLikeThis.DEFAULT_MIN_TERM_FREQ;
 		this.maxNumTokensParsed = MoreLikeThis.DEFAULT_MAX_NUM_TOKENS_PARSED;
 		this.maxQueryTerms = MoreLikeThis.DEFAULT_MAX_QUERY_TERMS;
+		this.boost = true;
 		this.stopWords = null;
 		this.start = 0;
 		this.rows = 10;
@@ -123,6 +125,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		this.stopWords = mltRequest.stopWords;
 		this.docQuery = mltRequest.docQuery;
 		this.likeText = mltRequest.likeText;
+		this.boost = mltRequest.boost;
 		this.maxNumTokensParsed = mltRequest.maxNumTokensParsed;
 		this.maxQueryTerms = mltRequest.maxQueryTerms;
 		this.filterList = new FilterList(mltRequest.filterList);
@@ -154,6 +157,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			mlt.setMaxNumTokensParsed(maxNumTokensParsed);
 			mlt.setMaxQueryTerms(maxQueryTerms);
 			mlt.setFieldNames(fieldList.toArrayName());
+			mlt.setBoost(boost);
 
 			if (analyzerName != null) {
 				Analyzer analyzer = config.getSchema().getAnalyzerList()
@@ -438,6 +442,32 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		}
 	}
 
+	/**
+	 * @return the boost
+	 */
+	public boolean getBoost() {
+		rwl.r.lock();
+		try {
+			return boost;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param boost
+	 *            the boost to set
+	 */
+	public void setBoost(boolean boost) {
+		rwl.w.lock();
+		try {
+			this.boost = boost;
+			mltQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	@Override
 	public FilterList getFilterList() {
 		rwl.r.lock();
@@ -501,6 +531,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 					"maxNumTokensParsed"));
 			setMaxQueryTerms(XPathParser.getAttributeValue(node,
 					"maxQueryTerms"));
+			setBoost(Boolean.TRUE.toString().equalsIgnoreCase(
+					XPathParser.getAttributeString(node, "boost")));
 			setStopWords(XPathParser.getAttributeString(node, "stopWords"));
 			setStart(XPathParser.getAttributeValue(node, "start"));
 			setRows(XPathParser.getAttributeValue(node, "rows"));
@@ -559,10 +591,10 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 					Integer.toString(minDocFreq), "minTermFreq",
 					Integer.toString(minTermFreq), "maxNumTokensParsed",
 					Integer.toString(maxNumTokensParsed), "maxQueryTerms",
-					Integer.toString(maxQueryTerms), "stopWords", stopWords,
-					"start", Integer.toString(start), "rows",
-					Integer.toString(rows), "lang",
-					lang != null ? lang.getCode() : null, "analyzer",
+					Integer.toString(maxQueryTerms), "boost",
+					Boolean.toString(boost), "stopWords", stopWords, "start",
+					Integer.toString(start), "rows", Integer.toString(rows),
+					"lang", lang != null ? lang.getCode() : null, "analyzer",
 					analyzerName);
 
 			if (fieldList.size() > 0) {
@@ -607,6 +639,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 		try {
 			String p;
 			Integer i;
+			Boolean b;
 
 			if ((p = transaction.getParameterString("mlt.docquery")) != null)
 				setDocQuery(p);
@@ -636,6 +669,9 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 			if ((p = transaction.getParameterString("mlt.analyzer")) != null)
 				setAnalyzerName(p);
+
+			if ((b = transaction.getParameterBoolean("mlt.boost")) != null)
+				setBoost(b);
 
 			if ((i = transaction.getParameterInteger("start")) != null)
 				setStart(i);
