@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,23 +29,55 @@ import java.io.Reader;
 import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+
 public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
+
+	private static final char[] EMTPY_CHAR_ARRAY = {};
+
+	private char[] charArray = EMTPY_CHAR_ARRAY;
 
 	public class LetterOrDigitTokenizer extends CharTokenizer {
 
-		public LetterOrDigitTokenizer(Reader input) {
+		private char[] charArray;
+
+		public LetterOrDigitTokenizer(Reader input, char[] charArray) {
 			super(input);
+			this.charArray = charArray;
 		}
 
 		@Override
 		final protected boolean isTokenChar(char c) {
-			return Character.isLetterOrDigit(c);
+			if (Character.isLetterOrDigit(c))
+				return true;
+			for (char ch : charArray)
+				if (ch == c)
+					return true;
+			return false;
+		}
+	}
+
+	@Override
+	protected void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.ADDITIONAL_ALLOWED_CHARS, "", null);
+	}
+
+	@Override
+	protected void checkValue(ClassPropertyEnum prop, String value)
+			throws SearchLibException {
+		if (prop == ClassPropertyEnum.ADDITIONAL_ALLOWED_CHARS) {
+			if (value == null)
+				charArray = EMTPY_CHAR_ARRAY;
+			else
+				charArray = value.toCharArray();
 		}
 	}
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new LetterOrDigitTokenizer(reader);
+		return new LetterOrDigitTokenizer(reader, charArray);
 	}
 
 }

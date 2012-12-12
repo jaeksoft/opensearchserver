@@ -29,10 +29,7 @@ public enum TokenizerEnum {
 	KeywordTokenizer("Emits the entire input as a single token"),
 
 	LetterOrDigitTokenizerFactory(
-			"This tokenizer considers each non-digit, non-letter character to be a separator between words."),
-
-	LetterOrDigitKeepDashQuoteTokenizer(
-			"This tokenizer is similar than the LetterOrDigitTokenizerFactory excepted for dash and simple quote."),
+			"This tokenizer considers each non-digit, non-letter character to be a separator between words. Additional characters can be set."),
 
 	NGramTokenizer("Tokenizes the input into n-grams of the given size(s)."),
 
