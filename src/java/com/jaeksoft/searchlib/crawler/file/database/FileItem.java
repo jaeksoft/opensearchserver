@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -39,6 +40,10 @@ import org.apache.commons.io.FilenameUtils;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.SecurityInterface;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess.Grant;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess.Type;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -84,6 +89,11 @@ public class FileItem extends FileInfo implements Serializable {
 	private Long crawlDate;
 	private Status status;
 
+	private List<String> userAllow;
+	private List<String> userDeny;
+	private List<String> groupAllow;
+	private List<String> groupDeny;
+
 	protected FileItem() {
 		super();
 	}
@@ -98,6 +108,10 @@ public class FileItem extends FileInfo implements Serializable {
 		lang = null;
 		langMethod = null;
 		crawlDate = null;
+		userAllow = null;
+		userDeny = null;
+		groupAllow = null;
+		groupDeny = null;
 	}
 
 	public FileItem(ResultDocument doc, FileItemFieldEnum fileItemFieldEnum)
@@ -122,6 +136,14 @@ public class FileItem extends FileInfo implements Serializable {
 		setFileExtension(doc.getValueContent(
 				fileItemFieldEnum.fileExtension.getName(), 0));
 
+		setUserAllow(FieldValueItem.buildArrayList(doc
+				.getValueArray(fileItemFieldEnum.userAllow.getName())));
+		setUserDeny(FieldValueItem.buildArrayList(doc
+				.getValueArray(fileItemFieldEnum.userDeny.getName())));
+		setGroupAllow(FieldValueItem.buildArrayList(doc
+				.getValueArray(fileItemFieldEnum.groupAllow.getName())));
+		setGroupDeny(FieldValueItem.buildArrayList(doc
+				.getValueArray(fileItemFieldEnum.groupDeny.getName())));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance)
@@ -137,6 +159,23 @@ public class FileItem extends FileInfo implements Serializable {
 			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
 		setFileExtension(FilenameUtils.getExtension(getUri()));
+		if (fileInstance instanceof SecurityInterface) {
+			SecurityInterface fileInstanceSecurity = (SecurityInterface) fileInstance;
+			List<SecurityAccess> securityAccesses;
+			try {
+				securityAccesses = fileInstanceSecurity.getSecurity();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
+			setUserAllow(SecurityAccess.getIds(securityAccesses, Type.USER,
+					Grant.ALLOW));
+			setUserDeny(SecurityAccess.getIds(securityAccesses, Type.USER,
+					Grant.DENY));
+			setGroupAllow(SecurityAccess.getIds(securityAccesses, Type.GROUP,
+					Grant.ALLOW));
+			setGroupDeny(SecurityAccess.getIds(securityAccesses, Type.GROUP,
+					Grant.DENY));
+		}
 	}
 
 	public Long getCrawlDate() {
@@ -210,6 +249,15 @@ public class FileItem extends FileInfo implements Serializable {
 			indexDocument.setString(fileItemFieldEnum.langMethod.getName(),
 					langMethod);
 
+		indexDocument.setStringList(fileItemFieldEnum.userAllow.getName(),
+				getUserAllow());
+		indexDocument.setStringList(fileItemFieldEnum.userDeny.getName(),
+				getUserDeny());
+		indexDocument.setStringList(fileItemFieldEnum.groupAllow.getName(),
+				getGroupAllow());
+		indexDocument.setStringList(fileItemFieldEnum.groupDeny.getName(),
+				getGroupDeny());
+
 	}
 
 	public void setLang(String lang) {
@@ -255,4 +303,63 @@ public class FileItem extends FileInfo implements Serializable {
 		}
 	}
 
+	/**
+	 * @param userAllow
+	 *            the userAllow to set
+	 */
+	public void setUserAllow(List<String> userAllow) {
+		this.userAllow = userAllow;
+	}
+
+	/**
+	 * @return the userAllow
+	 */
+	public List<String> getUserAllow() {
+		return userAllow;
+	}
+
+	/**
+	 * @param userDeny
+	 *            the userDeny to set
+	 */
+	public void setUserDeny(List<String> userDeny) {
+		this.userDeny = userDeny;
+	}
+
+	/**
+	 * @return the userDeny
+	 */
+	public List<String> getUserDeny() {
+		return userDeny;
+	}
+
+	/**
+	 * @param groupAllow
+	 *            the groupAllow to set
+	 */
+	public void setGroupAllow(List<String> groupAllow) {
+		this.groupAllow = groupAllow;
+	}
+
+	/**
+	 * @return the groupAllow
+	 */
+	public List<String> getGroupAllow() {
+		return groupAllow;
+	}
+
+	/**
+	 * @param groupDeny
+	 *            the groupDeny to set
+	 */
+	public void setGroupDeny(List<String> groupDeny) {
+		this.groupDeny = groupDeny;
+	}
+
+	/**
+	 * @return the groupDeny
+	 */
+	public List<String> getGroupDeny() {
+		return groupDeny;
+	}
 }

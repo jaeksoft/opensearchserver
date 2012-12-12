@@ -33,7 +33,7 @@ import org.zkoss.zul.event.ListDataListener;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
-public class FieldContentModel implements BindingListModel {
+public class FieldContentModel implements BindingListModel<FieldValueItem> {
 
 	private FieldContent fieldContent;
 
@@ -57,7 +57,7 @@ public class FieldContentModel implements BindingListModel {
 	}
 
 	@Override
-	public Object getElementAt(int index) {
+	public FieldValueItem getElementAt(int index) {
 		return fieldContent.getValues()[index];
 	}
 

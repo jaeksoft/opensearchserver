@@ -60,4 +60,12 @@ public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	public final ItemField fileType = new ItemField(this, "fileType");
 
+	public final ItemField userAllow = new ItemField(this, "userAllow");
+
+	public final ItemField userDeny = new ItemField(this, "userDeny");
+
+	public final ItemField groupAllow = new ItemField(this, "groupAllow");
+
+	public final ItemField groupDeny = new ItemField(this, "groupDeny");
+
 }

@@ -39,6 +39,10 @@
 				termVector="no" />
 			<field name="fileType" indexed="yes" stored="no" termVector="no" />
 			<field name="md5size" indexed="yes" stored="no" termVector="no" />
+			<field name="userAllow" indexed="yes" stored="no" termVector="no" />
+			<field name="userDeny" indexed="yes" stored="no" termVector="no" />
+			<field name="groupAllow" indexed="yes" stored="no" termVector="no" />
+			<field name="groupDeny" indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 	<requests>

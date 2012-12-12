@@ -145,7 +145,7 @@ public class AutoCompletionComposer extends CommonComposer {
 				}
 			}
 		}
-		ListModel listModel = new ListModelArray(resultArray);
+		ListModel<String> listModel = new ListModelArray<String>(resultArray);
 		combo.setModel(listModel);
 	}
 

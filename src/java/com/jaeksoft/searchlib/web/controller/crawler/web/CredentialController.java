@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -103,12 +103,13 @@ public class CredentialController extends CrawlerController {
 	@Override
 	public void afterCompose() {
 		super.afterCompose();
-		getFellow("paging").addEventListener("onPaging", new EventListener() {
-			@Override
-			public void onEvent(Event event) throws SearchLibException {
-				onPaging((PagingEvent) event);
-			}
-		});
+		getFellow("paging").addEventListener("onPaging",
+				new EventListener<Event>() {
+					@Override
+					public void onEvent(Event event) throws SearchLibException {
+						onPaging((PagingEvent) event);
+					}
+				});
 	}
 
 	public void setPageSize(int v) {

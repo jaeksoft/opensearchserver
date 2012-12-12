@@ -85,11 +85,11 @@ public enum PushEvent {
 		return new Event(eventName);
 	}
 
-	private static EventQueue getQueue(String scope) {
+	private static EventQueue<Event> getQueue(String scope) {
 		return EventQueues.lookup("OSS", scope, true);
 	}
 
-	private static EventQueue getQueue(WebApp webApp) {
+	private static EventQueue<Event> getQueue(WebApp webApp) {
 		return EventQueues.lookup("OSS", webApp, true);
 	}
 
@@ -113,7 +113,7 @@ public enum PushEvent {
 		getQueue(webApp).publish(newEvent(data));
 	}
 
-	private void subscribe(EventListener eventListener) {
+	private void subscribe(EventListener<Event> eventListener) {
 		if (Executions.getCurrent() == null)
 			return;
 		getQueue(scope).subscribe(eventListener);
@@ -129,7 +129,7 @@ public enum PushEvent {
 		return null;
 	}
 
-	public static void suscribe(EventListener eventListener) {
+	public static void suscribe(EventListener<Event> eventListener) {
 		for (PushEvent pushEvent : PushEvent.values())
 			pushEvent.subscribe(eventListener);
 	}

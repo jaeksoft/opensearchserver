@@ -30,6 +30,8 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -40,9 +42,11 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
-public class FtpFileInstance extends FileInstanceAbstract {
+public class FtpFileInstance extends FileInstanceAbstract implements
+		FileInstanceAbstract.SecurityInterface {
 
 	private FTPFile ftpFile;
 
@@ -214,4 +218,32 @@ public class FtpFileInstance extends FileInstanceAbstract {
 		}
 	}
 
+	public static List<SecurityAccess> getSecurity(FTPFile ftpFile) {
+		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		if (ftpFile == null)
+			return accesses;
+		if (ftpFile.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION)) {
+			SecurityAccess access = new SecurityAccess();
+			access.setGrant(SecurityAccess.Grant.ALLOW);
+			access.setType(SecurityAccess.Type.USER);
+			access.setId(ftpFile.getUser());
+			accesses.add(access);
+		}
+
+		if (ftpFile
+				.hasPermission(FTPFile.GROUP_ACCESS, FTPFile.READ_PERMISSION)) {
+			SecurityAccess access = new SecurityAccess();
+			access.setGrant(SecurityAccess.Grant.ALLOW);
+			access.setType(SecurityAccess.Type.GROUP);
+			access.setId(ftpFile.getGroup());
+			accesses.add(access);
+		}
+
+		return accesses;
+	}
+
+	@Override
+	public List<SecurityAccess> getSecurity() throws IOException {
+		return getSecurity(getFTPFile());
+	}
 }

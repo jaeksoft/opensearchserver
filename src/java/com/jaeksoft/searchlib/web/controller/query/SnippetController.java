@@ -49,7 +49,7 @@ public class SnippetController extends AbstractQueryController {
 
 	private transient List<String> snippetFieldLeft;
 
-	private transient RowRenderer rowRenderer;
+	private transient RowRenderer<SnippetField> rowRenderer;
 
 	public SnippetController() throws SearchLibException {
 		super();
@@ -62,7 +62,7 @@ public class SnippetController extends AbstractQueryController {
 		rowRenderer = null;
 	}
 
-	public RowRenderer getSnippetFieldRenderer() {
+	public RowRenderer<SnippetField> getSnippetFieldRenderer() {
 		synchronized (this) {
 			if (rowRenderer != null)
 				return rowRenderer;

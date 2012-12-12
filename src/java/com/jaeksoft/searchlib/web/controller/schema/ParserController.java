@@ -58,7 +58,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ParserController extends CommonController implements
-		ListitemRenderer {
+		ListitemRenderer<GenericLink<SourceField, ParserFieldTarget>> {
 
 	/**
 	 * 
@@ -365,10 +365,9 @@ public class ParserController extends CommonController implements
 		reloadPage();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<SourceField, ParserFieldTarget> link = (GenericLink<SourceField, ParserFieldTarget>) data;
+	public void render(Listitem item,
+			GenericLink<SourceField, ParserFieldTarget> link, int index) {
 		ParserFieldTarget fieldTarget = link.getTarget();
 		new Listcell(link.getSource().getUniqueName()).setParent(item);
 		new Listcell(fieldTarget.getName()).setParent(item);
@@ -381,7 +380,7 @@ public class ParserController extends CommonController implements
 				.setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
-		image.addForward(null, this, "onLinkRemove", data);
+		image.addForward(null, this, "onLinkRemove", link);
 		image.setParent(listcell);
 		listcell.setParent(item);
 	}

@@ -39,8 +39,8 @@ import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.ForwardEvent;
-import org.zkoss.zul.api.Combobox;
-import org.zkoss.zul.api.Listbox;
+import org.zkoss.zul.Combobox;
+import org.zkoss.zul.Listbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;

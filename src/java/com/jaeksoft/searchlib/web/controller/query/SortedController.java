@@ -32,9 +32,9 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
-import org.zkoss.zul.api.Listitem;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 
 public class SortedController extends AbstractQueryController implements
-		RowRenderer {
+		RowRenderer<SortField> {
 
 	/**
 	 * 
@@ -147,7 +147,7 @@ public class SortedController extends AbstractQueryController implements
 		reloadPage();
 	}
 
-	public class DirectionListener implements EventListener {
+	public class DirectionListener implements EventListener<Event> {
 
 		protected SortField sortField;
 
@@ -170,8 +170,7 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void render(Row row, Object data) throws Exception {
-		SortField sortField = (SortField) data;
+	public void render(Row row, SortField sortField, int index) {
 		new Label(sortField.getName()).setParent(row);
 		Listbox listbox = new Listbox();
 		listbox.setMold("select");

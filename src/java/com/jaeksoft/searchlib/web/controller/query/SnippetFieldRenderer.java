@@ -30,16 +30,16 @@ import org.zkoss.zul.Button;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
 import org.zkoss.zul.Textbox;
-import org.zkoss.zul.api.Listitem;
 
 import com.jaeksoft.searchlib.snippet.SnippetField;
 
-public class SnippetFieldRenderer implements RowRenderer {
+public class SnippetFieldRenderer implements RowRenderer<SnippetField> {
 
-	public class FragmenterListener implements EventListener {
+	public class FragmenterListener implements EventListener<Event> {
 
 		protected SnippetField snippetField;
 
@@ -99,8 +99,7 @@ public class SnippetFieldRenderer implements RowRenderer {
 	}
 
 	@Override
-	public void render(Row row, Object data) throws Exception {
-		SnippetField field = (SnippetField) data;
+	public void render(Row row, SnippetField field, int index) {
 		new Label(field.getName()).setParent(row);
 
 		String fieldFragmenter = field.getFragmenter();

@@ -36,8 +36,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.user.User;
 
-public abstract class CommonComposer extends GenericForwardComposer implements
-		EventInterface {
+public abstract class CommonComposer extends GenericForwardComposer<Component>
+		implements EventInterface {
 
 	/**
 	 * 

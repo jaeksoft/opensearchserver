@@ -84,12 +84,13 @@ public class UrlController extends CommonController implements AfterCompose {
 	@Override
 	public void afterCompose() {
 		super.afterCompose();
-		getFellow("paging").addEventListener("onPaging", new EventListener() {
-			@Override
-			public void onEvent(Event event) {
-				onPaging((PagingEvent) event);
-			}
-		});
+		getFellow("paging").addEventListener("onPaging",
+				new EventListener<Event>() {
+					@Override
+					public void onEvent(Event event) {
+						onPaging((PagingEvent) event);
+					}
+				});
 	}
 
 	public int getActivePage() {

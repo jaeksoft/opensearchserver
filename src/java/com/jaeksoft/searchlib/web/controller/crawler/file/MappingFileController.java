@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class MappingFileController extends CrawlerController implements
-		ListitemRenderer {
+		ListitemRenderer<GenericLink<SourceField, TargetField>> {
 
 	/**
 	 * 
@@ -162,15 +162,14 @@ public class MappingFileController extends CrawlerController implements
 		reloadPage();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void render(Listitem item, Object data) throws Exception {
-		GenericLink<SourceField, TargetField> link = (GenericLink<SourceField, TargetField>) data;
+	public void render(Listitem item,
+			GenericLink<SourceField, TargetField> link, int index) {
 		new Listcell(link.getSource().getUniqueName()).setParent(item);
 		new Listcell(link.getTarget().getName()).setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
-		image.addForward(null, this, "onLinkRemove", data);
+		image.addForward(null, this, "onLinkRemove", link);
 		image.setParent(listcell);
 		listcell.setParent(item);
 	}

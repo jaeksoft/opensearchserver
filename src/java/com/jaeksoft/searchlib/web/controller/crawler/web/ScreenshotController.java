@@ -136,6 +136,7 @@ public class ScreenshotController extends CrawlerController {
 		}
 	}
 
+	@Override
 	public void onTimer() throws SearchLibException {
 		if (currentImage == null)
 			if (currentScreenshotThread != null)
@@ -143,6 +144,7 @@ public class ScreenshotController extends CrawlerController {
 		reloadPage();
 	}
 
+	@Override
 	public boolean isRefresh() {
 		synchronized (this) {
 			if (currentScreenshotThread == null)

@@ -238,6 +238,10 @@
 				indexed="yes" stored="no" termVector="no" />
 			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
+			<field name="userAllow" indexed="yes" stored="no" />
+			<field name="userDeny" indexed="yes" stored="no" />
+			<field name="groupAllow" indexed="yes" stored="no" />
+			<field name="groupDeny" indexed="yes" stored="no" />
 		</fields>
 	</schema>
 

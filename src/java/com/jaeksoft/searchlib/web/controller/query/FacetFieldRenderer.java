@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,15 +30,15 @@ import org.zkoss.zul.Button;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.RowRenderer;
-import org.zkoss.zul.api.Listitem;
 
 import com.jaeksoft.searchlib.facet.FacetField;
 
-public class FacetFieldRenderer implements RowRenderer {
+public class FacetFieldRenderer implements RowRenderer<FacetField> {
 
-	public class MultivaluedListener implements EventListener {
+	public class MultivaluedListener implements EventListener<Event> {
 
 		protected FacetField facetField;
 
@@ -47,7 +47,7 @@ public class FacetFieldRenderer implements RowRenderer {
 		}
 
 		@Override
-		public void onEvent(Event event) throws Exception {
+		public void onEvent(Event event) {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
 			if (listitem != null)
@@ -63,7 +63,7 @@ public class FacetFieldRenderer implements RowRenderer {
 		}
 
 		@Override
-		public void onEvent(Event event) throws Exception {
+		public void onEvent(Event event) {
 			Listbox listbox = (Listbox) event.getTarget();
 			Listitem listitem = listbox.getSelectedItem();
 			if (listitem != null)
@@ -79,7 +79,7 @@ public class FacetFieldRenderer implements RowRenderer {
 		}
 
 		@Override
-		public void onEvent(Event event) throws Exception {
+		public void onEvent(Event event) {
 			Intbox intbox = (Intbox) event.getTarget();
 			if (intbox != null)
 				facetField.setMinCount(intbox.getValue());
@@ -87,8 +87,7 @@ public class FacetFieldRenderer implements RowRenderer {
 	}
 
 	@Override
-	public void render(Row row, Object data) throws Exception {
-		FacetField facetField = (FacetField) data;
+	public void render(Row row, FacetField facetField, int index) {
 		new Label(facetField.getName()).setParent(row);
 		Listbox listbox = new Listbox();
 		listbox.setMold("select");

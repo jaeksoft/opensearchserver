@@ -50,6 +50,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		debug = false;
 	}
 
+	@Override
 	public DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -57,6 +58,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		return client.getDatabaseCrawlMaster();
 	}
 
+	@Override
 	public boolean isRefresh() throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
@@ -64,6 +66,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 		return crawlMaster.getThreadsCount() > 0;
 	}
 
+	@Override
 	public void onTimer() throws SearchLibException {
 		reloadPage();
 	}

@@ -48,7 +48,7 @@ public class FacetController extends AbstractQueryController {
 
 	private transient List<String> fieldLeft;
 
-	private transient RowRenderer rowRenderer;
+	private transient RowRenderer<FacetField> rowRenderer;
 
 	public FacetController() throws SearchLibException {
 		super();
@@ -61,7 +61,7 @@ public class FacetController extends AbstractQueryController {
 		rowRenderer = null;
 	}
 
-	public RowRenderer getFacetFieldRenderer() {
+	public RowRenderer<FacetField> getFacetFieldRenderer() {
 		synchronized (this) {
 			if (rowRenderer != null)
 				return rowRenderer;

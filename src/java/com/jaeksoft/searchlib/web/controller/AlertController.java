@@ -30,7 +30,7 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class AlertController implements EventListener {
+public class AlertController implements EventListener<Event> {
 
 	private final static String ALERT_TITLE = "OpenSearchServer";
 

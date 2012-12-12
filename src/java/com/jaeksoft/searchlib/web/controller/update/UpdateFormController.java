@@ -53,7 +53,7 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UpdateFormController extends CommonController implements
-		ListitemRenderer {
+		ListitemRenderer<UpdateFormController.FieldValue> {
 
 	/**
 	 * 
@@ -172,7 +172,7 @@ public class UpdateFormController extends CommonController implements
 		}
 	}
 
-	public class FieldValue implements EventListener {
+	public static class FieldValue implements EventListener<Event> {
 
 		private int index;
 
@@ -218,8 +218,7 @@ public class UpdateFormController extends CommonController implements
 	}
 
 	@Override
-	public void render(Listitem item, Object data) throws Exception {
-		FieldValue fieldValue = (FieldValue) data;
+	public void render(Listitem item, FieldValue fieldValue, int index) {
 
 		Listcell listcell = new Listcell();
 		Doublebox doublebox = new Doublebox();

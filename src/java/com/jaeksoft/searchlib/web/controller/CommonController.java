@@ -56,7 +56,7 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController extends Window implements AfterCompose,
-		EventListener, EventInterface {
+		EventListener<Event>, EventInterface {
 
 	/**
 	 * 
@@ -245,17 +245,12 @@ public abstract class CommonController extends Window implements AfterCompose,
 			return;
 		if (component instanceof CommonController)
 			((CommonController) component).doRefresh();
-		@SuppressWarnings("unchecked")
-		List<Object> children = component.getChildren();
+		List<Component> children = component.getChildren();
 		if (children == null)
 			return;
-		for (Object child : children) {
-			if (!(child instanceof Component))
-				continue;
-			Component comp = (Component) child;
+		for (Component comp : children)
 			if (comp.isVisible())
 				sendRefresh(comp);
-		}
 	}
 
 	final public void onRefresh() throws SearchLibException {
@@ -268,16 +263,11 @@ public abstract class CommonController extends Window implements AfterCompose,
 			return;
 		if (component instanceof CommonController)
 			((CommonController) component).reloadPage();
-		@SuppressWarnings("unchecked")
-		List<Object> children = component.getChildren();
+		List<Component> children = component.getChildren();
 		if (children == null)
 			return;
-		for (Object child : children) {
-			if (!(child instanceof Component))
-				continue;
-			Component comp = (Component) child;
+		for (Component comp : children)
 			sendReload(comp);
-		}
 	}
 
 	public LanguageEnum[] getLanguageEnum() {
@@ -402,15 +392,11 @@ public abstract class CommonController extends Window implements AfterCompose,
 				tabPath.add(lbl);
 			}
 		}
-		@SuppressWarnings("unchecked")
-		List<Object> children = component.getChildren();
+		List<Component> children = component.getChildren();
 		if (children == null)
 			return;
-		for (Object child : children) {
-			if (!(child instanceof Component))
-				continue;
-			buildTabPath((Component) child, tabPath);
-		}
+		for (Component comp : children)
+			buildTabPath(comp, tabPath);
 	}
 
 	final public void onHelp() throws SearchLibException,

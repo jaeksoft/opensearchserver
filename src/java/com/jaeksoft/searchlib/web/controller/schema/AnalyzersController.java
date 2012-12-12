@@ -54,7 +54,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AnalyzersController extends CommonController implements
-		ListitemRenderer {
+		ListitemRenderer<DebugTokenFilter> {
 
 	/**
 	 * 
@@ -371,8 +371,7 @@ public class AnalyzersController extends CommonController implements
 	}
 
 	@Override
-	public void render(Listitem item, Object data) throws Exception {
-		DebugTokenFilter debugFilter = (DebugTokenFilter) data;
+	public void render(Listitem item, DebugTokenFilter debugFilter, int index) {
 		Listcell listcell = new Listcell(debugFilter.getClassFactory()
 				.getClassName());
 		listcell.setParent(item);

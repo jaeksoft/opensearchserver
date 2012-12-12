@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class ReturnedController extends AbstractQueryController implements
-		RowRenderer {
+		RowRenderer<ReturnField> {
 
 	/**
 	 * 
@@ -138,8 +138,7 @@ public class ReturnedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void render(Row row, Object data) throws Exception {
-		ReturnField field = (ReturnField) data;
+	public void render(Row row, ReturnField field, int index) {
 		new Label(field.getName()).setParent(row);
 		Button button = new Button("Remove");
 		button.addForward(null, "query", "onReturnRemove", field);

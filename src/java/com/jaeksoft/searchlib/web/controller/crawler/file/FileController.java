@@ -82,12 +82,13 @@ public class FileController extends CrawlerController implements AfterCompose {
 	@Override
 	public void afterCompose() {
 		super.afterCompose();
-		getFellow("paging").addEventListener("onPaging", new EventListener() {
-			@Override
-			public void onEvent(Event event) throws SearchLibException {
-				onPaging((PagingEvent) event);
-			}
-		});
+		getFellow("paging").addEventListener("onPaging",
+				new EventListener<Event>() {
+					@Override
+					public void onEvent(Event event) throws SearchLibException {
+						onPaging((PagingEvent) event);
+					}
+				});
 	}
 
 	public FileManager getFileManager() throws SearchLibException {

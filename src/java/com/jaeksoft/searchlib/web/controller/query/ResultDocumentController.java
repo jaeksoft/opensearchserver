@@ -37,7 +37,7 @@ import org.zkoss.zul.Treecell;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.TreeitemRenderer;
 import org.zkoss.zul.Treerow;
-import org.zkoss.zul.api.Window;
+import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultDocumentController extends AbstractQueryController implements
-		TreeitemRenderer {
+		TreeitemRenderer<Object> {
 
 	/**
 	 * 
@@ -162,8 +162,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 			return "50%";
 		}
 
-		public TreeModel getReturnTree() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
+		public TreeModel<Object> getReturnTree() throws IOException,
+				ParseException, SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return null;
@@ -172,8 +172,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 							.getReturnFields()));
 		}
 
-		public TreeModel getSnippetTree() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
+		public TreeModel<Object> getSnippetTree() throws IOException,
+				ParseException, SyntaxError, SearchLibException {
 			ResultDocument resultDocument = getResultDocument();
 			if (resultDocument == null)
 				return null;
@@ -183,7 +183,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 		}
 	}
 
-	public class FieldTreeModel<T extends FieldValue> extends AbstractTreeModel {
+	public class FieldTreeModel<T extends FieldValue> extends
+			AbstractTreeModel<Object> {
 
 		/**
 		 * 
@@ -309,7 +310,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void render(Treeitem item, Object data) throws Exception {
+	public void render(Treeitem item, Object data, int index) throws Exception {
 		Treerow treerow = new Treerow();
 		if (data instanceof String)
 			renderValue(treerow, (String) data);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,8 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public abstract class AbstractPatternController extends CrawlerController
-		implements ListitemRenderer, Selector<PatternItem>, AfterCompose {
+		implements ListitemRenderer<PatternItem>, Selector<PatternItem>,
+		AfterCompose {
 
 	/**
 	 * 
@@ -83,12 +84,13 @@ public abstract class AbstractPatternController extends CrawlerController
 	@Override
 	public void afterCompose() {
 		super.afterCompose();
-		getFellow("paging").addEventListener("onPaging", new EventListener() {
-			@Override
-			public void onEvent(Event event) throws SearchLibException {
-				onPaging((PagingEvent) event);
-			}
-		});
+		getFellow("paging").addEventListener("onPaging",
+				new EventListener<Event>() {
+					@Override
+					public void onEvent(Event event) throws SearchLibException {
+						onPaging((PagingEvent) event);
+					}
+				});
 	}
 
 	public void setPageSize(int v) {
@@ -209,8 +211,7 @@ public abstract class AbstractPatternController extends CrawlerController
 	}
 
 	@Override
-	public void render(Listitem item, Object data) throws Exception {
-		PatternItem patternItem = (PatternItem) data;
+	public void render(Listitem item, PatternItem patternItem, int index) {
 		item.setLabel(patternItem.getPattern());
 		item.setSelected(patternItem.isSelected());
 		item.addForward(null, this, "onSelect", patternItem);
