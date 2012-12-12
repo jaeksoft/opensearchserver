@@ -23,6 +23,8 @@
 
 package com.jaeksoft.searchlib.web.controller.scheduler;
 
+import java.util.Date;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
@@ -76,4 +78,13 @@ public class SchedulerController extends CrawlerController {
 				.getFellowIfAny("scheduler", true);
 		sendReload(ctrl);
 	}
+
+	public Date getCurrentTime() {
+		return new Date();
+	}
+
+	public void reloadTime() {
+		reloadComponent("currentTime");
+	}
+
 }

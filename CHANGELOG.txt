@@ -10,6 +10,8 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchserver 1.4
 
 New features:
+- 251: A report module
+- 250: Server time in scheduler interface
 - 249: Extraction of user and group rights when crawling CIFS/SMB and FTP
 - 248: Upgrade ZK CE to 6.5
 - 247: Support of additional characters in LetterOrDigitTokenizer

@@ -14,8 +14,14 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="scheduler" border="none"
+<window id="scheduler" border="normal" title="Scheduler"
 	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController">
+	<caption>
+		<label id="currentTime" value="@{scheduler.currentTime}"
+			onClick="scheduler.reloadTime()" />
+	</caption>
+	<timer onTimer="scheduler.reloadTime()" repeats="true"
+		delay="10000" />
 	<tabbox>
 		<tabs>
 			<tab id="tabSchedulerList" label="Job list" selected="true" />

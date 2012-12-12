@@ -1,0 +1,50 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" root="./reportView"?>
+<zk>
+	<window id="reportView" border="none"
+		apply="com.jaeksoft.searchlib.web.controller.report.LogFilesController">
+		<listbox id="box" mold="paging" rows="5"
+			model="@{reportView$composer.getReportList}">
+			<listhead>
+				<listheader label="ReportName" />
+				<listheader label="ReportDated" />
+				<listheader />
+
+			</listhead>
+			<listitem self="@{each='reportList'}"
+				value="@{reportList}">
+				<listcell label="@{reportList.reportName}" />
+				<listcell label="@{reportList.reportDate}" />
+				<listcell>
+					<button label="Load" id="loadReport">
+						<custom-attributes
+							reportid="@{reportList.reportName}" />
+					</button>
+					<button label="Archive" id="archiveReport">
+						<custom-attributes
+							reportid="@{reportList.reportName}" />
+					</button>
+					<button label="Delete" id="deleteReport">
+						<custom-attributes
+							reportid="@{reportList.reportName}" />
+					</button>
+				</listcell>
+			</listitem>
+		</listbox>
+	</window>
+</zk>

@@ -25,11 +25,17 @@
 package com.jaeksoft.searchlib.logreport;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -41,21 +47,69 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class LogReportManager {
 
+	final private File dirLog;
 	final private DailyLogger logger;
 
 	private SimpleDateFormat timeStampFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	public LogReportManager(String indexName) throws IOException {
-		File dirLog = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				"logs");
+		dirLog = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs");
 		if (!dirLog.exists())
 			dirLog.mkdir();
-		logger = new DailyLogger(dirLog, "report." + indexName, timeStampFormat);
+		logger = new DailyLogger(getLogDirectory(), "report." + indexName,
+				timeStampFormat);
 	}
 
 	public void close() {
 		logger.close();
+	}
+
+	final public File getLogDirectory() {
+		return dirLog;
+	}
+
+	final private File getArchiveDirectory() {
+		return new File(getLogDirectory(), "archives");
+	}
+
+	final public boolean archiveFile(String fileName) throws IOException {
+		ZipOutputStream zos = null;
+		FileInputStream fis = null;
+		try {
+			File sourceFile = new File(getLogDirectory(), fileName);
+			File destinationDir = getArchiveDirectory();
+			if (!destinationDir.exists())
+				destinationDir.mkdir();
+			File destinationFile = new File(destinationDir, fileName + ".zip");
+			zos = new ZipOutputStream(new FileOutputStream(destinationFile));
+			fis = new FileInputStream(sourceFile);
+			zos.putNextEntry(new ZipEntry(fileName.trim()));
+			byte[] buffer = new byte[16384];
+			int size;
+			while ((size = fis.read(buffer)) > 0)
+				zos.write(buffer, 0, size);
+			zos.closeEntry();
+			zos.close();
+			zos = null;
+			fis.close();
+			fis = null;
+			return sourceFile.delete();
+		} finally {
+			if (zos != null)
+				zos.closeEntry();
+			if (fis != null)
+				IOUtils.closeQuietly(fis);
+			if (zos != null)
+				IOUtils.closeQuietly(zos);
+		}
+	}
+
+	public boolean deleteFile(String filename) {
+		File logFile = new File(getLogDirectory(), filename);
+		if (!logFile.exists())
+			return true;
+		return logFile.delete();
 	}
 
 	final public void log(AbstractRequest request, Timer timer,

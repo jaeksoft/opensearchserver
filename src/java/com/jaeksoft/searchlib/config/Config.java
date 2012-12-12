@@ -87,6 +87,7 @@ import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationThread;
+import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
@@ -186,6 +187,8 @@ public abstract class Config {
 	private TaskEnum taskEnum = null;
 
 	private ClassifierManager classifierManager = null;
+
+	private ReportsManager reportsManager = null;
 
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
@@ -482,6 +485,32 @@ public abstract class Config {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private File getReportsDirectory() {
+		File directory = new File(this.getDirectory(), "report");
+		if (!directory.exists())
+			directory.mkdir();
+		return directory;
+	}
+
+	public ReportsManager getReportsManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reportsManager != null)
+				return reportsManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (reportsManager != null)
+				return reportsManager;
+			reportsManager = new ReportsManager(this, getReportsDirectory());
+			return reportsManager;
 		} finally {
 			rwl.w.unlock();
 		}

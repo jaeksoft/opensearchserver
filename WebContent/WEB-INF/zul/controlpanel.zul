@@ -18,8 +18,8 @@
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<tabbox>
 		<tabs>
-			<tab id="tabHome" label="@{index.indexTitle}" tooltiptext="Index"
-				selected="true" />
+			<tab id="tabHome" label="@{index.indexTitle}"
+				tooltiptext="Index" selected="true" />
 			<tab id="tabSchema" visible="@{index.schemaRights}"
 				label="Schema" />
 			<tab id="tabQuery" visible="@{index.queryRights}"
@@ -36,6 +36,8 @@
 				label="Scheduler" />
 			<tab id="tabRuntime" visible="@{index.runtimeRights}"
 				label="Runtime" />
+			<tab id="tabReports" visible="@{index.queryRights}"
+				label="Reports" />
 			<tab id="tabReplication"
 				visible="@{index.replicationRights}" label="Replication" />
 			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
@@ -72,6 +74,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
 				<include src="WEB-INF/zul/runtime/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabReports.onSelect">
+				<include src="WEB-INF/zul/reports/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabReplication.onSelect">
 				<include src="WEB-INF/zul/replication/index.zul" />

@@ -1,0 +1,72 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window id="queryReports" border="none"
+	apply="com.jaeksoft.searchlib.web.controller.report.QueryReportsController">
+	<grid>
+		<columns>
+			<column align="right" />
+			<column />
+
+		</columns>
+		<rows>
+			<row>
+				<label>Top Keywords to Search:</label>
+				<textbox id="topKeywords" width="35%" />
+			</row>
+			<row>
+				<label>Query Type:</label>
+				<listbox id="queryType" mold="select">
+					<listitem id="topQueries" label="Top Queries" />
+					<listitem label="Top Queries with no Results" />
+				</listbox>
+
+			</row>
+			<row>
+				<label>Begin Date:</label>
+				<datebox id="beginDate" cols="16"
+					format="yyyy/MM/dd a hh:mm:ss" />
+			</row>
+			<row>
+				<label>End Date:</label>
+				<datebox id="endDate" cols="16"
+					format="yyyy/MM/dd a hh:mm:ss " />
+			</row>
+			<row>
+				<label>Top Queries to Display</label>
+				<listbox id="topQueriesDisplay" mold="select">
+					<listitem id="topHundred" label="100" />
+					<listitem label="1000" />
+					<listitem label="5000" />
+				</listbox>
+			</row>
+
+		</rows>
+	</grid>
+
+	<vbox align="center" width="100%">
+		<hbox>
+			<button id="createReport" label="Create Report" />
+			<button id="exportReport" label="Export Report" />
+		</hbox>
+	</vbox>
+	<listbox id="reportsView" mold="paging" rows="10" visible="false">
+		<listhead>
+			<listheader label="Queries" />
+			<listheader label="Frequency" />
+		</listhead>
+	</listbox>
+</window>
