@@ -76,10 +76,8 @@ public abstract class CommonController extends Window implements AfterCompose,
 	@Override
 	public void afterCompose() {
 		binder = (AnnotateDataBinder) getPage().getAttribute("binder");
-		if (binder == null)
-			binder = (AnnotateDataBinder) getAttribute("binder");
 		if (binder == null) {
-			binder = new AnnotateDataBinder(this);
+			binder = new AnnotateDataBinder(getPage());
 			System.out.println("NEW BINDER " + this);
 		} else {
 			System.out.println("EXISTING BINDER " + this);

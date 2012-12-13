@@ -14,7 +14,6 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit"?>
 <window id="index" border="normal"
 	use="com.jaeksoft.searchlib.web.controller.IndexController">
 	<caption image="images/oss_logo_32.png" label="@{index.version}">
