@@ -14,37 +14,33 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" root="./reportView"?>
-<zk>
-	<window id="reportView" border="none"
-		apply="com.jaeksoft.searchlib.web.controller.report.LogFilesController">
-		<listbox id="box" mold="paging" rows="5"
-			model="@{reportView$composer.getReportList}">
-			<listhead>
-				<listheader label="ReportName" />
-				<listheader label="ReportDated" />
-				<listheader />
+<window id="reportView" border="none"
+	apply="com.jaeksoft.searchlib.web.controller.report.LogFilesController">
+	<listbox id="box" mold="paging" rows="5"
+		model="@{reportView$composer.getReportList}">
+		<listhead>
+			<listheader label="ReportName" />
+			<listheader label="ReportDated" />
+			<listheader />
 
-			</listhead>
-			<listitem self="@{each='reportList'}"
-				value="@{reportList}">
-				<listcell label="@{reportList.reportName}" />
-				<listcell label="@{reportList.reportDate}" />
-				<listcell>
-					<button label="Load" id="loadReport">
-						<custom-attributes
-							reportid="@{reportList.reportName}" />
-					</button>
-					<button label="Archive" id="archiveReport">
-						<custom-attributes
-							reportid="@{reportList.reportName}" />
-					</button>
-					<button label="Delete" id="deleteReport">
-						<custom-attributes
-							reportid="@{reportList.reportName}" />
-					</button>
-				</listcell>
-			</listitem>
-		</listbox>
-	</window>
-</zk>
+		</listhead>
+		<listitem self="@{each='reportList'}" value="@{reportList}">
+			<listcell label="@{reportList.reportName}" />
+			<listcell label="@{reportList.reportDate}" />
+			<listcell>
+				<button label="Load" id="loadReport">
+					<custom-attributes
+						reportid="@{reportList.reportName}" />
+				</button>
+				<button label="Archive" id="archiveReport">
+					<custom-attributes
+						reportid="@{reportList.reportName}" />
+				</button>
+				<button label="Delete" id="deleteReport">
+					<custom-attributes
+						reportid="@{reportList.reportName}" />
+				</button>
+			</listcell>
+		</listitem>
+	</listbox>
+</window>

@@ -76,7 +76,6 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	@Override
 	public void afterCompose() {
-
 		System.out.println("binderutil "
 				+ (binder = (AnnotateDataBinder) BinderUtil.getBinder(this)));
 		if (binder == null)
