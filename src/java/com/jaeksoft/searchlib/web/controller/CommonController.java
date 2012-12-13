@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
+import org.zkoss.bind.impl.BinderUtil;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
@@ -75,9 +76,38 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	@Override
 	public void afterCompose() {
-		binder = (AnnotateDataBinder) getPage().getAttribute("binder");
+
+		System.out.println("binderutil "
+				+ (binder = (AnnotateDataBinder) BinderUtil.getBinder(this)));
+		if (binder == null)
+			System.out.println("bind page "
+					+ this
+					+ " "
+					+ (binder = (AnnotateDataBinder) getPage().getAttribute(
+							"binder")));
+		if (binder == null)
+			System.out.println("bind attr " + this + " "
+					+ (binder = (AnnotateDataBinder) getAttribute("binder")));
+		if (binder == null)
+			System.out.println("bind root "
+					+ this
+					+ " "
+					+ (binder = (AnnotateDataBinder) getRoot().getAttribute(
+							"binder")));
+		if (binder == null)
+			System.out.println("bind desktop "
+					+ this
+					+ " "
+					+ (binder = (AnnotateDataBinder) getDesktop().getAttribute(
+							"binder")));
+		if (binder == null)
+			System.out.println("BINDER CREATION " + this + " "
+					+ (binder = new AnnotateDataBinder(this)));
+
 		if (binder != null)
 			binder.loadAll();
+		else
+			System.out.println("BINDER IS NULL " + this);
 		PushEvent.suscribe(this);
 		isComposed = true;
 	}
