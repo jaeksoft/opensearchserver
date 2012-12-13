@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" root="./home" ?>
 <window id="home"
 	use="com.jaeksoft.searchlib.web.controller.HomeController">
 	<grid visible="@{home.adminOrNoUser}" hflex="min">
