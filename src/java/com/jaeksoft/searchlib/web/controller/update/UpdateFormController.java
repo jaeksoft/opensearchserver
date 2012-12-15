@@ -239,7 +239,7 @@ public class UpdateFormController extends CommonController implements
 
 		listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
-		image.addForward(null, this, "onValueRemove", fieldValue);
+		// TODO image.addForward(null, this, "onValueRemove", fieldValue);
 		image.setParent(listcell);
 		listcell.setParent(item);
 	}

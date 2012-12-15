@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,15 +14,16 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="normal" id="index"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
-	<caption image="images/oss_logo_32.png" label="@{index.version}">
+<window border="normal" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('index') @init('com.jaeksoft.searchlib.web.controller.IndexController')">
+	<caption image="images/oss_logo_32.png"
+		label="@bind(index.version)">
 		<hbox align="center">
-			<label visible="@{index.logged}" value="Connected as: " />
-			<label visible="@{index.logged}"
-				value="@{index.loggedUser.name}" />
-			<toolbarbutton visible="@{index.logged}" label=" (logout)"
-				forward="onLogout" />
+			<label visible="@bind(index.logged)" value="Connected as: " />
+			<label visible="@bind(index.logged)"
+				value="@bind(index.loggedUser.name)" />
+			<toolbarbutton visible="@bind(index.logged)"
+				label=" (logout)" forward="onLogout" />
 			<space width="50px" />
 			<toolbarbutton label="Visit the OSS web site"
 				target="_blank" href="http://www.open-search-server.com" />
@@ -31,5 +32,5 @@
 				href="http://www.open-search-server.com/documentation" />
 		</hbox>
 	</caption>
-	<include src="@{index.currentPage}" />
+	<include src="@bind(index.currentPage)" />
 </window>

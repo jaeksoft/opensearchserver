@@ -131,7 +131,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	public void setRequest(AbstractRequest request) {
-		ScopeAttribute.QUERY_REQUEST.set(this, request);
+		setAttribute(ScopeAttribute.QUERY_REQUEST, request);
 	}
 
 	private boolean isEditing(RequestTypeEnum type) throws SearchLibException {
@@ -262,7 +262,7 @@ public final class QueryController extends AbstractQueryController {
 		if (entry == null)
 			return;
 		setRequest(getClient().getNewRequest(entry.getKey()));
-		sendReload(getParent());
+		// TODO sendReload(getParent());
 	}
 
 	public void doDeleteQuery(Component comp) throws SearchLibException,
@@ -284,7 +284,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	public void setResult(AbstractResult<?> result) {
-		ScopeAttribute.QUERY_RESULT.set(this, result);
+		setAttribute(ScopeAttribute.QUERY_RESULT, result);
 	}
 
 	public void onCancel() throws SearchLibException {
@@ -339,7 +339,7 @@ public final class QueryController extends AbstractQueryController {
 
 		request.reset();
 		setResult(getClient().request(request));
-		sendReload(getParent());
+		// TODO sendReload(getParent());
 	}
 
 	/**

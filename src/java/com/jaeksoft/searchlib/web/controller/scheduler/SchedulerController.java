@@ -74,9 +74,11 @@ public class SchedulerController extends CrawlerController {
 	}
 
 	protected void reloadSchedulerPages() throws SearchLibException {
-		SchedulerController ctrl = (SchedulerController) getParent()
-				.getFellowIfAny("scheduler", true);
-		sendReload(ctrl);
+		// TODO Remove
+		/*
+		 * SchedulerController ctrl = (SchedulerController) getParent()
+		 * .getFellowIfAny("scheduler", true); sendReload(ctrl);
+		 */
 	}
 
 	public Date getCurrentTime() {

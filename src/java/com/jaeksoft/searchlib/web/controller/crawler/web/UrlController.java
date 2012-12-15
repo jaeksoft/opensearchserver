@@ -59,11 +59,6 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UrlController extends CommonController implements AfterCompose {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2429849843906661914L;
-
 	private transient List<UrlItem> urlList;
 
 	private transient int totalSize;
@@ -113,19 +108,19 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setHost(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_HOST.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_HOST, v);
 		}
 	}
 
 	public String getHost() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_HOST.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_HOST);
 		}
 	}
 
 	public boolean isWithSubDomain() {
 		synchronized (this) {
-			Boolean b = (Boolean) ScopeAttribute.SEARCH_URL_SUBHOST.get(this);
+			Boolean b = (Boolean) getAttribute(ScopeAttribute.SEARCH_URL_SUBHOST);
 			if (b != null)
 				return b;
 			return false;
@@ -134,121 +129,115 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setWithSubDomain(boolean b) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_SUBHOST.set(this, new Boolean(b));
+			setAttribute(ScopeAttribute.SEARCH_URL_SUBHOST, new Boolean(b));
 		}
 	}
 
 	public void setResponseCode(Integer v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_RESPONSE_CODE.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_RESPONSE_CODE, v);
 		}
 	}
 
 	public Integer getResponseCode() {
 		synchronized (this) {
-			return (Integer) ScopeAttribute.SEARCH_URL_RESPONSE_CODE.get(this);
+			return (Integer) getAttribute(ScopeAttribute.SEARCH_URL_RESPONSE_CODE);
 		}
 	}
 
 	public void setLang(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_LANG.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_LANG, v);
 		}
 	}
 
 	public String getLang() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_LANG.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_LANG);
 		}
 	}
 
 	public void setLangMethod(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_LANG_METHOD.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_LANG_METHOD, v);
 		}
 	}
 
 	public String getLangMethod() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_LANG_METHOD.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_LANG_METHOD);
 		}
 	}
 
 	public void setContentBaseType(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_CONTENT_BASE_TYPE.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_CONTENT_BASE_TYPE, v);
 		}
 	}
 
 	public String getContentBaseType() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_CONTENT_BASE_TYPE
-					.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_CONTENT_BASE_TYPE);
 		}
 	}
 
 	public void setContentTypeCharset(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_CONTENT_TYPE_CHARSET.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_CONTENT_TYPE_CHARSET, v);
 		}
 	}
 
 	public String getContentTypeCharset() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_CONTENT_TYPE_CHARSET
-					.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_CONTENT_TYPE_CHARSET);
 		}
 	}
 
 	public void setContentEncoding(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_CONTENT_ENCODING.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_CONTENT_ENCODING, v);
 		}
 	}
 
 	public String getContentEncoding() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_CONTENT_ENCODING
-					.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_CONTENT_ENCODING);
 		}
 	}
 
 	public void setMinContentLength(Integer v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_MIN_CONTENT_LENGTH.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_MIN_CONTENT_LENGTH, v);
 		}
 	}
 
 	public Integer getMinContentLength() {
 		synchronized (this) {
-			return (Integer) ScopeAttribute.SEARCH_URL_MIN_CONTENT_LENGTH
-					.get(this);
+			return (Integer) getAttribute(ScopeAttribute.SEARCH_URL_MIN_CONTENT_LENGTH);
 		}
 	}
 
 	public void setMaxContentLength(Integer v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_MAX_CONTENT_LENGTH.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_MAX_CONTENT_LENGTH, v);
 		}
 	}
 
 	public Integer getMaxContentLength() {
 		synchronized (this) {
-			return (Integer) ScopeAttribute.SEARCH_URL_MAX_CONTENT_LENGTH
-					.get(this);
+			return (Integer) getAttribute(ScopeAttribute.SEARCH_URL_MAX_CONTENT_LENGTH);
 		}
 	}
 
 	public void setFetchStatus(FetchStatus v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_FETCH_STATUS.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_FETCH_STATUS, v);
 		}
 	}
 
 	public FetchStatus getFetchStatus() {
 		synchronized (this) {
-			FetchStatus st = (FetchStatus) ScopeAttribute.SEARCH_URL_FETCH_STATUS
-					.get(this);
+			FetchStatus st = (FetchStatus) getAttribute(ScopeAttribute.SEARCH_URL_FETCH_STATUS);
 			if (st == null)
 				return FetchStatus.ALL;
 			return st;
@@ -257,14 +246,13 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setParserStatus(ParserStatus v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_PARSER_STATUS.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_PARSER_STATUS, v);
 		}
 	}
 
 	public ParserStatus getParserStatus() {
 		synchronized (this) {
-			ParserStatus status = (ParserStatus) ScopeAttribute.SEARCH_URL_PARSER_STATUS
-					.get(this);
+			ParserStatus status = (ParserStatus) getAttribute(ScopeAttribute.SEARCH_URL_PARSER_STATUS);
 			if (status == null)
 				return ParserStatus.ALL;
 			return status;
@@ -273,14 +261,13 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setIndexStatus(IndexStatus v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_INDEX_STATUS.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_INDEX_STATUS, v);
 		}
 	}
 
 	public IndexStatus getIndexStatus() {
 		synchronized (this) {
-			IndexStatus status = (IndexStatus) ScopeAttribute.SEARCH_URL_INDEX_STATUS
-					.get(this);
+			IndexStatus status = (IndexStatus) getAttribute(ScopeAttribute.SEARCH_URL_INDEX_STATUS);
 			if (status == null)
 				return IndexStatus.ALL;
 			return status;
@@ -289,14 +276,13 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setRobotsTxtStatus(RobotsTxtStatus v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_ROBOTSTXT_STATUS.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_ROBOTSTXT_STATUS, v);
 		}
 	}
 
 	public RobotsTxtStatus getRobotsTxtStatus() {
 		synchronized (this) {
-			RobotsTxtStatus status = (RobotsTxtStatus) ScopeAttribute.SEARCH_URL_ROBOTSTXT_STATUS
-					.get(this);
+			RobotsTxtStatus status = (RobotsTxtStatus) getAttribute(ScopeAttribute.SEARCH_URL_ROBOTSTXT_STATUS);
 			if (status == null)
 				return RobotsTxtStatus.ALL;
 			return status;
@@ -305,27 +291,26 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setLike(String v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_LIKE.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_LIKE, v);
 		}
 	}
 
 	public String getLike() {
 		synchronized (this) {
-			return (String) ScopeAttribute.SEARCH_URL_LIKE.get(this);
+			return (String) getAttribute(ScopeAttribute.SEARCH_URL_LIKE);
 
 		}
 	}
 
 	public void setPageSize(Integer v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_SHEET_ROWS.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_SHEET_ROWS, v);
 		}
 	}
 
 	public Integer getPageSize() {
 		synchronized (this) {
-			Integer v = (Integer) ScopeAttribute.SEARCH_URL_SHEET_ROWS
-					.get(this);
+			Integer v = (Integer) getAttribute(ScopeAttribute.SEARCH_URL_SHEET_ROWS);
 			if (v == null)
 				v = 10;
 			return v;
@@ -334,50 +319,49 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	public void setEventDateStart(Date v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_DATE_START.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_DATE_START, v);
 		}
 	}
 
 	public Date getEventDateStart() {
 		synchronized (this) {
-			return (Date) ScopeAttribute.SEARCH_URL_DATE_START.get(this);
+			return (Date) getAttribute(ScopeAttribute.SEARCH_URL_DATE_START);
 		}
 	}
 
 	public void setEventDateEnd(Date v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_DATE_END.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_DATE_END, v);
 		}
 	}
 
 	public Date getEventDateEnd() {
 		synchronized (this) {
-			return (Date) ScopeAttribute.SEARCH_URL_DATE_END.get(this);
+			return (Date) getAttribute(ScopeAttribute.SEARCH_URL_DATE_END);
 		}
 	}
 
 	public void setModifiedDateStart(Date v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START, v);
 		}
 	}
 
 	public Date getModifiedDateStart() {
 		synchronized (this) {
-			return (Date) ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START
-					.get(this);
+			return (Date) getAttribute(ScopeAttribute.SEARCH_URL_DATE_MODIFIED_START);
 		}
 	}
 
 	public void setModifiedDateEnd(Date v) {
 		synchronized (this) {
-			ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END.set(this, v);
+			setAttribute(ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END, v);
 		}
 	}
 
 	public Date getModifiedDateEnd() {
 		synchronized (this) {
-			return (Date) ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END.get(this);
+			return (Date) getAttribute(ScopeAttribute.SEARCH_URL_DATE_MODIFIED_END);
 		}
 	}
 

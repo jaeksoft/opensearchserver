@@ -62,11 +62,11 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	final public AbstractRequest getAbstractRequest() throws SearchLibException {
-		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(this);
+		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(session);
 	}
 
 	protected AbstractResult<?> getAbstractResult() {
-		return (AbstractResult<?>) ScopeAttribute.QUERY_RESULT.get(this);
+		return (AbstractResult<?>) ScopeAttribute.QUERY_RESULT.get(session);
 	}
 
 	protected AbstractResult<?> getResult(RequestTypeEnum type) {

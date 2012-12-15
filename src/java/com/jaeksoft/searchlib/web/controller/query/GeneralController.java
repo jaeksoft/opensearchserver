@@ -29,19 +29,14 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class GeneralController extends AbstractQueryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6529425290972686212L;
-
 	public GeneralController() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
-		ScopeAttribute.QUERY_REQUEST.remove(this);
-		ScopeAttribute.QUERY_RESULT.remove(this);
+		setAttribute(ScopeAttribute.QUERY_REQUEST, null);
+		setAttribute(ScopeAttribute.QUERY_RESULT, null);
 	}
 
 }

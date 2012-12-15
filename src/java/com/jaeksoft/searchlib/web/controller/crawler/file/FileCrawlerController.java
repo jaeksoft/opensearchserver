@@ -72,9 +72,11 @@ public class FileCrawlerController extends CrawlerController {
 	}
 
 	protected void reloadFileCrawlerPages() throws SearchLibException {
-		FileCrawlerController ctrl = (FileCrawlerController) getParent()
-				.getFellowIfAny("filecrawler", true);
-		sendReload(ctrl);
+		// TODO Remove ?
+		/*
+		 * FileCrawlerController ctrl = (FileCrawlerController) getParent()
+		 * .getFellowIfAny("filecrawler", true); sendReload(ctrl);
+		 */
 	}
 
 }

@@ -169,7 +169,7 @@ public class MappingFileController extends CrawlerController implements
 		new Listcell(link.getTarget().getName()).setParent(item);
 		Listcell listcell = new Listcell();
 		Image image = new Image("/images/action_delete.png");
-		image.addForward(null, this, "onLinkRemove", link);
+		// TODO image.addForward(null, this, "onLinkRemove", link);
 		image.setParent(listcell);
 		listcell.setParent(item);
 	}

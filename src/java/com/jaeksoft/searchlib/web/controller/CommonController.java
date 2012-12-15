@@ -33,18 +33,18 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
-import org.zkoss.bind.impl.BinderUtil;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.UiException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.ext.AfterCompose;
-import org.zkoss.zkplus.databind.AnnotateDataBinder;
+import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tab;
-import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -56,57 +56,46 @@ import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 
-public abstract class CommonController extends Window implements AfterCompose,
+public abstract class CommonController implements AfterCompose,
 		EventListener<Event>, EventInterface {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3581269068713587866L;
+	// private static final long serialVersionUID = -3581269068713587866L;
 
 	private transient boolean isComposed;
 
-	private transient AnnotateDataBinder binder = null;
+	@WireVariable
+	protected Session session;
+
+	// private transient AnnotateDataBinder binder = null;
 
 	public CommonController() throws SearchLibException {
 		super();
-		isComposed = false;
+		// isComposed = false;
 		reset();
 	}
 
 	@Override
 	public void afterCompose() {
-		System.out.println("binderutil "
-				+ (binder = (AnnotateDataBinder) BinderUtil.getBinder(this)));
-		if (binder == null)
-			System.out.println("bind page "
-					+ this
-					+ " "
-					+ (binder = (AnnotateDataBinder) getPage().getAttribute(
-							"binder")));
-		if (binder == null)
-			System.out.println("bind attr " + this + " "
-					+ (binder = (AnnotateDataBinder) getAttribute("binder")));
-		if (binder == null)
-			System.out.println("bind root "
-					+ this
-					+ " "
-					+ (binder = (AnnotateDataBinder) getRoot().getAttribute(
-							"binder")));
-		if (binder == null)
-			System.out.println("bind desktop "
-					+ this
-					+ " "
-					+ (binder = (AnnotateDataBinder) getDesktop().getAttribute(
-							"binder")));
-		if (binder == null)
-			System.out.println("BINDER CREATION " + this + " "
-					+ (binder = new AnnotateDataBinder(this)));
-
-		if (binder != null)
-			binder.loadAll();
-		else
-			System.out.println("BINDER IS NULL " + this);
+		/*
+		 * System.out.println("binderutil " + (binder = (AnnotateDataBinder)
+		 * BinderUtil.getBinder(this))); if (binder == null)
+		 * System.out.println("bind page " + this + " " + (binder =
+		 * (AnnotateDataBinder) getPage().getAttribute( "binder"))); if (binder
+		 * == null) System.out.println("bind attr " + this + " " + (binder =
+		 * (AnnotateDataBinder) getAttribute("binder"))); if (binder == null)
+		 * System.out.println("bind root " + this + " " + (binder =
+		 * (AnnotateDataBinder) getRoot().getAttribute( "binder"))); if (binder
+		 * == null) System.out.println("bind desktop " + this + " " + (binder =
+		 * (AnnotateDataBinder) getDesktop().getAttribute( "binder"))); if
+		 * (binder == null) System.out.println("BINDER CREATION " + this + " " +
+		 * (binder = new AnnotateDataBinder(this)));
+		 * 
+		 * if (binder != null) binder.loadAll(); else
+		 * System.out.println("BINDER IS NULL " + this);
+		 */
 		PushEvent.suscribe(this);
 		isComposed = true;
 	}
@@ -144,17 +133,18 @@ public abstract class CommonController extends Window implements AfterCompose,
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute,
 			Object defaultValue) {
-		Object o = scopeAttribute.get(this);
+		Object o = scopeAttribute.get(session);
 		return o == null ? defaultValue : o;
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {
-		return scopeAttribute.get(this);
+		return scopeAttribute.get(session);
 	}
 
+	// TOTO Remove ?
 	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
 		if (isComposed)
-			scopeAttribute.set(this, value);
+			scopeAttribute.set(session, value);
 	}
 
 	protected Object getRecursiveComponentAttribute(Component component,
@@ -190,8 +180,9 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getClient() == null;
 	}
 
+	// TODO Remove ?
 	public void invalidate(String id) {
-		getFellow(id).invalidate();
+		// getFellow(id).invalidate();
 	}
 
 	public String getCurrentPage() throws SearchLibException {
@@ -242,20 +233,28 @@ public abstract class CommonController extends Window implements AfterCompose,
 		return getLoggedUser() != null;
 	}
 
+	// TODO temporary ?
+	public Component getFellow(String id) {
+		return null;
+	}
+
 	public void reloadComponent(String compId) {
 		reloadComponent(getFellow(compId));
 	}
 
+	// TODO remove ?
 	public void reloadComponent(Component component) {
-		if (binder != null) {
-			component.invalidate();
-			binder.loadComponent(component);
-		}
+		/*
+		 * if (binder != null) { component.invalidate();
+		 * binder.loadComponent(component); }
+		 */
 	}
 
+	// TODO Remove ?
 	public void reloadPage() throws SearchLibException {
-		if (binder != null)
-			binder.loadAll();
+		/*
+		 * if (binder != null) binder.loadAll();
+		 */
 	}
 
 	final public void onReload() throws IOException, URISyntaxException,
@@ -283,8 +282,9 @@ public abstract class CommonController extends Window implements AfterCompose,
 				sendRefresh(comp);
 	}
 
+	// TODO Remove ?
 	final public void onRefresh() throws SearchLibException {
-		sendRefresh(getRoot());
+		// sendRefresh(getRoot());
 	}
 
 	protected static void sendReload(Component component)
@@ -432,11 +432,17 @@ public abstract class CommonController extends Window implements AfterCompose,
 	final public void onHelp() throws SearchLibException,
 			UnsupportedEncodingException {
 		List<String> tabPath = new ArrayList<String>();
-		buildTabPath(getRoot(), tabPath);
+		// TODO Restore
+		// buildTabPath(getRoot(), tabPath);
 		String path = URLEncoder.encode(StringUtils.join(tabPath, " - "),
 				"UTF-8");
 		Executions.getCurrent().sendRedirect(
 				"http://www.open-search-server.com/confluence/display/EN/Inline+help+-+"
 						+ path, "_blank");
+	}
+
+	// TODO Implementation or remove
+	protected Desktop getDesktop() {
+		return null;
 	}
 }

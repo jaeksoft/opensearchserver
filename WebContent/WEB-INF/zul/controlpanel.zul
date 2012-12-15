@@ -14,34 +14,34 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index" border="none"
-	use="com.jaeksoft.searchlib.web.controller.IndexController">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('index') @init('com.jaeksoft.searchlib.web.controller.IndexController')">
 	<tabbox>
 		<tabs>
-			<tab id="tabHome" label="@{index.indexTitle}"
+			<tab id="tabHome" label="@bind(index.indexTitle)"
 				tooltiptext="Index" selected="true" />
-			<tab id="tabSchema" visible="@{index.schemaRights}"
+			<tab id="tabSchema" visible="@bind(index.schemaRights)"
 				label="Schema" />
-			<tab id="tabQuery" visible="@{index.queryRights}"
+			<tab id="tabQuery" visible="@bind(index.queryRights)"
 				label="Query" />
-			<tab id="tabRenderer" visible="@{index.queryRights}"
+			<tab id="tabRenderer" visible="@bind(index.queryRights)"
 				label="Renderer" />
-			<tab id="tabUpdate" visible="@{index.updateRights}"
+			<tab id="tabUpdate" visible="@bind(index.updateRights)"
 				label="Update" />
-			<tab id="tabDelete" visible="@{index.updateRights}"
+			<tab id="tabDelete" visible="@bind(index.updateRights)"
 				label="Delete" />
-			<tab id="tabCrawler" visible="@{index.crawlerRights}"
+			<tab id="tabCrawler" visible="@bind(index.crawlerRights)"
 				label="Crawler" />
-			<tab id="tabScheduler" visible="@{index.schedulerRights}"
-				label="Scheduler" />
-			<tab id="tabRuntime" visible="@{index.runtimeRights}"
+			<tab id="tabScheduler"
+				visible="@bind(index.schedulerRights)" label="Scheduler" />
+			<tab id="tabRuntime" visible="@bind(index.runtimeRights)"
 				label="Runtime" />
-			<tab id="tabReports" visible="@{index.queryRights}"
+			<tab id="tabReports" visible="@bind(index.queryRights)"
 				label="Reports" />
 			<tab id="tabReplication"
-				visible="@{index.replicationRights}" label="Replication" />
-			<tab id="tabPrivileges" visible="@{index.privilegeRights}"
-				label="Privileges" />
+				visible="@bind(index.replicationRights)" label="Replication" />
+			<tab id="tabPrivileges"
+				visible="@bind(index.privilegeRights)" label="Privileges" />
 		</tabs>
 		<toolbar>
 			<toolbarbutton label="Inline help" forward="onHelp" />

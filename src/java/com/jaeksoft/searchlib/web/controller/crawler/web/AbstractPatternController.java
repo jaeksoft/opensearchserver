@@ -214,7 +214,7 @@ public abstract class AbstractPatternController extends CrawlerController
 	public void render(Listitem item, PatternItem patternItem, int index) {
 		item.setLabel(patternItem.getPattern());
 		item.setSelected(patternItem.isSelected());
-		item.addForward(null, this, "onSelect", patternItem);
+		// TODO item.addForward(null, this, "onSelect", patternItem);
 	}
 
 	@Override

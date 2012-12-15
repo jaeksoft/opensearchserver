@@ -24,148 +24,125 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Sessions;
 
 public enum ScopeAttribute {
 
-	QUERY_REQUEST(Component.SESSION_SCOPE),
+	QUERY_REQUEST(),
 
-	QUERY_RESULT(Component.SESSION_SCOPE),
+	QUERY_RESULT(),
 
-	UPDATE_FORM_INDEX_DOCUMENT(Component.SESSION_SCOPE),
+	UPDATE_FORM_INDEX_DOCUMENT(),
 
-	UPDATE_XML_MAP(Component.SESSION_SCOPE),
+	UPDATE_XML_MAP(),
 
-	CURRENT_CLIENT(Component.SESSION_SCOPE),
+	CURRENT_CLIENT(),
 
-	LOGGED_USER(Component.SESSION_SCOPE),
+	LOGGED_USER(),
 
-	SEARCH_URL_HOST(Component.SESSION_SCOPE),
+	SEARCH_URL_HOST(),
 
-	SEARCH_URL_SUBHOST(Component.SESSION_SCOPE),
+	SEARCH_URL_SUBHOST(),
 
-	SEARCH_URL_RESPONSE_CODE(Component.SESSION_SCOPE),
+	SEARCH_URL_RESPONSE_CODE(),
 
-	SEARCH_URL_LANG(Component.SESSION_SCOPE),
+	SEARCH_URL_LANG(),
 
-	SEARCH_URL_LANG_METHOD(Component.SESSION_SCOPE),
+	SEARCH_URL_LANG_METHOD(),
 
-	SEARCH_URL_CONTENT_BASE_TYPE(Component.SESSION_SCOPE),
+	SEARCH_URL_CONTENT_BASE_TYPE(),
 
-	SEARCH_URL_CONTENT_TYPE_CHARSET(Component.SESSION_SCOPE),
+	SEARCH_URL_CONTENT_TYPE_CHARSET(),
 
-	SEARCH_URL_CONTENT_ENCODING(Component.SESSION_SCOPE),
+	SEARCH_URL_CONTENT_ENCODING(),
 
-	SEARCH_URL_MIN_CONTENT_LENGTH(Component.SESSION_SCOPE),
+	SEARCH_URL_MIN_CONTENT_LENGTH(),
 
-	SEARCH_URL_MAX_CONTENT_LENGTH(Component.SESSION_SCOPE),
+	SEARCH_URL_MAX_CONTENT_LENGTH(),
 
-	SEARCH_URL_FETCH_STATUS(Component.SESSION_SCOPE),
+	SEARCH_URL_FETCH_STATUS(),
 
-	SEARCH_URL_PARSER_STATUS(Component.SESSION_SCOPE),
+	SEARCH_URL_PARSER_STATUS(),
 
-	SEARCH_URL_INDEX_STATUS(Component.SESSION_SCOPE),
+	SEARCH_URL_INDEX_STATUS(),
 
-	SEARCH_URL_ROBOTSTXT_STATUS(Component.SESSION_SCOPE),
+	SEARCH_URL_ROBOTSTXT_STATUS(),
 
-	SEARCH_URL_LIKE(Component.SESSION_SCOPE),
+	SEARCH_URL_LIKE(),
 
-	SEARCH_URL_SHEET_ROWS(Component.SESSION_SCOPE),
+	SEARCH_URL_SHEET_ROWS(),
 
-	SEARCH_URL_DATE_START(Component.SESSION_SCOPE),
+	SEARCH_URL_DATE_START(),
 
-	SEARCH_URL_DATE_END(Component.SESSION_SCOPE),
+	SEARCH_URL_DATE_END(),
 
-	SEARCH_URL_DATE_MODIFIED_START(Component.SESSION_SCOPE),
+	SEARCH_URL_DATE_MODIFIED_START(),
 
-	SEARCH_URL_DATE_MODIFIED_END(Component.SESSION_SCOPE),
+	SEARCH_URL_DATE_MODIFIED_END(),
 
-	SEARCH_FILE_DATE_START(Component.SESSION_SCOPE),
+	SEARCH_FILE_DATE_START(),
 
-	SEARCH_FILE_DATE_END(Component.SESSION_SCOPE),
+	SEARCH_FILE_DATE_END(),
 
-	SEARCH_FILE_DATE_MODIFIED_START(Component.SESSION_SCOPE),
+	SEARCH_FILE_DATE_MODIFIED_START(),
 
-	SEARCH_FILE_DATE_MODIFIED_END(Component.SESSION_SCOPE),
+	SEARCH_FILE_DATE_MODIFIED_END(),
 
-	SEARCH_FILE_LANG(Component.SESSION_SCOPE),
+	SEARCH_FILE_LANG(),
 
-	SEARCH_FILE_FILE_TYPE(Component.SESSION_SCOPE),
+	SEARCH_FILE_FILE_TYPE(),
 
-	SEARCH_FILE_FILE_EXTENSION(Component.SESSION_SCOPE),
+	SEARCH_FILE_FILE_EXTENSION(),
 
-	SEARCH_FILE_LANG_METHOD(Component.SESSION_SCOPE),
+	SEARCH_FILE_LANG_METHOD(),
 
-	SEARCH_FILE_MIN_CONTENT_LENGTH(Component.SESSION_SCOPE),
+	SEARCH_FILE_MIN_CONTENT_LENGTH(),
 
-	SEARCH_FILE_MAX_CONTENT_LENGTH(Component.SESSION_SCOPE),
+	SEARCH_FILE_MAX_CONTENT_LENGTH(),
 
-	SEARCH_FILE_FETCH_STATUS(Component.SESSION_SCOPE),
+	SEARCH_FILE_FETCH_STATUS(),
 
-	SEARCH_FILE_PARSER_STATUS(Component.SESSION_SCOPE),
+	SEARCH_FILE_PARSER_STATUS(),
 
-	SEARCH_FILE_INDEX_STATUS(Component.SESSION_SCOPE),
+	SEARCH_FILE_INDEX_STATUS(),
 
-	SEARCH_FILE_FILE_NAME(Component.SESSION_SCOPE),
+	SEARCH_FILE_FILE_NAME(),
 
-	SEARCH_FILE_SHEET_ROWS(Component.SESSION_SCOPE),
+	SEARCH_FILE_SHEET_ROWS(),
 
-	SEARCH_FILE_REPOSITORY(Component.SESSION_SCOPE),
+	SEARCH_FILE_REPOSITORY(),
 
-	RENDERER_IFRAME_WIDTH(Component.SESSION_SCOPE),
+	RENDERER_IFRAME_WIDTH(),
 
-	RENDERER_IFRAME_HEIGHT(Component.SESSION_SCOPE),
+	RENDERER_IFRAME_HEIGHT(),
 
-	FILEPATHITEM_SELECTED(Component.SESSION_SCOPE),
+	FILEPATHITEM_SELECTED(),
 
-	FILEPATHITEM_EDIT(Component.SESSION_SCOPE),
+	FILEPATHITEM_EDIT(),
 
-	JOBITEM_SELECTED(Component.SESSION_SCOPE),
+	JOBITEM_SELECTED(),
 
-	JOBITEM_EDIT(Component.SESSION_SCOPE);
+	JOBITEM_EDIT();
 
-	private int scope;
-
-	private ScopeAttribute(int scope) {
-		this.scope = scope;
+	public void set(Session session, Object value) {
+		if (session == null)
+			session = Sessions.getCurrent();
+		if (value == null)
+			remove(session);
+		else
+			session.setAttribute(name(), value);
 	}
 
-	public void set(Component component, Object value) {
-		switch (scope) {
-		case Component.SESSION_SCOPE:
-			if (value == null)
-				Sessions.getCurrent().removeAttribute(name());
-			else
-				Sessions.getCurrent().setAttribute(name(), value);
-			break;
-		default:
-			if (value == null)
-				component.removeAttribute(name());
-			else
-				component.setAttribute(name(), value, scope);
-			break;
-		}
+	public Object get(Session session) {
+		if (session == null)
+			session = Sessions.getCurrent();
+		return session.getAttribute(name());
 	}
 
-	public Object get(Component component) {
-		switch (scope) {
-		case Component.SESSION_SCOPE:
-			return Sessions.getCurrent().getAttribute(name());
-		default:
-			return component.getAttribute(name(), scope);
-		}
-	}
-
-	public void remove(Component component) {
-		switch (scope) {
-		case Component.SESSION_SCOPE:
-			Sessions.getCurrent().removeAttribute(name());
-			break;
-		default:
-			component.removeAttribute(name(), scope);
-			break;
-		}
-
+	public void remove(Session session) {
+		if (session == null)
+			session = Sessions.getCurrent();
+		session.removeAttribute(name());
 	}
 }

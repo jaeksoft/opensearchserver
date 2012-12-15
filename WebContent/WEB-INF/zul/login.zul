@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="index" border="normal" title="Login"
+<window border="normal" title="Login"
 	apply="com.jaeksoft.searchlib.web.controller.LoginComposer">
 	<vbox align="center" width="100%">
 		<grid width="500px" fixedLayout="true">

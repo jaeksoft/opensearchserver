@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,9 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="home"
-	use="com.jaeksoft.searchlib.web.controller.HomeController">
-	<grid visible="@{home.adminOrNoUser}" hflex="min">
+<window id="home" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('home') @init('com.jaeksoft.searchlib.web.controller.HomeController')">
+	<grid visible="@bind(home.adminOrNoUser)" hflex="min">
 		<auxhead>
 			<auxheader colspan="4" label="Create a new index" />
 		</auxhead>
@@ -29,7 +29,7 @@
 		<rows>
 			<row>
 				<label value="Index name: " />
-				<textbox value="@{home.newIndexName}" cols="50" />
+				<textbox value="@bind(home.newIndexName)" cols="50" />
 				<label
 					value="Choose a name for the index that will be created" />
 				<cell rowspan="3">
@@ -40,13 +40,13 @@
 			<row>
 				<label value="Template: " />
 				<listbox mold="select"
-					selectedItem="@{home.newIndexTemplate}"
-					model="@{home.templateList}">
+					selectedItem="@bind(home.newIndexTemplate)"
+					model="@bind(home.templateList)">
 					<listitem self="@{each=telist}"
 						label="@{telist.template.publicName}" />
 				</listbox>
 				<label
-					value="@{home.newIndexTemplate.template.description}" />
+					value="@bind(home.newIndexTemplate.template.description)" />
 			</row>
 			<row>
 				<cell />
@@ -56,8 +56,8 @@
 		</rows>
 	</grid>
 	<separator height="10" />
-	<listbox id="indexlist" selectedItem="@{home.clientName}"
-		mold="paging" pageSize="20" model="@{home.clientCatalog}">
+	<listbox id="indexlist" selectedItem="@bind(home.clientName)"
+		mold="paging" pageSize="20" model="@bind(home.clientCatalog)">
 		<auxhead>
 			<auxheader align="center" label="List of indices" />
 			<auxheader align="center" label="Crawlers" colspan="3" />
@@ -94,49 +94,57 @@
 			<listheader label="Size" align="right" hflex="min" />
 			<listheader align="center" hflex="min" />
 		</listhead>
-		<listitem self="@{each='catalogitem'}">
-			<listcell label="@{catalogitem.indexName}" />
-			<listcell
-				tooltiptext="@{catalogitem.client.webCrawlMaster.statusInfo}"
-				label="@{catalogitem.client.webCrawlMaster.status}" />
-			<listcell
-				tooltiptext="@{catalogitem.client.databaseCrawlMaster.statusInfo}"
-				label="@{catalogitem.client.databaseCrawlMaster.status}" />
-			<listcell
-				tooltiptext="@{catalogitem.client.fileCrawlMaster.statusInfo}"
-				label="@{catalogitem.client.fileCrawlMaster.status}" />
-			<listcell
-				label="@{catalogitem.client.jobList.runningCount}" />
-			<listcell label="@{catalogitem.client.jobList.activeCount}" />
-			<listcell label="@{catalogitem.client.jobList.count}" />
-			<listcell
-				label="@{catalogitem.client.replicationMaster.threadsCount}" />
-			<listcell
-				label="@{catalogitem.client.replicationList.size}" />
-			<listcell label="@{catalogitem.optimizationStatus}" />
-			<listcell label="@{catalogitem.client.readWriteMode}" />
-			<listcell tooltiptext="@{catalogitem.numDocs}"
-				label="@{catalogitem.numDocs,converter='com.jaeksoft.searchlib.web.converter.IntegerConverter'}" />
-			<listcell tooltiptext="@{catalogitem.lastModifiedFile}"
-				label="@{catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-			<listcell tooltiptext="@{catalogitem.size}"
-				label="@{catalogitem.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter'}" />
-			<listcell>
-				<hbox align="center">
-					<button label="Info"
-						onClick="home.computeInfos(self)"
-						tooltiptext="Compute the size of the index">
-						<custom-attributes catalogitem="@{catalogitem}" />
-					</button>
-					<space />
-					<button tooltiptext="Erase index"
-						image="/images/action_delete.png"
-						onClick="home.eraseIndex(self)">
-						<custom-attributes catalogitem="@{catalogitem}" />
-					</button>
-					<space />
-				</hbox>
-			</listcell>
-		</listitem>
+		<template name="model" var="catalogitem">
+			<listitem>
+				<listcell label="@bind(catalogitem.indexName)" />
+				<listcell
+					tooltiptext="@bind(catalogitem.client.webCrawlMaster.statusInfo)"
+					label="@bind(catalogitem.client.webCrawlMaster.status)" />
+				<listcell
+					tooltiptext="@bind(catalogitem.client.databaseCrawlMaster.statusInfo)"
+					label="@bind(catalogitem.client.databaseCrawlMaster.status)" />
+				<listcell
+					tooltiptext="@bind(catalogitem.client.fileCrawlMaster.statusInfo)"
+					label="@bind(catalogitem.client.fileCrawlMaster.status)" />
+				<listcell
+					label="@bind(catalogitem.client.jobList.runningCount)" />
+				<listcell
+					label="@bind(catalogitem.client.jobList.activeCount)" />
+				<listcell
+					label="@bind(catalogitem.client.jobList.count)" />
+				<listcell
+					label="@bind(catalogitem.client.replicationMaster.threadsCount)" />
+				<listcell
+					label="@bind(catalogitem.client.replicationList.size)" />
+				<listcell label="@bind(catalogitem.optimizationStatus)" />
+				<listcell
+					label="@bind(catalogitem.client.readWriteMode)" />
+				<listcell tooltiptext="@bind(catalogitem.numDocs)"
+					label="@bind(catalogitem.numDocs,converter='com.jaeksoft.searchlib.web.converter.IntegerConverter')" />
+				<listcell
+					tooltiptext="@bind(catalogitem.lastModifiedFile)"
+					label="@bind(catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell tooltiptext="@bind(catalogitem.size}"
+					label="@bind(catalogitem.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter')" />
+				<listcell>
+					<hbox align="center">
+						<button label="Info"
+							onClick="home.computeInfos(self)"
+							tooltiptext="Compute the size of the index">
+							<custom-attributes
+								catalogitem="@{catalogitem}" />
+						</button>
+						<space />
+						<button tooltiptext="Erase index"
+							image="/images/action_delete.png"
+							onClick="home.eraseIndex(self)">
+							<custom-attributes
+								catalogitem="@{catalogitem}" />
+						</button>
+						<space />
+					</hbox>
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>
