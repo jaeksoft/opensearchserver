@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,16 +40,11 @@ import com.jaeksoft.searchlib.template.TemplateList;
 
 public class HomeController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2896471240596574094L;
+	private String indexName;
 
-	private transient String indexName;
+	private TemplateList indexTemplate;
 
-	private transient TemplateList indexTemplate;
-
-	private transient Set<ClientCatalogItem> catalogItems;
+	private Set<ClientCatalogItem> catalogItems;
 
 	public HomeController() throws SearchLibException {
 		super();

@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="home" apply="org.zkoss.bind.BindComposer"
+<window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('home') @init('com.jaeksoft.searchlib.web.controller.HomeController')">
 	<grid visible="@bind(home.adminOrNoUser)" hflex="min">
 		<auxhead>

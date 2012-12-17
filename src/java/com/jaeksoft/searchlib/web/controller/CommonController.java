@@ -40,9 +40,7 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.UiException;
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.event.ForwardEvent;
-import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tab;
 
@@ -56,8 +54,7 @@ import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 
-public abstract class CommonController implements AfterCompose,
-		EventListener<Event>, EventInterface {
+public abstract class CommonController implements EventInterface {
 
 	/**
 	 * 
@@ -77,7 +74,6 @@ public abstract class CommonController implements AfterCompose,
 		reset();
 	}
 
-	@Override
 	public void afterCompose() {
 		/*
 		 * System.out.println("binderutil " + (binder = (AnnotateDataBinder)
@@ -326,7 +322,6 @@ public abstract class CommonController implements AfterCompose,
 		Executions.sendRedirect("/");
 	}
 
-	@Override
 	final public void onEvent(Event event) throws UiException {
 		EventDispatch.dispatch(this, event);
 	}
