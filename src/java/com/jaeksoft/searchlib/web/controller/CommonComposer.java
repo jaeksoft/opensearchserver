@@ -52,7 +52,7 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 		// if (binder == null)
 		// binder = new AnnotateDataBinder(comp);
 		// binder.loadAll();
-		PushEvent.suscribe(this);
+		// PushEvent.suscribe(this);
 	}
 
 	protected AbstractRequest getRequest() throws SearchLibException {

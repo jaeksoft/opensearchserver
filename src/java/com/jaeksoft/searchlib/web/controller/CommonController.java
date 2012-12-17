@@ -96,7 +96,7 @@ public abstract class CommonController implements AfterCompose,
 		 * if (binder != null) binder.loadAll(); else
 		 * System.out.println("BINDER IS NULL " + this);
 		 */
-		PushEvent.suscribe(this);
+		// PushEvent.suscribe(this);
 		isComposed = true;
 	}
 
