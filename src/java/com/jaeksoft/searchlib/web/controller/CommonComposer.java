@@ -49,9 +49,9 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	@Override
 	public void doAfterCompose(Component comp) throws Exception {
 		super.doAfterCompose(comp);
-		if (binder == null)
-			binder = new AnnotateDataBinder(comp);
-		binder.loadAll();
+		// if (binder == null)
+		// binder = new AnnotateDataBinder(comp);
+		// binder.loadAll();
 		PushEvent.suscribe(this);
 	}
 
