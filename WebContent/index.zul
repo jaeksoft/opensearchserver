@@ -32,5 +32,5 @@
 				href="http://www.open-search-server.com/documentation" />
 		</hbox>
 	</caption>
-	<include src="@bind(index.currentPage)" />
+	<include src="@bind(index.currentPage)" mode="defer" />
 </window>

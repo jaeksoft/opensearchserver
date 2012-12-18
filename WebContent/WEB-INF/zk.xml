@@ -19,6 +19,6 @@
 	</device-config>
 	<library-property>
 		<name>org.zkoss.theme.preferred</name>
-		<value>breeze</value>
+		<value>silvertail</value>
 	</library-property>
 </zk>
