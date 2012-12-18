@@ -121,7 +121,7 @@ public class ScreenshotController extends CrawlerController {
 					credentialItem, false, 0);
 			currentScreenshotThread.waitForStart(60);
 			setImage(null);
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -132,7 +132,7 @@ public class ScreenshotController extends CrawlerController {
 			if (currentImage == null)
 				new AlertController("Screenshot not found.");
 			setImage(currentImage);
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -141,7 +141,7 @@ public class ScreenshotController extends CrawlerController {
 		if (currentImage == null)
 			if (currentScreenshotThread != null)
 				setImage(currentScreenshotThread.getImage());
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -190,7 +190,7 @@ public class ScreenshotController extends CrawlerController {
 
 	public void onInfos() throws SearchLibException {
 		screenshotInfos = getClient().getScreenshotManager().getInfos();
-		reloadPage();
+		reload();
 	}
 
 	public LastModifiedAndSize getInfos() {

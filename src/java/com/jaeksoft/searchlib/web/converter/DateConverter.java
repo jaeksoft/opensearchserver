@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,28 +27,31 @@ package com.jaeksoft.searchlib.web.converter;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zkplus.databind.TypeConverter;
 
-public class DateConverter implements TypeConverter {
+public class DateConverter implements Converter<Object, Object, Component> {
 
 	@Override
-	public Object coerceToBean(Object value, Component component) {
-		return null;
+	public Object coerceToBean(Object value, Component component,
+			BindContext ctx) {
+		return IGNORED_VALUE;
 	}
 
 	@Override
-	public Object coerceToUi(Object value, Component component) {
+	public Object coerceToUi(Object value, Component component, BindContext ctx) {
 		if (value == null)
-			return "Unknown";
+			return IGNORED_VALUE;
 		long l = -1;
 		if (value instanceof Date)
 			l = ((Date) value).getTime();
 		else if (value instanceof Long)
 			l = (Long) value;
 		if (l == -1)
-			return "Unknown";
+			return IGNORED_VALUE;
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
 				DateFormat.MEDIUM).format(new Date(l));
 	}
+
 }

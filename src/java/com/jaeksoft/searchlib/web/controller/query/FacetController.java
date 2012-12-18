@@ -107,7 +107,7 @@ public class FacetController extends AbstractQueryController {
 			FacetField facetField = (FacetField) event.getData();
 			((SearchRequest) getRequest()).getFacetFieldList().remove(
 					facetField.getName());
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -129,22 +129,22 @@ public class FacetController extends AbstractQueryController {
 				return;
 			((SearchRequest) getRequest()).getFacetFieldList().put(
 					new FacetField(selectedFacet, 0, false, false));
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			fieldLeft = null;
 			selectedFacet = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 }

@@ -119,10 +119,10 @@ public class ResultSearchController extends AbstractQueryController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			selectedFacet = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 

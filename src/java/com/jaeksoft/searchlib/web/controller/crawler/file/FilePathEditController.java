@@ -142,10 +142,10 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		FilePathItem filePathItem = getFilePathItemEdit();
 		if (filePathItem == currentFilePath || filePathItem == null) {
-			super.reloadPage();
+			super.reload();
 			return;
 		}
 		try {
@@ -163,7 +163,7 @@ public class FilePathEditController extends FileCrawlerController {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-		super.reloadPage();
+		super.reload();
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class FilePathEditController extends FileCrawlerController {
 	public void setCurrentFileType(FileInstanceType type)
 			throws SearchLibException {
 		currentFilePath.setType(type);
-		reloadPage();
+		reload();
 	}
 
 	public boolean isShowHidden() {
@@ -372,7 +372,7 @@ public class FilePathEditController extends FileCrawlerController {
 	public void onSelectFile() throws SearchLibException {
 		if (currentFile != null) {
 			currentFilePath.setPath(currentFile.file.getAbsolutePath());
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -380,7 +380,7 @@ public class FilePathEditController extends FileCrawlerController {
 		currentFileList = null;
 		reloadBrowser();
 	}
-	
+
 	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.file.getParentFile());
@@ -395,7 +395,7 @@ public class FilePathEditController extends FileCrawlerController {
 	public void onDropboxAuthRequest() throws MalformedURLException,
 			SearchLibException {
 		webAuthInfo = DropboxFileInstance.requestAuthorization();
-		reloadPage();
+		reload();
 		Executions.getCurrent().sendRedirect(webAuthInfo.url, "_blank");
 	}
 
@@ -411,7 +411,7 @@ public class FilePathEditController extends FileCrawlerController {
 		currentFilePath.setHost(uid.toString() + ".dropbox.com");
 		currentFilePath.setUsername(atp.key);
 		currentFilePath.setPassword(atp.secret);
-		reloadPage();
+		reload();
 	}
 
 	public boolean isDropboxWebAuthInfo() {

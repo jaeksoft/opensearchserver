@@ -104,7 +104,7 @@ public class StatisticsController extends CommonController {
 			throws SearchLibException {
 		synchronized (this) {
 			this.selectedType = selectedType;
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -127,14 +127,14 @@ public class StatisticsController extends CommonController {
 			throws SearchLibException {
 		synchronized (this) {
 			this.showLastError = showLastError;
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		statList = null;
-		super.reloadPage();
+		super.reload();
 	}
 
 }

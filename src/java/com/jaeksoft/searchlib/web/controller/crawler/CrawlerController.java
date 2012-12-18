@@ -34,8 +34,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CrawlerController extends CommonController {
 
-	private static final long serialVersionUID = 2308774605231174474L;
-
 	public enum RunMode {
 
 		RunForever("Run forever"),
@@ -244,7 +242,7 @@ public class CrawlerController extends CommonController {
 	}
 
 	public void onTimer() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 }

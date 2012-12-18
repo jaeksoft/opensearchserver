@@ -53,11 +53,6 @@ import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class DatabaseCrawlListController extends CrawlerController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2176688319013998120L;
-
 	private class DeleteAlert extends AlertController {
 
 		private DatabaseCrawl dbcrawl;
@@ -156,21 +151,21 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	public String[] getDriverClassList() {
-		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
+		return DatabaseDriverNames.getAvailableList(desktop.getWebApp()
 				.getClass().getClassLoader());
 	}
 
 	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {
 		selectedCrawl = crawl;
 		currentCrawl = new DatabaseCrawl(getCrawlMaster(), selectedCrawl);
-		reloadPage();
+		reload();
 	}
 
 	public void onCancelField() throws SearchLibException {
 		sqlColumn = null;
 		selectedField = null;
 		currentFieldTarget = newDatabaseFieldTarget();
-		reloadPage();
+		reload();
 	}
 
 	public void onSaveField() throws SearchLibException,
@@ -198,7 +193,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		if (fieldLink == null)
 			return;
 		currentCrawl.getFieldMap().remove(fieldLink);
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
@@ -223,13 +218,13 @@ public class DatabaseCrawlListController extends CrawlerController {
 		if (oldCurrentCrawl != null)
 			oldCurrentCrawl.copyTo(currentCrawl);
 		currentCrawl.setName(null);
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentCrawl = null;
 		selectedCrawl = null;
-		reloadPage();
+		reload();
 	}
 
 	private DatabaseCrawl getDatabaseCrawlItem(Component comp) {
@@ -263,7 +258,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		if (client == null)
 			return;
 		getCrawlMaster().execute(client, item, false, null);
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -314,9 +309,9 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		dbCrawlList = null;
-		super.reloadPage();
+		super.reload();
 	}
 
 	/**
@@ -359,7 +354,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		this.selectedField = selectedField;
 		this.sqlColumn = selectedField.getSource().getUniqueName();
 		currentFieldTarget = new DatabaseFieldTarget(selectedField.getTarget());
-		reloadPage();
+		reload();
 	}
 
 	public boolean isFieldSelected() {

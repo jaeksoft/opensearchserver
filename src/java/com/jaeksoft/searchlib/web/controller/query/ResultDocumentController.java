@@ -233,10 +233,10 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			documents = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 

@@ -78,7 +78,6 @@ public class UrlController extends CommonController implements AfterCompose {
 
 	@Override
 	public void afterCompose() {
-		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging",
 				new EventListener<Event>() {
 					@Override
@@ -370,7 +369,7 @@ public class UrlController extends CommonController implements AfterCompose {
 			activePage = pagingEvent.getActivePage();
 			try {
 				computeUrlList();
-				reloadPage();
+				reload();
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
 			}
@@ -381,7 +380,7 @@ public class UrlController extends CommonController implements AfterCompose {
 		synchronized (this) {
 			activePage = 0;
 			computeUrlList();
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -550,7 +549,7 @@ public class UrlController extends CommonController implements AfterCompose {
 			else if ("deleteAll".equalsIgnoreCase(action))
 				onDeleteAll();
 			actionListbox.setSelectedIndex(0);
-			reloadPage();
+			reload();
 		}
 	}
 

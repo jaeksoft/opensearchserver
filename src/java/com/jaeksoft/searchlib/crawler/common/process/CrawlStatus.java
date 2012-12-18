@@ -71,4 +71,8 @@ public enum CrawlStatus {
 		return name;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 }

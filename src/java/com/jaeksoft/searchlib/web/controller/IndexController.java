@@ -29,11 +29,6 @@ import com.jaeksoft.searchlib.user.Role;
 
 public class IndexController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7590913483471357743L;
-
 	public IndexController() throws SearchLibException {
 		super();
 	}

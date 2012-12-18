@@ -24,24 +24,26 @@
 
 package com.jaeksoft.searchlib.web.converter;
 
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zkplus.databind.TypeConverter;
 
-public class IntegerConverter implements TypeConverter {
+public class IntegerConverter implements Converter<Object, Object, Component> {
 
 	@Override
-	public Object coerceToBean(Object value, Component component) {
-		return null;
+	public Object coerceToBean(Object value, Component component,
+			BindContext ctx) {
+		return IGNORED_VALUE;
 	}
 
 	@Override
-	public Object coerceToUi(Object value, Component component) {
+	public Object coerceToUi(Object value, Component component, BindContext ctx) {
 		if (value == null)
-			return "Unknown";
+			return IGNORED_VALUE;
 		if (value instanceof Long)
 			return value.toString();
 		if (value instanceof Integer)
 			return value.toString();
-		return "Unknown";
+		return IGNORED_VALUE;
 	}
 }

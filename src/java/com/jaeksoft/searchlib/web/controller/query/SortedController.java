@@ -83,7 +83,7 @@ public class SortedController extends AbstractQueryController implements
 				return;
 			((SearchRequest) getRequest()).getSortFieldList().put(
 					new SortField(selectedSort, true));
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -92,7 +92,7 @@ public class SortedController extends AbstractQueryController implements
 			SortField sortField = (SortField) event.getData();
 			((SearchRequest) getRequest()).getSortFieldList().remove(
 					sortField.getName());
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -134,17 +134,17 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			selectedSort = null;
 			sortFieldLeft = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public class DirectionListener implements EventListener<Event> {

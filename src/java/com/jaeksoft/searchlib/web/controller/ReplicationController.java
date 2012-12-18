@@ -71,7 +71,7 @@ public class ReplicationController extends CommonController {
 	public void setSelectedItem(ReplicationItem item) throws SearchLibException {
 		selectedItem = item;
 		currentItem = new ReplicationItem(selectedItem);
-		reloadPage();
+		reload();
 	}
 
 	public ReplicationItem getItem() {
@@ -110,13 +110,13 @@ public class ReplicationController extends CommonController {
 	}
 
 	public void onTimer() throws SearchLibException {
-		super.reloadPage();
+		super.reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentItem = new ReplicationItem(getReplicationMaster());
 		selectedItem = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws SearchLibException,
@@ -158,7 +158,7 @@ public class ReplicationController extends CommonController {
 		if (client == null)
 			return;
 		getReplicationMaster().execute(client, item, false, null);
-		reloadPage();
+		reload();
 	}
 
 	public ReplicationType[] getTypeValues() {

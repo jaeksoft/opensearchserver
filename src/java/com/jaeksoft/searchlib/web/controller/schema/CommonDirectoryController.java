@@ -92,7 +92,7 @@ public abstract class CommonDirectoryController extends CommonController {
 			return;
 		}
 		currentName = editName;
-		reloadPage();
+		reload();
 	}
 
 	public void onEdit(Component comp) throws SearchLibException, IOException {
@@ -104,13 +104,13 @@ public abstract class CommonDirectoryController extends CommonController {
 			return;
 		currentName = name;
 		content = manager.getContent(name);
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentName = null;
 		content = null;
-		reloadPage();
+		reload();
 	}
 
 	@Override

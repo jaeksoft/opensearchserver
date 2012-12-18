@@ -90,7 +90,7 @@ public class ManualWebCrawlController extends CommonController {
 			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(
 					new URL(url), ListType.MANUAL);
 			currentCrawlThread.waitForStart(60);
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -133,7 +133,7 @@ public class ManualWebCrawlController extends CommonController {
 	}
 
 	public void onTimer() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public boolean isRefresh() {

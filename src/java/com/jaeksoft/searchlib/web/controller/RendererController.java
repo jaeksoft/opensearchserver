@@ -142,7 +142,7 @@ public class RendererController extends CommonController {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
-		reloadPage();
+		reload();
 	}
 
 	public void doDelete(Component comp) throws InterruptedException {
@@ -155,7 +155,7 @@ public class RendererController extends CommonController {
 	public void onNew() throws SearchLibException {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
-		reloadPage();
+		reload();
 	}
 
 	public void onRendererFieldSave() throws SearchLibException {
@@ -164,7 +164,7 @@ public class RendererController extends CommonController {
 		else
 			currentRendererField.copyTo(selectedRendererField);
 		onRendererFieldCancel();
-		reloadPage();
+		reload();
 	}
 
 	private RendererField getRendererField(Component comp) {
@@ -174,35 +174,35 @@ public class RendererController extends CommonController {
 
 	public void onRendererFieldRemove(Component comp) throws SearchLibException {
 		currentRenderer.removeField(getRendererField(comp));
-		reloadPage();
+		reload();
 	}
 
 	public void onRendererFieldUp(Component comp) throws SearchLibException {
 		currentRenderer.fieldUp(getRendererField(comp));
-		reloadPage();
+		reload();
 	}
 
 	public void onRendererFieldDown(Component comp) throws SearchLibException {
 		currentRenderer.fieldDown(getRendererField(comp));
-		reloadPage();
+		reload();
 	}
 
 	public void onRendererFieldCancel() throws SearchLibException {
 		currentRendererField = new RendererField();
 		selectedRendererField = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentRenderer = null;
 		selectedRenderer = null;
 		isTestable = false;
-		reloadPage();
+		reload();
 	}
 
 	public void onCssDefault() throws SearchLibException {
 		currentRenderer.setDefaultCss();
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws SearchLibException,
@@ -231,7 +231,7 @@ public class RendererController extends CommonController {
 		iframe.setSrc(null);
 		if (currentRenderer != null)
 			iframe.setSrc(currentRenderer.getApiUrl());
-		reloadPage();
+		reload();
 	}
 
 	public String getIFrameHtmlCode() throws UnsupportedEncodingException,
@@ -262,7 +262,7 @@ public class RendererController extends CommonController {
 			throws SearchLibException {
 		selectedRendererField = field;
 		currentRendererField = new RendererField(field);
-		reloadPage();
+		reload();
 	}
 
 	public Renderer getSelectedClassifier() {

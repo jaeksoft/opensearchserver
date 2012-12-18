@@ -76,7 +76,7 @@ public class FieldsController extends CommonController {
 	public void onCancel() throws SearchLibException {
 		field = new SchemaField();
 		selectedField = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws SearchLibException {
@@ -202,14 +202,14 @@ public class FieldsController extends CommonController {
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		super.reloadPage();
+		super.reload();
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			reset();
-			super.reloadPage();
+			super.reload();
 		}
 	}
 

@@ -306,7 +306,7 @@ public class ParserController extends CommonController implements
 			return;
 		selectedParser = parser;
 		currentParser = ParserFactory.create(parser);
-		reloadPage();
+		reload();
 	}
 
 	public void doDelete(Component comp) throws InterruptedException {
@@ -320,13 +320,13 @@ public class ParserController extends CommonController implements
 		selectedParser = null;
 		currentParser = ParserFactory.create(getClient(), "New parser",
 				parserType.getParserClass().getCanonicalName());
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentParser = null;
 		selectedParser = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onAdd() throws SearchLibException,
@@ -338,7 +338,7 @@ public class ParserController extends CommonController implements
 		fieldMap.add(new SourceField(selectedParserField.name()),
 				new ParserFieldTarget(selectedIndexField.getName(),
 						captureRegexp, removeTag));
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws TransformerConfigurationException, IOException,
@@ -351,7 +351,7 @@ public class ParserController extends CommonController implements
 		client.saveParsers();
 		selectedParser = currentParser;
 		currentParser = null;
-		reloadPage();
+		reload();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -362,7 +362,7 @@ public class ParserController extends CommonController implements
 				.getData();
 		ParserFieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -440,13 +440,13 @@ public class ParserController extends CommonController implements
 		if (p != null && p != selectedParser)
 			throw new SearchLibException("This extension is already affected");
 		currentParser.addExtension(currentExtension.trim());
-		reloadPage();
+		reload();
 	}
 
 	public void onDeleteExtension(Component comp) throws SearchLibException {
 		currentParser.removeExtension((String) getRecursiveComponentAttribute(
 				comp, "extensionItem"));
-		reloadPage();
+		reload();
 	}
 
 	public void onAddMimeType() throws MalformedURLException,
@@ -455,13 +455,13 @@ public class ParserController extends CommonController implements
 		if (currentMimeType == null || currentMimeType.trim().length() == 0)
 			return;
 		currentParser.addMimeType(currentMimeType.trim());
-		reloadPage();
+		reload();
 	}
 
 	public void onDeleteMimeType(Component comp) throws SearchLibException {
 		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
 				comp, "mimeTypeItem"));
-		reloadPage();
+		reload();
 	}
 
 	public void onAddUrlPattern() throws MalformedURLException,
@@ -470,13 +470,13 @@ public class ParserController extends CommonController implements
 		if (currentUrlPattern == null || currentUrlPattern.trim().length() == 0)
 			return;
 		currentParser.addUrlPattern(currentUrlPattern.trim());
-		reloadPage();
+		reload();
 	}
 
 	public void onDeleteUrlPattern(Component comp) throws SearchLibException {
 		currentParser.removeUrlPattern((String) getRecursiveComponentAttribute(
 				comp, "urlPatternItem"));
-		reloadPage();
+		reload();
 	}
 
 	/**

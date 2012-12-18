@@ -60,7 +60,7 @@ public class CrawlCacheComposer extends CommonComposer {
 		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
 		if (manager == null)
 			return;
-		reloadPage();
+		reload();
 	}
 
 	private void flush(boolean expiration) throws SearchLibException,
@@ -69,7 +69,7 @@ public class CrawlCacheComposer extends CommonComposer {
 		if (manager == null)
 			return;
 		long count = manager.flushCache(expiration);
-		reloadPage();
+		reload();
 		new AlertController(count + " content(s) deleted.");
 	}
 
@@ -84,11 +84,11 @@ public class CrawlCacheComposer extends CommonComposer {
 	}
 
 	public void onSelect$cacheProvider(Event event) {
-		reloadPage();
+		reload();
 	}
 
 	public void onChange$cacheValidity(Event event) {
-		reloadPage();
+		reload();
 	}
 
 }

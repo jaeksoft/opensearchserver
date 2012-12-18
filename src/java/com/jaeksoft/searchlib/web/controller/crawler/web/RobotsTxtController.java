@@ -99,7 +99,7 @@ public class RobotsTxtController extends CrawlerController {
 			ClassNotFoundException, HttpException {
 		selectedRobotsTxt = null;
 		robotsTxtList = null;
-		onReload();
+		reload();
 	}
 
 	public void onReset() throws IOException, URISyntaxException,

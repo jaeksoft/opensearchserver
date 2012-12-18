@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,27 +24,29 @@
 
 package com.jaeksoft.searchlib.web.converter;
 
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zkplus.databind.TypeConverter;
 
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class SizeConverter implements TypeConverter {
+public class SizeConverter implements Converter<Object, Object, Component> {
 
 	@Override
-	public Object coerceToBean(Object value, Component component) {
-		return null;
+	public Object coerceToBean(Object value, Component component,
+			BindContext ctx) {
+		return IGNORED_VALUE;
 	}
 
 	@Override
-	public Object coerceToUi(Object value, Component component) {
+	public Object coerceToUi(Object value, Component component, BindContext ctx) {
 		if (value == null)
-			return "Unknown";
+			return IGNORED_VALUE;
 		if (!(value instanceof Long))
-			return "Unknown";
+			return IGNORED_VALUE;
 		long l = (Long) value;
 		if (l == -1)
-			return "Unknown";
+			return IGNORED_VALUE;
 		return StringUtils.humanBytes(l);
 	}
 }

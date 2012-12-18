@@ -92,7 +92,7 @@ public class ReturnedController extends AbstractQueryController implements
 				return;
 			getReturnedFieldInterface().getReturnFieldList().put(
 					new ReturnField(selectedReturn));
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -101,7 +101,7 @@ public class ReturnedController extends AbstractQueryController implements
 			ReturnField field = (ReturnField) event.getData();
 			getReturnedFieldInterface().getReturnFieldList().remove(
 					field.getName());
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -146,16 +146,16 @@ public class ReturnedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			selectedReturn = null;
 			fieldLeft = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 }

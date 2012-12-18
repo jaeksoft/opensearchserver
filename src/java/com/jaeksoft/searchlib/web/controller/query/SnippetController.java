@@ -109,7 +109,7 @@ public class SnippetController extends AbstractQueryController {
 			SnippetField field = (SnippetField) event.getData();
 			((SearchRequest) getRequest()).getSnippetFieldList().remove(
 					field.getName());
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -131,21 +131,21 @@ public class SnippetController extends AbstractQueryController {
 				return;
 			((SearchRequest) getRequest()).getSnippetFieldList().put(
 					new SnippetField(selectedSnippet));
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			snippetFieldLeft = null;
 			selectedSnippet = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 }

@@ -109,7 +109,7 @@ public class UpdateFormController extends CommonController implements
 			IndexDocument idxDoc = getIndexDocument();
 			idxDoc.add(selectedField.getName(), new FieldValueItem(
 					FieldValueOriginEnum.EXTERNAL, ""));
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -247,7 +247,7 @@ public class UpdateFormController extends CommonController implements
 	public void onValueRemove(Event event) throws SearchLibException {
 		FieldValue fieldValue = (FieldValue) event.getData();
 		fieldValue.remove();
-		reloadPage();
+		reload();
 	}
 
 	public void onUpdate() throws NoSuchAlgorithmException, IOException,
@@ -266,10 +266,10 @@ public class UpdateFormController extends CommonController implements
 	 * @see com.jaeksoft.searchlib.web.controller.CommonController#reloadPage()
 	 */
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			fieldDocumentList = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 

@@ -121,13 +121,13 @@ public final class QueryController extends AbstractQueryController {
 
 	@Override
 	public void eventRequestListChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	@Override
 	public void eventClientChange() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	public void setRequest(AbstractRequest request) {
@@ -196,7 +196,7 @@ public final class QueryController extends AbstractQueryController {
 	public void setSelectedRequest(Entry<String, SearchRequest> entry)
 			throws SearchLibException {
 		selectedRequest = entry;
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -231,7 +231,7 @@ public final class QueryController extends AbstractQueryController {
 	private void newEdit(AbstractRequest newRequest) throws SearchLibException {
 		newRequest.setRequestName(requestName);
 		setRequest(newRequest);
-		reloadPage();
+		reload();
 	}
 
 	public void onNew() throws SearchLibException, InterruptedException,
@@ -289,7 +289,7 @@ public final class QueryController extends AbstractQueryController {
 
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws SearchLibException,

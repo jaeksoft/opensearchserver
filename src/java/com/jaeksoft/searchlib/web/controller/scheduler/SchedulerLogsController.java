@@ -66,7 +66,7 @@ public class SchedulerLogsController extends CommonController {
 
 	public void setSelectedJob(JobItem job) throws SearchLibException {
 		selectedJob = job;
-		reloadPage();
+		reload();
 	}
 
 	public boolean isJobSelected() {

@@ -88,22 +88,22 @@ public class CacheController extends CommonController {
 			LRUCache<?, ?> cache = (LRUCache<?, ?>) getRecursiveComponentAttribute(
 					comp, "cacheItem");
 			cache.clear();
-			reloadPage();
+			reload();
 		}
 	}
 
 	public void onSave(Event event) throws SearchLibException {
 		synchronized (this) {
 			getClient().saveConfig();
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			reset();
-			super.reloadPage();
+			super.reload();
 		}
 	}
 

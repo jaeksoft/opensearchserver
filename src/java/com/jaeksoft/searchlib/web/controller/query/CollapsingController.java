@@ -75,15 +75,15 @@ public class CollapsingController extends AbstractQueryController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			indexedFields = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 }

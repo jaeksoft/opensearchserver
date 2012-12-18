@@ -106,7 +106,7 @@ public class AutoCompletionComposer extends CommonComposer {
 			return;
 		onSave$window(event);
 		manager.build(null, 1000, null);
-		reloadPage();
+		reload();
 	}
 
 	public void onSave$window(Event event) throws SearchLibException {
@@ -119,7 +119,7 @@ public class AutoCompletionComposer extends CommonComposer {
 	}
 
 	public void onTimer$timer() {
-		reloadPage();
+		reload();
 	}
 
 	public void onChanging$combo(Event event) throws SearchLibException {

@@ -90,7 +90,7 @@ public class UrlFilterController extends CrawlerController {
 			throws SearchLibException {
 		this.selectedFilter = selectedFilter;
 		selectedFilter.copyTo(currentFilter);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class UrlFilterController extends CrawlerController {
 	public void onCancel() throws SearchLibException {
 		currentFilter = new UrlFilterItem(null, null);
 		selectedFilter = null;
-		reloadPage();
+		reload();
 	}
 
 	public void delete(Component comp) throws SearchLibException,

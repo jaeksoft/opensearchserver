@@ -38,11 +38,6 @@ import com.jaeksoft.searchlib.user.User;
 
 public class PrivilegesController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7649444539904657758L;
-
 	private transient User user;
 
 	private transient String confirmPassword;
@@ -192,7 +187,7 @@ public class PrivilegesController extends CommonController {
 		confirmPassword = null;
 		selectedIndex = null;
 		indexList = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws SearchLibException {
@@ -204,13 +199,13 @@ public class PrivilegesController extends CommonController {
 	public void onAddPrivilege() throws SearchLibException {
 		if (selectedIndex != null)
 			user.addRole(selectedIndex.getIndexName(), selectedRole);
-		reloadPage();
+		reload();
 	}
 
 	public void onRoleRemove(Component comp) throws SearchLibException {
 		IndexRole indexRole = (IndexRole) comp.getAttribute("indexrole");
 		user.removeRole(indexRole);
-		reloadPage();
+		reload();
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -219,9 +214,9 @@ public class PrivilegesController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		indexList = null;
-		super.reloadPage();
+		super.reload();
 	}
 
 }

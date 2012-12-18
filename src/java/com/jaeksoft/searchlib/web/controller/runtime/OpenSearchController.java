@@ -71,7 +71,7 @@ public class OpenSearchController extends CommonController {
 
 	public OpenSearchController() throws SearchLibException {
 		super();
-		reloadPage();
+		reload();
 		load();
 	}
 
@@ -125,7 +125,7 @@ public class OpenSearchController extends CommonController {
 			}
 		}
 
-		reloadPage();
+		reload();
 	}
 
 	public Set<String> getRequestList() throws SearchLibException {
@@ -152,7 +152,7 @@ public class OpenSearchController extends CommonController {
 			openSearchApiList.add(new OpenSearchApi(currentField,
 					currentOpenSearchField.name()));
 		}
-		reloadPage();
+		reload();
 
 	}
 

@@ -219,7 +219,7 @@ public class TermController extends CommonController {
 		synchronized (this) {
 			setTermEnum();
 			setTermList();
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -233,7 +233,7 @@ public class TermController extends CommonController {
 	public void onNext() throws IOException, SearchLibException {
 		synchronized (this) {
 			setTermList();
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -276,7 +276,7 @@ public class TermController extends CommonController {
 	public void eventSchemaChange() throws SearchLibException {
 		synchronized (this) {
 			fieldList = null;
-			reloadPage();
+			reload();
 		}
 	}
 }

@@ -66,7 +66,7 @@ public class CommandsController extends CommonController {
 				throw new SearchLibException("Truncation is already running.");
 			taskTruncate = new TaskItem(client, new TaskDeleteAll());
 			TaskManager.executeTask(client, taskTruncate, null);
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -111,39 +111,39 @@ public class CommandsController extends CommonController {
 	public void onReloadClient() throws SearchLibException {
 		synchronized (this) {
 			getClient().reload();
-			reloadPage();
+			reload();
 		}
 	}
 
 	public void onTimer() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public void onReadOnly() throws SearchLibException {
 		synchronized (this) {
 			getClient().setReadWriteMode(IndexMode.READ_ONLY);
-			reloadPage();
+			reload();
 		}
 	}
 
 	public void onReadWrite() throws SearchLibException {
 		synchronized (this) {
 			getClient().setReadWriteMode(IndexMode.READ_WRITE);
-			reloadPage();
+			reload();
 		}
 	}
 
 	public void onOnline() throws SearchLibException {
 		synchronized (this) {
 			getClient().setOnline(true);
-			reloadPage();
+			reload();
 		}
 	}
 
 	public void onOffline() throws SearchLibException {
 		synchronized (this) {
 			getClient().setOnline(false);
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -158,7 +158,7 @@ public class CommandsController extends CommonController {
 						"The optimization is already running");
 			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
 			TaskManager.executeTask(client, taskOptimize, null);
-			reloadPage();
+			reload();
 		}
 	}
 

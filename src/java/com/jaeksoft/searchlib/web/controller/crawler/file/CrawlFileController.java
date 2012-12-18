@@ -66,7 +66,7 @@ public class CrawlFileController extends CrawlerController {
 				propertyManager.getCrawlEnabled().setValue(true);
 			getCrawlMaster().start(once);
 		}
-		reloadPage();
+		reload();
 	}
 
 	public FilePropertyManager getProperties() throws SearchLibException {

@@ -209,7 +209,7 @@ public class UploadXmlController extends CommonController {
 						it.remove();
 				}
 			}
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -266,7 +266,7 @@ public class UploadXmlController extends CommonController {
 				return;
 			doMedia(media);
 		}
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class UploadXmlController extends CommonController {
 	public void setXslEnabled(boolean xslEnabled) throws SearchLibException {
 		this.xslEnabled = xslEnabled;
 		this.xslContent = null;
-		reloadPage();
+		reload();
 	}
 
 	/**

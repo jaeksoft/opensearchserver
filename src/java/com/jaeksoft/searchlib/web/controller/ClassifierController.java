@@ -136,13 +136,13 @@ public class ClassifierController extends CommonController {
 
 	public void onNewClassifier() throws SearchLibException {
 		currentClassifier = new Classifier();
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
 		currentClassifier = null;
 		selectedClassifier = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws SearchLibException,
@@ -182,7 +182,7 @@ public class ClassifierController extends CommonController {
 			return;
 		selectedClassifier = classifier;
 		currentClassifier = new Classifier(classifier);
-		reloadPage();
+		reload();
 	}
 
 	public boolean isItemSelected() {
@@ -207,7 +207,7 @@ public class ClassifierController extends CommonController {
 			return;
 		selectedClassifierItem = classifierItem;
 		currentClassifierItem = new ClassifierItem(classifierItem);
-		reloadPage();
+		reload();
 	}
 
 	public void onSaveClassifierItem() throws SearchLibException {
@@ -222,7 +222,7 @@ public class ClassifierController extends CommonController {
 	public void onCancelClassifierItem() throws SearchLibException {
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
-		reloadPage();
+		reload();
 	}
 
 	private ClassifierItem getClassifierItem(Component component) {

@@ -89,7 +89,7 @@ public class CrawlWebController extends CrawlerController {
 				propertyManager.getCrawlEnabled().setValue(true);
 			getCrawlMaster().start(once);
 		}
-		reloadPage();
+		reload();
 	}
 
 }

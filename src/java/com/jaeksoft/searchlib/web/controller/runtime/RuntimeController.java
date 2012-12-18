@@ -29,8 +29,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class RuntimeController extends CommonController {
 
-	private static final long serialVersionUID = -2867769891161290723L;
-
 	public RuntimeController() throws SearchLibException {
 		super();
 	}
@@ -40,7 +38,7 @@ public class RuntimeController extends CommonController {
 	}
 
 	@Override
-	public void reloadPage() {
+	public void reload() {
 
 	}
 

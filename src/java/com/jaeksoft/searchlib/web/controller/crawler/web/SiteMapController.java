@@ -89,7 +89,7 @@ public class SiteMapController extends CrawlerController {
 			throws SearchLibException {
 		this.selectedSiteMap = selectedSiteMap;
 		selectedSiteMap.copyTo(currentSiteMap);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class SiteMapController extends CrawlerController {
 	public void onCancel() throws SearchLibException {
 		currentSiteMap = new SiteMapItem("");
 		selectedSiteMap = null;
-		reloadPage();
+		reload();
 	}
 
 	public void delete(Component comp) throws SearchLibException,

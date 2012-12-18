@@ -28,7 +28,6 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.util.GenericForwardComposer;
-import org.zkoss.zkplus.databind.AnnotateDataBinder;
 import org.zkoss.zul.Listitem;
 
 import com.jaeksoft.searchlib.Client;
@@ -44,7 +43,7 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	 */
 	private static final long serialVersionUID = 2779225243528937766L;
 
-	protected AnnotateDataBinder binder;
+	// protected AnnotateDataBinder binder;
 
 	@Override
 	public void doAfterCompose(Component comp) throws Exception {
@@ -102,14 +101,14 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	}
 
 	public void reloadComponent(Component component) {
-		if (binder != null)
-			binder.loadComponent(component);
+		// if (binder != null)
+		// binder.loadComponent(component);
 	}
 
-	public void reloadPage() {
-		if (binder == null)
-			return;
-		binder.loadAll();
+	public void reload() {
+		// if (binder == null)
+		// return;
+		// binder.loadAll();
 	}
 
 	protected abstract void reset() throws SearchLibException;
@@ -117,7 +116,7 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	@Override
 	public void eventClientChange() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -130,13 +129,13 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 		if (!client.getIndexName().equals(currentClient.getIndexName()))
 			return;
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override
 	public void eventFlushPrivileges() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -154,7 +153,7 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	@Override
 	public void eventLogout() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override

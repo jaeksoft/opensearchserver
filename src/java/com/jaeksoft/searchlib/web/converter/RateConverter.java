@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,24 +26,26 @@ package com.jaeksoft.searchlib.web.converter;
 
 import java.text.DecimalFormat;
 
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zkplus.databind.TypeConverter;
 
-public class RateConverter implements TypeConverter {
+public class RateConverter implements Converter<Object, Object, Component> {
 
 	@Override
-	public Object coerceToBean(Object value, Component component) {
-		return null;
+	public Object coerceToBean(Object value, Component component,
+			BindContext ctx) {
+		return IGNORED_VALUE;
 	}
 
 	@Override
-	public Object coerceToUi(Object value, Component component) {
+	public Object coerceToUi(Object value, Component component, BindContext ctx) {
 		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
 		format.setMaximumFractionDigits(1);
 		if (value instanceof Double)
 			return format.format((Double) value);
 		else if (value instanceof Float)
 			return format.format((Float) value);
-		return null;
+		return IGNORED_VALUE;
 	}
 }

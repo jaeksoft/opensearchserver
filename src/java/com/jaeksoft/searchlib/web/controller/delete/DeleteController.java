@@ -101,7 +101,7 @@ public class DeleteController extends CommonController {
 		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
 				Messagebox.INFORMATION);
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws IOException, ParseException, SyntaxError,
@@ -118,7 +118,7 @@ public class DeleteController extends CommonController {
 
 	public void onQueryChange() throws SearchLibException {
 		isChecked = false;
-		reloadPage();
+		reload();
 	}
 
 	public boolean isNotChecked() {
@@ -145,13 +145,13 @@ public class DeleteController extends CommonController {
 	@Override
 	public void eventClientChange() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override
 	public void eventFlushPrivileges() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	@Override
@@ -161,7 +161,7 @@ public class DeleteController extends CommonController {
 	@Override
 	public void eventLogout() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 }

@@ -235,14 +235,14 @@ public class AnalyzersController extends CommonController implements
 		editAnalyzer = getSelectedAnalyzer();
 		if (editAnalyzer != null)
 			currentAnalyzer.copyFrom(editAnalyzer);
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {
 		if (getSelectedAnalyzer() == null)
 			return;
 		new DeleteAlert(getSelectedAnalyzer());
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws InterruptedException, SearchLibException {
@@ -260,7 +260,7 @@ public class AnalyzersController extends CommonController implements
 	public void onCancel() throws SearchLibException {
 		editAnalyzer = null;
 		currentAnalyzer = new Analyzer(getClient());
-		reloadPage();
+		reload();
 	}
 
 	public String[] getTokenizerList() {
@@ -292,7 +292,7 @@ public class AnalyzersController extends CommonController implements
 		this.selectedFilter = selectedFilter;
 		this.currentFilter = FilterFactory.create(getClient(),
 				selectedFilter.name());
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -308,25 +308,25 @@ public class AnalyzersController extends CommonController implements
 
 	public void onFilterAdd() throws SearchLibException {
 		currentAnalyzer.add(FilterFactory.create(currentFilter));
-		reloadPage();
+		reload();
 	}
 
 	public void onFilterUp(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterUp(filter);
-		reloadPage();
+		reload();
 	}
 
 	public void onFilterDown(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterDown(filter);
-		reloadPage();
+		reload();
 	}
 
 	public void onFilterRemove(Component component) throws SearchLibException {
 		FilterFactory filter = getFilter(component);
 		currentAnalyzer.filterRemove(filter);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -363,7 +363,7 @@ public class AnalyzersController extends CommonController implements
 		CompiledAnalyzer compiledAnalyzer = ("query".equals(testType)) ? currentAnalyzer
 				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
 		testList = compiledAnalyzer.test(testText);
-		reloadPage();
+		reload();
 	}
 
 	public List<DebugTokenFilter> getTestList() {

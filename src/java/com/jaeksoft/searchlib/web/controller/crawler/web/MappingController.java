@@ -83,7 +83,7 @@ public class MappingController extends CrawlerController implements
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public List<SchemaField> getIndexFieldList() throws SearchLibException {
@@ -145,7 +145,7 @@ public class MappingController extends CrawlerController implements
 		fieldMap.add(new SourceField(selectedUrlField.getName()),
 				new TargetField(selectedIndexField.getName()));
 		fieldMap.store();
-		reloadPage();
+		reload();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -159,7 +159,7 @@ public class MappingController extends CrawlerController implements
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		fieldMap.store();
-		reloadPage();
+		reload();
 	}
 
 	@Override

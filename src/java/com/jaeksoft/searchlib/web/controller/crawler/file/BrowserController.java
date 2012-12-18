@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Checkbox;
 
@@ -37,10 +36,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class BrowserController extends CrawlerController implements
-		AfterCompose {
-
-	private static final long serialVersionUID = 6735801464584819587L;
+public class BrowserController extends CrawlerController {
 
 	private transient List<FilePathItem> filePathItemList = null;
 
@@ -185,8 +181,7 @@ public class BrowserController extends CrawlerController implements
 			File file = (File) component.getAttribute("file");
 			if (file.isDirectory()) {
 				setCurrentFile(file);
-				invalidate("filebrowser");
-				reloadPage();
+				reload();
 			}
 
 		}
@@ -198,15 +193,15 @@ public class BrowserController extends CrawlerController implements
 				return;
 			setCurrentFile(currentFile.getParentFile());
 			setSelectedFile(null);
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void doRefresh() throws SearchLibException {
+	public void refresh() throws SearchLibException {
 		synchronized (this) {
 			refreshCurrentFileList();
-			reloadPage();
+			reload();
 		}
 	}
 

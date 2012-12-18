@@ -74,9 +74,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		activePage = 0;
 	}
 
-	@Override
 	public void afterCompose() {
-		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging",
 				new EventListener<Event>() {
 					@Override
@@ -307,7 +305,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 		synchronized (this) {
 			fileList = null;
 			activePage = pagingEvent.getActivePage();
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -316,7 +314,7 @@ public class FileController extends CrawlerController implements AfterCompose {
 			fileList = null;
 			activePage = 0;
 			totalSize = 0;
-			reloadPage();
+			reload();
 		}
 	}
 

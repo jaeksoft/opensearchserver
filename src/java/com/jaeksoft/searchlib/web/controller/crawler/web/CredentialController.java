@@ -100,9 +100,7 @@ public class CredentialController extends CrawlerController {
 		currentCredential = new CredentialItem();
 	}
 
-	@Override
 	public void afterCompose() {
-		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging",
 				new EventListener<Event>() {
 					@Override
@@ -163,7 +161,7 @@ public class CredentialController extends CrawlerController {
 		synchronized (this) {
 			credentialList = null;
 			activePage = pagingEvent.getActivePage();
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -172,7 +170,7 @@ public class CredentialController extends CrawlerController {
 			credentialList = null;
 			activePage = 0;
 			totalSize = 0;
-			reloadPage();
+			reload();
 		}
 	}
 
@@ -229,7 +227,7 @@ public class CredentialController extends CrawlerController {
 			return;
 		selectedCredential = credential;
 		selectedCredential.copy(currentCredential);
-		reloadPage();
+		reload();
 	}
 
 	public boolean selected() {
@@ -241,16 +239,16 @@ public class CredentialController extends CrawlerController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
 			credentialList = null;
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {

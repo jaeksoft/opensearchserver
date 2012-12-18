@@ -88,10 +88,10 @@ public class SchedulerEditController extends SchedulerController {
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		JobItem jobItem = getJobItemEdit();
 		currentJob = jobItem;
-		super.reloadPage();
+		super.reload();
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class SchedulerEditController extends SchedulerController {
 			return;
 		this.selectedTask = selectedTask;
 		this.currentTask = new TaskItem(client, selectedTask.getTask());
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class SchedulerEditController extends SchedulerController {
 			return;
 		selectedJobTask = null;
 		this.currentTask = new TaskItem(client, selectedTask.getTask());
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class SchedulerEditController extends SchedulerController {
 	public void onTaskUp(Component component) throws SearchLibException {
 		TaskItem taskItem = getTaskItem(component);
 		currentJob.taskUp(taskItem);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class SchedulerEditController extends SchedulerController {
 	public void onTaskDown(Component component) throws SearchLibException {
 		TaskItem taskItem = getTaskItem(component);
 		currentJob.taskDown(taskItem);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class SchedulerEditController extends SchedulerController {
 	public void onTaskRemove(Component component) throws SearchLibException {
 		TaskItem taskItem = getTaskItem(component);
 		currentJob.taskRemove(taskItem);
-		reloadPage();
+		reload();
 	}
 
 	public void onCancel() throws SearchLibException {
@@ -270,7 +270,7 @@ public class SchedulerEditController extends SchedulerController {
 		this.selectedJobTask = selectedJobTask;
 		if (selectedJobTask != null)
 			this.currentTask = new TaskItem(selectedJobTask);
-		reloadPage();
+		reload();
 	}
 
 }

@@ -132,7 +132,7 @@ public class LogFilesController extends ReportsController {
 	}
 
 	private void reloadReportsList() {
-		reloadPage();
+		reload();
 	}
 
 	public void onClick$deleteReport(Event event) throws SearchLibException,

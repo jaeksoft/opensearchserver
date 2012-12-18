@@ -16,7 +16,7 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('home') @init('com.jaeksoft.searchlib.web.controller.HomeController')">
-	<grid visible="@bind(home.adminOrNoUser)" hflex="min">
+	<grid visible="@load(home.adminOrNoUser)" hflex="min">
 		<auxhead>
 			<auxheader colspan="4" label="Create a new index" />
 		</auxhead>
@@ -41,12 +41,14 @@
 				<label value="Template: " />
 				<listbox mold="select"
 					selectedItem="@bind(home.newIndexTemplate)"
-					model="@bind(home.templateList)">
-					<listitem self="@{each=telist}"
-						label="@{telist.template.publicName}" />
+					model="@load(home.templateList)">
+					<template name="model" var="telist">
+						<listitem
+							label="@load(telist.template.publicName)" />
+					</template>
 				</listbox>
 				<label
-					value="@bind(home.newIndexTemplate.template.description)" />
+					value="@load(home.newIndexTemplate.template.description)" />
 			</row>
 			<row>
 				<cell />
@@ -56,8 +58,8 @@
 		</rows>
 	</grid>
 	<separator height="10" />
-	<listbox id="indexlist" selectedItem="@bind(home.clientName)"
-		mold="paging" pageSize="20" model="@bind(home.clientCatalog)">
+	<listbox selectedItem="@bind(home.clientName)" mold="paging"
+		pageSize="20" model="@load(home.clientCatalog)">
 		<auxhead>
 			<auxheader align="center" label="List of indices" />
 			<auxheader align="center" label="Crawlers" colspan="3" />
@@ -96,50 +98,46 @@
 		</listhead>
 		<template name="model" var="catalogitem">
 			<listitem>
-				<listcell label="@bind(catalogitem.indexName)" />
+				<listcell label="@load(catalogitem.indexName)" />
 				<listcell
-					tooltiptext="@bind(catalogitem.client.webCrawlMaster.statusInfo)"
-					label="@bind(catalogitem.client.webCrawlMaster.status)" />
+					tooltiptext="@load(catalogitem.client.webCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.webCrawlMaster.status.name)" />
 				<listcell
-					tooltiptext="@bind(catalogitem.client.databaseCrawlMaster.statusInfo)"
-					label="@bind(catalogitem.client.databaseCrawlMaster.status)" />
+					tooltiptext="@load(catalogitem.client.databaseCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.databaseCrawlMaster.status.name)" />
 				<listcell
-					tooltiptext="@bind(catalogitem.client.fileCrawlMaster.statusInfo)"
-					label="@bind(catalogitem.client.fileCrawlMaster.status)" />
+					tooltiptext="@load(catalogitem.client.fileCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.fileCrawlMaster.status.name)" />
 				<listcell
-					label="@bind(catalogitem.client.jobList.runningCount)" />
+					label="@load(catalogitem.client.jobList.runningCount)" />
 				<listcell
-					label="@bind(catalogitem.client.jobList.activeCount)" />
+					label="@load(catalogitem.client.jobList.activeCount)" />
 				<listcell
-					label="@bind(catalogitem.client.jobList.count)" />
+					label="@load(catalogitem.client.jobList.count)" />
 				<listcell
-					label="@bind(catalogitem.client.replicationMaster.threadsCount)" />
+					label="@load(catalogitem.client.replicationMaster.threadsCount)" />
 				<listcell
-					label="@bind(catalogitem.client.replicationList.size)" />
-				<listcell label="@bind(catalogitem.optimizationStatus)" />
+					label="@load(catalogitem.client.replicationList.size)" />
+				<listcell label="@load(catalogitem.optimizationStatus)" />
 				<listcell
-					label="@bind(catalogitem.client.readWriteMode)" />
-				<listcell tooltiptext="@bind(catalogitem.numDocs)"
-					label="@bind(catalogitem.numDocs,converter='com.jaeksoft.searchlib.web.converter.IntegerConverter')" />
+					label="@load(catalogitem.client.readWriteMode.label)" />
+				<listcell tooltiptext="@load(catalogitem.numDocs)"
+					label="@load(catalogitem.numDocs) @converter('com.jaeksoft.searchlib.web.converter.IntegerConverter')" />
 				<listcell
-					tooltiptext="@bind(catalogitem.lastModifiedFile)"
-					label="@bind(catalogitem.lastModified,converter='com.jaeksoft.searchlib.web.converter.DateConverter')" />
-				<listcell tooltiptext="@bind(catalogitem.size}"
-					label="@bind(catalogitem.size,converter='com.jaeksoft.searchlib.web.converter.SizeConverter')" />
+					tooltiptext="@load(catalogitem.lastModifiedFile)"
+					label="@load(catalogitem.lastModified) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell tooltiptext="@load(catalogitem.size}"
+					label="@load(catalogitem.size) @converter('com.jaeksoft.searchlib.web.converter.SizeConverter')" />
 				<listcell>
 					<hbox align="center">
 						<button label="Info"
-							onClick="home.computeInfos(self)"
+							onClick="@command('computeInfos', catalogitem=catalogitem)"
 							tooltiptext="Compute the size of the index">
-							<custom-attributes
-								catalogitem="@{catalogitem}" />
 						</button>
 						<space />
 						<button tooltiptext="Erase index"
 							image="/images/action_delete.png"
-							onClick="home.eraseIndex(self)">
-							<custom-attributes
-								catalogitem="@{catalogitem}" />
+							onClick="@command('computeInfos', catalogitem=catalogitem)">
 						</button>
 						<space />
 					</hbox>

@@ -129,20 +129,20 @@ public class SpellCheckController extends AbstractQueryController {
 	public void onCancel() throws SearchLibException {
 		synchronized (this) {
 			reset();
-			reloadPage();
+			reload();
 		}
 	}
 
 	@Override
-	public void reloadPage() throws SearchLibException {
+	public void reload() throws SearchLibException {
 		synchronized (this) {
-			super.reloadPage();
+			super.reload();
 		}
 	}
 
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public SpellCheckDistanceEnum[] getStringDistanceList() {
@@ -171,7 +171,7 @@ public class SpellCheckController extends AbstractQueryController {
 		this.currentSpellCheckField = new SpellCheckField(
 				selectedSpellCheckField);
 		fieldLeft = null;
-		reloadPage();
+		reload();
 	}
 
 	public boolean isSelection() {

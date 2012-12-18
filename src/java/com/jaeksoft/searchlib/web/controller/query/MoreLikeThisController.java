@@ -102,7 +102,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 		((MoreLikeThisRequest) getRequest()).getFieldList().put(
 				new ReturnField(selectedField));
 		fieldsLeft = null;
-		reloadPage();
+		reload();
 	}
 
 	public void onRemoveField(Component component) throws SearchLibException {
@@ -111,7 +111,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 		((MoreLikeThisRequest) getRequest()).getFieldList().remove(
 				field.getName());
 		fieldsLeft = null;
-		reloadPage();
+		reload();
 	}
 
 	public List<String> getStopWordsList() throws SearchLibException {
@@ -134,7 +134,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 	@Override
 	public void eventSchemaChange() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 }

@@ -52,7 +52,7 @@ public class ScoringComposer extends CommonComposer {
 	protected void reset() throws SearchLibException {
 		currentScoreItem = null;
 		selectedScoreItem = null;
-		reloadPage();
+		reload();
 	}
 
 	public AdvancedScore getAdvancedScore() throws SearchLibException {
@@ -120,7 +120,7 @@ public class ScoringComposer extends CommonComposer {
 	public void onRemove(Event event) throws SearchLibException {
 		AdvancedScoreItem scoreItem = (AdvancedScoreItem) getListItemValue(event);
 		getAdvancedScore().remove(scoreItem);
-		reloadPage();
+		reload();
 	}
 
 	/**
@@ -137,6 +137,6 @@ public class ScoringComposer extends CommonComposer {
 	public void setSelectedScoreItem(AdvancedScoreItem selectedScoreItem) {
 		this.selectedScoreItem = selectedScoreItem;
 		currentScoreItem = new AdvancedScoreItem(selectedScoreItem);
-		reloadPage();
+		reload();
 	}
 }

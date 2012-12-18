@@ -76,7 +76,7 @@ public class BoostQueriesController extends AbstractQueryController {
 			throws SearchLibException {
 		this.selectedBoostQuery = selectedBoostQuery;
 		currentBoostQuery.copyFrom(selectedBoostQuery);
-		reloadPage();
+		reload();
 	}
 
 	public boolean isSelected() {
@@ -89,7 +89,7 @@ public class BoostQueriesController extends AbstractQueryController {
 
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	public void onSave() throws SearchLibException {

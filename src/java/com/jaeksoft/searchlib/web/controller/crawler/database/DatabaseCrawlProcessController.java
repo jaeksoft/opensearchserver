@@ -68,7 +68,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 
 	@Override
 	public void onTimer() throws SearchLibException {
-		reloadPage();
+		reload();
 	}
 
 	public boolean isDebug() {

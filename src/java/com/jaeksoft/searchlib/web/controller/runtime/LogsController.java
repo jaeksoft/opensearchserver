@@ -101,7 +101,7 @@ public class LogsController extends CommonController {
 
 	public void onReloadFileList() throws SearchLibException {
 		reset();
-		reloadPage();
+		reload();
 	}
 
 	public void onReloadCurrentLog() {

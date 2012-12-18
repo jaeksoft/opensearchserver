@@ -26,13 +26,13 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpException;
+import org.zkoss.bind.annotation.GlobalCommand;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
@@ -56,44 +56,15 @@ import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController implements EventInterface {
 
-	/**
-	 * 
-	 */
-	// private static final long serialVersionUID = -3581269068713587866L;
-
-	private transient boolean isComposed;
-
 	@WireVariable
 	protected Session session;
 
-	// private transient AnnotateDataBinder binder = null;
+	@WireVariable
+	protected Desktop desktop;
 
 	public CommonController() throws SearchLibException {
 		super();
-		// isComposed = false;
 		reset();
-	}
-
-	public void afterCompose() {
-		/*
-		 * System.out.println("binderutil " + (binder = (AnnotateDataBinder)
-		 * BinderUtil.getBinder(this))); if (binder == null)
-		 * System.out.println("bind page " + this + " " + (binder =
-		 * (AnnotateDataBinder) getPage().getAttribute( "binder"))); if (binder
-		 * == null) System.out.println("bind attr " + this + " " + (binder =
-		 * (AnnotateDataBinder) getAttribute("binder"))); if (binder == null)
-		 * System.out.println("bind root " + this + " " + (binder =
-		 * (AnnotateDataBinder) getRoot().getAttribute( "binder"))); if (binder
-		 * == null) System.out.println("bind desktop " + this + " " + (binder =
-		 * (AnnotateDataBinder) getDesktop().getAttribute( "binder"))); if
-		 * (binder == null) System.out.println("BINDER CREATION " + this + " " +
-		 * (binder = new AnnotateDataBinder(this)));
-		 * 
-		 * if (binder != null) binder.loadAll(); else
-		 * System.out.println("BINDER IS NULL " + this);
-		 */
-		// PushEvent.suscribe(this);
-		isComposed = true;
 	}
 
 	final protected static StringBuffer getBaseUrl(Execution exe) {
@@ -137,10 +108,8 @@ public abstract class CommonController implements EventInterface {
 		return scopeAttribute.get(session);
 	}
 
-	// TOTO Remove ?
 	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
-		if (isComposed)
-			scopeAttribute.set(session, value);
+		scopeAttribute.set(session, value);
 	}
 
 	protected Object getRecursiveComponentAttribute(Component component,
@@ -174,11 +143,6 @@ public abstract class CommonController implements EventInterface {
 
 	public boolean isInstanceNotValid() throws SearchLibException {
 		return getClient() == null;
-	}
-
-	// TODO Remove ?
-	public void invalidate(String id) {
-		// getFellow(id).invalidate();
 	}
 
 	public String getCurrentPage() throws SearchLibException {
@@ -246,54 +210,15 @@ public abstract class CommonController implements EventInterface {
 		 */
 	}
 
-	// TODO Remove ?
-	public void reloadPage() throws SearchLibException {
-		/*
-		 * if (binder != null) binder.loadAll();
-		 */
+	@GlobalCommand
+	@NotifyChange("*")
+	public void reload() throws SearchLibException {
 	}
 
-	final public void onReload() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		reloadPage();
-	}
-
-	protected void doRefresh() throws SearchLibException {
+	@GlobalCommand
+	public void refresh() throws SearchLibException {
 		reset();
-		reloadPage();
-	}
-
-	protected static void sendRefresh(Component component)
-			throws SearchLibException {
-		if (component == null)
-			return;
-		if (component instanceof CommonController)
-			((CommonController) component).doRefresh();
-		List<Component> children = component.getChildren();
-		if (children == null)
-			return;
-		for (Component comp : children)
-			if (comp.isVisible())
-				sendRefresh(comp);
-	}
-
-	// TODO Remove ?
-	final public void onRefresh() throws SearchLibException {
-		// sendRefresh(getRoot());
-	}
-
-	protected static void sendReload(Component component)
-			throws SearchLibException {
-		if (component == null)
-			return;
-		if (component instanceof CommonController)
-			((CommonController) component).reloadPage();
-		List<Component> children = component.getChildren();
-		if (children == null)
-			return;
-		for (Component comp : children)
-			sendReload(comp);
+		reload();
 	}
 
 	public LanguageEnum[] getLanguageEnum() {
@@ -329,9 +254,9 @@ public abstract class CommonController implements EventInterface {
 	protected abstract void reset() throws SearchLibException;
 
 	@Override
+	@GlobalCommand
 	public void eventClientChange() throws SearchLibException {
-		reset();
-		reloadPage();
+		refresh();
 	}
 
 	@Override
@@ -343,14 +268,12 @@ public abstract class CommonController implements EventInterface {
 			return;
 		if (!client.getIndexName().equals(currentClient.getIndexName()))
 			return;
-		reset();
-		reloadPage();
+		refresh();
 	}
 
 	@Override
 	public void eventFlushPrivileges() throws SearchLibException {
-		reset();
-		reloadPage();
+		refresh();
 	}
 
 	@Override
@@ -367,8 +290,7 @@ public abstract class CommonController implements EventInterface {
 
 	@Override
 	public void eventLogout() throws SearchLibException {
-		reset();
-		reloadPage();
+		refresh();
 	}
 
 	protected String getIndexName() throws SearchLibException {
@@ -436,8 +358,4 @@ public abstract class CommonController implements EventInterface {
 						+ path, "_blank");
 	}
 
-	// TODO Implementation or remove
-	protected Desktop getDesktop() {
-		return null;
-	}
 }

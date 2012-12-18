@@ -55,9 +55,7 @@ public class RepositoryController extends FileCrawlerController {
 		activePage = 0;
 	}
 
-	@Override
 	public void afterCompose() {
-		super.afterCompose();
 		getFellow("paging").addEventListener("onPaging",
 				new EventListener<Event>() {
 					@Override
@@ -86,7 +84,7 @@ public class RepositoryController extends FileCrawlerController {
 	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
 		synchronized (this) {
 			activePage = pagingEvent.getActivePage();
-			reloadPage();
+			reload();
 		}
 	}
 

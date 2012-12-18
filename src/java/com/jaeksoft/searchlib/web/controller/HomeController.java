@@ -29,7 +29,9 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -46,15 +48,18 @@ public class HomeController extends CommonController {
 
 	private Set<ClientCatalogItem> catalogItems;
 
+	private ClientCatalogItem selectedClientCatalogItem;
+
 	public HomeController() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
-		indexName = "";
+		indexName = null;
 		indexTemplate = TemplateList.EMPTY_INDEX;
 		catalogItems = null;
+		selectedClientCatalogItem = null;
 	}
 
 	public Set<ClientCatalogItem> getClientCatalog() throws SearchLibException {
@@ -65,10 +70,15 @@ public class HomeController extends CommonController {
 	}
 
 	public ClientCatalogItem getClientName() throws SearchLibException {
-		Client client = super.getClient();
+		Client client = getClient();
 		if (client == null)
 			return null;
-		return new ClientCatalogItem(client.getIndexName());
+		if (selectedClientCatalogItem == null)
+			return null;
+		if (!selectedClientCatalogItem.getIndexName().equals(
+				client.getIndexName()))
+			return null;
+		return selectedClientCatalogItem;
 	}
 
 	public boolean isSelectedIndex() throws SearchLibException {
@@ -83,6 +93,7 @@ public class HomeController extends CommonController {
 		if (client == null)
 			return;
 		setClient(client);
+		selectedClientCatalogItem = item;
 	}
 
 	public String getNewIndexName() {
@@ -104,7 +115,7 @@ public class HomeController extends CommonController {
 	public void setNewIndexTemplate(TemplateList indexTemplate)
 			throws SearchLibException {
 		this.indexTemplate = indexTemplate;
-		reloadPage();
+		reload();
 	}
 
 	public void onNewIndex() throws SearchLibException, InterruptedException,
@@ -126,12 +137,6 @@ public class HomeController extends CommonController {
 		setClient(ClientCatalog.getClient(indexName));
 	}
 
-	@Override
-	public void doRefresh() throws SearchLibException {
-		catalogItems = null;
-		reloadPage();
-	}
-
 	private class EraseIndexAlert extends AlertController {
 
 		private transient String indexName;
@@ -144,6 +149,7 @@ public class HomeController extends CommonController {
 		}
 
 		@Override
+		@NotifyChange("#indexList")
 		protected void onYes() throws SearchLibException {
 			try {
 				ClientCatalog.eraseIndex(getLoggedUser(), indexName);
@@ -157,26 +163,22 @@ public class HomeController extends CommonController {
 
 	}
 
-	public void eraseIndex(Component comp) throws SearchLibException,
-			InterruptedException {
-		if (comp == null)
+	@Command
+	public void eraseIndex(
+			@BindingParam("catalogitem") ClientCatalogItem catalogItem)
+			throws SearchLibException, InterruptedException {
+		if (catalogItem == null)
 			return;
-		ClientCatalogItem item = (ClientCatalogItem) comp
-				.getAttribute("catalogitem");
-		if (item == null)
-			return;
-		new EraseIndexAlert(item.getIndexName());
+		new EraseIndexAlert(catalogItem.getIndexName());
 	}
 
-	public void computeInfos(Component comp) throws SearchLibException {
-		if (comp == null)
+	@Command
+	@NotifyChange("clientCatalog")
+	public void computeInfos(
+			@BindingParam("catalogitem") ClientCatalogItem catalogItem)
+			throws SearchLibException {
+		if (catalogItem == null)
 			return;
-		ClientCatalogItem item = (ClientCatalogItem) comp
-				.getAttribute("catalogitem");
-		if (item == null)
-			return;
-		item.computeInfos();
-		reloadPage();
+		catalogItem.computeInfos();
 	}
-
 }
