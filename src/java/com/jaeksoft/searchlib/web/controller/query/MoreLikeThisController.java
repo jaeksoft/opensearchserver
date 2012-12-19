@@ -39,11 +39,6 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class MoreLikeThisController extends AbstractQueryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2872605532103762800L;
-
 	private transient List<String> fieldsLeft;
 
 	private transient List<String> stopWordsList;
@@ -132,7 +127,7 @@ public class MoreLikeThisController extends AbstractQueryController {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		reset();
 		reload();
 	}

@@ -31,14 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.zkoss.bind.BindUtils;
 import org.zkoss.bind.annotation.GlobalCommand;
-import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
-import org.zkoss.zk.ui.UiException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
@@ -127,14 +126,13 @@ public abstract class CommonController implements EventInterface {
 		return StartStopListener.getVersion();
 	}
 
-	@Override
 	public Client getClient() throws SearchLibException {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
 
 	protected void setClient(Client client) {
 		setAttribute(ScopeAttribute.CURRENT_CLIENT, client);
-		PushEvent.CLIENT_CHANGE.publish();
+		PushEvent.eventClientChange.publish();
 	}
 
 	public boolean isInstanceValid() throws SearchLibException {
@@ -150,7 +148,6 @@ public abstract class CommonController implements EventInterface {
 		return "WEB-INF/zul/" + page;
 	}
 
-	@Override
 	public User getLoggedUser() {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
 	}
@@ -211,8 +208,8 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	@GlobalCommand
-	@NotifyChange("*")
 	public void reload() throws SearchLibException {
+		BindUtils.postNotifyChange(null, null, this, "*");
 	}
 
 	@GlobalCommand
@@ -237,18 +234,14 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	protected void flushPrivileges(User user) {
-		PushEvent.FLUSH_PRIVILEGES.publish(user);
+		PushEvent.eventFlushPrivileges.publish(user);
 	}
 
 	public void onLogout() {
 		for (ScopeAttribute attr : ScopeAttribute.values())
 			setAttribute(attr, null);
-		PushEvent.LOG_OUT.publish();
+		PushEvent.eventLogout.publish();
 		Executions.sendRedirect("/");
-	}
-
-	final public void onEvent(Event event) throws UiException {
-		EventDispatch.dispatch(this, event);
 	}
 
 	protected abstract void reset() throws SearchLibException;
@@ -256,6 +249,7 @@ public abstract class CommonController implements EventInterface {
 	@Override
 	@GlobalCommand
 	public void eventClientChange() throws SearchLibException {
+		System.out.println("eventClientChange " + this);
 		refresh();
 	}
 
@@ -272,24 +266,27 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	@Override
-	public void eventFlushPrivileges() throws SearchLibException {
+	public void eventFlushPrivileges(User user) throws SearchLibException {
 		refresh();
 	}
 
 	@Override
-	public void eventDocumentUpdate() throws SearchLibException {
+	@GlobalCommand
+	public void eventDocumentUpdate(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventRequestListChange() throws SearchLibException {
+	public void eventRequestListChange(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	@GlobalCommand
+	public void eventSchemaChange(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventLogout() throws SearchLibException {
+	@GlobalCommand
+	public void eventLogout(User user) throws SearchLibException {
 		refresh();
 	}
 

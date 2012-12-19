@@ -54,11 +54,6 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public final class QueryController extends AbstractQueryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3182630816725436838L;
-
 	private transient String requestName;
 
 	private transient RequestTypeEnum requestType;
@@ -120,7 +115,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	@Override
-	public void eventRequestListChange() throws SearchLibException {
+	public void eventRequestListChange(Client client) throws SearchLibException {
 		reload();
 	}
 
@@ -301,7 +296,7 @@ public final class QueryController extends AbstractQueryController {
 		client.getRequestMap().put(request);
 		client.saveRequests();
 		onCancel();
-		PushEvent.REQUEST_LIST_CHANGED.publish(client);
+		PushEvent.eventRequestListChange.publish(client);
 	}
 
 	private class RemoveAlert extends AlertController {
@@ -320,7 +315,7 @@ public final class QueryController extends AbstractQueryController {
 			Client client = getClient();
 			client.getRequestMap().remove(selectedRequest);
 			client.saveRequests();
-			PushEvent.REQUEST_LIST_CHANGED.publish(client);
+			PushEvent.eventRequestListChange.publish(client);
 		}
 
 	}

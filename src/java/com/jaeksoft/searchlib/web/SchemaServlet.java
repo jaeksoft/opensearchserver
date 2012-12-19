@@ -76,7 +76,7 @@ public class SchemaServlet extends AbstractServlet {
 			throws SearchLibException {
 		client.saveConfig();
 		schema.recompileAnalyzers();
-		PushEvent.SCHEMA_CHANGED.publish(client);
+		PushEvent.eventSchemaChange.publish(client);
 	}
 
 	private boolean setField(User user, ServletTransaction transaction)

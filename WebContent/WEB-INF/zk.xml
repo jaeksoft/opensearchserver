@@ -17,8 +17,4 @@
 		<device-type>ajax</device-type>
 		<timeout-uri>/timeout.zul</timeout-uri>
 	</device-config>
-	<library-property>
-		<name>org.zkoss.theme.preferred</name>
-		<value>silvertail</value>
-	</library-property>
 </zk>

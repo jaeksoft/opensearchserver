@@ -24,114 +24,81 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.zkoss.bind.BindUtils;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zk.ui.WebApp;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.event.EventQueue;
 import org.zkoss.zk.ui.event.EventQueues;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.user.User;
 
 public enum PushEvent {
 
 	/**
 	 * The privilege of the current user has change
 	 */
-	FLUSH_PRIVILEGES(EventQueues.APPLICATION),
+	eventFlushPrivileges(EventQueues.APPLICATION),
 
 	/**
 	 * The user selects another index
 	 */
-	CLIENT_CHANGE(EventQueues.DESKTOP),
+	eventClientChange(EventQueues.DESKTOP),
 
 	/**
 	 * An index has been switched
 	 */
-	CLIENT_SWITCH(EventQueues.DESKTOP),
+	eventClientSwitch(EventQueues.DESKTOP),
 
 	/**
 	 * The user logs out
 	 */
-	LOG_OUT(EventQueues.DESKTOP),
+	eventLogout(EventQueues.DESKTOP),
 
 	/**
 	 * Notify that document has been inserted or deleted.
 	 */
-	DOCUMENT_UPDATED(EventQueues.APPLICATION),
+	eventDocumentUpdate(EventQueues.APPLICATION),
 
 	/**
 	 * Notify that a request list has changed
 	 */
-	REQUEST_LIST_CHANGED(EventQueues.APPLICATION),
+	eventRequestListChange(EventQueues.APPLICATION),
 
 	/**
 	 * Notify that the schema has changes (fields or analyzers)
 	 */
-	SCHEMA_CHANGED(EventQueues.APPLICATION);
-
-	private final String eventName;
+	eventSchemaChange(EventQueues.APPLICATION);
 
 	private final String scope;
 
 	private PushEvent(String scope) {
 		this.scope = scope;
-		this.eventName = "OSS_EVENT_" + name();
-	}
-
-	private Event newEvent(Object data) {
-		return new Event(eventName, null, data);
-	}
-
-	private Event newEvent() {
-		return new Event(eventName);
-	}
-
-	private static EventQueue<Event> getQueue(String scope) {
-		return EventQueues.lookup("OSS", scope, true);
-	}
-
-	private static EventQueue<Event> getQueue(WebApp webApp) {
-		return EventQueues.lookup("OSS", webApp, true);
 	}
 
 	public void publish() {
 		if (Executions.getCurrent() == null)
 			return;
-		getQueue(scope).publish(newEvent());
+		System.out.println("publish " + name());
+		BindUtils.postGlobalCommand(null, scope, name(), null);
 	}
 
-	public void publish(WebApp webApp) {
-		getQueue(webApp).publish(newEvent());
-	}
-
-	public void publish(Object data) {
+	private void publish(String name, Object data) {
 		if (Executions.getCurrent() == null)
 			return;
-		getQueue(scope).publish(newEvent(data));
+		Map<String, Object> map = new TreeMap<String, Object>();
+		map.put(name, data);
+		System.out.println("publish " + name() + " " + data);
+		BindUtils.postGlobalCommand(null, scope, name(), map);
 	}
 
-	public void publish(WebApp webApp, Object data) {
-		getQueue(webApp).publish(newEvent(data));
+	public void publish(Client client) {
+		publish("client", client);
 	}
 
-	private void subscribe(EventListener<Event> eventListener) {
-		if (Executions.getCurrent() == null)
-			return;
-		getQueue(scope).subscribe(eventListener);
-	}
-
-	public static PushEvent isEvent(Event event) {
-		String evName = event.getName();
-		if (evName == null)
-			return null;
-		for (PushEvent pv : PushEvent.values())
-			if (evName.equals(pv.eventName))
-				return pv;
-		return null;
-	}
-
-	public static void suscribe(EventListener<Event> eventListener) {
-		for (PushEvent pushEvent : PushEvent.values())
-			pushEvent.subscribe(eventListener);
+	public void publish(User user) {
+		publish("user", user);
 	}
 
 }

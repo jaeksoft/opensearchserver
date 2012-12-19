@@ -29,8 +29,7 @@
 		<rows>
 			<row>
 				<label value="Index name: " />
-				<textbox value="@bind(home.newIndexName)"
-					instant="true" />
+				<textbox value="@bind(home.newIndexName)" cols="50" />
 				<label
 					value="Choose a name for the index that will be created" />
 				<cell rowspan="3">

@@ -24,28 +24,39 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.GlobalCommand;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 
 public interface EventInterface {
 
-	public User getLoggedUser();
-
-	public Client getClient() throws SearchLibException;
-
+	@GlobalCommand
 	void eventClientChange() throws SearchLibException;
 
-	void eventClientSwitch(Client client) throws SearchLibException;
+	@GlobalCommand
+	void eventClientSwitch(@BindingParam("client") Client client)
+			throws SearchLibException;
 
-	void eventFlushPrivileges() throws SearchLibException;
+	@GlobalCommand
+	void eventFlushPrivileges(@BindingParam("user") User user)
+			throws SearchLibException;
 
-	void eventDocumentUpdate() throws SearchLibException;
+	@GlobalCommand
+	void eventDocumentUpdate(@BindingParam("client") Client client)
+			throws SearchLibException;
 
-	void eventRequestListChange() throws SearchLibException;
+	@GlobalCommand
+	void eventRequestListChange(@BindingParam("client") Client client)
+			throws SearchLibException;
 
-	void eventSchemaChange() throws SearchLibException;
+	@GlobalCommand
+	void eventSchemaChange(@BindingParam("client") Client client)
+			throws SearchLibException;
 
-	void eventLogout() throws SearchLibException;
+	@GlobalCommand
+	void eventLogout(@BindingParam("user") User user) throws SearchLibException;
 
 }

@@ -273,7 +273,7 @@ public class TermController extends CommonController {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		synchronized (this) {
 			fieldList = null;
 			reload();

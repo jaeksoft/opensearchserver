@@ -59,7 +59,6 @@ public class HomeController extends CommonController {
 		indexName = null;
 		indexTemplate = TemplateList.EMPTY_INDEX;
 		catalogItems = null;
-		selectedClientCatalogItem = null;
 	}
 
 	public Set<ClientCatalogItem> getClientCatalog() throws SearchLibException {

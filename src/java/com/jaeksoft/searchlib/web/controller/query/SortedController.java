@@ -143,7 +143,7 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}
 

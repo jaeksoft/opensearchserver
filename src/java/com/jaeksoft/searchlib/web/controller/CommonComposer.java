@@ -66,12 +66,10 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 		session.setAttribute(scopeAttribute.name(), value);
 	}
 
-	@Override
 	public Client getClient() throws SearchLibException {
 		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
 	}
 
-	@Override
 	public User getLoggedUser() {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
 	}
@@ -133,33 +131,27 @@ public abstract class CommonComposer extends GenericForwardComposer<Component>
 	}
 
 	@Override
-	public void eventFlushPrivileges() throws SearchLibException {
+	public void eventFlushPrivileges(User user) throws SearchLibException {
 		reset();
 		reload();
 	}
 
 	@Override
-	public void eventDocumentUpdate() throws SearchLibException {
+	public void eventDocumentUpdate(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventRequestListChange() throws SearchLibException {
+	public void eventRequestListChange(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventLogout() throws SearchLibException {
+	public void eventLogout(User user) throws SearchLibException {
 		reset();
 		reload();
-	}
-
-	@Override
-	public final void onEvent(Event event) throws Exception {
-		super.onEvent(event);
-		EventDispatch.dispatch(this, event);
 	}
 
 }

@@ -440,7 +440,7 @@ public class ClientCatalog {
 					true, true);
 			newClient.writeReplCheck();
 			CLIENTS.put(clientDir, newClient);
-			PushEvent.CLIENT_SWITCH.publish(webapp, client);
+			PushEvent.eventClientSwitch.publish(client);
 		} finally {
 			w.unlock();
 		}

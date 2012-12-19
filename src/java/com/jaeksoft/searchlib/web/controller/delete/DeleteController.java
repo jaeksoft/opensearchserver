@@ -37,17 +37,13 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class DeleteController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3721788615871232348L;
 
 	private class DeleteAlert extends AlertController {
 
@@ -66,7 +62,7 @@ public class DeleteController extends CommonController {
 			if (client == null)
 				return;
 			client.deleteDocuments(request);
-			PushEvent.DOCUMENT_UPDATED.publish(client);
+			PushEvent.eventDocumentUpdate.publish(client);
 		}
 	}
 
@@ -149,17 +145,17 @@ public class DeleteController extends CommonController {
 	}
 
 	@Override
-	public void eventFlushPrivileges() throws SearchLibException {
+	public void eventFlushPrivileges(User user) throws SearchLibException {
 		reset();
 		reload();
 	}
 
 	@Override
-	public void eventDocumentUpdate() throws SearchLibException {
+	public void eventDocumentUpdate(Client client) throws SearchLibException {
 	}
 
 	@Override
-	public void eventLogout() throws SearchLibException {
+	public void eventLogout(User user) throws SearchLibException {
 		reset();
 		reload();
 	}

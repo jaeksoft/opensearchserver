@@ -42,11 +42,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class FieldsController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8974865544547689492L;
-
 	private transient SchemaField field;
 
 	private transient SchemaField selectedField;
@@ -201,7 +196,7 @@ public class FieldsController extends CommonController {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		super.reload();
 	}
 

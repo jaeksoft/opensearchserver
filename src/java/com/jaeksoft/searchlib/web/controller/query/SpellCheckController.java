@@ -141,7 +141,7 @@ public class SpellCheckController extends AbstractQueryController {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}
 

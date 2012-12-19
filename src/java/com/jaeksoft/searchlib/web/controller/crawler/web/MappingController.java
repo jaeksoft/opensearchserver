@@ -49,11 +49,6 @@ import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 public class MappingController extends CrawlerController implements
 		ListitemRenderer<GenericLink<SourceField, TargetField>> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4912079093808208146L;
-
 	private transient SchemaField selectedUrlField;
 
 	private transient SchemaField selectedIndexField;
@@ -82,7 +77,7 @@ public class MappingController extends CrawlerController implements
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}
 

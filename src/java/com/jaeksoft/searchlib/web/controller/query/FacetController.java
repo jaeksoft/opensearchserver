@@ -39,11 +39,6 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FacetController extends AbstractQueryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5748867672639969504L;
-
 	private transient String selectedFacet;
 
 	private transient List<String> fieldLeft;
@@ -143,7 +138,7 @@ public class FacetController extends AbstractQueryController {
 	}
 
 	@Override
-	public void eventSchemaChange() throws SearchLibException {
+	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}
 
