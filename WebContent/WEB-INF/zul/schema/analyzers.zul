@@ -1,6 +1,6 @@
 <!--   License Agreement for OpenSearchServer -->
 <!--   -->
-<!--   Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft -->
+<!--   Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
 <!--   -->
 <!--   This file is part of OpenSearchServer. -->
 <!--   http://www.open-search-server.com -->
@@ -17,8 +17,8 @@
 <!--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 <!--   -->
 <!--   See the GNU General Public License for more details. -->
-<window id="anlzr"
-	use="com.jaeksoft.searchlib.web.controller.schema.AnalyzersController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('anlzr') @init('com.jaeksoft.searchlib.web.controller.schema.AnalyzersController')">
 	<grid>
 		<columns>
 			<column label="Choose an analyzer to edit" />
@@ -26,18 +26,19 @@
 		<rows>
 			<row>
 				<cell>
-					<listbox model="@{anlzr.list.nameSet}"
-						selectedItem="@{anlzr.selectedName}" mold="select" />
-					<listbox model="@{anlzr.langList}"
-						selectedItem="@{anlzr.selectedAnalyzer}" mold="select">
-						<listitem self="@{each='analyzer'}"
-							label="@{analyzer.lang}" />
+					<listbox model="@load(anlzr.list.nameSet)"
+						selectedItem="@bind(anlzr.selectedName)" mold="select" />
+					<listbox model="@load(anlzr.langList)"
+						selectedItem="@load(anlzr.selectedAnalyzer)" mold="select">
+						<template name="model" var="analyzer">
+							<listitem label="@load(analyzer.lang)" />
+						</template>
 					</listbox>
 					<button label="Edit"
-						visible="@{anlzr.selectedAnalyzer}" forward="onEdit" />
+						visible="@load(anlzr.selectedAnalyzer)" forward="onEdit" />
 					<space />
 					<button label="Delete"
-						visible="@{anlzr.selectedAnalyzer}" forward="onDelete" />
+						visible="@load(anlzr.selectedAnalyzer)" forward="onDelete" />
 				</cell>
 			</row>
 		</rows>
@@ -45,7 +46,7 @@
 	<separator />
 	<grid>
 		<auxhead>
-			<auxheader colspan="2" label="@{anlzr.editMode}"></auxheader>
+			<auxheader colspan="2" label="@load(anlzr.editMode)"></auxheader>
 		</auxhead>
 		<columns>
 			<column hflex="min" />
@@ -54,52 +55,55 @@
 		<rows>
 			<row>
 				<label value="Name: " />
-				<textbox cols="50" readonly="@{anlzr.edit}"
-					value="@{anlzr.currentAnalyzer.name}" />
+				<textbox cols="50" readonly="@load(anlzr.edit)"
+					value="@bind(anlzr.currentAnalyzer.name)" />
 			</row>
-			<row visible="@{anlzr.edit}">
+			<row visible="@load(anlzr.edit)">
 				<label value="Language: " />
-				<label value="@{anlzr.currentAnalyzer.lang}" />
+				<label value="@bind(anlzr.currentAnalyzer.lang)" />
 			</row>
-			<row visible="@{anlzr.notEdit}">
+			<row visible="@load(anlzr.notEdit)">
 				<label value="Language: " />
-				<listbox model="@{anlzr.languageEnum}"
-					selectedItem="@{anlzr.currentAnalyzer.lang}" mold="select" />
+				<listbox model="@load(anlzr.languageEnum)"
+					selectedItem="@bind(anlzr.currentAnalyzer.lang)" mold="select" />
 			</row>
 			<row>
 				<label value="Tokenizer: " />
 				<vbox width="100%">
-					<listbox model="@{anlzr.tokenizerList}"
-						mold="select" selectedItem="@{anlzr.currentTokenizer}" />
+					<listbox model="@load(anlzr.tokenizerList)"
+						mold="select" selectedItem="@bind(anlzr.currentTokenizer)" />
 					<grid hflex="min"
-						visible="@{anlzr.currentAnalyzer.tokenizer.property}"
-						model="@{anlzr.currentAnalyzer.tokenizer.userProperties}">
+						visible="@load(anlzr.currentAnalyzer.tokenizer.property)"
+						model="@load(anlzr.currentAnalyzer.tokenizer.userProperties)">
 						<columns>
 							<column align="right" />
 							<column />
 						</columns>
 						<rows>
-							<row self="@{each='tokenizerproperty'}">
-								<label
-									tooltiptext="@{tokenizerproperty.classPropertyEnum.info}"
-									value="@{tokenizerproperty.classPropertyEnum.label}" />
-								<vbox>
-									<textbox
-										visible="@{tokenizerproperty.textbox}"
-										value="@{tokenizerproperty.value}" />
-									<listbox mold="select"
-										visible="@{tokenizerproperty.valueList}"
-										model="@{tokenizerproperty.valueList}"
-										selectedItem="@{tokenizerproperty.value}" />
-								</vbox>
-							</row>
+							<template name="mode"
+								var="tokenizerproperty">
+								<row>
+									<label
+										tooltiptext="@load(tokenizerproperty.classPropertyEnum.info)"
+										value="@load(tokenizerproperty.classPropertyEnum.label)" />
+									<vbox>
+										<textbox
+											visible="@load(tokenizerproperty.textbox)"
+											value="@bind(tokenizerproperty.value)" />
+										<listbox mold="select"
+											visible="@load(tokenizerproperty.valueList)"
+											model="@load(tokenizerproperty.valueList)"
+											selectedItem="@bind(tokenizerproperty.value)" />
+									</vbox>
+								</row>
+							</template>
 						</rows>
 					</grid>
 				</vbox>
 			</row>
 			<row>
 				<label value="Filter list: " />
-				<listbox model="@{anlzr.currentAnalyzer.filters}">
+				<listbox model="@load(anlzr.currentAnalyzer.filters)">
 					<auxhead>
 						<auxheader label="Filter" />
 						<auxheader label="Scope" />
@@ -108,35 +112,49 @@
 					</auxhead>
 					<listhead>
 						<listheader hflex="min">
-							<listbox model="@{anlzr.filterEnum}"
-								mold="select" selectedItem="@{anlzr.selectedFilter}" />
+							<listbox model="@load(anlzr.filterEnum)"
+								mold="select" selectedItem="@bind(anlzr.selectedFilter)">
+								<template name="model" var="filter">
+									<listitem label="@load(filter)" />
+								</template>
+							</listbox>
 						</listheader>
 						<listheader hflex="min">
-							<listbox model="@{anlzr.filterScopeEnum}"
-								mold="select" selectedItem="@{anlzr.currentFilter.scope}" />
+							<listbox
+								model="@load(anlzr.filterScopeEnum)" mold="select"
+								selectedItem="@bind(anlzr.currentFilter.scope)">
+								<template name="model" var="scope">
+									<listitem
+										label="@load(scope.label)" />
+								</template>
+							</listbox>
 						</listheader>
 						<listheader>
 							<grid
-								visible="@{anlzr.currentFilter.property}"
-								model="@{anlzr.currentFilter.userProperties}">
+								visible="@load(anlzr.currentFilter.property)"
+								model="@load(anlzr.currentFilter.userProperties)">
 								<columns>
 									<column width="150px" align="right" />
 									<column />
 								</columns>
 								<rows>
-									<row self="@{each='property'}">
-										<label
-											tooltiptext="@{property.classPropertyEnum.info}"
-											value="@{property.classPropertyEnum.label}" />
-										<vbox>
-											<textbox
-												visible="@{property.textbox}" value="@{property.value}" />
-											<listbox mold="select"
-												visible="@{property.valueList}"
-												model="@{property.valueList}"
-												selectedItem="@{property.value}" />
-										</vbox>
-									</row>
+									<template name="model"
+										var="property">
+										<row>
+											<label
+												tooltiptext="@load(property.classPropertyEnum.info)"
+												value="@load(property.classPropertyEnum.label)" />
+											<vbox>
+												<textbox
+													visible="@load(property.textbox)"
+													value="@bind(property.value)" />
+												<listbox mold="select"
+													visible="@load(property.valueList)"
+													model="@load(property.valueList)"
+													selectedItem="@bind(property.value)" />
+											</vbox>
+										</row>
+									</template>
 								</rows>
 							</grid>
 						</listheader>
@@ -145,63 +163,70 @@
 								image="/images/action_add.png" forward="onFilterAdd" />
 						</listheader>
 					</listhead>
-					<listitem self="@{each='filterItem'}">
-						<listcell>
-							<label value="@{filterItem.className}" />
-						</listcell>
-						<listcell>
-							<label value="@{filterItem.scope}" />
-						</listcell>
-						<listcell>
-							<listbox visible="@{filterItem.property}"
-								model="@{filterItem.userProperties}">
-								<listhead>
-									<listheader align="right"
-										width="150px" />
-									<listheader />
-								</listhead>
-								<listitem
-									self="@{each='filterproperty'}">
-									<listcell>
-										<label
-											value="@{filterproperty.classPropertyEnum.label}" />
-										<label value=": " />
-									</listcell>
-									<listcell
-										label="@{filterproperty.value}" />
-								</listitem>
-							</listbox>
-						</listcell>
-						<listcell>
-							<custom-attributes
-								filteritem="@{filterItem}" />
-							<button tooltiptext="Move the filter up"
-								image="/images/arrow_top.png" onClick="anlzr.onFilterUp(self)" />
-							<button tooltiptext="Move the filter down"
-								image="/images/arrow_down.png"
-								onClick="anlzr.onFilterDown(self)" />
-							<space />
-							<button tooltiptext="Remove the filter"
-								image="/images/action_delete.png"
-								onClick="anlzr.onFilterRemove(self)" />
-						</listcell>
-					</listitem>
+					<template name="model" var="filterItem">
+						<listitem>
+							<listcell>
+								<label
+									value="@load(filterItem.className)" />
+							</listcell>
+							<listcell>
+								<label value="@load(filterItem.scope)" />
+							</listcell>
+							<listcell>
+								<listbox
+									visible="@load(filterItem.property)"
+									model="@load(filterItem.userProperties)">
+									<listhead>
+										<listheader align="right"
+											width="150px" />
+										<listheader />
+									</listhead>
+									<template name="model2"
+										var="filterproperty">
+										<listitem>
+											<listcell>
+												<label
+													value="@load(filterproperty.classPropertyEnum.label)" />
+												<label value=": " />
+											</listcell>
+											<listcell
+												label="@load(filterproperty.value)" />
+										</listitem>
+									</template>
+								</listbox>
+							</listcell>
+							<listcell>
+								<button tooltiptext="Move the filter up"
+									image="/images/arrow_top.png"
+									onClick="@command('onFilterUp', filterItem=filterItem)" />
+								<button
+									tooltiptext="Move the filter down"
+									image="/images/arrow_down.png"
+									onClick="@command('onFilterDown', filterItem=filterItem)" />
+								<space />
+								<button tooltiptext="Remove the filter"
+									image="/images/action_delete.png"
+									onClick="@command('onFilterRemove', filterItem=filterItem)" />
+							</listcell>
+						</listitem>
+					</template>
 				</listbox>
 			</row>
 		</rows>
 		<foot>
 			<footer span="2">
-				<button visible="@{anlzr.notEdit}" label="Create"
-					forward="onSave" />
-				<button visible="@{anlzr.edit}" label="Save"
-					forward="onSave" />
-				<button visible="@{anlzr.edit}" label="Cancel"
-					forward="onCancel" />
+				<button visible="@load(anlzr.notEdit)" label="Create"
+					onClick="@command('onSave')" />
+				<button visible="@load(anlzr.edit)" label="Save"
+					onClick="@command('onSave')" />
+				<button visible="@load(anlzr.edit)" label="Cancel"
+					onClick="@command('onCancel')" />
 			</footer>
 		</foot>
 	</grid>
 	<separator />
-	<listbox model="@{anlzr.testList}" itemRenderer="@{anlzr}">
+	<listbox model="@load(anlzr.testList)"
+		itemRenderer="@load(anlzr)">
 		<auxhead>
 			<auxheader colspan="2" label="Analyzer test" />
 		</auxhead>
@@ -209,14 +234,14 @@
 			<auxheader colspan="2">
 				<hbox>
 					<label value="Enter a text to analyze: " />
-					<textbox cols="100" value="@{anlzr.testText}"
+					<textbox cols="100" value="@bind(anlzr.testText)"
 						multiline="true" rows="5" />
-					<listbox selectedItem="@{anlzr.testType}"
+					<listbox selectedItem="@bind(anlzr.testType)"
 						mold="select">
 						<listitem label="Query" value="query" />
 						<listitem label="Indexation" value="index" />
 					</listbox>
-					<button label="Test" forward="onTest" />
+					<button label="Test" onClic="@command('onTest')" />
 				</hbox>
 			</auxheader>
 		</auxhead>

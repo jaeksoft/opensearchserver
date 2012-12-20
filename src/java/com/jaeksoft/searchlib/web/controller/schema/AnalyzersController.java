@@ -56,11 +56,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 public class AnalyzersController extends CommonController implements
 		ListitemRenderer<DebugTokenFilter> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -556387199220890770L;
-
 	private transient String selectedName;
 
 	private transient Analyzer selectedAnalyzer;
