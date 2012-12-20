@@ -46,7 +46,8 @@
 		<toolbar>
 			<toolbarbutton label="Inline help"
 				onClick="@command('onHelp', target=self)" />
-			<toolbarbutton label="Refresh" onClick="@command('reload')" />
+			<toolbarbutton label="Refresh"
+				onClick="@global-command('refresh')" />
 		</toolbar>
 		<tabpanels>
 			<tabpanel>

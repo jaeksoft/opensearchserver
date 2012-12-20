@@ -40,8 +40,6 @@ import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tab;
 
@@ -154,12 +152,6 @@ public abstract class CommonController implements EventInterface {
 		return (User) getAttribute(ScopeAttribute.LOGGED_USER);
 	}
 
-	protected Event getOriginalEvent(Event event) {
-		if (event instanceof ForwardEvent)
-			return getOriginalEvent(((ForwardEvent) event).getOrigin());
-		return event;
-	}
-
 	public boolean isAdmin() throws SearchLibException {
 		User user = getLoggedUser();
 		if (user == null)
@@ -190,23 +182,6 @@ public abstract class CommonController implements EventInterface {
 		if (isNoUserList())
 			return true;
 		return getLoggedUser() != null;
-	}
-
-	// TODO temporary ?
-	public Component getFellow(String id) {
-		return null;
-	}
-
-	public void reloadComponent(String compId) {
-		reloadComponent(getFellow(compId));
-	}
-
-	// TODO remove ?
-	public void reloadComponent(Component component) {
-		/*
-		 * if (binder != null) { component.invalidate();
-		 * binder.loadComponent(component); }
-		 */
 	}
 
 	@Command
@@ -258,6 +233,7 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventClientSwitch(Client client) throws SearchLibException {
 		if (client == null)
 			return;
@@ -270,6 +246,7 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventFlushPrivileges(User user) throws SearchLibException {
 		refresh();
 	}
@@ -280,12 +257,14 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventRequestListChange(Client client) throws SearchLibException {
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
+		System.out.println("eventSchemaChange " + this);
 	}
 
 	@Override

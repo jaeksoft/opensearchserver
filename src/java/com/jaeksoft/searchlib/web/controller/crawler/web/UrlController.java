@@ -33,9 +33,8 @@ import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.ext.AfterCompose;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.event.PagingEvent;
@@ -57,7 +56,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
-public class UrlController extends CommonController implements AfterCompose {
+public class UrlController extends CommonController {
 
 	private transient List<UrlItem> urlList;
 
@@ -74,17 +73,6 @@ public class UrlController extends CommonController implements AfterCompose {
 		urlList = null;
 		totalSize = 0;
 		activePage = 0;
-	}
-
-	@Override
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging",
-				new EventListener<Event>() {
-					@Override
-					public void onEvent(Event event) {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public int getActivePage() {
@@ -522,7 +510,8 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
-	public void onGo() throws SearchLibException, IOException,
+	public void onGo(@BindingParam("listbox") Listbox actionListbox)
+			throws SearchLibException, IOException,
 			TransformerConfigurationException, SAXException,
 			InterruptedException {
 		synchronized (this) {
@@ -533,7 +522,6 @@ public class UrlController extends CommonController implements AfterCompose {
 				new AlertController("Please stop the Web crawler first.");
 				return;
 			}
-			Listbox actionListbox = (Listbox) getFellow("actionListbox");
 			String action = actionListbox.getSelectedItem().getValue()
 					.toString();
 			if ("exportTxt".equalsIgnoreCase(action))
@@ -553,8 +541,8 @@ public class UrlController extends CommonController implements AfterCompose {
 		}
 	}
 
+	@NotifyChange("#taskLogInfo")
 	public void onTimer() {
-		reloadComponent("taskLogInfo");
 	}
 
 	public boolean isRefresh() throws SearchLibException {

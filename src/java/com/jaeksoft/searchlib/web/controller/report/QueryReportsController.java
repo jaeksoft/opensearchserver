@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zul.Datebox;
 import org.zkoss.zul.Filedownload;
@@ -49,11 +48,6 @@ import com.jaeksoft.searchlib.util.TopSet;
 
 public class QueryReportsController extends ReportsController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1445551912133033172L;
-
 	private Datebox beginDate, endDate;
 	private Listbox reportsView, queryType, topQueriesDisplay;
 	private Listitem topQueries, topHundred;
@@ -65,17 +59,11 @@ public class QueryReportsController extends ReportsController {
 	}
 
 	@Override
-	public void doAfterCompose(Component component) throws Exception {
-		super.doAfterCompose(component);
-		queryType.setSelectedItem(topQueries);
-		topQueriesDisplay.setSelectedItem(topHundred);
-		reset();
-	}
-
-	@Override
 	protected void reset() throws SearchLibException {
-		facetReportsList = null;
+		topQueriesDisplay.setSelectedItem(topHundred);
 		reportsView.getItems().clear();
+		facetReportsList = null;
+		queryType.setSelectedItem(topQueries);
 	}
 
 	public void onClick$createReport(Event event) throws SearchLibException,
@@ -115,7 +103,8 @@ public class QueryReportsController extends ReportsController {
 			IOException {
 
 		if (facetReportsList == null || facetReportsList.getArray().length > 0) {
-			alert("Please Create Some Report to Export");
+			// TODO
+			// alert("Please Create Some Report to Export");
 			return;
 		}
 		PrintWriter pw = null;

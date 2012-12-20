@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.ext.AfterCompose;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.event.PagingEvent;
@@ -44,13 +42,7 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public abstract class AbstractPatternController extends CrawlerController
-		implements ListitemRenderer<PatternItem>, Selector<PatternItem>,
-		AfterCompose {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8704978554029382442L;
+		implements ListitemRenderer<PatternItem>, Selector<PatternItem> {
 
 	private transient List<PatternItem> patternList;
 
@@ -79,17 +71,6 @@ public abstract class AbstractPatternController extends CrawlerController
 		totalSize = 0;
 		activePage = 0;
 		selection = new TreeSet<String>();
-	}
-
-	@Override
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging",
-				new EventListener<Event>() {
-					@Override
-					public void onEvent(Event event) throws SearchLibException {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public void setPageSize(int v) {

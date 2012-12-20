@@ -39,17 +39,13 @@ import org.zkoss.zul.RowRenderer;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 
 public class SortedController extends AbstractQueryController implements
 		RowRenderer<SortField> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6525895947880411384L;
 
 	private transient String selectedSort;
 
@@ -118,7 +114,7 @@ public class SortedController extends AbstractQueryController implements
 			sortFieldLeft = new ArrayList<String>();
 			SortFieldList sortFields = request.getSortFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isIndexed())
+				if (field.checkIndexed(Indexed.YES))
 					if (sortFields.get(field.getName()) == null) {
 						if (selectedSort == null)
 							selectedSort = field.getName();

@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Listbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -43,11 +43,6 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class JoinController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7116205579213473372L;
 
 	private JoinItem currentItem;
 
@@ -67,16 +62,9 @@ public class JoinController extends AbstractQueryController {
 		return FilterAbstract.FILTER_TYPES;
 	}
 
-	private void reloadListbox() {
-		Listbox listbox = (Listbox) getFellow("joinListbox");
-		listbox.invalidate();
-		reloadComponent(listbox);
-
-	}
-
+	@NotifyChange("#joinListbox")
 	public void setCurrentIndexName(String indexName) {
 		currentItem.setIndexName(indexName);
-		reloadListbox();
 	}
 
 	public String getCurrentIndexName() {
@@ -91,15 +79,15 @@ public class JoinController extends AbstractQueryController {
 		return selectedItem;
 	}
 
+	@NotifyChange("#joinListbox")
 	public void setSelected(JoinItem item) {
 		this.selectedItem = item;
 		this.currentItem = new JoinItem(item);
-		reloadListbox();
 	}
 
+	@NotifyChange("#joinListbox")
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadListbox();
 	}
 
 	public boolean isSelected() {

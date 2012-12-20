@@ -31,22 +31,23 @@ import org.zkoss.zk.ui.event.Event;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
-import com.jaeksoft.searchlib.web.controller.CommonComposer;
 
-public class ScoringComposer extends CommonComposer {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2524402475854940710L;
+public class ScoringComposer extends AbstractQueryController {
 
 	private AdvancedScoreItem currentScoreItem;
 
 	private AdvancedScoreItem selectedScoreItem;
+
+	public ScoringComposer(RequestTypeEnum[] requestTypes)
+			throws SearchLibException {
+		super(requestTypes);
+	}
 
 	@Override
 	protected void reset() throws SearchLibException {
@@ -87,7 +88,7 @@ public class ScoringComposer extends CommonComposer {
 			return null;
 		List<String> fieldList = new ArrayList<String>();
 		for (SchemaField schemaField : client.getSchema().getFieldList())
-			if (schemaField.isIndexed())
+			if (schemaField.checkIndexed(Indexed.YES))
 				fieldList.add(schemaField.getName());
 		return fieldList;
 	}
@@ -118,8 +119,10 @@ public class ScoringComposer extends CommonComposer {
 	}
 
 	public void onRemove(Event event) throws SearchLibException {
-		AdvancedScoreItem scoreItem = (AdvancedScoreItem) getListItemValue(event);
-		getAdvancedScore().remove(scoreItem);
+		// TODO
+		// AdvancedScoreItem scoreItem = (AdvancedScoreItem)
+		// getListItemValue(event);
+		// getAdvancedScore().remove(scoreItem);
 		reload();
 	}
 
@@ -133,8 +136,10 @@ public class ScoringComposer extends CommonComposer {
 	/**
 	 * @param selectedScoreItem
 	 *            the selectedScoreItem to set
+	 * @throws SearchLibException
 	 */
-	public void setSelectedScoreItem(AdvancedScoreItem selectedScoreItem) {
+	public void setSelectedScoreItem(AdvancedScoreItem selectedScoreItem)
+			throws SearchLibException {
 		this.selectedScoreItem = selectedScoreItem;
 		currentScoreItem = new AdvancedScoreItem(selectedScoreItem);
 		reload();

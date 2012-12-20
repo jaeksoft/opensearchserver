@@ -40,15 +40,12 @@ import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.Stored;
 
 public class ReturnedController extends AbstractQueryController implements
 		RowRenderer<ReturnField> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -9118404394554950556L;
 
 	private transient String selectedReturn;
 
@@ -127,7 +124,8 @@ public class ReturnedController extends AbstractQueryController implements
 			fieldLeft = new ArrayList<String>();
 			ReturnFieldList fields = rfi.getReturnFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isStored() || field.isIndexed())
+				if (field.checkStored(Stored.YES, Stored.COMPRESS)
+						|| field.checkIndexed(Indexed.YES))
 					if (fields.get(field.getName()) == null) {
 						if (selectedReturn == null)
 							selectedReturn = field.getName();

@@ -34,16 +34,12 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 
 public class SnippetController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1641413871487856522L;
 
 	private transient String selectedSnippet;
 
@@ -93,7 +89,7 @@ public class SnippetController extends AbstractQueryController {
 			snippetFieldLeft = new ArrayList<String>();
 			SnippetFieldList snippetFields = request.getSnippetFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isStored())
+				if (field.checkStored(Stored.YES, Stored.COMPRESS))
 					if (field.getTermVector() == TermVector.POSITIONS_OFFSETS)
 						if (snippetFields.get(field.getName()) == null) {
 							if (selectedSnippet == null)

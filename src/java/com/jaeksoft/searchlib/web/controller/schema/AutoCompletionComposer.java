@@ -38,20 +38,19 @@ import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.web.controller.CommonComposer;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class AutoCompletionComposer extends CommonComposer {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2654142296653263306L;
+public class AutoCompletionComposer extends CommonController {
 
 	private SchemaField field = null;
 
 	private int rows = 10;
 
 	private Combobox combo;
+
+	public AutoCompletionComposer() throws SearchLibException {
+		super();
+	}
 
 	public List<SchemaField> getFieldList() throws SearchLibException {
 		synchronized (this) {
@@ -118,15 +117,17 @@ public class AutoCompletionComposer extends CommonComposer {
 		manager.save();
 	}
 
-	public void onTimer$timer() {
+	public void onTimer$timer() throws SearchLibException {
 		reload();
 	}
 
 	public void onChanging$combo(Event event) throws SearchLibException {
-		Event ev = getOriginalEvent(event);
-		if (!(ev instanceof InputEvent))
-			return;
-		InputEvent inputEvent = (InputEvent) ev;
+		// TODO
+		/*
+		 * Event ev = getOriginalEvent(event); if (!(ev instanceof InputEvent))
+		 * return;
+		 */
+		InputEvent inputEvent = (InputEvent) event;
 		AutoCompletionManager manager = getAutoCompletionManager();
 		if (manager == null)
 			return;

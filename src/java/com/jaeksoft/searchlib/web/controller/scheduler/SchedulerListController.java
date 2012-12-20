@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
@@ -34,11 +35,6 @@ import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class SchedulerListController extends SchedulerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8069350016336622392L;
 
 	public SchedulerListController() throws SearchLibException, NamingException {
 		super();
@@ -67,6 +63,7 @@ public class SchedulerListController extends SchedulerController {
 		return (JobItem) getRecursiveComponentAttribute(comp, "jobentry");
 	}
 
+	@NotifyChange("#scheduler")
 	public void doEdit(Component comp) throws SearchLibException {
 		JobItem selectedJob = getCompJobItem(comp);
 		if (selectedJob == null)
@@ -75,7 +72,6 @@ public class SchedulerListController extends SchedulerController {
 		JobItem currentJob = new JobItem(null);
 		currentJob.copyFrom(selectedJob);
 		setJobItemEdit(currentJob);
-		reloadSchedulerPages();
 	}
 
 	public void doExecute(Component comp) throws SearchLibException,
@@ -93,10 +89,10 @@ public class SchedulerListController extends SchedulerController {
 		reload();
 	}
 
+	@NotifyChange("#scheduler")
 	public void onNewJob() throws SearchLibException {
 		setJobItemEdit(new JobItem("New job"));
 		setJobItemSelected(null);
-		reloadSchedulerPages();
 	}
 
 	@Override

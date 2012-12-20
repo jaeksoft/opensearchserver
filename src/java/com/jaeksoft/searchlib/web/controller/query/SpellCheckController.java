@@ -33,17 +33,13 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
 
 public class SpellCheckController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5132791474383971273L;
 
 	private transient List<String> fieldLeft;
 
@@ -96,7 +92,7 @@ public class SpellCheckController extends AbstractQueryController {
 					fieldLeft.add(field.getName());
 					continue;
 				}
-				if (field.isIndexed())
+				if (field.checkIndexed(Indexed.YES))
 					if (spellCheckFieldList.get(fieldName) == null)
 						fieldLeft.add(field.getName());
 			}
@@ -106,7 +102,6 @@ public class SpellCheckController extends AbstractQueryController {
 
 	public void onFieldRemove(Event event) throws SearchLibException {
 		synchronized (this) {
-			event = getOriginalEvent(event);
 			SpellCheckField spellCheckField = (SpellCheckField) event
 					.getTarget().getAttribute("scFieldItem");
 			((SpellCheckRequest) getRequest()).getSpellCheckFieldList().remove(

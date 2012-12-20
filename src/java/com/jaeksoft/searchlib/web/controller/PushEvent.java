@@ -69,7 +69,7 @@ public enum PushEvent {
 	/**
 	 * Notify that the schema has changes (fields or analyzers)
 	 */
-	eventSchemaChange(EventQueues.APPLICATION);
+	eventSchemaChange(EventQueues.DESKTOP);
 
 	private final String scope;
 

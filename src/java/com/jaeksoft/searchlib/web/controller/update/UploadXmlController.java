@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.util.media.Media;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.UploadEvent;
@@ -54,11 +55,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UploadXmlController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1806972305859799181L;
 
 	public class UpdateThread extends ThreadAbstract {
 
@@ -191,11 +187,8 @@ public class UploadXmlController extends CommonController {
 		return false;
 	}
 
+	@NotifyChange("#threadList, #updateTimer")
 	public void onTimerRefresh() {
-		synchronized (this) {
-			reloadComponent("threadList");
-			reloadComponent("updateTimer");
-		}
 	}
 
 	public void onPurge() throws SearchLibException {

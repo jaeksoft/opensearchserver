@@ -30,11 +30,6 @@ import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class FileCrawlerController extends CrawlerController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -38518959461973218L;
-
 	public FileCrawlerController() throws SearchLibException {
 		super();
 	}
@@ -69,14 +64,6 @@ public class FileCrawlerController extends CrawlerController {
 
 	public boolean isNoFilePathSelected() {
 		return !isFilePathSelected();
-	}
-
-	protected void reloadFileCrawlerPages() throws SearchLibException {
-		// TODO Remove ?
-		/*
-		 * FileCrawlerController ctrl = (FileCrawlerController) getParent()
-		 * .getFellowIfAny("filecrawler", true); sendReload(ctrl);
-		 */
 	}
 
 }

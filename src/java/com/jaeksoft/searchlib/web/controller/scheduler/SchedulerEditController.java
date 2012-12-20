@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
@@ -40,11 +41,6 @@ import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class SchedulerEditController extends SchedulerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5736529335058096440L;
 
 	private transient JobItem currentJob;
 
@@ -214,10 +210,10 @@ public class SchedulerEditController extends SchedulerController {
 		reload();
 	}
 
+	@NotifyChange("#scheduler")
 	public void onCancel() throws SearchLibException {
 		reset();
 		setJobItemEdit(null);
-		reloadSchedulerPages();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {

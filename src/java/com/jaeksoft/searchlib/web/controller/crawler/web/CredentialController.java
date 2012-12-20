@@ -27,8 +27,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.event.PagingEvent;
 
@@ -40,11 +38,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class CredentialController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3206340453522545180L;
 
 	private transient List<CredentialItem> credentialList;
 
@@ -98,16 +91,6 @@ public class CredentialController extends CrawlerController {
 		activePage = 0;
 		selectedCredential = null;
 		currentCredential = new CredentialItem();
-	}
-
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging",
-				new EventListener<Event>() {
-					@Override
-					public void onEvent(Event event) throws SearchLibException {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public void setPageSize(int v) {

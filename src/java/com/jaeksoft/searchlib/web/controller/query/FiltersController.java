@@ -27,8 +27,8 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Listbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -43,11 +43,6 @@ import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
 public class FiltersController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 989287631079056922L;
 
 	private FilterAbstract<?> currentItem;
 
@@ -88,17 +83,10 @@ public class FiltersController extends AbstractQueryController {
 		return selectedItem;
 	}
 
-	private void reloadListbox() {
-		Listbox listbox = (Listbox) getFellow("filterListbox");
-		listbox.invalidate();
-		reloadComponent(listbox);
-
-	}
-
+	@NotifyChange("filterListbox")
 	public void setSelected(FilterAbstract<?> item) {
 		this.selectedItem = item;
 		this.currentItem = item.duplicate();
-		reloadListbox();
 	}
 
 	private RequestInterfaces.FilterListInterface getFilterListInterface()
@@ -109,9 +97,9 @@ public class FiltersController extends AbstractQueryController {
 		return null;
 	}
 
+	@NotifyChange("filterListbox")
 	public void onCancel() throws SearchLibException {
 		reset();
-		reloadListbox();
 	}
 
 	public void onSave() throws SearchLibException {
@@ -140,13 +128,13 @@ public class FiltersController extends AbstractQueryController {
 	 * @param filterType
 	 *            the filterType to set
 	 */
+	@NotifyChange("filterListbox")
 	public void setFilterType(String filterType) {
 		this.filterType = filterType;
 		if (FilterAbstract.QUERY_FILTER.equals(filterType))
 			currentItem = new QueryFilter();
 		else if (FilterAbstract.GEO_FILTER.equals(filterType))
 			currentItem = new GeoFilter();
-		reloadListbox();
 	}
 
 	public Type[] getGeoTypes() {

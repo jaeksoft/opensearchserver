@@ -35,6 +35,7 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Messagebox;
@@ -52,11 +53,6 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class FilePathEditController extends FileCrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -46755671370102218L;
 
 	private FilePathItem currentFilePath;
 
@@ -179,10 +175,10 @@ public class FilePathEditController extends FileCrawlerController {
 				: "Edit the selected location";
 	}
 
+	@NotifyChange("#filecrawler")
 	public void onCancel() throws SearchLibException {
 		reset();
 		setFilePathItemEdit(null);
-		reloadFileCrawlerPages();
 	}
 
 	public void onDelete() throws SearchLibException, InterruptedException {
@@ -249,9 +245,9 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
+	@NotifyChange("#filebrowser")
 	public void setCurrentFile(FileSelectorItem item) {
 		currentFile = item;
-		reloadBrowser();
 	}
 
 	public FileSelectorItem getCurrentFile() {
@@ -303,6 +299,7 @@ public class FilePathEditController extends FileCrawlerController {
 		return !isNotSelectedFile();
 	}
 
+	@NotifyChange("#filebrowser")
 	public void setCurrentFolder(FileSelectorItem fileSelectorItem)
 			throws IOException {
 		if (fileSelectorItem != null)
@@ -327,7 +324,6 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 		currentFileList = null;
 		currentFile = null;
-		reloadBrowser();
 	}
 
 	private void setCurrentFolder(File file) throws IOException {
@@ -353,14 +349,10 @@ public class FilePathEditController extends FileCrawlerController {
 		return showHidden;
 	}
 
+	@NotifyChange("#filebrowser")
 	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
 		currentFileList = null;
-		reloadBrowser();
-	}
-
-	public void reloadBrowser() {
-		reloadComponent("filebrowser");
 	}
 
 	public void onOpenFile(Listcell cell) throws IOException {
@@ -376,9 +368,9 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
+	@NotifyChange("#filebrowser")
 	public void onRefreshList() {
 		currentFileList = null;
-		reloadBrowser();
 	}
 
 	public void onParentFolder() throws IOException {

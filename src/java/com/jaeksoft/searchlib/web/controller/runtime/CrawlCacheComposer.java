@@ -33,14 +33,13 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheProviderEnum;
 import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonComposer;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class CrawlCacheComposer extends CommonComposer {
+public class CrawlCacheComposer extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2114175890264462114L;
+	public CrawlCacheComposer() throws SearchLibException {
+		super();
+	}
 
 	@Override
 	protected void reset() throws SearchLibException {
@@ -83,11 +82,11 @@ public class CrawlCacheComposer extends CommonComposer {
 		flush(true);
 	}
 
-	public void onSelect$cacheProvider(Event event) {
+	public void onSelect$cacheProvider(Event event) throws SearchLibException {
 		reload();
 	}
 
-	public void onChange$cacheValidity(Event event) {
+	public void onChange$cacheValidity(Event event) throws SearchLibException {
 		reload();
 	}
 

@@ -35,12 +35,12 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.ForwardEvent;
 import org.zkoss.zul.Combobox;
-import org.zkoss.zul.Listbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -54,12 +54,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class OpenSearchController extends CommonController {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -899171123101262091L;
-	public Combobox searchRequest;
-	public Listbox openSearchFields;
+
 	private OpenSearchTypes fieldType;
 	private String searchTemplate, currentField;
 	private OpenSearchFields currentOpenSearchField;
@@ -182,11 +177,10 @@ public class OpenSearchController extends CommonController {
 		return nameList;
 	}
 
-	public void onSave() throws WrongValueException,
-			TransformerConfigurationException, XPathExpressionException,
-			IOException, SAXException, ParserConfigurationException,
-			SearchLibException {
-		searchRequest = (Combobox) getFellow("searchRequest");
+	public void onSave(@BindingParam("combobox") Combobox searchRequest)
+			throws WrongValueException, TransformerConfigurationException,
+			XPathExpressionException, IOException, SAXException,
+			ParserConfigurationException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return;

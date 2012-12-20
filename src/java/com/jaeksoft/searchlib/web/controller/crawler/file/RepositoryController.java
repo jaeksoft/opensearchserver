@@ -27,8 +27,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,11 +35,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 
 public class RepositoryController extends FileCrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1207354816338087824L;
 
 	private transient int pageSize;
 
@@ -53,16 +47,6 @@ public class RepositoryController extends FileCrawlerController {
 		pageSize = 10;
 		totalSize = 0;
 		activePage = 0;
-	}
-
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging",
-				new EventListener<Event>() {
-					@Override
-					public void onEvent(Event event) throws SearchLibException {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public void setPageSize(int v) {
@@ -96,6 +80,7 @@ public class RepositoryController extends FileCrawlerController {
 		return null;
 	}
 
+	@NotifyChange("filecrawler")
 	public void setSelectedFilePathItem(FilePathItem selectedFilePathItem)
 			throws SearchLibException, URISyntaxException {
 		if (selectedFilePathItem == null)
@@ -104,13 +89,12 @@ public class RepositoryController extends FileCrawlerController {
 		FilePathItem editFilePath = new FilePathItem(getClient());
 		selectedFilePathItem.copyTo(editFilePath);
 		setFilePathItemEdit(editFilePath);
-		reloadFileCrawlerPages();
 	}
 
+	@NotifyChange("filecrawler")
 	public void onNewFilePathItem() throws SearchLibException {
 		setFilePathItemEdit(new FilePathItem(getClient()));
 		setFilePathItemSelected(null);
-		reloadFileCrawlerPages();
 	}
 
 	public List<FilePathItem> getFilePathItemList() throws SearchLibException {

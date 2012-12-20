@@ -31,8 +31,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import org.zkoss.zul.Image;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -48,11 +46,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class ScreenshotController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5859798476907958475L;
 
 	private transient URL url;
 
@@ -156,9 +149,11 @@ public class ScreenshotController extends CrawlerController {
 	public void setImage(BufferedImage img) {
 		synchronized (this) {
 			currentImage = img;
-			Image image = (Image) getFellow("capture").getFellow("img");
-			if (img != null)
-				image.setContent(img);
+			// TODO
+			/*
+			 * Image image = (Image) getFellow("capture").getFellow("img"); if
+			 * (img != null) image.setContent(img);
+			 */
 		}
 	}
 

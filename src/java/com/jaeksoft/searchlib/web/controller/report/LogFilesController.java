@@ -29,7 +29,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.ForwardEvent;
@@ -45,8 +44,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class LogFilesController extends ReportsController {
 
-	private static final long serialVersionUID = -3080076527069942361L;
-
 	private String date;
 	private String[] dates;
 	private String filename;
@@ -54,11 +51,6 @@ public class LogFilesController extends ReportsController {
 	public LogFilesController() throws SearchLibException {
 		super();
 		reset();
-	}
-
-	@Override
-	public void doAfterCompose(Component component) throws Exception {
-		super.doAfterCompose(component);
 	}
 
 	@Override
@@ -131,7 +123,7 @@ public class LogFilesController extends ReportsController {
 		}
 	}
 
-	private void reloadReportsList() {
+	private void reloadReportsList() throws SearchLibException {
 		reload();
 	}
 

@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FacetController extends AbstractQueryController {
@@ -87,7 +88,7 @@ public class FacetController extends AbstractQueryController {
 			fieldLeft = new ArrayList<String>();
 			FacetFieldList facetFields = request.getFacetFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isIndexed())
+				if (field.checkIndexed(Indexed.YES))
 					if (facetFields.get(field.getName()) == null) {
 						if (selectedFacet == null)
 							selectedFacet = field.getName();

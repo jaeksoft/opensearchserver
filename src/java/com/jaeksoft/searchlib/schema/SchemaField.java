@@ -110,16 +110,18 @@ public class SchemaField extends AbstractField<SchemaField> {
 		return this.getClass().getName() + "/" + this.name + "/";
 	}
 
-	public boolean isStored() {
-		return stored == Stored.YES || stored == Stored.COMPRESS;
+	public boolean checkStored(Stored... storedList) {
+		for (Stored st : storedList)
+			if (stored == st)
+				return true;
+		return false;
 	}
 
-	public boolean isCompressed() {
-		return stored == Stored.COMPRESS;
-	}
-
-	public boolean isIndexed() {
-		return indexed == Indexed.YES;
+	public boolean checkIndexed(Indexed... indexedList) {
+		for (Indexed idx : indexedList)
+			if (indexed == idx)
+				return true;
+		return false;
 	}
 
 	public Stored getStored() {
@@ -218,7 +220,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 	public boolean valid() throws SearchLibException {
 		if (name == null || name.trim().length() == 0)
 			throw new SearchLibException("Field name cannot be empty!");
-		if (termVector != TermVector.NO && !isIndexed())
+		if (termVector != TermVector.NO && indexed != Indexed.YES)
 			throw new SearchLibException(
 					"TermVector request Indexed to be set to yes!");
 		return true;

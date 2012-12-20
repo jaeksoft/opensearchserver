@@ -33,18 +33,16 @@ import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.ocr.TesseractLanguageEnum;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.CommonComposer;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class AdvancedComposer extends CommonComposer {
+public class AdvancedComposer extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2000726412587800459L;
+	public AdvancedComposer() throws SearchLibException {
+		super();
+	}
 
 	@Override
 	protected void reset() throws SearchLibException {
-		// TODO Auto-generated method stub
 	}
 
 	public OcrManager getOcrManager() throws SearchLibException, IOException {
@@ -60,7 +58,7 @@ public class AdvancedComposer extends CommonComposer {
 		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
 	}
 
-	public TesseractLanguageEnum[] getLanguageEnum() {
+	public TesseractLanguageEnum[] getTesseractLanguageEnum() {
 		return TesseractLanguageEnum.values();
 	}
 

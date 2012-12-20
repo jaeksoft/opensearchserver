@@ -64,7 +64,7 @@ public class SchemaFieldList extends AbstractFieldList<SchemaField> {
 
 	public void getIndexedFields(List<String> fieldList) {
 		for (SchemaField field : getList())
-			if (field.isIndexed())
+			if (field.checkIndexed(Indexed.YES))
 				fieldList.add(field.getName());
 	}
 

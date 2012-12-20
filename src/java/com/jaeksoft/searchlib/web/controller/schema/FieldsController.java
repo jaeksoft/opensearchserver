@@ -27,6 +27,9 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -64,16 +67,14 @@ public class FieldsController extends CommonController {
 		return selectedField;
 	}
 
-	private void reloadEditField() {
-		reloadComponent("editField");
-	}
-
+	@Command
 	public void onCancel() throws SearchLibException {
 		field = new SchemaField();
 		selectedField = null;
 		reload();
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
@@ -85,6 +86,7 @@ public class FieldsController extends CommonController {
 		SchemaServlet.saveSchema(client, schema);
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
@@ -105,10 +107,10 @@ public class FieldsController extends CommonController {
 		SchemaServlet.saveSchema(client, schema);
 	}
 
+	@NotifyChange("*")
 	public void setSelectedField(SchemaField selectedField) {
 		this.selectedField = selectedField;
 		field.copyFrom(selectedField);
-		reloadEditField();
 	}
 
 	public boolean isSelected() {
@@ -153,7 +155,7 @@ public class FieldsController extends CommonController {
 			List<String> indexedFields = new ArrayList<String>(0);
 			indexedFields.add(null);
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isIndexed())
+				if (field.checkIndexed(Indexed.YES))
 					indexedFields.add(field.getName());
 			return indexedFields;
 		}
@@ -196,16 +198,9 @@ public class FieldsController extends CommonController {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
-		super.reload();
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		synchronized (this) {
-			reset();
-			super.reload();
-		}
+		reload();
 	}
 
 }

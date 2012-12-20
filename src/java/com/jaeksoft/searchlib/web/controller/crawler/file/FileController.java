@@ -31,9 +31,8 @@ import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.ext.AfterCompose;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.event.PagingEvent;
 
@@ -55,7 +54,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class FileController extends CrawlerController implements AfterCompose {
+public class FileController extends CrawlerController {
 
 	private transient List<FileItem> fileList;
 
@@ -72,16 +71,6 @@ public class FileController extends CrawlerController implements AfterCompose {
 		fileList = null;
 		totalSize = 0;
 		activePage = 0;
-	}
-
-	public void afterCompose() {
-		getFellow("paging").addEventListener("onPaging",
-				new EventListener<Event>() {
-					@Override
-					public void onEvent(Event event) throws SearchLibException {
-						onPaging((PagingEvent) event);
-					}
-				});
 	}
 
 	public FileManager getFileManager() throws SearchLibException {
@@ -437,7 +426,8 @@ public class FileController extends CrawlerController implements AfterCompose {
 		}
 	}
 
-	public void onGo() throws SearchLibException, IOException,
+	public void onGo(@BindingParam("listbox") Listbox actionListbox)
+			throws SearchLibException, IOException,
 			TransformerConfigurationException, SAXException,
 			InterruptedException {
 		synchronized (this) {
@@ -448,7 +438,6 @@ public class FileController extends CrawlerController implements AfterCompose {
 				new AlertController("Please stop the File crawler first.");
 				return;
 			}
-			Listbox actionListbox = (Listbox) getFellow("actionListbox");
 			String action = actionListbox.getSelectedItem().getValue()
 					.toString();
 			if ("setToUnfetched".equalsIgnoreCase(action))
@@ -461,8 +450,8 @@ public class FileController extends CrawlerController implements AfterCompose {
 	}
 
 	@Override
+	@NotifyChange("#taskLogInfo")
 	public void onTimer() {
-		reloadComponent("taskLogInfo");
 	}
 
 	@Override

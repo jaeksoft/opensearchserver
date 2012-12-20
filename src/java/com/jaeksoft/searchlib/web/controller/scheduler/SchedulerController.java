@@ -25,17 +25,14 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import java.util.Date;
 
+import org.zkoss.bind.annotation.NotifyChange;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class SchedulerController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8828061749282398097L;
 
 	public SchedulerController() throws SearchLibException {
 		super();
@@ -73,20 +70,12 @@ public class SchedulerController extends CrawlerController {
 		return !isJobItemSelected();
 	}
 
-	protected void reloadSchedulerPages() throws SearchLibException {
-		// TODO Remove
-		/*
-		 * SchedulerController ctrl = (SchedulerController) getParent()
-		 * .getFellowIfAny("scheduler", true); sendReload(ctrl);
-		 */
-	}
-
 	public Date getCurrentTime() {
 		return new Date();
 	}
 
+	@NotifyChange("#currentTime")
 	public void reloadTime() {
-		reloadComponent("currentTime");
 	}
 
 }

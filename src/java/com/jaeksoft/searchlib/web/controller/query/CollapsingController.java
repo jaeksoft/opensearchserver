@@ -30,14 +30,10 @@ import java.util.List;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class CollapsingController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4269436181925550723L;
 
 	private transient List<String> indexedFields;
 
@@ -68,7 +64,7 @@ public class CollapsingController extends AbstractQueryController {
 			indexedFields = new ArrayList<String>();
 			indexedFields.add(null);
 			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.isIndexed())
+				if (field.checkIndexed(Indexed.YES))
 					indexedFields.add(field.getName());
 			return indexedFields;
 		}
