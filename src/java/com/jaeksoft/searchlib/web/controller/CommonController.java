@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.zkoss.bind.BindUtils;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
@@ -207,11 +209,13 @@ public abstract class CommonController implements EventInterface {
 		 */
 	}
 
+	@Command
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
 	}
 
+	@Command
 	@GlobalCommand
 	public void refresh() throws SearchLibException {
 		reset();
@@ -343,11 +347,11 @@ public abstract class CommonController implements EventInterface {
 			buildTabPath(comp, tabPath);
 	}
 
-	final public void onHelp() throws SearchLibException,
-			UnsupportedEncodingException {
+	@Command
+	final public void onHelp(@BindingParam("target") Component component)
+			throws SearchLibException, UnsupportedEncodingException {
 		List<String> tabPath = new ArrayList<String>();
-		// TODO Restore
-		// buildTabPath(getRoot(), tabPath);
+		buildTabPath(component.getRoot(), tabPath);
 		String path = URLEncoder.encode(StringUtils.join(tabPath, " - "),
 				"UTF-8");
 		Executions.getCurrent().sendRedirect(

@@ -44,8 +44,9 @@
 				visible="@bind(index.privilegeRights)" label="Privileges" />
 		</tabs>
 		<toolbar>
-			<toolbarbutton label="Inline help" forward="onHelp" />
-			<toolbarbutton label="Refresh" forward="onRefresh" />
+			<toolbarbutton label="Inline help"
+				onClick="@command('onHelp', target=self)" />
+			<toolbarbutton label="Refresh" onClick="@command('reload')" />
 		</toolbar>
 		<tabpanels>
 			<tabpanel>

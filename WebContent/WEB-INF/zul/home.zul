@@ -52,7 +52,7 @@
 			</row>
 			<row>
 				<cell />
-				<button label="Create" forward="onNewIndex" />
+				<button label="Create" onClick="@command('onNewIndex')" />
 				<cell />
 			</row>
 		</rows>
@@ -137,7 +137,7 @@
 						<space />
 						<button tooltiptext="Erase index"
 							image="/images/action_delete.png"
-							onClick="@command('computeInfos', catalogitem=catalogitem)">
+							onClick="@command('eraseIndex', catalogitem=catalogitem)">
 						</button>
 						<space />
 					</hbox>

@@ -117,6 +117,7 @@ public class HomeController extends CommonController {
 		reload();
 	}
 
+	@Command
 	public void onNewIndex() throws SearchLibException, InterruptedException,
 			IOException, NamingException {
 		String msg = null;
