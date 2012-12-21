@@ -29,16 +29,19 @@
 					<listbox model="@load(anlzr.list.nameSet)"
 						selectedItem="@bind(anlzr.selectedName)" mold="select" />
 					<listbox model="@load(anlzr.langList)"
-						selectedItem="@load(anlzr.selectedAnalyzer)" mold="select">
+						selectedItem="@load(anlzr.selectedLang)" mold="select">
 						<template name="model" var="analyzer">
-							<listitem label="@load(analyzer.lang)" />
+							<listitem label="@load(analyzer.lang.name)"
+								value="@load(analyzer)" />
 						</template>
 					</listbox>
 					<button label="Edit"
-						visible="@load(anlzr.selectedAnalyzer)" forward="onEdit" />
+						visible="@load(anlzr.selectedAnalyzer)"
+						onClick="@command('onEdit')" />
 					<space />
 					<button label="Delete"
-						visible="@load(anlzr.selectedAnalyzer)" forward="onDelete" />
+						visible="@load(anlzr.selectedAnalyzer)"
+						onClick="@command('onDelete')" />
 				</cell>
 			</row>
 		</rows>
@@ -60,12 +63,17 @@
 			</row>
 			<row visible="@load(anlzr.edit)">
 				<label value="Language: " />
-				<label value="@bind(anlzr.currentAnalyzer.lang)" />
+				<label value="@bind(anlzr.currentAnalyzer.lang.name)" />
 			</row>
 			<row visible="@load(anlzr.notEdit)">
 				<label value="Language: " />
 				<listbox model="@load(anlzr.languageEnum)"
-					selectedItem="@bind(anlzr.currentAnalyzer.lang)" mold="select" />
+					selectedItem="@bind(anlzr.currentAnalyzer.lang)" mold="select">
+					<template name="model" var="lang">
+						<listitem label="@load(lang.name)"
+							value="@load(lang)" />
+					</template>
+				</listbox>
 			</row>
 			<row>
 				<label value="Tokenizer: " />
@@ -181,7 +189,7 @@
 											width="150px" />
 										<listheader />
 									</listhead>
-									<template name="model2"
+									<template name="model"
 										var="filterproperty">
 										<listitem>
 											<listcell>

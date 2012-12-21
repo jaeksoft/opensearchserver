@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Label;
@@ -140,6 +142,7 @@ public class AnalyzersController extends CommonController implements
 	 * @param selectedName
 	 *            the selectedName to set
 	 */
+	@NotifyChange("*")
 	public void setSelectedName(String selectedName) {
 		this.selectedName = selectedName;
 		this.selectedAnalyzer = null;
@@ -165,7 +168,8 @@ public class AnalyzersController extends CommonController implements
 	 * @param selectedAnalyzer
 	 *            the selectedAnalyzer to set
 	 */
-	public void setSelectedAnalyzer(Analyzer analyzer) {
+	@NotifyChange("*")
+	public void setSelectedLang(Analyzer analyzer) {
 		this.selectedAnalyzer = analyzer;
 	}
 
@@ -173,17 +177,17 @@ public class AnalyzersController extends CommonController implements
 	 * @return the selectedAnalyzer
 	 * @throws SearchLibException
 	 */
-	public Analyzer getSelectedAnalyzer() throws SearchLibException {
+	public Analyzer getSelectedLang() throws SearchLibException {
 		if (selectedAnalyzer != null)
 			return selectedAnalyzer;
 		List<Analyzer> li = getLangList();
 		if (li != null && li.size() > 0)
-			setSelectedAnalyzer(li.get(0));
+			setSelectedLang(li.get(0));
 		return selectedAnalyzer;
 	}
 
 	public boolean isSelectedAnalyzer() throws SearchLibException {
-		return getSelectedAnalyzer() != null;
+		return getSelectedLang() != null;
 	}
 
 	public boolean isEdit() throws SearchLibException {
@@ -221,25 +225,29 @@ public class AnalyzersController extends CommonController implements
 		return tokenizer.getClassName();
 	}
 
+	@NotifyChange(".")
 	public void setCurrentTokenizer(String className) throws SearchLibException {
 		getCurrentAnalyzer().setTokenizer(
 				TokenizerFactory.create(getClient(), className));
 	}
 
+	@Command
 	public void onEdit() throws SearchLibException {
-		editAnalyzer = getSelectedAnalyzer();
+		editAnalyzer = getSelectedLang();
 		if (editAnalyzer != null)
 			currentAnalyzer.copyFrom(editAnalyzer);
 		reload();
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException, InterruptedException {
-		if (getSelectedAnalyzer() == null)
+		if (getSelectedLang() == null)
 			return;
-		new DeleteAlert(getSelectedAnalyzer());
+		new DeleteAlert(getSelectedLang());
 		reload();
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -252,6 +260,7 @@ public class AnalyzersController extends CommonController implements
 		onCancel();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		editAnalyzer = null;
 		currentAnalyzer = new Analyzer(getClient());
