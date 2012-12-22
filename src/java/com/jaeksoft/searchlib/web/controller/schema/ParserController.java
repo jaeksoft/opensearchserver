@@ -35,12 +35,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Image;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -57,13 +55,7 @@ import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class ParserController extends CommonController implements
-		ListitemRenderer<GenericLink<SourceField, ParserFieldTarget>> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5149273791608440407L;
+public class ParserController extends CommonController {
 
 	private transient ParserFactory selectedParser;
 
@@ -295,40 +287,37 @@ public class ParserController extends CommonController implements
 		return client.getParserSelector();
 	}
 
-	private ParserFactory getParser(Component comp) {
-		return (ParserFactory) getRecursiveComponentAttribute(comp,
-				"parserItem");
-	}
-
-	public void doEdit(Component comp) throws SearchLibException {
-		ParserFactory parser = getParser(comp);
-		if (parser == null)
-			return;
+	@Command
+	@NotifyChange("*")
+	public void doEdit(@BindingParam("item") ParserFactory parser)
+			throws SearchLibException {
 		selectedParser = parser;
 		currentParser = ParserFactory.create(parser);
-		reload();
 	}
 
-	public void doDelete(Component comp) throws InterruptedException {
-		ParserFactory parser = getParser(comp);
-		if (parser == null)
-			return;
+	@Command
+	public void doDelete(@BindingParam("item") ParserFactory parser)
+			throws InterruptedException {
 		new DeleteAlert(parser);
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onNew() throws SearchLibException {
 		selectedParser = null;
 		currentParser = ParserFactory.create(getClient(), "New parser",
 				parserType.getParserClass().getCanonicalName());
-		reload();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentParser = null;
 		selectedParser = null;
 		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAdd() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
@@ -338,9 +327,10 @@ public class ParserController extends CommonController implements
 		fieldMap.add(new SourceField(selectedParserField.name()),
 				new ParserFieldTarget(selectedIndexField.getName(),
 						captureRegexp, removeTag));
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws TransformerConfigurationException, IOException,
 			SAXException, SearchLibException {
 		if (currentParser == null)
@@ -351,38 +341,17 @@ public class ParserController extends CommonController implements
 		client.saveParsers();
 		selectedParser = currentParser;
 		currentParser = null;
-		reload();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void onLinkRemove(Event event) throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
-		GenericLink<SourceField, ParserFieldTarget> link = (GenericLink<SourceField, ParserFieldTarget>) event
-				.getData();
+	@Command
+	@NotifyChange("*")
+	public void onLinkRemove(
+			@BindingParam("fieldmapitem") GenericLink<SourceField, ParserFieldTarget> link)
+			throws SearchLibException, TransformerConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			ParserConfigurationException {
 		ParserFieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
-		reload();
-	}
-
-	@Override
-	public void render(Listitem item,
-			GenericLink<SourceField, ParserFieldTarget> link, int index) {
-		ParserFieldTarget fieldTarget = link.getTarget();
-		new Listcell(link.getSource().getUniqueName()).setParent(item);
-		new Listcell(fieldTarget.getName()).setParent(item);
-		String s = fieldTarget.getCaptureRegexp();
-		if (s != null)
-			new Listcell(s).setParent(item);
-		else
-			new Listcell().setParent(item);
-		new Listcell(Boolean.toString(fieldTarget.isRemoveTag()))
-				.setParent(item);
-		Listcell listcell = new Listcell();
-		Image image = new Image("/images/action_delete.png");
-		// TODO image.addForward(null, this, "onLinkRemove", link);
-		image.setParent(listcell);
-		listcell.setParent(item);
 	}
 
 	/**
@@ -430,6 +399,8 @@ public class ParserController extends CommonController implements
 		this.currentUrlPattern = currentUrlPattern;
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAddExtension() throws MalformedURLException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
@@ -440,43 +411,49 @@ public class ParserController extends CommonController implements
 		if (p != null && p != selectedParser)
 			throw new SearchLibException("This extension is already affected");
 		currentParser.addExtension(currentExtension.trim());
-		reload();
 	}
 
-	public void onDeleteExtension(Component comp) throws SearchLibException {
-		currentParser.removeExtension((String) getRecursiveComponentAttribute(
-				comp, "extensionItem"));
-		reload();
+	@Command
+	@NotifyChange("*")
+	public void onDeleteExtension(
+			@BindingParam("extensionItem") String extensionItem)
+			throws SearchLibException {
+		currentParser.removeExtension(extensionItem);
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAddMimeType() throws MalformedURLException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 		if (currentMimeType == null || currentMimeType.trim().length() == 0)
 			return;
 		currentParser.addMimeType(currentMimeType.trim());
-		reload();
 	}
 
-	public void onDeleteMimeType(Component comp) throws SearchLibException {
-		currentParser.removeMimeType((String) getRecursiveComponentAttribute(
-				comp, "mimeTypeItem"));
-		reload();
+	@Command
+	@NotifyChange("*")
+	public void onDeleteMimeType(
+			@BindingParam("mimeTypeItem") String mimeTypeItem)
+			throws SearchLibException {
+		currentParser.removeMimeType(mimeTypeItem);
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAddUrlPattern() throws MalformedURLException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 		if (currentUrlPattern == null || currentUrlPattern.trim().length() == 0)
 			return;
 		currentParser.addUrlPattern(currentUrlPattern.trim());
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onDeleteUrlPattern(Component comp) throws SearchLibException {
 		currentParser.removeUrlPattern((String) getRecursiveComponentAttribute(
 				comp, "urlPatternItem"));
-		reload();
 	}
 
 	/**

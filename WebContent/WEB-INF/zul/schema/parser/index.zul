@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="parser"
-	use="com.jaeksoft.searchlib.web.controller.schema.ParserController">	
-	<include visible="@{parser.isNotEditing}"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('parser') @init('com.jaeksoft.searchlib.web.controller.schema.ParserController')">
+	<include visible="@load(parser.notEditing)"
 		src="WEB-INF/zul/schema/parser/list.zul" />
-	<include visible="@{parser.isEditing}"
+	<include visible="@load(parser.editing)"
 		src="WEB-INF/zul/schema/parser/edit.zul" />
 </window>

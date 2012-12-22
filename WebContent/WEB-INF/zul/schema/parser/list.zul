@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -20,15 +20,15 @@
 			<panel title="Select default web crawler parser"
 				border="normal">
 				<panelchildren>
-					<combobox value="@{parser.webDefaultParser}"
-						model="@{parser.parserSet}" />
+					<combobox value="@bind(parser.webDefaultParser)"
+						model="@load(parser.parserSet)" />
 				</panelchildren>
 			</panel>
 			<panel title="Select default file crawler parser"
 				border="normal">
 				<panelchildren>
-					<combobox value="@{parser.fileDefaultParser}"
-						model="@{parser.parserSet}" />
+					<combobox value="@bind(parser.fileDefaultParser)"
+						model="@load(parser.parserSet)" />
 				</panelchildren>
 			</panel>
 		</hbox>
@@ -38,18 +38,20 @@
 
 	<panel title="List of existing parser" border="normal">
 		<panelchildren>
-			<listbox model="@{parser.parsers}" mold="paging"
-				selectedItem="@{parser.selectedParser}" pageSize="15">
+			<listbox model="@load(parser.parsers)" mold="paging"
+				selectedItem="@bind(parser.selectedParser)" pageSize="15">
 				<auxhead>
 					<auxheader colspan="3">
 						<listbox mold="select"
-							selectedItem="@{parser.selectedParserType}"
-							model="@{parser.parserTypeList}">
-							<listitem self="@{each=parserType}"
-								label="@{parserType.name}" />
+							selectedItem="@bind(parser.selectedParserType)"
+							model="@load(parser.parserTypeList)">
+							<template name="model" var="parserType">
+								<listitem
+									label="@load(parserType.name)" />
+							</template>
 						</listbox>
 						<button label="New parser"
-							onClick="parser.onNew()" />
+							onClick="@command('onNew')" />
 					</auxheader>
 				</auxhead>
 				<listhead>
@@ -57,22 +59,23 @@
 					<listheader label="Type" />
 					<listheader label="Action" width="200px" />
 				</listhead>
-				<listitem self="@{each=item}">
-					<custom-attributes parserItem="@{item}" />
-					<listcell label="@{item.parserName}"
-						onDoubleClick="parser.doEdit(self)" />
-					<listcell label="@{item.parserType.name}"
-						onDoubleClick="parser.doEdit(self)" />
-					<listcell>
-						<hbox align="center">
-							<button label="Edit"
-								onClick="parser.doEdit(self)" />
-							<space width="10px" />
-							<button label="Delete"
-								onClick="parser.doDelete(self)" />
-						</hbox>
-					</listcell>
-				</listitem>
+				<template name="model" var="item">
+					<listitem>
+						<listcell label="@load(item.parserName)"
+							onDoubleClick="@command('doEdit', item=item)" />
+						<listcell label="@load(item.parserType.name)"
+							onDoubleClick="@command('doEdit', item=item)" />
+						<listcell>
+							<hbox align="center">
+								<button label="Edit"
+									onClick="@command('doEdit', item=item)" />
+								<space width="10px" />
+								<button label="Delete"
+									onClick="@command('doDelete', item=item)" />
+							</hbox>
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>

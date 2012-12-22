@@ -27,45 +27,49 @@
 					<row>
 						<label value="Name" />
 						<textbox
-							value="@{parser.currentParser.parserName}" />
+							value="@bind(parser.currentParser.parserName)" />
 						<label value="Choose a name for this parser" />
 					</row>
 					<row>
 						<label value="Type" />
 						<label
-							value="@{parser.currentParser.parserType.name}" />
+							value="@load(parser.currentParser.parserType.name)" />
 						<label value="The type of this parser" />
 					</row>
 					<row>
 						<label value="Fail over" />
-						<combobox model="@{parser.failOverList}"
-							value="@{parser.currentParser.failOverParserName}" />
+						<combobox model="@load(parser.failOverList)"
+							value="@bind(parser.currentParser.failOverParserName)" />
 						<label
 							value="Choose a parser used in case of failure" />
 					</row>
 				</rows>
 			</grid>
-			<grid model="@{parser.currentParser.userProperties}">
+			<grid model="@load(parser.currentParser.userProperties)">
 				<columns>
 					<column width="150px" align="right" />
 					<column width="250px" align="left" />
 					<column align="left" />
 				</columns>
 				<rows>
-					<row self="@{each='property'}">
-						<label
-							tooltiptext="@{property.classPropertyEnum.info}"
-							value="@{property.classPropertyEnum.label}" />
-						<vbox>
-							<textbox visible="@{property.textbox}"
-								value="@{property.value}" />
-							<listbox mold="select"
-								visible="@{property.valueList}" model="@{property.valueList}"
-								selectedItem="@{property.value}" />
-						</vbox>
-						<label
-							value="@{property.classPropertyEnum.info}" />
-					</row>
+					<template name="model" var="property">
+						<row>
+							<label
+								tooltiptext="@load(property.classPropertyEnum.info)"
+								value="@load(property.classPropertyEnum.label)" />
+							<vbox>
+								<textbox
+									visible="@load(property.textbox)"
+									value="@bind(property.value)" />
+								<listbox mold="select"
+									visible="@load(property.list)"
+									model="@load(property.valueList)"
+									selectedItem="@bind(property.value)" />
+							</vbox>
+							<label
+								value="@load(property.classPropertyEnum.info)" />
+						</row>
+					</template>
 				</rows>
 			</grid>
 		</panelchildren>
@@ -75,24 +79,25 @@
 		<panelchildren>
 			<hbox align="center">
 				<label value="Enter an extension to add: " />
-				<textbox cols="10" value="@{parser.currentExtension}" />
-				<button label="Add" onClick="parser.onAddExtension()" />
+				<textbox cols="10"
+					value="@bind(parser.currentExtension)" />
+				<button label="Add"
+					onClick="@command('onAddExtension')" />
 			</hbox>
-			<grid width="100%" visible="@{parser.parserExtension}"
-				model="@{parser.currentParser.extensionSet}">
+			<grid width="100%" visible="@load(parser.parserExtension)"
+				model="@load(parser.currentParser.extensionSet)">
 				<columns>
 					<column label="Extension" />
 					<column label="Action" />
 				</columns>
 				<rows>
-					<row self="@{each=extensionItem}">
-						<label value="@{extensionItem}" />
-						<image src="/images/action_delete.png"
-							onClick="parser.onDeleteExtension(self)">
-							<custom-attributes
-								extensionItem="@{extensionItem}" />
-						</image>
-					</row>
+					<template name="model" var="extensionItem">
+						<row>
+							<label value="@load(extensionItem)" />
+							<image src="/images/action_delete.png"
+								onClick="@command('onDeleteExtension', extensionItem=extensionItem)" />
+						</row>
+					</template>
 				</rows>
 			</grid>
 		</panelchildren>
@@ -102,24 +107,24 @@
 		<panelchildren>
 			<hbox align="center">
 				<label value="Enter a MIME type to add: " />
-				<textbox cols="50" value="@{parser.currentMimeType}" />
-				<button label="Add" onClick="parser.onAddMimeType()" />
+				<textbox cols="50"
+					value="@bind(parser.currentMimeType)" />
+				<button label="Add" onClick="@command('onAddMimeType')" />
 			</hbox>
-			<grid width="100%" visible="@{parser.parserMimeType}"
-				model="@{parser.currentParser.mimeTypeSet}">
+			<grid width="100%" visible="@load(parser.parserMimeType)"
+				model="@load(parser.currentParser.mimeTypeSet)">
 				<columns>
 					<column label="MIME type" />
 					<column label="Action" />
 				</columns>
 				<rows>
-					<row self="@{each=mimeTypeItem}">
-						<label value="@{mimeTypeItem}" />
-						<image src="/images/action_delete.png"
-							onClick="parser.onDeleteMimeType(self)">
-							<custom-attributes
-								mimeTypeItem="@{mimeTypeItem}" />
-						</image>
-					</row>
+					<template name="model" var="mimeTypeItem">
+						<row>
+							<label value="@load(mimeTypeItem)" />
+							<image src="/images/action_delete.png"
+								onClick="@command('onDeleteMimeType', mimeTypeItem=mimeTypeItem)" />
+						</row>
+					</template>
 				</rows>
 			</grid>
 		</panelchildren>
@@ -129,24 +134,25 @@
 		<panelchildren>
 			<hbox align="center">
 				<label value="Enter an URL pattern to add: " />
-				<textbox cols="50" value="@{parser.currentUrlPattern}" />
-				<button label="Add" onClick="parser.onAddUrlPattern()" />
+				<textbox cols="50"
+					value="@bind(parser.currentUrlPattern)" />
+				<button label="Add"
+					onClick="@command('onAddUrlPattern')" />
 			</hbox>
-			<grid width="100%" visible="@{parser.parserUrlPattern}"
-				model="@{parser.currentParser.urlPatternSet}">
+			<grid width="100%" visible="@load(parser.parserUrlPattern)"
+				model="@load(parser.currentParser.urlPatternSet)">
 				<columns>
 					<column label="URL pattern" />
 					<column label="Action" />
 				</columns>
 				<rows>
-					<row self="@{each=urlPatternItem}">
-						<label value="@{urlPatternItem}" />
-						<image src="/images/action_delete.png"
-							onClick="parser.onDeleteUrlPattern(self)">
-							<custom-attributes
-								urlPatternItem="@{urlPatternItem}" />
-						</image>
-					</row>
+					<template name="model" var="urlPatternItem">
+						<row>
+							<label value="@load(urlPatternItem)" />
+							<image src="/images/action_delete.png"
+								onClick="@command('onDeleteUrlPattern', urlPatternItem=urlPatternItem)" />
+						</row>
+					</template>
 				</rows>
 			</grid>
 		</panelchildren>
@@ -155,27 +161,33 @@
 	<panel title="Field mapping" border="normal">
 		<panelchildren>
 			<hbox align="center">
-				<listbox mold="select" model="@{parser.parserFieldList}"
-					selectedItem="@{parser.selectedParserField}">
-					<listitem self="@{each='parserField'}"
-						label="@{parserField.name}" />
+				<listbox mold="select"
+					model="@load(parser.parserFieldList)"
+					selectedItem="@bind(parser.selectedParserField)">
+					<template name="model" var="parserField">
+						<listitem label="@load(parserField)"
+							value="@load(parserField)" />
+					</template>
 				</listbox>
 				<label>linked in</label>
-				<listbox mold="select" model="@{parser.indexFieldList}"
-					selectedItem="@{parser.selectedIndexField}">
-					<listitem self="@{each='indexField'}"
-						label="@{indexField.name}" />
+				<listbox mold="select"
+					model="@load(parser.indexFieldList)"
+					selectedItem="@bind(parser.selectedIndexField)">
+					<template name="model" var="indexField">
+						<listitem label="@load(indexField.name)"
+							value="@load(indexField)" />
+					</template>
 				</listbox>
 				<label>captured by (reg.exp.):</label>
-				<textbox cols="80" value="@{parser.captureRegexp}" />
+				<textbox cols="80" value="@bind(parser.captureRegexp)" />
 				<space />
 				<checkbox label="remove tags"
-					checked="@{parser.removeTag}" />
+					checked="@bind(parser.removeTag)" />
 				<space />
-				<button label="add" onClick="parser.onAdd()" />
+				<button label="add" onClick="@command('onAdd')" />
 			</hbox>
-			<listbox model="@{parser.currentParser.fieldMap.list}"
-				itemRenderer="@{parser}" sizedByContent="true" span="true">
+			<listbox model="@load(parser.currentParser.fieldMap.list)"
+				sizedByContent="true" span="true">
 				<listhead>
 					<listheader label="Parser field" />
 					<listheader label="Index field" />
@@ -183,20 +195,36 @@
 					<listheader label="Remove tags" />
 					<listheader label="Action" />
 				</listhead>
+				<template name="model" var="fieldmapitem">
+					<listitem>
+						<listcell
+							label="@load(fieldmapitem.source.uniqueName)" />
+						<listcell
+							label="@load(fieldmapitem.target.name)" />
+						<listcell
+							label="@load(fieldmapitem.target.captureRegexp)" />
+						<listcell
+							label="@load(fieldmapitem.target.removeTag)" />
+						<listcell>
+							<image src="/images/action_delete.png"
+								onClick="@command('onLinkRemove', fieldmapitem=fieldmapitem)" />
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
 	<separator height="5px" />
 	<vbox width="100%" align="center">
-		<hbox visible="@{parser.parserSelected}">
-			<button label="Cancel" onClick="parser.onCancel()" />
+		<hbox visible="@load(parser.parserSelected)">
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space width="10px" />
-			<button label="Save" onClick="parser.onSave()" />
+			<button label="Save" onClick="@command('onSave')" />
 		</hbox>
-		<hbox visible="@{parser.noParserSelected}">
-			<button label="Cancel" onClick="parser.onCancel()" />
+		<hbox visible="@load(parser.noParserSelected)">
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space width="10px" />
-			<button label="Create" onClick="parser.onSave()" />
+			<button label="Create" onClick="@command('onSave')" />
 		</hbox>
 	</vbox>
 </zk>
