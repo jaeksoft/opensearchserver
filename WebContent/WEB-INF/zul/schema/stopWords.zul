@@ -15,54 +15,6 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('stopwords') @init('com.jaeksoft.searchlib.web.controller.schema.StopWordsController')">
-	<panel visible="@load(stopwords.notEdit)" title="Stop words list"
-		border="normal">
-		<panelchildren>
-			<listbox model="@load(stopwords.manager.list)"
-				width="100%">
-				<listhead>
-					<listheader label="List name" />
-					<listheader label="Action" align="center"
-						hflex="min" />
-				</listhead>
-				<auxhead>
-					<auxheader>
-						<textbox width="99%"
-							value="@bind(stopwords.editName)" readonly="@load(edit)" />
-					</auxheader>
-					<auxheader>
-						<button image="/images/action_add.png"
-							onClick="@command('onAdd')" />
-					</auxheader>
-				</auxhead>
-				<template name="model" var="listname">
-					<listitem>
-						<listcell label="@load(listname)" />
-						<listcell>
-							<hbox align="center">
-								<button label="Edit"
-									onClick="@command('onEdit', listname=listname)" />
-								<button
-									image="/images/action_delete.png"
-									onClick="@command('onDelete', listname=listname)" />
-							</hbox>
-						</listcell>
-					</listitem>
-				</template>
-			</listbox>
-		</panelchildren>
-	</panel>
-	<panel visible="@load(stopwords.edit)" border="normal"
-		title="@load(stopwords.currentName)">
-		<toolbar>
-			<button label="Cancel" onClick="@command('onCancel')" />
-			<space />
-			<button label="Save" onClick="@command('onSave')" />
-		</toolbar>
-		<panelchildren>
-			<textbox width="100%" multiline="true" height="300px"
-				value="@bind(stopwords.content)" />
-		</panelchildren>
-	</panel>
+	viewModel="@id('ctrl') @init('com.jaeksoft.searchlib.web.controller.schema.StopWordsController')">
+	<include src="WEB-INF/zul/schema/commonTextEditor.zul" />
 </window>

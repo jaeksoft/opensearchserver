@@ -14,57 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="synonyms"
-	use="com.jaeksoft.searchlib.web.controller.schema.SynonymsController">
-	<panel visible="@{synonyms.isNotEdit}" title="Synonyms list"
-		border="normal">
-		<panelchildren>
-			<listbox model="@{synonyms.manager.list}" width="100%">
-				<listhead>
-					<listheader label="List name" />
-					<listheader label="Action" align="center"
-						hflex="min" />
-				</listhead>
-				<auxhead>
-					<auxheader>
-						<textbox width="99%"
-							value="@{synonyms.editName}" readonly="@{isEdit}" />
-					</auxheader>
-					<auxheader>
-						<button image="/images/action_add.png"
-							forward="onAdd" />
-					</auxheader>
-				</auxhead>
-				<listitem self="@{each='listname'}">
-					<listcell label="@{listname}" />
-					<listcell>
-						<hbox align="center">
-							<button label="Edit"
-								onClick="synonyms.onEdit(self)">
-								<custom-attributes
-									listname="@{listname}" />
-							</button>
-							<button image="/images/action_delete.png"
-								onClick="synonyms.onDelete(self)">
-								<custom-attributes
-									listname="@{listname}" />
-							</button>
-						</hbox>
-					</listcell>
-				</listitem>
-			</listbox>
-		</panelchildren>
-	</panel>
-	<panel visible="@{synonyms.isEdit}" border="normal"
-		title="@{synonyms.currentName}">
-		<toolbar>
-			<button label="Cancel" forward="onCancel" />
-			<space />
-			<button label="Save" forward="onSave" />
-		</toolbar>
-		<panelchildren>
-			<textbox width="100%" multiline="true" height="300px"
-				value="@{synonyms.content}" />
-		</panelchildren>
-	</panel>
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('ctrl') @init('com.jaeksoft.searchlib.web.controller.schema.SynonymsController')">
+	<include src="WEB-INF/zul/schema/commonTextEditor.zul" />
 </window>
