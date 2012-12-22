@@ -30,11 +30,6 @@ import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
 public class StopWordsController extends CommonDirectoryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5856562070877122405L;
-
 	public StopWordsController() throws SearchLibException {
 		super();
 	}

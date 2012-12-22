@@ -67,8 +67,10 @@
 							<listbox mold="select"
 								selectedItem="@bind(fields.field.indexed)"
 								model="@load(fields.indexedList)">
-								<listitem label="@load(each.value)"
-									value="@load(each)" />
+								<template name="model">
+									<listitem label="@load(each.value)"
+										value="@load(each)" />
+								</template>
 							</listbox>
 							<label
 								value="@load(fields.field.indexed.description)" />
@@ -78,8 +80,10 @@
 							<listbox mold="select"
 								selectedItem="@bind(fields.field.stored)"
 								model="@load(fields.storedList)">
-								<listitem label="@load(each.value)"
-									value="@load(each)" />
+								<template name="model">
+									<listitem label="@load(each.value)"
+										value="@load(each)" />
+								</template>
 							</listbox>
 							<label
 								value="@load(fields.field.stored.description)" />
@@ -89,8 +93,10 @@
 							<listbox mold="select"
 								selectedItem="@bind(fields.field.termVector)"
 								model="@load(fields.termVectorList)">
-								<listitem label="@load(each.value)"
-									value="@load(each)" />
+								<template name="model">
+									<listitem label="@load(each.value)"
+										value="@load(each)" />
+								</template>
 							</listbox>
 							<label
 								value="@load(fields.field.termVector.description)" />

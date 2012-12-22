@@ -14,12 +14,13 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="stopwords"
-	use="com.jaeksoft.searchlib.web.controller.schema.StopWordsController">
-	<panel visible="@{stopwords.isNotEdit}" title="Stop words list"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('stopwords') @init('com.jaeksoft.searchlib.web.controller.schema.StopWordsController')">
+	<panel visible="@load(stopwords.notEdit)" title="Stop words list"
 		border="normal">
 		<panelchildren>
-			<listbox model="@{stopwords.manager.list}" width="100%">
+			<listbox model="@load(stopwords.manager.list)"
+				width="100%">
 				<listhead>
 					<listheader label="List name" />
 					<listheader label="Action" align="center"
@@ -28,43 +29,40 @@
 				<auxhead>
 					<auxheader>
 						<textbox width="99%"
-							value="@{stopwords.editName}" readonly="@{isEdit}" />
+							value="@bind(stopwords.editName)" readonly="@load(edit)" />
 					</auxheader>
 					<auxheader>
 						<button image="/images/action_add.png"
-							forward="onAdd" />
+							onClick="@command('onAdd')" />
 					</auxheader>
 				</auxhead>
-				<listitem self="@{each='listname'}">
-					<listcell label="@{listname}" />
-					<listcell>
-						<hbox align="center">
-							<button label="Edit"
-								onClick="stopwords.onEdit(self)">
-								<custom-attributes
-									listname="@{listname}" />
-							</button>
-							<button image="/images/action_delete.png"
-								onClick="stopwords.onDelete(self)">
-								<custom-attributes
-									listname="@{listname}" />
-							</button>
-						</hbox>
-					</listcell>
-				</listitem>
+				<template name="model" var="listname">
+					<listitem>
+						<listcell label="@load(listname)" />
+						<listcell>
+							<hbox align="center">
+								<button label="Edit"
+									onClick="@command('onEdit', listname=listname)" />
+								<button
+									image="/images/action_delete.png"
+									onClick="@command('onDelete', listname=listname)" />
+							</hbox>
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
-	<panel visible="@{stopwords.isEdit}" border="normal"
-		title="@{stopwords.currentName}">
+	<panel visible="@load(stopwords.edit)" border="normal"
+		title="@load(stopwords.currentName)">
 		<toolbar>
-			<button label="Cancel" forward="onCancel" />
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space />
-			<button label="Save" forward="onSave" />
+			<button label="Save" onClick="@command('onSave')" />
 		</toolbar>
 		<panelchildren>
 			<textbox width="100%" multiline="true" height="300px"
-				value="@{stopwords.content}" />
+				value="@bind(stopwords.content)" />
 		</panelchildren>
 	</panel>
 </window>

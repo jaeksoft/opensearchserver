@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,11 +38,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public abstract class CommonDirectoryController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8852402691915840607L;
 
 	private transient String editName;
 
@@ -75,6 +72,8 @@ public abstract class CommonDirectoryController extends CommonController {
 	public abstract AbstractDirectoryManager getManager()
 			throws SearchLibException;
 
+	@Command
+	@NotifyChange("*")
 	public void onAdd() throws IOException, SearchLibException,
 			InterruptedException {
 		Client client = getClient();
@@ -92,21 +91,20 @@ public abstract class CommonDirectoryController extends CommonController {
 			return;
 		}
 		currentName = editName;
-		reload();
 	}
 
-	public void onEdit(Component comp) throws SearchLibException, IOException {
-		String name = (String) comp.getAttribute("listname");
-		if (name == null)
-			return;
+	@Command
+	@NotifyChange("*")
+	public void onEdit(@BindingParam("listname") String listname)
+			throws SearchLibException, IOException {
 		AbstractDirectoryManager manager = getManager();
 		if (manager == null)
 			return;
-		currentName = name;
-		content = manager.getContent(name);
-		reload();
+		currentName = listname;
+		content = manager.getContent(listname);
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentName = null;
 		content = null;
@@ -120,6 +118,7 @@ public abstract class CommonDirectoryController extends CommonController {
 		currentName = null;
 	}
 
+	@Command
 	public void onSave() throws IOException, InterruptedException,
 			SearchLibException {
 		Client client = getClient();
@@ -136,11 +135,10 @@ public abstract class CommonDirectoryController extends CommonController {
 		onCancel();
 	}
 
-	public void onDelete(Component comp) throws InterruptedException {
-		String name = (String) comp.getAttribute("listname");
-		if (name == null)
-			return;
-		new DeleteAlert(name);
+	@Command
+	public void onDelete(@BindingParam("listname") String listname)
+			throws InterruptedException {
+		new DeleteAlert(listname);
 	}
 
 	public boolean isEdit() {
