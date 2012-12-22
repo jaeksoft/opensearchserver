@@ -28,16 +28,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Hbox;
-import org.zkoss.zul.Label;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
 import org.zkoss.zul.Messagebox;
-import org.zkoss.zul.Window;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -55,8 +49,7 @@ import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class AnalyzersController extends CommonController implements
-		ListitemRenderer<DebugTokenFilter> {
+public class AnalyzersController extends CommonController {
 
 	private transient String selectedName;
 
@@ -168,7 +161,6 @@ public class AnalyzersController extends CommonController implements
 	 * @param selectedAnalyzer
 	 *            the selectedAnalyzer to set
 	 */
-	@NotifyChange("*")
 	public void setSelectedLang(Analyzer analyzer) {
 		this.selectedAnalyzer = analyzer;
 	}
@@ -225,7 +217,7 @@ public class AnalyzersController extends CommonController implements
 		return tokenizer.getClassName();
 	}
 
-	@NotifyChange(".")
+	@NotifyChange({ ".", "currentAnalyzer" })
 	public void setCurrentTokenizer(String className) throws SearchLibException {
 		getCurrentAnalyzer().setTokenizer(
 				TokenizerFactory.create(getClient(), className));
@@ -291,6 +283,7 @@ public class AnalyzersController extends CommonController implements
 	 *            the selectedFilter to set
 	 * @throws SearchLibException
 	 */
+	@NotifyChange({ "filterScopeEnum", "currentFilter" })
 	public void setSelectedFilter(FilterEnum selectedFilter)
 			throws SearchLibException {
 		this.selectedFilter = selectedFilter;
@@ -306,31 +299,32 @@ public class AnalyzersController extends CommonController implements
 		return selectedFilter;
 	}
 
-	private FilterFactory getFilter(Component component) {
-		return (FilterFactory) component.getParent().getAttribute("filteritem");
-	}
-
+	@Command
+	@NotifyChange("currentAnalyzer")
 	public void onFilterAdd() throws SearchLibException {
 		currentAnalyzer.add(FilterFactory.create(currentFilter));
-		reload();
 	}
 
-	public void onFilterUp(Component component) throws SearchLibException {
-		FilterFactory filter = getFilter(component);
+	@Command
+	@NotifyChange("currentAnalyzer")
+	public void onFilterUp(@BindingParam("filterItem") FilterFactory filter)
+			throws SearchLibException {
 		currentAnalyzer.filterUp(filter);
-		reload();
 	}
 
-	public void onFilterDown(Component component) throws SearchLibException {
-		FilterFactory filter = getFilter(component);
+	@Command
+	@NotifyChange("currentAnalyzer")
+	public void onFilterDown(@BindingParam("filterItem") FilterFactory filter)
+			throws SearchLibException {
 		currentAnalyzer.filterDown(filter);
 		reload();
 	}
 
-	public void onFilterRemove(Component component) throws SearchLibException {
-		FilterFactory filter = getFilter(component);
+	@Command
+	@NotifyChange("currentAnalyzer")
+	public void onFilterRemove(@BindingParam("filterItem") FilterFactory filter)
+			throws SearchLibException {
 		currentAnalyzer.filterRemove(filter);
-		reload();
 	}
 
 	/**
@@ -363,6 +357,8 @@ public class AnalyzersController extends CommonController implements
 		return testText;
 	}
 
+	@Command
+	@NotifyChange("testList")
 	public void onTest() throws IOException, SearchLibException {
 		CompiledAnalyzer compiledAnalyzer = ("query".equals(testType)) ? currentAnalyzer
 				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
@@ -374,20 +370,4 @@ public class AnalyzersController extends CommonController implements
 		return testList;
 	}
 
-	@Override
-	public void render(Listitem item, DebugTokenFilter debugFilter, int index) {
-		Listcell listcell = new Listcell(debugFilter.getClassFactory()
-				.getClassName());
-		listcell.setParent(item);
-		listcell = new Listcell();
-		Hbox hbox = new Hbox();
-		for (String term : debugFilter.getTokenList()) {
-			Window window = new Window();
-			window.setBorder("normal");
-			new Label(term).setParent(window);
-			window.setParent(hbox);
-		}
-		hbox.setParent(listcell);
-		listcell.setParent(item);
-	}
 }

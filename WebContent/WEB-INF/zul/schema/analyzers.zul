@@ -29,7 +29,7 @@
 					<listbox model="@load(anlzr.list.nameSet)"
 						selectedItem="@bind(anlzr.selectedName)" mold="select" />
 					<listbox model="@load(anlzr.langList)"
-						selectedItem="@load(anlzr.selectedLang)" mold="select">
+						selectedItem="@bind(anlzr.selectedLang)" mold="select">
 						<template name="model" var="analyzer">
 							<listitem label="@load(analyzer.lang.name)"
 								value="@load(analyzer)" />
@@ -88,7 +88,7 @@
 							<column />
 						</columns>
 						<rows>
-							<template name="mode"
+							<template name="model"
 								var="tokenizerproperty">
 								<row>
 									<label
@@ -99,9 +99,15 @@
 											visible="@load(tokenizerproperty.textbox)"
 											value="@bind(tokenizerproperty.value)" />
 										<listbox mold="select"
-											visible="@load(tokenizerproperty.valueList)"
+											visible="@load(tokenizerproperty.list)"
 											model="@load(tokenizerproperty.valueList)"
-											selectedItem="@bind(tokenizerproperty.value)" />
+											selectedItem="@bind(tokenizerproperty.value)">
+											<template name="model"
+												var="value">
+												<listitem
+													label="@load(value)" value="@load(value)" />
+											</template>
+										</listbox>
 									</vbox>
 								</row>
 							</template>
@@ -157,9 +163,15 @@
 													visible="@load(property.textbox)"
 													value="@bind(property.value)" />
 												<listbox mold="select"
-													visible="@load(property.valueList)"
+													visible="@load(property.list)"
 													model="@load(property.valueList)"
-													selectedItem="@bind(property.value)" />
+													selectedItem="@bind(property.value)">
+													<template
+														name="model" var="value">
+														<listitem
+															label="@load(value)" value="@load(value)" />
+													</template>
+												</listbox>
 											</vbox>
 										</row>
 									</template>
@@ -168,7 +180,8 @@
 						</listheader>
 						<listheader align="center" hflex="min">
 							<button tooltiptext="Add a filter"
-								image="/images/action_add.png" forward="onFilterAdd" />
+								image="/images/action_add.png"
+								onClick="@command('onFilterAdd')" />
 						</listheader>
 					</listhead>
 					<template name="model" var="filterItem">
@@ -178,7 +191,8 @@
 									value="@load(filterItem.className)" />
 							</listcell>
 							<listcell>
-								<label value="@load(filterItem.scope)" />
+								<label
+									value="@load(filterItem.scope.label)" />
 							</listcell>
 							<listcell>
 								<listbox
@@ -233,8 +247,7 @@
 		</foot>
 	</grid>
 	<separator />
-	<listbox model="@load(anlzr.testList)"
-		itemRenderer="@load(anlzr)">
+	<listbox model="@load(anlzr.testList)">
 		<auxhead>
 			<auxheader colspan="2" label="Analyzer test" />
 		</auxhead>
@@ -249,7 +262,7 @@
 						<listitem label="Query" value="query" />
 						<listitem label="Indexation" value="index" />
 					</listbox>
-					<button label="Test" onClic="@command('onTest')" />
+					<button label="Test" onClick="@command('onTest')" />
 				</hbox>
 			</auxheader>
 		</auxhead>
@@ -257,5 +270,20 @@
 			<listheader width="200px" label="Filter/Tokenizer" />
 			<listheader label="Result" />
 		</listhead>
+		<template name="model" var="debugfilter">
+			<listitem>
+				<listcell
+					label="@load(debugfilter.classFactory.className)" />
+				<listcell>
+					<hbox children="@load(debugfilter.tokenList)">
+						<template name="children" var="term">
+							<window border="normal">
+								<label value="@load(term)" />
+							</window>
+						</template>
+					</hbox>
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

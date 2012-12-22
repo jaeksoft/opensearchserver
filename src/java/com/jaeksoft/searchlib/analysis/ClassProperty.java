@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -80,7 +80,7 @@ public class ClassProperty {
 	 * 
 	 * @return true if a non empty value list is available
 	 */
-	public boolean isValueList() {
+	public boolean isList() {
 		return getValueList() != null && getValueList().length > 0;
 	}
 
@@ -89,6 +89,6 @@ public class ClassProperty {
 	 * @return true if there is no value list
 	 */
 	public boolean isTextbox() {
-		return !isValueList();
+		return !isList();
 	}
 }
