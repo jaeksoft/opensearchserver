@@ -26,9 +26,11 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.event.InputEvent;
-import org.zkoss.zul.Combobox;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.ListModelArray;
 
@@ -46,7 +48,7 @@ public class AutoCompletionComposer extends CommonController {
 
 	private int rows = 10;
 
-	private Combobox combo;
+	private ListModel<String> comboList;
 
 	public AutoCompletionComposer() throws SearchLibException {
 		super();
@@ -95,20 +97,22 @@ public class AutoCompletionComposer extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		field = null;
-		if (combo != null)
-			combo.getChildren().clear();
+		comboList = null;
 	}
 
-	public void onBuild$window(Event event) throws SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void onBuild() throws SearchLibException {
 		AutoCompletionManager manager = getAutoCompletionManager();
 		if (manager == null)
 			return;
-		onSave$window(event);
+		onSave();
 		manager.build(null, 1000, null);
-		reload();
 	}
 
-	public void onSave$window(Event event) throws SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void onSave() throws SearchLibException {
 		AutoCompletionManager manager = getAutoCompletionManager();
 		if (manager == null || field == null)
 			return;
@@ -117,23 +121,16 @@ public class AutoCompletionComposer extends CommonController {
 		manager.save();
 	}
 
-	public void onTimer$timer() throws SearchLibException {
-		reload();
-	}
-
-	public void onChanging$combo(Event event) throws SearchLibException {
-		// TODO
-		/*
-		 * Event ev = getOriginalEvent(event); if (!(ev instanceof InputEvent))
-		 * return;
-		 */
-		InputEvent inputEvent = (InputEvent) event;
+	@Command
+	@NotifyChange("comboList")
+	public void onChanging(
+			@ContextParam(ContextType.TRIGGER_EVENT) InputEvent event)
+			throws SearchLibException {
 		AutoCompletionManager manager = getAutoCompletionManager();
 		if (manager == null)
 			return;
 		String[] resultArray = new String[0];
-		AbstractResultSearch result = manager.search(inputEvent.getValue(),
-				rows);
+		AbstractResultSearch result = manager.search(event.getValue(), rows);
 		if (result != null) {
 			if (result.getDocumentCount() > 0) {
 				resultArray = new String[result.getDocumentCount()];
@@ -146,8 +143,11 @@ public class AutoCompletionComposer extends CommonController {
 				}
 			}
 		}
-		ListModel<String> listModel = new ListModelArray<String>(resultArray);
-		combo.setModel(listModel);
+		comboList = new ListModelArray<String>(resultArray);
+	}
+
+	public ListModel<String> getComboList() {
+		return comboList;
 	}
 
 	/**
