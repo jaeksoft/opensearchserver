@@ -14,9 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="replication"
-	use="com.jaeksoft.searchlib.web.controller.ReplicationController">
-	<panel title="@{replication.currentEditMode}" border="normal">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('replication') @init('com.jaeksoft.searchlib.web.controller.ReplicationController')">
+	<panel title="@load(replication.currentEditMode)" border="normal">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -28,35 +28,35 @@
 					<row>
 						<label value="Replication type" />
 						<listbox mold="select"
-							selectedItem="@{replication.item.replicationType}"
-							model="@{replication.typeValues}" />
+							selectedItem="@bind(replication.item.replicationType)"
+							model="@load(replication.typeValues)" />
 						<label
 							value="Select which index will be replicated" />
 					</row>
 					<row>
 						<label value="Instance URL: " />
-						<textbox value="@{replication.item.instanceUrl}"
-							width="95%" />
+						<textbox
+							value="@bind(replication.item.instanceUrl)" width="95%" />
 						<label
 							value="Enter the URL of the targeted instance (or empty for this instance)" />
 					</row>
 					<row>
 						<label value="Index name: " />
-						<textbox value="@{replication.item.indexName}"
-							width="95%" />
+						<textbox
+							value="@bind(replication.item.indexName)" width="95%" />
 						<label
 							value="Enter the name of the targeted index" />
 					</row>
 					<row>
 						<label value="User name: " />
-						<textbox value="@{replication.item.login}"
+						<textbox value="@bind(replication.item.login)"
 							width="95%" />
 						<label
 							value="User name login for authentication (or empty if no rights are required)" />
 					</row>
 					<row>
 						<label value="API Key: " />
-						<textbox value="@{replication.item.apiKey}"
+						<textbox value="@bind(replication.item.apiKey)"
 							width="95%" />
 						<label
 							value="API Key for authentication (or empty if no rights are required)" />
@@ -64,8 +64,8 @@
 					<row>
 						<label value="Destination mode: " />
 						<listbox mold="select"
-							model="@{replication.readWriteModeList}"
-							selectedItem="@{replication.item.readWriteMode}" />
+							model="@load(replication.readWriteModeList)"
+							selectedItem="@bind(replication.item.readWriteMode)" />
 						<label
 							value="Select the read/write mode of the replicated index" />
 					</row>
@@ -73,18 +73,21 @@
 				<foot>
 					<footer span="3">
 						<vbox width="100%" align="center">
-							<hbox visible="@{replication.selected}">
+							<hbox
+								visible="@load(replication.selected)">
 								<button label="Cancel"
-									forward="onCancel" />
+									onClick="@command('onCancel')" />
 								<space width="10px" />
-								<button label="Save" forward="onSave" />
+								<button label="Save"
+									onClick="@command('onSave')" />
 								<space width="30px" />
 								<button label="Delete"
-									forward="onDelete" />
+									onClick="@command('onDelete')" />
 							</hbox>
 							<hbox
-								visible="@{replication.notSelected}">
-								<button label="Create" forward="onSave" />
+								visible="@load(replication.notSelected)">
+								<button label="Create"
+									onClick="@command('onSave')" />
 							</hbox>
 						</vbox>
 					</footer>
@@ -96,11 +99,11 @@
 	<panel title="List of replications - click on the line to edit"
 		border="normal">
 		<toolbar>
-			<button label="Refresh" forward="onListRefresh" />
+			<button label="Refresh" onClick="@command('onListRefresh')" />
 		</toolbar>
 		<panelchildren>
-			<listbox selectedItem="@{replication.selectedItem}"
-				model="@{replication.replicationList.array}">
+			<listbox selectedItem="@bind(replication.selectedItem)"
+				model="@load(replication.replicationList.array)">
 				<listhead>
 					<listheader label="Instance URL" />
 					<listheader label="Replication type" hflex="min" />
@@ -115,35 +118,36 @@
 					<listheader label="Action" hflex="min"
 						align="center" />
 				</listhead>
-				<listitem self="@{each='item'}">
-					<listcell label="@{item.instanceUrl}" />
-					<listcell label="@{item.replicationType}" />
-					<listcell label="@{item.indexName}" />
-					<listcell label="@{item.readWriteMode}" />
-					<listcell
-						label="@{item.lastReplicationThread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-					<listcell
-						label="@{item.lastReplicationThread.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
-					<listcell>
-						<progressmeter width="95%"
-							visible="@{item.lastReplicationThread.running}"
-							value="@{item.lastReplicationThread.progress}" />
-					</listcell>
-					<listcell
-						label="@{item.lastReplicationThread.info}" />
-					<listcell>
-						<button tooltiptext="Start the replication"
-							disabled="@{item.replicationThread}"
-							image="/images/action_check.png"
-							onClick="replication.execute(self)">
-							<custom-attributes
-								replicationitem="@{item}" />
-						</button>
-					</listcell>
-				</listitem>
+				<template name="model" var="item">
+					<listitem>
+						<listcell label="@load(item.instanceUrl)" />
+						<listcell
+							label="@load(item.replicationType.label)" />
+						<listcell label="@load(item.indexName)" />
+						<listcell
+							label="@load(item.readWriteMode.label)" />
+						<listcell
+							label="@load(item.lastReplicationThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+						<listcell
+							label="@load(item.lastReplicationThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+						<listcell>
+							<progressmeter width="95%"
+								visible="@load(item.lastReplicationThread.running)"
+								value="@load(item.lastReplicationThread.progress)" />
+						</listcell>
+						<listcell
+							label="@load(item.lastReplicationThread.info)" />
+						<listcell>
+							<button tooltiptext="Start the replication"
+								disabled="@load(item.replicationThread)"
+								image="/images/action_check.png"
+								onClick="@command('execute', item=item)" />
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
-	<timer delay="5000" repeats="true" onTimer="replication.onTimer()"
-		running="@{replication.refresh}" />
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(replication.refresh)" />
 </window>

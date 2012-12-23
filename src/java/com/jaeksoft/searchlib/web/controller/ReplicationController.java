@@ -30,7 +30,9 @@ import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -41,11 +43,6 @@ import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationType;
 
 public class ReplicationController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1517834105476217906L;
 
 	private transient ReplicationItem selectedItem;
 
@@ -68,10 +65,10 @@ public class ReplicationController extends CommonController {
 		return selectedItem;
 	}
 
+	@NotifyChange("*")
 	public void setSelectedItem(ReplicationItem item) throws SearchLibException {
 		selectedItem = item;
 		currentItem = new ReplicationItem(selectedItem);
-		reload();
 	}
 
 	public ReplicationItem getItem() {
@@ -83,14 +80,16 @@ public class ReplicationController extends CommonController {
 				: "Edit the selected target";
 	}
 
-	public boolean selected() {
+	public boolean isSelected() {
 		return selectedItem != null;
 	}
 
-	public boolean notSelected() {
-		return !selected();
+	public boolean isNotSelected() {
+		return !isSelected();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws InterruptedException, SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		Client client = getClient();
@@ -109,16 +108,20 @@ public class ReplicationController extends CommonController {
 		return replicationMaser.getThreadsCount() > 0;
 	}
 
+	@Command
+	@NotifyChange("replicationList")
 	public void onTimer() throws SearchLibException {
-		super.reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		currentItem = new ReplicationItem(getReplicationMaster());
 		selectedItem = null;
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onDelete() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		Client client = getClient();
@@ -136,12 +139,6 @@ public class ReplicationController extends CommonController {
 		return client.getReplicationList();
 	}
 
-	private ReplicationItem getReplicationItem(Component comp) {
-		if (comp == null)
-			return null;
-		return (ReplicationItem) comp.getAttribute("replicationitem");
-	}
-
 	private ReplicationMaster getReplicationMaster() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -149,16 +146,14 @@ public class ReplicationController extends CommonController {
 		return client.getReplicationMaster();
 	}
 
-	public void execute(Component comp) throws InterruptedException,
-			SearchLibException {
-		ReplicationItem item = getReplicationItem(comp);
-		if (item == null)
-			return;
+	@Command
+	@NotifyChange("*")
+	public void execute(@BindingParam("item") ReplicationItem item)
+			throws InterruptedException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return;
 		getReplicationMaster().execute(client, item, false, null);
-		reload();
 	}
 
 	public ReplicationType[] getTypeValues() {

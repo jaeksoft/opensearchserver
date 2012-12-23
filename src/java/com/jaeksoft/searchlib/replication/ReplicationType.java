@@ -77,4 +77,8 @@ public enum ReplicationType {
 			}
 		}
 	}
+
+	final public String getLabel() {
+		return label;
+	}
 }
