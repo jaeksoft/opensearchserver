@@ -34,11 +34,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ThreadsController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8629877998029844801L;
-
 	private List<ThreadInfo> threadList = null;
 
 	public static class ThreadInfo {

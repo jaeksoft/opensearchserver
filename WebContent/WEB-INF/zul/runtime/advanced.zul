@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="window"
-	apply="com.jaeksoft.searchlib.web.controller.runtime.AdvancedComposer">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('advanced') @init('com.jaeksoft.searchlib.web.controller.runtime.AdvancedComposer')">
 	<panel title="Advanced" border="normal">
 		<panelchildren>
 			<grid>
@@ -28,15 +28,16 @@
 					<row>
 						<label value="Enabled OCR" />
 						<checkbox
-							checked="@{window$composer.ocrManager.enabled}" />
+							checked="@bind(advanced.ocrManager.enabled)" />
 						<space />
 					</row>
 					<row>
 						<label value="Tesseract path" />
 						<cell>
 							<textbox cols="80"
-								value="@{window$composer.ocrManager.tesseractPath}" />
-							<button id="check" label="Check" />
+								value="@bind(advanced.ocrManager.tesseractPath)" />
+							<button label="Check"
+								onClick="@command('onCheck')" />
 						</cell>
 						<label
 							value="Enter the path to the Tesseract executable Eg.: /usr/local/bin/tesseract" />
@@ -44,10 +45,12 @@
 					<row>
 						<label value="Tesseract default language" />
 						<listbox mold="select"
-							selectedItem="@{window$composer.ocrManager.defaultLanguage}"
-							model="@{window$composer.languageEnum}">
-							<listitem self="@{each=langEnum}"
-								label="@{langEnum.name}" value="@{langEnum}" />
+							selectedItem="@bind(advanced.ocrManager.defaultLanguage)"
+							model="@load(advanced.languageEnum)">
+							<template name="model" var="langEnum">
+								<listitem label="@load(langEnum.name)"
+									value="@load(langEnum)" />
+							</template>
 						</listbox>
 						<label
 							value="Enter the default language used by Tesseract" />
@@ -55,7 +58,7 @@
 					<row>
 						<label value="Maximum number of clauses" />
 						<intbox cols="5"
-							value="@{window$composer.maxClauseCount.value}" />
+							value="@bind(advanced.maxClauseCount.value)" />
 						<label
 							value="Set the maximum number of clauses permitted per boolean query. Default value is 1024" />
 					</row>

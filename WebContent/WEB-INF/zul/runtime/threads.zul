@@ -14,19 +14,21 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="threads"
-	use="com.jaeksoft.searchlib.web.controller.runtime.ThreadsController">
-	<listbox model="@{threads.list}" mold="paging">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('threads') @init('com.jaeksoft.searchlib.web.controller.runtime.ThreadsController')">
+	<listbox model="@load(threads.list)" mold="paging">
 		<listhead>
 			<listheader label="Name" hflex="min" />
 			<listheader label="State" hflex="min" />
 			<listheader label="Location" hflex="min" />
 		</listhead>
-		<listitem self="@{each='item'}">
-			<listcell label="@{item.name}" />
-			<listcell label="@{item.state}" />
-			<listcell label="@{item.location}"
-				tooltiptext="@{item.fullStackTrace}" />
-		</listitem>
+		<template name="model" var="item">
+			<listitem>
+				<listcell label="@load(item.name)" />
+				<listcell label="@load(item.state)" />
+				<listcell label="@load(item.location)"
+					tooltiptext="@load(item.fullStackTrace)" />
+			</listitem>
+		</template>
 	</listbox>
 </window>

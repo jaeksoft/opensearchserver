@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.Command;
+
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -49,7 +51,8 @@ public class AdvancedComposer extends CommonController {
 		return ClientCatalog.getOcrManager();
 	}
 
-	public void onClick$check() throws SearchLibException, InterruptedException {
+	@Command
+	public void onCheck() throws SearchLibException, InterruptedException {
 		ClientCatalog.getOcrManager().check();
 		new AlertController("OK");
 	}
