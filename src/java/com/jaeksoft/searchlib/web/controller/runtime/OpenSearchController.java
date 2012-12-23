@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,11 +36,9 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.WrongValueException;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.event.ForwardEvent;
-import org.zkoss.zul.Combobox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -75,7 +73,7 @@ public class OpenSearchController extends CommonController {
 
 	}
 
-	public void load() {
+	public void load() throws SearchLibException {
 		Client client;
 		try {
 			openSearchApiList = new ArrayList<OpenSearchApi>();
@@ -89,38 +87,30 @@ public class OpenSearchController extends CommonController {
 				openSearchApiList = apiManager
 						.getOpenSearchFieldList("opensearch");
 			}
-		} catch (SearchLibException e) {
-			e.printStackTrace();
 		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
+			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
-			e.printStackTrace();
+			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			throw new SearchLibException(e);
 		} catch (SAXException e) {
-			e.printStackTrace();
+			throw new SearchLibException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new SearchLibException(e);
 		}
 	}
 
-	public void onDelete(Event event) throws SearchLibException {
-		Event origin;
-		if (event instanceof ForwardEvent) {
-			origin = Events.getRealOrigin((ForwardEvent) event);
-		} else {
-			origin = event;
-		}
-		String filename = (String) origin.getTarget().getAttribute("fieldId");
+	@Command
+	@NotifyChange("*")
+	public void onDelete(@BindingParam("openSearchField") String openSearchField)
+			throws SearchLibException {
 		for (Iterator<OpenSearchApi> iter = openSearchApiList.iterator(); iter
 				.hasNext();) {
 			OpenSearchApi api = iter.next();
-			if (api.getOpenSearchField().equalsIgnoreCase(filename)) {
+			if (api.getOpenSearchField().equalsIgnoreCase(openSearchField)) {
 				iter.remove();
 			}
 		}
-
-		reload();
 	}
 
 	public Set<String> getRequestList() throws SearchLibException {
@@ -130,6 +120,8 @@ public class OpenSearchController extends CommonController {
 		return client.getRequestMap().getNameList();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAdd() throws SearchLibException, UnsupportedEncodingException {
 		Boolean isAlreadyAdded = false;
 		if (openSearchApiList != null && openSearchApiList.size() != 0) {
@@ -147,8 +139,6 @@ public class OpenSearchController extends CommonController {
 			openSearchApiList.add(new OpenSearchApi(currentField,
 					currentOpenSearchField.name()));
 		}
-		reload();
-
 	}
 
 	public List<OpenSearchApi> getList() {
@@ -177,15 +167,17 @@ public class OpenSearchController extends CommonController {
 		return nameList;
 	}
 
-	public void onSave(@BindingParam("combobox") Combobox searchRequest)
-			throws WrongValueException, TransformerConfigurationException,
-			XPathExpressionException, IOException, SAXException,
-			ParserConfigurationException, SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void onSave() throws WrongValueException,
+			TransformerConfigurationException, XPathExpressionException,
+			IOException, SAXException, ParserConfigurationException,
+			SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return;
 		ApiManager apiManager = client.getApiManager();
-		apiManager.createNewApi(new Api("opensearch", searchRequest.getText(),
+		apiManager.createNewApi(new Api("opensearch", searchTemplate,
 				openSearchApiList));
 	}
 
@@ -214,6 +206,7 @@ public class OpenSearchController extends CommonController {
 		return fieldType;
 	}
 
+	@NotifyChange("*")
 	public void setFieldType(OpenSearchTypes fieldType) {
 		this.fieldType = fieldType;
 	}
