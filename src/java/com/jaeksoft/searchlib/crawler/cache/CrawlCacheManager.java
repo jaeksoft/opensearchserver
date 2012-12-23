@@ -253,7 +253,7 @@ public class CrawlCacheManager implements Closeable {
 	 *            the expirationValue to set
 	 * @throws IOException
 	 */
-	public void setExpirationValue(int expirationValue) throws IOException {
+	public void setExpirationValue(long expirationValue) throws IOException {
 		rwl.w.lock();
 		try {
 			this.expirationValue = expirationValue;

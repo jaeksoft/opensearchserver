@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -54,14 +54,6 @@ public class CrawlCacheComposer extends CommonController {
 		return CrawlCacheProviderEnum.values();
 	}
 
-	public void onReload$window(Event event) throws SearchLibException,
-			IOException {
-		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
-		if (manager == null)
-			return;
-		reload();
-	}
-
 	private void flush(boolean expiration) throws SearchLibException,
 			IOException, InterruptedException {
 		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
@@ -72,22 +64,16 @@ public class CrawlCacheComposer extends CommonController {
 		new AlertController(count + " content(s) deleted.");
 	}
 
-	public void onFlushAll$window(Event event) throws SearchLibException,
-			IOException, InterruptedException {
+	@Command
+	public void onFlushAll() throws SearchLibException, IOException,
+			InterruptedException {
 		flush(false);
 	}
 
-	public void onFlushExpire$window(Event event) throws SearchLibException,
-			IOException, InterruptedException {
+	@Command
+	public void onFlushExpire() throws SearchLibException, IOException,
+			InterruptedException {
 		flush(true);
-	}
-
-	public void onSelect$cacheProvider(Event event) throws SearchLibException {
-		reload();
-	}
-
-	public void onChange$cacheValidity(Event event) throws SearchLibException {
-		reload();
 	}
 
 }

@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="window"
-	apply="com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('crawlcache') @init('com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer')">
 	<panel title="Crawl cache" border="normal">
 		<panelchildren>
 			<grid>
@@ -28,19 +28,21 @@
 					<row>
 						<label value="Enabled" />
 						<checkbox
-							checked="@{window$composer.crawlCacheManager.enabled}" />
+							checked="@bind(crawlcache.crawlCacheManager.enabled)"
+							onCheck="@command('reload')" />
 						<space />
 					</row>
 					<row>
 						<label value="Cache provider" />
 						<cell>
 							<listbox id="cacheProvider"
-								visible="@{window$composer.crawlCacheManager.disabled}"
-								model="@{window$composer.crawlCacheProviderList}" mold="select"
-								selectedItem="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+								visible="@load(crawlcache.crawlCacheManager.disabled)"
+								model="@load(crawlcache.crawlCacheProviderList)" mold="select"
+								selectedItem="@bind(crawlcache.crawlCacheManager.crawlCacheProvider)"
+								onSelect="@command('reload')" />
 							<label
-								visible="@{window$composer.crawlCacheManager.enabled}"
-								value="@{window$composer.crawlCacheManager.crawlCacheProvider}" />
+								visible="@load(crawlcache.crawlCacheManager.enabled)"
+								value="@load(crawlcache.crawlCacheManager.crawlCacheProvider)" />
 						</cell>
 						<space />
 					</row>
@@ -48,30 +50,31 @@
 						<label value="Configuration" />
 						<cell>
 							<label
-								visible="@{window$composer.crawlCacheManager.enabled}"
-								value="@{window$composer.crawlCacheManager.configuration}" />
+								visible="@load(crawlcache.crawlCacheManager.enabled)"
+								value="@load(crawlcache.crawlCacheManager.configuration)" />
 							<textbox cols="80"
-								visible="@{window$composer.crawlCacheManager.disabled}"
-								value="@{window$composer.crawlCacheManager.configuration}" />
+								visible="@load(crawlcache.crawlCacheManager.disabled)"
+								value="@bind(crawlcache.crawlCacheManager.configuration)"
+								onChange="@command('reload')" />
 						</cell>
 						<label
-							value="@{window$composer.crawlCacheManager.configurationInformation}" />
+							value="@load(crawlcache.crawlCacheManager.configurationInformation)" />
 					</row>
 					<row>
 						<label value="Information" />
 						<label
-							value="@{window$composer.crawlCacheManager.infos}" />
+							value="@load(crawlcache.crawlCacheManager.infos)" />
 					</row>
 					<row>
 						<label value="Cache validity" />
 						<hbox align="center">
-							<intbox id="cacheValidity"
-								constraint="no empty, no negative"
-								value="@{window$composer.crawlCacheManager.expirationValue}" />
+							<intbox constraint="no empty, no negative"
+								value="@bind(crawlcache.crawlCacheManager.expirationValue)"
+								onChange="@command('reload')" />
 							<listbox
-								model="@{window$composer.crawlCacheManager.expirationUnitValues}"
+								model="@load(crawlcache.crawlCacheManager.expirationUnitValues)"
 								mold="select"
-								selectedItem="@{window$composer.crawlCacheManager.expirationUnit}" />
+								selectedItem="@bind(crawlcache.crawlCacheManager.expirationUnit)" />
 						</hbox>
 						<space />
 					</row>
@@ -79,10 +82,10 @@
 						<label value="Flush cache" />
 						<cell>
 							<button label="Flush all"
-								forward="onFlushAll" />
+								onClick="@command('onFlushAll')" />
 							<button label="Flush expired content"
-								visible="@{window$composer.crawlCacheManager.expiration}"
-								forward="onFlushExpire" />
+								visible="@load(crawlcache.crawlCacheManager.expiration)"
+								onClick="@command('onFlushExpire')" />
 						</cell>
 						<space />
 					</row>
