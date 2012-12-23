@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="delete"
-	use="com.jaeksoft.searchlib.web.controller.delete.DeleteController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('delete') @init('com.jaeksoft.searchlib.web.controller.delete.DeleteController')">
 	<panel title="Delete document(s) by query" border="normal">
 		<panelchildren>
 			<grid>
@@ -27,13 +27,13 @@
 					<row>
 						<label>Enter the query:</label>
 						<textbox height="50px" multiline="true"
-							forward="onChange=onQueryChange"
-							value="@{delete.request.queryString}" width="90%" />
+							onChange="@command('onQueryChange')"
+							value="@bind(delete.request.queryString)" width="90%" />
 					</row>
 					<row>
 						<label>Default operator:</label>
 						<listbox mold="select"
-							selectedItem="@{delete.request.defaultOperator}">
+							selectedItem="@bind(delete.request.defaultOperator)">
 							<listitem label="AND" value="AND" />
 							<listitem label="OR" value="OR" />
 						</listbox>
@@ -41,10 +41,12 @@
 					<row>
 						<label>Language:</label>
 						<listbox mold="select"
-							selectedItem="@{delete.request.lang}"
-							model="@{delete.languageEnum}">
-							<listitem self="@{each=langEnum}"
-								label="@{langEnum.name}" value="@{langEnum}" />
+							selectedItem="@bind(delete.request.lang)"
+							model="@load(delete.languageEnum)">
+							<template name="model" var="langEnum">
+								<listitem label="@load(langEnum.name)"
+									value="@load(langEnum)" />
+							</template>
 						</listbox>
 					</row>
 				</rows>
@@ -52,14 +54,16 @@
 					<footer span="2">
 						<vbox width="100%" align="center">
 							<hbox>
-								<button label="Check" forward="onCheck" />
+								<button label="Check"
+									onClick="@command('onCheck')" />
 								<space width="50px" />
 								<button label="Delete"
-									forward="onDelete" disabled="@{delete.notChecked}" />
+									onClick="@command('onDelete')"
+									disabled="@load(delete.notChecked)" />
 								<space width="50px" />
 								<button label="XML/HTTP API call"
-									target="_blank" disabled="@{delete.notChecked}"
-									href="@{delete.requestApiCall}" />
+									target="_blank" disabled="@load(delete.notChecked)"
+									href="@load(delete.requestApiCall)" />
 								<space width="50px" />
 							</hbox>
 						</vbox>

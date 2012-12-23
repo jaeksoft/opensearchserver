@@ -29,6 +29,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -37,7 +39,6 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -87,6 +88,8 @@ public class DeleteController extends CommonController {
 		return request;
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCheck() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
@@ -97,9 +100,9 @@ public class DeleteController extends CommonController {
 		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
 				Messagebox.INFORMATION);
-		reload();
 	}
 
+	@Command
 	public void onDelete() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
@@ -112,9 +115,10 @@ public class DeleteController extends CommonController {
 		new DeleteAlert(numFound);
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onQueryChange() throws SearchLibException {
 		isChecked = false;
-		reload();
 	}
 
 	public boolean isNotChecked() {
@@ -136,28 +140,6 @@ public class DeleteController extends CommonController {
 		sb.append("&q=");
 		sb.append(URLEncoder.encode(q, "UTF-8"));
 		return sb.toString();
-	}
-
-	@Override
-	public void eventClientChange() throws SearchLibException {
-		reset();
-		reload();
-	}
-
-	@Override
-	public void eventFlushPrivileges(User user) throws SearchLibException {
-		reset();
-		reload();
-	}
-
-	@Override
-	public void eventDocumentUpdate(Client client) throws SearchLibException {
-	}
-
-	@Override
-	public void eventLogout(User user) throws SearchLibException {
-		reset();
-		reload();
 	}
 
 }
