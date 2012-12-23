@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="commands"
-	use="com.jaeksoft.searchlib.web.controller.runtime.CommandsController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('commands') @init('com.jaeksoft.searchlib.web.controller.runtime.CommandsController')">
 	<grid>
 		<columns>
 			<column label="Label" align="right" hflex="min" />
@@ -25,55 +25,62 @@
 		<rows>
 			<row>
 				<label value="Reload the index: " />
-				<button label="Reload" forward="onReloadClient"
-					disabled="@{commands.offline}" />
+				<button label="Reload"
+					onClick="@command('onReloadClient')"
+					disabled="@load(commands.offline)" />
 				<label />
 			</row>
 			<row>
 				<label value="Optimization: " />
-				<button label="Optimize" forward="onOptimize"
-					disabled="@{commands.offline}" />
+				<button label="Optimize"
+					onClick="@command('onOptimize')"
+					disabled="@load(commands.offline)" />
 				<cell>
-					<label value="@{commands.optimizeStatus}" />
+					<label value="@load(commands.optimizeStatus)" />
 					<space />
-					<image visible="@{commands.runningOptimize}"
+					<image visible="@load(commands.runningOptimize)"
 						src="/images/ajax-loader.gif" />
 				</cell>
 			</row>
 			<row>
 				<label value="Read/Write mode: " />
 				<cell>
-					<button label="Read only" forward="onReadOnly"
-						visible="@{commands.readWrite}" disabled="@{commands.offline}" />
-					<button label="Read/write" forward="onReadWrite"
-						visible="@{commands.readOnly}" disabled="@{commands.offline}" />
+					<button label="Read only"
+						onClick="@command('onReadOnly')"
+						visible="@load(commands.readWrite)"
+						disabled="@load(commands.offline)" />
+					<button label="Read/write"
+						onClick="@command('onReadWrite')"
+						visible="@load(commands.readOnly)"
+						disabled="@load(commands.offline)" />
 				</cell>
-				<label value="@{commands.readOnlyStatus}" />
+				<label value="@load(commands.readOnlyStatus)" />
 			</row>
 			<row>
 				<label value="Offline/Online: " />
 				<cell>
-					<button label="Offline" forward="onOffline"
-						visible="@{commands.online}" />
-					<button label="Online" forward="onOnline"
-						visible="@{commands.offline}" />
+					<button label="Offline"
+						onClick="@command('onOffline')" visible="@load(commands.online)" />
+					<button label="Online"
+						onClick="@command('onOnline')" visible="@load(commands.offline)" />
 				</cell>
 				<label value="@{commands.onlineStatus}" />
 			</row>
 			<row>
 				<label value="Truncate: " />
-				<button label="Delete all" forward="onDeleteAll"
-					disabled="@{commands.offline}" />
+				<button label="Delete all"
+					onClick="@command('onDeleteAll')"
+					disabled="@load(commands.offline)" />
 				<cell>
-					<label value="@{commands.documentNumber}" />
+					<label value="@load(commands.documentNumber)" />
 					<space />
-					<image visible="@{commands.runningTruncate}"
+					<image visible="@load(commands.runningTruncate)"
 						src="/images/ajax-loader.gif" />
 
 				</cell>
 			</row>
 		</rows>
 	</grid>
-	<timer delay="5000" repeats="true" onTimer="commands.onTimer()"
-		running="@{commands.taskRunning}" />
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(commands.taskRunning)" />
 </window>

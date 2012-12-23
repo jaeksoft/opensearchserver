@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,11 +31,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class SystemController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6358001462419893725L;
-
 	private transient Monitor monitor;
 
 	public SystemController() throws SearchLibException {
@@ -45,12 +40,6 @@ public class SystemController extends CommonController {
 	@Override
 	public void reset() {
 		monitor = new Monitor();
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		reset();
-		super.reload();
 	}
 
 	public Monitor getMonitor() {

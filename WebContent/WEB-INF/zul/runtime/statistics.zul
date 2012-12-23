@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="stats"
-	use="com.jaeksoft.searchlib.web.controller.runtime.StatisticsController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('stats') @init('com.jaeksoft.searchlib.web.controller.runtime.StatisticsController')">
 	<grid>
 		<columns>
 			<column align="left" />
@@ -25,26 +25,29 @@
 			<row>
 				<hbox align="center">
 					<label value="Select a statistic:" />
-					<listbox mold="select" model="@{stats.typeList}"
-						selectedItem="@{stats.selectedType}">
-						<listitem self="@{each='type'}" label="@{type}" />
+					<listbox mold="select" model="@load(stats.typeList)"
+						selectedItem="@bind(stats.selectedType)">
+						<template name="model" var="type">
+							<listitem label="@load(type)" />
+						</template>
 					</listbox>
 					<space />
 					<label value="Select a period:" />
-					<listbox mold="select" model="@{stats.statList}"
-						selectedItem="@{stats.selectedStat}">
-						<listitem self="@{each='stat'}"
-							label="@{stat.period.name}" />
+					<listbox mold="select" model="@load(stats.statList)"
+						selectedItem="@bind(stats.selectedStat)">
+						<template name="model" var="stat">
+							<listitem label="@load(stat.period.name)" />
+						</template>
 					</listbox>
 					<space />
 					<checkbox label="Show last error"
-						checked="@{stats.showLastError}" />
+						checked="@bind(stats.showLastError)" />
 				</hbox>
-				<button label="Refresh" forward="onReload" />
+				<button label="Refresh" onClick="@command('onReload')" />
 			</row>
 		</rows>
 	</grid>
-	<listbox model="@{stats.selectedStat.array}">
+	<listbox model="@load(stats.selectedStat.array)">
 		<listhead>
 			<listheader width="150px" label="Period start time" />
 			<listheader width="50px" label="count" />
@@ -53,22 +56,25 @@
 			<listheader width="50px" label="max" />
 			<listheader width="50px" label="error" />
 			<listheader label="max info" />
-			<listheader visible="@{stats.showLastError}"
+			<listheader visible="@load(stats.showLastError)"
 				label="last error" />
 		</listhead>
-		<listitem self="@{each='item'}">
-			<listcell label="@{item.startTime}" />
-			<listcell label="@{item.count}" />
-			<listcell label="@{item.average}" />
-			<listcell label="@{item.min}" />
-			<listcell label="@{item.max}" />
-			<listcell label="@{item.error}" />
-			<listcell>
-				<label multiline="true" value="@{item.maxInfo}" />
-			</listcell>
-			<listcell visible="@{stats.showLastError}">
-				<label multiline="true" value="@{item.lastError}" />
-			</listcell>
-		</listitem>
+		<template name="model" var="item">
+			<listitem>
+				<listcell label="@load(item.startTime)" />
+				<listcell label="@load(item.count)" />
+				<listcell label="@load(item.average)" />
+				<listcell label="@load(item.min)" />
+				<listcell label="@load(item.max)" />
+				<listcell label="@load(item.error)" />
+				<listcell>
+					<label multiline="true" value="@load(item.maxInfo)" />
+				</listcell>
+				<listcell visible="@load(stats.showLastError)">
+					<label multiline="true"
+						value="@load(item.lastError)" />
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

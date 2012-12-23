@@ -14,34 +14,34 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="runtime"
-	use="com.jaeksoft.searchlib.web.controller.runtime.RuntimeController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('runtime') @init('com.jaeksoft.searchlib.web.controller.runtime.RuntimeController')">
 	<tabbox>
 		<tabs>
 			<tab id="tabRuntimeStatistics" label="Statistics"
-				selected="@{runtime.instanceValid}"
-				visible="@{runtime.instanceValid}" />
+				selected="@load(runtime.instanceValid)"
+				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeCommands" label="Commands"
-				visible="@{runtime.commandsRights}" />
+				visible="@load(runtime.commandsRights)" />
 			<tab id="tabRuntimeCache" label="Cache"
-				visible="@{runtime.instanceValid}" />
+				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeIndex" label="Index"
-				visible="@{runtime.instanceValid}" />
+				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeTerms" label="Terms"
-				visible="@{runtime.instanceValid}" />
+				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeSystem" label="System"
-				visible="@{runtime.adminOrMonitoringOrNoUser}"
-				selected="@{runtime.instanceNotValid}" />
+				visible="@load(runtime.adminOrMonitoringOrNoUser)"
+				selected="@load(runtime.instanceNotValid)" />
 			<tab id="tabRuntimeLogs" label="Logs"
-				visible="@{runtime.adminOrMonitoringOrNoUser}" />
+				visible="@load(runtime.adminOrMonitoringOrNoUser)" />
 			<tab id="tabRuntimeOpenSearch" label="OpenSearch"
-				visible="@{runtime.isQueryRights}" />
+				visible="@load(runtime.queryRights)" />
 			<tab id="tabRuntimeCrawlCache" label="Crawl cache"
-				visible="@{runtime.adminOrNoUser}" />
+				visible="@load(runtime.adminOrNoUser)" />
 			<tab id="tabRuntimeAdvanced" label="Advanced"
-				visible="@{runtime.adminOrNoUser}" />
+				visible="@load(runtime.adminOrNoUser)" />
 			<tab id="tabRuntimeThreads" label="Threads"
-				visible="@{runtime.adminOrNoUser}" />
+				visible="@load(runtime.adminOrNoUser)" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>

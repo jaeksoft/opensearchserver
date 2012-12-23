@@ -14,24 +14,30 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="logs"
-	use="com.jaeksoft.searchlib.web.controller.runtime.LogsController"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('logs') @init('com.jaeksoft.searchlib.web.controller.runtime.LogsController')"
 	border="normal" vflex="true" hflex="true">
-	<panel title="Logs" border="normal" hflex="true" vflex="true">
+	<panel title="Logs" border="normal" width="100%">
 		<toolbar>
 			<button label="Reload the file list"
-				forward="onReloadFileList" />
+				onClick="@command('onReloadFileList')" />
 			<button label="Reload the current log"
-				disabled="@{logs.fileNotSelected}" forward="onReloadCurrentLog" />
-			<button label="Download" disabled="@{logs.fileNotSelected}"
-				forward="onDownload" />
+				disabled="@load(logs.fileNotSelected)"
+				onClick="@command('onReloadCurrentLog')" />
+			<button label="Download"
+				disabled="@load(logs.fileNotSelected)"
+				onClick="@command('onDownload')" />
 		</toolbar>
 		<panelchildren>
 			<hbox spacing="0" width="100%">
-				<listbox id="filelist" model="@{logs.logFiles}" hflex="min"
-					selectedItem="@{logs.selectedFile}" height="400px" />
-				<textbox id="logview" multiline="true" readonly="true"
-					hflex="true" vflex="true" value="@{logs.currentLog}"
+				<listbox model="@load(logs.logFiles)" hflex="min"
+					selectedItem="@bind(logs.selectedFile)" height="400px">
+					<template name="model" var="file">
+						<listitem label="@load(file)" />
+					</template>
+				</listbox>
+				<textbox multiline="true" readonly="true" hflex="true"
+					vflex="true" value="@load(logs.currentLog)"
 					tooltiptext="Last 10000 lines. Use the download button if you want to see the full log" />
 			</hbox>
 		</panelchildren>

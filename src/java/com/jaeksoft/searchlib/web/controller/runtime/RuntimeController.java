@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,11 +35,6 @@ public class RuntimeController extends CommonController {
 
 	@Override
 	protected void reset() {
-	}
-
-	@Override
-	public void reload() {
-
 	}
 
 	public boolean isCommandsRights() throws SearchLibException {

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 import java.io.File;
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.WrongValueException;
 import org.zkoss.zul.Filedownload;
@@ -65,6 +66,7 @@ public class LogsController extends CommonController {
 		int i = 0;
 		for (File file : files)
 			names[i++] = file.getName();
+		System.out.println(names.length);
 		return names;
 	}
 
@@ -80,7 +82,7 @@ public class LogsController extends CommonController {
 		return currentLog;
 	}
 
-	@NotifyChange("#logview")
+	@NotifyChange("*")
 	public void setSelectedFile(String file) throws WrongValueException,
 			IOException {
 		this.selectedFile = file;
@@ -95,16 +97,19 @@ public class LogsController extends CommonController {
 		return selectedFile == null;
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onReloadFileList() throws SearchLibException {
 		reset();
-		reload();
 	}
 
-	@NotifyChange("#logview")
+	@Command
+	@NotifyChange("currentLog")
 	public void onReloadCurrentLog() {
 		currentLog = null;
 	}
 
+	@Command
 	public void onDownload() throws IOException, SearchLibException {
 		String filePath = Logging.getLogDirectory() + File.separator
 				+ getSelectedFile();

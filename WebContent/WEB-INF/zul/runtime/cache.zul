@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,10 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="caches"
-	use="com.jaeksoft.searchlib.web.controller.runtime.CacheController">
-	<button label="Refresh" forward="onReload" />
-	<listbox model="@{caches.cacheList}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('caches') @init('com.jaeksoft.searchlib.web.controller.runtime.CacheController')">
+	<listbox model="@load(caches.cacheList)">
 		<listhead>
 			<listheader label="Name" />
 			<listheader label="Size" width="60px" align="right" />
@@ -29,23 +28,24 @@
 			<listheader label="Inserts" width="60px" align="right" />
 			<listheader label="Evictions" width="60px" align="right" />
 		</listhead>
-		<listitem self="@{each='cache'}">
-			<custom-attributes cacheItem="@{cache}" />
-			<listcell label="@{cache.name}" />
-			<listcell label="@{cache.size}" />
-			<listcell>
-				<intbox value="@{cache.maxSize}"
-					forward="onChange=onSave" width="60px" />
-			</listcell>
-			<listcell>
-				<button label="Flush" onClick="caches.doFlush(self)" />
-			</listcell>
-			<listcell label="@{cache.hitRatioPercent}" />
-			<listcell label="@{cache.lookups}" />
-			<listcell label="@{cache.hits}" />
-			<listcell label="@{cache.inserts}" />
-			<listcell label="@{cache.evictions}" />
-		</listitem>
+		<template name="model" var="cache">
+			<listitem>
+				<listcell label="@load(cache.name)" />
+				<listcell label="@load(cache.size)" />
+				<listcell>
+					<intbox value="@bind(cache.maxSize)"
+						onChange="@command(onSave)" width="60px" />
+				</listcell>
+				<listcell>
+					<button label="Flush"
+						onClick="@command('doFlush', cache=cache)" />
+				</listcell>
+				<listcell label="@load(cache.hitRatioPercent)" />
+				<listcell label="@load(cache.lookups)" />
+				<listcell label="@load(cache.hits)" />
+				<listcell label="@load(cache.inserts)" />
+				<listcell label="@load(cache.evictions)" />
+			</listitem>
+		</template>
 	</listbox>
-
 </window>

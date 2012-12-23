@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.util.List;
 
+import org.zkoss.bind.annotation.NotifyChange;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
@@ -33,11 +35,6 @@ import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class StatisticsController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2420054165684926096L;
 
 	private transient StatisticsAbstract selectedStat;
 
@@ -57,12 +54,6 @@ public class StatisticsController extends CommonController {
 		selectedStat = null;
 		showLastError = null;
 		statList = null;
-	}
-
-	public boolean isStatList() throws SearchLibException {
-		synchronized (this) {
-			return getStatList() != null;
-		}
 	}
 
 	public List<StatisticsAbstract> getStatList() throws SearchLibException {
@@ -87,6 +78,7 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
+	@NotifyChange("*")
 	public void setSelectedStat(StatisticsAbstract selectedStat) {
 		synchronized (this) {
 			this.selectedStat = selectedStat;
@@ -100,11 +92,12 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
+	@NotifyChange("*")
 	public void setSelectedType(StatisticTypeEnum selectedType)
 			throws SearchLibException {
 		synchronized (this) {
 			this.selectedType = selectedType;
-			reload();
+			statList = null;
 		}
 	}
 
@@ -123,18 +116,13 @@ public class StatisticsController extends CommonController {
 		}
 	}
 
+	@NotifyChange("*")
 	public void setShowLastError(boolean showLastError)
 			throws SearchLibException {
 		synchronized (this) {
 			this.showLastError = showLastError;
-			reload();
+			statList = null;
 		}
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		statList = null;
-		super.reload();
 	}
 
 }

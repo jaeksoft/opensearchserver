@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -40,11 +42,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CommandsController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7911006190658783502L;
 
 	private TaskItem taskOptimize = null;
 	private TaskItem taskTruncate = null;
@@ -108,45 +105,53 @@ public class CommandsController extends CommonController {
 		isTaskRunning();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onReloadClient() throws SearchLibException {
 		synchronized (this) {
 			getClient().reload();
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onTimer() throws SearchLibException {
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onReadOnly() throws SearchLibException {
 		synchronized (this) {
 			getClient().setReadWriteMode(IndexMode.READ_ONLY);
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onReadWrite() throws SearchLibException {
 		synchronized (this) {
 			getClient().setReadWriteMode(IndexMode.READ_WRITE);
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onOnline() throws SearchLibException {
 		synchronized (this) {
 			getClient().setOnline(true);
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onOffline() throws SearchLibException {
 		synchronized (this) {
 			getClient().setOnline(false);
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onOptimize() throws SearchLibException, IOException,
 			URISyntaxException, InterruptedException {
 		synchronized (this) {
@@ -158,7 +163,6 @@ public class CommandsController extends CommonController {
 						"The optimization is already running");
 			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
 			TaskManager.executeTask(client, taskOptimize, null);
-			reload();
 		}
 	}
 
@@ -233,6 +237,7 @@ public class CommandsController extends CommonController {
 		}
 	}
 
+	@Command
 	public void onDeleteAll() throws InterruptedException {
 		synchronized (this) {
 			new DeleteAlert();

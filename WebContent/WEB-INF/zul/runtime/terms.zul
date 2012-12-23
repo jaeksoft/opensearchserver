@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,22 +14,27 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="terms"
-	use="com.jaeksoft.searchlib.web.controller.runtime.TermController">
-	<grid model="@{terms.termList}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('terms') @init('com.jaeksoft.searchlib.web.controller.runtime.TermController')">
+	<grid model="@load(terms.termList)">
 		<auxhead>
 			<auxheader colspan="3">
-				<listbox mold="select" model="@{terms.fieldList}"
-					selectedItem="@{terms.currentField}" forward="onSelect=onSearch" />
+				<listbox mold="select" model="@load(terms.fieldList)"
+					selectedItem="@bind(terms.currentField)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 				<label value="Search Term" />
-				<textbox value="@{terms.searchTerm}" />
-				<button label="Search" forward="onSearch" />
+				<textbox value="@bind(terms.searchTerm)" />
+				<button label="Search" onClick="@command('onSearch')" />
 				<space width="20px" />
-				<button label="Reset" forward="onReset" />
+				<button label="Reset" onClick="@command('onReset')" />
 				<space width="50px" />
-				<button label="Next" forward="onNext" />
+				<button label="Next" onClick="@command('onNext')" />
 				<space width="50px" />
-				<button label="Export..." forward="onExport" />
+				<button label="Export..."
+					onClick="@command('onExport')" />
 			</auxheader>
 		</auxhead>
 		<columns>
@@ -38,11 +43,13 @@
 			<column width="100px" label="frequency" />
 		</columns>
 		<rows>
-			<row self="@{each=term}">
-				<label value="@{term.term}" />
-				<label value="@{term.field}" />
-				<label value="@{term.freq}" />
-			</row>
+			<template name="model" var="term">
+				<row>
+					<label value="@load(term.term)" />
+					<label value="@load(term.field)" />
+					<label value="@load(term.freq)" />
+				</row>
+			</template>
 		</rows>
 	</grid>
 </window>

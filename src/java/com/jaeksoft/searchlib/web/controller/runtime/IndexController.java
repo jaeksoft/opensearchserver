@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,11 +35,6 @@ import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class IndexController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4160847940908204696L;
 
 	public IndexController() throws SearchLibException {
 		super();

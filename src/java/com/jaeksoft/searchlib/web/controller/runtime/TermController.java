@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,8 @@ import java.util.List;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
@@ -42,11 +44,6 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class TermController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5220310778380178064L;
 
 	public class TermFreq {
 
@@ -209,20 +206,26 @@ public class TermController extends CommonController {
 		}
 	}
 
-	public void setCurrentField(String field) {
+	@NotifyChange("*")
+	public void setCurrentField(String field) throws IOException,
+			SearchLibException {
 		synchronized (this) {
 			currentField = field;
+			onSearch();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSearch() throws IOException, SearchLibException {
 		synchronized (this) {
 			setTermEnum();
 			setTermList();
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onReset() throws IOException, SearchLibException {
 		synchronized (this) {
 			setSearchTerm("");
@@ -230,13 +233,16 @@ public class TermController extends CommonController {
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onNext() throws IOException, SearchLibException {
 		synchronized (this) {
 			setTermList();
-			reload();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onExport() throws IOException, SearchLibException {
 		synchronized (this) {
 			PrintWriter pw = null;

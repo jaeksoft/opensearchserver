@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,8 +27,9 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -38,11 +39,6 @@ import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class CacheController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6570698209309006505L;
 
 	private transient List<LRUCache<?, ?>> cacheList;
 
@@ -83,27 +79,20 @@ public class CacheController extends CommonController {
 
 	}
 
-	public void doFlush(Component comp) throws SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void doFlush(@BindingParam("cache") LRUCache<?, ?> cache)
+			throws SearchLibException {
 		synchronized (this) {
-			LRUCache<?, ?> cache = (LRUCache<?, ?>) getRecursiveComponentAttribute(
-					comp, "cacheItem");
 			cache.clear();
-			reload();
 		}
 	}
 
-	public void onSave(Event event) throws SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void onSave() throws SearchLibException {
 		synchronized (this) {
 			getClient().saveConfig();
-			reload();
-		}
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		synchronized (this) {
-			reset();
-			super.reload();
 		}
 	}
 
