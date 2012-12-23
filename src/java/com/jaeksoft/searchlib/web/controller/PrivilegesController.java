@@ -26,7 +26,9 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.util.Set;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -97,18 +99,19 @@ public class PrivilegesController extends CommonController {
 		return user;
 	}
 
-	public boolean selected() {
+	public boolean isSelected() {
 		return this.selectedUserName != null;
 	}
 
-	public boolean notSelected() {
-		return !selected();
+	public boolean isNotSelected() {
+		return !isSelected();
 	}
 
 	public String getSelectedUserName() {
 		return this.selectedUserName;
 	}
 
+	@NotifyChange("*")
 	public void setSelectedUserName(String name) throws SearchLibException {
 		this.selectedUserName = name;
 		user = new User(ClientCatalog.getUserList().get(name));
@@ -154,6 +157,7 @@ public class PrivilegesController extends CommonController {
 		return confirmPassword;
 	}
 
+	@NotifyChange("user")
 	public void setConfirmPassword(String pass) {
 		this.confirmPassword = pass;
 	}
@@ -165,6 +169,8 @@ public class PrivilegesController extends CommonController {
 			throw new SearchLibException("Passwords does not match");
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws InterruptedException, SearchLibException {
 		try {
 			validUser();
@@ -181,42 +187,41 @@ public class PrivilegesController extends CommonController {
 		onCancel();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		user = new User("", "", false, false);
 		selectedUserName = null;
 		confirmPassword = null;
 		selectedIndex = null;
 		indexList = null;
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onDelete() throws SearchLibException {
 		ClientCatalog.getUserList().remove(selectedUserName);
 		ClientCatalog.saveUserList();
 		onCancel();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAddPrivilege() throws SearchLibException {
 		if (selectedIndex != null)
 			user.addRole(selectedIndex.getIndexName(), selectedRole);
-		reload();
 	}
 
-	public void onRoleRemove(Component comp) throws SearchLibException {
-		IndexRole indexRole = (IndexRole) comp.getAttribute("indexrole");
+	@Command
+	@NotifyChange("*")
+	public void onRoleRemove(@BindingParam("indexRole") IndexRole indexRole)
+			throws SearchLibException {
 		user.removeRole(indexRole);
-		reload();
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
 		return selectedUserName == null ? "Create a new user"
 				: "Edit the user " + selectedUserName;
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		indexList = null;
-		super.reload();
 	}
 
 }

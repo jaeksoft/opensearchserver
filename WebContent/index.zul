@@ -17,13 +17,13 @@
 <window border="normal" apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('index') @init('com.jaeksoft.searchlib.web.controller.IndexController')">
 	<caption image="images/oss_logo_32.png"
-		label="@bind(index.version)">
+		label="@load(index.version)">
 		<hbox align="center">
-			<label visible="@bind(index.logged)" value="Connected as: " />
-			<label visible="@bind(index.logged)"
-				value="@bind(index.loggedUser.name)" />
+			<label visible="@load(index.logged)" value="Connected as: " />
+			<label visible="@load(index.logged)"
+				value="@load(index.loggedUser.name)" />
 			<toolbarbutton visible="@bind(index.logged)"
-				label=" (logout)" forward="onLogout" />
+				label=" (logout)" onClick="@command('onLogout')" />
 			<space width="50px" />
 			<toolbarbutton label="Visit the OSS web site"
 				target="_blank" href="http://www.open-search-server.com" />

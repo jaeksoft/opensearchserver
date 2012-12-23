@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,9 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="privileges"
-	use="com.jaeksoft.searchlib.web.controller.PrivilegesController">
-	<panel title="@{privileges.currentEditMode}" border="normal">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('privileges') @init('com.jaeksoft.searchlib.web.controller.PrivilegesController')">
+	<panel title="@load(privileges.currentEditMode)" border="normal">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -25,7 +25,7 @@
 					<column align="left" />
 				</columns>
 				<rows>
-					<row visible="@{privileges.user.readOnly}">
+					<row visible="@load(privileges.user.readOnly)">
 						<cell colspan="3" align="center">
 							<label style="color:red;"
 								value="This user is not editable" />
@@ -33,101 +33,110 @@
 					</row>
 					<row>
 						<label value="User name: " />
-						<textbox value="@{privileges.user.name}"
-							readonly="@{privileges.selected}" width="95%" />
+						<textbox value="@bind(privileges.user.name)"
+							readonly="@load(privileges.selected)" width="95%" />
 						<label
 							value="Choose a name for the user that will be created" />
 					</row>
 					<row>
 						<label value="Password: " />
 						<textbox type="password"
-							readonly="@{privileges.user.readOnly}"
-							value="@{privileges.user.password}" width="95%" />
+							readonly="@load(privileges.user.readOnly)"
+							value="@bind(privileges.user.password)" width="95%" />
 						<label
 							value="Choose a password for the user that will be created" />
 					</row>
 					<row>
 						<label value="Confirm password: " />
 						<textbox type="password"
-							readonly="@{privileges.user.readOnly}"
-							value="@{privileges.confirmPassword}" width="95%" />
+							readonly="@load(privileges.user.readOnly)"
+							value="@bind(privileges.confirmPassword)" width="95%" />
 						<label value="Retype the password" />
 					</row>
 					<row>
 						<label value="Admin user: " />
-						<checkbox checked="@{privileges.user.admin}"
-							disabled="@{privileges.user.readOnly}" />
+						<checkbox checked="@bind(privileges.user.admin)"
+							disabled="@load(privileges.user.readOnly)" />
 						<label
 							value="Check the box if the user is admin" />
 					</row>
 					<row>
 						<label value="Can monitor: " />
-						<checkbox disabled="@{privileges.user.readOnly}"
-							checked="@{privileges.user.monitoring}" />
+						<checkbox
+							disabled="@{load(rivileges.user.readOnly)"
+							checked="@bind(privileges.user.monitoring)" />
 						<label
 							value="Check the box if the user is able to monitor" />
 					</row>
 					<row>
 						<label value="API Key: " />
 						<textbox readonly="true"
-							value="@{privileges.user.apiKey}" width="95%" />
+							value="@bind(privileges.user.apiKey)" width="95%" />
 						<label value="Key to be used with API" />
 					</row>
-					<row visible="@{privileges.showAddPrivilege}">
+					<row visible="@load(privileges.showAddPrivilege)">
 						<label
 							value="Add privileges on following index: " />
 						<vbox width="100%">
 							<listbox mold="select" width="100%"
-								selectedItem="@{privileges.selectedIndex}"
-								model="@{privileges.indexList}">
-								<listitem
-									self="@{each='catalogitem'}">
-									<listcell
-										label="@{catalogitem.indexName}" />
-								</listitem>
+								selectedItem="@bind(privileges.selectedIndex)"
+								model="@load(privileges.indexList)">
+								<template name="model"
+									var="catalogitem">
+									<listitem>
+										<listcell
+											label="@load(catalogitem.indexName)" />
+									</listitem>
+								</template>
 							</listbox>
 							<listbox mold="select" width="100%"
-								selectedItem="@{privileges.selectedRole}"
-								model="@{privileges.roles}">
-								<listitem self="@{each='role'}">
-									<listcell label="@{role.label}" />
-								</listitem>
+								selectedItem="@bind(privileges.selectedRole)"
+								model="@load(privileges.roles)">
+								<template name="model" var="role">
+									<listitem>
+										<listcell
+											label="@load(role.label)" />
+									</listitem>
+								</template>
 							</listbox>
 						</vbox>
-						<button label="Add" forward="onAddPrivilege" />
+						<button label="Add"
+							onClick="@command('onAddPrivilege')" />
 					</row>
 				</rows>
 			</grid>
-			<listbox model="@{privileges.user.roles}"
-				selectedItem="@{privileges.selectedIndexRole}">
+			<listbox model="@load(privileges.user.roles)"
+				selectedItem="@bind(privileges.selectedIndexRole)">
 				<listhead>
 					<listheader label="Index" />
 					<listheader label="Role" />
 					<listheader />
 				</listhead>
-				<listitem self="@{each='indexRole'}">
-					<listcell label="@{indexRole.indexName}" />
-					<listcell label="@{indexRole.role.label}" />
-					<listcell>
-						<button label="remove"
-							onClick="privileges.onRoleRemove(self)">
-							<custom-attributes indexrole="@{indexRole}" />
-						</button>
-					</listcell>
-				</listitem>
+				<template name="model" var="indexRole">
+					<listitem>
+						<listcell label="@load(indexRole.indexName)" />
+						<listcell label="@load(indexRole.role.label)" />
+						<listcell>
+							<button label="remove"
+								onClick="@command('onRoleRemove', indexRole=indexRole)" />
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 			<vbox width="100%" align="center">
-				<hbox visible="@{privileges.selected}">
-					<button label="Cancel" forward="onCancel" />
+				<hbox visible="@load(privileges.selected)">
+					<button label="Cancel"
+						onClick="@command('onCancel')" />
 					<space width="10px" />
-					<button label="Save" forward="onSave"
-						visible="@{privileges.user.editable}" />
+					<button label="Save" onClick="@command('onSave')"
+						visible="@load(privileges.user.editable)" />
 					<space width="30px" />
-					<button label="Delete" forward="onDelete"
-						visible="@{privileges.user.editable}" />
+					<button label="Delete"
+						onClick="@command('onDelete')"
+						visible="@load(privileges.user.editable)" />
 				</hbox>
-				<hbox visible="@{privileges.notSelected}">
-					<button label="Create" forward="onSave" />
+				<hbox visible="@load(privileges.notSelected)">
+					<button label="Create" onClick="@command('onSave')" />
 				</hbox>
 			</vbox>
 		</panelchildren>
@@ -136,12 +145,11 @@
 	<panel title="List of existing users - click on a user to edit it"
 		border="normal">
 		<toolbar>
-			<button label="Refresh" forward="onListRefresh" />
+			<button label="Refresh" onClick="@command('onListRefresh')" />
 		</toolbar>
 		<panelchildren>
-			<listbox selectedItem="@{privileges.selectedUserName}"
-				model="@{privileges.userNameSet}" />
+			<listbox selectedItem="@bind(privileges.selectedUserName)"
+				model="@load(privileges.userNameSet)" />
 		</panelchildren>
 	</panel>
-
 </window>

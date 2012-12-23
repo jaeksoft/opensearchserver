@@ -216,6 +216,7 @@ public abstract class CommonController implements EventInterface {
 		PushEvent.eventFlushPrivileges.publish(user);
 	}
 
+	@Command
 	public void onLogout() {
 		for (ScopeAttribute attr : ScopeAttribute.values())
 			setAttribute(attr, null);
