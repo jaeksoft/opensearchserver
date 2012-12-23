@@ -57,7 +57,7 @@
 					</row>
 					<row>
 						<label value="Testing" />
-						<combobox cols="50" autodrop="true" apply=""
+						<combobox cols="50" autodrop="true"
 							model="@load(auto.comboList)" onChanging="@command('onChanging')"
 							buttonVisible="false" />
 						<label

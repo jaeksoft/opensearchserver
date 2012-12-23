@@ -29,7 +29,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,11 +44,6 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class ClassifierController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -245936909199297182L;
 
 	private Classifier selectedClassifier;
 	private Classifier currentClassifier;
@@ -76,11 +73,13 @@ public class ClassifierController extends CommonController {
 	}
 
 	public List<String> getRequestList() throws SearchLibException {
+		List<String> requestList = new ArrayList<String>(0);
 		Client client = getClient();
 		if (client == null)
-			return null;
-		return client.getRequestMap()
-				.getNameList(RequestTypeEnum.SearchRequest);
+			return requestList;
+		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
+				requestList);
+		return requestList;
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -89,10 +88,10 @@ public class ClassifierController extends CommonController {
 	}
 
 	public List<String> getFieldList() throws SearchLibException {
+		List<String> fields = new ArrayList<String>(0);
 		Client client = getClient();
 		if (client == null)
-			return null;
-		List<String> fields = new ArrayList<String>();
+			return fields;
 		fields.add(null);
 		for (SchemaField field : client.getSchema().getFieldList())
 			fields.add(field.getName());
@@ -134,17 +133,21 @@ public class ClassifierController extends CommonController {
 		return !isSelected();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onNewClassifier() throws SearchLibException {
 		currentClassifier = new Classifier();
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		currentClassifier = null;
 		selectedClassifier = null;
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws SearchLibException,
 			UnsupportedEncodingException {
 		Client client = getClient();
@@ -159,6 +162,8 @@ public class ClassifierController extends CommonController {
 		onCancel();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onDelete() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
@@ -201,15 +206,17 @@ public class ClassifierController extends CommonController {
 		return selectedClassifierItem;
 	}
 
+	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
 	public void setSelectedClassifierItem(ClassifierItem classifierItem)
 			throws SearchLibException {
 		if (classifierItem == null)
 			return;
 		selectedClassifierItem = classifierItem;
 		currentClassifierItem = new ClassifierItem(classifierItem);
-		reload();
 	}
 
+	@Command
+	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
 	public void onSaveClassifierItem() throws SearchLibException {
 		if (selectedClassifierItem != null)
 			currentClassifier.replace(selectedClassifierItem,
@@ -219,24 +226,23 @@ public class ClassifierController extends CommonController {
 		onCancelClassifierItem();
 	}
 
+	@Command
+	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
 	public void onCancelClassifierItem() throws SearchLibException {
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
-		reload();
 	}
 
-	private ClassifierItem getClassifierItem(Component component) {
-		return (ClassifierItem) component.getParent().getAttribute(
-				"classifierItem");
-	}
-
-	public void onRemoveClassifierItem(Component component)
+	@Command
+	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
+	public void onRemoveClassifierItem(
+			@BindingParam("classifierItem") ClassifierItem classifierItem)
 			throws SearchLibException {
-		ClassifierItem cf = getClassifierItem(component);
-		currentClassifier.remove(cf);
+		currentClassifier.remove(classifierItem);
 		onCancelClassifierItem();
 	}
 
+	@Command
 	public void onTestClassifierItem() throws SearchLibException,
 			InterruptedException {
 		int n = currentClassifierItem.query(getClient(), lang);

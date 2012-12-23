@@ -1,6 +1,6 @@
 <!--
 	License Agreement for Jaeksoft OpenSearchServer Enterprise
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	
 	This file is part of Jaeksoft OpenSearchServer Enterprise.
 	See the License for more details. You should have received a
@@ -9,12 +9,12 @@
 -->
 <panel title="List of existing classifier" border="normal">
 	<panelchildren>
-		<listbox model="@{classifier.classifiers}" mold="paging"
-			selectedItem="@{classifier.selectedClassifier}" pageSize="10">
+		<listbox model="@load(classifier.classifiers)" mold="paging"
+			selectedItem="@bind(classifier.selectedClassifier)" pageSize="10">
 			<auxhead>
 				<auxheader colspan="5">
 					<button label="New classifier..."
-						onClick="classifier.onNewClassifier()" />
+						onClick="@command('onNewClassifier')" />
 				</auxheader>
 			</auxhead>
 			<listhead>
@@ -25,16 +25,18 @@
 					width="80px" />
 				<listheader tooltiptext="Active" label="A" width="50px" />
 			</listhead>
-			<listitem self="@{each=item}">
-				<listcell label="@{item.name}" />
-				<listcell label="@{item.fieldName}" />
-				<listcell label="@{item.method.label}" />
-				<listcell label="@{item.valueSetSize}" />
-				<listcell>
-					<image src="images/action_check.png"
-						visible="@{item.active}" />
-				</listcell>
-			</listitem>
+			<template name="model" var="item">
+				<listitem>
+					<listcell label="@load(item.name)" />
+					<listcell label="@load(item.fieldName)" />
+					<listcell label="@load(item.method.label)" />
+					<listcell label="@load(item.valueSetSize)" />
+					<listcell>
+						<image src="images/action_check.png"
+							visible="@load(item.active)" />
+					</listcell>
+				</listitem>
+			</template>
 		</listbox>
 	</panelchildren>
 </panel>

@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -109,12 +108,10 @@ public class RequestMap {
 		return map.keySet();
 	}
 
-	public List<String> getNameList(RequestTypeEnum type) {
-		List<String> list = new ArrayList<String>();
+	public void getNameList(RequestTypeEnum type, List<String> nameList) {
 		for (AbstractRequest request : map.values())
 			if (request.getType() == type)
-				list.add(request.getRequestName());
-		return list;
+				nameList.add(request.getRequestName());
 	}
 
 	public void remove(String requestName) {

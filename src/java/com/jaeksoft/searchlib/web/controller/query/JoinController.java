@@ -124,11 +124,13 @@ public class JoinController extends AbstractQueryController {
 
 	public List<String> getQueryList() throws SearchLibException,
 			NamingException {
+		List<String> queryList = new ArrayList<String>(0);
 		Client client = getForeignClient();
 		if (client == null)
-			return null;
-		return client.getRequestMap()
-				.getNameList(RequestTypeEnum.SearchRequest);
+			return queryList;
+		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
+				queryList);
+		return queryList;
 	}
 
 	private List<String> getIndexedFieldList(Client client) {

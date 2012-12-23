@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<panel title="@{classifier.currentEditMode}" border="normal">
+<panel title="@load(classifier.currentEditMode)" border="normal">
 	<panelchildren>
 		<grid>
 			<columns sizable="false">
@@ -25,44 +25,47 @@
 				<row>
 					<label value="Classifier name: " />
 					<textbox
-						value="@{classifier.currentClassifier.name}"
-						readonly="@{classifier.selected}" cols="50" />
+						value="@bind(classifier.currentClassifier.name)"
+						readonly="@load(classifier.selected)" cols="50" />
 				</row>
 				<row>
 					<label value="Value is copied to field: " />
-					<combobox model="@{classifier.fieldList}" cols="50"
-						value="@{classifier.currentClassifier.fieldName}" />
+					<combobox model="@load(classifier.fieldList)"
+						cols="50" value="@bind(classifier.currentClassifier.fieldName)" />
 				</row>
 				<row>
 					<label value="Score is copied to field: " />
-					<combobox model="@{classifier.fieldList}" cols="50"
-						value="@{classifier.currentClassifier.scoreFieldName}" />
+					<combobox model="@load(classifier.fieldList)"
+						cols="50"
+						value="@bind(classifier.currentClassifier.scoreFieldName)" />
 				</row>
 				<row>
 					<label value="Method: " />
-					<listbox model="@{classifier.methodList}"
+					<listbox model="@load(classifier.methodList)"
 						mold="select"
-						selectedItem="@{classifier.currentClassifier.method}">
-						<listitem label="@{classifierMethod.label}"
-							self="@{each='classifierMethod'}" />
+						selectedItem="@bind(classifier.currentClassifier.method)">
+						<template name="model" var="classifierMethod">
+							<listitem
+								label="@load(classifierMethod.label)" />
+						</template>
 					</listbox>
 				</row>
 				<row>
 					<label value="Active: " />
 					<checkbox label="enabled"
-						checked="@{classifier.currentClassifier.active}" />
+						checked="@bind(classifier.currentClassifier.active)" />
 				</row>
 				<row>
 					<label value="Default value: " />
 					<textbox
-						value="@{classifier.currentClassifier.defaultValue}"
+						value="@bind(classifier.currentClassifier.defaultValue)"
 						multiline="true" rows="2" cols="50" />
 				</row>
 				<row>
 					<label value="Item list: " />
 					<listbox mold="paging" pageSize="20"
-						selectedItem="@{classifier.selectedClassifierItem}"
-						model="@{classifier.currentClassifier.valueSet}">
+						selectedItem="@bind(classifier.selectedClassifierItem)"
+						model="@load(classifier.currentClassifier.valueSet)">
 						<listhead>
 							<listheader label="Value" width="250px" />
 							<listheader label="Boost" width="80px" />
@@ -75,79 +78,87 @@
 						<auxhead>
 							<auxheader>
 								<textbox width="95%"
-									value="@{classifier.currentClassifierItem.value}" />
+									value="@bind(classifier.currentClassifierItem.value)" />
 							</auxheader>
 							<auxheader>
 								<doublebox width="95%"
-									value="@{classifier.currentClassifierItem.boost}" />
+									value="@bind(classifier.currentClassifierItem.boost)" />
 							</auxheader>
 							<auxheader>
-								<combobox
-									model="@{classifier.requestList}" width="95%"
-									value="@{classifier.currentClassifierItem.requestName}" />
+								<combobox width="95%"
+									model="@load(classifier.requestList)"
+									value="@bind(classifier.currentClassifierItem.requestName)">
+									<template name="model">
+										<comboitem label="@load(each)" />
+									</template>
+								</combobox>
 							</auxheader>
 							<auxheader>
 								<textbox width="95%" height="60px"
 									multiline="true"
-									value="@{classifier.currentClassifierItem.query}" />
+									value="@bind(classifier.currentClassifierItem.query)" />
 							</auxheader>
 							<auxheader align="center">
 								<vbox align="center"
-									visible="@{classifier.notItemSelected}">
+									visible="@load(classifier.notItemSelected)">
 									<button
 										tooltiptext="Add a classifier item"
 										image="/images/action_add.png"
-										onClick="classifier.onSaveClassifierItem()" />
+										onClick="@command('onSaveClassifierItem')" />
 									<button label="Test"
-										onClick="classifier.onTestClassifierItem()" />
+										onClick="@command('onTestClassifierItem')" />
 								</vbox>
 								<vbox align="center"
-									visible="@{classifier.itemSelected}">
+									visible="@load(classifier.itemSelected)">
 									<button label="Save"
-										onClick="classifier.onSaveClassifierItem()" />
+										onClick="@command('onSaveClassifierItem')" />
 									<button label="Cancel"
-										onClick="classifier.onCancelClassifierItem()" />
+										onClick="@command('onCancelClassifierItem')" />
 									<button label="Test"
-										onClick="classifier.onTestClassifierItem()" />
+										onClick="@command('onTestClassifierItem')" />
 								</vbox>
 							</auxheader>
 						</auxhead>
-						<listitem self="@{each='classifierItem'}">
-							<listcell label="@{classifierItem.value}" />
-							<listcell label="@{classifierItem.boost}" />
-							<listcell
-								label="@{classifierItem.requestName}" />
-							<listcell label="@{classifierItem.query}" />
-							<listcell>
-								<custom-attributes
-									classifierItem="@{classifierItem}" />
-								<button tooltiptext="Remove the item"
-									image="/images/action_delete.png"
-									onClick="classifier.onRemoveClassifierItem(self)" />
-							</listcell>
-						</listitem>
+						<template name="model" var="classifierItem">
+							<listitem>
+								<listcell
+									label="@load(classifierItem.value)" />
+								<listcell
+									label="@load(classifierItem.boost)" />
+								<listcell
+									label="@load(classifierItem.requestName)" />
+								<listcell
+									label="@load(classifierItem.query)" />
+								<listcell>
+									<button
+										tooltiptext="Remove the item"
+										image="/images/action_delete.png"
+										onClick="@command('onRemoveClassifierItem', classifierItem=classifierItem)" />
+								</listcell>
+							</listitem>
+						</template>
 					</listbox>
 				</row>
 			</rows>
 			<foot>
 				<footer span="2">
 					<vbox width="100%" align="center">
-						<hbox visible="@{classifier.selected}">
+						<hbox visible="@load(classifier.selected)">
 							<button label="Cancel"
-								onClick="classifier.onCancel()" />
+								onClick="@command('onCancel')" />
 							<space width="10px" />
 							<button label="Save"
-								onClick="classifier.onSave()" />
+								onClick="@command('onSave')" />
 							<space width="30px" />
 							<button label="Delete"
-								onClick="classifier.onDelete()" />
+								onClick="@command('onDelete')" />
 						</hbox>
-						<hbox visible="@{classifier.notSelected}">
+						<hbox visible="@load(classifier.notSelected)">
 							<button label="Cancel"
-								onClick="classifier.onCancel()" />
+								onClick="@command('onCancel')" />
 							<space width="10px" />
 							<button label="Create"
-								onClick="classifier.onSave()" />
+								onClick="@command('onSave')" />
 						</hbox>
 					</vbox>
 				</footer>

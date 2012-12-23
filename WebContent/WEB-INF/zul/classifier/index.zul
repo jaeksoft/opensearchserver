@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="classifier"
-	use="com.jaeksoft.searchlib.web.controller.ClassifierController">
-	<include visible="@{classifier.isNotEditing}"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('classifier') @init('com.jaeksoft.searchlib.web.controller.ClassifierController')">
+	<include visible="@load(classifier.notEditing)"
 		src="WEB-INF/zul/classifier/list.zul" />
-	<include visible="@{classifier.isEditing}"
+	<include visible="@load(classifier.editing)"
 		src="WEB-INF/zul/classifier/edit.zul" />
 </window>
