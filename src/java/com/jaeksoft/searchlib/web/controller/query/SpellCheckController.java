@@ -27,7 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -100,16 +102,20 @@ public class SpellCheckController extends AbstractQueryController {
 		}
 	}
 
-	public void onFieldRemove(Event event) throws SearchLibException {
+	@Command
+	@NotifyChange("*")
+	public void onFieldRemove(
+			@BindingParam("scFieldItem") SpellCheckField spellCheckField)
+			throws SearchLibException {
 		synchronized (this) {
-			SpellCheckField spellCheckField = (SpellCheckField) event
-					.getTarget().getAttribute("scFieldItem");
 			((SpellCheckRequest) getRequest()).getSpellCheckFieldList().remove(
 					spellCheckField.getName());
 			onCancel();
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onFieldAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedSpellCheckField != null)
@@ -121,23 +127,12 @@ public class SpellCheckController extends AbstractQueryController {
 		}
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		synchronized (this) {
 			reset();
-			reload();
 		}
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		synchronized (this) {
-			super.reload();
-		}
-	}
-
-	@Override
-	public void eventSchemaChange(Client client) throws SearchLibException {
-		reload();
 	}
 
 	public SpellCheckDistanceEnum[] getStringDistanceList() {

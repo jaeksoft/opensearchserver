@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -41,6 +42,7 @@ import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
@@ -217,7 +219,13 @@ public class HttpDownloader {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
-			return EntityUtils.getContentCharSet(httpEntity);
+			ContentType ct = ContentType.getOrDefault(httpEntity);
+			if (ct == null)
+				return null;
+			Charset charset = ct.getCharset();
+			if (charset == null)
+				return null;
+			return charset.name();
 		}
 	}
 

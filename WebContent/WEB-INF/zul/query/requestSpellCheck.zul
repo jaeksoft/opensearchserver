@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="spellcheck"
-	use="com.jaeksoft.searchlib.web.controller.query.SpellCheckController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('spellcheck') @init('com.jaeksoft.searchlib.web.controller.query.SpellCheckController')">
 	<grid>
 		<columns>
 			<column hflex="min" />
@@ -24,22 +24,25 @@
 		<rows>
 			<row>
 				<label value="Query" />
-				<textbox value="@{spellcheck.request.queryString}" cols="50" />
+				<textbox value="@bind(spellcheck.request.queryString)"
+					cols="50" />
 			</row>
 			<row>
 				<label>Language:</label>
 				<listbox mold="select"
-					selectedItem="@{spellcheck.request.lang}"
-					model="@{spellcheck.languageEnum}">
-					<listitem self="@{each=langEnum}"
-						label="@{langEnum.name}" value="@{langEnum}" />
+					selectedItem="@bind(spellcheck.request.lang)"
+					model="@load(spellcheck.languageEnum)">
+					<template name="model" var="langEnum">
+						<listitem label="@{langEnum.name}"
+							value="@{langEnum}" />
+					</template>
 				</listbox>
 			</row>
 			<row>
 				<label value="Fields" />
 				<listbox
-					model="@{spellcheck.request.spellCheckFieldList.list}"
-					selectedItem="@{spellcheck.selected}">
+					model="@load(spellcheck.request.spellCheckFieldList.list)"
+					selectedItem="@bind(spellcheck.selected)">
 					<listhead>
 						<listheader label="Field" />
 						<listheader label="Minimal score" />
@@ -47,52 +50,58 @@
 						<listheader label="Algorithm" />
 						<listheader />
 					</listhead>
-					<auxhead visible="@{spellcheck.fieldLeft}">
+					<auxhead visible="@load(spellcheck.fieldLeft)">
 						<auxheader>
 							<listbox mold="select"
 								selectedItem="@{spellcheck.current.name}"
 								model="@{spellcheck.spellCheckFieldLeft}">
-								<listitem self="@{each=spellCheckField}"
-									label="@{spellCheckField}" />
+								<template name="model"
+									var="spellCheckField">
+									<listitem
+										label="@{spellCheckField}" />
+								</template>
 							</listbox>
 						</auxheader>
 						<auxheader>
 							<doublebox format="0.00"
-								value="@{spellcheck.current.minScore}" />
+								value="@bind(spellcheck.current.minScore)" />
 						</auxheader>
 						<auxheader>
 							<doublebox
-								value="@{spellcheck.current.suggestionNumber}" />
+								value="@bind(spellcheck.current.suggestionNumber)" />
 						</auxheader>
 						<auxheader>
 							<listbox mold="select"
-								selectedItem="@{spellcheck.current.stringDistance}"
-								model="@{spellcheck.stringDistanceList}" />
+								selectedItem="@bind(spellcheck.current.stringDistance)"
+								model="@load(spellcheck.stringDistanceList)" />
 						</auxheader>
 						<auxheader>
-							<button visible="@{spellcheck.noSelection}"
-								label="add" forward="onFieldAdd" />
-							<hbox visible="@{spellcheck.selection}">
+							<button
+								visible="@load(spellcheck.noSelection)" label="add"
+								onClick="@command('onFieldAdd')" />
+							<hbox
+								visible="@load(spellcheck.selection)">
 								<button label="Save"
-									forward="onFieldAdd" />
+									onClick="@command('onFieldAdd')" />
 								<button label="Cancel"
-									forward="onCancel" />
+									onClick="@command('onCancel')" />
 							</hbox>
 						</auxheader>
 					</auxhead>
-					<listitem self="@{each='item'}">
-						<listcell label="@{item.name}" />
-						<listcell label="@{item.minScore}" />
-						<listcell label="@{item.suggestionNumber}" />
-						<listcell label="@{item.stringDistance}" />
-						<listcell>
-							<button image="images/action_delete.png"
-								forward="onFieldRemove">
-								<custom-attributes
-									scFieldItem="@{item}" />
-							</button>
-						</listcell>
-					</listitem>
+					<template name="model" var="item">
+						<listitem>
+							<listcell label="@load(item.name)" />
+							<listcell label="@load(item.minScore)" />
+							<listcell
+								label="@load(item.suggestionNumber)" />
+							<listcell
+								label="@load(item.stringDistance)" />
+							<listcell>
+								<button image="images/action_delete.png"
+									onClick="@command('onFieldRemove', scFieldItem=item)" />
+							</listcell>
+						</listitem>
+					</template>
 				</listbox>
 			</row>
 		</rows>

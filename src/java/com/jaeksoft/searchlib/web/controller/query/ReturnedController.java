@@ -27,11 +27,8 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Button;
-import org.zkoss.zul.Label;
-import org.zkoss.zul.Row;
-import org.zkoss.zul.RowRenderer;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,8 +41,7 @@ import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 
-public class ReturnedController extends AbstractQueryController implements
-		RowRenderer<ReturnField> {
+public class ReturnedController extends AbstractQueryController {
 
 	private transient String selectedReturn;
 
@@ -83,6 +79,7 @@ public class ReturnedController extends AbstractQueryController implements
 		return null;
 	}
 
+	@Command
 	public void onReturnAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedReturn == null)
@@ -93,9 +90,10 @@ public class ReturnedController extends AbstractQueryController implements
 		}
 	}
 
-	public void onReturnRemove(Event event) throws SearchLibException {
+	@Command
+	public void onReturnRemove(@BindingParam("field") ReturnField field)
+			throws SearchLibException {
 		synchronized (this) {
-			ReturnField field = (ReturnField) event.getData();
 			getReturnedFieldInterface().getReturnFieldList().remove(
 					field.getName());
 			reload();
@@ -133,14 +131,6 @@ public class ReturnedController extends AbstractQueryController implements
 					}
 			return fieldLeft;
 		}
-	}
-
-	@Override
-	public void render(Row row, ReturnField field, int index) {
-		new Label(field.getName()).setParent(row);
-		Button button = new Button("Remove");
-		button.addForward(null, "query", "onReturnRemove", field);
-		button.setParent(row);
 	}
 
 	@Override

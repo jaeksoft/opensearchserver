@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="general"
-	use="com.jaeksoft.searchlib.web.controller.query.GeneralController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('general') @init('com.jaeksoft.searchlib.web.controller.query.GeneralController')">
 	<grid>
 		<columns>
 			<column align="right" />
@@ -24,18 +24,18 @@
 		<rows>
 			<row>
 				<label>Pattern query:</label>
-				<textbox value="@{general.request.patternQuery}"
+				<textbox value="@bind(general.request.patternQuery)"
 					multiline="true" width="90%" rows="5" />
 			</row>
 			<row>
 				<label>Enter the query:</label>
-				<textbox value="@{general.request.queryString}"
+				<textbox value="@bind(general.request.queryString)"
 					width="90%" />
 			</row>
 			<row>
 				<label>Default operator:</label>
 				<listbox mold="select"
-					selectedItem="@{general.request.defaultOperator}">
+					selectedItem="@bind(general.request.defaultOperator)">
 					<listitem label="AND" value="AND" />
 					<listitem label="OR" value="OR" />
 				</listbox>
@@ -43,25 +43,27 @@
 			<row>
 				<label>Start offset:</label>
 				<intbox cols="5" constraint="no empty, no negative"
-					value="@{general.request.start}" />
+					value="@bind(general.request.start)" />
 			</row>
 			<row>
 				<label>Number of rows:</label>
 				<intbox cols="5" constraint="no empty, no negative"
-					value="@{general.request.rows}" />
+					value="@bind(general.request.rows)" />
 			</row>
 			<row>
 				<label>Phrase slop:</label>
 				<intbox cols="5" constraint="no empty, no negative"
-					value="@{general.request.phraseSlop}" />
+					value="@bind(general.request.phraseSlop)" />
 			</row>
 			<row>
 				<label>Language:</label>
 				<listbox mold="select"
-					selectedItem="@{general.request.lang}"
-					model="@{general.languageEnum}">
-					<listitem self="@{each=langEnum}"
-						label="@{langEnum.name}" value="@{langEnum}" />
+					selectedItem="@bind(general.request.lang)"
+					model="@load(general.languageEnum)">
+					<template name="model" var="langEnum">
+						<listitem label="@load(langEnum.name)"
+							value="@load(langEnum)" />
+					</template>
 				</listbox>
 			</row>
 		</rows>

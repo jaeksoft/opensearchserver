@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="query"
-	use="com.jaeksoft.searchlib.web.controller.query.QueryController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('query') @init('com.jaeksoft.searchlib.web.controller.query.QueryController')">
 
-	<vlayout visible="@{query.isNotEditing}">
+	<vlayout visible="@load(query.notEditing)">
 		<grid>
 			<auxhead>
 				<auxheader colspan="3" label="Create a new query" />
@@ -30,15 +30,16 @@
 			<rows>
 				<row>
 					<label value="Query name" />
-					<textbox value="@{query.requestName}" cols="50" />
+					<textbox value="@bind(query.requestName)" cols="50" />
 					<label value="Enter the name of the new query" />
 				</row>
 				<row>
 					<label value="Type" />
-					<listbox model="@{query.requestTypeList}"
-						selectedItem="@{query.requestType}" mold="select">
-						<listitem self="@{each=type}"
-							label="@{type.label}" />
+					<listbox model="@load(query.requestTypeList)"
+						selectedItem="@bind(query.requestType)" mold="select">
+						<template name="model" var="type">
+							<listitem label="@load(type.label)" />
+						</template>
 					</listbox>
 					<label value="Select the type of the new query" />
 				</row>
@@ -47,15 +48,16 @@
 						<button label="New query..." forward="onNew"
 							tooltiptext="Create a new query template" />
 						<button label="New copied query..."
-							disabled="@{query.isNotSelectedRequest}" forward="onNewCopy"
+							disabled="@load(query.notRequestSelected)"
+							onClick="@command('onNewCopy')"
 							tooltiptext="Create a new query template copied from the selected query" />
 					</cell>
 				</row>
 			</rows>
 		</grid>
 		<separator />
-		<listbox model="@{query.requests}" mold="paging"
-			selectedItem="@{query.selectedRequest}" pageSize="10">
+		<listbox model="@load(query.requests)" mold="paging"
+			selectedItem="@bind(query.selectedRequest)" pageSize="10">
 			<auxhead>
 				<auxheader colspan="4" label="List of existing queries" />
 			</auxhead>
@@ -65,53 +67,56 @@
 				<listheader label="Info" />
 				<listheader label="Action" hflex="min" align="center" />
 			</listhead>
-			<listitem self="@{each=item}">
-				<custom-attributes requestentry="@{item}" />
-				<listcell label="@{item.key}"
-					onDoubleClick="query.doEditQuery(self)" />
-				<listcell onDoubleClick="query.doEditQuery(self)"
-					label="@{item.value.type.label}" />
-				<listcell onDoubleClick="query.doEditQuery(self)"
-					label="@{item.value.info}" />
-				<listcell>
-					<hbox align="center">
-						<button label="Edit"
-							onClick="query.doEditQuery(self)" />
-						<space width="10px" />
-						<button label="Delete"
-							onClick="query.doDeleteQuery(self)" />
-					</hbox>
-				</listcell>
-			</listitem>
+			<template name="model" var="item">
+				<listitem>
+					<listcell label="@load(item.key)"
+						onDoubleClick="@command('doEditQuery', requestname=item.key)" />
+					<listcell
+						onDoubleClick="@command('doEditQuery', requestname=item.key)"
+						label="@load(item.value.type.label)" />
+					<listcell
+						onDoubleClick="@command('doEditQuery', requestname=item.key)"
+						label="@load(item.value.info)" />
+					<listcell>
+						<hbox align="center">
+							<button label="Edit"
+								onClick="@command('doEditQuery', requestname=item.key)" />
+							<space width="10px" />
+							<button label="Delete"
+								onClick="@command('doDeleteQuery', requestname=item.key)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</template>
 		</listbox>
 	</vlayout>
 
-	<window title="@{query.abstractRequest.nameType}"
-		visible="@{query.isEditing}" border="normal">
+	<window title="@load(query.abstractRequest.nameType)"
+		visible="@load(query.editing)" border="normal">
 		<caption>
-			<button label="Cancel" onClick="query.onCancel()" />
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space width="10px" />
-			<button label="Save" onClick="query.onSave()" />
+			<button label="Save" onClick="@command('onSave')" />
 		</caption>
 		<include src="WEB-INF/zul/query/requestSearch.zul"
-			visible="@{query.isEditingSearch}" />
+			visible="@load(query.editingSearch)" />
 		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
-			visible="@{query.isEditingSpellCheck}" />
+			visible="@@load(query.editingSpellCheck" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
-			visible="@{query.isEditingMoreLikeThis}" />
+			visible="@load(query.editingMoreLikeThis)" />
 		<include src="WEB-INF/zul/query/requestDocuments.zul"
-			visible="@{query.isEditingDocuments}" />
+			visible="@load(query.editingDocuments)" />
 		<vbox width="100%" align="center">
-			<button label="Search" onClick="query.onSearch()" />
+			<button label="Search" onClick="@command('onSearch')" />
 		</vbox>
 		<separator />
 		<include src="WEB-INF/zul/query/resultSearch.zul"
-			visible="@{query.resultSearch}" />
+			visible="@load(query.resultSearch)" />
 		<include src="WEB-INF/zul/query/resultSpellCheck.zul"
-			visible="@{query.resultSpellCheck}" />
+			visible="@load(query.resultSpellCheck)" />
 		<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"
-			visible="@{query.resultMoreLikeThis}" />
+			visible="@load(query.resultMoreLikeThis)" />
 		<include src="WEB-INF/zul/query/resultDocuments.zul"
-			visible="@{query.resultDocuments}" />
+			visible="@load(query.resultDocuments)" />
 	</window>
 </window>

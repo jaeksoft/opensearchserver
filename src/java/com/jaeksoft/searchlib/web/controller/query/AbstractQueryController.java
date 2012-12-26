@@ -33,11 +33,6 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public abstract class AbstractQueryController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1943618096637337561L;
-
 	private final static RequestTypeEnum[] DEFAULT_TYPE_LIST = { RequestTypeEnum.SearchRequest };
 
 	private final RequestTypeEnum[] requestTypes;

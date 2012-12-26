@@ -34,7 +34,9 @@ import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -58,7 +60,7 @@ public final class QueryController extends AbstractQueryController {
 
 	private transient RequestTypeEnum requestType;
 
-	private transient Entry<String, SearchRequest> selectedRequest;
+	private transient Entry<String, AbstractRequest> selectedRequest;
 
 	public QueryController() throws SearchLibException {
 		super();
@@ -119,12 +121,6 @@ public final class QueryController extends AbstractQueryController {
 		reload();
 	}
 
-	@Override
-	public void eventClientChange() throws SearchLibException {
-		reset();
-		reload();
-	}
-
 	public void setRequest(AbstractRequest request) {
 		setAttribute(ScopeAttribute.QUERY_REQUEST, request);
 	}
@@ -176,22 +172,22 @@ public final class QueryController extends AbstractQueryController {
 		return !isEditingDocuments();
 	}
 
-	public boolean isNotSelectedRequest() {
-		return !isSelectedRequest();
+	public boolean isNotRequestSelected() {
+		return !isRequestSelected();
 	}
 
-	public boolean isSelectedRequest() {
+	public boolean isRequestSelected() {
 		return selectedRequest != null;
 	}
 
-	public Entry<String, SearchRequest> getSelectedRequest() {
+	public Entry<String, AbstractRequest> getSelectedRequest() {
 		return selectedRequest;
 	}
 
-	public void setSelectedRequest(Entry<String, SearchRequest> entry)
+	@NotifyChange("*")
+	public void setSelectedRequest(Entry<String, AbstractRequest> entry)
 			throws SearchLibException {
 		selectedRequest = entry;
-		reload();
 	}
 
 	/**
@@ -226,9 +222,10 @@ public final class QueryController extends AbstractQueryController {
 	private void newEdit(AbstractRequest newRequest) throws SearchLibException {
 		newRequest.setRequestName(requestName);
 		setRequest(newRequest);
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onNew() throws SearchLibException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		if (!checkRequestName())
@@ -236,6 +233,8 @@ public final class QueryController extends AbstractQueryController {
 		newEdit(requestType.newInstance(getClient()));
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onNewCopy() throws InterruptedException, SearchLibException,
 			InstantiationException, IllegalAccessException {
 		if (!checkRequestName())
@@ -246,28 +245,19 @@ public final class QueryController extends AbstractQueryController {
 		newEdit(request);
 	}
 
-	@SuppressWarnings("unchecked")
-	private Entry<String, SearchRequest> getRequestEntry(Component comp) {
-		return (Entry<String, SearchRequest>) getRecursiveComponentAttribute(
-				comp, "requestentry");
+	@Command
+	@NotifyChange("*")
+	public void doEditQuery(@BindingParam("requestname") String requestName)
+			throws SearchLibException {
+		setRequest(getClient().getNewRequest(requestName));
 	}
 
-	public void doEditQuery(Component comp) throws SearchLibException {
-		Entry<String, SearchRequest> entry = getRequestEntry(comp);
-		if (entry == null)
-			return;
-		setRequest(getClient().getNewRequest(entry.getKey()));
-		// TODO sendReload(getParent());
-	}
-
-	public void doDeleteQuery(Component comp) throws SearchLibException,
-			InterruptedException {
-		Entry<String, SearchRequest> entry = getRequestEntry(comp);
-		if (entry == null)
-			return;
+	@Command
+	public void doDeleteQuery(@BindingParam("requestname") String requestName)
+			throws SearchLibException, InterruptedException {
 		if (!isSchemaRights())
 			throw new SearchLibException("Not allowed");
-		new RemoveAlert(entry.getKey());
+		new RemoveAlert(requestName);
 	}
 
 	public Set<Entry<String, AbstractRequest>> getRequests()
@@ -282,11 +272,14 @@ public final class QueryController extends AbstractQueryController {
 		setAttribute(ScopeAttribute.QUERY_RESULT, result);
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		reset();
-		reload();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		if (!isSchemaRights())
@@ -320,6 +313,8 @@ public final class QueryController extends AbstractQueryController {
 
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSearch() throws IOException, ParseException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, SearchLibException,
 			InterruptedException, InstantiationException,
@@ -334,7 +329,6 @@ public final class QueryController extends AbstractQueryController {
 
 		request.reset();
 		setResult(getClient().request(request));
-		// TODO sendReload(getParent());
 	}
 
 	/**

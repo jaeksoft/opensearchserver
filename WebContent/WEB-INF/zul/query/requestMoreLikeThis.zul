@@ -25,7 +25,7 @@
 		<tabpanel>
 			<include src="WEB-INF/zul/query/search/moreLikeThis.zul" />
 		</tabpanel>
-		<tabpanel>
+		<tabpanel fulfill="tabMetrics.onSelect">
 			<include src="WEB-INF/zul/query/search/mltMetrics.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabReturn.onSelect">

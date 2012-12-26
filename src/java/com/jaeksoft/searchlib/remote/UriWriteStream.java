@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,13 +29,14 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 
 public class UriWriteStream extends UriHttp {
 
 	public UriWriteStream(URI uri, File file) throws IOException {
 		HttpPut httpPut = new HttpPut(uri.toASCIIString());
-		FileEntity fre = new FileEntity(file, "application/octet-stream");
+		FileEntity fre = new FileEntity(file, ContentType.DEFAULT_BINARY);
 		httpPut.setEntity(fre);
 		execute(httpPut);
 	}

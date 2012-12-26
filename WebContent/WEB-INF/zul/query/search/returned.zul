@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,23 +14,33 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="returned"
-	use="com.jaeksoft.searchlib.web.controller.query.ReturnedController">
-	<grid model="@{returned.request.returnFieldList.list}"
-		rowRenderer="@{returned}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('returned') @init('com.jaeksoft.searchlib.web.controller.query.ReturnedController')">
+	<grid model="@load(returned.request.returnFieldList.list)">
 		<columns>
 			<column label="Field" />
 			<column label="Action" />
 		</columns>
-		<foot visible="@{returned.fieldLeft}">
+		<rows>
+			<template name="model" var="field">
+				<row>
+					<label value="@load(field.name)" />
+					<button label="Remove"
+						onClick="@command('onReturnRemove', field=field)" />
+				</row>
+			</template>
+		</rows>
+		<foot visible="@load(returned.fieldLeft)">
 			<footer span="2">
 				<listbox mold="select"
-					selectedItem="@{returned.selectedReturn}"
-					model="@{returned.returnFieldLeft}">
-					<listitem self="@{each=returnField}"
-						label="@{returnField}" />
+					selectedItem="@bind(returned.selectedReturn)"
+					model="@load(returned.returnFieldLeft)">
+					<template name="model" var="returnField">
+						<listitem label="@load(returnField)" />
+					</template>
 				</listbox>
-				<button label="add field" forward="onReturnAdd" />
+				<button label="add field"
+					onClick="@command('onReturnAdd')" />
 			</footer>
 		</foot>
 	</grid>

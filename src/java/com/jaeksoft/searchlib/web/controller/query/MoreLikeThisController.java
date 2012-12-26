@@ -27,7 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -93,20 +95,21 @@ public class MoreLikeThisController extends AbstractQueryController {
 		this.selectedField = selectedField;
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onAddField() throws SearchLibException {
 		((MoreLikeThisRequest) getRequest()).getFieldList().put(
 				new ReturnField(selectedField));
 		fieldsLeft = null;
-		reload();
 	}
 
-	public void onRemoveField(Component component) throws SearchLibException {
-		ReturnField field = (ReturnField) component.getParent().getAttribute(
-				"mltField");
+	@Command
+	@NotifyChange("*")
+	public void onRemoveField(@BindingParam("mltField") ReturnField field)
+			throws SearchLibException {
 		((MoreLikeThisRequest) getRequest()).getFieldList().remove(
 				field.getName());
 		fieldsLeft = null;
-		reload();
 	}
 
 	public List<String> getStopWordsList() throws SearchLibException {
