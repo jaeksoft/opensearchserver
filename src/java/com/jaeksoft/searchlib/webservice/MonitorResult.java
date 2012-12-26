@@ -43,18 +43,15 @@ public class MonitorResult {
 	public List<MonitorProperties> properties;
 
 	public MonitorResult() {
-		system = new MonitorSystem(getMonitor());
+		Monitor monitor = new Monitor();
+		system = new MonitorSystem(monitor);
 		properties = new ArrayList<MonitorProperties>();
-		for (Entry<Object, Object> prop : getMonitor().getProperties()) {
+		for (Entry<Object, Object> prop : monitor.getProperties()) {
 			MonitorProperties monitorProperties = new MonitorProperties(prop
 					.getKey().toString(), prop.getValue().toString());
 			properties.add(monitorProperties);
 
 		}
 
-	}
-
-	public Monitor getMonitor() {
-		return new Monitor();
 	}
 }

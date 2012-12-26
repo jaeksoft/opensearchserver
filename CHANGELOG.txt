@@ -10,6 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchserver 1.4
 
 New features:
+- 257: Upgrade Apache CXF to 2.7.x
 - 251: A report module
 - 250: Server time in scheduler interface
 - 249: Extraction of user and group rights when crawling CIFS/SMB and FTP
