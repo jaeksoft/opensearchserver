@@ -29,6 +29,8 @@ import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.User;
 
 public interface EventInterface {
@@ -54,6 +56,14 @@ public interface EventInterface {
 
 	@GlobalCommand
 	void eventSchemaChange(@BindingParam("client") Client client)
+			throws SearchLibException;
+
+	@GlobalCommand
+	void eventEditRequest(@BindingParam("request") AbstractRequest request)
+			throws SearchLibException;
+
+	@GlobalCommand
+	void eventEditRequestResult(@BindingParam("result") AbstractResult<?> result)
 			throws SearchLibException;
 
 	@GlobalCommand

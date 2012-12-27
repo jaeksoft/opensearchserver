@@ -61,7 +61,7 @@ public class FilterHits {
 		reader.search(query, null, collector);
 		if (negative)
 			docSet.flip(0, docSet.size());
-		t.duration();
+		t.getDuration();
 	}
 
 	private class FilterCollector extends Collector {

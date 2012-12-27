@@ -71,8 +71,8 @@ public final class QueryController extends AbstractQueryController {
 	protected void reset() throws SearchLibException {
 		selectedRequest = null;
 		requestType = RequestTypeEnum.SearchRequest;
-		setRequest(null);
-		setResult(null);
+		setAttribute(ScopeAttribute.QUERY_REQUEST, null);
+		setAttribute(ScopeAttribute.QUERY_RESULT, null);
 	}
 
 	public String getRequestApiCall() throws SearchLibException,
@@ -116,13 +116,9 @@ public final class QueryController extends AbstractQueryController {
 		return sb.toString();
 	}
 
-	@Override
-	public void eventRequestListChange(Client client) throws SearchLibException {
-		reload();
-	}
-
 	public void setRequest(AbstractRequest request) {
 		setAttribute(ScopeAttribute.QUERY_REQUEST, request);
+		PushEvent.eventEditRequest.publish(request);
 	}
 
 	private boolean isEditing(RequestTypeEnum type) throws SearchLibException {
@@ -270,6 +266,7 @@ public final class QueryController extends AbstractQueryController {
 
 	public void setResult(AbstractResult<?> result) {
 		setAttribute(ScopeAttribute.QUERY_RESULT, result);
+		PushEvent.eventEditRequestResult.publish(result);
 	}
 
 	@Command

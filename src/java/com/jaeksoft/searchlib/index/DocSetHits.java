@@ -93,7 +93,7 @@ public class DocSetHits {
 				return;
 			Timer t = new Timer(timer, "DocSetHits: " + query.toString());
 			reader.search(query, filter, numFoundCollector);
-			t.duration();
+			t.getDuration();
 
 		} finally {
 			rwl.w.unlock();

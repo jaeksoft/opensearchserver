@@ -71,7 +71,7 @@ public class Aggregate implements Externalizable {
 
 	protected void add(Timer timer) {
 		synchronized (this) {
-			long duration = timer.duration();
+			long duration = timer.getDuration();
 			if (duration > max) {
 				max = duration;
 				maxInfo = timer.getInfo();

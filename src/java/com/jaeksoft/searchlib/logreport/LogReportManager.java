@@ -128,7 +128,7 @@ public class LogReportManager {
 						"UTF-8"));
 			sb.append('\u0009');
 			if (timer != null)
-				sb.append(timer.duration());
+				sb.append(timer.getDuration());
 			sb.append('\u0009');
 			if (result != null && result instanceof AbstractResultSearch)
 				sb.append(((AbstractResultSearch) result).getNumFound());

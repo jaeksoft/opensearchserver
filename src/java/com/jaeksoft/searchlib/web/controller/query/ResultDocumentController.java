@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractTreeModel;
@@ -53,11 +54,6 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public class ResultDocumentController extends AbstractQueryController implements
 		TreeitemRenderer<Object> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8531833452956918954L;
 
 	public ResultDocumentController() throws SearchLibException {
 		super(RequestTypeEnum.MoreLikeThisRequest,
@@ -233,6 +229,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			documents = null;
@@ -269,6 +266,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 		}
 	}
 
+	@Command
 	public void explainScore(Component comp) throws SearchLibException,
 			InterruptedException, IOException, ParseException, SyntaxError {
 		Client client = getClient();

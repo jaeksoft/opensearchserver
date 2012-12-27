@@ -151,7 +151,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	public String[] getDriverClassList() {
-		return DatabaseDriverNames.getAvailableList(desktop.getWebApp()
+		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
 				.getClass().getClassLoader());
 	}
 

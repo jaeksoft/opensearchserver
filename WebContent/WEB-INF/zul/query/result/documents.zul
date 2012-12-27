@@ -14,58 +14,60 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="resultDocs"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultDocumentController"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('resultDocs') @init('com.jaeksoft.searchlib.web.controller.query.ResultDocumentController')"
 	border="none">
-	<listbox model="@{resultDocs.documents}" mold="paging"
+	<listbox model="@load(resultDocs.documents)" mold="paging"
 		pageSize="10">
-		<listitem self="@{each='document'}">
-			<listcell>
-				<separator />
-				<panel title="@{document.title}" collapsible="true">
-					<caption>
-						<button label="Score explanation…"
-							onClick="resultDocs.explainScore(self)">
-							<custom-attributes document="@{document}" />
-						</button>
-					</caption>
-					<panelchildren>
-						<grid>
-							<columns>
-								<column
-									width="@{document.returnPercent}" />
-								<column
-									width="@{document.snippetPercent}" />
-							</columns>
-							<rows>
-								<row valign="top">
-									<tree model="@{document.returnTree}"
-										treeitemRenderer="@{resultDocs}"
-										visible="@{document.returnValid}" width="99%">
-										<treecols>
-											<treecol width="30%"
-												label="Returned field(s)" />
-											<treecol label="First value"
-												width="69%" />
-										</treecols>
-									</tree>
-									<tree
-										model="@{document.snippetTree}"
-										treeitemRenderer="@{resultDocs}"
-										visible="@{document.snippetValid}" width="100%">
-										<treecols>
-											<treecol width="30%"
-												label="Snippet field(s)" />
-											<treecol label="First value"
-												width="69%" />
-										</treecols>
-									</tree>
-								</row>
-							</rows>
-						</grid>
-					</panelchildren>
-				</panel>
-			</listcell>
-		</listitem>
+		<template name="model" var="document">
+			<listitem>
+				<listcell>
+					<separator />
+					<panel title="@load(document.title)"
+						collapsible="true">
+						<caption>
+							<button label="Score explanation…"
+								onClick="@command('explainScore', document=document)" />
+						</caption>
+						<panelchildren>
+							<grid>
+								<columns>
+									<column
+										width="@load(document.returnPercent)" />
+									<column
+										width="@load(document.snippetPercent)" />
+								</columns>
+								<rows>
+									<row valign="top">
+										<tree
+											model="@load(document.returnTree)"
+											treeitemRenderer="@load(resultDocs)"
+											visible="@load(document.returnValid)" width="99%">
+											<treecols>
+												<treecol width="30%"
+													label="Returned field(s)" />
+												<treecol
+													label="First value" width="69%" />
+											</treecols>
+										</tree>
+										<tree
+											model="@load(document.snippetTree)"
+											treeitemRenderer="@load(resultDocs)"
+											visible="@load(document.snippetValid)" width="100%">
+											<treecols>
+												<treecol width="30%"
+													label="Snippet field(s)" />
+												<treecol
+													label="First value" width="69%" />
+											</treecols>
+										</tree>
+									</row>
+								</rows>
+							</grid>
+						</panelchildren>
+					</panel>
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

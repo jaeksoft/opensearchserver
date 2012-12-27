@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,10 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="snippet"
-	use="com.jaeksoft.searchlib.web.controller.query.SnippetController">
-	<grid model="@{snippet.request.snippetFieldList.list}"
-		rowRenderer="@{snippet.snippetFieldRenderer}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('snippet') @init('com.jaeksoft.searchlib.web.controller.query.SnippetController')">
+	<grid model="@load(snippet.request.snippetFieldList.list)">
 		<columns>
 			<column label="Field" />
 			<column label="Fragmenter" />
@@ -26,15 +25,37 @@
 			<column label="Max snippet size" />
 			<column label="Action" />
 		</columns>
-		<foot visible="@{snippet.fieldLeft}">
+		<rows>
+			<template name="model" var="field">
+				<row>
+					<label value="@load(field.name)" />
+					<listbox mold="select"
+						model="@load(snippet.fragmenterList)"
+						selectedItem="@bind(field.fragmenter)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+					<textbox cols="5" value="@bind(field.tag)" />
+					<textbox cols="5" value="@bind(field.separator)" />
+					<textbox cols="5"
+						value="@bind(field.maxSnippetSize)" />
+					<button label="Remove"
+						onClick="@command('onSnippetRemove', field=field)" />
+				</row>
+			</template>
+		</rows>
+		<foot visible="@load(snippet.fieldLeft)">
 			<footer span="4">
 				<listbox mold="select"
-					selectedItem="@{snippet.selectedSnippet}"
-					model="@{snippet.snippetFieldLeft}">
-					<listitem self="@{each=snippetField}"
-						label="@{snippetField}" />
+					selectedItem="@bind(snippet.selectedSnippet)"
+					model="@load(snippet.snippetFieldLeft)">
+					<template name="model" var="snippetField">
+						<listitem label="@load(snippetField)" />
+					</template>
 				</listbox>
-				<button label="add snippet" forward="onSnippetAdd" />
+				<button label="add snippet"
+					onClick="@command('onSnippetAdd')" />
 			</footer>
 		</foot>
 	</grid>

@@ -294,7 +294,7 @@ public class Client extends Config {
 			throw exception;
 		} finally {
 			if (timer != null) {
-				timer.duration();
+				timer.getDuration();
 				if (exception != null)
 					timer.setError(exception);
 				getStatisticsList().addSearch(timer);

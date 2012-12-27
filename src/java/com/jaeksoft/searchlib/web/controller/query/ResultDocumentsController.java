@@ -29,11 +29,6 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
 public class ResultDocumentsController extends AbstractQueryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8879293595598057014L;
-
 	public ResultDocumentsController() throws SearchLibException {
 		super(RequestTypeEnum.DocumentsRequest);
 	}

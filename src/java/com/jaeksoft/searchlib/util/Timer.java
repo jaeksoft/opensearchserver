@@ -78,7 +78,7 @@ public class Timer {
 	}
 
 	final public void end(String info) {
-		duration();
+		getDuration();
 		if (info != null)
 			setInfo(info);
 	}
@@ -87,11 +87,11 @@ public class Timer {
 		return System.currentTimeMillis() - this.startTime;
 	}
 
-	final public long duration() {
+	final public long getDuration() {
 		if (this.endTime == 0) {
 			this.endTime = System.currentTimeMillis();
 			for (Timer timer : childs)
-				timer.duration();
+				timer.getDuration();
 		}
 		return this.endTime - this.startTime;
 	}
@@ -118,7 +118,7 @@ public class Timer {
 			return;
 		if (maxLevel > 0)
 			maxLevel--;
-		long d = duration();
+		long d = getDuration();
 		if (d < minTime)
 			return;
 		writer.print("<timer info=\"");

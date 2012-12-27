@@ -27,14 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zul.Button;
-import org.zkoss.zul.Label;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.Row;
-import org.zkoss.zul.RowRenderer;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,8 +39,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 
-public class SortedController extends AbstractQueryController implements
-		RowRenderer<SortField> {
+public class SortedController extends AbstractQueryController {
 
 	private transient String selectedSort;
 
@@ -73,6 +67,7 @@ public class SortedController extends AbstractQueryController implements
 		}
 	}
 
+	@Command
 	public void onSortAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedSort == null)
@@ -83,9 +78,10 @@ public class SortedController extends AbstractQueryController implements
 		}
 	}
 
-	public void onSortRemove(Event event) throws SearchLibException {
+	@Command
+	public void onSortRemove(@BindingParam("sortfield") SortField sortField)
+			throws SearchLibException {
 		synchronized (this) {
-			SortField sortField = (SortField) event.getData();
 			((SearchRequest) getRequest()).getSortFieldList().remove(
 					sortField.getName());
 			reload();
@@ -130,6 +126,7 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			selectedSort = null;
@@ -139,45 +136,9 @@ public class SortedController extends AbstractQueryController implements
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
-	}
-
-	public class DirectionListener implements EventListener<Event> {
-
-		protected SortField sortField;
-
-		public DirectionListener(SortField sortField) {
-			this.sortField = sortField;
-		}
-
-		@Override
-		public void onEvent(Event event) throws Exception {
-			Listbox listbox = (Listbox) event.getTarget();
-			Listitem listitem = listbox.getSelectedItem();
-			if (listitem != null) {
-				SortFieldList sortFieldList = ((SearchRequest) getRequest())
-						.getSortFieldList();
-				sortFieldList.remove(sortField.getName());
-				sortField.setDesc(listitem.getValue().toString());
-				sortFieldList.put(sortField);
-			}
-		}
-	}
-
-	@Override
-	public void render(Row row, SortField sortField, int index) {
-		new Label(sortField.getName()).setParent(row);
-		Listbox listbox = new Listbox();
-		listbox.setMold("select");
-		listbox.appendItem("ascending", "+");
-		listbox.appendItem("descending", "-");
-		listbox.setSelectedIndex(sortField.isDesc() ? 1 : 0);
-		listbox.addEventListener("onSelect", new DirectionListener(sortField));
-		listbox.setParent(row);
-		Button button = new Button("Remove");
-		button.addForward(null, "sorted", "onSortRemove", sortField);
-		button.setParent(row);
 	}
 
 }

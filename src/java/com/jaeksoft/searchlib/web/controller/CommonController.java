@@ -47,6 +47,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -56,10 +58,10 @@ import com.jaeksoft.searchlib.web.Version;
 public abstract class CommonController implements EventInterface {
 
 	@WireVariable
-	protected Session session;
+	private Session session;
 
 	@WireVariable
-	protected Desktop desktop;
+	private Desktop desktop;
 
 	public CommonController() throws SearchLibException {
 		super();
@@ -120,6 +122,14 @@ public abstract class CommonController implements EventInterface {
 			else
 				component = component.getParent();
 		return null;
+	}
+
+	protected Session getSession() {
+		return session;
+	}
+
+	protected Desktop getDesktop() {
+		return desktop;
 	}
 
 	public Version getVersion() throws IOException {
@@ -188,6 +198,7 @@ public abstract class CommonController implements EventInterface {
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
+		System.out.println("reload " + this);
 	}
 
 	@Command
@@ -235,6 +246,22 @@ public abstract class CommonController implements EventInterface {
 
 	@Override
 	@GlobalCommand
+	public void eventEditRequest(
+			@BindingParam("request") AbstractRequest request)
+			throws SearchLibException {
+		System.out.println("eventEditRequest " + this);
+	}
+
+	@Override
+	@GlobalCommand
+	public void eventEditRequestResult(
+			@BindingParam("result") AbstractResult<?> result)
+			throws SearchLibException {
+		System.out.println("eventEditRequestResult " + this);
+	}
+
+	@Override
+	@GlobalCommand
 	public void eventClientSwitch(Client client) throws SearchLibException {
 		if (client == null)
 			return;
@@ -249,17 +276,20 @@ public abstract class CommonController implements EventInterface {
 	@Override
 	@GlobalCommand
 	public void eventFlushPrivileges(User user) throws SearchLibException {
+		System.out.println("eventFlushPrivileges " + this);
 		refresh();
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventDocumentUpdate(Client client) throws SearchLibException {
+		System.out.println("eventDocumentUpdate " + this);
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventRequestListChange(Client client) throws SearchLibException {
+		System.out.println("eventRequestListChange " + this);
 	}
 
 	@Override
@@ -271,6 +301,7 @@ public abstract class CommonController implements EventInterface {
 	@Override
 	@GlobalCommand
 	public void eventLogout(User user) throws SearchLibException {
+		System.out.println("eventLogout " + this);
 		refresh();
 	}
 

@@ -32,6 +32,8 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.EventQueues;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.User;
 
 public enum PushEvent {
@@ -67,6 +69,16 @@ public enum PushEvent {
 	eventRequestListChange(EventQueues.APPLICATION),
 
 	/**
+	 * Notify that a request is edited
+	 */
+	eventEditRequest(EventQueues.DESKTOP),
+
+	/**
+	 * Notify that the edited request has a new result
+	 */
+	eventEditRequestResult(EventQueues.DESKTOP),
+
+	/**
 	 * Notify that the schema has changes (fields or analyzers)
 	 */
 	eventSchemaChange(EventQueues.DESKTOP);
@@ -99,6 +111,14 @@ public enum PushEvent {
 
 	public void publish(User user) {
 		publish("user", user);
+	}
+
+	public void publish(AbstractRequest request) {
+		publish("request", request);
+	}
+
+	public void publish(AbstractResult<?> result) {
+		publish("result", result);
 	}
 
 }

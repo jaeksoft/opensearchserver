@@ -60,14 +60,18 @@ public class SortField extends AbstractField<SortField> implements
 
 	public SortField(Node node) {
 		super(DomUtils.getAttributeText(node, "name"));
-		setDesc(DomUtils.getAttributeText(node, "direction"));
+		setDirection(DomUtils.getAttributeText(node, "direction"));
 	}
 
 	public boolean isDesc() {
 		return desc;
 	}
 
-	public void setDesc(String v) {
+	public String getDirection() {
+		return desc ? "descending" : "ascending";
+	}
+
+	public void setDirection(String v) {
 		final String[] ascArray = { "+", "asc", "ascendant", "ascending" };
 		for (String asc : ascArray) {
 			if (asc.equalsIgnoreCase(v)) {

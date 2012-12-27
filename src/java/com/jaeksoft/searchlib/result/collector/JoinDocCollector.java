@@ -196,7 +196,7 @@ public class JoinDocCollector implements JoinDocInterface {
 				(ScoreDocInterface) docs, joinResultSize)
 				: new JoinDocCollector(docs, joinResultSize);
 		new AscStringIndexSorter(docs1, doc1StringIndex).quickSort(t);
-		t.duration();
+		t.getDuration();
 
 		t = new Timer(timer, "copy & sort foreign documents");
 		docs2 = docs2.duplicate();
@@ -207,7 +207,7 @@ public class JoinDocCollector implements JoinDocInterface {
 
 		}
 		new AscStringIndexSorter(docs2, doc2StringIndex).quickSort(t);
-		t.duration();
+		t.getDuration();
 
 		t = new Timer(timer, "join operation");
 		float score2 = 1.0F;
@@ -237,7 +237,7 @@ public class JoinDocCollector implements JoinDocInterface {
 				i1++;
 			}
 		}
-		t.duration();
+		t.getDuration();
 
 		return docs1.duplicate();
 	}

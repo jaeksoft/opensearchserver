@@ -84,17 +84,17 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			Timer t = new Timer(joinTimer, "join - apply");
 			notCollapsedDocs = joinList.apply(reader, notCollapsedDocs,
 					joinResults, t);
-			t.duration();
+			t.getDuration();
 			t = new Timer(joinTimer, "join - sort");
 			searchRequest.getSortFieldList()
 					.getSorter(notCollapsedDocs, reader).quickSort(t);
-			t.duration();
+			t.getDuration();
 			numFound = notCollapsedDocs.getSize();
 			if (this.facetList == null)
 				this.facetList = new FacetList();
 			for (JoinResult joinResult : joinResults)
 				joinResult.populate(this.facetList);
-			joinTimer.duration();
+			joinTimer.getDuration();
 		}
 
 		// Are we doing collapsing ?
@@ -113,9 +113,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 						+ ')');
 				this.facetList.add(facetField.getFacet(reader,
 						notCollapsedDocs, collapsedDocs, timer));
-				t.duration();
+				t.getDuration();
 			}
-			facetTimer.duration();
+			facetTimer.getDuration();
 		}
 
 		// No collapsing

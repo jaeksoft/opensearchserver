@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,31 +14,34 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="result"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultSearchController"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('result') @init('com.jaeksoft.searchlib.web.controller.query.ResultSearchController')"
 	border="none">
 	<hbox align="center">
 		<label value="Select a facet" />
-		<listbox model="@{result.facetList.list}" mold="select"
-			selectedItem="@{result.selectedFacet}">
-			<listitem self="@{each=facet}">
-				<listcell label="@{facet.facetField.name}" />
-			</listitem>
+		<listbox model="@load(result.facetList.list)" mold="select"
+			selectedItem="@bind(result.selectedFacet)">
+			<template name="model" var="facet">
+				<listitem label="@load(facet.facetField.name)" />
+			</template>
 		</listbox>
 	</hbox>
 
-	<panel title="@{result.selectedFacet.facetField.name}" collapsible="true">
+	<panel title="@load(result.selectedFacet.facetField.name)"
+		collapsible="true">
 		<panelchildren>
-			<listbox model="@{result.selectedFacet.array}" mold="paging"
-				pageSize="10">
+			<listbox model="@load(result.selectedFacet.array)"
+				mold="paging" pageSize="10">
 				<listhead>
 					<listheader align="right" />
 					<listheader />
 				</listhead>
-				<listitem self="@{each=item}">
-					<listcell label="@{item.count}" />
-					<listcell label="@{item.term}" />
-				</listitem>
+				<template name="model" var="item">
+					<listitem>
+						<listcell label="@load(item.count)" />
+						<listcell label="@load(item.term)" />
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>

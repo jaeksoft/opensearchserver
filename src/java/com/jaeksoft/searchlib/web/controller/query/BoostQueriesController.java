@@ -24,19 +24,14 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.ForwardEvent;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class BoostQueriesController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7985584537309902023L;
 
 	private BoostQuery currentBoostQuery;
 
@@ -87,22 +82,22 @@ public class BoostQueriesController extends AbstractQueryController {
 		return !isSelected();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		reset();
 		reload();
 	}
 
+	@Command
 	public void onSave() throws SearchLibException {
 		SearchRequest request = (SearchRequest) getRequest();
 		request.setBoostingQuery(selectedBoostQuery, currentBoostQuery);
 		onCancel();
 	}
 
-	public void onRemove(Event event) throws SearchLibException {
-		if (event instanceof ForwardEvent)
-			event = ((ForwardEvent) event).getOrigin();
-		BoostQuery boostQuery = (BoostQuery) event.getTarget().getAttribute(
-				"boostQuery");
+	@Command
+	public void onRemove(@BindingParam("boostQuery") BoostQuery boostQuery)
+			throws SearchLibException {
 		SearchRequest request = (SearchRequest) getRequest();
 		request.setBoostingQuery(boostQuery, null);
 		onCancel();

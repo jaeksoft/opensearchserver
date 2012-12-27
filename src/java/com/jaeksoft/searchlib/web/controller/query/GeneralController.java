@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web.controller.query;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class GeneralController extends AbstractQueryController {
 
@@ -35,8 +34,6 @@ public class GeneralController extends AbstractQueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		setAttribute(ScopeAttribute.QUERY_REQUEST, null);
-		setAttribute(ScopeAttribute.QUERY_RESULT, null);
 	}
 
 }

@@ -67,7 +67,7 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 		jsonResult.put("start", start);
 		jsonResult.put("rows", resultDocs.getRequestRows());
 		jsonResult.put("maxScore", resultDocs.getMaxScore());
-		jsonResult.put("time", result.getTimer().duration());
+		jsonResult.put("time", result.getTimer().getDuration());
 		for (int i = start; i < end; i++)
 			this.renderDocument(request, i, jsonResult, resultArrayList);
 		jsonResult.put("doc", resultArrayList);

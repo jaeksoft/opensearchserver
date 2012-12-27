@@ -317,7 +317,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			Timer t = new Timer(timer, joinResultName + " foreign search");
 			ResultSearchSingle resultSearch = (ResultSearchSingle) client
 					.request(searchRequest);
-			t.duration();
+			t.getDuration();
 			joinResult.setForeignResult(resultSearch);
 			if (searchRequest.isFacet()) {
 				if (returnFacets)
@@ -337,7 +337,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 					localStringIndex, resultSearch.getDocs(),
 					foreignFieldIndex, joinResultSize, joinResult.joinPosition,
 					t, returnScores);
-			t.duration();
+			t.getDuration();
 			return joinDocs;
 		} catch (NamingException e) {
 			throw new SearchLibException(e);

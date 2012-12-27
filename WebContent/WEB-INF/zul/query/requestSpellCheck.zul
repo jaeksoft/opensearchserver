@@ -33,8 +33,8 @@
 					selectedItem="@bind(spellcheck.request.lang)"
 					model="@load(spellcheck.languageEnum)">
 					<template name="model" var="langEnum">
-						<listitem label="@{langEnum.name}"
-							value="@{langEnum}" />
+						<listitem label="@load(langEnum.name)"
+							value="@load(langEnum)" />
 					</template>
 				</listbox>
 			</row>
@@ -53,12 +53,12 @@
 					<auxhead visible="@load(spellcheck.fieldLeft)">
 						<auxheader>
 							<listbox mold="select"
-								selectedItem="@{spellcheck.current.name}"
-								model="@{spellcheck.spellCheckFieldLeft}">
+								selectedItem="@load(spellcheck.current.name)"
+								model="@load(spellcheck.spellCheckFieldLeft)">
 								<template name="model"
 									var="spellCheckField">
 									<listitem
-										label="@{spellCheckField}" />
+										label="@load(spellCheckField)" />
 								</template>
 							</listbox>
 						</auxheader>
@@ -73,7 +73,11 @@
 						<auxheader>
 							<listbox mold="select"
 								selectedItem="@bind(spellcheck.current.stringDistance)"
-								model="@load(spellcheck.stringDistanceList)" />
+								model="@load(spellcheck.stringDistanceList)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
 						</auxheader>
 						<auxheader>
 							<button

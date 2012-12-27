@@ -48,7 +48,7 @@ public abstract class SorterAbstract implements IntComparator {
 	public void quickSort(Timer timer) {
 		Timer t = new Timer(timer, "Sort (quicksort): " + collector.getSize());
 		Arrays.quickSort(0, collector.getSize(), this, collector);
-		t.duration();
+		t.getDuration();
 		// check(timer);
 	}
 
@@ -69,7 +69,7 @@ public abstract class SorterAbstract implements IntComparator {
 		}
 		if (err > 0)
 			System.out.println("SORT ERROR: " + err + " / " + l);
-		t.duration();
+		t.getDuration();
 	}
 
 	public abstract boolean isScore();

@@ -27,8 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -71,19 +72,19 @@ public class FiltersController extends AbstractQueryController {
 		return currentItem;
 	}
 
-	public boolean isSelected() {
+	public boolean isSelection() {
 		return selectedItem != null;
 	}
 
-	public boolean isNotSelected() {
-		return !isSelected();
+	public boolean isNotSelection() {
+		return !isSelection();
 	}
 
 	public FilterAbstract<?> getSelected() {
 		return selectedItem;
 	}
 
-	@NotifyChange("filterListbox")
+	@NotifyChange("*")
 	public void setSelected(FilterAbstract<?> item) {
 		this.selectedItem = item;
 		this.currentItem = item.duplicate();
@@ -97,11 +98,13 @@ public class FiltersController extends AbstractQueryController {
 		return null;
 	}
 
-	@NotifyChange("filterListbox")
+	@Command
 	public void onCancel() throws SearchLibException {
 		reset();
+		reload();
 	}
 
+	@Command
 	public void onSave() throws SearchLibException {
 		if (selectedItem != null)
 			currentItem.copyTo(selectedItem);
@@ -110,9 +113,9 @@ public class FiltersController extends AbstractQueryController {
 		onCancel();
 	}
 
-	public void onRemove(Component comp) throws SearchLibException {
-		FilterAbstract<?> filter = (FilterAbstract<?>) getRecursiveComponentAttribute(
-				comp, "filterItem");
+	@Command
+	public void onRemove(@BindingParam("filter") FilterAbstract<?> filter)
+			throws SearchLibException {
 		getFilterListInterface().getFilterList().remove(filter);
 		onCancel();
 	}
@@ -128,13 +131,21 @@ public class FiltersController extends AbstractQueryController {
 	 * @param filterType
 	 *            the filterType to set
 	 */
-	@NotifyChange("filterListbox")
+	@NotifyChange("currentTemplate")
 	public void setFilterType(String filterType) {
 		this.filterType = filterType;
 		if (FilterAbstract.QUERY_FILTER.equals(filterType))
 			currentItem = new QueryFilter();
 		else if (FilterAbstract.GEO_FILTER.equals(filterType))
 			currentItem = new GeoFilter();
+	}
+
+	public String getCurrentTemplate() {
+		if (FilterAbstract.QUERY_FILTER.equals(filterType))
+			return "/WEB-INF/zul/query/search/filterQuery.zul";
+		else if (FilterAbstract.GEO_FILTER.equals(filterType))
+			return "/WEB-INF/zul/query/search/filterGeo.zul";
+		return null;
 	}
 
 	public Type[] getGeoTypes() {

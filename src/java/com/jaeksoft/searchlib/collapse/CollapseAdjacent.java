@@ -72,7 +72,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		}
 
-		t.duration();
+		t.getDuration();
 
 		return collapseCollector;
 

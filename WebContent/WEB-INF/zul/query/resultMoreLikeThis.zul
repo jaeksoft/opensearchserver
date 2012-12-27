@@ -16,7 +16,7 @@
 		copy of the GNU General Public License along with OpenSearchServer.
 		If not, see <http://www.gnu.org/licenses/>.
 	-->
-	<grid visible="@load(resultMlt.resultExists)">
+	<grid visible="@load(resultMlt.resultMoreLikeThis)">
 		<auxhead>
 			<auxheader colspan="4" label="Summary" align="right">
 				<button label="XML/HTTP API call" target="_blank"

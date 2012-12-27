@@ -1,0 +1,54 @@
+<grid visible="@load(filters.current.geoFilter)">
+	<columns>
+		<column label="Type" hflex="min" />
+		<column label="Distance unit" hflex="min" />
+		<column label="Distance" hflex="min" />
+		<column label="Latitude field" hflex="min" />
+		<column label="Longtude field" hflex="min" />
+		<column label="Latitude (lat)" hflex="min" />
+		<column label="Longitude (lon)" hflex="min" />
+		<column label="Location unit" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<listbox mold="select" model="@load(filters.geoTypes)"
+				selectedItem="@bind(filters.current.type)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<listbox mold="select" model="@load(filters.geoUnits)"
+				selectedItem="@bind(filters.current.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<textbox constraint="/[0-9,.]*/"
+				value="@bind(filters.current.distance)" />
+			<listbox mold="select"
+				model="@load(filters.indexedFieldList)"
+				selectedItem="@bind(filters.current.latitudeField)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<listbox mold="select"
+				model="@load(filters.indexedFieldList)"
+				selectedItem="@bind(filters.current.longitudeField)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<textbox constraint="/[0-9,.]*/"
+				value="@bind(filters.current.latitude)" />
+			<textbox constraint="/[0-9,.]*/"
+				value="@bind(filters.current.longitude)" />
+			<listbox mold="select" model="@load(filters.geoCoordUnits)"
+				selectedItem="@bind(filters.current.coordUnit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</row>
+	</rows>
+</grid>

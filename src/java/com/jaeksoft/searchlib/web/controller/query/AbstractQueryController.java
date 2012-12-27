@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.GlobalCommand;
+
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
@@ -57,11 +61,11 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	final public AbstractRequest getAbstractRequest() throws SearchLibException {
-		return (AbstractRequest) ScopeAttribute.QUERY_REQUEST.get(session);
+		return (AbstractRequest) getAttribute(ScopeAttribute.QUERY_REQUEST);
 	}
 
 	protected AbstractResult<?> getAbstractResult() {
-		return (AbstractResult<?>) ScopeAttribute.QUERY_RESULT.get(session);
+		return (AbstractResult<?>) getAttribute(ScopeAttribute.QUERY_RESULT);
 	}
 
 	protected AbstractResult<?> getResult(RequestTypeEnum type) {
@@ -107,5 +111,30 @@ public abstract class AbstractQueryController extends CommonController {
 
 	public boolean isResultDocuments() {
 		return isResult(RequestTypeEnum.DocumentsRequest);
+	}
+
+	@Override
+	@GlobalCommand
+	public void eventRequestListChange(Client client) throws SearchLibException {
+		super.eventRequestListChange(client);
+		reload();
+	}
+
+	@Override
+	@GlobalCommand
+	public void eventEditRequest(
+			@BindingParam("request") AbstractRequest request)
+			throws SearchLibException {
+		super.eventEditRequest(request);
+		reload();
+	}
+
+	@Override
+	@GlobalCommand
+	public void eventEditRequestResult(
+			@BindingParam("result") AbstractResult<?> result)
+			throws SearchLibException {
+		super.eventEditRequestResult(result);
+		reload();
 	}
 }

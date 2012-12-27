@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
@@ -38,11 +39,6 @@ import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public class ResultSearchController extends AbstractQueryController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3462760563129892850L;
 
 	private transient Facet selectedFacet;
 
@@ -85,6 +81,7 @@ public class ResultSearchController extends AbstractQueryController {
 		}
 	}
 
+	@Command
 	public void exportSearchResultToCsv() throws Exception {
 		Client client = getClient();
 		if (client == null)
@@ -118,6 +115,7 @@ public class ResultSearchController extends AbstractQueryController {
 		}
 	}
 
+	@Command
 	@Override
 	public void reload() throws SearchLibException {
 		synchronized (this) {

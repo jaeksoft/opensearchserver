@@ -101,7 +101,7 @@
 		<include src="WEB-INF/zul/query/requestSearch.zul"
 			visible="@load(query.editingSearch)" />
 		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
-			visible="@@load(query.editingSpellCheck" />
+			visible="@load(query.editingSpellCheck)" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
 			visible="@load(query.editingMoreLikeThis)" />
 		<include src="WEB-INF/zul/query/requestDocuments.zul"

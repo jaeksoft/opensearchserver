@@ -126,8 +126,10 @@ public enum ScopeAttribute {
 	JOBITEM_EDIT();
 
 	public void set(Session session, Object value) {
-		if (session == null)
+		if (session == null) {
 			session = Sessions.getCurrent();
+			System.err.println("SESSION WAS NULL " + session);
+		}
 		if (value == null)
 			remove(session);
 		else

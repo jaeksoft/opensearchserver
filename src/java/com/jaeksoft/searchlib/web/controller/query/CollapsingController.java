@@ -27,6 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
@@ -70,6 +73,7 @@ public class CollapsingController extends AbstractQueryController {
 		}
 	}
 
+	@Command
 	@Override
 	public void reload() throws SearchLibException {
 		synchronized (this) {
@@ -78,6 +82,7 @@ public class CollapsingController extends AbstractQueryController {
 		}
 	}
 
+	@GlobalCommand
 	@Override
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();

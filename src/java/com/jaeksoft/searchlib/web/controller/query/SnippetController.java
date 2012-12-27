@@ -27,8 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.RowRenderer;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -45,8 +46,6 @@ public class SnippetController extends AbstractQueryController {
 
 	private transient List<String> snippetFieldLeft;
 
-	private transient RowRenderer<SnippetField> rowRenderer;
-
 	public SnippetController() throws SearchLibException {
 		super();
 	}
@@ -55,16 +54,13 @@ public class SnippetController extends AbstractQueryController {
 	protected void reset() throws SearchLibException {
 		selectedSnippet = null;
 		snippetFieldLeft = null;
-		rowRenderer = null;
 	}
 
-	public RowRenderer<SnippetField> getSnippetFieldRenderer() {
-		synchronized (this) {
-			if (rowRenderer != null)
-				return rowRenderer;
-			rowRenderer = new SnippetFieldRenderer();
-			return rowRenderer;
-		}
+	private final static String[] fragmenterList = { "NoFragmenter",
+			"SentenceFragmenter" };
+
+	final public String[] getFragmenterList() {
+		return fragmenterList;
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
@@ -100,9 +96,10 @@ public class SnippetController extends AbstractQueryController {
 		}
 	}
 
-	public void onSnippetRemove(Event event) throws SearchLibException {
+	@Command
+	public void onSnippetRemove(@BindingParam("field") SnippetField field)
+			throws SearchLibException {
 		synchronized (this) {
-			SnippetField field = (SnippetField) event.getData();
 			((SearchRequest) getRequest()).getSnippetFieldList().remove(
 					field.getName());
 			reload();
@@ -121,6 +118,7 @@ public class SnippetController extends AbstractQueryController {
 		}
 	}
 
+	@Command
 	public void onSnippetAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedSnippet == null)
@@ -132,6 +130,7 @@ public class SnippetController extends AbstractQueryController {
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			snippetFieldLeft = null;
@@ -141,6 +140,7 @@ public class SnippetController extends AbstractQueryController {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}

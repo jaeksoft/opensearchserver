@@ -193,7 +193,7 @@ public abstract class CollapseAbstract {
 				return collapseFull(reader, collector, timer);
 			return null;
 		} finally {
-			collapseTimer.duration();
+			collapseTimer.getDuration();
 		}
 	}
 

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.RowRenderer;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,8 +43,6 @@ public class FacetController extends AbstractQueryController {
 
 	private transient List<String> fieldLeft;
 
-	private transient RowRenderer<FacetField> rowRenderer;
-
 	public FacetController() throws SearchLibException {
 		super();
 	}
@@ -54,16 +51,6 @@ public class FacetController extends AbstractQueryController {
 	protected void reset() throws SearchLibException {
 		selectedFacet = null;
 		fieldLeft = null;
-		rowRenderer = null;
-	}
-
-	public RowRenderer<FacetField> getFacetFieldRenderer() {
-		synchronized (this) {
-			if (rowRenderer != null)
-				return rowRenderer;
-			rowRenderer = new FacetFieldRenderer();
-			return rowRenderer;
-		}
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {

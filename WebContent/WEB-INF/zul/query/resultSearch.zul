@@ -14,16 +14,16 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="result"
-	use="com.jaeksoft.searchlib.web.controller.query.ResultSearchController">
-	<grid visible="@{result.resultExists}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('result') @init('com.jaeksoft.searchlib.web.controller.query.ResultSearchController')">
+	<grid visible="@load(result.resultSearch)">
 		<auxhead>
 			<auxheader colspan="4" label="Summary" align="right">
 				<button label="XML/HTTP API call" target="_blank"
-					href="@{query.requestApiCall}" />
+					href="@load(query.requestApiCall)" />
 				<button label="Export search result"
-					visible="@{result.documentFound}"
-					onClick="result.exportSearchResultToCsv()" />
+					visible="@load(result.documentFound)"
+					onClick="@command('exportSearchResultToCsv')" />
 			</auxheader>
 		</auxhead>
 		<columns visible="false">
@@ -35,25 +35,25 @@
 		<rows>
 			<row spans="1,3">
 				<label value="Query:" />
-				<label value="@{result.result.request.query}" />
+				<label value="@load(result.result.request.query)" />
 			</row>
 			<row>
 				<label value="Document(s) found:" />
-				<label value="@{result.result.numFound}" />
+				<label value="@load(result.result.numFound)" />
 				<label value="Collapsed document(s):" />
-				<label value="@{result.result.collapsedDocCount}" />
+				<label value="@load(result.result.collapsedDocCount)" />
 			</row>
 			<row>
 				<label value="Start offset:" />
-				<label value="@{result.result.request.start}" />
+				<label value="@load(result.result.request.start)" />
 				<label value="Row(s) returned:" />
-				<label value="@{result.result.documentCount}" />
+				<label value="@load(result.result.documentCount)" />
 			</row>
 			<row>
 				<label value="Highest score:" />
-				<label value="@{result.result.maxScore}" />
+				<label value="@load(result.result.maxScore)" />
 				<label value="Time elapsed (ms):" />
-				<label value="@{result.result.timer.duration}" />
+				<label value="@load(result.result.timer.duration)" />
 			</row>
 		</rows>
 	</grid>
@@ -62,9 +62,9 @@
 	<tabbox>
 		<tabs>
 			<tab id="tabDocuments" label="Document(s)"
-				visible="@{result.documentFound}" selected="true" />
+				visible="@load(result.documentFound)" selected="true" />
 			<tab id="tabFacets" label="Facet(s)"
-				visible="@{result.facetValid}" />
+				visible="@load(result.facetValid)" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>

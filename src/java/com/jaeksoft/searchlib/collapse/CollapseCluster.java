@@ -63,7 +63,7 @@ public class CollapseCluster extends CollapseAbstract {
 					collapsedDocMap.put(term, collapsePos);
 			}
 		}
-		t.duration();
+		t.getDuration();
 
 		return collapseInterface;
 	}

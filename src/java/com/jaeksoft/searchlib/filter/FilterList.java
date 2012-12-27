@@ -108,7 +108,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return docSet;
 	}
 
-	public Object[] toArray() {
+	public Object[] getArray() {
 		return filterList.toArray();
 	}
 
