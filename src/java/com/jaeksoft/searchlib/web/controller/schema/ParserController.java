@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -451,9 +450,10 @@ public class ParserController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onDeleteUrlPattern(Component comp) throws SearchLibException {
-		currentParser.removeUrlPattern((String) getRecursiveComponentAttribute(
-				comp, "urlPatternItem"));
+	public void onDeleteUrlPattern(
+			@BindingParam("urlPatternItem") String patternItem)
+			throws SearchLibException {
+		currentParser.removeUrlPattern(patternItem);
 	}
 
 	/**

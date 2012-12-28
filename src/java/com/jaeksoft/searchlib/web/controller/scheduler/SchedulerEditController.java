@@ -28,8 +28,9 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -83,6 +84,7 @@ public class SchedulerEditController extends SchedulerController {
 			setSelectedTask(client.getJobTaskEnum().getFirst());
 	}
 
+	@Command
 	@Override
 	public void reload() throws SearchLibException {
 		JobItem jobItem = getJobItemEdit();
@@ -145,16 +147,19 @@ public class SchedulerEditController extends SchedulerController {
 	 * 
 	 * @throws SearchLibException
 	 */
+	@Command
 	public void onTaskAdd() throws SearchLibException {
 		currentJob.taskAdd(currentTask);
 		onTaskCancel();
 	}
 
+	@Command
 	public void onTaskSave() throws SearchLibException {
 		selectedJobTask.setProperties(currentTask.getProperties());
 		onTaskCancel();
 	}
 
+	@Command
 	public void onTaskCancel() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -165,23 +170,14 @@ public class SchedulerEditController extends SchedulerController {
 	}
 
 	/**
-	 * Return the taskItem row
-	 * 
-	 * @param component
-	 * @return
-	 */
-	private TaskItem getTaskItem(Component component) {
-		return (TaskItem) component.getParent().getAttribute("taskitem");
-	}
-
-	/**
 	 * Move the task up
 	 * 
 	 * @param component
 	 * @throws SearchLibException
 	 */
-	public void onTaskUp(Component component) throws SearchLibException {
-		TaskItem taskItem = getTaskItem(component);
+	@Command
+	public void onTaskUp(@BindingParam("taskitem") TaskItem taskItem)
+			throws SearchLibException {
 		currentJob.taskUp(taskItem);
 		reload();
 	}
@@ -192,8 +188,9 @@ public class SchedulerEditController extends SchedulerController {
 	 * @param component
 	 * @throws SearchLibException
 	 */
-	public void onTaskDown(Component component) throws SearchLibException {
-		TaskItem taskItem = getTaskItem(component);
+	@Command
+	public void onTaskDown(@BindingParam("taskitem") TaskItem taskItem)
+			throws SearchLibException {
 		currentJob.taskDown(taskItem);
 		reload();
 	}
@@ -204,18 +201,21 @@ public class SchedulerEditController extends SchedulerController {
 	 * @param component
 	 * @throws SearchLibException
 	 */
-	public void onTaskRemove(Component component) throws SearchLibException {
-		TaskItem taskItem = getTaskItem(component);
+	@Command
+	public void onTaskRemove(@BindingParam("taskitem") TaskItem taskItem)
+			throws SearchLibException {
 		currentJob.taskRemove(taskItem);
 		reload();
 	}
 
-	@NotifyChange("#scheduler")
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		reset();
 		setJobItemEdit(null);
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException, InterruptedException {
 		JobItem selectedJob = getJobItemSelected();
 		if (selectedJob == null)
@@ -223,6 +223,7 @@ public class SchedulerEditController extends SchedulerController {
 		new DeleteAlert(selectedJob);
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -241,12 +242,12 @@ public class SchedulerEditController extends SchedulerController {
 		onCancel();
 	}
 
-	public boolean isNotSelectedJobTask() {
+	public boolean isNotSelectionJobTask() {
 		return getSelectedJobTask() == null;
 	}
 
-	public boolean isSelectedJobTask() {
-		return !isNotSelectedJobTask();
+	public boolean isSelectionJobTask() {
+		return !isNotSelectionJobTask();
 	}
 
 	/**

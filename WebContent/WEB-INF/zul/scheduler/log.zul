@@ -14,24 +14,27 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="schedulerlogs"
-	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerLogsController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('schedulerlogs') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerLogsController')">
 	<hbox align="center">
 		<label value="Select a job: " />
-		<listbox model="@{schedulerlogs.jobs}" mold="select"
-			selectedItem="@{schedulerlogs.selectedJob}">
-			<listitem self="@{each=job3}" label="@{job3.name}" />
+		<listbox model="@load(schedulerlogs.jobs)" mold="select"
+			selectedItem="@bind(schedulerlogs.selectedJob)">
+			<template name="model">
+				<listitem label="@load(each.name)" />
+			</template>
 		</listbox>
 	</hbox>
 
 	<panel title="List of last logs " border="normal"
-		visible="@{schedulerlogs.jobSelected}">
+		visible="@load(schedulerlogs.jobSelected)">
 		<toolbar>
-			<button label="Refresh" forward="onReload" />
+			<button label="Refresh" onClick="@command('onReload')" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{schedulerlogs.selectedJob.jobLog.logs}"
-				mold="paging" pageSize="10" width="100%">
+			<listbox
+				model="@load(schedulerlogs.selectedJob.jobLog.logs)" mold="paging"
+				pageSize="10" width="100%">
 				<listhead>
 					<listheader label="Start" hflex="min" />
 					<listheader label="End" hflex="min" />
@@ -41,28 +44,36 @@
 					<listheader label="Info" hflex="min" />
 					<listheader label="Error" hflex="min" />
 				</listhead>
-				<listitem self="@{each=tasklog}">
-					<listcell
-						label="@{tasklog.startDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-					<listcell
-						label="@{tasklog.endDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-					<listcell
-						label="@{tasklog.duration,converter='com.jaeksoft.searchlib.web.converter.DurationConverter'}" />
-					<listcell label="@{tasklog.task.name}" />
-					<listcell>
-						<listbox model="@{tasklog.properties}">
-							<listitem self="@{each='taskLogProp'}">
-								<listcell>
-									<label value="@{taskLogProp.name}" />
-									:
-									<label value="@{taskLogProp.previewValue}" />
-								</listcell>
-							</listitem>
-						</listbox>
-					</listcell>
-					<listcell label="@{tasklog.info}" />
-					<listcell label="@{tasklog.error.message}" />
-				</listitem>
+				<template name="model" var="tasklog">
+					<listitem>
+						<listcell
+							label="@load(tasklog.startDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+						<listcell
+							label="@load(tasklog.endDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+						<listcell
+							label="@load(tasklog.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+						<listcell label="@load(tasklog.task.name)" />
+						<listcell>
+							<listbox
+								model="@load(tasklog.properties)">
+								<template name="model"
+									var="taskLogProp">
+									<listitem>
+										<listcell>
+											<label
+												value="@load(taskLogProp.name)" />
+											:
+											<label
+												value="@load(taskLogProp.previewValue)" />
+										</listcell>
+									</listitem>
+								</template>
+							</listbox>
+						</listcell>
+						<listcell label="@load(tasklog.info)" />
+						<listcell label="@load(tasklog.error.message)" />
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>

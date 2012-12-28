@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,9 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -59,26 +60,20 @@ public class SchedulerListController extends SchedulerController {
 		return client.getJobList().getActiveCount() > 0;
 	}
 
-	private JobItem getCompJobItem(Component comp) {
-		return (JobItem) getRecursiveComponentAttribute(comp, "jobentry");
-	}
-
-	@NotifyChange("#scheduler")
-	public void doEdit(Component comp) throws SearchLibException {
-		JobItem selectedJob = getCompJobItem(comp);
-		if (selectedJob == null)
-			return;
+	@Command
+	@NotifyChange("*")
+	public void doEdit(@BindingParam("jobentry") JobItem selectedJob)
+			throws SearchLibException {
 		setJobItemSelected(selectedJob);
 		JobItem currentJob = new JobItem(null);
 		currentJob.copyFrom(selectedJob);
 		setJobItemEdit(currentJob);
 	}
 
-	public void doExecute(Component comp) throws SearchLibException,
-			NamingException, InterruptedException {
-		JobItem job = getCompJobItem(comp);
-		if (job == null)
-			return;
+	@Command
+	@NotifyChange("*")
+	public void doExecute(@BindingParam("jobentry") JobItem job)
+			throws SearchLibException, NamingException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -89,12 +84,14 @@ public class SchedulerListController extends SchedulerController {
 		reload();
 	}
 
-	@NotifyChange("#scheduler")
+	@Command
+	@NotifyChange("*")
 	public void onNewJob() throws SearchLibException {
 		setJobItemEdit(new JobItem("New job"));
 		setJobItemSelected(null);
 	}
 
+	@Command
 	@Override
 	public void onTimer() throws SearchLibException {
 		reload();

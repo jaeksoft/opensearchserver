@@ -27,7 +27,9 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -85,9 +87,10 @@ public class FacetController extends AbstractQueryController {
 		}
 	}
 
-	public void onFacetRemove(Event event) throws SearchLibException {
+	@Command
+	public void onFacetRemove(@BindingParam("facetField") FacetField facetField)
+			throws SearchLibException {
 		synchronized (this) {
-			FacetField facetField = (FacetField) event.getData();
 			((SearchRequest) getRequest()).getFacetFieldList().remove(
 					facetField.getName());
 			reload();
@@ -106,6 +109,17 @@ public class FacetController extends AbstractQueryController {
 		}
 	}
 
+	private final static String[] booleanValues = { "no", "yes" };
+
+	public String[] getMultivaluedValues() {
+		return booleanValues;
+	}
+
+	public String[] getCollapsingValues() {
+		return booleanValues;
+	}
+
+	@Command
 	public void onFacetAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedFacet == null)
@@ -117,6 +131,7 @@ public class FacetController extends AbstractQueryController {
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			fieldLeft = null;
@@ -126,6 +141,7 @@ public class FacetController extends AbstractQueryController {
 	}
 
 	@Override
+	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
 	}

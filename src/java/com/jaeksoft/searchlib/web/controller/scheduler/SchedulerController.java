@@ -74,7 +74,7 @@ public class SchedulerController extends CrawlerController {
 		return new Date();
 	}
 
-	@NotifyChange("#currentTime")
+	@NotifyChange("*")
 	public void reloadTime() {
 	}
 

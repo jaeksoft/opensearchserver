@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,16 +14,17 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="schedulerlist"
-	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerListController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('schedulerlist') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerListController')">
 
 	<panel title="List of existing jobs and their settings"
 		border="normal">
 		<toolbar>
-			<button label="Create new scheduler job" forward="onNewJob" />
+			<button label="Create new scheduler job"
+				onClick="@command('onNewJob')" />
 		</toolbar>
 		<panelchildren>
-			<listbox id="joblist" model="@{schedulerlist.jobs}">
+			<listbox model="@load(schedulerlist.jobs)">
 				<listhead>
 					<listheader label="Name" hflex="min" />
 					<listheader tooltiptext="Active" label="A"
@@ -46,35 +47,36 @@
 					<listheader label="Last error" />
 					<listheader label="Action" hflex="min" />
 				</listhead>
-				<listitem self="@{each=job}">
-					<custom-attributes jobentry="@{job}" />
-					<listcell label="@{job.name}"
-						onDoubleClick="schedulerlist.doEdit(self)" />
-					<listcell>
-						<image src="images/action_check.png"
-							visible="@{job.active}" />
-					</listcell>
-					<listcell label="@{job.cron.seconds}" />
-					<listcell label="@{job.cron.minutes}" />
-					<listcell label="@{job.cron.hours}" />
-					<listcell label="@{job.cron.dayOfMonth}" />
-					<listcell label="@{job.cron.month}" />
-					<listcell label="@{job.cron.dayOfWeek}" />
-					<listcell label="@{job.cron.year}" />
-					<listcell
-						label="@{job.lastExecution,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-					<listcell label="@{job.lastError.message}" />
-					<listcell>
-						<button label="Edit"
-							onClick="schedulerlist.doEdit(self)" />
-						<button label="Execute"
-							onClick="schedulerlist.doExecute(self)" />
-					</listcell>
-				</listitem>
+				<template name="model" var="job">
+					<listitem>
+						<listcell label="@load(job.name)"
+							onDoubleClick="@command('doEdit', jobentry=job)" />
+						<listcell>
+							<image src="images/action_check.png"
+								visible="@load(job.active)" />
+						</listcell>
+						<listcell label="@load(job.cron.seconds)" />
+						<listcell label="@load(job.cron.minutes)" />
+						<listcell label="@load(job.cron.hours)" />
+						<listcell label="@load(job.cron.dayOfMonth)" />
+						<listcell label="@load(job.cron.month)" />
+						<listcell label="@load(job.cron.dayOfWeek)" />
+						<listcell label="@load(job.cron.year)" />
+						<listcell
+							label="@load(job.lastExecution) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+						<listcell label="@load(job.lastError.message)" />
+						<listcell>
+							<button label="Edit"
+								onClick="@command('doEdit', jobentry=job)" />
+							<button label="Execute"
+								onClick="@command('doExecute', jobentry=job)" />
+						</listcell>
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
 
-	<timer delay="5000" repeats="true" onTimer="schedulerlist.onTimer()"
-		running="@{schedulerlist.refresh}" />
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(schedulerlist.refresh)" />
 </window>

@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web.controller.crawler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
@@ -241,6 +243,7 @@ public class CrawlerController extends CommonController {
 		return list;
 	}
 
+	@Command
 	public void onTimer() throws SearchLibException {
 		reload();
 	}

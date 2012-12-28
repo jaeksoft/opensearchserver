@@ -27,18 +27,19 @@
 		<rows>
 			<template name="model" var="facetField">
 				<row>
+					<label value="@load(facetField.name)" />
 					<listbox mold="select"
 						model="@load(facet.multivaluedValues)"
 						selectedItem="@bind(facetField.multivalued)">
 						<template name="model">
-							<listitem label="load(each)" />
+							<listitem label="@load(each)" />
 						</template>
 					</listbox>
 					<listbox mold="select"
 						model="@load(facet.collapsingValues)"
 						selectedItem="@bind(facetField.postCollapsing)">
 						<template name="model">
-							<listitem label="load(each)" />
+							<listitem label="@load(each)" />
 						</template>
 					</listbox>
 					<intbox constraint="no empty, no negative"

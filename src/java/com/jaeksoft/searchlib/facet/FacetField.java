@@ -87,7 +87,7 @@ public class FacetField extends AbstractField<FacetField> {
 		minCount = value;
 	}
 
-	public boolean isMultivalued() {
+	public boolean isCheckMultivalued() {
 		return multivalued;
 	}
 
@@ -101,7 +101,7 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	public boolean isPostCollapsing() {
+	public boolean isCheckPostCollapsing() {
 		return postCollapsing;
 	}
 
@@ -218,7 +218,7 @@ public class FacetField extends AbstractField<FacetField> {
 			return null;
 		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);
 		for (FacetField facetField : facetFieldList)
-			if (facetField.isPostCollapsing())
+			if (facetField.isCheckPostCollapsing())
 				facetFieldArray.add(facetField.getStringIndex(reader));
 
 		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];

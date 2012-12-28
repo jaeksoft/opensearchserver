@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zul.Iframe;
 import org.zkoss.zul.Messagebox;
@@ -42,11 +44,6 @@ import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RendererController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 481885249271682931L;
 
 	private transient Renderer selectedRenderer;
 	private transient Renderer currentRenderer;
@@ -131,33 +128,29 @@ public class RendererController extends CommonController {
 		return !isFieldSelected();
 	}
 
-	private Renderer getRenderer(Component comp) {
-		return (Renderer) getRecursiveComponentAttribute(comp, "rendererItem");
-	}
-
-	public void doEdit(Component comp) throws SearchLibException {
-		Renderer renderer = getRenderer(comp);
-		if (renderer == null)
-			return;
+	@Command
+	public void doEdit(@BindingParam("rendererItem") Renderer renderer)
+			throws SearchLibException {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
 		reload();
 	}
 
-	public void doDelete(Component comp) throws InterruptedException {
-		Renderer renderer = getRenderer(comp);
-		if (renderer == null)
-			return;
+	@Command
+	public void doDelete(@BindingParam("rendererItem") Renderer renderer)
+			throws InterruptedException {
 		new DeleteAlert(renderer);
 	}
 
+	@Command
 	public void onNew() throws SearchLibException {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
 		reload();
 	}
 
+	@Command
 	public void onRendererFieldSave() throws SearchLibException {
 		if (selectedRendererField == null)
 			currentRenderer.addField(currentRendererField);
@@ -167,32 +160,38 @@ public class RendererController extends CommonController {
 		reload();
 	}
 
-	private RendererField getRendererField(Component comp) {
-		return (RendererField) getRecursiveComponentAttribute(comp,
-				"rendererFieldItem");
-	}
-
-	public void onRendererFieldRemove(Component comp) throws SearchLibException {
-		currentRenderer.removeField(getRendererField(comp));
+	@Command
+	public void onRendererFieldRemove(
+			@BindingParam("rendererFieldItem") RendererField rendererField)
+			throws SearchLibException {
+		currentRenderer.removeField(rendererField);
 		reload();
 	}
 
-	public void onRendererFieldUp(Component comp) throws SearchLibException {
-		currentRenderer.fieldUp(getRendererField(comp));
+	@Command
+	public void onRendererFieldUp(
+			@BindingParam("rendererFieldItem") RendererField rendererField)
+			throws SearchLibException {
+		currentRenderer.fieldUp(rendererField);
 		reload();
 	}
 
-	public void onRendererFieldDown(Component comp) throws SearchLibException {
-		currentRenderer.fieldDown(getRendererField(comp));
+	@Command
+	public void onRendererFieldDown(
+			@BindingParam("rendererFieldItem") RendererField rendererField)
+			throws SearchLibException {
+		currentRenderer.fieldDown(rendererField);
 		reload();
 	}
 
+	@Command
 	public void onRendererFieldCancel() throws SearchLibException {
 		currentRendererField = new RendererField();
 		selectedRendererField = null;
 		reload();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentRenderer = null;
 		selectedRenderer = null;
@@ -200,11 +199,13 @@ public class RendererController extends CommonController {
 		reload();
 	}
 
+	@Command
 	public void onCssDefault() throws SearchLibException {
 		currentRenderer.setDefaultCss();
 		reload();
 	}
 
+	@Command
 	public void onSave() throws SearchLibException,
 			UnsupportedEncodingException {
 		Client client = getClient();
@@ -218,6 +219,7 @@ public class RendererController extends CommonController {
 		client.save(currentRenderer);
 	}
 
+	@Command
 	public void onSaveAndClose() throws UnsupportedEncodingException,
 			SearchLibException {
 		onSave();

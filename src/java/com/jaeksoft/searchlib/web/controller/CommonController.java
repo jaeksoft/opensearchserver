@@ -113,17 +113,6 @@ public abstract class CommonController implements EventInterface {
 		scopeAttribute.set(session, value);
 	}
 
-	protected Object getRecursiveComponentAttribute(Component component,
-			String attributeName) {
-		Object attr = null;
-		while (component != null)
-			if ((attr = component.getAttribute(attributeName)) != null)
-				return attr;
-			else
-				component = component.getParent();
-		return null;
-	}
-
 	protected Session getSession() {
 		return session;
 	}

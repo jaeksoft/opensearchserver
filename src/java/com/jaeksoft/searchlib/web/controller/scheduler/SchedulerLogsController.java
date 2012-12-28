@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,11 +32,6 @@ import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class SchedulerLogsController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7922439239702754021L;
 
 	private transient JobItem selectedJob;
 

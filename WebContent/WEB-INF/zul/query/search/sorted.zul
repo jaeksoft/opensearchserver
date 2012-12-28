@@ -32,7 +32,7 @@
 						<listitem label="descending" value="descending" />
 					</listbox>
 					<button label="Remove"
-						onClick="@command('onSortRemove')" />
+						onClick="@command('onSortRemove', sortfield=sortfield)" />
 				</row>
 			</template>
 		</rows>

@@ -14,13 +14,14 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="scheduler" border="normal" title="Scheduler"
-	use="com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController">
+<window border="normal" title="Scheduler"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('scheduler') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController')">
 	<caption>
-		<label id="currentTime" value="@{scheduler.currentTime}"
-			onClick="scheduler.reloadTime()" />
+		<label id="currentTime" value="@load(scheduler.currentTime)"
+			onClick="@command('reloadTime')" />
 	</caption>
-	<timer onTimer="scheduler.reloadTime()" repeats="true"
+	<timer onTimer="@command('reloadTime')" repeats="true"
 		delay="10000" />
 	<tabbox>
 		<tabs>
@@ -30,9 +31,9 @@
 		<tabpanels>
 			<tabpanel>
 				<include src="WEB-INF/zul/scheduler/list.zul"
-					visible="@{scheduler.noJobItemEdit}" />
+					visible="@load(scheduler.noJobItemEdit)" />
 				<include src="WEB-INF/zul/scheduler/edit.zul"
-					visible="@{scheduler.jobItemEdit}" />
+					visible="@load(scheduler.jobItemEdit)" />
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/scheduler/log.zul" />
