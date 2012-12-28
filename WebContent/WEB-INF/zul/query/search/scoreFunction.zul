@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="window"
-	apply="com.jaeksoft.searchlib.web.controller.query.ScoringComposer">
-	<listbox model="@{window$composer.advancedScore.array}"
-		selectedItem="@{window$composer.selectedScoreItem}">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('scoring') @init('com.jaeksoft.searchlib.web.controller.query.ScoringComposer')">
+	<listbox model="@load(scoring.advancedScore.array)"
+		selectedItem="@bind(scoring.selectedScoreItem)">
 		<listhead>
 			<listheader label="Field" />
 			<listheader label="Direction" />
@@ -26,35 +26,45 @@
 		</listhead>
 		<auxhead>
 			<auxheader>
-				<listbox mold="select"
-					model="@{window$composer.fieldList}"
-					selectedItem="@{window$composer.scoreItem.fieldName}" />
+				<listbox mold="select" model="@load(scoring.fieldList)"
+					selectedItem="@bind(scoring.scoreItem.fieldName)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader>
 				<listbox mold="select"
-					model="@{window$composer.directionList}"
-					selectedItem="@{window$composer.scoreItem.direction}" />
+					model="@load(scoring.directionList)"
+					selectedItem="@bind(scoring.scoreItem.direction)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader>
-				<doublebox value="@{window$composer.scoreItem.weight}" />
+				<doublebox value="@bind(scoring.scoreItem.weight)" />
 			</auxheader>
 			<auxheader>
-				<button label="add" forward="onSave"
-					visible="@{window$composer.isNotSelected}" />
-				<button label="save" forward="onSave"
-					visible="@{window$composer.isSelected}" />
-				<button label="cancel" forward="onCancel"
-					visible="@{window$composer.isSelected}" />
+				<button label="add" onClick="@command('onSave')"
+					visible="@load(scoring.notSelected)" />
+				<button label="save" onClick="@command('onSave')"
+					visible="@load(scoring.selected)" />
+				<button label="cancel" onClick="@command('onCancel')"
+					visible="@load(scoring.selected)" />
 			</auxheader>
 		</auxhead>
-		<listitem self="@{each='item'}" value="@{item}">
-			<listcell label="@{item.fieldName}" />
-			<listcell label="@{item.direction}" />
-			<listcell label="@{item.weight}" />
-			<listcell>
-				<button tooltiptext="Erase index" forward="onRemove"
-					image="/images/action_delete.png" />
-			</listcell>
-		</listitem>
+		<template name="model" var="item">
+			<listitem>
+				<listcell label="@load(item.fieldName)" />
+				<listcell label="@load(item.direction)" />
+				<listcell label="@load(item.weight)" />
+				<listcell>
+					<button tooltiptext="Erase index"
+						onClick="@command('onRemove', item=item)"
+						image="/images/action_delete.png" />
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

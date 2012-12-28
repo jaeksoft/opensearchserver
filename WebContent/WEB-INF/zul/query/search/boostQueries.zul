@@ -36,7 +36,7 @@
 			</auxheader>
 			<auxheader>
 				<button visible="@load(boost.notSelected)" label="add"
-					forward="onSave" />
+					onClick="@command('onSave')" />
 				<hbox visible="@load(boost.selected)">
 					<button label="save" onClick="@command('onSave')" />
 					<button label="cancel"

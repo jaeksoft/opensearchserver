@@ -85,7 +85,7 @@ public class JoinList implements Iterable<JoinItem> {
 		return joinList.iterator();
 	}
 
-	public Object[] toArray() {
+	public Object[] getArray() {
 		return joinList.toArray();
 	}
 

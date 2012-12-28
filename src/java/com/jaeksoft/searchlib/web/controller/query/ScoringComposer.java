@@ -27,11 +27,11 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.event.Event;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -44,9 +44,8 @@ public class ScoringComposer extends AbstractQueryController {
 
 	private AdvancedScoreItem selectedScoreItem;
 
-	public ScoringComposer(RequestTypeEnum[] requestTypes)
-			throws SearchLibException {
-		super(requestTypes);
+	public ScoringComposer() throws SearchLibException {
+		super();
 	}
 
 	@Override
@@ -105,6 +104,7 @@ public class ScoringComposer extends AbstractQueryController {
 		return !isSelected();
 	}
 
+	@Command
 	public void onSave() throws SearchLibException {
 		AdvancedScore advancedScore = getAdvancedScore();
 		if (selectedScoreItem == null)
@@ -114,15 +114,15 @@ public class ScoringComposer extends AbstractQueryController {
 		onCancel();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		reset();
 	}
 
-	public void onRemove(Event event) throws SearchLibException {
-		// TODO
-		// AdvancedScoreItem scoreItem = (AdvancedScoreItem)
-		// getListItemValue(event);
-		// getAdvancedScore().remove(scoreItem);
+	@Command
+	public void onRemove(@BindingParam("item") AdvancedScoreItem scoreItem)
+			throws SearchLibException {
+		getAdvancedScore().remove(scoreItem);
 		reload();
 	}
 

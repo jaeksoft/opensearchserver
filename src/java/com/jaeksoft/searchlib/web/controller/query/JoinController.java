@@ -29,13 +29,13 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.join.JoinItem;
@@ -62,7 +62,7 @@ public class JoinController extends AbstractQueryController {
 		return FilterAbstract.FILTER_TYPES;
 	}
 
-	@NotifyChange("#joinListbox")
+	@NotifyChange("*")
 	public void setCurrentIndexName(String indexName) {
 		currentItem.setIndexName(indexName);
 	}
@@ -79,25 +79,28 @@ public class JoinController extends AbstractQueryController {
 		return selectedItem;
 	}
 
-	@NotifyChange("#joinListbox")
+	@NotifyChange("*")
 	public void setSelected(JoinItem item) {
 		this.selectedItem = item;
 		this.currentItem = new JoinItem(item);
 	}
 
-	@NotifyChange("#joinListbox")
+	@Command
+	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
 		reset();
 	}
 
-	public boolean isSelected() {
+	public boolean isSelection() {
 		return selectedItem != null;
 	}
 
-	public boolean isNotSelected() {
-		return !isSelected();
+	public boolean isNotSelection() {
+		return !isSelection();
 	}
 
+	@Command
+	@NotifyChange("*")
 	public void onSave() throws SearchLibException {
 		if (selectedItem != null)
 			currentItem.copyTo(selectedItem);
@@ -150,15 +153,12 @@ public class JoinController extends AbstractQueryController {
 		return getIndexedFieldList(getForeignClient());
 	}
 
-	public void onRemove(Component comp) throws SearchLibException {
-		JoinItem item = (JoinItem) getRecursiveComponentAttribute(comp,
-				"joinItem");
+	@Command
+	@NotifyChange("*")
+	public void onRemove(@BindingParam("joinItem") JoinItem item)
+			throws SearchLibException {
 		((SearchRequest) getRequest()).getJoinList().remove(item);
 		onCancel();
 	}
 
-	public void onSelectIndex() {
-		if (Logging.isDebug)
-			Logging.debug("ON SELECT");
-	}
 }
