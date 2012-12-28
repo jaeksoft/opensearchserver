@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import java.util.Date;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -74,6 +75,7 @@ public class SchedulerController extends CrawlerController {
 		return new Date();
 	}
 
+	@Command
 	@NotifyChange("*")
 	public void reloadTime() {
 	}
