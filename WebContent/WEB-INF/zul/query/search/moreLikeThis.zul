@@ -24,12 +24,12 @@
 		<rows>
 			<row>
 				<label value="Document query: " />
-				<textbox width="95%" value="@{mlt.request.docQuery}"
+				<textbox width="95%" value="@bind(mlt.request.docQuery)"
 					multiline="true" height="3" />
 			</row>
 			<row>
 				<label value="Like text: " />
-				<textbox width="95%" value="@{mlt.request.likeText}"
+				<textbox width="95%" value="@bind(mlt.request.likeText)"
 					multiline="true" height="3" />
 			</row>
 			<row>

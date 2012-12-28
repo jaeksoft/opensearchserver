@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="mlt"
-	use="com.jaeksoft.searchlib.web.controller.query.MoreLikeThisController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('mlt') @init('com.jaeksoft.searchlib.web.controller.query.MoreLikeThisController')">
 	<grid>
 		<columns>
 			<column align="right" hflex="min" />
@@ -24,31 +24,31 @@
 		<rows>
 			<row>
 				<label value="Minimum word length: " />
-				<intbox value="@{mlt.request.minWordLen}" />
+				<intbox value="@bind(mlt.request.minWordLen)" />
 			</row>
 			<row>
 				<label value="Maximum word length: " />
-				<intbox value="@{mlt.request.maxWordLen}" />
+				<intbox value="@bind(mlt.request.maxWordLen)" />
 			</row>
 			<row>
 				<label value="Minimum document frequency: " />
-				<intbox value="@{mlt.request.minDocFreq}" />
+				<intbox value="@bind(mlt.request.minDocFreq)" />
 			</row>
 			<row>
 				<label value="Minimum term frequency: " />
-				<intbox value="@{mlt.request.minTermFreq}" />
+				<intbox value="@bind(mlt.request.minTermFreq)" />
 			</row>
 			<row>
 				<label value="Maximum query terms: " />
-				<intbox value="@{mlt.request.maxQueryTerms}" />
+				<intbox value="@bind(mlt.request.maxQueryTerms)" />
 			</row>
 			<row>
 				<label value="Maximum number of tokens parsed: " />
-				<intbox value="@{mlt.request.maxNumTokensParsed}" />
+				<intbox value="@bind(mlt.request.maxNumTokensParsed)" />
 			</row>
 			<row>
 				<label value="Boost enabled: " />
-				<checkbox checked="@{mlt.request.boost}" />
+				<checkbox checked="@bind(mlt.request.boost)" />
 			</row>
 		</rows>
 	</grid>
