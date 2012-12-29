@@ -24,7 +24,7 @@
 
 cd `dirname "$0"`
 	
-EXECUTABLE=apache-tomcat-6.0.36/bin/startup.sh
+EXECUTABLE=apache-tomcat-7.0.34/bin/startup.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"
