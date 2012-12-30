@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="upload"
-	use="com.jaeksoft.searchlib.web.controller.update.UploadXmlController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('upload') @init('com.jaeksoft.searchlib.web.controller.update.UploadXmlController')">
 	<grid>
 		<columns>
 			<column align="right" hflex="min" />
@@ -24,16 +24,16 @@
 		<rows>
 			<row>
 				<checkbox label="XSL Transformation"
-					checked="@{upload.xslEnabled}" />
-				<textbox visible="@{upload.xslEnabled}"
-					value="@{upload.xslContent}" width="95%" multiline="true"
+					checked="@bind(upload.xslEnabled)" />
+				<textbox visible="@load(upload.xslEnabled)"
+					value="@load(upload.xslContent)" width="95%" multiline="true"
 					height="300px" />
 			</row>
 			<row>
 				<label value="Upload XML file" />
 				<cell>
 					<button label="Upload" upload="true,maxsize=-1"
-						onUpload="upload.onUpload(event)" />
+						onUpload="@command('onUpload')" />
 					<space />
 					<button label="Show XML example " target="_blank"
 						href="updateSample.xml" />
@@ -41,14 +41,15 @@
 			</row>
 		</rows>
 	</grid>
-	<listbox id="threadList" model="@{upload.updateList}" mold="paging"
-		visible="@{upload.updateListNotEmpty}">
+	<listbox id="threadList" model="@load(upload.updateList)"
+		mold="paging" visible="@load(upload.updateListNotEmpty)">
 		<auxhead>
 			<auxheader colspan="4">
 				<space />
-				<button label="Refresh" forward="onReload" />
+				<button label="Refresh" onClick="@command('onReload')" />
 				<space />
-				<button label="Remove non-running" forward="onPurge" />
+				<button label="Remove non-running"
+					onClick="@command('onPurge')" />
 			</auxheader>
 		</auxhead>
 		<listhead>
@@ -57,16 +58,18 @@
 			<listheader label="Status" hflex="min" />
 			<listheader />
 		</listhead>
-		<listitem self="@{each='thread'}">
-			<listcell
-				label="@{thread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-			<listcell label="@{thread.mediaName}" />
-			<listcell label="@{thread.info}" />
-			<listcell />
-		</listitem>
+		<template name="model" var="thread">
+			<listitem>
+				<listcell
+					label="@load(thread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell label="@load(thread.mediaName)" />
+				<listcell label="@load(thread.info)" />
+				<listcell />
+			</listitem>
+		</template>
 	</listbox>
 
 	<timer id="updateTimer" delay="5000" repeats="true"
-		onTimer="upload.onTimerRefresh()" running="@{upload.refresh}" />
+		onTimer="@command('onTimerRefresh')" running="@load(upload.refresh)" />
 
 </window>

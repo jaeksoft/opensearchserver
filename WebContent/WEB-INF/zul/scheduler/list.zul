@@ -15,6 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
+	binder="@init(queueName='schedulerList')"
 	viewModel="@id('schedulerlist') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerListController')">
 
 	<panel title="List of existing jobs and their settings"

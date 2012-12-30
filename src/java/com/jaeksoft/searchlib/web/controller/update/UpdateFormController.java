@@ -30,15 +30,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zul.Doublebox;
-import org.zkoss.zul.Image;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
-import org.zkoss.zul.Textbox;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -52,13 +45,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
-public class UpdateFormController extends CommonController implements
-		ListitemRenderer<UpdateFormController.FieldValue> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1542486102205983915L;
+public class UpdateFormController extends CommonController {
 
 	private transient IndexDocument indexDocument;
 
@@ -102,6 +89,7 @@ public class UpdateFormController extends CommonController implements
 		}
 	}
 
+	@Command
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedField == null)
@@ -132,8 +120,10 @@ public class UpdateFormController extends CommonController implements
 			if (fieldDocumentList != null)
 				return fieldDocumentList;
 			fieldDocumentList = new ArrayList<FieldDocument>();
-			for (FieldContent fieldContent : getIndexDocument())
-				fieldDocumentList.add(new FieldDocument(fieldContent));
+			for (FieldContent fieldContent : getIndexDocument()) {
+				if (fieldContent.getValues().length > 0)
+					fieldDocumentList.add(new FieldDocument(fieldContent));
+			}
 			return fieldDocumentList;
 		}
 	}
@@ -154,7 +144,6 @@ public class UpdateFormController extends CommonController implements
 
 		private FieldDocument(FieldContent fieldContent) {
 			fieldName = fieldContent.getField();
-
 			fieldValueList = new ArrayList<FieldValue>(
 					fieldContent.getValues().length);
 			int i = 0;
@@ -172,7 +161,7 @@ public class UpdateFormController extends CommonController implements
 		}
 	}
 
-	public static class FieldValue implements EventListener<Event> {
+	public static class FieldValue {
 
 		private int index;
 
@@ -206,50 +195,16 @@ public class UpdateFormController extends CommonController implements
 		public void remove() {
 			fieldContent.remove(index);
 		}
-
-		@Override
-		public void onEvent(Event event) throws Exception {
-			Component target = event.getTarget();
-			if (target instanceof Textbox)
-				setValue(((Textbox) target).getValue());
-			if (target instanceof Doublebox)
-				setBoost(((Doublebox) target).getValue());
-		}
 	}
 
-	@Override
-	public void render(Listitem item, FieldValue fieldValue, int index) {
-
-		Listcell listcell = new Listcell();
-		Doublebox doublebox = new Doublebox();
-		doublebox.setWidth("99%");
-		doublebox.setValue(fieldValue.getBoost());
-		doublebox.addEventListener("onChange", fieldValue);
-		doublebox.setParent(listcell);
-		listcell.setParent(item);
-
-		listcell = new Listcell();
-		Textbox textbox = new Textbox();
-		textbox.setWidth("99%");
-		textbox.setRows(3);
-		textbox.setValue(fieldValue.getValue());
-		textbox.addEventListener("onChange", fieldValue);
-		textbox.setParent(listcell);
-		listcell.setParent(item);
-
-		listcell = new Listcell();
-		Image image = new Image("/images/action_delete.png");
-		// TODO image.addForward(null, this, "onValueRemove", fieldValue);
-		image.setParent(listcell);
-		listcell.setParent(item);
-	}
-
-	public void onValueRemove(Event event) throws SearchLibException {
-		FieldValue fieldValue = (FieldValue) event.getData();
+	@Command
+	public void onValueRemove(@BindingParam("fieldValue") FieldValue fieldValue)
+			throws SearchLibException {
 		fieldValue.remove();
 		reload();
 	}
 
+	@Command
 	public void onUpdate() throws NoSuchAlgorithmException, IOException,
 			URISyntaxException, SearchLibException, InterruptedException,
 			InstantiationException, IllegalAccessException,
@@ -260,12 +215,8 @@ public class UpdateFormController extends CommonController implements
 		new AlertController("Document updated");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.jaeksoft.searchlib.web.controller.CommonController#reloadPage()
-	 */
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			fieldDocumentList = null;

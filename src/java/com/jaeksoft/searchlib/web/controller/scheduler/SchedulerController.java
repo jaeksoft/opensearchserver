@@ -25,11 +25,12 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import java.util.Date;
 
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -45,6 +46,7 @@ public class SchedulerController extends CrawlerController {
 
 	protected void setJobItemEdit(JobItem jobItem) {
 		setAttribute(ScopeAttribute.JOBITEM_EDIT, jobItem);
+		PushEvent.eventEditScheduler.publish(jobItem);
 	}
 
 	protected JobItem getJobItemSelected() {
@@ -75,9 +77,11 @@ public class SchedulerController extends CrawlerController {
 		return new Date();
 	}
 
-	@Command
-	@NotifyChange("*")
-	public void reloadTime() {
+	@GlobalCommand
+	@Override
+	public void eventEditScheduler(@BindingParam("scheduler") JobItem jobItem)
+			throws SearchLibException {
+		reload();
 	}
 
 }

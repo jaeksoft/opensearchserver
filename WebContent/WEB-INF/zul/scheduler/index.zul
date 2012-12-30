@@ -19,10 +19,8 @@
 	viewModel="@id('scheduler') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController')">
 	<caption>
 		<label id="currentTime" value="@load(scheduler.currentTime)"
-			onClick="@command('reloadTime')" />
+			onClick="@command('reload')" />
 	</caption>
-	<timer onTimer="@command('reloadTime')" repeats="true"
-		delay="10000" />
 	<tabbox>
 		<tabs>
 			<tab id="tabSchedulerList" label="Job list" selected="true" />

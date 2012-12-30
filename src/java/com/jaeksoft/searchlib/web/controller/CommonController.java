@@ -45,10 +45,12 @@ import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -187,7 +189,7 @@ public abstract class CommonController implements EventInterface {
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
-		System.out.println("reload " + this);
+		Logging.debug("reload " + this);
 	}
 
 	@Command
@@ -229,7 +231,7 @@ public abstract class CommonController implements EventInterface {
 	@Override
 	@GlobalCommand
 	public void eventClientChange() throws SearchLibException {
-		System.out.println("eventClientChange " + this);
+		Logging.debug("eventClientChange " + this);
 		refresh();
 	}
 
@@ -238,7 +240,14 @@ public abstract class CommonController implements EventInterface {
 	public void eventEditRequest(
 			@BindingParam("request") AbstractRequest request)
 			throws SearchLibException {
-		System.out.println("eventEditRequest " + this);
+		Logging.debug("eventEditRequest " + this);
+	}
+
+	@GlobalCommand
+	@Override
+	public void eventEditScheduler(@BindingParam("jobItem") JobItem jobItem)
+			throws SearchLibException {
+		Logging.debug("eventEditScheduler " + this);
 	}
 
 	@Override
@@ -246,7 +255,7 @@ public abstract class CommonController implements EventInterface {
 	public void eventEditRequestResult(
 			@BindingParam("result") AbstractResult<?> result)
 			throws SearchLibException {
-		System.out.println("eventEditRequestResult " + this);
+		Logging.debug("eventEditRequestResult " + this);
 	}
 
 	@Override
@@ -265,32 +274,32 @@ public abstract class CommonController implements EventInterface {
 	@Override
 	@GlobalCommand
 	public void eventFlushPrivileges(User user) throws SearchLibException {
-		System.out.println("eventFlushPrivileges " + this);
+		Logging.debug("eventFlushPrivileges " + this);
 		refresh();
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventDocumentUpdate(Client client) throws SearchLibException {
-		System.out.println("eventDocumentUpdate " + this);
+		Logging.debug("eventDocumentUpdate " + this);
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventRequestListChange(Client client) throws SearchLibException {
-		System.out.println("eventRequestListChange " + this);
+		Logging.debug("eventRequestListChange " + this);
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
-		System.out.println("eventSchemaChange " + this);
+		Logging.debug("eventSchemaChange " + this);
 	}
 
 	@Override
 	@GlobalCommand
 	public void eventLogout(User user) throws SearchLibException {
-		System.out.println("eventLogout " + this);
+		Logging.debug("eventLogout " + this);
 		refresh();
 	}
 

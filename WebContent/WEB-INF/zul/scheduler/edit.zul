@@ -89,11 +89,16 @@
 									valign="top">
 									<vbox>
 										<listbox
-											visible="@load(scheduleredit.notSelectedJobTask)"
+											visible="@load(scheduleredit.notSelectionJobTask)"
 											model="@load(scheduleredit.taskEnum)" mold="select"
-											selectedItem="@bind(scheduleredit.selectedTask)" />
+											selectedItem="@bind(scheduleredit.selectedTask)">
+											<template name="model">
+												<listitem
+													label="@load(each)" />
+											</template>
+										</listbox>
 										<label
-											visible="@load(scheduleredit.selectedJobTask)"
+											visible="@load(scheduleredit.selectionJobTask)"
 											value="@load(scheduleredit.currentTask.task.name)" />
 									</vbox>
 								</listheader>
@@ -120,7 +125,13 @@
 																cols="@load(property.def.cols)"
 																model="@load(property.valueList)"
 																value="@bind(property.value)"
-																selectedItem="@bind(property.value)" />
+																selectedItem="@bind(property.value)">
+																<template
+																	name="model">
+																	<comboitem
+																		label="@load(each)" />
+																</template>
+															</combobox>
 															<textbox
 																cols="@load(property.def.cols)"
 																visible="@load(property.type.ctrlTextBox)"

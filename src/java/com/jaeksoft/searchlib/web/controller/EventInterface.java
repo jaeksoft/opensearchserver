@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.User;
 
 public interface EventInterface {
@@ -60,6 +61,10 @@ public interface EventInterface {
 
 	@GlobalCommand
 	void eventEditRequest(@BindingParam("request") AbstractRequest request)
+			throws SearchLibException;
+
+	@GlobalCommand
+	void eventEditScheduler(@BindingParam("jobItem") JobItem jobItem)
 			throws SearchLibException;
 
 	@GlobalCommand

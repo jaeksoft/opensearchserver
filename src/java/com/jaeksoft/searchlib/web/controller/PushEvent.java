@@ -32,8 +32,10 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.EventQueues;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.User;
 
 public enum PushEvent {
@@ -74,6 +76,11 @@ public enum PushEvent {
 	eventEditRequest(EventQueues.DESKTOP),
 
 	/**
+	 * Notify that a scheduler is edited
+	 */
+	eventEditScheduler(EventQueues.DESKTOP),
+
+	/**
 	 * Notify that the edited request has a new result
 	 */
 	eventEditRequestResult(EventQueues.DESKTOP),
@@ -92,7 +99,7 @@ public enum PushEvent {
 	public void publish() {
 		if (Executions.getCurrent() == null)
 			return;
-		System.out.println("publish " + name());
+		Logging.debug("publish " + name());
 		BindUtils.postGlobalCommand(null, scope, name(), null);
 	}
 
@@ -101,7 +108,7 @@ public enum PushEvent {
 			return;
 		Map<String, Object> map = new TreeMap<String, Object>();
 		map.put(name, data);
-		System.out.println("publish " + name() + " " + data);
+		Logging.debug("publish " + name() + " " + data);
 		BindUtils.postGlobalCommand(null, scope, name(), map);
 	}
 
@@ -119,6 +126,10 @@ public enum PushEvent {
 
 	public void publish(AbstractResult<?> result) {
 		publish("result", result);
+	}
+
+	public void publish(JobItem jobItem) {
+		publish("jobItem", jobItem);
 	}
 
 }

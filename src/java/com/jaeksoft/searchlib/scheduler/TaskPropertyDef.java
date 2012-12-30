@@ -50,4 +50,20 @@ public class TaskPropertyDef implements Comparable<TaskPropertyDef> {
 	public int compareTo(TaskPropertyDef propDef) {
 		return name.compareTo(propDef.name);
 	}
+
+	public TaskPropertyType getType() {
+		return type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getCols() {
+		return cols;
+	}
+
+	public int getRows() {
+		return rows;
+	}
 }
