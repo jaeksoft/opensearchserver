@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,8 +33,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
  */
 public class ProxyController extends CommonController {
 
-	private static final long serialVersionUID = 6562366244469411878L;
-
 	public ProxyController() throws SearchLibException {
 		super();
 		reset();
@@ -50,7 +48,6 @@ public class ProxyController extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		// TODO Auto-generated method stub
-
 	}
 
 }

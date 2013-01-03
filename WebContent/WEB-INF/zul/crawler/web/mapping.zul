@@ -15,7 +15,9 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="mapping"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.MappingController">
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.MappingController"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('manualCrawl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController')">
 	<hbox align="center">
 		<listbox mold="select" model="@{mapping.urlFieldList}"
 			selectedItem="@{mapping.selectedUrlField}">
@@ -30,7 +32,8 @@
 		</listbox>
 		<button label="add" forward="onAdd" />
 	</hbox>
-	<listbox model="@{mapping.fieldMap.list}" itemRenderer="@{mapping}">
+	<listbox model="@{mapping.fieldMap.list}"
+		itemRenderer="@{mapping}">
 		<listhead>
 			<listheader label="URL field" />
 			<listheader label="Index field" />

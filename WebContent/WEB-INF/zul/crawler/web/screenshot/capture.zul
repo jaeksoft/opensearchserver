@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -24,32 +24,33 @@
 		<rows>
 			<row>
 				<label value="URL to capture: " />
-				<textbox cols="100" value="@{screenshot.url}"
-					readonly="@{screenshot.refresh}" />
+				<textbox cols="100" value="@bind(screenshot.url)"
+					readonly="@load(screenshot.refresh)" />
 				<hbox>
-					<button label="Check" onClick="screenshot.onCheck()"
-						disabled="@{screenshot.refresh}" />
+					<button label="Check" onClick="@command('onCheck')"
+						disabled="@load(screenshot.refresh)" />
 					<space />
 					<button label="Capture"
-						onClick="screenshot.onCapture()" disabled="@{screenshot.refresh}" />
-					<image visible="@{screenshot.refresh}"
+						onClick="@command('onCapture')"
+						disabled="@load(screenshot.refresh)" />
+					<image visible="@load(screenshot.refresh)"
 						src="/images/ajax-loader.gif" />
 				</hbox>
 			</row>
 		</rows>
 	</grid>
-	<vbox visible="@{screenshot.imageAvailable}">
-		<image id="img" />
+	<vbox visible="@load(screenshot.imageAvailable)">
+		<image src="@load(screenshot.apiImageUrl)" />
 		<hbox>
 			<button label="Image URL"
-				tooltiptext="@{screenshot.getApiImageUrl}"
-				href="@{screenshot.getApiImageUrl}" />
+				tooltiptext="@load(screenshot.apiImageUrl)"
+				href="@load(screenshot.apiImageUrl)" />
 			<space />
 			<button label="Capture URL"
-				tooltiptext="@{screenshot.getApiCaptureUrl}"
-				href="@{screenshot.getApiCaptureUrl}" target="_blank" />
+				tooltiptext="@load(screenshot.apiCaptureUrl)"
+				href="@load(screenshot.apiCaptureUrl)" target="_blank" />
 		</hbox>
 	</vbox>
-	<timer delay="3000" repeats="true" onTimer="screenshot.onTimer()"
-		running="@{screenshot.refresh}" />
+	<timer delay="3000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(screenshot.refresh)" />
 </zk>

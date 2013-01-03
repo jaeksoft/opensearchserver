@@ -15,7 +15,9 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window id="robotsTxtCtrl"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.RobotsTxtController">
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.RobotsTxtController"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('manualCrawl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController')">
 	<checkbox label="Enabled" checked="@{robotsTxtCtrl.enabled.value}" />
 	<separator />
 	<listbox fixedLayout="true" model="@{robotsTxtCtrl.robotsTxtList}"

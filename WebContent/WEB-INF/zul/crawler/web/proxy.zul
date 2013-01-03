@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="proxy" border="none"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.ProxyController">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('proxy') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ProxyController')">
 	<grid hflex="true">
 		<columns>
 			<column align="right" />
@@ -24,23 +24,24 @@
 		<rows>
 			<row>
 				<checkbox label="Enabled"
-					checked="@{proxy.properties.proxyEnabled.value}" />
+					checked="@bind(proxy.properties.proxyEnabled.value)" />
 				<space />
 			</row>
 			<row>
 				<label value="Proxy Host :" />
 				<textbox id="proxyHost" cols="50"
-					value="@{proxy.properties.proxyHost.value}" />
+					value="@bind(proxy.properties.proxyHost.value)" />
 			</row>
 			<row>
 				<label value="Proxy Port :" />
 				<intbox id="proxyPort" cols="10"
-					value="@{proxy.properties.proxyPort.value}" />
+					value="@bind(proxy.properties.proxyPort.value)" />
 			</row>
 			<row>
 				<label value="Proxy exclusion :" />
-				<textbox id="proxyExclusion" cols="80" rows="10" multiline="true"
-					value="@{proxy.properties.proxyExclusion.value}" />
+				<textbox id="proxyExclusion" cols="80" rows="10"
+					multiline="true"
+					value="@bind(proxy.properties.proxyExclusion.value)" />
 			</row>
 		</rows>
 	</grid>

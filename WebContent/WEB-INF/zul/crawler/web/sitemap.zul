@@ -17,7 +17,9 @@
 	Contributor: Richard Sinelle
 -->
 <window id="siteMapCtrl"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.SiteMapController">
+	use="com.jaeksoft.searchlib.web.controller.crawler.web.SiteMapController"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('manualCrawl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController')">
 	<listbox selectedItem="@{siteMapCtrl.selectedSiteMap}"
 		model="@{siteMapCtrl.siteMapList.array}" mold="paging"
 		pageSize="20">

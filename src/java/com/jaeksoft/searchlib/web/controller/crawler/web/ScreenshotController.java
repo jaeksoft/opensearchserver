@@ -31,6 +31,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -51,9 +54,9 @@ public class ScreenshotController extends CrawlerController {
 
 	private transient ScreenshotThread currentScreenshotThread;
 
-	private transient BufferedImage currentImage;
-
 	private transient LastModifiedAndSize screenshotInfos;
+
+	private boolean showImage;
 
 	public ScreenshotController() throws SearchLibException {
 		super();
@@ -64,7 +67,7 @@ public class ScreenshotController extends CrawlerController {
 	public void reset() {
 		url = null;
 		currentScreenshotThread = null;
-		currentImage = null;
+		showImage = false;
 		screenshotInfos = null;
 	}
 
@@ -91,6 +94,7 @@ public class ScreenshotController extends CrawlerController {
 		return client.getWebPropertyManager();
 	}
 
+	@Command
 	public void onCapture() throws SearchLibException, ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
@@ -102,6 +106,7 @@ public class ScreenshotController extends CrawlerController {
 			Client client = getClient();
 			if (client == null)
 				return;
+			showImage = false;
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			if (!screenshotManager.getMethod().doScreenshot(url)) {
 				new AlertController(
@@ -113,27 +118,30 @@ public class ScreenshotController extends CrawlerController {
 			currentScreenshotThread = screenshotManager.capture(url,
 					credentialItem, false, 0);
 			currentScreenshotThread.waitForStart(60);
-			setImage(null);
 			reload();
 		}
 	}
 
+	@Command
 	public void onCheck() throws SearchLibException, InterruptedException,
 			IOException {
 		synchronized (this) {
-			currentImage = getClient().getScreenshotManager().getImage(url);
+			BufferedImage currentImage = getClient().getScreenshotManager()
+					.getImage(url);
 			if (currentImage == null)
 				new AlertController("Screenshot not found.");
-			setImage(currentImage);
+			else
+				showImage = true;
 			reload();
 		}
 	}
 
 	@Override
+	@Command
+	@NotifyChange("*")
 	public void onTimer() throws SearchLibException {
-		if (currentImage == null)
-			if (currentScreenshotThread != null)
-				setImage(currentScreenshotThread.getImage());
+		if (currentScreenshotThread != null)
+			showImage = currentScreenshotThread.getImage() != null;
 		reload();
 	}
 
@@ -146,19 +154,8 @@ public class ScreenshotController extends CrawlerController {
 		}
 	}
 
-	public void setImage(BufferedImage img) {
-		synchronized (this) {
-			currentImage = img;
-			// TODO
-			/*
-			 * Image image = (Image) getFellow("capture").getFellow("img"); if
-			 * (img != null) image.setContent(img);
-			 */
-		}
-	}
-
 	public boolean isImageAvailable() {
-		return currentImage != null;
+		return showImage;
 	}
 
 	public String getApiCaptureUrl() throws SearchLibException,
@@ -183,6 +180,7 @@ public class ScreenshotController extends CrawlerController {
 				getLoggedUser(), url);
 	}
 
+	@Command
 	public void onInfos() throws SearchLibException {
 		screenshotInfos = getClient().getScreenshotManager().getInfos();
 		reload();
