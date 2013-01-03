@@ -64,7 +64,7 @@
 					<button label="Online"
 						onClick="@command('onOnline')" visible="@load(commands.offline)" />
 				</cell>
-				<label value="@{commands.onlineStatus}" />
+				<label value="@load(commands.onlineStatus)" />
 			</row>
 			<row>
 				<label value="Truncate: " />

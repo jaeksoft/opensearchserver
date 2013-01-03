@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,17 +14,18 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="repository"
-	use="com.jaeksoft.searchlib.web.controller.crawler.file.RepositoryController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('repository') @init('com.jaeksoft.searchlib.web.controller.crawler.file.RepositoryController')">
 
 	<panel title="List of existing locations and their settings"
 		border="normal">
 		<toolbar>
-			<button label="Create new location" forward="onNewFilePathItem" />
+			<button label="Create new location"
+				onClick="@command('onNewFilePathItem')" />
 		</toolbar>
 		<panelchildren>
-			<listbox model="@{repository.filePathItemList}"
-				selectedItem="@{repository.selectedFilePathItem}">
+			<listbox model="@load(repository.filePathItemList)"
+				selectedItem="@bind(repository.selectedFilePathItem)">
 				<listhead>
 					<listheader label="Scheme" hflex="min" />
 					<listheader label="Host" hflex="min" />
@@ -35,20 +36,24 @@
 					<listheader label="Enabled" hflex="min"
 						tooltiptext="Enabled for crawling" />
 				</listhead>
-				<listitem self="@{each='filepathitem'}">
-					<listcell label="@{filepathitem.type.label}" />
-					<listcell label="@{filepathitem.host}" />
-					<listcell label="@{filepathitem.username}" />
-					<listcell label="@{filepathitem.path}" />
-					<listcell label="@{filepathitem.withSubDir}" />
-					<listcell label="@{filepathitem.enabled}" />
-				</listitem>
+				<template name="model" var="filepathitem">
+					<listitem>
+						<listcell
+							label="@load(filepathitem.type.label)" />
+						<listcell label="@load(filepathitem.host)" />
+						<listcell label="@load(filepathitem.username)" />
+						<listcell label="@load(filepathitem.path)" />
+						<listcell
+							label="@load(filepathitem.withSubDir)" />
+						<listcell label="@load(filepathitem.enabled)" />
+					</listitem>
+				</template>
 				<listfoot>
 					<listfooter span="6">
 						<paging id="paging" detailed="true"
-							totalSize="@{repository.totalSize}"
-							pageSize="@{repository.pageSize}"
-							activePage="@{repository.activePage}" />
+							totalSize="@load(repository.totalSize)"
+							pageSize="@load(repository.pageSize)"
+							activePage="@bind(repository.activePage)" />
 					</listfooter>
 				</listfoot>
 			</listbox>

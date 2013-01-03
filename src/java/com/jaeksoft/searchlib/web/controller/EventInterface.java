@@ -29,6 +29,7 @@ import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
@@ -69,6 +70,11 @@ public interface EventInterface {
 
 	@GlobalCommand
 	void eventEditRequestResult(@BindingParam("result") AbstractResult<?> result)
+			throws SearchLibException;
+
+	@GlobalCommand
+	void eventEditFileRepository(
+			@BindingParam("filePathItem") FilePathItem filePathItem)
 			throws SearchLibException;
 
 	@GlobalCommand

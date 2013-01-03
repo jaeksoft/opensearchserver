@@ -31,10 +31,8 @@ import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -62,6 +60,8 @@ public class FileController extends CrawlerController {
 
 	private transient int activePage;
 
+	private transient String batchCommand;
+
 	public FileController() throws SearchLibException {
 		super();
 	}
@@ -71,6 +71,7 @@ public class FileController extends CrawlerController {
 		fileList = null;
 		totalSize = 0;
 		activePage = 0;
+		batchCommand = null;
 	}
 
 	public FileManager getFileManager() throws SearchLibException {
@@ -84,6 +85,14 @@ public class FileController extends CrawlerController {
 
 	public int getActivePage() {
 		return activePage;
+	}
+
+	public void setActivePage(int page) throws SearchLibException {
+		synchronized (this) {
+			fileList = null;
+			activePage = page;
+			reload();
+		}
 	}
 
 	public int getTotalSize() {
@@ -186,8 +195,6 @@ public class FileController extends CrawlerController {
 	public void setFileType(FileTypeEnum v) {
 		synchronized (this) {
 			setAttribute(ScopeAttribute.SEARCH_FILE_FILE_TYPE, v);
-			// TODO Remove ?
-			// setAttribute("searchUrlFileType", v, Component.SESSION_SCOPE);
 		}
 	}
 
@@ -290,14 +297,7 @@ public class FileController extends CrawlerController {
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
-		synchronized (this) {
-			fileList = null;
-			activePage = pagingEvent.getActivePage();
-			reload();
-		}
-	}
-
+	@Command
 	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			fileList = null;
@@ -389,6 +389,7 @@ public class FileController extends CrawlerController {
 		client.getFileManager().waitForTask(taskFileManagerAction, 30);
 	}
 
+	@Command
 	public void onSetToUnfetched() throws SearchLibException,
 			InterruptedException {
 		synchronized (this) {
@@ -404,6 +405,7 @@ public class FileController extends CrawlerController {
 		}
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			FileManager fileManager = getFileManager();
@@ -418,6 +420,7 @@ public class FileController extends CrawlerController {
 		}
 	}
 
+	@Command
 	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
@@ -426,8 +429,16 @@ public class FileController extends CrawlerController {
 		}
 	}
 
-	public void onGo(@BindingParam("listbox") Listbox actionListbox)
-			throws SearchLibException, IOException,
+	public String getBatchCommand() {
+		return batchCommand;
+	}
+
+	public void setBatchCommand(String cmd) {
+		batchCommand = cmd;
+	}
+
+	@Command
+	public void onGo() throws SearchLibException, IOException,
 			TransformerConfigurationException, SAXException,
 			InterruptedException {
 		synchronized (this) {
@@ -438,14 +449,13 @@ public class FileController extends CrawlerController {
 				new AlertController("Please stop the File crawler first.");
 				return;
 			}
-			String action = actionListbox.getSelectedItem().getValue()
-					.toString();
-			if ("setToUnfetched".equalsIgnoreCase(action))
+			if ("setToUnfetched".equalsIgnoreCase(batchCommand))
 				onSetToUnfetched();
-			else if ("delete".equalsIgnoreCase(action))
+			else if ("delete".equalsIgnoreCase(batchCommand))
 				onDelete();
-			else if ("optimize".equalsIgnoreCase(action))
+			else if ("optimize".equalsIgnoreCase(batchCommand))
 				onOptimize();
+			batchCommand = null;
 		}
 	}
 

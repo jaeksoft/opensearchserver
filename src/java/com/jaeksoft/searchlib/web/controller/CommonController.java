@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
@@ -248,6 +249,14 @@ public abstract class CommonController implements EventInterface {
 	public void eventEditScheduler(@BindingParam("jobItem") JobItem jobItem)
 			throws SearchLibException {
 		Logging.debug("eventEditScheduler " + this);
+	}
+
+	@GlobalCommand
+	@Override
+	public void eventEditFileRepository(
+			@BindingParam("filePathItem") FilePathItem filePathItem)
+			throws SearchLibException {
+		Logging.debug("eventEditFileRepository " + this);
 	}
 
 	@Override

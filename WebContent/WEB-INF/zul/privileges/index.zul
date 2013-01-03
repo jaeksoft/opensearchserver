@@ -63,7 +63,7 @@
 					<row>
 						<label value="Can monitor: " />
 						<checkbox
-							disabled="@{load(rivileges.user.readOnly)"
+							disabled="@load(rivileges.user.readOnly)"
 							checked="@bind(privileges.user.monitoring)" />
 						<label
 							value="Check the box if the user is able to monitor" />

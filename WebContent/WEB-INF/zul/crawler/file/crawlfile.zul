@@ -14,12 +14,12 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="crawlFileProcess"
-	use="com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('crawlFileProcess') @init('com.jaeksoft.searchlib.web.controller.crawler.file.CrawlFileController')">
 	<panel title="Current status" collapsible="false" border="normal">
 		<panelchildren>
 			<grid
-				visible="@{crawlFileProcess.fileCrawlerParametersRights}"
+				visible="@load(crawlFileProcess.fileCrawlerParametersRights)"
 				sizedByContent="true">
 				<columns visible="false">
 					<column align="right" />
@@ -30,28 +30,38 @@
 						<label
 							value="Job to run when each session ends: " />
 						<cell>
-							<label visible="@{crawlFileProcess.refresh}"
-								value="@{crawlFileProcess.properties.schedulerAfterSession.value}" />
+							<label
+								visible="@load(crawlFileProcess.refresh)"
+								value="@load(crawlFileProcess.properties.schedulerAfterSession.value)" />
 							<listbox
-								visible="@{crawlFileProcess.notRefresh}"
-								model="@{crawlFileProcess.schedulerTaskList}" mold="select"
-								selectedItem="@{crawlFileProcess.properties.schedulerAfterSession.value}" />
+								visible="@load(crawlFileProcess.notRefresh)"
+								model="@load(crawlFileProcess.schedulerTaskList)" mold="select"
+								selectedItem="@bind(crawlFileProcess.properties.schedulerAfterSession.value)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
 						</cell>
 					</row>
 					<row>
 						<textbox readonly="true"
-							value="@{crawlFileProcess.crawlMaster.statusInfo}" />
+							value="@load(crawlFileProcess.crawlMaster.statusInfo)" />
 						<cell>
 							<listbox
-								visible="@{crawlFileProcess.webCrawlerStartStopRights}"
-								model="@{crawlFileProcess.runModes}" mold="select"
-								disabled="@{crawlFileProcess.crawlMaster.running}"
-								selectedItem="@{crawlFileProcess.runMode}" />
+								visible="@load(crawlFileProcess.webCrawlerStartStopRights)"
+								model="@load(crawlFileProcess.runModes)" mold="select"
+								disabled="@load(crawlFileProcess.crawlMaster.running)"
+								selectedItem="@bind(crawlFileProcess.runMode)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
 							<space />
-							<button id="runButton"
-								visible="@{crawlFileProcess.fileCrawlerStartStopRights}"
-								disabled="@{crawlFileProcess.crawlMaster.aborting}"
-								label="@{crawlFileProcess.runButtonLabel}" forward="onRun" />
+							<button
+								visible="@load(crawlFileProcess.fileCrawlerStartStopRights)"
+								disabled="@load(crawlFileProcess.crawlMaster.aborting)"
+								label="@load(crawlFileProcess.runButtonLabel)"
+								onClick="@command('onRun')" />
 						</cell>
 					</row>
 				</rows>
@@ -63,7 +73,7 @@
 		border="normal">
 		<panelchildren>
 			<listbox
-				model="@{crawlFileProcess.crawlMaster.statistics}">
+				model="@load(crawlFileProcess.crawlMaster.statistics)">
 				<auxhead>
 					<auxheader label="Start time" />
 					<auxheader label="Fetched" align="center"
@@ -89,19 +99,22 @@
 					<listheader label="Processed" width="70px" />
 					<listheader label="Total" width="70px" />
 				</listhead>
-				<listitem self="@{each=stat}">
-					<listcell label="@{stat.startDate}" />
-					<listcell label="@{stat.fetchedCount}" />
-					<listcell
-						label="@{stat.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
-					<listcell label="@{stat.parsedCount}" />
-					<listcell label="@{stat.pendingUpdatedCount}" />
-					<listcell label="@{stat.updatedCount}" />
-					<listcell label="@{stat.ignoredCount}" />
-					<listcell label="@{stat.deletedCount}" />
-					<listcell label="@{stat.urlCount}" />
-					<listcell label="@{stat.urlListSize}" />
-				</listitem>
+				<template name="model" var="stat">
+					<listitem>
+						<listcell label="@load(stat.startDate)" />
+						<listcell label="@load(stat.fetchedCount)" />
+						<listcell
+							label="@load(stat.fetchRate) @converter('com.jaeksoft.searchlib.web.converter.RateConverter')" />
+						<listcell label="@load(stat.parsedCount)" />
+						<listcell
+							label="@load(stat.pendingUpdatedCount)" />
+						<listcell label="@load(stat.updatedCount)" />
+						<listcell label="@load(stat.ignoredCount)" />
+						<listcell label="@load(stat.deletedCount)" />
+						<listcell label="@load(stat.urlCount)" />
+						<listcell label="@load(stat.urlListSize)" />
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
@@ -109,7 +122,7 @@
 	<separator />
 	<panel title="Thread list" collapsible="true" border="normal">
 		<panelchildren>
-			<listbox model="@{crawlFileProcess.crawlMaster.threads}"
+			<listbox model="@load(crawlFileProcess.crawlMaster.threads)"
 				mold="paging" pageSize="20">
 				<listhead sizable="true">
 					<listheader label="Current folder" />
@@ -121,28 +134,28 @@
 					<listheader width="60px" label="Total" />
 					<listheader width="180px" label="Status" />
 				</listhead>
-				<listitem self="@{each=thread}">
-					<listcell label="@{thread.currentInfo}" />
-					<listcell
-						label="@{thread.currentStatistics.fetchedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.fetchRate, converter='com.jaeksoft.searchlib.web.converter.RateConverter'}" />
-					<listcell
-						label="@{thread.currentStatistics.pendingUpdatedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.ignoredCount}" />
-					<listcell
-						label="@{thread.currentStatistics.pendingDeletedCount}" />
-					<listcell
-						label="@{thread.currentStatistics.urlListSize}" />
-					<listcell label="@{thread.statusInfo}" />
-				</listitem>
+				<template name="model" var="thread">
+					<listitem>
+						<listcell label="@load(thread.currentInfo)" />
+						<listcell
+							label="@load(thread.currentStatistics.fetchedCount)" />
+						<listcell
+							label="@load(thread.currentStatistics.fetchRate) @converter('com.jaeksoft.searchlib.web.converter.RateConverter')" />
+						<listcell
+							label="@load(thread.currentStatistics.pendingUpdatedCount)" />
+						<listcell
+							label="@load(thread.currentStatistics.ignoredCount)" />
+						<listcell
+							label="@load(thread.currentStatistics.pendingDeletedCount)" />
+						<listcell
+							label="@load(thread.currentStatistics.urlListSize)" />
+						<listcell label="@load(thread.statusInfo)" />
+					</listitem>
+				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
 
-
-	<timer delay="5000" repeats="true"
-		onTimer="crawlFileProcess.onTimer()"
-		running="@{crawlFileProcess.refresh}" />
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(crawlFileProcess.refresh)" />
 </window>

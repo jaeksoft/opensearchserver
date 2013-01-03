@@ -28,11 +28,6 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class IndexCrawlerController extends CommonController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1218213490751038680L;
-
 	public IndexCrawlerController() throws SearchLibException {
 		super();
 	}

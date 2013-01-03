@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="filecrawler" border="none"
-	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileCrawlerController">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('filecrawler') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FileCrawlerController')">
 	<tabbox>
 		<tabs>
 			<tab id="tabCrawlerRepository" label="Locations"
@@ -23,14 +23,14 @@
 			<tab id="tabCrawlerFileCrawl" label="Crawl process" />
 			<tab id="tabCrawlerFileCrawled" label="File browser" />
 			<tab id="tabCrawlerFileMapping" label="Field mapping"
-				visible="@{filecrawler.fileCrawlerParametersRights}" />
+				visible="@load(filecrawler.fileCrawlerParametersRights)" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
 				<include src="WEB-INF/zul/crawler/file/edit.zul"
-					visible="@{filecrawler.filePathEdit}" />
+					visible="@load(filecrawler.filePathEdit)" />
 				<include src="WEB-INF/zul/crawler/file/repository.zul"
-					visible="@{filecrawler.noFilePathEdit}" />
+					visible="@load(filecrawler.noFilePathEdit)" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />

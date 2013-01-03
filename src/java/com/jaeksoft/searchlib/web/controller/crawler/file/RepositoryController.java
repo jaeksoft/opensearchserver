@@ -27,8 +27,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -65,9 +65,9 @@ public class RepositoryController extends FileCrawlerController {
 		return totalSize;
 	}
 
-	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
+	public void setActivePage(int page) throws SearchLibException {
 		synchronized (this) {
-			activePage = pagingEvent.getActivePage();
+			activePage = page;
 			reload();
 		}
 	}
@@ -80,7 +80,7 @@ public class RepositoryController extends FileCrawlerController {
 		return null;
 	}
 
-	@NotifyChange("filecrawler")
+	@NotifyChange("*")
 	public void setSelectedFilePathItem(FilePathItem selectedFilePathItem)
 			throws SearchLibException, URISyntaxException {
 		if (selectedFilePathItem == null)
@@ -91,7 +91,8 @@ public class RepositoryController extends FileCrawlerController {
 		setFilePathItemEdit(editFilePath);
 	}
 
-	@NotifyChange("filecrawler")
+	@Command
+	@NotifyChange("*")
 	public void onNewFilePathItem() throws SearchLibException {
 		setFilePathItemEdit(new FilePathItem(getClient()));
 		setFilePathItemSelected(null);

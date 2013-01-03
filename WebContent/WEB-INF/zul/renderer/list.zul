@@ -33,7 +33,7 @@
 				<listitem>
 					<listcell label="@load(item.name)"
 						onDoubleClick="@command('doEdit', item=item)" />
-					<listcell label="@{item.requestName}"
+					<listcell label="@load(item.requestName)"
 						onDoubleClick="@command('doEdit', item=item)" />
 					<listcell>
 						<hbox align="center">

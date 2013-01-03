@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.Command;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
@@ -32,11 +34,6 @@ import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class CrawlFileController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5309269960746544920L;
 
 	private transient int sheetRows;
 
@@ -53,6 +50,7 @@ public class CrawlFileController extends CrawlerController {
 		return sheetRows;
 	}
 
+	@Command
 	public void onRun() throws IOException, SearchLibException {
 		if (!isFileCrawlerStartStopRights())
 			throw new SearchLibException("Not allowed");

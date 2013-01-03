@@ -45,7 +45,8 @@
 				</row>
 				<row>
 					<cell colspan="3" align="center">
-						<button label="New query..." forward="onNew"
+						<button label="New query..."
+							onClick="@command('onNew')"
 							tooltiptext="Create a new query template" />
 						<button label="New copied query..."
 							disabled="@load(query.notRequestSelected)"

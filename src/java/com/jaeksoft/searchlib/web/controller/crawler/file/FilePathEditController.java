@@ -35,9 +35,9 @@ import java.util.List;
 import javax.naming.NamingException;
 
 import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zul.Listcell;
 import org.zkoss.zul.Messagebox;
 
 import com.dropbox.client2.session.AccessTokenPair;
@@ -138,6 +138,7 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		FilePathItem filePathItem = getFilePathItemEdit();
 		if (filePathItem == currentFilePath || filePathItem == null) {
@@ -175,12 +176,14 @@ public class FilePathEditController extends FileCrawlerController {
 				: "Edit the selected location";
 	}
 
-	@NotifyChange("#filecrawler")
+	@Command
 	public void onCancel() throws SearchLibException {
 		reset();
 		setFilePathItemEdit(null);
+		reload();
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException, InterruptedException {
 		FilePathItem filePath = getFilePathItemSelected();
 		if (filePath == null)
@@ -188,6 +191,7 @@ public class FilePathEditController extends FileCrawlerController {
 		new DeleteAlert(filePath);
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException,
 			URISyntaxException {
 		Client client = getClient();
@@ -245,7 +249,7 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
-	@NotifyChange("#filebrowser")
+	@NotifyChange("*")
 	public void setCurrentFile(FileSelectorItem item) {
 		currentFile = item;
 	}
@@ -299,7 +303,7 @@ public class FilePathEditController extends FileCrawlerController {
 		return !isNotSelectedFile();
 	}
 
-	@NotifyChange("#filebrowser")
+	@NotifyChange("*")
 	public void setCurrentFolder(FileSelectorItem fileSelectorItem)
 			throws IOException {
 		if (fileSelectorItem != null)
@@ -349,18 +353,20 @@ public class FilePathEditController extends FileCrawlerController {
 		return showHidden;
 	}
 
-	@NotifyChange("#filebrowser")
+	@NotifyChange("*")
 	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
 		currentFileList = null;
 	}
 
-	public void onOpenFile(Listcell cell) throws IOException {
+	@Command
+	public void onOpenFile() throws IOException {
 		if (currentFile != null)
 			if (currentFile.file.isDirectory())
 				setCurrentFolder(currentFile);
 	}
 
+	@Command
 	public void onSelectFile() throws SearchLibException {
 		if (currentFile != null) {
 			currentFilePath.setPath(currentFile.file.getAbsolutePath());
@@ -368,11 +374,13 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
-	@NotifyChange("#filebrowser")
+	@Command
+	@NotifyChange("*")
 	public void onRefreshList() {
 		currentFileList = null;
 	}
 
+	@Command
 	public void onParentFolder() throws IOException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.file.getParentFile());
@@ -384,6 +392,7 @@ public class FilePathEditController extends FileCrawlerController {
 		return currentFilePath.getType().is(DropboxFileInstance.class);
 	}
 
+	@Command
 	public void onDropboxAuthRequest() throws MalformedURLException,
 			SearchLibException {
 		webAuthInfo = DropboxFileInstance.requestAuthorization();
@@ -391,6 +400,7 @@ public class FilePathEditController extends FileCrawlerController {
 		Executions.getCurrent().sendRedirect(webAuthInfo.url, "_blank");
 	}
 
+	@Command
 	public void onDropboxConfirmAuth() throws SearchLibException,
 			InterruptedException {
 		StringBuffer uid = new StringBuffer();

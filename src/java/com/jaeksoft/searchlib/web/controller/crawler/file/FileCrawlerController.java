@@ -23,8 +23,12 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.GlobalCommand;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -44,6 +48,7 @@ public class FileCrawlerController extends CrawlerController {
 
 	protected void setFilePathItemEdit(FilePathItem filePathItem) {
 		setAttribute(ScopeAttribute.FILEPATHITEM_EDIT, filePathItem);
+		PushEvent.eventEditFileRepository.publish(filePathItem);
 	}
 
 	protected void setFilePathItemSelected(FilePathItem filePathItem) {
@@ -66,4 +71,11 @@ public class FileCrawlerController extends CrawlerController {
 		return !isFilePathSelected();
 	}
 
+	@GlobalCommand
+	@Override
+	public void eventEditFileRepository(
+			@BindingParam("filePathItem") FilePathItem filePathItem)
+			throws SearchLibException {
+		reload();
+	}
 }

@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="searchPath"
-	use="com.jaeksoft.searchlib.web.controller.crawler.file.FileController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('searchPath') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FileController')">
 
-	<listbox model="@{searchPath.fileList}" multiple="false"
+	<listbox model="@load(searchPath.fileList)" multiple="false"
 		checkmark="false" sizedByContent="true">
 		<listhead sizable="true">
 			<listheader label="File" />
@@ -35,109 +35,130 @@
 		</listhead>
 		<auxhead>
 			<auxheader>
-				<textbox width="90%" value="@{searchPath.fileName}" />
+				<textbox width="90%" value="@bind(searchPath.fileName)" />
 			</auxheader>
 			<auxheader>
 				<vbox>
 					<datebox compact="true"
-						value="@{searchPath.crawlDateStart}" />
+						value="@bind(searchPath.crawlDateStart)" />
 					<datebox compact="true"
-						value="@{searchPath.crawlDateEnd}" />
+						value="@bind(searchPath.crawlDateEnd)" />
 				</vbox>
 			</auxheader>
 			<auxheader>
 				<vbox>
 					<datebox compact="true"
-						value="@{searchPath.dateModifiedStart}" />
+						value="@bind(searchPath.dateModifiedStart)" />
 					<datebox compact="true"
-						value="@{searchPath.dateModifiedEnd}" />
+						value="@bind(searchPath.dateModifiedEnd)" />
 				</vbox>
 			</auxheader>
 			<auxheader>
 				<listbox mold="select" width="100%"
-					model="@{searchPath.fileTypeList}"
-					selectedItem="@{searchPath.fileType}" />
+					model="@load(searchPath.fileTypeList)"
+					selectedItem="@bind(searchPath.fileType)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader />
 			<auxheader />
 			<auxheader>
-				<textbox cols="4" value="@{searchPath.lang}" />
+				<textbox cols="4" value="@bind(searchPath.lang)" />
 			</auxheader>
 
 			<auxheader>
 				<listbox mold="select" width="100%"
-					model="@{searchPath.fetchStatusList}"
-					selectedItem="@{searchPath.fetchStatus}" />
+					model="@load(searchPath.fetchStatusList)"
+					selectedItem="@bind(searchPath.fetchStatus)">
+					<template name="model">
+						<listitem label="@load(each.name)" />
+					</template>
+				</listbox>
 			</auxheader>
 
 			<auxheader>
 				<listbox mold="select" width="100%"
-					model="@{searchPath.parserStatusList}"
-					selectedItem="@{searchPath.parserStatus}" />
+					model="@load(searchPath.parserStatusList)"
+					selectedItem="@bind(searchPath.parserStatus)">
+					<template name="model">
+						<listitem label="@load(each.name)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader>
 				<listbox mold="select" width="100%"
-					model="@{searchPath.indexStatusList}"
-					selectedItem="@{searchPath.indexStatus}" />
+					model="@load(searchPath.indexStatusList)"
+					selectedItem="@bind(searchPath.indexStatus)">
+					<template name="model">
+						<listitem label="@load(each.name)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader>
 				<listbox mold="select" width="100%"
-					model="@{searchPath.repositoryList}"
-					selectedItem="@{searchPath.repository}" />
+					model="@load(searchPath.repositoryList)"
+					selectedItem="@bind(searchPath.repository)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 			</auxheader>
 			<auxheader />
 		</auxhead>
 		<auxhead>
 			<auxheader colspan="12" align="left">
-				<button label="Search" forward="onSearch" />
+				<button label="Search" onClick="@command('onSearch')" />
 			</auxheader>
 		</auxhead>
-		<listitem self="@{each='file'}">
-			<listcell label="@{file.fileName}"
-				tooltiptext="@{file.uri}" />
-			<listcell
-				label="@{file.crawlDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-			<listcell
-				label="@{file.fileSystemDate,converter='com.jaeksoft.searchlib.web.converter.DateConverter'}" />
-			<listcell label="@{file.fileType}" />
-			<listcell label="@{file.fileExtension}" />
-			<listcell label="@{file.humanSize}" />
-			<listcell label="@{file.lang}" />
-			<listcell label="@{file.fetchStatus}" />
-			<listcell label="@{file.ParserStatus}" />
-			<listcell label="@{file.IndexStatus}" />
-			<listcell label="@{file.repository}" />
-			<listcell />
-		</listitem>
+		<template name="model" var="file">
+			<listitem>
+				<listcell label="@load(file.fileName)"
+					tooltiptext="@load(file.uri)" />
+				<listcell
+					label="@load(file.crawlDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell
+					label="@load(file.fileSystemDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell label="@load(file.fileType)" />
+				<listcell label="@load(file.fileExtension)" />
+				<listcell label="@load(file.humanSize)" />
+				<listcell label="@load(file.lang)" />
+				<listcell label="@load(file.fetchStatus.name)" />
+				<listcell label="@load(file.parserStatus.name)" />
+				<listcell label="@load(file.indexStatus.name)" />
+				<listcell label="@load(file.repository)" />
+				<listcell />
+			</listitem>
+		</template>
 		<listfoot>
 			<listfooter span="12">
 				<paging id="paging" detailed="true"
-					totalSize="@{searchPath.totalSize}"
-					pageSize="@{searchPath.pageSize}"
-					activePage="@{searchPath.activePage}" />
-				<div id="taskLogInfo">
-					<label value="Line per page: " />
-					<intbox cols="3"
-						constraint="no negative, no zero, no negative"
-						value="@{searchPath.pageSize}" forward="onChange=onSearch" />
-					<space width="50px" />
-					<listbox mold="select" id="actionListbox">
-						<listitem label="Select an action"
-							value="nothing" selected="true" />
-						<listitem label="Update to Unfetched (re-crawl)"
-							value="setToUnfetched" />
-						<listitem label="Delete" value="delete" />
-						<listitem label="Optimize database"
-							value="optimize" />
-					</listbox>
-					<button label="Go" forward="onGo"
-						disabled="@{searchPath.fileManager.currentTaskLog}" />
-					<label
-						visible="@{searchPath.fileManager.currentTaskLog}"
-						value="@{searchUrl.fileManager.currentTaskLog.info}" />
-					<timer delay="5000" repeats="true"
-						onTimer="searchPath.onTimer()" running="@{searchPath.refresh}" />
-				</div>
+					totalSize="@load(searchPath.totalSize)"
+					pageSize="@load(searchPath.pageSize)"
+					activePage="@bind(searchPath.activePage)" />
+				<label value="Line per page: " />
+				<intbox cols="3"
+					constraint="no negative, no zero, no negative"
+					value="@bind(searchPath.pageSize)" onChange="@command('onSearch')" />
+				<space width="50px" />
+				<listbox mold="select"
+					selectedItem="@bind(searchPath.batchCommand)">
+					<listitem label="Select an action" value="nothing"
+						selected="true" />
+					<listitem label="Update to Unfetched (re-crawl)"
+						value="setToUnfetched" />
+					<listitem label="Delete" value="delete" />
+					<listitem label="Optimize database"
+						value="optimize" />
+				</listbox>
+				<button label="Go" onClick="@command('onGo')"
+					disabled="@load(searchPath.fileManager.currentTaskLog)" />
+				<label
+					visible="@load(searchPath.fileManager.currentTaskLog)"
+					value="@load(searchPath.fileManager.currentTaskLog.info)" />
+				<timer delay="5000" repeats="true"
+					onTimer="@command('onTimer')" running="@load(searchPath.refresh)" />
 			</listfooter>
 		</listfoot>
 	</listbox>

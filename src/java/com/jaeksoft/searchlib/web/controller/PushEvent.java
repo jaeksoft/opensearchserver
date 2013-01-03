@@ -33,6 +33,7 @@ import org.zkoss.zk.ui.event.EventQueues;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
@@ -74,6 +75,11 @@ public enum PushEvent {
 	 * Notify that a request is edited
 	 */
 	eventEditRequest(EventQueues.DESKTOP),
+
+	/**
+	 * Notify that a file repository is edited
+	 */
+	eventEditFileRepository(EventQueues.DESKTOP),
 
 	/**
 	 * Notify that a scheduler is edited
@@ -130,6 +136,10 @@ public enum PushEvent {
 
 	public void publish(JobItem jobItem) {
 		publish("jobItem", jobItem);
+	}
+
+	public void publish(FilePathItem filePathItem) {
+		publish("filePathItem", filePathItem);
 	}
 
 }

@@ -31,11 +31,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Image;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,8 +43,7 @@ import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class MappingFileController extends CrawlerController implements
-		ListitemRenderer<GenericLink<SourceField, TargetField>> {
+public class MappingFileController extends CrawlerController {
 
 	private transient SchemaField selectedUrlField;
 
@@ -129,6 +125,7 @@ public class MappingFileController extends CrawlerController implements
 		}
 	}
 
+	@Command
 	public void onAdd() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
@@ -143,29 +140,18 @@ public class MappingFileController extends CrawlerController implements
 		reload();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void onLinkRemove(Event event) throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
+	@Command
+	public void onLinkRemove(
+			@BindingParam("link") GenericLink<SourceField, TargetField> link)
+			throws SearchLibException, TransformerConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			ParserConfigurationException {
 		if (!isFileCrawlerParametersRights())
 			throw new SearchLibException("Not allowed");
-		GenericLink<SourceField, TargetField> link = (GenericLink<SourceField, TargetField>) event
-				.getData();
 		FieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
 		fieldMap.store();
 		reload();
 	}
 
-	@Override
-	public void render(Listitem item,
-			GenericLink<SourceField, TargetField> link, int index) {
-		new Listcell(link.getSource().getUniqueName()).setParent(item);
-		new Listcell(link.getTarget().getName()).setParent(item);
-		Listcell listcell = new Listcell();
-		Image image = new Image("/images/action_delete.png");
-		// TODO image.addForward(null, this, "onLinkRemove", link);
-		image.setParent(listcell);
-		listcell.setParent(item);
-	}
 }

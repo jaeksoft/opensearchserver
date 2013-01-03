@@ -14,10 +14,11 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="filepathedit"
-	use="com.jaeksoft.searchlib.web.controller.crawler.file.FilePathEditController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('filepathedit') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FilePathEditController')">
 
-	<panel title="@{filepathedit.currentEditMode}" border="normal">
+	<panel title="@load(filepathedit.currentEditMode)"
+		border="normal">
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
@@ -27,103 +28,111 @@
 				<rows>
 					<row>
 						<label value="Type " />
-						<listbox model="@{filepathedit.typeList}"
-							mold="select" selectedItem="@{filepathedit.currentFileType}">
-							<listitem
-								self="@{each='fileinstancetype'}">
-								<listcell
-									label="@{fileinstancetype.label}" />
-							</listitem>
+						<listbox model="@load(filepathedit.typeList)"
+							mold="select"
+							selectedItem="@bind(filepathedit.currentFileType)">
+							<template name="model">
+								<listitem label="@load(each.label)" />
+							</template>
 						</listbox>
 					</row>
-					<row visible="@{filepathedit.dropbox}">
+					<row visible="@load(filepathedit.dropbox)">
 						<label value="Authorization" />
 						<hbox>
 							<button
 								label="Request dropbox authentication"
-								visible="@{filepathedit.notDropboxWebAuthInfo}"
-								forward="onDropboxAuthRequest" />
+								visible="@load(filepathedit.notDropboxWebAuthInfo)"
+								onClick="@command('onDropboxAuthRequest')" />
 							<button
-								href="@{filepathedit.dropboxAuthUrl}"
+								href="@load(filepathedit.dropboxAuthUrl)"
 								label="Go to Dropbox authentication page"
-								visible="@{filepathedit.dropboxWebAuthInfo}" target="_blank" />
+								visible="@load(filepathedit.dropboxWebAuthInfo)"
+								target="_blank" />
 							<space width="10px" />
 							<button label="Confirm authentication"
-								visible="@{filepathedit.dropboxWebAuthInfo}"
-								forward="onDropboxConfirmAuth" />
+								visible="@load(filepathedit.dropboxWebAuthInfo)"
+								onClick="@command('onDropboxConfirmAuth')" />
 						</hbox>
 					</row>
-					<row visible="@{filepathedit.notLocalFileType}">
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
 						<label value="User name: " />
 						<textbox
-							value="@{filepathedit.currentFilePath.username}" cols="50" />
+							value="@bind(filepathedit.currentFilePath.username)" cols="50" />
 					</row>
-					<row visible="@{filepathedit.domain}">
+					<row visible="@load(filepathedit.domain)">
 						<label value="Domain: " />
 						<textbox
-							value="@{filepathedit.currentFilePath.domain}" cols="50" />
+							value="@bind(filepathedit.currentFilePath.domain)" cols="50" />
 					</row>
-					<row visible="@{filepathedit.notLocalFileType}">
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
 						<label value="Password: " />
 						<textbox type="password"
-							value="@{filepathedit.currentFilePath.password}" cols="30" />
+							value="@bind(filepathedit.currentFilePath.password)" cols="30" />
 					</row>
-					<row visible="@{filepathedit.notLocalFileType}">
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
 						<label value="Host: " />
 						<textbox
-							value="@{filepathedit.currentFilePath.host}" cols="100" />
+							value="@bind(filepathedit.currentFilePath.host)" cols="100" />
 					</row>
 					<row>
 						<label value="Path: " />
 						<textbox
-							value="@{filepathedit.currentFilePath.path}" cols="150" />
+							value="@bind(filepathedit.currentFilePath.path)" cols="150" />
 					</row>
-					<row visible="@{filepathedit.localFileType}">
+					<row visible="@load(filepathedit.localFileType)">
 						<label value="Local folder" />
-						<listbox id="filebrowser"
-							model="@{filepathedit.currentFileList}"
-							selectedItem="@{filepathedit.currentFile}" height="250px">
+						<listbox
+							model="@load(filepathedit.currentFileList)"
+							selectedItem="@bind(filepathedit.currentFile)" height="250px">
 							<listhead>
 								<listheader label="Local file system">
 									<label
-										visible="@{filepathedit.isNotRoot}" value="Path: " />
+										visible="@load(filepathedit.notRoot)" value="Path: " />
 									<listbox
-										visible="@{filepathedit.isNotRoot}"
-										model="@{filepathedit.folderTree}"
-										selectedItem="@{filepathedit.currentFolder}" mold="select">
-										<listitem
-											self="@{each='folder'}">
-											<listcell
-												label="@{folder.name}" />
-										</listitem>
+										visible="@load(filepathedit.notRoot)"
+										model="@load(filepathedit.folderTree)"
+										selectedItem="@bind(filepathedit.currentFolder)"
+										mold="select">
+										<template name="model">
+											<listitem
+												label="@load(each.name)" />
+										</template>
 									</listbox>
 									<button
-										visible="@{filepathedit.isNotRoot}"
-										label="go to parent folder" forward="onParentFolder" />
+										visible="@load(filepathedit.notRoot)"
+										label="go to parent folder"
+										onClick="@command('onParentFolder')" />
 									<space width="30px" />
 									<button label="Refresh the list"
-										forward="onRefreshList" />
+										onClick="@command('onRefreshList')" />
 									<space width="30px" />
 									<checkbox label="Show hidden file"
-										checked="@{filepathedit.showHidden}" />
+										checked="@bind(filepathedit.showHidden)" />
 								</listheader>
 							</listhead>
-							<listitem self="@{each='file'}">
-								<listcell onDoubleClick="filepathedit.onOpenFile(self)">
-									<image src="/images/file.png"
-										visible="@{file.file.file}" />
-									<image src="/images/directory.png"
-										visible="@{file.file.directory}" />
-									<label value="@{file.name}" />
-								</listcell>
-							</listitem>
+							<template name="model" var="file">
+								<listitem>
+									<listcell
+										onDoubleClick="@command('onOpenFile', file=file)">
+										<image src="/images/file.png"
+											visible="@load(file.file.file)" />
+										<image
+											src="/images/directory.png"
+											visible="@load(file.file.directory)" />
+										<label value="@load(file.name)" />
+									</listcell>
+								</listitem>
+							</template>
 							<listfoot>
 								<listfooter>
 									<button
-										disabled="@{filepathedit.selectedFile}" label="Select"
-										forward="onSelectFile" />
+										disabled="@load(filepathedit.selectedFile)" label="Select"
+										onClick="@command('onSelectFile')" />
 									<label
-										value="@{filepathedit.currentFile.file.absolutePath}" />
+										value="@load(filepathedit.currentFile.file.absolutePath)" />
 								</listfooter>
 							</listfoot>
 						</listbox>
@@ -131,38 +140,40 @@
 					<row>
 						<label value="With sub directory: " />
 						<checkbox
-							checked="@{filepathedit.currentFilePath.withSubDir}" />
+							checked="@bind(filepathedit.currentFilePath.withSubDir)" />
 					</row>
 					<row>
 						<label value="Delay between each access (ms): " />
 						<intbox
-							value="@{filepathedit.currentFilePath.delay}" />
+							value="@bind(filepathedit.currentFilePath.delay)" />
 					</row>
 					<row>
 						<label value="Enabled: " />
 						<checkbox
-							checked="@{filepathedit.currentFilePath.enabled}" />
+							checked="@bind(filepathedit.currentFilePath.enabled)" />
 					</row>
 				</rows>
 				<foot>
 					<footer span="2">
 						<vbox width="100%" align="center">
 							<hbox
-								visible="@{filepathedit.filePathSelected}">
+								visible="@load(filepathedit.filePathSelected)">
 								<button label="Cancel"
-									forward="onCancel" />
+									onClick="@command('onCancel')" />
 								<space width="10px" />
-								<button label="Save" forward="onSave" />
+								<button label="Save"
+									onClick="@command('onSave')" />
 								<space width="30px" />
 								<button label="Delete"
-									forward="onDelete" />
+									onClick="@command('onDelete')" />
 							</hbox>
 							<hbox
-								visible="@{filepathedit.noFilePathSelected}">
+								visible="@load(filepathedit.noFilePathSelected)">
 								<button label="Cancel"
-									forward="onCancel" />
+									onClick="@command('onCancel')" />
 								<space width="10px" />
-								<button label="Create" forward="onSave" />
+								<button label="Create"
+									onClick="@command('onSave')" />
 							</hbox>
 						</vbox>
 					</footer>
