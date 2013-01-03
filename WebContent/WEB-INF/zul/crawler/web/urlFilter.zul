@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="urlfilter"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.UrlFilterController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('urlfilter') @init('com.jaeksoft.searchlib.web.controller.crawler.web.UrlFilterController')">
 	<vbox>
 		<label>Some example of regular expression:</label>
 		<label>
@@ -34,8 +34,8 @@
 		<label>- Removing all parameters: .*</label>
 	</vbox>
 	<separator />
-	<listbox selectedItem="@{urlfilter.selectedFilter}"
-		model="@{urlfilter.urlFilterList.array}" mold="paging"
+	<listbox selectedItem="@bind(urlfilter.selectedFilter)"
+		model="@load(urlfilter.urlFilterList.array)" mold="paging"
 		pageSize="20">
 		<listhead>
 			<listheader label="Filter name" width="120px" align="left"
@@ -46,34 +46,35 @@
 		</listhead>
 		<auxhead>
 			<auxheader align="center">
-				<textbox value="@{urlfilter.currentFilter.name}"
+				<textbox value="@bind(urlfilter.currentFilter.name)"
 					width="95%" />
 			</auxheader>
 			<auxheader align="center">
-				<textbox value="@{urlfilter.currentFilter.pattern}"
+				<textbox value="@bind(urlfilter.currentFilter.pattern)"
 					width="95%" />
 			</auxheader>
 			<auxheader align="center">
-				<hbox visible="@{urlfilter.selected}">
-					<button label="Cancel" forward="onCancel" />
+				<hbox visible="@load(urlfilter.selected)">
+					<button label="Cancel"
+						onClick="@command('onCancel')" />
 					<space width="10px" />
-					<button label="Save" forward="onSave" />
+					<button label="Save" onClick="@command('onSave')" />
 				</hbox>
-				<hbox visible="@{urlfilter.notSelected}">
-					<button label="Create" forward="onSave" />
+				<hbox visible="@load(urlfilter.notSelected)">
+					<button label="Create" onClick="@command('onSave')" />
 				</hbox>
 			</auxheader>
 		</auxhead>
-		<listitem self="@{each=urlfilteritem}">
-			<listcell label="@{urlfilteritem.name}" />
-			<listcell label="@{urlfilteritem.pattern}" />
-			<listcell>
-				<button tooltiptext="Delete the URL filter"
-					image="/images/action_delete.png"
-					onClick="urlfilter.delete(self)">
-					<custom-attributes urlfilteritem="@{urlfilteritem}" />
-				</button>
-			</listcell>
-		</listitem>
+		<template name="model" var="urlfilteritem">
+			<listitem>
+				<listcell label="@load(urlfilteritem.name)" />
+				<listcell label="@load(urlfilteritem.pattern)" />
+				<listcell>
+					<button tooltiptext="Delete the URL filter"
+						image="/images/action_delete.png"
+						onClick="@command('delete', urlfilteritem=urlfilteritem)" />
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

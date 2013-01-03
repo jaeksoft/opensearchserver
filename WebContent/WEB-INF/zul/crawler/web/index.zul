@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="none"
+<window border="none" apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('webcrawler') @init('com.jaeksoft.searchlib.web.controller.crawler.CrawlerController')">
 	<tabbox>
 		<tabs>
