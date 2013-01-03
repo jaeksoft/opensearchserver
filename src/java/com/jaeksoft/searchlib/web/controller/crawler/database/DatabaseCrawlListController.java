@@ -34,7 +34,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -120,12 +121,12 @@ public class DatabaseCrawlListController extends CrawlerController {
 		return currentCrawl;
 	}
 
-	public boolean selected() {
+	public boolean isSelected() {
 		return selectedCrawl != null;
 	}
 
-	public boolean notSelected() {
-		return !selected();
+	public boolean isNotSelected() {
+		return !isSelected();
 	}
 
 	public boolean isEditing() {
@@ -161,6 +162,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reload();
 	}
 
+	@Command
 	public void onCancelField() throws SearchLibException {
 		sqlColumn = null;
 		selectedField = null;
@@ -168,6 +170,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reload();
 	}
 
+	@Command
 	public void onSaveField() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
@@ -183,19 +186,15 @@ public class DatabaseCrawlListController extends CrawlerController {
 		onCancelField();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void removeLink(Component comp) throws SearchLibException,
-			InterruptedException {
-		if (comp == null)
-			return;
-		GenericLink<SourceField, DatabaseFieldTarget> fieldLink = (GenericLink<SourceField, DatabaseFieldTarget>) comp
-				.getAttribute("fieldlink");
-		if (fieldLink == null)
-			return;
+	@Command
+	public void removeLink(
+			@BindingParam("fieldlink") GenericLink<SourceField, DatabaseFieldTarget> fieldLink)
+			throws SearchLibException, InterruptedException {
 		currentCrawl.getFieldMap().remove(fieldLink);
 		reload();
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		getDatabaseCrawlList();
 		if (selectedCrawl != null)
@@ -211,6 +210,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 		onCancel();
 	}
 
+	@Command
 	public void onNew() throws SearchLibException {
 		DatabaseCrawl oldCurrentCrawl = currentCrawl;
 		selectedCrawl = null;
@@ -221,39 +221,28 @@ public class DatabaseCrawlListController extends CrawlerController {
 		reload();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentCrawl = null;
 		selectedCrawl = null;
 		reload();
 	}
 
-	private DatabaseCrawl getDatabaseCrawlItem(Component comp) {
-		if (comp == null)
-			return null;
-		return (DatabaseCrawl) comp.getAttribute("dbcrawlitem");
-	}
-
-	public void delete(Component comp) throws SearchLibException,
-			InterruptedException {
-		DatabaseCrawl item = getDatabaseCrawlItem(comp);
-		if (item == null)
-			return;
+	@Command
+	public void delete(@BindingParam("dbcrawlitem") DatabaseCrawl item)
+			throws SearchLibException, InterruptedException {
 		new DeleteAlert(item);
 	}
 
-	public void edit(Component comp) throws SearchLibException,
-			InterruptedException {
-		DatabaseCrawl item = getDatabaseCrawlItem(comp);
-		if (item == null)
-			return;
+	@Command
+	public void edit(@BindingParam("dbcrawlitem") DatabaseCrawl item)
+			throws SearchLibException, InterruptedException {
 		setSelectedCrawl(item);
 	}
 
-	public void execute(Component comp) throws SearchLibException,
-			InterruptedException {
-		DatabaseCrawl item = getDatabaseCrawlItem(comp);
-		if (item == null)
-			return;
+	@Command
+	public void execute(@BindingParam("dbcrawlitem") DatabaseCrawl item)
+			throws SearchLibException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -309,6 +298,7 @@ public class DatabaseCrawlListController extends CrawlerController {
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		dbCrawlList = null;
 		super.reload();

@@ -26,17 +26,14 @@ package com.jaeksoft.searchlib.web.controller.crawler.database;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.Command;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class DatabaseCrawlProcessController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1902174922255951773L;
 
 	private transient boolean debug = false;
 
@@ -67,6 +64,7 @@ public class DatabaseCrawlProcessController extends CrawlerController {
 	}
 
 	@Override
+	@Command
 	public void onTimer() throws SearchLibException {
 		reload();
 	}
