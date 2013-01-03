@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import org.apache.http.HttpException;
+import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -36,11 +37,6 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class RobotsTxtController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5532994554753193496L;
 
 	private transient int pageSize;
 
@@ -94,6 +90,7 @@ public class RobotsTxtController extends CrawlerController {
 		return client.getWebPropertyManager().getRobotsTxtEnabled();
 	}
 
+	@Command
 	public void onSearch() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
@@ -102,6 +99,7 @@ public class RobotsTxtController extends CrawlerController {
 		reload();
 	}
 
+	@Command
 	public void onReset() throws IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {

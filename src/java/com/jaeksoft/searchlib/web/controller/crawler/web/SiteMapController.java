@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,7 +25,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
-import org.zkoss.zk.ui.Component;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,8 +37,6 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class SiteMapController extends CrawlerController {
-
-	private static final long serialVersionUID = 2419049507881498895L;
 
 	private class DeleteAlert extends AlertController {
 
@@ -114,6 +113,7 @@ public class SiteMapController extends CrawlerController {
 		return currentSiteMap;
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		if (selectedSiteMap != null)
 			currentSiteMap.copyTo(selectedSiteMap);
@@ -123,17 +123,16 @@ public class SiteMapController extends CrawlerController {
 		onCancel();
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentSiteMap = new SiteMapItem("");
 		selectedSiteMap = null;
 		reload();
 	}
 
-	public void delete(Component comp) throws SearchLibException,
-			InterruptedException {
-		SiteMapItem item = (SiteMapItem) comp.getAttribute("siteMapItem");
-		if (item == null)
-			return;
+	@Command
+	public void delete(@BindingParam("siteMapItem") SiteMapItem item)
+			throws SearchLibException, InterruptedException {
 		new DeleteAlert(item);
 	}
 

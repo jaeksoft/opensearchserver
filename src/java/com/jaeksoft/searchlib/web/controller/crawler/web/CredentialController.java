@@ -105,6 +105,12 @@ public class CredentialController extends CrawlerController {
 		return activePage;
 	}
 
+	public void setActivePage(int page) throws SearchLibException {
+		this.activePage = page;
+		this.credentialList = null;
+		reload();
+	}
+
 	public int getTotalSize() {
 		return totalSize;
 	}
