@@ -83,6 +83,8 @@ public class FieldValueItem {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
 		FieldValueItem item = (FieldValueItem) obj;
 		if (value == null)
 			return (item.value == null);

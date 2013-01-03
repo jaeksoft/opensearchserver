@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,23 +14,24 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="manualCrawl"
-	use="com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController">
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('manualCrawl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ManualWebCrawlController')">
 	<vbox width="100%">
 		<hbox align="center">
 			<label value="URL to crawl: " />
-			<textbox cols="100" value="@{manualCrawl.url}"
-				readonly="@{manualCrawl.refresh}" />
-			<button label="Crawl" forward="onCrawl"
-				disabled="@{manualCrawl.refresh}" />
-			<image visible="@{manualCrawl.refresh}"
+			<textbox cols="100" value="@bind(manualCrawl.url)"
+				readonly="@load(manualCrawl.refresh)" />
+			<button label="Crawl" onClick="@command('onCrawl')"
+				disabled="@load(manualCrawl.refresh)" />
+			<image visible="@load(manualCrawl.refresh)"
 				src="/images/ajax-loader.gif" />
 			<space />
 			<button label="Download crawl cache"
-				visible="@{manualCrawl.crawlCache}" forward="onDownload" />
+				visible="@load(manualCrawl.crawlCache)"
+				onClick="@command('onDownload')" />
 		</hbox>
 		<panel title="Crawl result"
-			visible="@{manualCrawl.crawlComplete}" collapsible="true"
+			visible="@load(manualCrawl.crawlComplete)" collapsible="true"
 			border="normal">
 			<panelchildren>
 				<grid>
@@ -38,7 +39,7 @@
 						<auxheader colspan="4" align="center">
 							<label value="URL: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.url}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.url)" />
 						</auxheader>
 					</auxhead>
 					<columns>
@@ -51,79 +52,82 @@
 						<row>
 							<label value="Crawl date: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.when}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.when)" />
 							<label value="Robots.txt status: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.robotsTxtStatus}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.robotsTxtStatus.name)" />
 						</row>
 						<row>
 							<label value="Content Type: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.contentBaseType}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.contentBaseType)" />
 							<label value="Fetch status: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.fetchStatus}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.fetchStatus.name)" />
 						</row>
 						<row>
 							<label value="Content Type charset: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.contentTypeCharset}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.contentTypeCharset)" />
 							<label value="Parser status: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.parserStatus}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.parserStatus.name)" />
 						</row>
 						<row>
 							<label value="Content encoding: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.contentEncoding}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.contentEncoding)" />
 							<label value="Index status: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.indexStatus}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.indexStatus.name)" />
 						</row>
 						<row>
 							<label value="Lang: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.lang}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.lang)" />
 							<label value="Response Code: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.responseCode}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.responseCode)" />
 						</row>
 						<row>
 							<label value="Lang method: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.langMethod}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.langMethod)" />
 							<label value="Content length: " />
 							<label
-								value="@{manualCrawl.crawlThread.currentUrlItem.contentLength}" />
+								value="@load(manualCrawl.crawlThread.currentUrlItem.contentLength)" />
 						</row>
 					</rows>
 				</grid>
 
 				<listbox mold="paging" pageSize="20"
-					model="@{manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray}">
-					<listitem self="@{each='fieldContent'}">
-						<listcell>
-							<panel title="@{fieldContent.field}"
-								collapsible="true">
-								<panelchildren>
-									<listbox
-										model="@{fieldContent.values}" mold="paging" pageSize="10">
-										<listitem
-											self="@{each='fieldValue'}" label="@{fieldValue.value}" />
-									</listbox>
-								</panelchildren>
-							</panel>
-						</listcell>
-					</listitem>
-
+					model="@load(manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray)">
+					<template name="model" var="fieldContent">
+						<listitem>
+							<listcell>
+								<panel title="@load(fieldContent.field)"
+									collapsible="true">
+									<panelchildren>
+										<listbox
+											model="@load(fieldContent.values)" mold="paging"
+											pageSize="10">
+											<template name="model"
+												var="fieldValue">
+												<listitem
+													label="@load(fieldValue.value)" />
+											</template>
+										</listbox>
+									</panelchildren>
+								</panel>
+							</listcell>
+						</listitem>
+					</template>
 				</listbox>
 
 			</panelchildren>
 		</panel>
 
-
 	</vbox>
-
-	<timer delay="3000" repeats="true" onTimer="manualCrawl.onTimer()"
-		running="@{manualCrawl.refresh}" />
+	<timer delay="3000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(manualCrawl.refresh)" />
 </window>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,11 +40,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ManualWebCrawlController extends CommonController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4805144758692963031L;
 
 	private transient String url;
 
@@ -80,6 +76,7 @@ public class ManualWebCrawlController extends CommonController {
 		}
 	}
 
+	@Command
 	public void onCrawl() throws SearchLibException, ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
@@ -94,6 +91,7 @@ public class ManualWebCrawlController extends CommonController {
 		}
 	}
 
+	@Command
 	public void onDownload() throws IOException, InterruptedException {
 		synchronized (this) {
 			if (!isCrawlCache())
@@ -132,6 +130,7 @@ public class ManualWebCrawlController extends CommonController {
 
 	}
 
+	@Command
 	public void onTimer() throws SearchLibException {
 		reload();
 	}

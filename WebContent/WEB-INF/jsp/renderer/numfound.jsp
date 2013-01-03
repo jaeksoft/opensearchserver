@@ -7,7 +7,7 @@
 		Renderer renderer = (Renderer) request.getAttribute("renderer");
 		int count = result.getNumFound()
 				- result.getCollapsedDocCount();
-		float time = (float) (result.getTimer().duration());
+		float time = (float) (result.getTimer().getDuration());
 %>
 <div class="osscmnrdr ossnumfound"><%=renderer.getResultFoundText(count)%>
 	(<%=time / 1000%>s)

@@ -64,7 +64,11 @@
 								<listbox mold="select"
 									visible="@load(property.list)"
 									model="@load(property.valueList)"
-									selectedItem="@bind(property.value)" />
+									selectedItem="@bind(property.value)">
+									<template name="model">
+										<listitem label="@load(each)" />
+									</template>
+								</listbox>
 							</vbox>
 							<label
 								value="@load(property.classPropertyEnum.info)" />
