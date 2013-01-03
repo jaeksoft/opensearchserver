@@ -15,8 +15,8 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <vbox width="100%">
-	<textbox value="@{renderer.currentRenderer.css}" width="100%"
+	<textbox value="@bind(renderer.currentRenderer.css)" width="100%"
 		multiline="true" rows="40" />
 	<button label="Restore default values"
-		onClick="renderer.onCssDefault()" />
+		onClick="@command('onCssDefault')" />
 </vbox>

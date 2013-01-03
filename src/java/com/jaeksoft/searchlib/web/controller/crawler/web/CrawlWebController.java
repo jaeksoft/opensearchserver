@@ -25,6 +25,8 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.Command;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
@@ -32,11 +34,6 @@ import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class CrawlWebController extends CrawlerController {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5309269960746544920L;
 
 	private transient int sheetRows;
 
@@ -75,6 +72,7 @@ public class CrawlWebController extends CrawlerController {
 		return client.getWebCrawlMaster();
 	}
 
+	@Command
 	public void onRun() throws SearchLibException, IOException {
 		if (!isWebCrawlerStartStopRights())
 			throw new SearchLibException("Not allowed");

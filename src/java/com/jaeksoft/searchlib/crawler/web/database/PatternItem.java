@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PatternItem {
@@ -55,13 +54,10 @@ public class PatternItem {
 
 	private Pattern pattern;
 
-	private Selector<PatternItem> patternSelector;
-
 	public PatternItem() {
 		status = Status.UNDEFINED;
 		sPattern = null;
 		pattern = null;
-		patternSelector = null;
 	}
 
 	public PatternItem(URL url) {
@@ -82,17 +78,6 @@ public class PatternItem {
 		status = v;
 	}
 
-	public void setSelected(boolean v) {
-		if (v)
-			patternSelector.addSelection(this);
-		else
-			patternSelector.removeSelection(this);
-	}
-
-	public boolean isSelected() {
-		return patternSelector.isSelected(this);
-	}
-
 	public boolean match(String sUrl) {
 		if (pattern == null)
 			return sUrl.equals(sPattern);
@@ -110,10 +95,6 @@ public class PatternItem {
 
 	public String getPattern() {
 		return sPattern;
-	}
-
-	public void setPatternSelector(Selector<PatternItem> patternSelector) {
-		this.patternSelector = patternSelector;
 	}
 
 }

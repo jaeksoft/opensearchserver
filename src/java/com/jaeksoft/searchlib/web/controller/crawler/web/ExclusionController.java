@@ -30,11 +30,6 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 public class ExclusionController extends AbstractPatternController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3279476598755841903L;
-
 	public ExclusionController() throws SearchLibException {
 		super();
 	}

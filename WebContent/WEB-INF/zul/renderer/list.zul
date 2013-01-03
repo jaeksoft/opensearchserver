@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,12 +16,12 @@
 -->
 <panel title="List of existing renderer" border="normal">
 	<panelchildren>
-		<listbox model="@{renderer.renderers}" mold="paging"
-			 pageSize="10">
+		<listbox model="@load(renderer.renderers)" mold="paging"
+			pageSize="10">
 			<auxhead>
 				<auxheader colspan="3">
 					<button label="New renderer..."
-						onClick="renderer.onNew()" />
+						onClick="@command('onNew')" />
 				</auxheader>
 			</auxhead>
 			<listhead>
@@ -29,24 +29,25 @@
 				<listheader label="Request" />
 				<listheader label="Action" width="200px" />
 			</listhead>
-			<listitem self="@{each=item}">
-				<custom-attributes rendererItem="@{item}" />
-				<listcell label="@{item.name}"
-					onDoubleClick="renderer.doEdit(self)" />
-				<listcell label="@{item.requestName}"
-					onDoubleClick="renderer.doEdit(self)" />
-				<listcell>
-					<hbox align="center">
-						<button label="View" href="@{item.apiUrl}"
-							target="_blank" />
-						<button label="Edit"
-							onClick="renderer.doEdit(self)" />
-						<space width="10px" />
-						<button label="Delete"
-							onClick="renderer.doDelete(self)" />
-					</hbox>
-				</listcell>
-			</listitem>
+			<template name="model" var="item">
+				<listitem>
+					<listcell label="@load(item.name)"
+						onDoubleClick="@command('doEdit', item=item)" />
+					<listcell label="@{item.requestName}"
+						onDoubleClick="@command('doEdit', item=item)" />
+					<listcell>
+						<hbox align="center">
+							<button label="View"
+								href="@load(item.apiUrl)" target="_blank" />
+							<button label="Edit"
+								onClick="@command('doEdit', item=item)" />
+							<space width="10px" />
+							<button label="Delete"
+								onClick="@command('doDelete', item=item)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</template>
 		</listbox>
 	</panelchildren>
 </panel>

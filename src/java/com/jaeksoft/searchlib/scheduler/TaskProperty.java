@@ -79,7 +79,7 @@ public class TaskProperty {
 		return value;
 	}
 
-	public String previewValue() throws IOException {
+	public String getPreviewValue() throws IOException {
 		if (value == null)
 			return null;
 		StringReader sr = null;

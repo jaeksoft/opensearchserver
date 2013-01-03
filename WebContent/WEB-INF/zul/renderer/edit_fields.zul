@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<listbox model="@{renderer.currentRenderer.fields}"
-	selectedItem="@{renderer.selectedRendererField}">
+<listbox model="@load(renderer.currentRenderer.fields)"
+	selectedItem="@bind(renderer.selectedRendererField)">
 	<listhead>
 		<listheader label="Field / Snippet" />
 		<listheader label="URL Field" />
@@ -23,50 +23,64 @@
 	</listhead>
 	<auxhead>
 		<auxheader>
-			<listbox model="@{renderer.fieldTypeList}"
-				selectedItem="@{renderer.currentRendererField.fieldType}"
-				onSelect="renderer.onReload()" mold="select" />
-			<listbox model="@{renderer.fieldOrSnippetList}"
-				selectedItem="@{renderer.currentRendererField.fieldName}"
-				mold="select" />
+			<listbox model="@load(renderer.fieldTypeList)"
+				onSelect="@command('reload')"
+				selectedItem="@bind(renderer.currentRendererField.fieldType)"
+				mold="select">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<listbox model="@load(renderer.fieldOrSnippetList)"
+				selectedItem="@bind(renderer.currentRendererField.fieldName)"
+				mold="select">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
 		</auxheader>
 		<auxheader>
-			<listbox model="@{renderer.fieldList}"
-				selectedItem="@{renderer.currentRendererField.urlFieldName}"
-				mold="select" />
+			<listbox model="@load(renderer.fieldList)"
+				selectedItem="@bind(renderer.currentRendererField.urlFieldName)"
+				mold="select">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
 		</auxheader>
 		<auxheader align="center">
 			<button tooltiptext="Add a field"
-				visible="@{renderer.notFieldSelected}"
+				visible="@load(renderer.notFieldSelected)"
 				image="/images/action_add.png"
-				onClick="renderer.onRendererFieldSave()" />
-			<hbox visible="@{renderer.fieldSelected}">
+				onClick="@command('onRendererFieldSave')" />
+			<hbox visible="@load(renderer.fieldSelected)">
 				<button tooltiptext="Save a field" label="Save"
-					onClick="renderer.onRendererFieldSave()" />
+					onClick="@command('onRendererFieldSave')" />
 				<button tooltiptext="Save a field" label="Cancel"
-					onClick="renderer.onRendererFieldCancel()" />
+					onClick="@command('onRendererFieldCancel')" />
 			</hbox>
 		</auxheader>
 	</auxhead>
-	<listitem self="@{each=rendererFieldItem}">
-		<custom-attributes rendererFieldItem="@{rendererFieldItem}" />
-		<listcell>
-			<label value="@{rendererFieldItem.fieldType}" />
-			<label value=": " />
-			<label value="@{rendererFieldItem.fieldName}" />
-		</listcell>
-		<listcell label="@{rendererFieldItem.urlFieldName}" />
-		<listcell>
-			<button tooltiptext="Move the field up"
-				image="/images/arrow_top.png"
-				onClick="renderer.onRendererFieldUp(self)" />
-			<button tooltiptext="Move the field down"
-				image="/images/arrow_down.png"
-				onClick="renderer.onRendererFieldDown(self)" />
-			<space />
-			<button tooltiptext="Remove a field"
-				image="/images/action_delete.png"
-				onClick="renderer.onRendererFieldRemove(self)" />
-		</listcell>
-	</listitem>
+	<template name="model" var="rendererFieldItem">
+		<listitem>
+			<listcell>
+				<label value="@load(rendererFieldItem.fieldType)" />
+				<label value=": " />
+				<label value="@load(rendererFieldItem.fieldName)" />
+			</listcell>
+			<listcell label="@load(rendererFieldItem.urlFieldName)" />
+			<listcell>
+				<button tooltiptext="Move the field up"
+					image="/images/arrow_top.png"
+					onClick="@command('onRendererFieldUp', rendererFieldItem=rendererFieldItem)" />
+				<button tooltiptext="Move the field down"
+					image="/images/arrow_down.png"
+					onClick="@command('onRendererFieldDown', rendererFieldItem=rendererFieldItem)" />
+				<space />
+				<button tooltiptext="Remove a field"
+					image="/images/action_delete.png"
+					onClick="@command('onRendererFieldRemove', rendererFieldItem=rendererFieldItem)" />
+			</listcell>
+		</listitem>
+	</template>
 </listbox>

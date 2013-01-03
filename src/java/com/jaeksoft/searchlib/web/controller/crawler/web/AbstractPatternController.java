@@ -28,21 +28,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.ListitemRenderer;
-import org.zkoss.zul.event.PagingEvent;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.common.database.Selector;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public abstract class AbstractPatternController extends CrawlerController
-		implements ListitemRenderer<PatternItem>, Selector<PatternItem> {
+public abstract class AbstractPatternController extends CrawlerController {
 
 	private transient List<PatternItem> patternList;
 
@@ -56,7 +52,7 @@ public abstract class AbstractPatternController extends CrawlerController
 
 	private transient int activePage;
 
-	private transient Set<String> selection;
+	private transient Set<PatternItem> selectionSet;
 
 	public AbstractPatternController() throws SearchLibException {
 		super();
@@ -70,7 +66,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		pageSize = 10;
 		totalSize = 0;
 		activePage = 0;
-		selection = new TreeSet<String>();
+		selectionSet = new TreeSet<PatternItem>();
 	}
 
 	public void setPageSize(int v) {
@@ -119,8 +115,7 @@ public abstract class AbstractPatternController extends CrawlerController
 				patternList = new ArrayList<PatternItem>();
 				totalSize = patternManager.getPatterns(like, getActivePage()
 						* getPageSize(), getPageSize(), patternList);
-				for (PatternItem patternUrlItem : patternList)
-					patternUrlItem.setPatternSelector(this);
+				selectionSet.clear();
 				return patternList;
 			} catch (SearchLibException e) {
 				throw new RuntimeException(e);
@@ -128,14 +123,23 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
-		synchronized (this) {
-			patternList = null;
-			activePage = pagingEvent.getActivePage();
-			reload();
-		}
+	public Set<PatternItem> getSelectedItems() {
+		return selectionSet;
 	}
 
+	@NotifyChange("*")
+	public void setSelectedItems(Set<PatternItem> selectionSet)
+			throws SearchLibException {
+		this.selectionSet = selectionSet;
+	}
+
+	public void setActivePage(int page) throws SearchLibException {
+		patternList = null;
+		this.activePage = page;
+		reload();
+	}
+
+	@Command
 	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			patternList = null;
@@ -151,10 +155,11 @@ public abstract class AbstractPatternController extends CrawlerController
 				return false;
 			if (!isWebCrawlerEditPatternsRights())
 				return false;
-			return (getSelectionCount() > 0);
+			return (selectionSet.size() > 0);
 		}
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException {
 		synchronized (this) {
 			if (!isWebCrawlerEditPatternsRights())
@@ -169,6 +174,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
+	@Command
 	public void onDeleteAll() throws SearchLibException {
 		synchronized (this) {
 			if (!isWebCrawlerEditPatternsRights())
@@ -184,53 +190,13 @@ public abstract class AbstractPatternController extends CrawlerController
 
 	}
 
-	public void onSelect(Event event) throws SearchLibException {
-		PatternItem patternItem = (PatternItem) event.getData();
-		patternItem.setSelected(!patternItem.isSelected());
-		reload();
-	}
-
-	@Override
-	public void render(Listitem item, PatternItem patternItem, int index) {
-		item.setLabel(patternItem.getPattern());
-		item.setSelected(patternItem.isSelected());
-		// TODO item.addForward(null, this, "onSelect", patternItem);
-	}
-
-	@Override
-	public void addSelection(PatternItem item) {
-		synchronized (selection) {
-			selection.add(item.getPattern());
-		}
-	}
-
-	@Override
-	public void removeSelection(PatternItem item) {
-		synchronized (selection) {
-			selection.remove(item.getPattern());
-		}
-	}
-
-	public int getSelectionCount() {
-		synchronized (selection) {
-			return selection.size();
-		}
-	}
-
-	@Override
-	public boolean isSelected(PatternItem item) {
-		synchronized (selection) {
-			return selection.contains(item.getPattern());
-		}
-	}
-
 	public void deleteSelection(PatternManager patternManager)
 			throws SearchLibException {
-		synchronized (selection) {
+		synchronized (selectionSet) {
 			if (!isWebCrawlerEditPatternsRights())
 				throw new SearchLibException("Not allowed");
-			patternManager.delPattern(selection);
-			selection.clear();
+			patternManager.delPatternItem(selectionSet);
+			selectionSet.clear();
 		}
 	}
 
@@ -246,6 +212,7 @@ public abstract class AbstractPatternController extends CrawlerController
 		}
 	}
 
+	@Command
 	public void onAdd() throws SearchLibException {
 		synchronized (this) {
 			if (!isWebCrawlerEditPatternsRights())
@@ -263,6 +230,7 @@ public abstract class AbstractPatternController extends CrawlerController
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			patternList = null;

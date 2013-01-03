@@ -18,19 +18,20 @@
 	<caption>
 		<hbox align="center">
 			<label value="IFrame pixel size (width x height): " />
-			<intbox value="@{renderer.iframeWidth}" />
+			<intbox value="@bind(renderer.iframeWidth)" />
 			<label value=" x " />
-			<intbox value="@{renderer.iframeHeight}" />
+			<intbox value="@bind(renderer.iframeHeight)" />
 			<space />
-			<button label="Test" onClick="renderer.onTest(self)" />
+			<button label="Test" onClick="@command('onTest')" />
 			<textbox cols="100" rows="3" readonly="true"
-				value="@{renderer.iFrameHtmlCode}" />
+				value="@load(renderer.iframeHtmlCode)" />
 		</hbox>
 	</caption>
 	<panelchildren>
-		<iframe visible="@{renderer.testable}"
+		<iframe visible="@load(renderer.testable)"
+			src="@load(renderer.currentRenderer.apiUrl)"
 			style="border: 1px solid gray" scrolling="auto" id="iframetest"
-			width="@{renderer.iframeWidthPx}"
-			height="@{renderer.iframeHeightPx}" />
+			width="@load(renderer.iframeWidthPx)"
+			height="@load(renderer.iframeHeightPx)" />
 	</panelchildren>
 </panel>

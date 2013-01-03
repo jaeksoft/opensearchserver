@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<panel title="@{renderer.currentEditMode}" border="normal">
+<panel title="@load(renderer.currentEditMode)" border="normal">
 	<panelchildren>
 		<grid>
 			<columns sizable="false">
@@ -26,42 +26,48 @@
 			<rows>
 				<row>
 					<label value="Renderer name: " />
-					<textbox value="@{renderer.currentRenderer.name}"
-						readonly="@{renderer.selected}" cols="50" />
+					<textbox
+						value="@bind(renderer.currentRenderer.name)"
+						readonly="@load(renderer.selected)" cols="50" />
 					<label value="Request name: " />
-					<combobox model="@{renderer.requestList}"
-						onChange="renderer.reloadPage()" width="200px"
-						value="@{renderer.currentRenderer.requestName}" />
+					<combobox model="@load(renderer.requestList)"
+						width="200px" value="@bind(renderer.currentRenderer.requestName)" />
 				</row>
 				<row>
 					<label value="Search button label: " />
 					<textbox
-						value="@{renderer.currentRenderer.searchButtonLabel}" cols="50" />
+						value="@bind(renderer.currentRenderer.searchButtonLabel)"
+						cols="50" />
 					<label value="No result text: " />
 					<textbox
-						value="@{renderer.currentRenderer.noResultFoundText}" cols="50" />
+						value="@bind(renderer.currentRenderer.noResultFoundText)"
+						cols="50" />
 				</row>
 				<row>
 					<label value="One result text: " />
 					<textbox
-						value="@{renderer.currentRenderer.oneResultFoundText}" cols="50" />
+						value="@bind(renderer.currentRenderer.oneResultFoundText)"
+						cols="50" />
 					<label value="Many results text: " />
 					<textbox
-						value="@{renderer.currentRenderer.resultsFoundText}" cols="50" />
+						value="@bind(renderer.currentRenderer.resultsFoundText)"
+						cols="50" />
 				</row>
 				<row>
 					<label value="Facet width  " />
 					<textbox
-						value="@{renderer.currentRenderer.facetWidth}" />
+						value="@bind(renderer.currentRenderer.facetWidth)" />
 					<cell colspan="2" />
 				</row>
 				<row>
 					<label value="Header (HTML)" />
-					<textbox value="@{renderer.currentRenderer.header}"
-						cols="80" rows="5" multiline="true" />
+					<textbox
+						value="@bind(renderer.currentRenderer.header)" cols="80" rows="5"
+						multiline="true" />
 					<label value="Footer (HTML)" />
-					<textbox value="@{renderer.currentRenderer.footer}"
-						cols="80" rows="5" multiline="true" />
+					<textbox
+						value="@bind(renderer.currentRenderer.footer)" cols="80" rows="5"
+						multiline="true" />
 				</row>
 			</rows>
 		</grid>

@@ -29,7 +29,7 @@
 	<panel title="List of last logs " border="normal"
 		visible="@load(schedulerlogs.jobSelected)">
 		<toolbar>
-			<button label="Refresh" onClick="@command('onReload')" />
+			<button label="Refresh" onClick="@command('reload')" />
 		</toolbar>
 		<panelchildren>
 			<listbox

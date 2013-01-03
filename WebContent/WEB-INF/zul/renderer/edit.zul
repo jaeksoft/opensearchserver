@@ -18,7 +18,7 @@
 	<tabbox>
 		<tabs>
 			<tab id="tabRedendererGeneral"
-				label="@{renderer.currentEditMode}" selected="true" />
+				label="@load(renderer.currentEditMode)" selected="true" />
 			<tab id="tabRedendererFields" label="Fields" />
 			<tab id="tabRedendererCss" label="CSS Style" />
 			<tab id="tabRedendererTest" label="Testing" />
@@ -39,18 +39,18 @@
 		</tabpanels>
 	</tabbox>
 	<vbox width="100%" align="center">
-		<hbox visible="@{renderer.selected}">
-			<button label="Cancel" onClick="renderer.onCancel()" />
+		<hbox visible="@load(renderer.selected)">
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space width="10px" />
-			<button label="Save" onClick="renderer.onSave()" />
+			<button label="Save" onClick="@command('onSave')" />
 			<space width="10px" />
 			<button label="Save &amp; close"
-				onClick="renderer.onSaveAndClose()" />
+				onClick="@command('onSaveAndClose')" />
 		</hbox>
-		<hbox visible="@{renderer.notSelected}">
-			<button label="Cancel" onClick="renderer.onCancel()" />
+		<hbox visible="@load(renderer.notSelected)">
+			<button label="Cancel" onClick="@command('onCancel')" />
 			<space width="10px" />
-			<button label="Create" onClick="renderer.onSaveAndClose()" />
+			<button label="Create" onClick="@command('onSaveAndClose')" />
 		</hbox>
 	</vbox>
 </zk>

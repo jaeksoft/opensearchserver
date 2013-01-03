@@ -180,6 +180,27 @@ public class PatternManager {
 		}
 	}
 
+	public void delPatternItem(Collection<PatternItem> patterns)
+			throws SearchLibException {
+		rwl.w.lock();
+		try {
+			for (PatternItem pattern : patterns)
+				delPatternWithoutLock(pattern.sPattern);
+			store();
+		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
 	private void addPatternWithoutLock(PatternItem patternItem)
 			throws MalformedURLException {
 		String host = patternItem.extractUrl(true).getHost();

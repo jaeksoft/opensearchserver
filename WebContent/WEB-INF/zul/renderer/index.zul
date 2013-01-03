@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="renderer"
-	use="com.jaeksoft.searchlib.web.controller.RendererController">
-	<include visible="@{renderer.isNotEditing}"
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('renderer') @init('com.jaeksoft.searchlib.web.controller.RendererController')">
+	<include visible="@load(renderer.notEditing)"
 		src="WEB-INF/zul/renderer/list.zul" />
-	<include visible="@{renderer.isEditing}"
+	<include visible="@load(renderer.editing)"
 		src="WEB-INF/zul/renderer/edit.zul" />
 </window>

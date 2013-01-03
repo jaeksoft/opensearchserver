@@ -27,8 +27,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
-import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -140,14 +140,7 @@ public class CredentialController extends CrawlerController {
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) throws SearchLibException {
-		synchronized (this) {
-			credentialList = null;
-			activePage = pagingEvent.getActivePage();
-			reload();
-		}
-	}
-
+	@Command
 	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			credentialList = null;
@@ -213,15 +206,16 @@ public class CredentialController extends CrawlerController {
 		reload();
 	}
 
-	public boolean selected() {
+	public boolean isSelected() {
 		return selectedCredential != null;
 	}
 
-	public boolean notSelected() {
-		return !selected();
+	public boolean isNotSelected() {
+		return !isSelected();
 	}
 
 	@Override
+	@Command
 	public void reload() throws SearchLibException {
 		synchronized (this) {
 			credentialList = null;
@@ -229,11 +223,13 @@ public class CredentialController extends CrawlerController {
 		}
 	}
 
+	@Command
 	public void onCancel() throws SearchLibException {
 		reset();
 		reload();
 	}
 
+	@Command
 	public void onDelete() throws SearchLibException, InterruptedException {
 		if (selectedCredential == null)
 			return;
@@ -243,6 +239,7 @@ public class CredentialController extends CrawlerController {
 		onCancel();
 	}
 
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException,
 			MalformedURLException {
 		Client client = getClient();

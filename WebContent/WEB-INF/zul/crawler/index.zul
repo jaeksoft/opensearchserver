@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,16 +14,16 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="crawler" border="none"
-	use="com.jaeksoft.searchlib.web.controller.crawler.CrawlerController">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('crawler') @init('com.jaeksoft.searchlib.web.controller.crawler.CrawlerController')">
 	<tabbox>
 		<tabs>
 			<tab id="tabWebCrawler" label="Web" selected="true"
-				visible="@{crawler.webCrawlerRights}" />
+				visible="@load(crawler.webCrawlerRights)" />
 			<tab id="tabDatabaseCrawler" label="Database"
-				visible="@{crawler.databaseCrawlerRights}" />
+				visible="@load(crawler.databaseCrawlerRights)" />
 			<tab id="tabFileCrawler" label="Files"
-				visible="@{crawler.fileCrawlerRights}" />
+				visible="@load(crawler.fileCrawlerRights)" />
 		</tabs>
 
 		<tabpanels>

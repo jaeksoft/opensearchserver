@@ -31,8 +31,6 @@ import java.util.Set;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.Iframe;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -101,7 +99,7 @@ public class RendererController extends CommonController {
 
 	public String getCurrentEditMode() throws SearchLibException {
 		return selectedRenderer == null ? "Create a new renderer"
-				: "Edit the selected renderer";
+				: "Edit the renderer: " + selectedRenderer.getName();
 	}
 
 	public boolean isEditing() {
@@ -129,7 +127,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void doEdit(@BindingParam("rendererItem") Renderer renderer)
+	public void doEdit(@BindingParam("item") Renderer renderer)
 			throws SearchLibException {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
@@ -138,7 +136,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void doDelete(@BindingParam("rendererItem") Renderer renderer)
+	public void doDelete(@BindingParam("item") Renderer renderer)
 			throws InterruptedException {
 		new DeleteAlert(renderer);
 	}
@@ -226,17 +224,13 @@ public class RendererController extends CommonController {
 		onCancel();
 	}
 
-	public void onTest(Component comp) throws UnsupportedEncodingException,
-			SearchLibException {
+	@Command
+	public void onTest() throws SearchLibException {
 		isTestable = true;
-		Iframe iframe = (Iframe) comp.getFellow("iframetest", true);
-		iframe.setSrc(null);
-		if (currentRenderer != null)
-			iframe.setSrc(currentRenderer.getApiUrl());
 		reload();
 	}
 
-	public String getIFrameHtmlCode() throws UnsupportedEncodingException,
+	public String getIframeHtmlCode() throws UnsupportedEncodingException,
 			InterruptedException {
 		if (currentRenderer == null)
 			return null;

@@ -14,8 +14,8 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="webcrawler" border="none"
-	use="com.jaeksoft.searchlib.web.controller.crawler.CrawlerController">
+<window border="none"
+	viewModel="@id('webcrawler') @init('com.jaeksoft.searchlib.web.controller.crawler.CrawlerController')">
 	<tabbox>
 		<tabs>
 			<tab id="tabCrawlerWebPattern" label="Pattern list"
@@ -29,7 +29,7 @@
 			<tab id="tabCrawlerScreenshot" label="Screenshot" />
 			<tab id="tabCrawlerCredential" label="Authentication" />
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
-				visible="@{webcrawler.webCrawlerParametersRights}" />
+				visible="@load(webcrawler.webCrawlerParametersRights)" />
 			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
 			<tab id="tabCrawlerWebSitemap" label="Site Map" />
 		</tabs>
@@ -52,7 +52,7 @@
 			<tabpanel fulfill="tabCrawlerManualWebCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
 			</tabpanel>
-				<tabpanel fulfill="tabCrawlerproxy.onSelect">
+			<tabpanel fulfill="tabCrawlerproxy.onSelect">
 				<include src="WEB-INF/zul/crawler/web/proxy.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">

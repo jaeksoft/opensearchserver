@@ -17,7 +17,7 @@
 <!-- WARRANTY; without even the implied warranty of -->
 <!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 <!-- -->
-<renderer name="default" request="search" searchButtonLabel="Search"
+<renderer name="default-file" request="search" searchButtonLabel="Search"
 	noResultFoundText="No result found" oneResultFoundText="1 result found"
 	resultsFoundText="results found">
 <css>.osscmnrdr { font-family: arial,sans-serif;
