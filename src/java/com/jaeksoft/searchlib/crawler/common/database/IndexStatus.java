@@ -57,6 +57,10 @@ public enum IndexStatus {
 		return name;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public String getValue() {
 		return Integer.toString(value);
 	}

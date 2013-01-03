@@ -84,4 +84,8 @@ public enum FetchStatus {
 		return null;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 }

@@ -14,7 +14,7 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="crawlProcess"
+<window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('crawlProcess') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CrawlWebController')">
 	<grid visible="@load(crawlProcess.webCrawlerParametersRights)"
 		sizedByContent="true">

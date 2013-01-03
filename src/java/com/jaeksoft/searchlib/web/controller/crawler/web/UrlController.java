@@ -33,11 +33,9 @@ import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Filedownload;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.event.PagingEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -64,6 +62,8 @@ public class UrlController extends CommonController {
 
 	private transient int activePage;
 
+	private transient String batchCommand;
+
 	public UrlController() throws SearchLibException {
 		super();
 	}
@@ -77,6 +77,14 @@ public class UrlController extends CommonController {
 
 	public int getActivePage() {
 		return activePage;
+	}
+
+	public void setActivePage(int page) throws SearchLibException {
+		synchronized (this) {
+			activePage = page;
+			computeUrlList();
+			reload();
+		}
 	}
 
 	public int getTotalSize() {
@@ -352,18 +360,7 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	public void onPaging(PagingEvent pagingEvent) {
-		synchronized (this) {
-			activePage = pagingEvent.getActivePage();
-			try {
-				computeUrlList();
-				reload();
-			} catch (SearchLibException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
+	@Command
 	public void onSearch() throws SearchLibException {
 		synchronized (this) {
 			activePage = 0;
@@ -510,8 +507,16 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	public void onGo(@BindingParam("listbox") Listbox actionListbox)
-			throws SearchLibException, IOException,
+	public String getBatchCommand() {
+		return batchCommand;
+	}
+
+	public void setBatchCommand(String batchCommand) {
+		this.batchCommand = batchCommand;
+	}
+
+	@Command
+	public void onGo() throws SearchLibException, IOException,
 			TransformerConfigurationException, SAXException,
 			InterruptedException {
 		synchronized (this) {
@@ -522,26 +527,25 @@ public class UrlController extends CommonController {
 				new AlertController("Please stop the Web crawler first.");
 				return;
 			}
-			String action = actionListbox.getSelectedItem().getValue()
-					.toString();
-			if ("exportTxt".equalsIgnoreCase(action))
+			if ("exportTxt".equalsIgnoreCase(batchCommand))
 				onExportURLs();
-			else if ("xmlSitemap".equalsIgnoreCase(action))
+			else if ("xmlSitemap".equalsIgnoreCase(batchCommand))
 				onExportSiteMap();
-			else if ("setToUnfetched".equalsIgnoreCase(action))
+			else if ("setToUnfetched".equalsIgnoreCase(batchCommand))
 				onSetToUnfetched();
-			else if ("deleteUrls".equalsIgnoreCase(action))
+			else if ("deleteUrls".equalsIgnoreCase(batchCommand))
 				onDeleteURLs();
-			else if ("optimize".equalsIgnoreCase(action))
+			else if ("optimize".equalsIgnoreCase(batchCommand))
 				onOptimize();
-			else if ("deleteAll".equalsIgnoreCase(action))
+			else if ("deleteAll".equalsIgnoreCase(batchCommand))
 				onDeleteAll();
-			actionListbox.setSelectedIndex(0);
+			batchCommand = null;
 			reload();
 		}
 	}
 
-	@NotifyChange("#taskLogInfo")
+	@Command
+	@NotifyChange("currentTaskLog")
 	public void onTimer() {
 	}
 
@@ -549,6 +553,6 @@ public class UrlController extends CommonController {
 		UrlManager urlManager = getUrlManager();
 		if (urlManager == null)
 			return false;
-		return urlManager.isCurrentTaskLog();
+		return urlManager.isCurrentTaskLogExists();
 	}
 }

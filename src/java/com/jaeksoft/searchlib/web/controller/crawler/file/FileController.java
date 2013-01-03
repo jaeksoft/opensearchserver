@@ -450,7 +450,7 @@ public class FileController extends CrawlerController {
 	}
 
 	@Override
-	@NotifyChange("#taskLogInfo")
+	@NotifyChange("currentTaskLog")
 	public void onTimer() {
 	}
 
@@ -459,6 +459,6 @@ public class FileController extends CrawlerController {
 		FileManager fileManager = getFileManager();
 		if (fileManager == null)
 			return false;
-		return fileManager.isCurrentTaskLog();
+		return fileManager.isCurrentTaskLogExists();
 	}
 }

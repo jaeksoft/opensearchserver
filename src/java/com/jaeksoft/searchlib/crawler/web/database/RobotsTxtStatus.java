@@ -59,6 +59,10 @@ public enum RobotsTxtStatus {
 		return name;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public String getValue() {
 		return Integer.toString(value);
 	}

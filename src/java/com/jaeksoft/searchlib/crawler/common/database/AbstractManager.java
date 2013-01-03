@@ -76,7 +76,7 @@ public abstract class AbstractManager {
 		}
 	}
 
-	public boolean isCurrentTaskLog() {
+	public boolean isCurrentTaskLogExists() {
 		return getCurrentTaskLog() != null;
 	}
 
