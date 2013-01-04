@@ -40,8 +40,6 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 
 	private AdvancedScoreItemValue[] scoreItemValues;
 
-	private final float norm;
-
 	private final String name;
 
 	private class AdvancedScoreProvider extends CustomScoreProvider {
@@ -56,15 +54,14 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 
 		final private Explanation customExplanation(int doc) {
-			Explanation expl = new Explanation(0, "normalized (" + norm
-					+ ") sum of:");
+			Explanation expl = new Explanation(0, "sum of:");
 			float sc = 0;
 			for (AdvancedScoreItemValue scoreItemValue : scoreItemValues) {
 				Explanation e = scoreItemValue.getExplanation(doc);
 				sc += e.getValue();
 				expl.addDetail(e);
 			}
-			expl.setValue(sc / norm);
+			expl.setValue(sc);
 			return expl;
 		}
 
@@ -72,7 +69,7 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 			float sc = 0;
 			for (AdvancedScoreItemValue scoreItemValue : scoreItemValues)
 				sc += scoreItemValue.getValue(doc);
-			return sc / norm;
+			return sc;
 		}
 
 		@Override
@@ -124,10 +121,6 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 	public AdvancedScoreQuery(Query subQuery, AdvancedScore advancedScore) {
 		super(subQuery);
 		scoreItems = advancedScore.getArray();
-		float n = 0;
-		for (AdvancedScoreItem scoreItem : scoreItems)
-			n += scoreItem.getWeight();
-		norm = n;
 		name = computeName();
 	}
 

@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zul.AbstractTreeModel;
 import org.zkoss.zul.Html;
@@ -267,16 +267,14 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	@Command
-	public void explainScore(Component comp) throws SearchLibException,
-			InterruptedException, IOException, ParseException, SyntaxError {
+	public void explainScore(@BindingParam("document") Document document)
+			throws SearchLibException, InterruptedException, IOException,
+			ParseException, SyntaxError {
 		Client client = getClient();
 		if (client == null)
 			return;
 		ResultDocumentsInterface<?> result = getResultDocuments();
 		if (result == null)
-			return;
-		Document document = (Document) comp.getAttribute("document");
-		if (document == null)
 			return;
 		int docId = document.getDocId();
 		String explanation = client.explain(result.getRequest(), docId, true);
