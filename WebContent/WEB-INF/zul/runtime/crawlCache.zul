@@ -39,10 +39,14 @@
 								visible="@load(crawlcache.crawlCacheManager.disabled)"
 								model="@load(crawlcache.crawlCacheProviderList)" mold="select"
 								selectedItem="@bind(crawlcache.crawlCacheManager.crawlCacheProvider)"
-								onSelect="@command('reload')" />
+								onSelect="@command('reload')">
+								<template name="model">
+									<listitem label="@load(each.name)" />
+								</template>
+							</listbox>
 							<label
 								visible="@load(crawlcache.crawlCacheManager.enabled)"
-								value="@load(crawlcache.crawlCacheManager.crawlCacheProvider)" />
+								value="@load(crawlcache.crawlCacheManager.crawlCacheProvider.name)" />
 						</cell>
 						<space />
 					</row>

@@ -57,4 +57,8 @@ public enum CrawlCacheProviderEnum {
 	public String toString() {
 		return label;
 	}
+
+	public String getName() {
+		return label;
+	}
 }

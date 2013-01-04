@@ -37,6 +37,16 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class CrawlCacheProvider {
 
+	private final CrawlCacheProviderEnum cacheType;
+
+	public CrawlCacheProvider(CrawlCacheProviderEnum cacheType) {
+		this.cacheType = cacheType;
+	}
+
+	final public CrawlCacheProviderEnum getCacheType() {
+		return cacheType;
+	}
+
 	public abstract String getInfos() throws IOException;
 
 	public abstract void init(String configString) throws IOException;

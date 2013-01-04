@@ -59,6 +59,7 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 	private Configuration configuration;
 
 	public HadoopCrawlCache() {
+		super(CrawlCacheProviderEnum.HADOOP);
 		configuration = null;
 		fileSystem = null;
 	}

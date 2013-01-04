@@ -43,7 +43,6 @@
 					<checkbox label="Show last error"
 						checked="@bind(stats.showLastError)" />
 				</hbox>
-				<button label="Refresh" onClick="@command('onReload')" />
 			</row>
 		</rows>
 	</grid>

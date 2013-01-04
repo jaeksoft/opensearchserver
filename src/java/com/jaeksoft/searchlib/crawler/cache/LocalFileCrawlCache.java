@@ -46,6 +46,10 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 
 	private String rootPath = null;
 
+	public LocalFileCrawlCache() {
+		super(CrawlCacheProviderEnum.LOCAL_FILE);
+	}
+
 	@Override
 	public void close() {
 		rwl.w.lock();
