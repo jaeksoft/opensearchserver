@@ -14,59 +14,65 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="queryReports" border="none"
-	apply="com.jaeksoft.searchlib.web.controller.report.QueryReportsController">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('queryReports') @init('com.jaeksoft.searchlib.web.controller.report.QueryReportsController')">
 	<grid>
 		<columns>
 			<column align="right" />
 			<column />
-
 		</columns>
 		<rows>
 			<row>
-				<label>Top Keywords to Search:</label>
-				<textbox id="topKeywords" width="35%" />
+				<label value="Keywords to search:" />
+				<textbox width="35%"
+					value="@bind(queryReports.topKeywords)" />
 			</row>
 			<row>
-				<label>Query Type:</label>
-				<listbox id="queryType" mold="select">
-					<listitem id="topQueries" label="Top Queries" />
-					<listitem label="Top Queries with no Results" />
-				</listbox>
-
-			</row>
-			<row>
-				<label>Begin Date:</label>
-				<datebox id="beginDate" cols="16"
-					format="yyyy/MM/dd a hh:mm:ss" />
-			</row>
-			<row>
-				<label>End Date:</label>
-				<datebox id="endDate" cols="16"
-					format="yyyy/MM/dd a hh:mm:ss " />
-			</row>
-			<row>
-				<label>Top Queries to Display</label>
-				<listbox id="topQueriesDisplay" mold="select">
-					<listitem id="topHundred" label="100" />
-					<listitem label="1000" />
-					<listitem label="5000" />
+				<label value="Query type:" />
+				<listbox mold="select"
+					selectedItem="@bind(queryReports.queryType)">
+					<listitem label="Top Queries" value="topqueries" />
+					<listitem label="Top Queries with no Results"
+						value="topqueriesnoresult" />
 				</listbox>
 			</row>
-
+			<row>
+				<label value="Begin date:" />
+				<datebox id="beginDate"
+					value="@bind(queryReports.beginDate)" />
+			</row>
+			<row>
+				<label value="End date:" />
+				<datebox id="endDate"
+					value="@bind(queryReports.endDate)" />
+			</row>
+			<row>
+				<label value="Number of queries to display:" />
+				<intbox value="@bind(queryReports.numberOfQuery)" />
+			</row>
 		</rows>
 	</grid>
 
 	<vbox align="center" width="100%">
 		<hbox>
-			<button id="createReport" label="Create Report" />
-			<button id="exportReport" label="Export Report" />
+			<button label="Create Report"
+				onClick="@command('onCreateReport')" />
+			<button label="Export Report"
+				onClick="@command('onExportReport')" />
 		</hbox>
 	</vbox>
-	<listbox id="reportsView" mold="paging" rows="10" visible="false">
+	<listbox mold="paging" rows="10"
+		model="@load(queryReports.reportSet)"
+		visible="@load(queryReports.reportSetExists)">
 		<listhead>
-			<listheader label="Queries" />
+			<listheader label="Keywords" />
 			<listheader label="Frequency" />
 		</listhead>
+		<template name="model" var="facet">
+			<listitem>
+				<listcell value="@load(facet.term)" />
+				<listcell value="@load(facet.count)" />
+			</listitem>
+		</template>
 	</listbox>
 </window>

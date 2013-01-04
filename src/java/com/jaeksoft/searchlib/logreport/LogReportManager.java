@@ -73,7 +73,7 @@ public class LogReportManager {
 		return new File(getLogDirectory(), "archives");
 	}
 
-	final public boolean archiveFile(String fileName) throws IOException {
+	final public void archiveFile(String fileName) throws IOException {
 		ZipOutputStream zos = null;
 		FileInputStream fis = null;
 		try {
@@ -94,7 +94,9 @@ public class LogReportManager {
 			zos = null;
 			fis.close();
 			fis = null;
-			return sourceFile.delete();
+			if (!sourceFile.delete())
+				throw new IOException("Unable to delete original file "
+						+ sourceFile.getAbsolutePath());
 		} finally {
 			if (zos != null)
 				zos.closeEntry();
@@ -105,11 +107,13 @@ public class LogReportManager {
 		}
 	}
 
-	public boolean deleteFile(String filename) {
+	public void deleteFile(String filename) throws IOException {
 		File logFile = new File(getLogDirectory(), filename);
 		if (!logFile.exists())
-			return true;
-		return logFile.delete();
+			return;
+		if (!logFile.delete())
+			throw new IOException("Unable to delete "
+					+ logFile.getAbsolutePath());
 	}
 
 	final public void log(AbstractRequest request, Timer timer,

@@ -27,16 +27,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zul.Datebox;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
-import org.zkoss.zul.Listbox;
-import org.zkoss.zul.Listcell;
-import org.zkoss.zul.Listitem;
-import org.zkoss.zul.Textbox;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -48,11 +44,13 @@ import com.jaeksoft.searchlib.util.TopSet;
 
 public class QueryReportsController extends ReportsController {
 
-	private Datebox beginDate, endDate;
-	private Listbox reportsView, queryType, topQueriesDisplay;
-	private Listitem topQueries, topHundred;
-	private Facet facetReportsList;
-	private Textbox topKeywords;
+	private Date beginDate;
+	private Date endDate;
+	private String queryType;
+	private int numberOfQuery;
+	private String topKeywords;
+
+	private TreeSet<FacetItem> reportSet;
 
 	public QueryReportsController() throws SearchLibException {
 		super();
@@ -60,64 +58,51 @@ public class QueryReportsController extends ReportsController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		topQueriesDisplay.setSelectedItem(topHundred);
-		reportsView.getItems().clear();
-		facetReportsList = null;
-		queryType.setSelectedItem(topQueries);
+		beginDate = new Date();
+		endDate = new Date();
+		queryType = "topqueries";
+		numberOfQuery = 100;
+		reportSet = null;
 	}
 
-	public void onClick$createReport(Event event) throws SearchLibException,
-			ParseException {
+	@Command
+	public void onCreateReport() throws SearchLibException, ParseException {
 		ReportsManager reports = getReportsManager();
-		int noOfResults = Integer.parseInt(topQueriesDisplay.getSelectedItem()
-				.getLabel());
-		String topKeywordsFilters = topKeywords.getText();
-		String getFromDate = beginDate.getText();
-		String getToDate = endDate.getText();
-		if (queryType.getSelectedItem().getLabel()
-				.equalsIgnoreCase("Top Queries")) {
-			reportsView.getItems().clear();
-			facetReportsList = reports.getSearchReport(topKeywordsFilters,
-					getFromDate, getToDate, true, noOfResults);
-		} else if (queryType.getSelectedItem().getLabel()
-				.equalsIgnoreCase("Top Queries with no Results")) {
-			reportsView.getItems().clear();
-			facetReportsList = reports.getSearchReport(topKeywordsFilters,
-					getFromDate, getToDate, false, noOfResults);
+		Facet facetReportsList = null;
+		if ("topqueries".equals(queryType)) {
+			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
+					endDate, true, numberOfQuery);
+		} else if ("topqueriesnoresult".equals(queryType)) {
+			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
+					endDate, false, numberOfQuery);
 		}
 		TopSet<FacetItem> topSet = new TopSet<FacetItem>(
 				facetReportsList.getArray(), new FacetItemCountComparator(),
-				500);
-		TreeSet<FacetItem> topFacetItem = topSet.getTreeMap();
-		for (FacetItem topItems : topFacetItem) {
-			Listitem li = new Listitem();
-			new Listcell(topItems.getTerm()).setParent(li);
-			new Listcell(Integer.toString(topItems.getCount())).setParent(li);
-			li.setParent(reportsView);
-		}
-		reportsView.setAutopaging(true);
-		reportsView.setVisible(true);
+				numberOfQuery);
+		reportSet = topSet.getTreeMap();
+		reload();
 	}
 
-	public void onClick$exportReport(Event event) throws SearchLibException,
-			IOException {
+	public TreeSet<FacetItem> getReportSet() {
+		return reportSet;
+	}
 
-		if (facetReportsList == null || facetReportsList.getArray().length > 0) {
-			// TODO
-			// alert("Please Create Some Report to Export");
-			return;
-		}
+	public boolean isReportSetExists() {
+		return reportSet != null;
+	}
+
+	@Command
+	public void onExportReport() throws SearchLibException, IOException {
 		PrintWriter pw = null;
 		try {
 			File tempFile = File.createTempFile("OSS_Query_Reports", "csv");
 			pw = new PrintWriter(tempFile);
-			int k = facetReportsList.getArray().length;
-			for (int l = 0; l < k; l++) {
+			for (FacetItem facetItem : reportSet) {
 				pw.print('"');
-				pw.print(facetReportsList.getTerm(l).replaceAll("\"", "\"\""));
+				pw.print(facetItem.getTerm().replaceAll("\"", "\"\""));
 				pw.print('"');
 				pw.print(',');
-				pw.println(facetReportsList.getCount(l));
+				pw.println(facetItem.getCount());
 			}
 			pw.close();
 			pw = null;
@@ -127,6 +112,81 @@ public class QueryReportsController extends ReportsController {
 			if (pw != null)
 				IOUtils.closeQuietly(pw);
 		}
+	}
+
+	/**
+	 * @return the beginDate
+	 */
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+	/**
+	 * @param beginDate
+	 *            the beginDate to set
+	 */
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+	/**
+	 * @return the endDate
+	 */
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	/**
+	 * @param endDate
+	 *            the endDate to set
+	 */
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	/**
+	 * @return the queryType
+	 */
+	public String getQueryType() {
+		return queryType;
+	}
+
+	/**
+	 * @param queryType
+	 *            the queryType to set
+	 */
+	public void setQueryType(String queryType) {
+		this.queryType = queryType;
+	}
+
+	/**
+	 * @return the numberOfQuery
+	 */
+	public int getNumberOfQuery() {
+		return numberOfQuery;
+	}
+
+	/**
+	 * @param numberOfQuery
+	 *            the numberOfQuery to set
+	 */
+	public void setNumberOfQuery(int numberOfQuery) {
+		this.numberOfQuery = numberOfQuery;
+	}
+
+	/**
+	 * @return the topKeywords
+	 */
+	public String getTopKeywords() {
+		return topKeywords;
+	}
+
+	/**
+	 * @param topKeywords
+	 *            the topKeywords to set
+	 */
+	public void setTopKeywords(String topKeywords) {
+		this.topKeywords = topKeywords;
 	}
 
 }

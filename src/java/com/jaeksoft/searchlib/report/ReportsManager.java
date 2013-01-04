@@ -159,30 +159,17 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private final static SimpleDateFormat dateFormat = new SimpleDateFormat(
-			"yyyy/MM/dd a hh:mm:ss");
-
 	private final static SimpleDateFormat changeDateFormat = new SimpleDateFormat(
 			"yyyyMMddhhmmss");
 
-	private final String modifyDate(String getDate)
-			throws java.text.ParseException {
-
-		Date date;
-		String modifiedDate;
-
-		synchronized (dateFormat) {
-			date = dateFormat.parse(getDate);
-		}
-
+	private final String modifyDate(Date date) throws java.text.ParseException {
 		synchronized (changeDateFormat) {
-			modifiedDate = changeDateFormat.format(date);
+			return changeDateFormat.format(date);
 		}
-		return modifiedDate;
 	}
 
-	public Facet getSearchReport(String topKeywords, String startDate,
-			String endDate, boolean withResult, int rows)
+	public Facet getSearchReport(String topKeywords, Date startDate,
+			Date endDate, boolean withResult, int rows)
 			throws SearchLibException, ParseException {
 
 		SearchRequest searchRequest;
@@ -190,14 +177,9 @@ public class ReportsManager {
 		String dateTo;
 
 		try {
-			if (startDate == null || startDate.equalsIgnoreCase(""))
-				fromDate = "00000000000000";
-			else
-				fromDate = modifyDate(startDate);
-			if (endDate == null || endDate.equalsIgnoreCase(""))
-				dateTo = "99999999999999";
-			else
-				dateTo = modifyDate(endDate);
+			fromDate = startDate == null ? "00000000000000"
+					: modifyDate(startDate);
+			dateTo = endDate == null ? "99999999999999" : modifyDate(endDate);
 			searchRequest = generateSearchRequest(topKeywords, fromDate,
 					dateTo, withResult, rows);
 			AbstractResultSearch result = (AbstractResultSearch) reportsClient
@@ -281,9 +263,8 @@ public class ReportsManager {
 
 	public void updateReportItems(List<ReportItem> listItem)
 			throws SearchLibException {
-		for (ReportItem reportItemList : listItem) {
+		for (ReportItem reportItemList : listItem)
 			updateReportItem(reportItemList);
-		}
 		reload(true);
 	}
 

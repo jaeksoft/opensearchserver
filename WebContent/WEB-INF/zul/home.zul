@@ -126,7 +126,7 @@
 				<listcell
 					tooltiptext="@load(catalogitem.lastModifiedFile)"
 					label="@load(catalogitem.lastModified) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
-				<listcell tooltiptext="@load(catalogitem.size}"
+				<listcell tooltiptext="@load(catalogitem.size)"
 					label="@load(catalogitem.size) @converter('com.jaeksoft.searchlib.web.converter.SizeConverter')" />
 				<listcell>
 					<hbox align="center">

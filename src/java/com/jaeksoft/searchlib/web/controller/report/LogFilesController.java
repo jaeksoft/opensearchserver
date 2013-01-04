@@ -26,27 +26,39 @@ package com.jaeksoft.searchlib.web.controller.report;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
-import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.event.ForwardEvent;
-import org.zkoss.zul.ListModelList;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.report.ReportList;
-import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class LogFilesController extends ReportsController {
 
-	private String date;
-	private String[] dates;
-	private String filename;
+	public static class ReportFile {
+
+		private String name;
+
+		private Date date;
+
+		private ReportFile(File file) {
+			name = file.getName();
+			date = new Date(file.lastModified());
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public Date getDate() {
+			return date;
+		}
+
+	}
 
 	public LogFilesController() throws SearchLibException {
 		super();
@@ -55,81 +67,43 @@ public class LogFilesController extends ReportsController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		date = null;
-		dates = null;
-		filename = null;
 	}
 
-	public ListModelList<ReportList> getReportList() throws SearchLibException {
+	public ReportFile[] getReportList() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		List<ReportList> logfileList = new ArrayList<ReportList>();
 		File[] files = client.getReportsManager().getReportsList();
 		FilesUtils.sortByLastModified(files, true);
-		for (File logfile : files)
-			logfileList.add(new ReportList(logfile.getName(), getDate(logfile
-					.getName())));
-		ListModelList<ReportList> listModel = new ListModelList<ReportList>();
-		listModel.addAll(logfileList);
-		return listModel;
+		ReportFile[] reportFile = new ReportFile[files.length];
+		int i = 0;
+		for (File file : files)
+			reportFile[i++] = new ReportFile(file);
+		return reportFile;
 	}
 
-	public String getDate(String filename) {
-		dates = filename.split("\\.");
-		if (dates.length > 2)
-			date = dates[2];
-		return date;
-	}
-
-	private Event getOrigin(Event event) {
-		Event origin;
-		if (event instanceof ForwardEvent) {
-			origin = Events.getRealOrigin((ForwardEvent) event);
-		} else {
-			origin = event;
-		}
-		return origin;
-	}
-
-	public void onClick$loadReport(Event event) throws InterruptedException,
-			SearchLibException, UnsupportedEncodingException, IOException {
-		Event origin = getOrigin(event);
-		filename = (String) origin.getTarget().getAttribute("reportid");
-		int noOfLine = getReportsManager().loadReportFile(filename);
+	@Command
+	public void onLoad(@BindingParam("reportFile") ReportFile reportFile)
+			throws InterruptedException, UnsupportedEncodingException,
+			IOException, SearchLibException {
+		int noOfLine = getReportsManager().loadReportFile(reportFile.getName());
 		new AlertController("The file has been Loaded with " + noOfLine
 				+ " of Lines");
-	}
-
-	private String getCurrentReportFileName(Event event)
-			throws SearchLibException {
-		ReportsManager reports = getReportsManager();
-		if (reports == null)
-			return null;
-		Event origin;
-		if (event instanceof ForwardEvent)
-			origin = Events.getRealOrigin((ForwardEvent) event);
-		else
-			origin = event;
-		return (String) origin.getTarget().getAttribute("reportid");
-	}
-
-	public void onClick$archiveReport(Event event) throws SearchLibException,
-			InterruptedException, IOException {
-		String filename = getCurrentReportFileName(event);
-		if (getLogReportManager().archiveFile(filename)) {
-			new AlertController("Log file archived successfully");
-			reloadReportsList();
-		}
-	}
-
-	private void reloadReportsList() throws SearchLibException {
 		reload();
 	}
 
-	public void onClick$deleteReport(Event event) throws SearchLibException,
-			InterruptedException {
-		new DeleteReportFileAlert(getCurrentReportFileName(event));
+	@Command
+	public void onArchive(@BindingParam("reportFile") ReportFile reportFile)
+			throws SearchLibException, InterruptedException, IOException {
+		getLogReportManager().archiveFile(reportFile.getName());
+		new AlertController("Log file archived successfully");
+		reload();
+	}
+
+	@Command
+	public void onDelete(@BindingParam("reportFile") ReportFile reportFile)
+			throws SearchLibException, InterruptedException {
+		new DeleteReportFileAlert(reportFile.getName());
 	}
 
 	private class DeleteReportFileAlert extends AlertController {
@@ -147,14 +121,13 @@ public class LogFilesController extends ReportsController {
 
 		@Override
 		protected void onYes() throws SearchLibException, InterruptedException {
-			boolean isDeleted = getLogReportManager()
-					.deleteFile(reportFileName);
-			if (isDeleted) {
+			try {
+				getLogReportManager().deleteFile(reportFileName);
 				new AlertController("Log file has been successfully deleted");
-				reloadReportsList();
-			} else
-				new AlertController(
-						"File cannot be deleted please check the file permission");
+				reload();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
 		}
 
 	}

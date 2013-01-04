@@ -14,33 +14,28 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window id="reportView" border="none"
-	apply="com.jaeksoft.searchlib.web.controller.report.LogFilesController">
-	<listbox id="box" mold="paging" rows="5"
-		model="@{reportView$composer.getReportList}">
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('reportView') @init('com.jaeksoft.searchlib.web.controller.report.LogFilesController')">
+	<listbox mold="paging" rows="5"
+		model="@load(reportView.reportList)">
 		<listhead>
-			<listheader label="ReportName" />
-			<listheader label="ReportDated" />
+			<listheader label="File name" />
+			<listheader label="Date" />
 			<listheader />
-
 		</listhead>
-		<listitem self="@{each='reportList'}" value="@{reportList}">
-			<listcell label="@{reportList.reportName}" />
-			<listcell label="@{reportList.reportDate}" />
-			<listcell>
-				<button label="Load" id="loadReport">
-					<custom-attributes
-						reportid="@{reportList.reportName}" />
-				</button>
-				<button label="Archive" id="archiveReport">
-					<custom-attributes
-						reportid="@{reportList.reportName}" />
-				</button>
-				<button label="Delete" id="deleteReport">
-					<custom-attributes
-						reportid="@{reportList.reportName}" />
-				</button>
-			</listcell>
-		</listitem>
+		<template name="model" var="reportFile">
+			<listitem>
+				<listcell label="@load(reportFile)" />
+				<listcell label="@load(reportFile.date)" />
+				<listcell>
+					<button label="Load"
+						onClick="@command('onLoad', reportFile=reportFile" />
+					<button label="Archive"
+						onClick="@command('onArchive', reportFile=reportFile" />
+					<button label="Delete"
+						onClick="@command('onDelete', reportFile=reportFile" />
+				</listcell>
+			</listitem>
+		</template>
 	</listbox>
 </window>

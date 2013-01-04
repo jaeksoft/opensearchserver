@@ -14,22 +14,22 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="none">
-<tabbox>
-        <tabs>
-            <tab id="tabQueryReports" label="Query Reports"
-                selected="true" />
-            <tab id="tabLogFiles" label="LogFiles"
-                visible="@{runtime.adminOrNoUser}" />
-           </tabs>
-        <tabpanels>
-            <tabpanel>
-                     <include src="WEB-INF/zul/reports/queryreports.zul" />
-            </tabpanel>
-            <tabpanel fulfill="tabLogFiles.onSelect">
-                <include src="WEB-INF/zul/reports/logfiles.zul" />     
-        </tabpanel>
-        </tabpanels>
-    </tabbox>
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('reports') @init('com.jaeksoft.searchlib.web.controller.report.ReportsController')">
+	<tabbox>
+		<tabs>
+			<tab id="tabQueryReports" label="Query Reports"
+				selected="true" />
+			<tab id="tabLogFiles" label="LogFiles"
+				visible="@load(reports.adminOrNoUser)" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/reports/queryreports.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabLogFiles.onSelect">
+				<include src="WEB-INF/zul/reports/logfiles.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </window>
- 
