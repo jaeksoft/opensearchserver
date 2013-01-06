@@ -123,6 +123,10 @@ public enum TesseractLanguageEnum {
 		this.langEnum = langEnum;
 	}
 
+	public String getName() {
+		return name();
+	}
+
 	final public static TesseractLanguageEnum find(LanguageEnum lang) {
 		if (lang == null)
 			return null;

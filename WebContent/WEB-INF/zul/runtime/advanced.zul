@@ -46,10 +46,9 @@
 						<label value="Tesseract default language" />
 						<listbox mold="select"
 							selectedItem="@bind(advanced.ocrManager.defaultLanguage)"
-							model="@load(advanced.languageEnum)">
+							model="@load(advanced.tesseractLanguageEnum)">
 							<template name="model" var="langEnum">
-								<listitem label="@load(langEnum.name)"
-									value="@load(langEnum)" />
+								<listitem label="@load(langEnum.name)" />
 							</template>
 						</listbox>
 						<label
