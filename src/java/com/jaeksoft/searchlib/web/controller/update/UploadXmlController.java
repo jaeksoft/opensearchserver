@@ -41,9 +41,11 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.util.media.Media;
-import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.Client;
@@ -187,10 +189,12 @@ public class UploadXmlController extends CommonController {
 		return false;
 	}
 
-	@NotifyChange("#threadList, #updateTimer")
-	public void onTimerRefresh() {
+	@Command
+	public void onTimerRefresh() throws SearchLibException {
+		reload();
 	}
 
+	@Command
 	public void onPurge() throws SearchLibException {
 		synchronized (this) {
 			List<UpdateThread> list = getUpdateList();
@@ -241,14 +245,16 @@ public class UploadXmlController extends CommonController {
 		}
 	}
 
-	public void onUpload(Event event) throws InterruptedException,
-			XPathExpressionException, NoSuchAlgorithmException,
-			ParserConfigurationException, SAXException, IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	@Command
+	public void onUpload(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx)
+			throws InterruptedException, XPathExpressionException,
+			NoSuchAlgorithmException, ParserConfigurationException,
+			SAXException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		if (!isUpdateRights())
 			throw new SearchLibException("Not allowed");
-		UploadEvent uploadEvent = (UploadEvent) event;
+		UploadEvent uploadEvent = (UploadEvent) ctx.getTriggerEvent();
 		Media[] medias = uploadEvent.getMedias();
 		if (medias != null) {
 			for (Media media : medias)

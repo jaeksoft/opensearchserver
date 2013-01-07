@@ -61,7 +61,7 @@
 		<template name="model" var="thread">
 			<listitem>
 				<listcell
-					label="@load(thread.startTime,converter='com.jaeksoft.searchlib.web.converter.DateConverter')" />
+					label="@load(thread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
 				<listcell label="@load(thread.mediaName)" />
 				<listcell label="@load(thread.info)" />
 				<listcell />
