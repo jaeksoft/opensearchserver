@@ -70,8 +70,8 @@
 		</listhead>
 		<template name="model" var="facet">
 			<listitem>
-				<listcell value="@load(facet.term)" />
-				<listcell value="@load(facet.count)" />
+				<listcell label="@load(facet.term)" />
+				<listcell label="@load(facet.count)" />
 			</listitem>
 		</template>
 	</listbox>
