@@ -44,6 +44,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
+import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImageUtils;
@@ -57,7 +59,8 @@ public class IcePdfParser extends Parser {
 			ParserFieldEnum.content, ParserFieldEnum.producer,
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
-			ParserFieldEnum.number_of_pages, ParserFieldEnum.ocr_content };
+			ParserFieldEnum.number_of_pages, ParserFieldEnum.ocr_content,
+			ParserFieldEnum.image_ocr_boxes };
 
 	public IcePdfParser() {
 		super(fl);
@@ -98,7 +101,6 @@ public class IcePdfParser extends Parser {
 							.replaceConsecutiveSpaces(lineText.toString(), " ")
 							.trim());
 		}
-
 		langDetection(10000, ParserFieldEnum.content);
 	}
 
@@ -128,9 +130,9 @@ public class IcePdfParser extends Parser {
 		}
 	}
 
-	private void imageOcr(Image image, float rotation, LanguageEnum lang,
-			OcrManager ocr) throws InterruptedException, IOException,
-			SearchLibException {
+	private HocrDocument imageOcr(Image image, float rotation,
+			LanguageEnum lang, OcrManager ocr) throws InterruptedException,
+			IOException, SearchLibException {
 		File hocrFile = null;
 		try {
 			BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
@@ -138,8 +140,10 @@ public class IcePdfParser extends Parser {
 				bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerizeImage(bufferedImage, hocrFile, lang, true);
-			new HocrDocument(hocrFile).putContentToParserField(this,
+			HocrDocument hocrDocument = new HocrDocument(hocrFile);
+			hocrDocument.putContentToParserField(this,
 					ParserFieldEnum.ocr_content);
+			return hocrDocument;
 		} finally {
 			if (hocrFile != null)
 				FileUtils.deleteQuietly(hocrFile);
@@ -151,10 +155,13 @@ public class IcePdfParser extends Parser {
 		OcrManager ocr = ClientCatalog.getOcrManager();
 		if (ocr == null || ocr.isDisabled())
 			return;
-		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
+		HocrPdf hocrPdf = new HocrPdf();
+		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content)
+				&& !getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			return;
 
 		for (int i = 0; i < pdf.getNumberOfPages(); i++) {
+			HocrPage hocrPage = hocrPdf.createPage();
 			@SuppressWarnings("unchecked")
 			Vector<Image> images = pdf.getPageImages(i);
 			if (images == null || images.size() == 0)
@@ -162,8 +169,10 @@ public class IcePdfParser extends Parser {
 			float rotation = pdf.getPageTree().getPage(i, null)
 					.getTotalRotation(0);
 			for (Image image : images)
-				imageOcr(image, 360 - rotation, lang, ocr);
+				hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
 		}
+		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
+			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 
 	}
 }

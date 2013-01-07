@@ -47,6 +47,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
+import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -59,7 +61,7 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.producer, ParserFieldEnum.keywords,
 			ParserFieldEnum.creation_date, ParserFieldEnum.modification_date,
 			ParserFieldEnum.language, ParserFieldEnum.number_of_pages,
-			ParserFieldEnum.ocr_content };
+			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes };
 
 	public PdfParser() {
 		super(fl);
@@ -154,8 +156,8 @@ public class PdfParser extends Parser {
 		}
 	}
 
-	private void doOcr(OcrManager ocr, LanguageEnum lang, PDXObjectImage image)
-			throws IOException, SearchLibException {
+	private HocrDocument doOcr(OcrManager ocr, LanguageEnum lang,
+			PDXObjectImage image) throws IOException, SearchLibException {
 		File imageFile = null;
 		File hocrFile = null;
 		try {
@@ -167,8 +169,10 @@ public class PdfParser extends Parser {
 			if (imageFile.length() == 0)
 				throw new IOException("PDF/OCR: Image file is empty");
 			ocr.ocerize(imageFile, hocrFile, lang, true);
-			new HocrDocument(hocrFile).putContentToParserField(this,
+			HocrDocument hocrDocument = new HocrDocument(hocrFile);
+			hocrDocument.putContentToParserField(this,
 					ParserFieldEnum.ocr_content);
+			return hocrDocument;
 		} finally {
 			if (imageFile != null)
 				FileUtils.deleteQuietly(imageFile);
@@ -182,11 +186,14 @@ public class PdfParser extends Parser {
 		OcrManager ocr = ClientCatalog.getOcrManager();
 		if (ocr == null || ocr.isDisabled())
 			return;
-		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content))
+		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content)
+				&& !getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			return;
 		List<?> pages = pdf.getDocumentCatalog().getAllPages();
 		Iterator<?> iter = pages.iterator();
+		HocrPdf hocrPdf = new HocrPdf();
 		while (iter.hasNext()) {
+			HocrPage hocrPage = hocrPdf.createPage();
 			PDPage page = (PDPage) iter.next();
 			PDResources resources = page.getResources();
 			Map<?, ?> images = resources.getImages();
@@ -195,11 +202,12 @@ public class PdfParser extends Parser {
 				while (imageIter.hasNext()) {
 					String key = (String) imageIter.next();
 					PDXObjectImage image = (PDXObjectImage) images.get(key);
-					if (image == null)
-						continue;
-					doOcr(ocr, lang, image);
+					if (image != null)
+						hocrPage.addImage(doOcr(ocr, lang, image));
 				}
 			}
 		}
+		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
+			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 	}
 }
