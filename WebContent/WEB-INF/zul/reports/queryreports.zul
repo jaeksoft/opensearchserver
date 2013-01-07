@@ -61,7 +61,7 @@
 				onClick="@command('onExportReport')" />
 		</hbox>
 	</vbox>
-	<listbox mold="paging" rows="10"
+	<listbox mold="paging" pageSize="10"
 		model="@load(queryReports.reportSet)"
 		visible="@load(queryReports.reportSetExists)">
 		<listhead>

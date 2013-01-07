@@ -16,7 +16,7 @@
 -->
 <window border="none" apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('reportView') @init('com.jaeksoft.searchlib.web.controller.report.LogFilesController')">
-	<listbox mold="paging" rows="5"
+	<listbox mold="paging" pageSize="10"
 		model="@load(reportView.reportList)">
 		<listhead>
 			<listheader label="File name" />
