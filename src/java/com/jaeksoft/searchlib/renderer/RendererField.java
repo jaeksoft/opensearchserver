@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,8 @@ public class RendererField {
 
 	private String urlFieldName;
 
+	private RendererWidgets widgetName;
+
 	private final static String RENDERER_FIELD_ATTR_FIELDNAME = "fieldName";
 
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
@@ -55,11 +57,14 @@ public class RendererField {
 
 	private final static String RENDERER_FIELD_ATTR_URL_FIELDNAME = "urlFieldName";
 
+	private final static String RENDERER_FIELD_ATTR_WIDGETNAME = "widgetName";
+
 	public RendererField() {
 		fieldName = "";
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = "";
 		urlFieldName = "";
+		widgetName = RendererWidgets.NONE;
 	}
 
 	public RendererField(XPathParser xpp, Node node)
@@ -72,6 +77,8 @@ public class RendererField {
 				true);
 		urlFieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
+		setWidgetName(RendererWidgets.find(XPathParser.getAttributeString(node,
+				RENDERER_FIELD_ATTR_WIDGETNAME)));
 	}
 
 	public RendererField(RendererField field) {
@@ -83,6 +90,7 @@ public class RendererField {
 		target.fieldType = fieldType;
 		target.oldStyle = oldStyle;
 		target.urlFieldName = urlFieldName;
+		target.widgetName = widgetName;
 	}
 
 	/**
@@ -152,11 +160,20 @@ public class RendererField {
 		return resultDocument.getValueContent(urlFieldName, 0);
 	}
 
+	public RendererWidgets getWidgetName() {
+		return widgetName;
+	}
+
+	public void setWidgetName(RendererWidgets widgetName) {
+		this.widgetName = widgetName;
+	}
+
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
 				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
-				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName);
+				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
+				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name());
 		xmlWriter.endElement();
 	}
 }

@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererField;
 import com.jaeksoft.searchlib.renderer.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.RendererManager;
+import com.jaeksoft.searchlib.renderer.RendererWidgets;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RendererController extends CommonController {
@@ -293,6 +294,10 @@ public class RendererController extends CommonController {
 
 	public RendererFieldType[] getFieldTypeList() {
 		return RendererFieldType.values();
+	}
+
+	public RendererWidgets[] getWidgetList() {
+		return RendererWidgets.values();
 	}
 
 	public List<String> getFieldList() throws SearchLibException {

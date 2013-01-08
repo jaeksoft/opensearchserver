@@ -2,6 +2,7 @@
 <%@ page import="com.jaeksoft.searchlib.request.SearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.RendererWidgets"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
 <%
@@ -24,6 +25,8 @@
 						j++;
 						String url = rendererField
 								.getUrlField(resultDocument);
+						RendererWidgets widget = rendererField
+								.getWidgetName();
 						if (url != null)
 							if (url.length() == 0)
 								url = null;
@@ -31,7 +34,14 @@
 								.getFieldValue(resultDocument);
 						if (fieldValueItems != null) {
 							for (FieldValueItem fieldValueItem : fieldValueItems) {
-	%>
+	
+							if (widget != null && widget == RendererWidgets.THUMBNAIL) {
+								request.setAttribute("thumbnail",fieldValueItem.getValue());
+								request.setAttribute("thumbnail_css",j); %>
+								<jsp:include page="imagepreview.jsp" flush="true" />
+							<% 
+							}else {
+							%>
 	<div class="osscmnrdr ossfieldrdr<%=j%>">
 		<%
 			if (url != null) {
@@ -46,6 +56,7 @@
 	</div>
 	<%
 		} }
+		}
 	%>
 	<%
 		}
