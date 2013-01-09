@@ -19,47 +19,35 @@
 <div class="osscmnrdr oss-result">
 	<%
 		for (int i = start; i < end; i++) {
-					ResultDocument resultDocument = result.getDocument(i);
-					int j = 0;
-					for (RendererField rendererField : renderer.getFields()) {
-						j++;
-						String url = rendererField
-								.getUrlField(resultDocument);
-						RendererWidgets widget = rendererField
-								.getWidgetName();
-						if (url != null)
-							if (url.length() == 0)
-								url = null;
-						FieldValueItem[] fieldValueItems = rendererField
-								.getFieldValue(resultDocument);
-						if (fieldValueItems != null) {
-							for (FieldValueItem fieldValueItem : fieldValueItems) {
-	
-							if (widget != null && widget == RendererWidgets.THUMBNAIL) {
-								if (url != null) {
-									request.setAttribute("thumbnail_url",url);
-								}
-								request.setAttribute("thumbnail",fieldValueItem.getValue());
-								request.setAttribute("thumbnail_css",j); %>
-								<jsp:include page="imagepreview.jsp" flush="true" />
-							<% 
-							}else {
-							%>
-	<div class="osscmnrdr ossfieldrdr<%=j%>">
-		<%
-			if (url != null) {
-		%>
-		<a target="_top" href="<%=url%>"><%=fieldValueItem.getValue()%></a>
-		<%
-			} else {
-		%><%=fieldValueItem.getValue()%>
-		<%
-			}
-		%>
-	</div>
-	<%
-		} }
-		}
+			ResultDocument resultDocument = result.getDocument(i);
+			int j = 0;
+			for (RendererField rendererField : renderer.getFields()) {
+				j++;
+				String url = rendererField.getUrlField(resultDocument);
+				RendererWidgets widget = rendererField.getWidgetName();
+				if (url != null)
+					if (url.length() == 0)
+						url = null;
+				FieldValueItem[] fieldValueItems = rendererField.getFieldValue(resultDocument);
+				if (fieldValueItems != null) {
+					for (FieldValueItem fieldValueItem : fieldValueItems) {
+					%>
+					<div class="osscmnrdr ossfieldrdr<%=j%>">
+					<% 
+					if (url != null) {
+						request.setAttribute("url",url);
+					}
+					request.setAttribute("value",fieldValueItem.getValue());
+					request.setAttribute("css",j);
+					String jspPage = "widget/"+widget.name().toLowerCase()+".jsp";
+					%>
+					<jsp:include page="<%=jspPage %>" flush="true" />	
+					</div><% 
+					request.removeAttribute("url");
+					request.removeAttribute("value");
+					request.removeAttribute("css");
+						}
+					}
 	%>
 	<%
 		}
