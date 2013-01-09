@@ -30,11 +30,6 @@ import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 
 public class SynonymsController extends CommonDirectoryController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8145875561037662110L;
-
 	public SynonymsController() throws SearchLibException {
 		super();
 	}

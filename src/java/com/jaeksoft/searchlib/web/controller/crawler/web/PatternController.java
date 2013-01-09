@@ -30,11 +30,6 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 public class PatternController extends AbstractPatternController {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4379405145841183453L;
-
 	public PatternController() throws SearchLibException {
 		super();
 	}

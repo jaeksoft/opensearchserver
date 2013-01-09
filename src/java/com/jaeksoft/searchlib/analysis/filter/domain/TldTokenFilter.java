@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,7 @@ public class TldTokenFilter extends CommonDomainTokenFilter {
 			return false;
 		try {
 			URL url = new URL(termAtt.term());
-			InternetDomainName domainName = InternetDomainName.fromLenient(url
+			InternetDomainName domainName = InternetDomainName.from(url
 					.getHost());
 			termAtt.setTermBuffer(domainName.publicSuffix().name());
 		} catch (MalformedURLException e) {
