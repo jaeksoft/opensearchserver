@@ -16,53 +16,83 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('advanced') @init('com.jaeksoft.searchlib.web.controller.runtime.AdvancedComposer')">
-	<panel title="Advanced" border="normal">
-		<panelchildren>
-			<grid>
-				<columns>
-					<column align="right" hflex="min" />
-					<column align="left" hflex="min" />
-					<column align="left" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Enabled OCR" />
-						<checkbox
-							checked="@bind(advanced.ocrManager.enabled)" />
-						<space />
-					</row>
-					<row>
-						<label value="Tesseract path" />
-						<cell>
-							<textbox cols="80"
-								value="@bind(advanced.ocrManager.tesseractPath)" />
-							<button label="Check"
-								onClick="@command('onCheck')" />
-						</cell>
-						<label
-							value="Enter the path to the Tesseract executable Eg.: /usr/local/bin/tesseract" />
-					</row>
-					<row>
-						<label value="Tesseract default language" />
-						<listbox mold="select"
-							selectedItem="@bind(advanced.ocrManager.defaultLanguage)"
-							model="@load(advanced.tesseractLanguageEnum)">
-							<template name="model" var="langEnum">
-								<listitem label="@load(langEnum.name)" />
-							</template>
-						</listbox>
-						<label
-							value="Enter the default language used by Tesseract" />
-					</row>
-					<row>
-						<label value="Maximum number of clauses" />
-						<intbox cols="5"
-							value="@bind(advanced.maxClauseCount.value)" />
-						<label
-							value="Set the maximum number of clauses permitted per boolean query. Default value is 1024" />
-					</row>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
+	<tabbox>
+		<tabs>
+			<tab id="tabOcr" label="Optical Character Recognition"
+				selected="true" />
+			<tab id="tabMisc" label="Miscellaneous" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<grid>
+					<columns>
+						<column align="right" hflex="min" />
+						<column align="left" hflex="min" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Enabled OCR" />
+							<checkbox
+								checked="@bind(advanced.ocrManager.enabled)" />
+							<space />
+						</row>
+						<row>
+							<label value="Tesseract path" />
+							<cell>
+								<textbox cols="80"
+									value="@bind(advanced.ocrManager.tesseractPath)" />
+								<button label="Check"
+									onClick="@command('onCheckTesseract')" />
+							</cell>
+							<label
+								value="Enter the path to the Tesseract executable Eg.: /usr/local/bin/tesseract" />
+						</row>
+						<row>
+							<label value="Hocr2pdf path" />
+							<cell>
+								<textbox cols="80"
+									value="@bind(advanced.ocrManager.hocr2pdfPath)" />
+								<button label="Check"
+									onClick="@command('onCheckHocr2pdf')" />
+							</cell>
+							<label
+								value="Enter the path to the hocr2pdf executable Eg.: /usr/bin/hocr2pdf" />
+						</row>
+						<row>
+							<label value="Tesseract default language" />
+							<listbox mold="select"
+								selectedItem="@bind(advanced.ocrManager.defaultLanguage)"
+								model="@load(advanced.tesseractLanguageEnum)">
+								<template name="model" var="langEnum">
+									<listitem
+										label="@load(langEnum.name)" />
+								</template>
+							</listbox>
+							<label
+								value="Enter the default language used by Tesseract" />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+			<tabpanel fulfill="tabMisc.onSelect">
+				<grid>
+					<columns>
+						<column align="right" hflex="min" />
+						<column align="left" hflex="min" />
+						<column align="left" />
+					</columns>
+					<rows>
+						<row>
+							<label value="Maximum number of clauses" />
+							<intbox cols="5"
+								value="@bind(advanced.maxClauseCount.value)" />
+							<label
+								value="Set the maximum number of clauses permitted per boolean query. Default value is 1024" />
+						</row>
+					</rows>
+				</grid>
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 </window>

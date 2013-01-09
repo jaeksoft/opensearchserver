@@ -52,8 +52,16 @@ public class AdvancedComposer extends CommonController {
 	}
 
 	@Command
-	public void onCheck() throws SearchLibException, InterruptedException {
-		ClientCatalog.getOcrManager().check();
+	public void onCheckTesseract() throws SearchLibException,
+			InterruptedException {
+		ClientCatalog.getOcrManager().checkTesseract();
+		new AlertController("OK");
+	}
+
+	@Command
+	public void onCheckHocr2pdf() throws SearchLibException,
+			InterruptedException {
+		ClientCatalog.getOcrManager().checkHocr2pdf();
 		new AlertController("OK");
 	}
 

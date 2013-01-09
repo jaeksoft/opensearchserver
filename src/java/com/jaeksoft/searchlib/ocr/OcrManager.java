@@ -61,11 +61,15 @@ public class OcrManager implements Closeable {
 
 	private final static String OCR_PROPERTY_TESSERACT_PATH = "tesseractPath";
 
+	private final static String OCR_PROPERTY_HOCR2PDF_PATH = "hocr2pdfPath";
+
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private boolean enabled = false;
 
 	private String tesseractPath = null;
+
+	private String hocr2pdfPath = null;
 
 	private TesseractLanguageEnum defaultLanguage;
 
@@ -82,6 +86,7 @@ public class OcrManager implements Closeable {
 				OCR_PROPERTY_DEFAULT_LANGUAGE,
 				TesseractLanguageEnum.None.name()));
 		tesseractPath = properties.getProperty(OCR_PROPERTY_TESSERACT_PATH);
+		hocr2pdfPath = properties.getProperty(OCR_PROPERTY_HOCR2PDF_PATH);
 		setEnabled(enabled);
 	}
 
@@ -90,6 +95,8 @@ public class OcrManager implements Closeable {
 		properties.setProperty(OCR_PROPERTY_ENABLED, Boolean.toString(enabled));
 		if (tesseractPath != null)
 			properties.setProperty(OCR_PROPERTY_TESSERACT_PATH, tesseractPath);
+		if (hocr2pdfPath != null)
+			properties.setProperty(OCR_PROPERTY_HOCR2PDF_PATH, hocr2pdfPath);
 		if (defaultLanguage != null)
 			properties.setProperty(OCR_PROPERTY_DEFAULT_LANGUAGE,
 					defaultLanguage.name());
@@ -163,10 +170,10 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	Pattern tesseractCheckPattern = Pattern
+	private final static Pattern tesseractCheckPattern = Pattern
 			.compile("Usage:.*tesseract.* imagename outputbase");
 
-	public void check() throws SearchLibException {
+	public void checkTesseract() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (tesseractPath == null || tesseractPath.length() == 0)
@@ -179,6 +186,31 @@ public class OcrManager implements Closeable {
 			run(cmdLine, 60, 1, sbResult);
 			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
+				throw new SearchLibException("Wrong returned message: "
+						+ result);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private final static Pattern hocr2pdfCheckPattern = Pattern
+			.compile("hOCR to PDF converter");
+
+	public void checkHocr2pdf() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (hocr2pdfPath == null || hocr2pdfPath.length() == 0)
+				throw new SearchLibException("Please enter a path");
+			File file = new File(hocr2pdfPath);
+			if (!file.exists())
+				throw new SearchLibException("The file don't exist");
+			CommandLine cmdLine = CommandLine.parse(hocr2pdfPath);
+			StringBuffer sbResult = new StringBuffer();
+			run(cmdLine, 60, 1, sbResult);
+			String result = sbResult.toString();
+			if (!hocr2pdfCheckPattern.matcher(result).find())
 				throw new SearchLibException("Wrong returned message: "
 						+ result);
 		} catch (IOException e) {
@@ -304,6 +336,33 @@ public class OcrManager implements Closeable {
 		rwl.w.lock();
 		try {
 			this.defaultLanguage = defaultLanguage;
+			save();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the hocr2pdfPath
+	 */
+	public String getHocr2pdfPath() {
+		rwl.r.lock();
+		try {
+			return hocr2pdfPath;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param hocr2pdfPath
+	 *            the hocr2pdfPath to set
+	 * @throws IOException
+	 */
+	public void setHocr2pdfPath(String hocr2pdfPath) throws IOException {
+		rwl.w.lock();
+		try {
+			this.hocr2pdfPath = hocr2pdfPath;
 			save();
 		} finally {
 			rwl.w.unlock();
