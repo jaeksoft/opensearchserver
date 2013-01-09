@@ -64,7 +64,7 @@ public class RendererField {
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = "";
 		urlFieldName = "";
-		widgetName = RendererWidgets.NONE;
+		widgetName = RendererWidgets.TEXT;
 	}
 
 	public RendererField(XPathParser xpp, Node node)

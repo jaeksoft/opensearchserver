@@ -36,6 +36,9 @@
 							for (FieldValueItem fieldValueItem : fieldValueItems) {
 	
 							if (widget != null && widget == RendererWidgets.THUMBNAIL) {
+								if (url != null) {
+									request.setAttribute("thumbnail_url",url);
+								}
 								request.setAttribute("thumbnail",fieldValueItem.getValue());
 								request.setAttribute("thumbnail_css",j); %>
 								<jsp:include page="imagepreview.jsp" flush="true" />

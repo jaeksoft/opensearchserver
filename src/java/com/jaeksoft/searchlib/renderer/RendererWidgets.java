@@ -30,10 +30,10 @@ package com.jaeksoft.searchlib.renderer;
  */
 public enum RendererWidgets {
 
-	NONE, THUMBNAIL;
+	TEXT, THUMBNAIL;
 	public static RendererWidgets find(String name) {
 		if (name == null)
-			return NONE;
+			return TEXT;
 		return valueOf(name);
 	}
 
