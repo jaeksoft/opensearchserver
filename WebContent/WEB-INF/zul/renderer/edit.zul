@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -21,6 +21,7 @@
 				label="@load(renderer.currentEditMode)" selected="true" />
 			<tab id="tabRedendererFields" label="Fields" />
 			<tab id="tabRedendererCss" label="CSS Style" />
+			<tab id="tabRedendererLog" label="Log" />
 			<tab id="tabRedendererTest" label="Testing" />
 		</tabs>
 		<tabpanels>
@@ -32,6 +33,9 @@
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_css.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_log.zul" />
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_test.zul" />

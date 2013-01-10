@@ -60,6 +60,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
 	private final static String RENDERER_ITEM_NODE_HEADER = "header";
 	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
+	private final static String RENDERER_ITEM_ROOT_ATTR_LOGENABLED = "logEnabled";
+	private final static String RENDERER_ITEM_NODE_LOG_FIELD = "logField";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -79,11 +81,15 @@ public class Renderer implements Comparable<Renderer> {
 
 	private List<RendererField> fields;
 
+	private List<RendererLogField> logFields;
+
 	private String footer;
 
 	private String header;
 
 	private String css;
+
+	private boolean logEnabled;
 
 	public Renderer() {
 		name = null;
@@ -93,7 +99,9 @@ public class Renderer implements Comparable<Renderer> {
 		resultsFoundText = "results found";
 		noResultFoundText = "No results found";
 		facetWidth = "200px";
+		logEnabled = false;
 		fields = new ArrayList<RendererField>();
+		logFields = new ArrayList<RendererLogField>();
 		footer = null;
 		header = null;
 		css = null;
@@ -131,6 +139,13 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
 			addField(new RendererField(xpp, nodeList.item(i)));
+
+		NodeList nodeLogList = xpp.getNodeList(rootNode,
+				RENDERER_ITEM_NODE_LOG_FIELD);
+		for (int j = 0; j < nodeLogList.getLength(); j++)
+			addLogField(new RendererLogField(xpp, nodeLogList.item(j)));
+		setLogEnabled(Boolean.parseBoolean(XPathParser.getAttributeString(
+				rootNode, RENDERER_ITEM_ROOT_ATTR_LOGENABLED)));
 		if (css == null || css.length() == 0)
 			css = getOldCss(xpp, rootNode);
 	}
@@ -299,11 +314,15 @@ public class Renderer implements Comparable<Renderer> {
 				target.resultsFoundText = resultsFoundText;
 				target.facetWidth = facetWidth;
 				target.fields.clear();
+				target.logFields.clear();
 				target.header = header;
 				target.footer = footer;
 				target.css = css;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
+
+				for (RendererLogField logField : logFields)
+					target.addLogField(new RendererLogField(logField));
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -474,13 +493,19 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT,
 					oneResultFoundText,
 					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
-					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth);
+					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth,
+					RENDERER_ITEM_ROOT_ATTR_LOGENABLED,
+					Boolean.toString(logEnabled));
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_CSS, css);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
+
+			for (RendererLogField logReportField : logFields)
+				logReportField
+						.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -691,4 +716,54 @@ public class Renderer implements Comparable<Renderer> {
 			rwl.w.unlock();
 		}
 	}
+
+	public boolean isLogEnabled() {
+		rwl.w.lock();
+		try {
+			return logEnabled;
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
+	public void setLogEnabled(boolean logReportEnabled) {
+		rwl.w.lock();
+		try {
+			this.logEnabled = logReportEnabled;
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
+	public void addLogField(RendererLogField logField) {
+		rwl.w.lock();
+		try {
+			logFields.add(logField);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeLogField(RendererLogField logField) {
+		rwl.w.lock();
+		try {
+			logFields.remove(logField);
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
+	public List<RendererLogField> getLogFields() {
+		rwl.w.lock();
+		try {
+			return logFields;
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
 }

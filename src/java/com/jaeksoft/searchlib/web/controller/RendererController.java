@@ -38,6 +38,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererField;
 import com.jaeksoft.searchlib.renderer.RendererFieldType;
+import com.jaeksoft.searchlib.renderer.RendererLogField;
+import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererWidgets;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -49,6 +51,7 @@ public class RendererController extends CommonController {
 	private transient boolean isTestable;
 	private transient RendererField currentRendererField;
 	private transient RendererField selectedRendererField;
+	private transient RendererLogField currentRendererLogField;
 
 	private class DeleteAlert extends AlertController {
 
@@ -82,6 +85,7 @@ public class RendererController extends CommonController {
 		currentRendererField = null;
 		selectedRenderer = null;
 		isTestable = false;
+		currentRendererLogField = null;
 	}
 
 	public Renderer[] getRenderers() throws SearchLibException {
@@ -133,6 +137,7 @@ public class RendererController extends CommonController {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
+		currentRendererLogField = new RendererLogField();
 		reload();
 	}
 
@@ -146,6 +151,7 @@ public class RendererController extends CommonController {
 	public void onNew() throws SearchLibException {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
+		currentRendererLogField = new RendererLogField();
 		reload();
 	}
 
@@ -156,6 +162,36 @@ public class RendererController extends CommonController {
 		else
 			currentRendererField.copyTo(selectedRendererField);
 		onRendererFieldCancel();
+		reload();
+	}
+
+	@Command
+	public void onLogFieldAdd() throws SearchLibException, InterruptedException {
+		if (currentRendererLogField.getLogParameterEnum() == null
+				|| currentRendererLogField.getCustomlogItem().equals("")
+				|| RendererLogParameterEnum.find(currentRendererLogField
+						.getLogParameterEnum().name()) == null)
+			new AlertController("FieldName / Parameter cannot be null");
+		else {
+			if (currentRendererLogField != null)
+				currentRenderer.addLogField(currentRendererLogField);
+		}
+		onRendererLogFieldCancel();
+
+		reload();
+	}
+
+	@Command
+	public void onRendererLogFieldCancel() throws SearchLibException {
+		currentRendererLogField = new RendererLogField();
+		reload();
+	}
+
+	@Command
+	public void onLogFieldRemove(
+			@BindingParam("renderLogFieldItem") RendererLogField rendererlogField)
+			throws SearchLibException, InterruptedException {
+		currentRenderer.removeLogField(rendererlogField);
 		reload();
 	}
 
@@ -333,5 +369,25 @@ public class RendererController extends CommonController {
 		else if (currentRendererField.getFieldType() == RendererFieldType.SNIPPET)
 			request.getSnippetFieldList().toNameList(nameList);
 		return nameList;
+	}
+
+	public String[] getCustomLogList() {
+		String customLogs[] = new String[10];
+		for (int i = 0; i < 10; i++)
+			customLogs[i] = "customField" + i;
+		return customLogs;
+	}
+
+	public RendererLogParameterEnum[] getLogParameterList() {
+		return RendererLogParameterEnum.values();
+	}
+
+	public RendererLogField getCurrentRendererLogField() {
+		return currentRendererLogField;
+	}
+
+	public void setCurrentRendererLogField(
+			RendererLogField currentRendererLogField) {
+		this.currentRendererLogField = currentRendererLogField;
 	}
 }
