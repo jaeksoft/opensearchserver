@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,27 +24,19 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
 import org.knallgrau.utils.textcat.TextCategorizer;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiterBase64;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFileInstance;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiterInputStream;
 import com.jaeksoft.searchlib.util.Lang;
 
 public abstract class Parser extends ParserFactory {
@@ -175,55 +167,15 @@ public abstract class Parser extends ParserFactory {
 	protected abstract void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum lang) throws IOException;
 
-	final private void doParserContent(StreamLimiter streamLimiter,
-			LanguageEnum lang) throws IOException {
-		try {
-			addField(ParserFieldEnum.parser_name, getParserName());
-			parseContent(streamLimiter, lang);
-		} finally {
-			streamLimiter.close();
-		}
-	}
-
-	final void parseStream(IndexDocument sourceDocument,
-			String originalFileName, InputStream inputStream, LanguageEnum lang)
-			throws IOException {
+	final public void doParserContent(IndexDocument sourceDocument,
+			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
-		StreamLimiter streamLimiter = new StreamLimiterInputStream(
-				getSizeLimit(), inputStream, originalFileName);
-		doParserContent(streamLimiter, lang);
+		addField(ParserFieldEnum.parser_name, getParserName());
+		parseContent(streamLimiter, lang);
 	}
 
-	final void parseFile(IndexDocument sourceDocument, File file,
-			LanguageEnum lang) throws IOException {
-		if (sourceDocument != null)
-			setSourceDocument(sourceDocument);
-		StreamLimiter streamLimiter = new StreamLimiterFile(getSizeLimit(),
-				file);
-		doParserContent(streamLimiter, lang);
-	}
-
-	final void parseBase64(IndexDocument sourceDocument, String base64text,
-			String fileName, LanguageEnum lang) throws IOException {
-		if (sourceDocument != null)
-			setSourceDocument(sourceDocument);
-		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
-				getSizeLimit(), fileName);
-		doParserContent(streamLimiter, lang);
-	}
-
-	final void parseFileInstance(IndexDocument sourceDocument,
-			FileInstanceAbstract fileInstance, LanguageEnum lang)
-			throws IOException, SearchLibException {
-		if (sourceDocument != null)
-			setSourceDocument(sourceDocument);
-		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
-				fileInstance, getSizeLimit());
-		doParserContent(streamLimiter, lang);
-	}
-
-	public StreamLimiter getStreamLimiter() {
+	final public StreamLimiter getStreamLimiter() {
 		return streamLimiter;
 	}
 

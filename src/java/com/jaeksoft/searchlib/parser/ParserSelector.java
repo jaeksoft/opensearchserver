@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,11 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterBase64;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFileInstance;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiterInputStream;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -290,7 +295,7 @@ public class ParserSelector {
 	}
 
 	final private Parser getParser(String filename, String contentBaseType,
-			String url) throws SearchLibException {
+			String url, Parser defaultParser) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Parser parser = null;
@@ -299,9 +304,7 @@ public class ParserSelector {
 			if (parser == null && filename != null)
 				parser = getParserFromExtension(FilenameUtils
 						.getExtension(filename));
-			if (parser == null)
-				return null;
-			return parser;
+			return parser == null ? defaultParser : parser;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -382,76 +385,68 @@ public class ParserSelector {
 		return getParser(parserFactory);
 	}
 
+	private final Parser parserLoop(IndexDocument sourceDocument,
+			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
+			throws SearchLibException, IOException {
+		try {
+			while (parser != null) {
+				try {
+					parser.doParserContent(sourceDocument, streamLimiter, lang);
+					return parser;
+				} catch (IOException ioException) {
+					parser = getFailOverParser(parser, ioException);
+				}
+			}
+			return null;
+		} finally {
+			streamLimiter.close();
+		}
+	}
+
 	public final Parser parseStream(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			InputStream inputStream, LanguageEnum lang, Parser defaultParser)
 			throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType, url);
-		for (;;) {
-			if (parser == null) {
-				parser = defaultParser;
-				defaultParser = null;
-			}
-			if (parser == null)
-				return null;
-			try {
-				parser.parseStream(sourceDocument, filename, inputStream, lang);
-				return parser;
-			} catch (IOException ioException) {
-				parser = getFailOverParser(parser, ioException);
-			}
-		}
+		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
+		if (parser == null)
+			return null;
+		StreamLimiter streamLimiter = new StreamLimiterInputStream(
+				parser.getSizeLimit(), inputStream, filename);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 
 	public final Parser parseFile(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url, File file,
 			LanguageEnum lang) throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType, url);
-		while (parser != null) {
-			try {
-				parser.parseFile(sourceDocument, file, lang);
-				return parser;
-			} catch (IOException ioException) {
-				parser = getFailOverParser(parser, ioException);
-			}
-		}
-		return null;
+		Parser parser = getParser(filename, contentBaseType, url, null);
+		if (parser == null)
+			return null;
+		StreamLimiter streamLimiter = new StreamLimiterFile(
+				parser.getSizeLimit(), file);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 
 	public final Parser parseBase64(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			String base64text, LanguageEnum lang) throws SearchLibException,
 			IOException {
-		Parser parser = getParser(filename, contentBaseType, url);
-		while (parser != null) {
-			try {
-				parser.parseBase64(sourceDocument, base64text, filename, lang);
-				return parser;
-			} catch (IOException ioException) {
-				parser = getFailOverParser(parser, ioException);
-			}
-		}
-		return null;
+		Parser parser = getParser(filename, contentBaseType, url, null);
+		if (parser == null)
+			return null;
+		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
+				parser.getSizeLimit(), filename);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 
 	public final Parser parseFileInstance(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			FileInstanceAbstract fileInstance, LanguageEnum lang,
 			Parser defaultParser) throws SearchLibException, IOException {
-		Parser parser = getParser(filename, contentBaseType, url);
-		for (;;) {
-			if (parser == null) {
-				parser = defaultParser;
-				defaultParser = null;
-			}
-			if (parser == null)
-				return null;
-			try {
-				parser.parseFileInstance(sourceDocument, fileInstance, lang);
-				return parser;
-			} catch (IOException ioException) {
-				parser = getFailOverParser(parser, ioException);
-			}
-		}
+		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
+		if (parser == null)
+			return null;
+		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
+				fileInstance, parser.getSizeLimit());
+		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 }
