@@ -120,6 +120,10 @@
 		<servlet-class>com.jaeksoft.searchlib.web.RendererServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Viewer</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ViewerServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>SearchTemplate</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.SearchTemplateServlet</servlet-class>
 	</servlet>
@@ -200,6 +204,10 @@
 	<servlet-mapping>
 		<servlet-name>Renderer</servlet-name>
 		<url-pattern>/renderer</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Viewer</servlet-name>
+		<url-pattern>/viewer</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SearchTemplate</servlet-name>

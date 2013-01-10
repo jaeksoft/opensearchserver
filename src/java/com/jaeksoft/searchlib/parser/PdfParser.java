@@ -207,6 +207,7 @@ public class PdfParser extends Parser {
 				}
 			}
 		}
+		System.out.println(hocrPdf.isOneImagePerPage());
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 	}

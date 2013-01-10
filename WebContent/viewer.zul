@@ -1,0 +1,15 @@
+<window apply="org.zkoss.bind.BindComposer" border="normal"
+	title="PDF Viewer"
+	viewModel="@id('viewer') @init('com.jaeksoft.searchlib.web.controller.ViewerController')">
+	<caption>
+		<label value="page: " />
+		<button label="&lt;" />
+		<intbox value="@bind(viewer.page)" cols="3" />
+		<button label="&gt;" />
+		<space />
+		<label value="zoom: " />
+		<button label="-" />
+		<intbox value="@bind(viewer.zoom)" cols="3" />
+		<button label="+" />
+	</caption>
+</window>

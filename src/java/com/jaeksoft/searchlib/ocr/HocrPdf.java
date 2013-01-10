@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,10 @@ public class HocrPdf {
 				jsonImages.add(image.getJsonBoxMap());
 			return jsonImages;
 		}
+
+		private boolean isOneImage() {
+			return imageList.size() == 1;
+		}
 	}
 
 	private List<HocrPage> pageList;
@@ -77,6 +81,13 @@ public class HocrPdf {
 
 	public void putToParserField(Parser parser, ParserFieldEnum parserField) {
 		parser.addField(parserField, getJsonBoxMap().toJSONString());
+	}
+
+	public boolean isOneImagePerPage() {
+		for (HocrPage page : pageList)
+			if (!page.isOneImage())
+				return false;
+		return true;
 	}
 
 }
