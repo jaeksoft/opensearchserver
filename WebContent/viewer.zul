@@ -3,13 +3,21 @@
 	viewModel="@id('viewer') @init('com.jaeksoft.searchlib.web.controller.ViewerController')">
 	<caption>
 		<label value="page: " />
-		<button label="&lt;" />
+		<button label="&lt;" onClick="@command('onPageDown')" />
 		<intbox value="@bind(viewer.page)" cols="3" />
-		<button label="&gt;" />
+		<button label="&gt;" onClick="@command('onPageUp')" />
 		<space />
 		<label value="zoom: " />
-		<button label="-" />
+		<button label="-" onClick="@command('onZoomDown')" />
 		<intbox value="@bind(viewer.zoom)" cols="3" />
-		<button label="+" />
+		<button label="+" onClick="@command('onZoomUp')" />
 	</caption>
+	<progressmeter visible="@load(viewer.downloading)" width="100%"
+		value="@load(viewer.downloadPercent)" />
+	<image visible="@load(viewer.downloaded)"
+		src="@load(viewer.currentImage)" />
+	<label visible="@load(viewer.error)"
+		value="@load(viewer.errorMessage)" />
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(viewer.downloading)" />
 </window>

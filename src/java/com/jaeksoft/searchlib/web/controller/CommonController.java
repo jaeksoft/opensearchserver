@@ -161,6 +161,10 @@ public abstract class CommonController implements EventInterface {
 		return user.isAdmin();
 	}
 
+	public String getRequestParameter(String name) {
+		return Executions.getCurrent().getParameter(name);
+	}
+
 	public boolean isNoUserList() throws SearchLibException {
 		return ClientCatalog.getUserList().isEmpty();
 	}

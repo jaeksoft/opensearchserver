@@ -24,9 +24,19 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import org.zkoss.zk.ui.Executions;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
+import javax.naming.NamingException;
+
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 
 public class ViewerController extends CommonController {
 
@@ -34,11 +44,27 @@ public class ViewerController extends CommonController {
 
 	private int zoom;
 
-	public ViewerController() throws SearchLibException {
+	private final static int[] zoomScale = { 10, 20, 30, 40, 50, 60, 70, 80,
+			90, 100, 150, 200, 250, 300, 400 };
+
+	private HttpDownloadThread downloadThread;
+
+	private File tempFile;
+
+	public ViewerController() throws SearchLibException, IOException,
+			NamingException, URISyntaxException {
 		super();
 		page = 1;
 		zoom = 100;
-		System.out.println(Executions.getCurrent().getParameter("uri"));
+		String index = getRequestParameter("index");
+		String uri = getRequestParameter("uri");
+		downloadThread = null;
+		if (uri != null) {
+			tempFile = File.createTempFile("oss", "pdfviewer");
+			Client client = ClientCatalog.getClient(index);
+			downloadThread = new HttpDownloadThread(client, uri, tempFile);
+			downloadThread.execute();
+		}
 	}
 
 	@Override
@@ -55,7 +81,9 @@ public class ViewerController extends CommonController {
 	/**
 	 * @param page
 	 *            the page to set
+	 * @throws SearchLibException
 	 */
+	@NotifyChange({ "currentImage", "page" })
 	public void setPage(int page) {
 		this.page = page;
 	}
@@ -71,8 +99,85 @@ public class ViewerController extends CommonController {
 	 * @param zoom
 	 *            the zoom to set
 	 */
+	@NotifyChange({ "currentImage", "zoom" })
 	public void setZoom(int zoom) {
 		this.zoom = zoom;
 	}
 
+	@Command
+	@NotifyChange({ "currentImage", "page" })
+	public void onPageUp() {
+		page++;
+	}
+
+	@Command
+	@NotifyChange({ "currentImage", "page" })
+	public void onPageDown() {
+		if (page > 1)
+			page--;
+	}
+
+	@Command
+	@NotifyChange({ "currentImage", "zoom" })
+	public void onZoomUp() {
+		for (int zc : zoomScale) {
+			if (zc > zoom) {
+				zoom = zc;
+				return;
+			}
+		}
+	}
+
+	@Command
+	@NotifyChange({ "currentImage", "zoom" })
+	public void onZoomDown() {
+		int lastzc = zoomScale[0];
+		for (int zc : zoomScale) {
+			if (zc >= zoom) {
+				zoom = lastzc;
+				return;
+			}
+			lastzc = zc;
+		}
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onTimer() {
+	}
+
+	public boolean isDownloading() {
+		if (downloadThread == null)
+			return false;
+		return downloadThread.isRunning();
+	}
+
+	public boolean isDownloaded() {
+		return !isDownloading();
+	}
+
+	public boolean isError() {
+		if (downloadThread == null)
+			return false;
+		return downloadThread.getException() != null;
+	}
+
+	public String getErrorMessage() {
+		if (downloadThread == null)
+			return null;
+		Exception e = downloadThread.getException();
+		if (e == null)
+			return null;
+		return e.getMessage();
+	}
+
+	public int getDownloadPercent() {
+		if (downloadThread == null)
+			return 0;
+		return downloadThread.getPercent();
+	}
+
+	public String getCurrentImage() {
+		return null;
+	}
 }
