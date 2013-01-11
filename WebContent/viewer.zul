@@ -15,7 +15,7 @@
 	<progressmeter visible="@load(viewer.downloading)" width="100%"
 		value="@load(viewer.downloadPercent)" />
 	<image visible="@load(viewer.downloaded)"
-		src="@load(viewer.currentImage)" />
+		content="@load(viewer.currentImage)" />
 	<label visible="@load(viewer.error)"
 		value="@load(viewer.errorMessage)" />
 	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"

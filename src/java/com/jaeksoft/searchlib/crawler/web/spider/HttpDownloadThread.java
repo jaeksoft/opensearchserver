@@ -49,6 +49,7 @@ public class HttpDownloadThread extends ThreadAbstract {
 	private CredentialItem credentialItem;
 	private long contentSize;
 	private long contentTransfered;
+	private boolean downloadSuccess;
 
 	public HttpDownloadThread(Config config, String sUri, File destFile)
 			throws SearchLibException, MalformedURLException,
@@ -60,6 +61,7 @@ public class HttpDownloadThread extends ThreadAbstract {
 		this.destFile = destFile;
 		httpDownloader = config.getWebCrawlMaster().getNewHttpDownloader();
 		credentialItem = config.getWebCredentialManager().getCredential(sUri);
+		downloadSuccess = false;
 	}
 
 	@Override
@@ -76,11 +78,33 @@ public class HttpDownloadThread extends ThreadAbstract {
 				fos.write(buf, 0, l);
 				incContentTransfered(l);
 			}
+			fos.flush();
+			IOUtils.closeQuietly(fos);
+			fos = null;
+			setDownloadSuccess(true);
 		} finally {
 			if (fos != null)
 				IOUtils.closeQuietly(fos);
 		}
 
+	}
+
+	private void setDownloadSuccess(boolean b) {
+		rwl.w.lock();
+		try {
+			downloadSuccess = b;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isDownloadSuccess() {
+		rwl.r.lock();
+		try {
+			return downloadSuccess;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private void setContentSize(long s) {
@@ -96,7 +120,6 @@ public class HttpDownloadThread extends ThreadAbstract {
 		rwl.w.lock();
 		try {
 			contentTransfered += s;
-			sleepSec(5);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -112,7 +135,6 @@ public class HttpDownloadThread extends ThreadAbstract {
 		} finally {
 			rwl.r.unlock();
 		}
-
 	}
 
 	@Override

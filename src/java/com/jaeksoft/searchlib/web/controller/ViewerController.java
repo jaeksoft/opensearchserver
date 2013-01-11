@@ -24,12 +24,18 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
 
+import org.icepdf.core.exceptions.PDFException;
+import org.icepdf.core.exceptions.PDFSecurityException;
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.Page;
+import org.icepdf.core.util.GraphicsRenderingHints;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
@@ -42,7 +48,9 @@ public class ViewerController extends CommonController {
 
 	private int page;
 
-	private int zoom;
+	private int numberOfPages;
+
+	private float zoom;
 
 	private final static int[] zoomScale = { 10, 20, 30, 40, 50, 60, 70, 80,
 			90, 100, 150, 200, 250, 300, 400 };
@@ -51,16 +59,20 @@ public class ViewerController extends CommonController {
 
 	private File tempFile;
 
+	private Image currentImage;
+
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
 		super();
+		numberOfPages = 0;
 		page = 1;
 		zoom = 100;
 		String index = getRequestParameter("index");
 		String uri = getRequestParameter("uri");
 		downloadThread = null;
+		currentImage = null;
 		if (uri != null) {
-			tempFile = File.createTempFile("oss", "pdfviewer");
+			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
 			Client client = ClientCatalog.getClient(index);
 			downloadThread = new HttpDownloadThread(client, uri, tempFile);
 			downloadThread.execute();
@@ -85,14 +97,21 @@ public class ViewerController extends CommonController {
 	 */
 	@NotifyChange({ "currentImage", "page" })
 	public void setPage(int page) {
+		if (page < 1)
+			page = 1;
+		if (page > numberOfPages)
+			page = numberOfPages;
+		if (page == this.page)
+			return;
 		this.page = page;
+		currentImage = null;
 	}
 
 	/**
 	 * @return the zoom
 	 */
 	public int getZoom() {
-		return zoom;
+		return (int) zoom;
 	}
 
 	/**
@@ -102,19 +121,19 @@ public class ViewerController extends CommonController {
 	@NotifyChange({ "currentImage", "zoom" })
 	public void setZoom(int zoom) {
 		this.zoom = zoom;
+		currentImage = null;
 	}
 
 	@Command
 	@NotifyChange({ "currentImage", "page" })
 	public void onPageUp() {
-		page++;
+		setPage(page + +1);
 	}
 
 	@Command
 	@NotifyChange({ "currentImage", "page" })
 	public void onPageDown() {
-		if (page > 1)
-			page--;
+		setPage(page - 1);
 	}
 
 	@Command
@@ -122,7 +141,7 @@ public class ViewerController extends CommonController {
 	public void onZoomUp() {
 		for (int zc : zoomScale) {
 			if (zc > zoom) {
-				zoom = zc;
+				setZoom(zc);
 				return;
 			}
 		}
@@ -134,7 +153,7 @@ public class ViewerController extends CommonController {
 		int lastzc = zoomScale[0];
 		for (int zc : zoomScale) {
 			if (zc >= zoom) {
-				zoom = lastzc;
+				setZoom(lastzc);
 				return;
 			}
 			lastzc = zc;
@@ -177,7 +196,47 @@ public class ViewerController extends CommonController {
 		return downloadThread.getPercent();
 	}
 
-	public String getCurrentImage() {
-		return null;
+	private void loadPdf() throws PDFException, PDFSecurityException,
+			IOException {
+		Document pdf = null;
+		try {
+			pdf = new Document();
+			pdf.setFile(tempFile.getAbsolutePath());
+			currentImage = pdf.getPageImage(page - 1,
+					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
+					zoom / 100);
+			numberOfPages = pdf.getNumberOfPages();
+		} finally {
+			if (pdf != null)
+				pdf.dispose();
+		}
+	}
+
+	public Image getCurrentImage() throws PDFException, PDFSecurityException,
+			IOException {
+		if (currentImage != null)
+			return currentImage;
+		if (downloadThread == null)
+			return null;
+		if (downloadThread.isRunning())
+			return null;
+		if (isError())
+			return null;
+		if (!downloadThread.isDownloadSuccess())
+			return null;
+		loadPdf();
+		return currentImage;
+	}
+
+	public int getImageWidth() {
+		if (currentImage == null)
+			return 0;
+		return currentImage.getWidth(null);
+	}
+
+	public int getImageHeight() {
+		if (currentImage == null)
+			return 0;
+		return currentImage.getHeight(null);
 	}
 }

@@ -171,9 +171,8 @@ public class IcePdfParser extends Parser {
 			for (Image image : images)
 				hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
 		}
-		System.out.println(hocrPdf.isOneImagePerPage());
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
-
 	}
+
 }
