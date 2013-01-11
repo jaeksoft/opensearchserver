@@ -30,7 +30,7 @@ package com.jaeksoft.searchlib.renderer;
  */
 public enum RendererLogParameterEnum {
 
-	IP, HTTP_HEADER_FROM, HTTP_HEADER_REMOTE_USER;
+	IP, HTTP_HEADER_FROM, HTTP_HEADER_REMOTE_USER, USER_SESSION_ID;
 	public static RendererLogParameterEnum find(String name) {
 		if (name == null)
 			return null;

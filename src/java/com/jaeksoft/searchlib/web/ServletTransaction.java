@@ -360,4 +360,23 @@ public class ServletTransaction {
 			throws UnsupportedEncodingException {
 		request.setCharacterEncoding(encoding);
 	}
+
+	public String getIPAddress() {
+		return request.getRemoteAddr();
+	}
+
+	public String getUserPrincipalName() {
+		if (request.getUserPrincipal() != null)
+			return request.getUserPrincipal().getName();
+		else
+			return null;
+	}
+
+	public String getUserSessionId() {
+		return request.getRequestedSessionId();
+	}
+
+	public String getUserName() {
+		return request.getRemoteUser();
+	}
 }

@@ -26,12 +26,15 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererLogField;
+import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
@@ -66,6 +69,7 @@ public class RendererServlet extends AbstractServlet {
 					.getNewRequest(renderer.getRequestName());
 			if (request == null)
 				throw new SearchLibException("No request has been found");
+			setLog(renderer, request, transaction);
 			request.setFromServlet(transaction);
 			if (query != null && query.length() > 0) {
 				request.setQueryString(query);
@@ -118,6 +122,41 @@ public class RendererServlet extends AbstractServlet {
 			transaction.forward("/WEB-INF/jsp/renderer.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);
+		}
+	}
+
+	private void setCustomLogs(RendererLogField logField,
+			ServletTransaction transaction, SearchRequest request) {
+		RendererLogParameterEnum rendererLogParameterEnum = logField
+				.getLogParameterEnum();
+		if (rendererLogParameterEnum == RendererLogParameterEnum.IP)
+			if (transaction.getIPAddress() != null)
+				request.addCustomLog(transaction.getIPAddress());
+		if (rendererLogParameterEnum == RendererLogParameterEnum.HTTP_HEADER_FROM)
+			if (transaction.getUserName() != null)
+				request.addCustomLog(transaction.getUserName());
+		if (rendererLogParameterEnum == RendererLogParameterEnum.HTTP_HEADER_REMOTE_USER)
+			if (transaction.getUserPrincipalName() != null)
+				request.addCustomLog(transaction.getUserPrincipalName());
+		if (rendererLogParameterEnum == RendererLogParameterEnum.USER_SESSION_ID)
+			if (transaction.getUserSessionId() != null)
+				request.addCustomLog(transaction.getUserSessionId());
+	}
+
+	private void setLog(Renderer renderer, SearchRequest request,
+			ServletTransaction transaction) throws SearchLibException {
+		if (renderer.isLogEnabled()) {
+			List<RendererLogField> rendererLogFields = renderer.getLogFields();
+			if (rendererLogFields.size() > 0) {
+				for (RendererLogField logField : rendererLogFields) {
+					if (logField.getLogParameterEnum() != null
+							&& !logField.getLogParameterEnum().name()
+									.equals("")) {
+						request.setLogReport(true);
+						setCustomLogs(logField, transaction, request);
+					}
+				}
+			}
 		}
 	}
 

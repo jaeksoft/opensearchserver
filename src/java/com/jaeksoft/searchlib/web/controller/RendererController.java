@@ -177,7 +177,6 @@ public class RendererController extends CommonController {
 				currentRenderer.addLogField(currentRendererLogField);
 		}
 		onRendererLogFieldCancel();
-
 		reload();
 	}
 

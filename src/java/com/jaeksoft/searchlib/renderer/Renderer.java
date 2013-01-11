@@ -139,7 +139,6 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
 			addField(new RendererField(xpp, nodeList.item(i)));
-
 		NodeList nodeLogList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_LOG_FIELD);
 		for (int j = 0; j < nodeLogList.getLength(); j++)
@@ -318,6 +317,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.header = header;
 				target.footer = footer;
 				target.css = css;
+				target.logEnabled = logEnabled;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 
@@ -718,11 +718,11 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	public boolean isLogEnabled() {
-		rwl.w.lock();
+		rwl.r.lock();
 		try {
 			return logEnabled;
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
 
 	}
@@ -757,11 +757,11 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	public List<RendererLogField> getLogFields() {
-		rwl.w.lock();
+		rwl.r.lock();
 		try {
 			return logFields;
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
 
 	}
