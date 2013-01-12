@@ -26,11 +26,15 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.awt.Image;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -38,6 +42,7 @@ import org.icepdf.core.pobjects.Page;
 import org.icepdf.core.util.GraphicsRenderingHints;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -61,6 +66,8 @@ public class ViewerController extends CommonController {
 
 	private Image currentImage;
 
+	private URI uri;
+
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
 		super();
@@ -68,10 +75,11 @@ public class ViewerController extends CommonController {
 		page = 1;
 		zoom = 100;
 		String index = getRequestParameter("index");
-		String uri = getRequestParameter("uri");
+		String u = getRequestParameter("uri");
 		downloadThread = null;
 		currentImage = null;
-		if (uri != null) {
+		if (u != null) {
+			uri = new URI(u);
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
 			Client client = ClientCatalog.getClient(index);
 			downloadThread = new HttpDownloadThread(client, uri, tempFile);
@@ -165,6 +173,12 @@ public class ViewerController extends CommonController {
 	public void onTimer() {
 	}
 
+	@Command
+	public void onDownload() throws FileNotFoundException {
+		Filedownload.save(new FileInputStream(tempFile), null,
+				FilenameUtils.getName(uri.getPath()));
+	}
+
 	public boolean isDownloading() {
 		if (downloadThread == null)
 			return false;
@@ -175,19 +189,15 @@ public class ViewerController extends CommonController {
 		return !isDownloading();
 	}
 
-	public boolean isError() {
-		if (downloadThread == null)
-			return false;
-		return downloadThread.getException() != null;
-	}
-
-	public String getErrorMessage() {
+	public String getMessage() {
 		if (downloadThread == null)
 			return null;
 		Exception e = downloadThread.getException();
-		if (e == null)
-			return null;
-		return e.getMessage();
+		if (e != null)
+			return e.getMessage();
+		if (downloadThread.isRunning())
+			return "Downloading";
+		return uri.toString();
 	}
 
 	public int getDownloadPercent() {
@@ -220,7 +230,7 @@ public class ViewerController extends CommonController {
 			return null;
 		if (downloadThread.isRunning())
 			return null;
-		if (isError())
+		if (downloadThread.getException() != null)
 			return null;
 		if (!downloadThread.isDownloadSuccess())
 			return null;
