@@ -24,21 +24,33 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.PDimension;
 import org.icepdf.core.pobjects.Page;
+import org.icepdf.core.pobjects.graphics.text.LineText;
+import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.core.pobjects.graphics.text.WordText;
 import org.icepdf.core.util.GraphicsRenderingHints;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -68,6 +80,10 @@ public class ViewerController extends CommonController {
 
 	private URI uri;
 
+	private String search;
+
+	private String[] keywords;
+
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
 		super();
@@ -76,6 +92,7 @@ public class ViewerController extends CommonController {
 		zoom = 100;
 		String index = getRequestParameter("index");
 		String u = getRequestParameter("uri");
+		setSearch(getRequestParameter("search"));
 		downloadThread = null;
 		currentImage = null;
 		if (u != null) {
@@ -210,11 +227,42 @@ public class ViewerController extends CommonController {
 			IOException {
 		Document pdf = null;
 		try {
+			int pdfPage = page - 1;
 			pdf = new Document();
 			pdf.setFile(tempFile.getAbsolutePath());
-			currentImage = pdf.getPageImage(page - 1,
+			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
+			PDimension pd = pdf.getPageDimension(pdfPage, 0.0f);
+			float zoomFactor = zoom / 100;
+			float pageHeight = pd.getHeight();
+			if (keywords != null) {
+				PageText pageText = pdf.getPageViewText(pdfPage);
+				for (LineText lineText : pageText.getPageLines()) {
+					for (WordText wordText : lineText.getWords()) {
+						for (String keyword : keywords)
+							if (keyword.equalsIgnoreCase(wordText.getText())) {
+								Rectangle2D.Float rectf = wordText.getBounds();
+								Rectangle rect = new Rectangle();
+								rect.x = (int) (rectf.x * zoomFactor);
+								rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
+								rect.width = (int) (rectf.width * zoomFactor);
+								rect.height = (int) (rectf.height * zoomFactor);
+								boxList.add(rect);
+								break;
+							}
+					}
+				}
+			}
+			currentImage = pdf.getPageImage(pdfPage,
 					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
 					zoom / 100);
+			Graphics2D g2d = (Graphics2D) currentImage.getGraphics();
+			g2d.setColor(Color.YELLOW);
+
+			AlphaComposite ac = AlphaComposite.getInstance(
+					AlphaComposite.SRC_OVER, 0.4f);
+			g2d.setComposite(ac);
+			for (Rectangle box : boxList)
+				g2d.fill(box);
 			numberOfPages = pdf.getNumberOfPages();
 		} finally {
 			if (pdf != null)
@@ -248,5 +296,23 @@ public class ViewerController extends CommonController {
 		if (currentImage == null)
 			return 0;
 		return currentImage.getHeight(null);
+	}
+
+	/**
+	 * @return the search
+	 */
+	public String getSearch() {
+		return search;
+	}
+
+	/**
+	 * @param search
+	 *            the search to set
+	 */
+	@NotifyChange("currentImage")
+	public void setSearch(String search) {
+		this.search = search;
+		keywords = StringUtils.split(search);
+		currentImage = null;
 	}
 }

@@ -6,6 +6,7 @@
 		<borderlayout>
 			<north border="none">
 				<toolbar>
+					<space />
 					<label value="Page: " />
 					<button label="&lt;"
 						onClick="@command('onPageDown')" />
@@ -17,12 +18,17 @@
 					<intbox value="@bind(viewer.zoom)" cols="3" />
 					<button label="+" onClick="@command('onZoomUp')" />
 					<space />
+					<label value="Search: " />
+					<textbox value="@bind(viewer.search)" cols="40" />
+					<space />
 					<button label="Download"
 						onClick="@command('onDownload')" />
 				</toolbar>
 			</north>
-			<center autoscroll="true" border="normal">
+			<center autoscroll="true" border="normal"
+				style="background-color:#E0E0E0;">
 				<image visible="@load(viewer.downloaded)"
+					style="border-right: 1px solid #A0A0A0;"
 					content="@load(viewer.currentImage)" />
 			</center>
 			<south border="none">
