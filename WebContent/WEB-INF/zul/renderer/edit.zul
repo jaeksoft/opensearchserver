@@ -22,6 +22,7 @@
 			<tab id="tabRedendererFields" label="Fields" />
 			<tab id="tabRedendererCss" label="CSS Style" />
 			<tab id="tabRedendererLog" label="Log" />
+			<tab id="tabViewer" label="Viewer" />
 			<tab id="tabRedendererTest" label="Testing" />
 		</tabs>
 		<tabpanels>
@@ -36,6 +37,9 @@
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_log.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_viewer.zul" />
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_test.zul" />

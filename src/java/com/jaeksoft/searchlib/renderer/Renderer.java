@@ -62,6 +62,9 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_LOGENABLED = "logEnabled";
 	private final static String RENDERER_ITEM_NODE_LOG_FIELD = "logField";
+	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE = "contentTypeField";
+	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME = "filenameField";
+	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR = "ocrField";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -91,6 +94,12 @@ public class Renderer implements Comparable<Renderer> {
 
 	private boolean logEnabled;
 
+	private String contentTypeField;
+
+	private String filenameField;
+
+	private String hocrField;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -105,6 +114,9 @@ public class Renderer implements Comparable<Renderer> {
 		footer = null;
 		header = null;
 		css = null;
+		contentTypeField = null;
+		filenameField = null;
+		hocrField = null;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -125,6 +137,13 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT));
 		setResultsFoundText(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
+		setContentTypeField(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE));
+		setFilenameField(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
+		setHocrField(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
+
 		String p = XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
 		if (p == null || p.length() == 0)
@@ -318,6 +337,9 @@ public class Renderer implements Comparable<Renderer> {
 				target.footer = footer;
 				target.css = css;
 				target.logEnabled = logEnabled;
+				target.contentTypeField = contentTypeField;
+				target.filenameField = filenameField;
+				target.hocrField = hocrField;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 
@@ -495,7 +517,11 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
 					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth,
 					RENDERER_ITEM_ROOT_ATTR_LOGENABLED,
-					Boolean.toString(logEnabled));
+					Boolean.toString(logEnabled),
+					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE,
+					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
+					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
+					hocrField);
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -764,6 +790,51 @@ public class Renderer implements Comparable<Renderer> {
 			rwl.r.unlock();
 		}
 
+	}
+
+	/**
+	 * @return the contentTypeField
+	 */
+	public String getContentTypeField() {
+		return contentTypeField;
+	}
+
+	/**
+	 * @param contentTypeField
+	 *            the contentTypeField to set
+	 */
+	public void setContentTypeField(String contentTypeField) {
+		this.contentTypeField = contentTypeField;
+	}
+
+	/**
+	 * @return the filenameField
+	 */
+	public String getFilenameField() {
+		return filenameField;
+	}
+
+	/**
+	 * @param filenameField
+	 *            the filenameField to set
+	 */
+	public void setFilenameField(String filenameField) {
+		this.filenameField = filenameField;
+	}
+
+	/**
+	 * @return the hocrField
+	 */
+	public String getHocrField() {
+		return hocrField;
+	}
+
+	/**
+	 * @param hocrField
+	 *            the hocrField to set
+	 */
+	public void setHocrField(String hocrField) {
+		this.hocrField = hocrField;
 	}
 
 }

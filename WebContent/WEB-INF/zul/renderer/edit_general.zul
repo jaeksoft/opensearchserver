@@ -31,7 +31,12 @@
 						readonly="@load(renderer.selected)" cols="50" />
 					<label value="Request name: " />
 					<combobox model="@load(renderer.requestList)"
-						width="200px" value="@bind(renderer.currentRenderer.requestName)" />
+						width="200px"
+						value="@bind(renderer.currentRenderer.requestName)">
+						<template name="model">
+							<comboitem label="@load(each)" />
+						</template>
+					</combobox>
 				</row>
 				<row>
 					<label value="Search button label: " />
