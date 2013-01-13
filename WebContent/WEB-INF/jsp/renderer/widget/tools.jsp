@@ -1,3 +1,4 @@
+<%@ page import="com.jaeksoft.searchlib.renderer.RendererResult"%>
 <%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
@@ -8,15 +9,15 @@
 			.getAttribute("fieldValueItem");
 	RendererField rendererField = (RendererField) request
 			.getAttribute("rendererField");
+	Integer fieldPos = (Integer) request.getAttribute("fieldPos");
 	String url = rendererField.getUrlField(resultDocument);
 	String text = fieldValueItem.getValue();
-	if (url != null) {
+	RendererResult rendererResult = (RendererResult) request
+			.getAttribute("rendererResult");
+	String viewerUrl = rendererResult.getViewerUrl(url);
+	if (viewerUrl != null) {
 %>
-<a target="_top" href="<%=url%>"><%=text%></a>
-<%
-	} else {
-%>
-<%=text%>
+<a target="_top" href="<%=viewerUrl%>">Viewer</a>
 <%
 	}
 %>

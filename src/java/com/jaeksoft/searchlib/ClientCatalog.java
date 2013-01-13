@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,11 +51,13 @@ import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.ocr.OcrManager;
+import com.jaeksoft.searchlib.renderer.RendererResults;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -67,28 +67,27 @@ public class ClientCatalog {
 
 	private static transient volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();
 
-	private static final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock(
-			true);
-	private static final Lock r = rwl.readLock();
-	private static final Lock w = rwl.writeLock();
+	private static final ReadWriteLock rwl = new ReadWriteLock();
 
 	private static UserList userList = null;
 
 	private static final ConfigFiles configFiles = new ConfigFiles();
 
+	private static final RendererResults rendererResults = new RendererResults();
+
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException, NamingException {
 
-		r.lock();
+		rwl.r.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 
-		w.lock();
+		rwl.w.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
@@ -98,12 +97,12 @@ public class ClientCatalog {
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public static final void openAll() {
-		w.lock();
+		rwl.w.lock();
 		try {
 
 			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
@@ -115,12 +114,12 @@ public class ClientCatalog {
 		} catch (NamingException e) {
 			e.printStackTrace();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public static final void closeAll() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			for (Client client : CLIENTS.values()) {
 				if (client != null) {
@@ -129,14 +128,15 @@ public class ClientCatalog {
 				}
 			}
 			CLIENTS.clear();
+			rendererResults.release();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public static final long countAllDocuments() throws IOException,
 			SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			long count = 0;
 			for (Client client : CLIENTS.values()) {
@@ -146,14 +146,14 @@ public class ClientCatalog {
 			}
 			return count;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	private static volatile long lastInstanceSize = 0;
 
 	public static final long calculateInstanceSize() throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (StartStopListener.OPENSEARCHSERVER_DATA_FILE == null)
 				return 0;
@@ -162,7 +162,7 @@ public class ClientCatalog {
 					.getSize();
 			return lastInstanceSize;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -277,7 +277,7 @@ public class ClientCatalog {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
-		w.lock();
+		rwl.w.lock();
 		try {
 			File indexDir = new File(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE, indexName);
@@ -286,7 +286,7 @@ public class ClientCatalog {
 						+ " already exists");
 			template.createIndex(indexDir);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 
 	}
@@ -299,18 +299,18 @@ public class ClientCatalog {
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		Client client = getClient(indexName);
-		w.lock();
+		rwl.w.lock();
 		try {
 			CLIENTS.remove(client.getDirectory());
 			client.close();
 			client.delete();
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public static UserList getUserList() throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			if (userList == null) {
 				File userFile = new File(
@@ -333,16 +333,16 @@ public class ClientCatalog {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public static void flushPrivileges() {
-		w.lock();
+		rwl.w.lock();
 		try {
 			userList = null;
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -363,7 +363,7 @@ public class ClientCatalog {
 	}
 
 	public static void saveUserList() throws SearchLibException {
-		w.lock();
+		rwl.w.lock();
 		try {
 			saveUserListWithoutLock();
 		} catch (IOException e) {
@@ -373,13 +373,13 @@ public class ClientCatalog {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 	}
 
 	public static User authenticate(String login, String password)
 			throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			User user = getUserList().get(login);
 			if (user == null)
@@ -388,13 +388,13 @@ public class ClientCatalog {
 				return null;
 			return user;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public static User authenticateKey(String login, String key)
 			throws SearchLibException {
-		r.lock();
+		rwl.r.lock();
 		try {
 			User user = getUserList().get(login);
 			if (user == null)
@@ -403,7 +403,7 @@ public class ClientCatalog {
 				return null;
 			return user;
 		} finally {
-			r.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -431,7 +431,7 @@ public class ClientCatalog {
 		File clientDir = client.getDirectory();
 		if (trashDir.exists())
 			FileUtils.deleteDirectory(trashDir);
-		w.lock();
+		rwl.w.lock();
 		try {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
@@ -442,7 +442,7 @@ public class ClientCatalog {
 			CLIENTS.put(clientDir, newClient);
 			PushEvent.eventClientSwitch.publish(client);
 		} finally {
-			w.unlock();
+			rwl.w.unlock();
 		}
 		client.close();
 		FileUtils.deleteDirectory(trashDir);
@@ -481,6 +481,15 @@ public class ClientCatalog {
 
 	public static void setMaxClauseCount(int value) {
 		BooleanQuery.setMaxClauseCount(value);
+	}
+
+	public final static RendererResults getRendererResults() {
+		rwl.r.lock();
+		try {
+			return rendererResults;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }

@@ -157,7 +157,12 @@ public class RendererField {
 	public String getUrlField(ResultDocument resultDocument) {
 		if (urlFieldName == null)
 			return null;
-		return resultDocument.getValueContent(urlFieldName, 0);
+		String url = resultDocument.getValueContent(urlFieldName, 0);
+		if (url == null)
+			return null;
+		if (url.length() == 0)
+			return null;
+		return url;
 	}
 
 	public RendererWidgets getWidgetName() {

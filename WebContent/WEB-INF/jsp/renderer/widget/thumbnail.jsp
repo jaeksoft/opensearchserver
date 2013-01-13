@@ -1,16 +1,24 @@
-
+<%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
+<%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%
-	String thumbnailUrl = (String) request.getAttribute("url");
-	String thumbnail = (String) request.getAttribute("value");
-	if (thumbnailUrl != null) {
+	ResultDocument resultDocument = (ResultDocument) request
+			.getAttribute("resultDocument");
+	FieldValueItem fieldValueItem = (FieldValueItem) request
+			.getAttribute("fieldValueItem");
+	RendererField rendererField = (RendererField) request
+			.getAttribute("rendererField");
+	Integer fieldPos = (Integer) request.getAttribute("fieldPos");
+	String url = rendererField.getUrlField(resultDocument);
+	String text = fieldValueItem.getValue();
+	if (url != null) {
 %>
-<a target="_top" href="<%=thumbnailUrl%>"> <%
+<a target="_top" href="<%=url%>"> <%
  	}
- 	if (thumbnail != null) {
- %> <img class="ossfieldrdr<%=request.getAttribute("css")%>"
-	src="<%=thumbnail%>"> <%
+ 	if (text != null) {
+ %> <img class="ossfieldrdr<%=fieldPos%>" src="<%=text%>"> <%
  	}
- 	if (thumbnailUrl != null) {
+ 	if (url != null) {
  %></a>
 <%
 	}

@@ -24,27 +24,20 @@
 
 package com.jaeksoft.searchlib.renderer;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public enum RendererWidgets {
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
-	TEXT, THUMBNAIL, TOOLS;
+public class RendererResult {
 
-	private final String jspPath;
+	Renderer renderer;
+	AbstractResultSearch result;
 
-	private RendererWidgets() {
-		this.jspPath = "widget/" + name().toLowerCase() + ".jsp";
+	public RendererResult(Renderer renderer, AbstractResultSearch result) {
+		this.renderer = renderer;
+		this.result = result;
 	}
 
-	public static RendererWidgets find(String name) {
-		if (name == null)
-			return TEXT;
-		return valueOf(name);
-	}
-
-	public final String getJspPath() {
-		return jspPath;
+	public String getViewerUrl(String url) {
+		System.out.println("getViewerUrl");
+		return url;
 	}
 }

@@ -29,6 +29,7 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.renderer.PagingSearchResult;
@@ -82,9 +83,14 @@ public class RendererServlet extends AbstractServlet {
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(request);
 				transaction.setRequestAttribute("result", result);
-				if (result != null)
+				if (result != null) {
 					transaction.setRequestAttribute("paging",
 							new PagingSearchResult(result, 10));
+					transaction.setRequestAttribute(
+							"rendererResult",
+							ClientCatalog.getRendererResults().addResult(
+									renderer, result));
+				}
 				if (request.isFacet()) {
 					SearchRequest facetRequest = new SearchRequest();
 					facetRequest.copyFrom(request);

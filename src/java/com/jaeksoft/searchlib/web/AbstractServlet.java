@@ -132,7 +132,7 @@ public abstract class AbstractServlet extends HttpServlet {
 		return url.toString();
 	}
 
-	public String getServerURL() {
+	protected String getServerURL() {
 		return serverURL;
 	}
 

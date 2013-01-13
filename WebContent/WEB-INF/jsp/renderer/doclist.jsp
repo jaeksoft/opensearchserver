@@ -19,38 +19,30 @@
 <div class="osscmnrdr oss-result">
 	<%
 		for (int i = start; i < end; i++) {
-			ResultDocument resultDocument = result.getDocument(i);
-			int j = 0;
-			for (RendererField rendererField : renderer.getFields()) {
-				j++;
-				String url = rendererField.getUrlField(resultDocument);
-				RendererWidgets widget = rendererField.getWidgetName();
-				if (url != null)
-					if (url.length() == 0)
-						url = null;
-				FieldValueItem[] fieldValueItems = rendererField.getFieldValue(resultDocument);
-				if (fieldValueItems != null) {
-					for (FieldValueItem fieldValueItem : fieldValueItems) {
-					%>
-					<div class="osscmnrdr ossfieldrdr<%=j%>">
-					<% 
-					if (url != null) {
-						request.setAttribute("url",url);
-					}
-					request.setAttribute("value",fieldValueItem.getValue());
-					request.setAttribute("css",j);
-					String jspPage = "widget/"+widget.name().toLowerCase()+".jsp";
-					%>
-					<jsp:include page="<%=jspPage %>" flush="true" />	
-					</div><% 
-					request.removeAttribute("url");
-					request.removeAttribute("value");
-					request.removeAttribute("css");
-						}
-					}
+					ResultDocument resultDocument = result.getDocument(i);
+					request.setAttribute("resultDocument", resultDocument);
+					Integer fieldPos = 0;
+					for (RendererField rendererField : renderer.getFields()) {
+						fieldPos++;
+						request.setAttribute("fieldPos", fieldPos);
+						RendererWidgets widget = rendererField
+								.getWidgetName();
+						FieldValueItem[] fieldValueItems = rendererField
+								.getFieldValue(resultDocument);
+						if (fieldValueItems != null) {
+							for (FieldValueItem fieldValueItem : fieldValueItems) {
+								request.setAttribute("fieldValueItem",
+										fieldValueItem);
+								request.setAttribute("rendererField",
+										rendererField);
 	%>
+	<div class="osscmnrdr ossfieldrdr<%=fieldPos%>">
+		<jsp:include page="<%=widget.getJspPath()%>" flush="true" />
+	</div>
 	<%
 		}
+						}
+					}
 	%>
 	<br />
 	<%
