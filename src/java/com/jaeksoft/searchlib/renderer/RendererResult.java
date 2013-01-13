@@ -24,20 +24,85 @@
 
 package com.jaeksoft.searchlib.renderer;
 
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class RendererResult {
 
-	Renderer renderer;
-	AbstractResultSearch result;
+	public class Item {
 
-	public RendererResult(Renderer renderer, AbstractResultSearch result) {
-		this.renderer = renderer;
-		this.result = result;
+		private String url;
+
+		private Item(String url) {
+			this.url = url;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
 	}
 
-	public String getViewerUrl(String url) {
-		System.out.println("getViewerUrl");
-		return url;
+	private final long creationTime;
+
+	private Client client;
+	private StringBuffer sbUrl;
+	private String keywords;
+	private List<Item> items;
+	private String contentTypeField;
+	private String filenameField;
+
+	public RendererResult(Client client, String serverBaseUrl,
+			Renderer renderer, String keywords) {
+		this.client = client;
+		this.keywords = keywords;
+		this.contentTypeField = renderer.getContentTypeField();
+		this.filenameField = renderer.getFilenameField();
+		sbUrl = new StringBuffer(serverBaseUrl);
+		sbUrl.append("/viewer.zul?h=");
+		sbUrl.append(hashCode());
+		sbUrl.append("&p=");
+		items = new ArrayList<Item>(0);
+		creationTime = System.currentTimeMillis();
+	}
+
+	final private String addItemGetUrl(String url) {
+		int pos = items.size();
+		items.add(new Item(url));
+		return sbUrl.toString() + pos;
+	}
+
+	final public String getViewerUrl(ResultDocument resultDocument, String url) {
+		if (contentTypeField != null) {
+			String ct = resultDocument.getValueContent(contentTypeField, 0);
+			if ("application/pdf".equalsIgnoreCase(ct))
+				return addItemGetUrl(url);
+		} else if (filenameField != null) {
+			String fn = resultDocument.getValueContent(filenameField, 0);
+			if ("pdf".equalsIgnoreCase(FilenameUtils.getExtension(fn)))
+				return addItemGetUrl(url);
+		}
+		return null;
+	}
+
+	final public Client getClient() {
+		return client;
+	}
+
+	final public String getKeywords() {
+		return keywords;
+	}
+
+	final public Item getItem(int pos) {
+		return items.get(pos);
+	}
+
+	final public long getCreationTime() {
+		return creationTime;
 	}
 }

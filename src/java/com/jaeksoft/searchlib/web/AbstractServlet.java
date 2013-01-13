@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -77,6 +77,8 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	public String serverURL;
 
+	public String serverBaseURL;
+
 	final private void doRequest(HttpServletRequest request, Method method,
 			HttpServletResponse response) {
 
@@ -87,7 +89,7 @@ public abstract class AbstractServlet extends HttpServlet {
 		PrintWriter pw = null;
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			serverURL = getCurrentServerURL(request);
+			buildUrls(request);
 			doRequest(transaction);
 		} catch (Exception e) {
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
@@ -121,19 +123,19 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	public String getCurrentServerURL(HttpServletRequest request)
+	private void buildUrls(HttpServletRequest request)
 			throws MalformedURLException {
-		String file = request.getRequestURI();
-		if (request.getQueryString() != null) {
-			file += '?' + request.getQueryString();
+		serverBaseURL = new URL(request.getScheme(), request.getServerName(),
+				request.getServerPort(), request.getContextPath()).toString();
+		StringBuffer sbUrl = new StringBuffer(request.getRequestURI());
+		String qs = request.getQueryString();
+		if (qs != null) {
+			sbUrl.append('?');
+			sbUrl.append(qs);
 		}
 		URL url = new URL(request.getScheme(), request.getServerName(),
-				request.getServerPort(), file);
-		return url.toString();
-	}
-
-	protected String getServerURL() {
-		return serverURL;
+				request.getServerPort(), sbUrl.toString());
+		serverURL = url.toString();
 	}
 
 	@Override

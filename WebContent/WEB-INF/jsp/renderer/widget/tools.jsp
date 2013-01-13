@@ -14,7 +14,7 @@
 	String text = fieldValueItem.getValue();
 	RendererResult rendererResult = (RendererResult) request
 			.getAttribute("rendererResult");
-	String viewerUrl = rendererResult.getViewerUrl(url);
+	String viewerUrl = rendererResult.getViewerUrl(resultDocument, url);
 	if (viewerUrl != null) {
 %>
 <a target="_top" href="<%=viewerUrl%>">Viewer</a>

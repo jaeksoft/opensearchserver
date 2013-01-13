@@ -89,7 +89,8 @@ public class RendererServlet extends AbstractServlet {
 					transaction.setRequestAttribute(
 							"rendererResult",
 							ClientCatalog.getRendererResults().addResult(
-									renderer, result));
+									client, serverBaseURL, renderer,
+									request.getQueryString()));
 				}
 				if (request.isFacet()) {
 					SearchRequest facetRequest = new SearchRequest();

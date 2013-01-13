@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
+import com.jaeksoft.searchlib.renderer.RendererResult;
 
 public class ViewerController extends CommonController {
 
@@ -87,21 +88,35 @@ public class ViewerController extends CommonController {
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
 		super();
+		downloadThread = null;
+		currentImage = null;
+		Client client = null;
 		numberOfPages = 0;
 		page = 1;
 		zoom = 100;
-		String index = getRequestParameter("index");
-		String u = getRequestParameter("uri");
-		setSearch(getRequestParameter("search"));
-		downloadThread = null;
-		currentImage = null;
-		if (u != null) {
+		String h = getRequestParameter("h");
+		if (h != null) {
+			String p = getRequestParameter("p");
+			Integer hashCode = Integer.parseInt(h);
+			Integer pos = Integer.parseInt(p);
+			RendererResult result = ClientCatalog.getRendererResults().find(
+					hashCode);
+			if (result == null)
+				return;
+			client = result.getClient();
+			RendererResult.Item item = result.getItem(pos);
+			uri = new URI(item.getUrl());
+			setSearch(result.getKeywords());
+		} else {
+			String index = getRequestParameter("index");
+			String u = getRequestParameter("uri");
+			setSearch(getRequestParameter("search"));
 			uri = new URI(u);
-			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
-			Client client = ClientCatalog.getClient(index);
-			downloadThread = new HttpDownloadThread(client, uri, tempFile);
-			downloadThread.execute();
+			client = ClientCatalog.getClient(index);
 		}
+		tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
+		downloadThread = new HttpDownloadThread(client, uri, tempFile);
+		downloadThread.execute();
 	}
 
 	@Override

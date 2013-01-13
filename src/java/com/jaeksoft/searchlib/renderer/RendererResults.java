@@ -24,10 +24,12 @@
 
 package com.jaeksoft.searchlib.renderer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class RendererResults {
@@ -40,11 +42,12 @@ public class RendererResults {
 		results = new HashMap<Integer, RendererResult>();
 	}
 
-	final public RendererResult addResult(Renderer renderer,
-			AbstractResultSearch result) {
+	final public RendererResult addResult(Client client, String serverBaseUrl,
+			Renderer renderer, String keywords) {
 		rwl.w.lock();
 		try {
-			RendererResult rendererResult = new RendererResult(renderer, result);
+			RendererResult rendererResult = new RendererResult(client,
+					serverBaseUrl, renderer, keywords);
 			results.put(rendererResult.hashCode(), rendererResult);
 			return rendererResult;
 		} finally {
@@ -52,12 +55,35 @@ public class RendererResults {
 		}
 	}
 
-	final public RendererResult find(int hashCode) {
+	final public RendererResult find(Integer hashCode) {
+		purge();
 		rwl.r.lock();
 		try {
 			return results.get(hashCode);
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	final public void purge() {
+		List<Integer> deleteList = new ArrayList<Integer>(0);
+		rwl.r.lock();
+		try {
+			long expireTime = System.currentTimeMillis() - 60 * 60 * 1000;
+			for (RendererResult result : results.values())
+				if (result.getCreationTime() < expireTime)
+					deleteList.add(result.hashCode());
+			if (deleteList.size() == 0)
+				return;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			for (Integer i : deleteList)
+				results.remove(i);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
