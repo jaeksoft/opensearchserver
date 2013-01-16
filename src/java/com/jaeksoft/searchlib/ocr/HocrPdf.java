@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
@@ -36,9 +37,11 @@ public class HocrPdf {
 
 	public class HocrPage {
 
-		private List<HocrDocument> imageList;
+		private final int pageNumber;
+		private final List<HocrDocument> imageList;
 
-		private HocrPage() {
+		private HocrPage(int pageNumber) {
+			this.pageNumber = pageNumber;
 			imageList = new ArrayList<HocrDocument>(0);
 		}
 
@@ -47,16 +50,16 @@ public class HocrPdf {
 		}
 
 		@SuppressWarnings("unchecked")
-		private JSONArray getJsonBoxMap() {
+		private JSONObject getJsonBoxMap() {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("page", pageNumber);
 			JSONArray jsonImages = new JSONArray();
 			for (HocrDocument image : imageList)
 				jsonImages.add(image.getJsonBoxMap());
-			return jsonImages;
+			jsonObject.put("images", jsonImages);
+			return jsonObject;
 		}
 
-		private boolean isOneImage() {
-			return imageList.size() == 1;
-		}
 	}
 
 	private List<HocrPage> pageList;
@@ -65,8 +68,8 @@ public class HocrPdf {
 		pageList = new ArrayList<HocrPage>(0);
 	}
 
-	public HocrPage createPage() {
-		HocrPage page = new HocrPage();
+	public HocrPage createPage(int pageNumber) {
+		HocrPage page = new HocrPage(pageNumber);
 		pageList.add(page);
 		return page;
 	}
@@ -81,13 +84,6 @@ public class HocrPdf {
 
 	public void putToParserField(Parser parser, ParserFieldEnum parserField) {
 		parser.addField(parserField, getJsonBoxMap().toJSONString());
-	}
-
-	public boolean isOneImagePerPage() {
-		for (HocrPage page : pageList)
-			if (!page.isOneImage())
-				return false;
-		return true;
 	}
 
 }

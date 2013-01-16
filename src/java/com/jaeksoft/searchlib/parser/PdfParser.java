@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
@@ -39,7 +40,7 @@ import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+import org.apache.pdfbox.util.PDFImageWriter;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
@@ -156,16 +157,11 @@ public class PdfParser extends Parser {
 		}
 	}
 
-	private HocrDocument doOcr(OcrManager ocr, LanguageEnum lang,
-			PDXObjectImage image) throws IOException, SearchLibException {
-		File imageFile = null;
+	private HocrDocument doOcr(OcrManager ocr, LanguageEnum lang, File imageFile)
+			throws IOException, SearchLibException {
 		File hocrFile = null;
 		try {
-			String suffix = image.getSuffix();
-			imageFile = File.createTempFile("osspdfimg", '.' + suffix);
-
 			hocrFile = File.createTempFile("ossocr", ".html");
-			image.write2file(imageFile);
 			if (imageFile.length() == 0)
 				throw new IOException("PDF/OCR: Image file is empty");
 			ocr.ocerize(imageFile, hocrFile, lang, true);
@@ -174,11 +170,17 @@ public class PdfParser extends Parser {
 					ParserFieldEnum.ocr_content);
 			return hocrDocument;
 		} finally {
-			if (imageFile != null)
-				FileUtils.deleteQuietly(imageFile);
 			if (hocrFile != null)
 				FileUtils.deleteQuietly(hocrFile);
 		}
+	}
+
+	private int countImage(PDPage page) throws IOException {
+		PDResources resources = page.getResources();
+		Map<?, ?> images = resources.getImages();
+		if (images == null)
+			return 0;
+		return images.size();
 	}
 
 	private void extractImagesForOCR(PDDocument pdf, LanguageEnum lang)
@@ -189,26 +191,31 @@ public class PdfParser extends Parser {
 		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content)
 				&& !getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			return;
-		List<?> pages = pdf.getDocumentCatalog().getAllPages();
-		Iterator<?> iter = pages.iterator();
-		HocrPdf hocrPdf = new HocrPdf();
-		while (iter.hasNext()) {
-			HocrPage hocrPage = hocrPdf.createPage();
-			PDPage page = (PDPage) iter.next();
-			PDResources resources = page.getResources();
-			Map<?, ?> images = resources.getImages();
-			if (images != null) {
-				Iterator<?> imageIter = images.keySet().iterator();
-				while (imageIter.hasNext()) {
-					String key = (String) imageIter.next();
-					PDXObjectImage image = (PDXObjectImage) images.get(key);
-					if (image != null)
-						hocrPage.addImage(doOcr(ocr, lang, image));
-				}
+		File imageFile = null;
+		try {
+			PDFImageWriter imageWriter = new PDFImageWriter();
+			List<?> pages = pdf.getDocumentCatalog().getAllPages();
+			Iterator<?> iter = pages.iterator();
+			HocrPdf hocrPdf = new HocrPdf();
+			int currentPage = 0;
+			while (iter.hasNext()) {
+				PDPage page = (PDPage) iter.next();
+				if (countImage(page) == 0)
+					continue;
+				HocrPage hocrPage = hocrPdf.createPage(currentPage++);
+				imageFile = File.createTempFile("osspdfimg", ".png");
+				imageWriter.writeImage(pdf, "png", "", currentPage,
+						currentPage, imageFile.getAbsolutePath(),
+						BufferedImage.TYPE_INT_BGR, 300);
+				hocrPage.addImage(doOcr(ocr, lang, imageFile));
+				imageFile.delete();
+				imageFile = null;
 			}
+			if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
+				hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
+		} finally {
+			if (imageFile != null)
+				imageFile.delete();
 		}
-		System.out.println(hocrPdf.isOneImagePerPage());
-		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
-			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 	}
 }

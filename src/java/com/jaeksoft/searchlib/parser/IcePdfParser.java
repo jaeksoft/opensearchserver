@@ -36,8 +36,10 @@ import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
 import org.icepdf.core.pobjects.PInfo;
+import org.icepdf.core.pobjects.Page;
 import org.icepdf.core.pobjects.graphics.text.LineText;
 import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.core.util.GraphicsRenderingHints;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -135,11 +137,12 @@ public class IcePdfParser extends Parser {
 			IOException, SearchLibException {
 		File hocrFile = null;
 		try {
-			BufferedImage bufferedImage = ImageUtils.toBufferedImage(image);
-			if (rotation != 0)
-				bufferedImage = ImageUtils.rotate(bufferedImage, rotation);
+			if (rotation != 0) {
+				image = ImageUtils.toBufferedImage(image);
+				image = ImageUtils.rotate((BufferedImage) image, rotation);
+			}
 			hocrFile = File.createTempFile("ossocr", ".html");
-			ocr.ocerizeImage(bufferedImage, hocrFile, lang, true);
+			ocr.ocerizeImage(image, hocrFile, lang, true);
 			HocrDocument hocrDocument = new HocrDocument(hocrFile);
 			hocrDocument.putContentToParserField(this,
 					ParserFieldEnum.ocr_content);
@@ -161,18 +164,17 @@ public class IcePdfParser extends Parser {
 			return;
 
 		for (int i = 0; i < pdf.getNumberOfPages(); i++) {
-			HocrPage hocrPage = hocrPdf.createPage();
-			@SuppressWarnings("unchecked")
-			Vector<Image> images = pdf.getPageImages(i);
+			Vector<?> images = pdf.getPageImages(i);
 			if (images == null || images.size() == 0)
 				continue;
 			float rotation = pdf.getPageTree().getPage(i, null)
 					.getTotalRotation(0);
-			for (Image image : images)
-				hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
+			Image image = pdf.getPageImage(i, GraphicsRenderingHints.PRINT,
+					Page.BOUNDARY_CROPBOX, 0.0f, 4.0F);
+			HocrPage hocrPage = hocrPdf.createPage(i);
+			hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
 		}
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 	}
-
 }

@@ -51,14 +51,14 @@ public class HocrDocument {
 
 	private List<StringBuffer> paragraphList;
 
-	private Map<String, List<String>> boxMap;
+	private Map<String, List<HocrBox>> boxMap;
 
 	public HocrDocument(File ocrFile) throws SearchLibException {
 		FileInputStream fis = null;
 		try {
 
 			paragraphList = new ArrayList<StringBuffer>(0);
-			boxMap = new TreeMap<String, List<String>>();
+			boxMap = new TreeMap<String, List<HocrBox>>();
 
 			fis = new FileInputStream(ocrFile);
 
@@ -97,12 +97,12 @@ public class HocrDocument {
 											.getAttributeText("class")))
 										continue;
 									String word = xwordNode.getText();
-									List<String> boxList = boxMap.get(word);
+									List<HocrBox> boxList = boxMap.get(word);
 									if (boxList == null) {
-										boxList = new ArrayList<String>();
+										boxList = new ArrayList<HocrBox>();
 										boxMap.put(word, boxList);
 									}
-									boxList.add(bbox);
+									boxList.add(new HocrBox(bbox));
 									currentParagraph.append(word);
 									currentParagraph.append(' ');
 								}
@@ -135,8 +135,8 @@ public class HocrDocument {
 		JSONObject jsonObject = new JSONObject();
 		for (String word : boxMap.keySet()) {
 			JSONArray jsonBoxes = new JSONArray();
-			for (String box : boxMap.get(word))
-				jsonBoxes.add(box);
+			for (HocrBox box : boxMap.get(word))
+				jsonBoxes.add(box.toString());
 			jsonObject.put(word, jsonBoxes);
 		}
 		return jsonObject;
