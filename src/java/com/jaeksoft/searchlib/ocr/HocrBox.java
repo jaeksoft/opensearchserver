@@ -79,6 +79,5 @@ public class HocrBox {
 		int h = (int) ((y1 - y0) * yFactor);
 		Rectangle r = new Rectangle(x, y, w, h);
 		boxList.add(r);
-		System.out.println(r + " " + xFactor + " " + yFactor);
 	}
 }

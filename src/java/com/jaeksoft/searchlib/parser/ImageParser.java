@@ -71,10 +71,11 @@ public class ImageParser extends Parser {
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerize(streamLimiter.getFile(), hocrFile, lang, true);
 			HocrDocument hocrDoc = new HocrDocument(hocrFile);
-			hocrDoc.putContentToParserField(this, ParserFieldEnum.ocr_content);
+			if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
+				hocrDoc.putTextToParserField(this, ParserFieldEnum.ocr_content);
 			if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
-				addField(ParserFieldEnum.image_ocr_boxes, hocrDoc
-						.getJsonBoxMap().toJSONString());
+				hocrDoc.putHocrToParserField(this,
+						ParserFieldEnum.image_ocr_boxes);
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		} finally {

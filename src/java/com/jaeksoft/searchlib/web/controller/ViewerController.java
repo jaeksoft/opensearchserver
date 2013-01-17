@@ -279,8 +279,10 @@ public class ViewerController extends CommonController {
 				}
 				if (hocrPdf != null) {
 					HocrPage page = hocrPdf.getPage(pdfPage);
-					float xFactor = pageWidth / page.getPageWidth();
-					float yFactor = pageHeight / page.getPageHeight();
+					float xFactor = (pageWidth / page.getPageWidth())
+							* zoomFactor;
+					float yFactor = (pageHeight / page.getPageHeight())
+							* zoomFactor;
 					if (page != null)
 						for (String keyword : keywords)
 							page.addBoxes(keyword, boxList, xFactor, yFactor);

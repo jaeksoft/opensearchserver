@@ -303,9 +303,8 @@ public class FilePathEditController extends FileCrawlerController {
 		return !isNotSelectedFile();
 	}
 
-	@NotifyChange("*")
 	public void setCurrentFolder(FileSelectorItem fileSelectorItem)
-			throws IOException {
+			throws IOException, SearchLibException {
 		if (fileSelectorItem != null)
 			if (!ClientFactory.INSTANCE.properties
 					.checkChrootQuietly(fileSelectorItem.file))
@@ -328,9 +327,11 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 		currentFileList = null;
 		currentFile = null;
+		reload();
 	}
 
-	private void setCurrentFolder(File file) throws IOException {
+	private void setCurrentFolder(File file) throws IOException,
+			SearchLibException {
 		if (file == null)
 			setCurrentFolder((FileSelectorItem) null);
 		else
@@ -353,14 +354,14 @@ public class FilePathEditController extends FileCrawlerController {
 		return showHidden;
 	}
 
-	@NotifyChange("*")
 	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
 		currentFileList = null;
+		reload();
 	}
 
 	@Command
-	public void onOpenFile() throws IOException {
+	public void onOpenFile() throws IOException, SearchLibException {
 		if (currentFile != null)
 			if (currentFile.file.isDirectory())
 				setCurrentFolder(currentFile);
@@ -381,7 +382,7 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Command
-	public void onParentFolder() throws IOException {
+	public void onParentFolder() throws IOException, SearchLibException {
 		if (currentFolder != null)
 			setCurrentFolder(currentFolder.file.getParentFile());
 	}

@@ -146,10 +146,13 @@ public class HocrDocument {
 		}
 	}
 
-	public void putContentToParserField(Parser parser,
-			ParserFieldEnum parserField) {
+	public void putTextToParserField(Parser parser, ParserFieldEnum parserField) {
 		for (StringBuffer paragraph : paragraphList)
 			parser.addField(parserField, paragraph.toString().trim());
+	}
+
+	public void putHocrToParserField(Parser parser, ParserFieldEnum parserField) {
+		parser.addField(parserField, getJsonBoxMap().toJSONString());
 	}
 
 	@SuppressWarnings("unchecked")

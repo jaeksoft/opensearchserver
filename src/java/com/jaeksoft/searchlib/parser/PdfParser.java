@@ -160,10 +160,7 @@ public class PdfParser extends Parser {
 		try {
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerizeImage(image, hocrFile, lang, true);
-			HocrDocument hocrDocument = new HocrDocument(hocrFile);
-			hocrDocument.putContentToParserField(this,
-					ParserFieldEnum.ocr_content);
-			return hocrDocument;
+			return new HocrDocument(hocrFile);
 		} finally {
 			if (hocrFile != null)
 				FileUtils.deleteQuietly(hocrFile);
@@ -211,7 +208,8 @@ public class PdfParser extends Parser {
 		if (currentPage > 0 && emptyPageImages == currentPage)
 			throw new SearchLibException("All pages are blank " + currentPage);
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
-			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
-
+			hocrPdf.putHocrToParserField(this, ParserFieldEnum.image_ocr_boxes);
+		if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
+			hocrPdf.putTextToParserField(this, ParserFieldEnum.ocr_content);
 	}
 }

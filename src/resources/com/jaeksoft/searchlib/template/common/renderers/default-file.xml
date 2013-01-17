@@ -19,7 +19,7 @@
 <!-- -->
 <renderer name="default-file" request="search" searchButtonLabel="Search"
 	noResultFoundText="No result found" oneResultFoundText="1 result found"
-	resultsFoundText="results found">
+	resultsFoundText="results found" filenameField="uri">
 <css>.osscmnrdr { font-family: arial,sans-serif;
 font-size: 14px;
  }
@@ -58,7 +58,8 @@ padding-top:10px;
 .ossfieldrdr3 { color: #0E774A;
  }
 </css>
-	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri" />
-	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" />
-	<field fieldName="uri" fieldType="FIELD" urlFieldName="" />
+	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri" widgetName="TEXT" />
+	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" widgetName="TEXT"/>
+	<field fieldName="uri" fieldType="FIELD" urlFieldName="" widgetName="TEXT"/>
+	<field fieldName="uri" fieldType="FIELD" urlFieldName="uri" widgetName="TOOLS" />
 </renderer>

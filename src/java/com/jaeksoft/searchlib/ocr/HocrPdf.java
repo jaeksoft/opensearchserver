@@ -107,6 +107,18 @@ public class HocrPdf {
 		public long getPageHeight() {
 			return pageHeight;
 		}
+
+		public void putTextToParserField(Parser parser,
+				ParserFieldEnum parserField) {
+			for (HocrDocument hocrDocument : imageList)
+				hocrDocument.putTextToParserField(parser, parserField);
+		}
+
+		public void putHocrToParserField(Parser parser,
+				ParserFieldEnum parserField) {
+			parser.addField(parserField, getJsonBoxMap().toJSONString());
+		}
+
 	}
 
 	private TreeMap<Long, HocrPage> pages;
@@ -131,9 +143,14 @@ public class HocrPdf {
 		return page;
 	}
 
-	public void putToParserField(Parser parser, ParserFieldEnum parserField) {
+	public void putHocrToParserField(Parser parser, ParserFieldEnum parserField) {
 		for (HocrPage page : pages.values())
-			parser.addField(parserField, page.getJsonBoxMap().toJSONString());
+			page.putHocrToParserField(parser, parserField);
+	}
+
+	public void putTextToParserField(Parser parser, ParserFieldEnum parserField) {
+		for (HocrPage page : pages.values())
+			page.putTextToParserField(parser, parserField);
 	}
 
 	public HocrPage getPage(long pageNumber) {

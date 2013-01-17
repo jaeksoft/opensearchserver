@@ -186,6 +186,46 @@
 			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
+	<parser name="Visio parser" class="com.jaeksoft.searchlib.parser.VisioParser"
+		sizeLimit="33554432">
+		<contentType>application/vnd.visio</contentType>
+		<extension>vsd</extension>
+		<map>
+			<link source="author" target="content" />
+			<link source="author" target="contentExact" />
+			<link source="author" target="contentPhonetic" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="content" target="contentPhonetic" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="subject" target="contentPhonetic" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
+		</map>
+	</parser>
+	<parser name="Publisher parser" class="com.jaeksoft.searchlib.parser.PublisherParser"
+		sizeLimit="33554432">
+		<contentType>application/x-mspublisher</contentType>
+		<extension>pub</extension>
+		<map>
+			<link source="author" target="content" />
+			<link source="author" target="contentExact" />
+			<link source="author" target="contentPhonetic" />
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="content" target="contentPhonetic" />
+			<link source="subject" target="content" />
+			<link source="subject" target="contentExact" />
+			<link source="subject" target="contentPhonetic" />
+			<link source="title" target="title" />
+			<link source="title" target="titleExact" />
+			<link source="title" target="titlePhonetic" />
+			<link source="title" target="autocomplete" />
+		</map>
+	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
 		sizeLimit="33554432">
 		<extension>odt</extension>
@@ -287,15 +327,15 @@
 			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
-	   <parser name="XML parser" class="com.jaeksoft.searchlib.parser.XmlParser"
-        sizeLimit="33554432">
-        <extension>xml</extension>
-        <contentType>text/xml</contentType>
-        <contentType>application/xml</contentType>
-        <contentType>application/xhtml+xml</contentType>
-        <map>
-            <link source="content" target="content" />
-        </map>
-    </parser>
+	<parser name="XML parser" class="com.jaeksoft.searchlib.parser.XmlParser"
+		sizeLimit="33554432">
+		<extension>xml</extension>
+		<contentType>text/xml</contentType>
+		<contentType>application/xml</contentType>
+		<contentType>application/xhtml+xml</contentType>
+		<map>
+			<link source="content" target="content" />
+		</map>
+	</parser>
 
 </parsers>
