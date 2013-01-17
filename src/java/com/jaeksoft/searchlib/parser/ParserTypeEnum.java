@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,9 +41,11 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 		new ParserType(this, "PDF (IcePdf)", IcePdfParser.class);
 		new ParserType(this, "PPT", PptParser.class);
 		new ParserType(this, "PPTX", PptxParser.class);
+		new ParserType(this, "PUB", PublisherParser.class);
 		new ParserType(this, "RTF", RtfParser.class);
 		new ParserType(this, "Text", TextParser.class);
 		new ParserType(this, "Torrent", TorrentParser.class);
+		new ParserType(this, "VSD", VisioParser.class);
 		new ParserType(this, "XLS", XlsParser.class);
 		new ParserType(this, "XLSX", XlsxParser.class);
 		new ParserType(this, "XML", XmlParser.class);

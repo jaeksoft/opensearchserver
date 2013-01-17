@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -144,7 +144,10 @@ public class RobotsTxt {
 		UrlItem urlItem = crawl.getUrlItem();
 		if (urlItem == null)
 			return false;
-		switch (urlItem.getResponseCode()) {
+		Integer code = urlItem.getResponseCode();
+		if (code == null)
+			return false;
+		switch (code) {
 		case 200:
 			return true;
 		case 400:
