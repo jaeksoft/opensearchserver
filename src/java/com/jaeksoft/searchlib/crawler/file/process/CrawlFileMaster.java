@@ -97,8 +97,8 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 				while (getThreadsCount() >= threadNumber && !isAborted())
 					sleepSec(5);
 			}
-
-			waitForChild(600);
+			setStatus(CrawlStatus.WAITING_CHILD);
+			waitForChild(1800);
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
 			if (fileCrawlQueue.hasContainedData()) {

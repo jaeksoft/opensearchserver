@@ -111,11 +111,8 @@ public class IcePdfParser extends Parser {
 			throws IOException {
 		Document pdf = null;
 		try {
-			// boolean ocrFullPage = ClassPropertyEnum.OCR_PDF_METHODS[1]
-			// .equals(getProperty(ClassPropertyEnum.OCR_PDF_METHOD)
-			// .getValue());
 			pdf = new Document();
-			pdf.setInputStream(streamLimiter.getNewInputStream(), null);
+			pdf.setFile(streamLimiter.getFile().getAbsolutePath());
 			extractContent(pdf);
 			extractImagesForOCR(pdf, lang);
 		} catch (SearchLibException e) {

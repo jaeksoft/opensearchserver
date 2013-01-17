@@ -132,7 +132,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 			}
 
 			setStatus(CrawlStatus.WAITING_CHILD);
-			waitForChild(600);
+			waitForChild(1800);
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0) {

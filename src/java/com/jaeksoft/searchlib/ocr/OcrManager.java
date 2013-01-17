@@ -279,7 +279,8 @@ public class OcrManager implements Closeable {
 			ImageIO.write(renderedImage, OCR_IMAGE_FORMAT, imageFile);
 			image.flush();
 			if (imageFile.length() == 0)
-				return;
+				throw new SearchLibException("Empty image "
+						+ imageFile.getAbsolutePath());
 			ocerize(imageFile, outputFile, lang, hocr);
 		} finally {
 			Logging.debug(imageFile);

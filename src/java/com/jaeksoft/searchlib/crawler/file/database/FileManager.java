@@ -114,8 +114,11 @@ public class FileManager extends AbstractManager {
 
 			StringBuffer query = new StringBuffer();
 
-			if (fileName != null)
-				fileItemFieldEnum.fileName.addQuery(query, fileName, true);
+			if (fileName != null) {
+				fileName = fileName.trim();
+				if (fileName.length() > 0)
+					fileItemFieldEnum.fileName.addQuery(query, fileName, true);
+			}
 
 			if (repository != null) {
 				repository = repository.trim();
