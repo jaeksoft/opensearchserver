@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,52 +24,15 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.IOException;
-
-import org.odftoolkit.odfdom.doc.OdfDocument;
-import org.odftoolkit.odfdom.doc.OdfTextDocument;
-import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
-import org.w3c.dom.Document;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-
 /**
  * 
  * @author Emmanuel Gosse (philCube)
  * 
  */
-public class OdtParser extends OOParser {
-	StringBuffer textBuffer;
+public class OdtParser extends OdfParser {
 
 	public OdtParser() {
 		super();
-	}
-
-	@Override
-	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang) {
-		try {
-
-			// Load file
-			OdfTextDocument odt = (OdfTextDocument) OdfDocument
-					.loadDocument(streamLimiter.getNewInputStream());
-
-			// get root of all content of a text document
-			OfficeTextElement officeText = odt.getContentRoot();
-			scanNodes(officeText.getChildNodes(), ParserFieldEnum.content);
-
-			Document docOwner = officeText.getOwnerDocument();
-			if (docOwner != null)
-				scanNodes(docOwner.getChildNodes(), ParserFieldEnum.author);
-
-			langDetection(10000, ParserFieldEnum.content);
-
-		} catch (IOException e) {
-			Logging.error(e.getMessage(), e);
-		} catch (Exception e) {
-			Logging.error(e.getMessage(), e);
-		}
 	}
 
 }

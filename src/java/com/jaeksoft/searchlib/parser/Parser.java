@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Locale;
 
 import org.knallgrau.utils.textcat.TextCategorizer;
@@ -124,6 +125,13 @@ public abstract class Parser extends ParserFactory {
 		if (object == null)
 			return;
 		addField(field, object.toString());
+	}
+
+	protected void addField(ParserFieldEnum field, List<? extends Object> list) {
+		if (list == null)
+			return;
+		for (Object object : list)
+			addField(field, object.toString());
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {

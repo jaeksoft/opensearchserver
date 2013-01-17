@@ -29,9 +29,9 @@ package com.jaeksoft.searchlib.parser;
  * @author Emmanuel Gosse (philCube)
  * 
  */
-public class OdsParser extends OdfParser {
+public class OdpParser extends OdfParser {
 
-	public OdsParser() {
+	public OdpParser() {
 		super();
 	}
 
