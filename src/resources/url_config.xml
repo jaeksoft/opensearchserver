@@ -48,6 +48,8 @@
 				termVector="no" />
 			<field name="parentUrl" indexed="yes" stored="no" termVector="no" />
 			<field name="origin" indexed="yes" stored="no" termVector="no" />
+			<field name="headers" indexed="yes" stored="no" termVector="no" />
+		
 		</fields>
 	</schema>
 	<requests>

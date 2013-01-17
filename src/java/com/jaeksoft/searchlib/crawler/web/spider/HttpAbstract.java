@@ -65,6 +65,7 @@ public abstract class HttpAbstract {
 	private HttpUriRequest httpUriRequest = null;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
+	private Header[] headers = null;
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
 			ProxyHandler proxyHandler) {
@@ -124,6 +125,7 @@ public abstract class HttpAbstract {
 			return;
 		statusLine = httpResponse.getStatusLine();
 		httpEntity = httpResponse.getEntity();
+		headers = httpResponse.getAllHeaders();
 	}
 
 	public URI getRedirectLocation() {
@@ -246,4 +248,17 @@ public abstract class HttpAbstract {
 		}
 	}
 
+	public String getHeaders() {
+		synchronized (this) {
+			if (headers == null)
+				return null;
+
+			StringBuilder stringBuilder = new StringBuilder();
+			for (Header header : headers)
+				stringBuilder.append(header.getName()).append(":")
+						.append(header.getValue()).append("\n");
+			return stringBuilder.toString();
+		}
+
+	}
 }

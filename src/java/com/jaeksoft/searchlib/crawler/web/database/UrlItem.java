@@ -78,6 +78,7 @@ public class UrlItem implements Serializable {
 	private List<String> inLinks;
 	private String parentUrl;
 	private LinkItem.Origin origin;
+	private String headers;
 
 	protected UrlItem() {
 		url = null;
@@ -105,6 +106,7 @@ public class UrlItem implements Serializable {
 		lastModifiedDate = null;
 		parentUrl = null;
 		origin = null;
+		headers = null;
 	}
 
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
@@ -144,6 +146,7 @@ public class UrlItem implements Serializable {
 				0));
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
 				urlItemFieldEnum.origin.getName(), 0)));
+		setHeaders(doc.getValueContent(urlItemFieldEnum.headers.getName(), 0));
 
 	}
 
@@ -575,6 +578,9 @@ public class UrlItem implements Serializable {
 		if (origin != null)
 			indexDocument.setString(urlItemFieldEnum.origin.getName(),
 					origin.name());
+		if (headers != null)
+			indexDocument
+					.setString(urlItemFieldEnum.headers.getName(), headers);
 	}
 
 	public String getLang() {
@@ -632,4 +638,13 @@ public class UrlItem implements Serializable {
 			return true;
 		return false;
 	}
+
+	public String getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(String headers) {
+		this.headers = headers;
+	}
+
 }

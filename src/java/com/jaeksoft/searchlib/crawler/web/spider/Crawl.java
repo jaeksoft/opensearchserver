@@ -253,6 +253,8 @@ public class Crawl {
 
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
 
+				urlItem.setHeaders(downloadItem.getHeaders());
+
 				Integer code = downloadItem.getStatusCode();
 				if (code == null)
 					throw new IOException("Http status is null");

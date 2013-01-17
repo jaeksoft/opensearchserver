@@ -42,6 +42,7 @@ public class DownloadItem {
 	private String contentBaseType = null;
 	private String contentTypeCharset = null;
 	private String contentEncoding = null;
+	private String headers = null;
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
 	private boolean fromCache = false;
@@ -57,6 +58,7 @@ public class DownloadItem {
 	protected final static String KEY_CONTENT_TYPE_CHARSET = "KEY_CONTENT_TYPE_CHARSET";
 	protected final static String KEY_CONTENT_ENCODING = "KEY_CONTENT_ENCODING";
 	protected final static String KEY_STATUS_CODE = "KEY_STATUS_CODE";
+	protected final static String KEY_HEADERS = "KEY_HEADERS";
 
 	public String getMetaAsJson() throws JSONException {
 		JSONObject json = new JSONObject();
@@ -82,6 +84,9 @@ public class DownloadItem {
 
 		if (statusCode != null)
 			json.put(KEY_STATUS_CODE, statusCode);
+
+		if (headers != null)
+			json.put(KEY_HEADERS, headers);
 
 		return json.toString();
 	}
@@ -115,6 +120,8 @@ public class DownloadItem {
 		if (json.has(KEY_STATUS_CODE))
 			statusCode = json.getInt(KEY_STATUS_CODE);
 
+		if (json.has(KEY_HEADERS))
+			headers = json.getString(KEY_HEADERS);
 	}
 
 	/**
@@ -260,6 +267,21 @@ public class DownloadItem {
 	 */
 	public boolean isFromCache() {
 		return fromCache;
+	}
+
+	/**
+	 * @param headers
+	 *            the headers to set
+	 */
+	public void setHeaders(String headers) {
+		this.headers = headers;
+	}
+
+	/**
+	 * @return the headers
+	 */
+	public String getHeaders() {
+		return headers;
 	}
 
 }

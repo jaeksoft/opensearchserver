@@ -57,6 +57,7 @@ public class HttpDownloader extends HttpAbstract {
 			downloadItem.setContentTypeCharset(getContentTypeCharset());
 			downloadItem.setStatusCode(getStatusCode());
 			downloadItem.setContentInputStream(getContent());
+			downloadItem.setHeaders(getHeaders());
 			return downloadItem;
 		}
 	}

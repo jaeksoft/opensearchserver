@@ -81,4 +81,6 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField reponseCode = new ItemField(this, "responseCode");
 
+	final public ItemField headers = new ItemField(this, "headers");
+
 }
