@@ -159,18 +159,27 @@ public class IcePdfParser extends Parser {
 		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content)
 				&& !getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			return;
-
+		int emptyPageImages = 0;
 		for (int i = 0; i < pdf.getNumberOfPages(); i++) {
 			Vector<?> images = pdf.getPageImages(i);
 			if (images == null || images.size() == 0)
 				continue;
 			float rotation = pdf.getPageTree().getPage(i, null)
 					.getTotalRotation(0);
-			Image image = pdf.getPageImage(i, GraphicsRenderingHints.PRINT,
-					Page.BOUNDARY_CROPBOX, 0.0f, 4.0F);
-			HocrPage hocrPage = hocrPdf.createPage(i);
-			hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
+			BufferedImage image = ImageUtils.toBufferedImage(pdf.getPageImage(
+					i, GraphicsRenderingHints.PRINT, Page.BOUNDARY_CROPBOX,
+					0.0f, 4.0F));
+			if (ImageUtils.checkIfManyColors(image)) {
+				HocrPage hocrPage = hocrPdf.createPage(i, image.getWidth(),
+						image.getHeight());
+				hocrPage.addImage(imageOcr(image, 360 - rotation, lang, ocr));
+			} else
+				emptyPageImages++;
 		}
+		if (pdf.getNumberOfPages() > 0
+				&& emptyPageImages == pdf.getNumberOfPages())
+			throw new SearchLibException("All pages are blank "
+					+ pdf.getNumberOfPages());
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			hocrPdf.putToParserField(this, ParserFieldEnum.image_ocr_boxes);
 	}

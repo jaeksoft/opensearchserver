@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.ocr;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,16 +50,19 @@ import com.jaeksoft.searchlib.util.DomUtils;
 
 public class HocrDocument {
 
-	private List<StringBuffer> paragraphList;
+	private final List<StringBuffer> paragraphList;
 
-	private Map<String, List<HocrBox>> boxMap;
+	private final Map<String, List<HocrBox>> boxMap;
+
+	private HocrDocument() {
+		paragraphList = new ArrayList<StringBuffer>(0);
+		boxMap = new TreeMap<String, List<HocrBox>>();
+	}
 
 	public HocrDocument(File ocrFile) throws SearchLibException {
+		this();
 		FileInputStream fis = null;
 		try {
-
-			paragraphList = new ArrayList<StringBuffer>(0);
-			boxMap = new TreeMap<String, List<HocrBox>>();
 
 			fis = new FileInputStream(ocrFile);
 
@@ -97,13 +101,20 @@ public class HocrDocument {
 											.getAttributeText("class")))
 										continue;
 									String word = xwordNode.getText();
+									if (word == null)
+										continue;
+									word = word.trim();
+									String pword = word;
+									if (word.length() == 0)
+										continue;
+									word = word.toLowerCase();
 									List<HocrBox> boxList = boxMap.get(word);
 									if (boxList == null) {
 										boxList = new ArrayList<HocrBox>();
 										boxMap.put(word, boxList);
 									}
 									boxList.add(new HocrBox(bbox));
-									currentParagraph.append(word);
+									currentParagraph.append(pword);
 									currentParagraph.append(' ');
 								}
 							}
@@ -124,6 +135,17 @@ public class HocrDocument {
 		}
 	}
 
+	public HocrDocument(JSONObject jsonObject) throws SearchLibException {
+		this();
+		for (Object key : jsonObject.keySet()) {
+			JSONArray jsonArray = (JSONArray) jsonObject.get(key);
+			List<HocrBox> hocrBox = new ArrayList<HocrBox>(0);
+			for (Object obj : jsonArray)
+				hocrBox.add(new HocrBox(obj.toString()));
+			boxMap.put(key.toString(), hocrBox);
+		}
+	}
+
 	public void putContentToParserField(Parser parser,
 			ParserFieldEnum parserField) {
 		for (StringBuffer paragraph : paragraphList)
@@ -140,5 +162,19 @@ public class HocrDocument {
 			jsonObject.put(word, jsonBoxes);
 		}
 		return jsonObject;
+	}
+
+	public void addBoxes(String keyword, List<Rectangle> boxList,
+			float xFactor, float yFactor) {
+		if (keyword == null)
+			return;
+		keyword = keyword.toLowerCase().trim();
+		if (keyword.length() == 0)
+			return;
+		List<HocrBox> boxes = boxMap.get(keyword);
+		if (boxes == null)
+			return;
+		for (HocrBox box : boxes)
+			box.addRectangle(boxList, xFactor, yFactor);
 	}
 }

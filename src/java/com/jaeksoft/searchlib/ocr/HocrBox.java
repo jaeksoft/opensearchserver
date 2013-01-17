@@ -24,16 +24,19 @@
 
 package com.jaeksoft.searchlib.ocr;
 
+import java.awt.Rectangle;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
 public class HocrBox {
 
-	private int x0;
-	private int y0;
-	private int x1;
-	private int y1;
+	final private int x0;
+	final private int y0;
+	final private int x1;
+	final private int y1;
 
 	public HocrBox(String bbox) throws SearchLibException {
 		int i = 0;
@@ -55,13 +58,6 @@ public class HocrBox {
 		y1 = Integer.parseInt(array[i++]);
 	}
 
-	public void offset(int x, int y) {
-		x0 += x;
-		x1 += x;
-		y0 += y;
-		y1 += y;
-	}
-
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -73,5 +69,16 @@ public class HocrBox {
 		sb.append(' ');
 		sb.append(y1);
 		return sb.toString();
+	}
+
+	public void addRectangle(List<Rectangle> boxList, float xFactor,
+			float yFactor) {
+		int x = (int) (x0 * xFactor);
+		int y = (int) (y0 * yFactor);
+		int w = (int) ((x1 - x0) * xFactor);
+		int h = (int) ((y1 - y0) * yFactor);
+		Rectangle r = new Rectangle(x, y, w, h);
+		boxList.add(r);
+		System.out.println(r + " " + xFactor + " " + yFactor);
 	}
 }

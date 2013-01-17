@@ -60,6 +60,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
+import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
 
 public class ViewerController extends CommonController {
@@ -85,9 +87,12 @@ public class ViewerController extends CommonController {
 
 	private String[] keywords;
 
+	private HocrPdf hocrPdf;
+
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
 		super();
+		hocrPdf = null;
 		downloadThread = null;
 		currentImage = null;
 		Client client = null;
@@ -107,6 +112,7 @@ public class ViewerController extends CommonController {
 			RendererResult.Item item = result.getItem(pos);
 			uri = new URI(item.getUrl());
 			setSearch(result.getKeywords());
+			hocrPdf = item.getHocrPdf();
 		} else {
 			String index = getRequestParameter("index");
 			String u = getRequestParameter("uri");
@@ -114,9 +120,13 @@ public class ViewerController extends CommonController {
 			uri = new URI(u);
 			client = ClientCatalog.getClient(index);
 		}
-		tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
-		downloadThread = new HttpDownloadThread(client, uri, tempFile);
-		downloadThread.execute();
+		if ("file".equalsIgnoreCase(uri.getScheme()))
+			tempFile = new File(uri);
+		else {
+			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
+			downloadThread = new HttpDownloadThread(client, uri, tempFile);
+			downloadThread.execute();
+		}
 	}
 
 	@Override
@@ -248,6 +258,7 @@ public class ViewerController extends CommonController {
 			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
 			PDimension pd = pdf.getPageDimension(pdfPage, 0.0f);
 			float zoomFactor = zoom / 100;
+			float pageWidth = pd.getWidth();
 			float pageHeight = pd.getHeight();
 			if (keywords != null) {
 				PageText pageText = pdf.getPageViewText(pdfPage);
@@ -265,6 +276,14 @@ public class ViewerController extends CommonController {
 								break;
 							}
 					}
+				}
+				if (hocrPdf != null) {
+					HocrPage page = hocrPdf.getPage(pdfPage);
+					float xFactor = pageWidth / page.getPageWidth();
+					float yFactor = pageHeight / page.getPageHeight();
+					if (page != null)
+						for (String keyword : keywords)
+							page.addBoxes(keyword, boxList, xFactor, yFactor);
 				}
 			}
 			currentImage = pdf.getPageImage(pdfPage,
@@ -289,13 +308,15 @@ public class ViewerController extends CommonController {
 			IOException {
 		if (currentImage != null)
 			return currentImage;
-		if (downloadThread == null)
-			return null;
-		if (downloadThread.isRunning())
-			return null;
-		if (downloadThread.getException() != null)
-			return null;
-		if (!downloadThread.isDownloadSuccess())
+		if (downloadThread != null) {
+			if (downloadThread.isRunning())
+				return null;
+			if (downloadThread.getException() != null)
+				return null;
+			if (!downloadThread.isDownloadSuccess())
+				return null;
+		}
+		if (tempFile == null)
 			return null;
 		loadPdf();
 		return currentImage;

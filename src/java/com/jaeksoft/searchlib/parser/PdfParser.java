@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PdfParser extends Parser {
@@ -180,22 +181,6 @@ public class PdfParser extends Parser {
 		return images.size();
 	}
 
-	private final boolean checkIfManyColors(BufferedImage image) {
-		int w = image.getWidth();
-		int h = image.getHeight();
-		if (w == 0 && h == 0)
-			return false;
-		int unicolor = image.getRGB(0, 0);
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				int pixel = image.getRGB(x, y);
-				if (pixel != unicolor)
-					return true;
-			}
-		}
-		return false;
-	}
-
 	private void extractImagesForOCR(PDDocument pdf, LanguageEnum lang)
 			throws IOException, SearchLibException, InterruptedException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
@@ -214,12 +199,13 @@ public class PdfParser extends Parser {
 			PDPage page = (PDPage) iter.next();
 			if (countCheckImage(page) == 0)
 				continue;
-			HocrPage hocrPage = hocrPdf.createPage(currentPage - 1);
 			BufferedImage image = page.convertToImage(
 					BufferedImage.TYPE_INT_BGR, 300);
-			if (checkIfManyColors(image))
+			if (ImageUtils.checkIfManyColors(image)) {
+				HocrPage hocrPage = hocrPdf.createPage(currentPage - 1,
+						image.getWidth(), image.getHeight());
 				hocrPage.addImage(doOcr(ocr, lang, image));
-			else
+			} else
 				emptyPageImages++;
 		}
 		if (currentPage > 0 && emptyPageImages == currentPage)

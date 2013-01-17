@@ -30,20 +30,29 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.result.ResultDocument;
 
 public class RendererResult {
 
 	public class Item {
 
-		private String url;
+		final private String url;
 
-		private Item(String url) {
+		final private HocrPdf hocrPdf;
+
+		private Item(String url, HocrPdf hocrPdf) {
 			this.url = url;
+			this.hocrPdf = hocrPdf;
 		}
 
 		public String getUrl() {
 			return url;
+		}
+
+		public HocrPdf getHocrPdf() {
+			return hocrPdf;
 		}
 
 	}
@@ -56,6 +65,7 @@ public class RendererResult {
 	private List<Item> items;
 	private String contentTypeField;
 	private String filenameField;
+	private String hocrField;
 
 	public RendererResult(Client client, String serverBaseUrl,
 			Renderer renderer, String keywords) {
@@ -63,6 +73,7 @@ public class RendererResult {
 		this.keywords = keywords;
 		this.contentTypeField = renderer.getContentTypeField();
 		this.filenameField = renderer.getFilenameField();
+		this.hocrField = renderer.getHocrField();
 		sbUrl = new StringBuffer(serverBaseUrl);
 		sbUrl.append("/viewer.zul?h=");
 		sbUrl.append(hashCode());
@@ -71,21 +82,25 @@ public class RendererResult {
 		creationTime = System.currentTimeMillis();
 	}
 
-	final private String addItemGetUrl(String url) {
+	final private String addItemGetUrl(String url, HocrPdf hocrPdf) {
 		int pos = items.size();
-		items.add(new Item(url));
+		items.add(new Item(url, hocrPdf));
 		return sbUrl.toString() + pos;
 	}
 
-	final public String getViewerUrl(ResultDocument resultDocument, String url) {
+	final public String getViewerUrl(ResultDocument resultDocument, String url)
+			throws SearchLibException {
+		HocrPdf hocrPdf = hocrField == null ? null : new HocrPdf(
+				resultDocument.getValueArray(hocrField));
+
 		if (contentTypeField != null) {
 			String ct = resultDocument.getValueContent(contentTypeField, 0);
 			if ("application/pdf".equalsIgnoreCase(ct))
-				return addItemGetUrl(url);
+				return addItemGetUrl(url, hocrPdf);
 		} else if (filenameField != null) {
 			String fn = resultDocument.getValueContent(filenameField, 0);
 			if ("pdf".equalsIgnoreCase(FilenameUtils.getExtension(fn)))
-				return addItemGetUrl(url);
+				return addItemGetUrl(url, hocrPdf);
 		}
 		return null;
 	}

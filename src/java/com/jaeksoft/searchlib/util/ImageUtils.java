@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -115,4 +115,19 @@ public class ImageUtils {
 		return null;
 	}
 
+	public static final boolean checkIfManyColors(BufferedImage image) {
+		int w = image.getWidth();
+		int h = image.getHeight();
+		if (w == 0 && h == 0)
+			return false;
+		int unicolor = image.getRGB(0, 0);
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int pixel = image.getRGB(x, y);
+				if (pixel != unicolor)
+					return true;
+			}
+		}
+		return false;
+	}
 }
