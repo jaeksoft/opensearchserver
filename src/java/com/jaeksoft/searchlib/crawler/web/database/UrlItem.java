@@ -78,7 +78,7 @@ public class UrlItem implements Serializable {
 	private List<String> inLinks;
 	private String parentUrl;
 	private LinkItem.Origin origin;
-	private String headers;
+	private List<String> headers;
 
 	protected UrlItem() {
 		url = null;
@@ -146,8 +146,16 @@ public class UrlItem implements Serializable {
 				0));
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
 				urlItemFieldEnum.origin.getName(), 0)));
-		setHeaders(doc.getValueContent(urlItemFieldEnum.headers.getName(), 0));
+		addHeaders(doc.getValueArray(urlItemFieldEnum.headers.getName()));
+	}
 
+	private void addHeaders(FieldValueItem[] headersList) {
+		if (headersList == null)
+			return;
+		if (headers == null)
+			headers = new ArrayList<String>();
+		for (FieldValueItem item : headersList)
+			headers.add(item.getValue());
 	}
 
 	public List<String> getSubHost() {
@@ -579,8 +587,8 @@ public class UrlItem implements Serializable {
 			indexDocument.setString(urlItemFieldEnum.origin.getName(),
 					origin.name());
 		if (headers != null)
-			indexDocument
-					.setString(urlItemFieldEnum.headers.getName(), headers);
+			indexDocument.setStringList(urlItemFieldEnum.headers.getName(),
+					headers);
 	}
 
 	public String getLang() {
@@ -639,11 +647,11 @@ public class UrlItem implements Serializable {
 		return false;
 	}
 
-	public String getHeaders() {
+	public List<String> getHeaders() {
 		return headers;
 	}
 
-	public void setHeaders(String headers) {
+	public void setHeaders(List<String> headers) {
 		this.headers = headers;
 	}
 

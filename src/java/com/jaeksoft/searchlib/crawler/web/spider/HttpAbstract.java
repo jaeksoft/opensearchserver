@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -248,17 +250,14 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	public String getHeaders() {
+	public List<String> getHeaders() {
 		synchronized (this) {
+			List<String> headerList = new ArrayList<String>();
 			if (headers == null)
 				return null;
-
-			StringBuilder stringBuilder = new StringBuilder();
 			for (Header header : headers)
-				stringBuilder.append(header.getName()).append(":")
-						.append(header.getValue()).append("\n");
-			return stringBuilder.toString();
+				headerList.add(header.getName() + ":" + header.getValue());
+			return headerList;
 		}
-
 	}
 }

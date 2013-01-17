@@ -28,8 +28,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,10 +45,10 @@ public class DownloadItem {
 	private String contentBaseType = null;
 	private String contentTypeCharset = null;
 	private String contentEncoding = null;
-	private String headers = null;
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
 	private boolean fromCache = false;
+	private List<String> headers = null;
 
 	public DownloadItem(URI uri) {
 		this.uri = uri;
@@ -120,8 +123,13 @@ public class DownloadItem {
 		if (json.has(KEY_STATUS_CODE))
 			statusCode = json.getInt(KEY_STATUS_CODE);
 
-		if (json.has(KEY_HEADERS))
-			headers = json.getString(KEY_HEADERS);
+		if (json.has(KEY_HEADERS)) {
+			headers = new ArrayList<String>();
+			JSONArray headerJsonArray = json.getJSONArray(KEY_HEADERS);
+			if (headerJsonArray != null)
+				for (int i = 0; i < headerJsonArray.length(); i++)
+					headers.add(headerJsonArray.get(i).toString());
+		}
 	}
 
 	/**
@@ -269,19 +277,12 @@ public class DownloadItem {
 		return fromCache;
 	}
 
-	/**
-	 * @param headers
-	 *            the headers to set
-	 */
-	public void setHeaders(String headers) {
-		this.headers = headers;
+	public List<String> getHeaders() {
+		return headers;
 	}
 
-	/**
-	 * @return the headers
-	 */
-	public String getHeaders() {
-		return headers;
+	public void setHeaders(List<String> headers) {
+		this.headers = headers;
 	}
 
 }
