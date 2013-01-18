@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.Timer;
@@ -82,6 +83,9 @@ public class ResultDocument {
 			if (fieldValue != null)
 				field.getSnippets(docId, reader, fieldValue.getValueArray(),
 						snippets);
+			if (snippets.size() == 0)
+				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET,
+						""));
 			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
 					fieldName, snippets, isSnippet);
 			snippetFields.put(fieldName, snippetFieldValue);
