@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -101,28 +101,32 @@ public class TorrentParser extends Parser {
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 
+		ParserResultItem result = getNewParserResultItem();
+
 		MetaInfo meta = new MetaInfo(streamLimiter.getNewInputStream());
-		addField(ParserFieldEnum.name, meta.getName());
-		addField(ParserFieldEnum.announce, meta.getAnnounce());
-		addField(ParserFieldEnum.total_length,
+		result.addField(ParserFieldEnum.name, meta.getName());
+		result.addField(ParserFieldEnum.announce, meta.getAnnounce());
+		result.addField(ParserFieldEnum.total_length,
 				Long.toString(meta.getTotalLength()));
 		int l = meta.getFilesCount();
 		for (int i = 0; i < l; i++) {
-			addField(ParserFieldEnum.file_length, meta.getFileLength(i));
-			addField(ParserFieldEnum.file_path, meta.getFilePath(i));
+			result.addField(ParserFieldEnum.file_length, meta.getFileLength(i));
+			result.addField(ParserFieldEnum.file_path, meta.getFilePath(i));
 		}
 
 		try {
 			byte[] infoHash = meta.getInfoHash();
-			addField(ParserFieldEnum.info_hash, Hex.encodeHexString(infoHash));
-			addField(ParserFieldEnum.info_hash_urlencoded, geturlhash(infoHash));
+			result.addField(ParserFieldEnum.info_hash,
+					Hex.encodeHexString(infoHash));
+			result.addField(ParserFieldEnum.info_hash_urlencoded,
+					geturlhash(infoHash));
 		} catch (NoSuchAlgorithmException e) {
 			throw new IOException(e);
 		}
 
-		addField(ParserFieldEnum.comment, meta.getComment());
+		result.addField(ParserFieldEnum.comment, meta.getComment());
 
-		addField(ParserFieldEnum.creation_date,
+		result.addField(ParserFieldEnum.creation_date,
 				Long.toString(meta.getCreationDate()));
 
 	}

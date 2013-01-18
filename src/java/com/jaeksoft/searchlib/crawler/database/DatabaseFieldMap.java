@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -107,7 +107,7 @@ public class DatabaseFieldMap extends
 					Parser parser = parserSelector.parseFile(null,
 							file.getName(), null, null, file, lang);
 					if (parser != null)
-						parser.populate(target);
+						parser.popupateResult(0, target);
 				} else {
 					Logging.error("Database crawler: File don't exist:"
 							+ file.getAbsolutePath());
@@ -121,7 +121,7 @@ public class DatabaseFieldMap extends
 				Crawl crawl = crawlThread.getCurrentCrawl();
 				if (crawl != null) {
 					IndexDocument targetIndexDocument = crawl
-							.getTargetIndexDocument();
+							.getTargetIndexDocument(0);
 					if (targetIndexDocument != null)
 						target.add(targetIndexDocument);
 				}

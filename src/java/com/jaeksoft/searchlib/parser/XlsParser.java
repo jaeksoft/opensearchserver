@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -60,19 +60,20 @@ public class XlsParser extends Parser {
 		HSSFWorkbook workbook = new HSSFWorkbook(
 				streamLimiter.getNewInputStream());
 		ExcelExtractor excel = new ExcelExtractor(workbook);
+		ParserResultItem result = getNewParserResultItem();
 
 		SummaryInformation info = excel.getSummaryInformation();
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.author, info.getAuthor());
-			addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.author, info.getAuthor());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
 		}
 
 		String content = excel.getText();
-		addField(ParserFieldEnum.content,
+		result.addField(ParserFieldEnum.content,
 				StringUtils.replaceConsecutiveSpaces(content, " "));
 
-		langDetection(10000, ParserFieldEnum.content);
+		result.langDetection(10000, ParserFieldEnum.content);
 
 	}
 

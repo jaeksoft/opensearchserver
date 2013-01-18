@@ -64,16 +64,19 @@ public abstract class OdfParser extends Parser {
 			document = Document.loadDocument(streamLimiter.getNewInputStream());
 			if (document == null)
 				return;
+			ParserResultItem result = getNewParserResultItem();
 			Meta meta = document.getOfficeMetadata();
 			if (meta != null) {
-				addField(ParserFieldEnum.creation_date, meta.getCreationDate());
-				addField(ParserFieldEnum.modification_date, meta.getDcdate());
-				addField(ParserFieldEnum.title, meta.getTitle());
-				addField(ParserFieldEnum.subject, meta.getSubject());
-				addField(ParserFieldEnum.creator, meta.getCreator());
-				addField(ParserFieldEnum.producer, meta.getGenerator());
-				addField(ParserFieldEnum.keywords, meta.getKeywords());
-				addField(ParserFieldEnum.language, meta.getLanguage());
+				result.addField(ParserFieldEnum.creation_date,
+						meta.getCreationDate());
+				result.addField(ParserFieldEnum.modification_date,
+						meta.getDcdate());
+				result.addField(ParserFieldEnum.title, meta.getTitle());
+				result.addField(ParserFieldEnum.subject, meta.getSubject());
+				result.addField(ParserFieldEnum.creator, meta.getCreator());
+				result.addField(ParserFieldEnum.producer, meta.getGenerator());
+				result.addField(ParserFieldEnum.keywords, meta.getKeywords());
+				result.addField(ParserFieldEnum.language, meta.getLanguage());
 			}
 
 			OdfElement odfElement = document.getContentRoot();
@@ -81,8 +84,8 @@ public abstract class OdfParser extends Parser {
 				String text = TextExtractor.newOdfTextExtractor(odfElement)
 						.getText();
 				if (text != null) {
-					addField(ParserFieldEnum.content, text);
-					langDetection(10000, ParserFieldEnum.content);
+					result.addField(ParserFieldEnum.content, text);
+					result.langDetection(10000, ParserFieldEnum.content);
 				}
 			}
 		} catch (IOException e) {

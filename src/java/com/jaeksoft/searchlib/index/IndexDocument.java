@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -172,7 +172,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 					parserSelector, contentType, urlDefaultCredential,
 					proxyHandler, bFaultTolerant);
 			if (parser != null)
-				parser.populate(this);
+				parser.popupateResult(0, this);
 		}
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -82,20 +82,22 @@ public class PptxParser extends Parser {
 			XSLFPowerPointExtractor poiExtractor = new XSLFPowerPointExtractor(
 					pptSlideShow);
 
+			ParserResultItem result = getNewParserResultItem();
 			CoreProperties info = poiExtractor.getCoreProperties();
 			if (info != null) {
-				addField(ParserFieldEnum.title, info.getTitle());
-				addField(ParserFieldEnum.creator, info.getCreator());
-				addField(ParserFieldEnum.subject, info.getSubject());
-				addField(ParserFieldEnum.description, info.getDescription());
-				addField(ParserFieldEnum.keywords, info.getKeywords());
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.creator, info.getCreator());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+				result.addField(ParserFieldEnum.description,
+						info.getDescription());
+				result.addField(ParserFieldEnum.keywords, info.getKeywords());
 			}
 
 			String content = poiExtractor.getText(true, true);
-			addField(ParserFieldEnum.content,
+			result.addField(ParserFieldEnum.content,
 					StringUtils.replaceConsecutiveSpaces(content, " "));
 
-			langDetection(10000, ParserFieldEnum.content);
+			result.langDetection(10000, ParserFieldEnum.content);
 
 		} catch (OpenXML4JException e) {
 			throw new IOException(e);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,57 +56,58 @@ public class DocParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	private void currentWordExtraction(InputStream inputStream)
-			throws IOException {
+	private void currentWordExtraction(ParserResultItem result,
+			InputStream inputStream) throws IOException {
 		WordExtractor word = new WordExtractor(inputStream);
 
 		SummaryInformation info = word.getSummaryInformation();
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.author, info.getAuthor());
-			addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.author, info.getAuthor());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
 		}
 
 		String[] paragraphes = word.getParagraphText();
 		for (String paragraph : paragraphes) {
 			String[] frags = paragraph.split("\\n");
 			for (String frag : frags)
-				addField(ParserFieldEnum.content,
+				result.addField(ParserFieldEnum.content,
 						StringUtils.replaceConsecutiveSpaces(frag, " "));
 		}
 	}
 
-	private void oldWordExtraction(InputStream inputStream) throws IOException {
+	private void oldWordExtraction(ParserResultItem result,
+			InputStream inputStream) throws IOException {
 		Word6Extractor word6 = new Word6Extractor(inputStream);
 		SummaryInformation si = word6.getSummaryInformation();
 		if (si != null) {
-			addField(ParserFieldEnum.title, si.getTitle());
-			addField(ParserFieldEnum.author, si.getAuthor());
-			addField(ParserFieldEnum.subject, si.getSubject());
+			result.addField(ParserFieldEnum.title, si.getTitle());
+			result.addField(ParserFieldEnum.author, si.getAuthor());
+			result.addField(ParserFieldEnum.subject, si.getSubject());
 		}
 
 		String text = word6.getText();
 		String[] frags = text.split("\\n");
 		for (String frag : frags)
-			addField(ParserFieldEnum.content,
+			result.addField(ParserFieldEnum.content,
 					StringUtils.replaceConsecutiveSpaces(frag, " "));
 	}
 
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
+		ParserResultItem result = getNewParserResultItem();
 		try {
 			try {
-				currentWordExtraction(streamLimiter.getNewInputStream());
+				currentWordExtraction(result, streamLimiter.getNewInputStream());
 			} catch (OldWordFileFormatException e) {
-				oldWordExtraction(streamLimiter.getNewInputStream());
+				oldWordExtraction(result, streamLimiter.getNewInputStream());
 			}
 		} catch (java.lang.ArrayIndexOutOfBoundsException e) {
 			Logging.warn("POI 3.7 bug (exception catched)");
 			Logging.warn(e);
 		}
-		langDetection(10000, ParserFieldEnum.content);
-
+		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 }

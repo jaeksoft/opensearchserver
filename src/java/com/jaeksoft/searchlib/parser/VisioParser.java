@@ -58,18 +58,20 @@ public class VisioParser extends Parser {
 		VisioTextExtractor extractor = new VisioTextExtractor(
 				streamLimiter.getNewInputStream());
 		SummaryInformation info = extractor.getSummaryInformation();
+		ParserResultItem result = getNewParserResultItem();
+
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.author, info.getAuthor());
-			addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.author, info.getAuthor());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
 		}
 		String[] texts = extractor.getAllText();
 		if (texts == null)
 			return;
 		for (String text : texts)
-			addField(ParserFieldEnum.content,
+			result.addField(ParserFieldEnum.content,
 					StringUtils.replaceConsecutiveSpaces(text, " "));
-		langDetection(10000, ParserFieldEnum.content);
+		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 }

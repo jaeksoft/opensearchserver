@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -552,14 +552,16 @@ public class FileManager extends AbstractManager {
 			for (CrawlFile crawl : crawls) {
 				if (crawl == null)
 					continue;
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
-				if (indexDocument == null)
+				List<IndexDocument> indexDocuments = crawl
+						.getTargetIndexDocuments();
+				if (indexDocuments == null)
 					continue;
 				TargetStatus targetStatus = crawl.getFileItem()
 						.getIndexStatus().targetStatus;
-				if (targetStatus == TargetStatus.TARGET_UPDATE)
-					documentsToUpdate.add(indexDocument);
-				else if (targetStatus == TargetStatus.TARGET_DELETE)
+				if (targetStatus == TargetStatus.TARGET_UPDATE) {
+					for (IndexDocument indexDocument : indexDocuments)
+						documentsToUpdate.add(indexDocument);
+				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(crawl.getFileItem().getUri());
 			}
 			if (documentsToUpdate.size() > 0)

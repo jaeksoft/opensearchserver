@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,24 +58,25 @@ public class DocxParser extends Parser {
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 
+		ParserResultItem result = getNewParserResultItem();
+
 		XWPFDocument document = new XWPFDocument(
 				streamLimiter.getNewInputStream());
 		XWPFWordExtractor word = new XWPFWordExtractor(document);
 
 		CoreProperties info = word.getCoreProperties();
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.creator, info.getCreator());
-			addField(ParserFieldEnum.subject, info.getSubject());
-			addField(ParserFieldEnum.description, info.getDescription());
-			addField(ParserFieldEnum.keywords, info.getKeywords());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.creator, info.getCreator());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.description, info.getDescription());
+			result.addField(ParserFieldEnum.keywords, info.getKeywords());
 		}
 
 		String content = word.getText();
-		addField(ParserFieldEnum.content,
+		result.addField(ParserFieldEnum.content,
 				StringUtils.replaceConsecutiveSpaces(content, " "));
 
-		langDetection(10000, ParserFieldEnum.content);
-
+		result.langDetection(10000, ParserFieldEnum.content);
 	}
 }

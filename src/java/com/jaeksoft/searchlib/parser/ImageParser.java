@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,8 +58,8 @@ public class ImageParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	private void doOCR(StreamLimiter streamLimiter, LanguageEnum lang)
-			throws IOException {
+	private void doOCR(ParserResultItem result, StreamLimiter streamLimiter,
+			LanguageEnum lang) throws IOException {
 		File hocrFile = null;
 		try {
 			OcrManager ocr = ClientCatalog.getOcrManager();
@@ -72,9 +72,10 @@ public class ImageParser extends Parser {
 			ocr.ocerize(streamLimiter.getFile(), hocrFile, lang, true);
 			HocrDocument hocrDoc = new HocrDocument(hocrFile);
 			if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
-				hocrDoc.putTextToParserField(this, ParserFieldEnum.ocr_content);
+				hocrDoc.putTextToParserField(result,
+						ParserFieldEnum.ocr_content);
 			if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
-				hocrDoc.putHocrToParserField(this,
+				hocrDoc.putHocrToParserField(result,
 						ParserFieldEnum.image_ocr_boxes);
 		} catch (SearchLibException e) {
 			throw new IOException(e);
@@ -84,7 +85,8 @@ public class ImageParser extends Parser {
 		}
 	}
 
-	private void doMetaData(StreamLimiter streamLimiter) throws IOException {
+	private void doMetaData(ParserResultItem result, StreamLimiter streamLimiter)
+			throws IOException {
 		ImageInfo info;
 		try {
 			info = Sanselan.getImageInfo(streamLimiter.getNewInputStream(),
@@ -94,11 +96,12 @@ public class ImageParser extends Parser {
 			int width = info.getWidth();
 			int height = info.getHeight();
 			long area_size = (long) width * height;
-			addField(ParserFieldEnum.image_width, width);
-			addField(ParserFieldEnum.image_height, height);
-			addField(ParserFieldEnum.image_area_size, area_size);
-			addField(ParserFieldEnum.image_number, info.getNumberOfImages());
-			addField(ParserFieldEnum.image_format, info.getFormatName());
+			result.addField(ParserFieldEnum.image_width, width);
+			result.addField(ParserFieldEnum.image_height, height);
+			result.addField(ParserFieldEnum.image_area_size, area_size);
+			result.addField(ParserFieldEnum.image_number,
+					info.getNumberOfImages());
+			result.addField(ParserFieldEnum.image_format, info.getFormatName());
 		} catch (ImageReadException e) {
 			throw new IOException(e);
 		}
@@ -107,8 +110,10 @@ public class ImageParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		addField(ParserFieldEnum.file_name, streamLimiter.getOriginalFileName());
-		doMetaData(streamLimiter);
-		doOCR(streamLimiter, lang);
+		ParserResultItem result = getNewParserResultItem();
+		result.addField(ParserFieldEnum.file_name,
+				streamLimiter.getOriginalFileName());
+		doMetaData(result, streamLimiter);
+		doOCR(result, streamLimiter, lang);
 	}
 }

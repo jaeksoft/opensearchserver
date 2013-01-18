@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -59,6 +59,7 @@ public class PptParser extends Parser {
 
 		SlideShow ppt = new SlideShow(streamLimiter.getNewInputStream());
 		Slide[] slides = ppt.getSlides();
+		ParserResultItem result = getNewParserResultItem();
 		for (Slide slide : slides) {
 			TextRun[] textRuns = slide.getTextRuns();
 			for (TextRun textRun : textRuns) {
@@ -84,11 +85,11 @@ public class PptParser extends Parser {
 				}
 				String[] frags = textRun.getText().split("\\n");
 				for (String frag : frags)
-					addField(field,
+					result.addField(field,
 							StringUtils.replaceConsecutiveSpaces(frag, " "));
 			}
 		}
-		langDetection(10000, ParserFieldEnum.body);
+		result.langDetection(10000, ParserFieldEnum.body);
 
 	}
 

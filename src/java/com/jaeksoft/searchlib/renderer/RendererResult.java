@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class RendererResult {
 
@@ -90,8 +91,14 @@ public class RendererResult {
 
 	final public String getViewerUrl(ResultDocument resultDocument, String url)
 			throws SearchLibException {
-		HocrPdf hocrPdf = hocrField == null ? null : new HocrPdf(
-				resultDocument.getValueArray(hocrField));
+
+		HocrPdf hocrPdf = null;
+		if (hocrField != null) {
+			FieldValueItem[] fieldValueItem = resultDocument
+					.getValueArray(hocrField);
+			if (fieldValueItem != null)
+				hocrPdf = new HocrPdf(fieldValueItem);
+		}
 
 		if (contentTypeField != null) {
 			String ct = resultDocument.getValueContent(contentTypeField, 0);

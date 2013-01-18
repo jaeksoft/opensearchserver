@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -135,8 +135,8 @@ public class HtmlParser extends Parser {
 	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD
 			.length();
 
-	private void getBodyTextContent(StringBuffer sb, HtmlNodeAbstract<?> node,
-			boolean bAddBlock, String[] directFields) {
+	private void getBodyTextContent(ParserResultItem result, StringBuffer sb,
+			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields) {
 		if (node.isComment())
 			return;
 		String nodeName = node.getNodeName();
@@ -190,7 +190,8 @@ public class HtmlParser extends Parser {
 		List<HtmlNodeAbstract<?>> children = node.getChildNodes();
 		if (children != null)
 			for (HtmlNodeAbstract<?> htmlNode : children)
-				getBodyTextContent(sb, htmlNode, bAddBlock, directFields);
+				getBodyTextContent(result, sb, htmlNode, bAddBlock,
+						directFields);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
@@ -198,9 +199,9 @@ public class HtmlParser extends Parser {
 					&& sentenceTagSet.contains(currentTag);
 			if (bForSentence || bEnterDirectField) {
 				if (directFields != null)
-					addDirectFields(directFields, sb.toString());
+					result.addDirectFields(directFields, sb.toString());
 				else
-					addFieldBody(currentTag, sb.toString());
+					addFieldBody(result, currentTag, sb.toString());
 				sb.setLength(0);
 			}
 		}
@@ -224,15 +225,16 @@ public class HtmlParser extends Parser {
 		return HtmlDocumentProvider.bestScore(providerList);
 	}
 
-	protected void addFieldTitle(String value) {
-		addField(ParserFieldEnum.title, value, titleBoost);
+	protected void addFieldTitle(ParserResultItem result, String value) {
+		result.addField(ParserFieldEnum.title, value, titleBoost);
 	}
 
-	protected void addFieldBody(String tag, String value) {
+	protected void addFieldBody(ParserResultItem result, String tag,
+			String value) {
 		Float boost = boostTagMap.get(tag);
 		if (boost == null)
 			boost = 1.0F;
-		addField(ParserFieldEnum.body, value, boost);
+		result.addField(ParserFieldEnum.body, value, boost);
 	}
 
 	private final static String selectCharset(String... charsets) {
@@ -307,7 +309,9 @@ public class HtmlParser extends Parser {
 		if (htmlProvider == null)
 			return;
 
-		addField(ParserFieldEnum.htmlProvider, htmlProvider.getName());
+		ParserResultItem result = getNewParserResultItem();
+
+		result.addField(ParserFieldEnum.htmlProvider, htmlProvider.getName());
 
 		// Check ContentType charset in meta http-equiv
 		String contentType = htmlProvider.getMetaHttpEquiv("content-type");
@@ -327,7 +331,7 @@ public class HtmlParser extends Parser {
 
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(streamLimiter.getNewInputStream(), writer, currentCharset);
-		addField(ParserFieldEnum.htmlSource, writer.toString());
+		result.addField(ParserFieldEnum.htmlSource, writer.toString());
 		writer.close();
 
 		HtmlNodeAbstract<?> rootNode = htmlProvider.getRootNode();
@@ -342,14 +346,14 @@ public class HtmlParser extends Parser {
 				String[] fields = field.split("\\.");
 				if (fields != null) {
 					String content = metaNode.getAttributeText("content");
-					addDirectFields(fields, content);
+					result.addDirectFields(fields, content);
 				}
 			}
 		}
 
-		addField(ParserFieldEnum.charset, currentCharset);
+		result.addField(ParserFieldEnum.charset, currentCharset);
 
-		addFieldTitle(htmlProvider.getTitle());
+		addFieldTitle(result, htmlProvider.getTitle());
 
 		String metaRobots = null;
 
@@ -361,10 +365,10 @@ public class HtmlParser extends Parser {
 			String attr_name = node.getAttributeText("name");
 			String attr_http_equiv = node.getAttributeText("http-equiv");
 			if ("keywords".equalsIgnoreCase(attr_name))
-				addField(ParserFieldEnum.meta_keywords,
+				result.addField(ParserFieldEnum.meta_keywords,
 						HtmlDocumentProvider.getMetaContent(node));
 			else if ("description".equalsIgnoreCase(attr_name))
-				addField(ParserFieldEnum.meta_description,
+				result.addField(ParserFieldEnum.meta_description,
 						HtmlDocumentProvider.getMetaContent(node));
 			else if ("robots".equalsIgnoreCase(attr_name))
 				metaRobots = HtmlDocumentProvider.getMetaContent(node);
@@ -380,11 +384,11 @@ public class HtmlParser extends Parser {
 			metaRobots = metaRobots.toLowerCase();
 			if (metaRobots.contains("noindex") && !ignoreMetaNoIndex) {
 				metaRobotsNoIndex = true;
-				addField(ParserFieldEnum.meta_robots, "noindex");
+				result.addField(ParserFieldEnum.meta_robots, "noindex");
 			}
 			if (metaRobots.contains("nofollow")) {
 				metaRobotsFollow = false;
-				addField(ParserFieldEnum.meta_robots, "nofollow");
+				result.addField(ParserFieldEnum.meta_robots, "nofollow");
 			}
 		}
 
@@ -438,7 +442,7 @@ public class HtmlParser extends Parser {
 						else
 							field = ParserFieldEnum.external_link_nofollow;
 					}
-					addField(field, newUrl.toExternalForm());
+					result.addField(field, newUrl.toExternalForm());
 				}
 			}
 		}
@@ -449,8 +453,8 @@ public class HtmlParser extends Parser {
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuffer sb = new StringBuffer();
-				getBodyTextContent(sb, nodes.get(0), true, null);
-				addField(ParserFieldEnum.body, sb);
+				getBodyTextContent(result, sb, nodes.get(0), true, null);
+				result.addField(ParserFieldEnum.body, sb);
 			}
 		}
 
@@ -475,10 +479,10 @@ public class HtmlParser extends Parser {
 		}
 
 		if (lang != null) {
-			addField(ParserFieldEnum.lang, lang.getLanguage());
-			addField(ParserFieldEnum.lang_method, langMethod);
+			result.addField(ParserFieldEnum.lang, lang.getLanguage());
+			result.addField(ParserFieldEnum.lang_method, langMethod);
 		} else if (!metaRobotsNoIndex)
-			lang = langDetection(10000, ParserFieldEnum.body);
+			lang = result.langDetection(10000, ParserFieldEnum.body);
 
 	}
 }

@@ -42,8 +42,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.parser.htmlParser.DomHtmlNode;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
@@ -146,13 +146,15 @@ public class HocrDocument {
 		}
 	}
 
-	public void putTextToParserField(Parser parser, ParserFieldEnum parserField) {
+	public void putTextToParserField(ParserResultItem result,
+			ParserFieldEnum parserField) {
 		for (StringBuffer paragraph : paragraphList)
-			parser.addField(parserField, paragraph.toString().trim());
+			result.addField(parserField, paragraph.toString().trim());
 	}
 
-	public void putHocrToParserField(Parser parser, ParserFieldEnum parserField) {
-		parser.addField(parserField, getJsonBoxMap().toJSONString());
+	public void putHocrToParserField(ParserResultItem result,
+			ParserFieldEnum parserField) {
+		result.addField(parserField, getJsonBoxMap().toJSONString());
 	}
 
 	@SuppressWarnings("unchecked")

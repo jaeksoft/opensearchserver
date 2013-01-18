@@ -58,14 +58,15 @@ public class PublisherParser extends Parser {
 		PublisherTextExtractor extractor = new PublisherTextExtractor(
 				streamLimiter.getNewInputStream());
 		SummaryInformation info = extractor.getSummaryInformation();
+		ParserResultItem result = getNewParserResultItem();
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.author, info.getAuthor());
-			addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.author, info.getAuthor());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
 		}
-		addField(ParserFieldEnum.content,
+		result.addField(ParserFieldEnum.content,
 				StringUtils.replaceConsecutiveSpaces(extractor.getText(), " "));
-		langDetection(10000, ParserFieldEnum.content);
+		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 }

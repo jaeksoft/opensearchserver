@@ -606,7 +606,7 @@ public class UrlManager extends AbstractManager {
 					continue;
 				if (crawl.getHostUrlList().getListType() == ListType.DBCRAWL)
 					continue;
-				IndexDocument indexDocument = crawl.getTargetIndexDocument();
+				IndexDocument indexDocument = crawl.getTargetIndexDocument(0);
 				TargetStatus targetStatus = crawl.getUrlItem()
 						.getTargetResult();
 

@@ -804,6 +804,9 @@ public class Renderer implements Comparable<Renderer> {
 	 *            the contentTypeField to set
 	 */
 	public void setContentTypeField(String contentTypeField) {
+		if (contentTypeField != null)
+			if (contentTypeField.length() == 0)
+				contentTypeField = null;
 		this.contentTypeField = contentTypeField;
 	}
 
@@ -819,6 +822,9 @@ public class Renderer implements Comparable<Renderer> {
 	 *            the filenameField to set
 	 */
 	public void setFilenameField(String filenameField) {
+		if (filenameField != null)
+			if (filenameField.length() == 0)
+				filenameField = null;
 		this.filenameField = filenameField;
 	}
 
@@ -834,6 +840,9 @@ public class Renderer implements Comparable<Renderer> {
 	 *            the hocrField to set
 	 */
 	public void setHocrField(String hocrField) {
+		if (hocrField != null)
+			if (hocrField.length() == 0)
+				hocrField = null;
 		this.hocrField = hocrField;
 	}
 

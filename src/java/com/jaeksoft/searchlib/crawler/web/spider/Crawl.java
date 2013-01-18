@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -67,6 +67,7 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -75,7 +76,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class Crawl {
 
-	private IndexDocument targetIndexDocument;
+	private List<IndexDocument> targetIndexDocuments;
 	private HostUrlList hostUrlList;
 	private UrlItem urlItem;
 	private CredentialManager credentialManager;
@@ -99,7 +100,7 @@ public class Crawl {
 		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
-		this.targetIndexDocument = null;
+		this.targetIndexDocuments = null;
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
@@ -150,20 +151,23 @@ public class Crawl {
 		}
 
 		urlItem.clearInLinks();
-		urlItem.addInLinks(parser
-				.getFieldContent(ParserFieldEnum.internal_link));
-		urlItem.addInLinks(parser
-				.getFieldContent(ParserFieldEnum.internal_link_nofollow));
 		urlItem.clearOutLinks();
-		urlItem.addOutLinks(parser
-				.getFieldContent(ParserFieldEnum.external_link));
-		urlItem.addOutLinks(parser
-				.getFieldContent(ParserFieldEnum.external_link_nofollow));
-		urlItem.setLang(parser.getFieldValue(ParserFieldEnum.lang, 0));
-		urlItem.setLangMethod(parser.getFieldValue(ParserFieldEnum.lang_method,
-				0));
-		urlItem.setContentTypeCharset(parser.getFieldValue(
-				ParserFieldEnum.charset, 0));
+
+		for (ParserResultItem result : parser.getParserResults()) {
+			urlItem.addInLinks(result
+					.getFieldContent(ParserFieldEnum.internal_link));
+			urlItem.addInLinks(result
+					.getFieldContent(ParserFieldEnum.internal_link_nofollow));
+			urlItem.addOutLinks(result
+					.getFieldContent(ParserFieldEnum.external_link));
+			urlItem.addOutLinks(result
+					.getFieldContent(ParserFieldEnum.external_link_nofollow));
+			urlItem.setLang(result.getFieldValue(ParserFieldEnum.lang, 0));
+			urlItem.setLangMethod(result.getFieldValue(
+					ParserFieldEnum.lang_method, 0));
+			urlItem.setContentTypeCharset(result.getFieldValue(
+					ParserFieldEnum.charset, 0));
+		}
 		urlItem.setParserStatus(ParserStatus.PARSED);
 		String oldMd5size = urlItem.getMd5size();
 		String newMd5size = parser.getMd5size();
@@ -180,17 +184,19 @@ public class Crawl {
 		if (newLastModifiedTime != null)
 			urlItem.setLastModifiedDate(newLastModifiedTime);
 
-		FieldContent fieldContent = parser
-				.getFieldContent(ParserFieldEnum.meta_robots);
-		if (fieldContent != null) {
-			FieldValueItem[] fieldValues = fieldContent.getValues();
-			if (fieldValues != null) {
-				for (FieldValueItem item : parser.getFieldContent(
-						ParserFieldEnum.meta_robots).getValues())
-					if ("noindex".equalsIgnoreCase(item.getValue())) {
-						urlItem.setIndexStatus(IndexStatus.META_NOINDEX);
-						break;
-					}
+		for (ParserResultItem result : parser.getParserResults()) {
+			FieldContent fieldContent = result
+					.getFieldContent(ParserFieldEnum.meta_robots);
+			if (fieldContent != null) {
+				FieldValueItem[] fieldValues = fieldContent.getValues();
+				if (fieldValues != null) {
+					for (FieldValueItem item : result.getFieldContent(
+							ParserFieldEnum.meta_robots).getValues())
+						if ("noindex".equalsIgnoreCase(item.getValue())) {
+							urlItem.setIndexStatus(IndexStatus.META_NOINDEX);
+							break;
+						}
+				}
 			}
 		}
 	}
@@ -361,34 +367,59 @@ public class Crawl {
 		return credentialItem;
 	}
 
-	public IndexDocument getTargetIndexDocument() throws SearchLibException,
-			IOException {
+	public IndexDocument getTargetIndexDocument(int documentPos)
+			throws SearchLibException, IOException {
+		if (targetIndexDocuments == null)
+			getTargetIndexDocuments();
+		if (targetIndexDocuments == null)
+			return null;
+		if (documentPos >= targetIndexDocuments.size())
+			return null;
+		return targetIndexDocuments.get(documentPos);
+	}
+
+	public List<IndexDocument> getTargetIndexDocuments()
+			throws SearchLibException, IOException {
 		synchronized (this) {
-			if (targetIndexDocument != null)
-				return targetIndexDocument;
+			if (targetIndexDocuments != null)
+				return targetIndexDocuments;
 
-			targetIndexDocument = new IndexDocument(
-					LanguageEnum.findByCode(urlItem.getLang()));
+			targetIndexDocuments = new ArrayList<IndexDocument>(0);
 
-			IndexDocument urlIndexDocument = new IndexDocument();
-			urlItem.populate(urlIndexDocument, urlItemFieldEnum);
-			urlFieldMap.mapIndexDocument(urlIndexDocument, targetIndexDocument);
+			if (parser == null)
+				return targetIndexDocuments;
 
-			if (parser != null)
-				parser.populate(targetIndexDocument);
+			List<ParserResultItem> results = parser.getParserResults();
+			if (results == null)
+				return targetIndexDocuments;
 
-			IndexPluginList indexPluginList = config.getWebCrawlMaster()
-					.getIndexPluginList();
+			for (ParserResultItem result : results) {
+				IndexDocument targetIndexDocument = new IndexDocument(
+						LanguageEnum.findByCode(urlItem.getLang()));
 
-			if (indexPluginList != null) {
-				if (!indexPluginList.run((Client) config, getContentType(),
-						getStreamLimiter(), targetIndexDocument)) {
-					urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-					urlItem.populate(urlIndexDocument, urlItemFieldEnum);
+				IndexDocument urlIndexDocument = new IndexDocument();
+				urlItem.populate(urlIndexDocument, urlItemFieldEnum);
+				urlFieldMap.mapIndexDocument(urlIndexDocument,
+						targetIndexDocument);
+
+				if (result != null)
+					result.populate(targetIndexDocument);
+
+				IndexPluginList indexPluginList = config.getWebCrawlMaster()
+						.getIndexPluginList();
+
+				if (indexPluginList != null) {
+					if (!indexPluginList.run((Client) config, getContentType(),
+							getStreamLimiter(), targetIndexDocument)) {
+						urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
+						urlItem.populate(urlIndexDocument, urlItemFieldEnum);
+						continue;
+					}
 				}
-			}
 
-			return targetIndexDocument;
+				targetIndexDocuments.add(targetIndexDocument);
+			}
+			return targetIndexDocuments;
 		}
 	}
 
@@ -437,20 +468,25 @@ public class Crawl {
 			}
 			if (parser == null || !urlItem.isLinkDiscoverable())
 				return discoverLinks;
+			List<ParserResultItem> results = parser.getParserResults();
+			if (results == null)
+				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
 			PatternManager inclusionManager = inclusionEnabled ? config
 					.getInclusionPatternManager() : null;
 			PatternManager exclusionManager = exclusionEnabled ? config
 					.getExclusionPatternManager() : null;
-			discoverLinks(urlManager, inclusionManager, exclusionManager,
-					parser.getFieldContent(ParserFieldEnum.internal_link),
-					Origin.content, parentUrl, discoverLinks);
-			discoverLinks(urlManager, inclusionManager, exclusionManager,
-					parser.getFieldContent(ParserFieldEnum.external_link),
-					Origin.content, parentUrl, discoverLinks);
-			discoverLinks(urlManager, inclusionManager, exclusionManager,
-					parser.getFieldContent(ParserFieldEnum.frameset_link),
-					Origin.frameset, parentUrl, discoverLinks);
+			for (ParserResultItem result : results) {
+				discoverLinks(urlManager, inclusionManager, exclusionManager,
+						result.getFieldContent(ParserFieldEnum.internal_link),
+						Origin.content, parentUrl, discoverLinks);
+				discoverLinks(urlManager, inclusionManager, exclusionManager,
+						result.getFieldContent(ParserFieldEnum.external_link),
+						Origin.content, parentUrl, discoverLinks);
+				discoverLinks(urlManager, inclusionManager, exclusionManager,
+						result.getFieldContent(ParserFieldEnum.frameset_link),
+						Origin.frameset, parentUrl, discoverLinks);
+			}
 			return discoverLinks;
 		}
 	}

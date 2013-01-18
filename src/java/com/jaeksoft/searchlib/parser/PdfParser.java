@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -101,34 +101,35 @@ public class PdfParser extends Parser {
 		return time.toString();
 	}
 
-	private void extractContent(PDDocument pdf) throws IOException {
+	private void extractContent(ParserResultItem result, PDDocument pdf)
+			throws IOException {
 		PDDocumentInformation info = pdf.getDocumentInformation();
 		if (info != null) {
-			addField(ParserFieldEnum.title, info.getTitle());
-			addField(ParserFieldEnum.subject, info.getSubject());
-			addField(ParserFieldEnum.author, info.getAuthor());
-			addField(ParserFieldEnum.producer, info.getProducer());
-			addField(ParserFieldEnum.keywords, info.getKeywords());
+			result.addField(ParserFieldEnum.title, info.getTitle());
+			result.addField(ParserFieldEnum.subject, info.getSubject());
+			result.addField(ParserFieldEnum.author, info.getAuthor());
+			result.addField(ParserFieldEnum.producer, info.getProducer());
+			result.addField(ParserFieldEnum.keywords, info.getKeywords());
 			String d = getDate(getCreationDate(info));
 			if (d != null)
-				addField(ParserFieldEnum.creation_date, d);
+				result.addField(ParserFieldEnum.creation_date, d);
 			d = getDate(getModificationDate(info));
 			if (d != null)
-				addField(ParserFieldEnum.modification_date, d);
+				result.addField(ParserFieldEnum.modification_date, d);
 		}
 		PDDocumentCatalog catalog = pdf.getDocumentCatalog();
 		if (catalog != null) {
-			addField(ParserFieldEnum.language, catalog.getLanguage());
+			result.addField(ParserFieldEnum.language, catalog.getLanguage());
 		}
 		int pages = pdf.getNumberOfPages();
-		addField(ParserFieldEnum.number_of_pages, pages);
+		result.addField(ParserFieldEnum.number_of_pages, pages);
 		TolerantPDFTextStripper stripper = new TolerantPDFTextStripper();
 		String text = stripper.getText(pdf);
 		String[] frags = text.split("\\n");
 		for (String frag : frags)
-			addField(ParserFieldEnum.content, StringUtils
+			result.addField(ParserFieldEnum.content, StringUtils
 					.replaceConsecutiveSpaces(frag, " ").trim());
-		langDetection(10000, ParserFieldEnum.content);
+		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 	@Override
@@ -141,8 +142,9 @@ public class PdfParser extends Parser {
 			pdf = PDDocument.load(streamLimiter.getFile());
 			if (pdf.isEncrypted())
 				throw new IOException("Encrypted PDF.");
-			extractContent(pdf);
-			extractImagesForOCR(pdf, lang);
+			ParserResultItem result = getNewParserResultItem();
+			extractContent(result, pdf);
+			extractImagesForOCR(result, pdf, lang);
 		} catch (SearchLibException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} catch (InterruptedException e) {
@@ -178,8 +180,9 @@ public class PdfParser extends Parser {
 		return images.size();
 	}
 
-	private void extractImagesForOCR(PDDocument pdf, LanguageEnum lang)
-			throws IOException, SearchLibException, InterruptedException {
+	private void extractImagesForOCR(ParserResultItem result, PDDocument pdf,
+			LanguageEnum lang) throws IOException, SearchLibException,
+			InterruptedException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
 		if (ocr == null || ocr.isDisabled())
 			return;
@@ -208,8 +211,9 @@ public class PdfParser extends Parser {
 		if (currentPage > 0 && emptyPageImages == currentPage)
 			throw new SearchLibException("All pages are blank " + currentPage);
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
-			hocrPdf.putHocrToParserField(this, ParserFieldEnum.image_ocr_boxes);
+			hocrPdf.putHocrToParserField(result,
+					ParserFieldEnum.image_ocr_boxes);
 		if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
-			hocrPdf.putTextToParserField(this, ParserFieldEnum.ocr_content);
+			hocrPdf.putTextToParserField(result, ParserFieldEnum.ocr_content);
 	}
 }

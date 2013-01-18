@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,12 +63,12 @@ public class AudioParser extends Parser {
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
-	private void addFields(Tag tag, FieldKey fieldKey,
+	private void addFields(ParserResultItem result, Tag tag, FieldKey fieldKey,
 			ParserFieldEnum parserField) {
 		List<TagField> list = tag.getFields(fieldKey);
 		if (list != null && list.size() > 0) {
 			for (TagField field : list)
-				addField(parserField, field);
+				result.addField(parserField, field);
 			return;
 		}
 		String f = tag.getFirst(fieldKey);
@@ -77,7 +77,7 @@ public class AudioParser extends Parser {
 		f = f.trim();
 		if (f.length() == 0)
 			return;
-		addField(parserField, f);
+		result.addField(parserField, f);
 	}
 
 	@Override
@@ -100,14 +100,16 @@ public class AudioParser extends Parser {
 		Tag tag = f.getTag();
 		if (tag == null)
 			return;
-		addFields(tag, FieldKey.TITLE, ParserFieldEnum.title);
-		addFields(tag, FieldKey.ARTIST, ParserFieldEnum.artist);
-		addFields(tag, FieldKey.ALBUM, ParserFieldEnum.album);
-		addFields(tag, FieldKey.YEAR, ParserFieldEnum.year);
-		addFields(tag, FieldKey.TRACK, ParserFieldEnum.track);
-		addFields(tag, FieldKey.ALBUM_ARTIST, ParserFieldEnum.album_artist);
-		addFields(tag, FieldKey.COMMENT, ParserFieldEnum.comment);
-		addFields(tag, FieldKey.COMPOSER, ParserFieldEnum.composer);
-		addFields(tag, FieldKey.GROUPING, ParserFieldEnum.grouping);
+		ParserResultItem result = getNewParserResultItem();
+		addFields(result, tag, FieldKey.TITLE, ParserFieldEnum.title);
+		addFields(result, tag, FieldKey.ARTIST, ParserFieldEnum.artist);
+		addFields(result, tag, FieldKey.ALBUM, ParserFieldEnum.album);
+		addFields(result, tag, FieldKey.YEAR, ParserFieldEnum.year);
+		addFields(result, tag, FieldKey.TRACK, ParserFieldEnum.track);
+		addFields(result, tag, FieldKey.ALBUM_ARTIST,
+				ParserFieldEnum.album_artist);
+		addFields(result, tag, FieldKey.COMMENT, ParserFieldEnum.comment);
+		addFields(result, tag, FieldKey.COMPOSER, ParserFieldEnum.composer);
+		addFields(result, tag, FieldKey.GROUPING, ParserFieldEnum.grouping);
 	}
 }

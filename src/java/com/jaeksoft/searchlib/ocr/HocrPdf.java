@@ -34,8 +34,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class HocrPdf {
@@ -66,6 +66,8 @@ public class HocrPdf {
 				throws SearchLibException {
 			JSONObject jsonObject = (JSONObject) JSONValue.parse(fieldValueItem
 					.getValue());
+			if (jsonObject == null)
+				throw new SearchLibException("JSON parsing failed");
 			pageNumber = getValue(jsonObject, "page");
 			pageWidth = getValue(jsonObject, "width");
 			pageHeight = getValue(jsonObject, "height");
@@ -108,15 +110,15 @@ public class HocrPdf {
 			return pageHeight;
 		}
 
-		public void putTextToParserField(Parser parser,
+		public void putTextToParserField(ParserResultItem result,
 				ParserFieldEnum parserField) {
 			for (HocrDocument hocrDocument : imageList)
-				hocrDocument.putTextToParserField(parser, parserField);
+				hocrDocument.putTextToParserField(result, parserField);
 		}
 
-		public void putHocrToParserField(Parser parser,
+		public void putHocrToParserField(ParserResultItem result,
 				ParserFieldEnum parserField) {
-			parser.addField(parserField, getJsonBoxMap().toJSONString());
+			result.addField(parserField, getJsonBoxMap().toJSONString());
 		}
 
 	}
@@ -132,6 +134,12 @@ public class HocrPdf {
 		if (valueArray == null)
 			return;
 		for (FieldValueItem fieldValueItem : valueArray) {
+			if (fieldValueItem == null)
+				continue;
+			if (fieldValueItem.getValue() == null)
+				continue;
+			if (fieldValueItem.getValue().length() == 0)
+				continue;
 			HocrPage page = new HocrPage(fieldValueItem);
 			pages.put(page.pageNumber, page);
 		}
@@ -143,14 +151,16 @@ public class HocrPdf {
 		return page;
 	}
 
-	public void putHocrToParserField(Parser parser, ParserFieldEnum parserField) {
+	public void putHocrToParserField(ParserResultItem result,
+			ParserFieldEnum parserField) {
 		for (HocrPage page : pages.values())
-			page.putHocrToParserField(parser, parserField);
+			page.putHocrToParserField(result, parserField);
 	}
 
-	public void putTextToParserField(Parser parser, ParserFieldEnum parserField) {
+	public void putTextToParserField(ParserResultItem result,
+			ParserFieldEnum parserField) {
 		for (HocrPage page : pages.values())
-			page.putTextToParserField(parser, parserField);
+			page.putTextToParserField(result, parserField);
 	}
 
 	public HocrPage getPage(long pageNumber) {

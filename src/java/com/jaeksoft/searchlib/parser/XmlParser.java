@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -60,6 +61,7 @@ public class XmlParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
+
 		try {
 			saxParserFactory = SAXParserFactory.newInstance();
 			saxParser = saxParserFactory.newSAXParser();
@@ -88,9 +90,12 @@ public class XmlParser extends Parser {
 			};
 			saxParser.parse(new InputSource(streamLimiter.getNewInputStream()),
 					handler);
-			addField(ParserFieldEnum.content, content.toString().trim());
-		} catch (Exception e) {
-			e.printStackTrace();
+			ParserResultItem result = getNewParserResultItem();
+			result.addField(ParserFieldEnum.content, content.toString().trim());
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		} catch (SAXException e) {
+			throw new IOException(e);
 		}
 
 	}
