@@ -100,29 +100,43 @@
 					</rows>
 				</grid>
 
-				<listbox mold="paging" pageSize="20"
-					model="@load(manualCrawl.crawlThread.currentCrawl.targetIndexDocument.fieldContentArray)">
-					<template name="model" var="fieldContent">
-						<listitem>
-							<listcell>
-								<panel title="@load(fieldContent.field)"
-									collapsible="true">
-									<panelchildren>
-										<listbox
-											model="@load(fieldContent.values)" mold="paging"
-											pageSize="10">
-											<template name="model"
-												var="fieldValue">
-												<listitem
-													label="@load(fieldValue.value)" />
-											</template>
-										</listbox>
-									</panelchildren>
-								</panel>
-							</listcell>
-						</listitem>
-					</template>
-				</listbox>
+				<grid
+					model="@load(manualCrawl.crawlThread.currentCrawl.targetIndexDocuments)">
+					<columns>
+						<column />
+					</columns>
+					<rows>
+						<template name="model"
+							var="targetIndexDocument">
+							<row>
+								<listbox mold="paging" pageSize="20"
+									model="@load(targetIndexDocument.fieldContentArray)">
+									<template name="model"
+										var="fieldContent">
+										<listitem>
+											<listcell>
+												<panel
+													title="@load(fieldContent.field)" collapsible="true">
+													<panelchildren>
+														<listbox
+															model="@load(fieldContent.values)" mold="paging"
+															pageSize="10">
+															<template
+																name="model" var="fieldValue">
+																<listitem
+																	label="@load(fieldValue.value)" />
+															</template>
+														</listbox>
+													</panelchildren>
+												</panel>
+											</listcell>
+										</listitem>
+									</template>
+								</listbox>
+							</row>
+						</template>
+					</rows>
+				</grid>
 
 			</panelchildren>
 		</panel>

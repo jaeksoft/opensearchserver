@@ -43,6 +43,7 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 		new ParserType(this, "PPT", PptParser.class);
 		new ParserType(this, "PPTX", PptxParser.class);
 		new ParserType(this, "PUB", PublisherParser.class);
+		new ParserType(this, "RSS", RssParser.class);
 		new ParserType(this, "RTF", RtfParser.class);
 		new ParserType(this, "Text", TextParser.class);
 		new ParserType(this, "Torrent", TorrentParser.class);

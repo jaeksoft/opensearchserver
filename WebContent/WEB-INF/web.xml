@@ -243,6 +243,7 @@
 	<servlet-mapping>
 		<servlet-name>XmlRpcServlet</servlet-name>
 		<url-pattern>/xmlrpc</url-pattern>
+		<!-- Console -->
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
@@ -253,24 +254,24 @@
 		<welcome-file>default.jsp</welcome-file>
 		<welcome-file>index.zul</welcome-file>
 	</welcome-file-list>
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>WEB-INF/beans.xml</param-value>
-	</context-param>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+	<!-- Begin CXF -->
 	<servlet>
-		<description>Apache CXF Endpoint</description>
-		<display-name>cxf</display-name>
-		<servlet-name>cxf</servlet-name>
-		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+		<description>Apache CXF SOAP</description>
+		<display-name>CXF SOAP</display-name>
+		<servlet-name>cxf ws</servlet-name>
+		<servlet-class>com.jaeksoft.searchlib.web.ServicesServlet</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>com.jaeksoft.searchlib.webservice.RestApplication</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>cxf</servlet-name>
+		<servlet-name>cxf ws</servlet-name>
 		<url-pattern>/services/*</url-pattern>
 	</servlet-mapping>
+	<!-- End CXF -->
+
 	<session-config>
 		<session-timeout>60</session-timeout>
 	</session-config>

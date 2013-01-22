@@ -145,11 +145,14 @@ public class SchemaServlet extends AbstractServlet {
 		String indexName = transaction.getParameterString("index.name");
 		String indexDeleteName = transaction
 				.getParameterString("index.delete.name");
-		if (indexName == null || indexDeleteName == null)
-			return false;
-		if (!indexName.equals(indexDeleteName))
-			throw new SearchLibException(
-					"parameters index.name and index.delete.name do not match");
+		if (indexName == null && indexDeleteName == null)
+			throw new SearchLibException("The index name is required");
+		if (indexName != null && indexDeleteName != null)
+			if (!indexName.equals(indexDeleteName))
+				throw new SearchLibException(
+						"parameters index.name and index.delete.name do not match");
+		if (indexName == null)
+			indexName = indexDeleteName;
 		ClientCatalog.eraseIndex(user, indexName);
 		transaction.addXmlResponse("Info", "Index deleted: " + indexName);
 		return true;

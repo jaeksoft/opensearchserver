@@ -23,22 +23,78 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
+import javax.naming.NamingException;
+import javax.xml.ws.WebServiceException;
 
-@WebService
-public interface CommonServices {
-	@WebResult(name = "CommonServices")
-	public Boolean isLogged(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
-	public Boolean isLoggedSchema(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+public class CommonServices {
 
-	public Boolean isLoggedWebStartStop(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+	public Boolean isLogged(String use, String login, String key) {
+
+		try {
+			User user = ClientCatalog.authenticateKey(login, key);
+			Client client = ClientCatalog.getClient(use);
+
+			if (user == null && ClientCatalog.getUserList().isEmpty())
+				return true;
+
+			if (user != null
+					&& user.hasRole(client.getIndexName(), Role.INDEX_QUERY))
+				return true;
+
+			return false;
+
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (NamingException e) {
+			throw new WebServiceException(e);
+		}
+
+	}
+
+	public Boolean isLoggedSchema(String use, String login, String key) {
+		try {
+			User user = ClientCatalog.authenticateKey(login, key);
+			Client client = ClientCatalog.getClient(use);
+
+			if (user == null && ClientCatalog.getUserList().isEmpty())
+				return true;
+			if (user != null
+					&& user.hasRole(client.getIndexName(), Role.INDEX_SCHEMA))
+				return true;
+
+			return false;
+
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (NamingException e) {
+			throw new WebServiceException(e);
+		}
+	}
+
+	public Boolean isLoggedWebStartStop(String use, String login, String key) {
+		try {
+			User user = ClientCatalog.authenticateKey(login, key);
+			Client client = ClientCatalog.getClient(use);
+
+			if (user == null && ClientCatalog.getUserList().isEmpty())
+				return true;
+			if (user != null
+					&& user.hasRole(client.getIndexName(),
+							Role.WEB_CRAWLER_START_STOP))
+				return true;
+
+			return false;
+
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (NamingException e) {
+			throw new WebServiceException(e);
+		}
+	}
 }
