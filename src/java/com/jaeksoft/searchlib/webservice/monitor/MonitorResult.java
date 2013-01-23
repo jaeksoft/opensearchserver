@@ -30,10 +30,12 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.jaeksoft.searchlib.Monitor;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlRootElement
 public class MonitorResult {
 
 	@XmlElement(name = "system")

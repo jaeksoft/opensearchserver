@@ -28,19 +28,28 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
-/**
- * @author Naveen
- * 
- */
-@Path("/monitor")
 @WebService
+@Path("/monitor/")
 public interface Monitor {
+
 	@WebResult(name = "monitor")
-	@GET
-	@Path("/monitor/{login}/{key}")
 	public MonitorResult monitor(
-			@PathParam("login") @WebParam(name = "login") String login,
-			@PathParam("key") @WebParam(name = "key") String key);
+			@QueryParam("login") @WebParam(name = "login") String login,
+			@QueryParam("key") @WebParam(name = "key") String key);
+
+	@GET
+	@Produces("application/xml")
+	@Path("/getMonitorXML/")
+	public MonitorResult getMonitorXML(@QueryParam("login") String login,
+			@QueryParam("key") String key);
+
+	@GET
+	@Produces("application/json")
+	@Path("/getMonitorJSON/")
+	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
+			@QueryParam("key") String key);
+
 }

@@ -60,4 +60,14 @@ public class MonitorImpl extends CommonServices implements Monitor {
 			throw new WebServiceException(e);
 		}
 	}
+
+	@Override
+	public MonitorResult getMonitorXML(String login, String key) {
+		return monitor(login, key);
+	}
+
+	@Override
+	public MonitorResult getMonitorJSON(String login, String key) {
+		return monitor(login, key);
+	}
 }
