@@ -128,4 +128,22 @@ public class ActionImpl extends CommonServices implements Action {
 		client.setReadWriteMode(IndexMode.READ_WRITE);
 	}
 
+	@Override
+	public CommonResult actionXML(String use, String login, String key,
+			ActionEnum action) {
+		return action(use, login, key, action == ActionEnum.optimize,
+				action == ActionEnum.reload, action == ActionEnum.online,
+				action == ActionEnum.offline, action == ActionEnum.readonly,
+				action == ActionEnum.readwrite);
+	}
+
+	@Override
+	public CommonResult actionJSON(String use, String login, String key,
+			ActionEnum action) {
+		return action(use, login, key, action == ActionEnum.optimize,
+				action == ActionEnum.reload, action == ActionEnum.online,
+				action == ActionEnum.offline, action == ActionEnum.readonly,
+				action == ActionEnum.readwrite);
+	}
+
 }

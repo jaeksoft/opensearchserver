@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it and/or modify 
@@ -47,9 +47,11 @@
 			<field name="lastModifiedDate" indexed="yes" stored="no"
 				termVector="no" />
 			<field name="parentUrl" indexed="yes" stored="no" termVector="no" />
+			<field name="redirectionUrl" indexed="yes" stored="no"
+				termVector="no" />
 			<field name="origin" indexed="yes" stored="no" termVector="no" />
 			<field name="headers" indexed="yes" stored="no" termVector="no" />
-		
+
 		</fields>
 	</schema>
 	<requests>

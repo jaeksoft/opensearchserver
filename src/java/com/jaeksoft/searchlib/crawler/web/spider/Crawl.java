@@ -267,6 +267,9 @@ public class Crawl {
 
 				urlItem.setResponseCode(code);
 				redirectUrlLocation = downloadItem.getRedirectLocation();
+				if (redirectUrlLocation != null)
+					urlItem.setRedirectionUrl(redirectUrlLocation.toURL()
+							.toExternalForm());
 
 				if (code >= 200 && code < 300) {
 					if (!fromCache)

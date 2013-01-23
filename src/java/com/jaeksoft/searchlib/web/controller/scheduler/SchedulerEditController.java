@@ -78,6 +78,8 @@ public class SchedulerEditController extends SchedulerController {
 	@Override
 	protected void reset() throws SearchLibException {
 		currentJob = null;
+		currentTask = null;
+		selectedTask = null;
 		selectedJobTask = null;
 		Client client = getClient();
 		if (client != null)

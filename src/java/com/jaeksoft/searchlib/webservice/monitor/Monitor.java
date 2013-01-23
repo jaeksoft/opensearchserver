@@ -32,7 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 @WebService
-@Path("/monitor/")
+@Path("/monitor")
 public interface Monitor {
 
 	@WebResult(name = "monitor")
@@ -42,13 +42,13 @@ public interface Monitor {
 
 	@GET
 	@Produces("application/xml")
-	@Path("/getMonitorXML/")
+	@Path("/xml")
 	public MonitorResult getMonitorXML(@QueryParam("login") String login,
 			@QueryParam("key") String key);
 
 	@GET
 	@Produces("application/json")
-	@Path("/getMonitorJSON/")
+	@Path("/json")
 	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
 			@QueryParam("key") String key);
 

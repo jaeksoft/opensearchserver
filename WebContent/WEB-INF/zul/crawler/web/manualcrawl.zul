@@ -42,7 +42,15 @@
 								value="@load(manualCrawl.crawlThread.currentUrlItem.url)" />
 						</auxheader>
 					</auxhead>
-					<columns>
+					<auxhead
+						visible="@load(manualCrawl.crawlThread.currentUrlItem.redirection)">
+						<auxheader colspan="4" align="center">
+							<label value="Redirect: " />
+							<label
+								value="@load(manualCrawl.crawlThread.currentUrlItem.redirectionUrl)" />
+						</auxheader>
+					</auxhead>
+					<columns visible="false">
 						<column align="right" width="150px" />
 						<column align="left" />
 						<column align="right" width="150px" />

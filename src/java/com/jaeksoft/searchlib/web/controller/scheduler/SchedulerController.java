@@ -30,11 +30,11 @@ import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
-import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
-public class SchedulerController extends CrawlerController {
+public class SchedulerController extends CommonController {
 
 	public SchedulerController() throws SearchLibException {
 		super();
@@ -82,6 +82,10 @@ public class SchedulerController extends CrawlerController {
 	public void eventEditScheduler(@BindingParam("scheduler") JobItem jobItem)
 			throws SearchLibException {
 		reload();
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
 	}
 
 }

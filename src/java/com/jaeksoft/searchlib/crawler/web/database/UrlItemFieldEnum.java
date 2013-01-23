@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,9 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 	final public ItemField url = new ItemField(this, "url");
 
 	final public ItemField parentUrl = new ItemField(this, "parentUrl");
+
+	final public ItemField redirectionUrl = new ItemField(this,
+			"redirectionUrl");
 
 	final public ItemField origin = new ItemField(this, "origin");
 

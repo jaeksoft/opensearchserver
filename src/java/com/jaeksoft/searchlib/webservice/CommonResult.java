@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.webservice;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlRootElement
 public class CommonResult {
 
 	@XmlElement(name = "successful")
@@ -44,6 +46,5 @@ public class CommonResult {
 	public CommonResult(Boolean successful, String info) {
 		this.info = info;
 		this.successful = successful;
-
 	}
 }

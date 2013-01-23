@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,12 +45,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
-public class UrlItem implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4043010587042224473L;
+public class UrlItem {
 
 	private String url;
 	private String contentDispositionFilename;
@@ -77,6 +71,7 @@ public class UrlItem implements Serializable {
 	private List<String> outLinks;
 	private List<String> inLinks;
 	private String parentUrl;
+	private String redirectionUrl;
 	private LinkItem.Origin origin;
 	private List<String> headers;
 
@@ -105,6 +100,7 @@ public class UrlItem implements Serializable {
 		md5size = null;
 		lastModifiedDate = null;
 		parentUrl = null;
+		redirectionUrl = null;
 		origin = null;
 		headers = null;
 	}
@@ -144,6 +140,8 @@ public class UrlItem implements Serializable {
 				urlItemFieldEnum.lastModifiedDate.getName(), 0));
 		setParentUrl(doc.getValueContent(urlItemFieldEnum.parentUrl.getName(),
 				0));
+		setRedirectionUrl(doc.getValueContent(
+				urlItemFieldEnum.redirectionUrl.getName(), 0));
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
 				urlItemFieldEnum.origin.getName(), 0)));
 		addHeaders(doc.getValueArray(urlItemFieldEnum.headers.getName()));
@@ -433,6 +431,18 @@ public class UrlItem implements Serializable {
 		this.parentUrl = parentUrl;
 	}
 
+	public boolean isRedirection() {
+		return redirectionUrl != null;
+	}
+
+	public String getRedirectionUrl() {
+		return redirectionUrl;
+	}
+
+	public void setRedirectionUrl(String redirectionUrl) {
+		this.redirectionUrl = redirectionUrl;
+	}
+
 	public LinkItem.Origin getOrigin() {
 		return origin;
 	}
@@ -583,6 +593,9 @@ public class UrlItem implements Serializable {
 		if (parentUrl != null)
 			indexDocument.setString(urlItemFieldEnum.parentUrl.getName(),
 					parentUrl);
+		if (redirectionUrl != null)
+			indexDocument.setString(urlItemFieldEnum.redirectionUrl.getName(),
+					redirectionUrl);
 		if (origin != null)
 			indexDocument.setString(urlItemFieldEnum.origin.getName(),
 					origin.name());

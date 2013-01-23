@@ -41,10 +41,6 @@ public class SchedulerListController extends SchedulerController {
 		super();
 	}
 
-	@Override
-	protected void reset() throws SearchLibException {
-	}
-
 	public JobItem[] getJobs() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -52,7 +48,6 @@ public class SchedulerListController extends SchedulerController {
 		return client.getJobList().getJobs();
 	}
 
-	@Override
 	public boolean isRefresh() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
@@ -71,7 +66,6 @@ public class SchedulerListController extends SchedulerController {
 	}
 
 	@Command
-	@NotifyChange("*")
 	public void doExecute(@BindingParam("jobentry") JobItem job)
 			throws SearchLibException, NamingException, InterruptedException {
 		Client client = getClient();
@@ -92,7 +86,6 @@ public class SchedulerListController extends SchedulerController {
 	}
 
 	@Command
-	@Override
 	public void onTimer() throws SearchLibException {
 		reload();
 	}
