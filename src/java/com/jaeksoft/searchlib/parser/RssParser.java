@@ -33,6 +33,8 @@ import org.apache.commons.feedparser.FeedParserException;
 import org.apache.commons.feedparser.FeedParserFactory;
 import org.apache.commons.feedparser.FeedParserState;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
@@ -45,6 +47,12 @@ public class RssParser extends Parser {
 
 	public RssParser() {
 		super(fieldList);
+	}
+
+	@Override
+	public void initProperties() throws SearchLibException {
+		super.initProperties();
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 	}
 
 	private class FeedListener extends DefaultFeedParserListener {

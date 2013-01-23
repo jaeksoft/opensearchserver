@@ -14,26 +14,30 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<zk>
-	<hbox align="center">
-		<label value="Enter an extension to add: " />
-		<textbox cols="10" value="@bind(parser.currentExtension)" />
-		<button label="Add" onClick="@command('onAddExtension')" />
-	</hbox>
-	<grid width="100%" visible="@load(parser.parserExtension)"
-		model="@load(parser.currentParser.extensionSet)">
-		<columns>
-			<column label="Extension" />
-			<column label="Action" />
-		</columns>
-		<rows>
-			<template name="model" var="extensionItem">
-				<row>
-					<label value="@load(extensionItem)" />
-					<image src="/images/action_delete.png"
-						onClick="@command('onDeleteExtension', extensionItem=extensionItem)" />
-				</row>
-			</template>
-		</rows>
-	</grid>
-</zk>
+<grid model="@load(parser.currentParser.extensionSet)"
+	emptyMessage="No extension">
+	<auxhead>
+		<auxheader colspan="2">
+			<hbox align="center">
+				<label value="Enter an extension to add: " />
+				<textbox cols="10"
+					value="@bind(parser.currentExtension)" />
+				<button label="Add"
+					onClick="@command('onAddExtension')" />
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<columns>
+		<column label="Extension" hflex="min" />
+		<column label="Action" />
+	</columns>
+	<rows>
+		<template name="model" var="extensionItem">
+			<row>
+				<label value="@load(extensionItem)" />
+				<image src="/images/action_delete.png"
+					onClick="@command('onDeleteExtension', extensionItem=extensionItem)" />
+			</row>
+		</template>
+	</rows>
+</grid>

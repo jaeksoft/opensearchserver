@@ -16,15 +16,15 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('crawlProcess') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CrawlWebController')">
-	<grid visible="@load(crawlProcess.webCrawlerParametersRights)"
-		sizedByContent="true">
+	<grid visible="@load(crawlProcess.webCrawlerParametersRights)">
 		<auxhead>
 			<auxheader colspan="4" label="Crawling parameters" />
 		</auxhead>
 		<columns visible="false">
-			<column align="right" />
-			<column />
-			<column align="right" />
+			<column align="right" hflex="min" />
+			<column hflex="min" />
+			<column align="right" hflex="min" />
+			<column hflex="min" />
 			<column />
 		</columns>
 		<rows>
@@ -37,6 +37,7 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@load(crawlProcess.refresh)"
 					value="@bind(crawlProcess.properties.maxUrlPerSession.value)" />
+				<cell />
 			</row>
 			<row>
 				<label value="Fetch interval between re-fetches: " />
@@ -58,6 +59,7 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@load(crawlProcess.refresh)"
 					value="@bind(crawlProcess.properties.maxUrlPerHost.value)" />
+				<cell />
 			</row>
 			<row>
 				<label value="Number of simultaneous threads: " />
@@ -69,6 +71,7 @@
 				<intbox constraint="no empty, no negative"
 					readonly="@load(crawlProcess.refresh)"
 					value="@bind(crawlProcess.properties.delayBetweenAccesses.value)" />
+				<cell />
 			</row>
 			<row>
 				<label value="Job run when each session ends: " />
@@ -83,7 +86,7 @@
 						</template>
 					</listbox>
 				</hbox>
-				<cell colspan="2" />
+				<cell colspan="3" />
 			</row>
 		</rows>
 	</grid>
@@ -212,7 +215,8 @@
 			<listitem>
 				<listcell
 					label="@load(thread.hostUrlList.namedItem.name)" />
-				<listcell label="@load(thread.hostUrlList.listType)" />
+				<listcell
+					label="@load(thread.hostUrlList.listType.label)" />
 				<listcell
 					label="@load(thread.currentStatistics.fetchedCount)" />
 				<listcell

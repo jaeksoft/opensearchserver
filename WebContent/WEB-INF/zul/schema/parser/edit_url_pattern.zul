@@ -14,26 +14,31 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<zk>
-	<hbox align="center">
-		<label value="Enter an URL pattern to add: " />
-		<textbox cols="50" value="@bind(parser.currentUrlPattern)" />
-		<button label="Add" onClick="@command('onAddUrlPattern')" />
-	</hbox>
-	<grid width="100%" visible="@load(parser.parserUrlPattern)"
-		model="@load(parser.currentParser.urlPatternSet)">
-		<columns>
-			<column label="URL pattern" />
-			<column label="Action" />
-		</columns>
-		<rows>
-			<template name="model" var="urlPatternItem">
-				<row>
-					<label value="@load(urlPatternItem)" />
-					<image src="/images/action_delete.png"
-						onClick="@command('onDeleteUrlPattern', urlPatternItem=urlPatternItem)" />
-				</row>
-			</template>
-		</rows>
-	</grid>
-</zk>
+<grid model="@load(parser.currentParser.urlPatternSet)"
+	emptyMessage="No URL pattern">
+	<auxhead>
+		<auxheader colspan="2">
+			<hbox align="center">
+				<label value="Enter an URL pattern to add: " />
+				<textbox cols="50"
+					value="@bind(parser.currentUrlPattern)" />
+				<button label="Add"
+					onClick="@command('onAddUrlPattern')" />
+			</hbox>
+
+		</auxheader>
+	</auxhead>
+	<columns>
+		<column label="URL pattern" />
+		<column label="Action" hflex="min" />
+	</columns>
+	<rows>
+		<template name="model" var="urlPatternItem">
+			<row>
+				<label value="@load(urlPatternItem)" />
+				<image src="/images/action_delete.png"
+					onClick="@command('onDeleteUrlPattern', urlPatternItem=urlPatternItem)" />
+			</row>
+		</template>
+	</rows>
+</grid>

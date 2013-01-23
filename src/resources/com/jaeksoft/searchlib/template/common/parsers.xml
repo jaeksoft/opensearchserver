@@ -302,6 +302,15 @@
 			<link source="content" target="contentPhonetic" />
 		</map>
 	</parser>
+	<parser name="RSS parser" class="com.jaeksoft.searchlib.parser.RssParser"
+		sizeLimit="33554432">
+		<contentType>application/rss+xml</contentType>
+		<extension>rss</extension>
+		<map>
+			<link source="description" target="content" />
+			<link source="title" target="title" />
+		</map>
+	</parser>
 	<parser name="Text parser" class="com.jaeksoft.searchlib.parser.TextParser"
 		sizeLimit="33554432">
 		<extension>txt</extension>

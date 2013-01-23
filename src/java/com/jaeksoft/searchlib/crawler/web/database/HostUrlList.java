@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,15 +42,19 @@ public class HostUrlList {
 
 		DBCRAWL("dbcrawl");
 
-		private String name;
+		private String label;
 
-		private ListType(String name) {
-			this.name = name;
+		private ListType(String label) {
+			this.label = label;
 		}
 
 		@Override
 		public String toString() {
-			return name;
+			return label;
+		}
+
+		public String getLabel() {
+			return label;
 		}
 	}
 

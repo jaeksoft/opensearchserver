@@ -17,8 +17,8 @@
 <zk>
 	<grid>
 		<columns>
-			<column width="150px" align="right" />
-			<column width="250px" align="left" />
+			<column hflex="min" align="right" />
+			<column hflex="min" align="left" />
 			<column align="left" />
 		</columns>
 		<rows>
@@ -41,10 +41,11 @@
 			</row>
 		</rows>
 	</grid>
+	<separator />
 	<grid model="@load(parser.currentParser.userProperties)">
 		<columns>
-			<column width="150px" align="right" />
-			<column width="250px" align="left" />
+			<column hflex="min" align="right" />
+			<column hflex="min" align="left" />
 			<column align="left" />
 		</columns>
 		<rows>

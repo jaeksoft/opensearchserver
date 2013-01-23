@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <listbox model="@load(parser.currentParser.fieldMap.list)"
-	selectedItem="@bind(parser.selectedFieldMapItem)" span="true">
+	selectedItem="@bind(parser.selectedFieldMapItem)">
 	<auxhead>
 		<auxheader colspan="5">
 			<hbox align="center">
