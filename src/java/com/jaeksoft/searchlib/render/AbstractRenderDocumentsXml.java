@@ -135,8 +135,11 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 			throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] values = doc.getValueArray(field);
-		if (values == null)
-			return;
+		if (values == null || values.length == 0) {
+			writer.print("\t\t<field name=\"");
+			writer.print(fieldName);
+			writer.print("\"/>");
+		}
 		for (FieldValueItem v : values) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
@@ -157,8 +160,12 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 			throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] snippets = doc.getSnippetArray(field);
-		if (snippets == null)
+		if (snippets == null || snippets.length == 0) {
+			writer.print("\t\t<snippet name=\"");
+			writer.print(fieldName);
+			writer.print("\"/>");
 			return;
+		}
 		boolean highlighted = doc.isHighlighted(field.getName());
 		for (FieldValueItem snippet : snippets) {
 			writer.print("\t\t<snippet name=\"");
