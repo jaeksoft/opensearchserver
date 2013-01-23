@@ -489,6 +489,9 @@ public class Crawl {
 				discoverLinks(urlManager, inclusionManager, exclusionManager,
 						result.getFieldContent(ParserFieldEnum.frameset_link),
 						Origin.frameset, parentUrl, discoverLinks);
+				discoverLinks(urlManager, inclusionManager, exclusionManager,
+						result.getFieldContent(ParserFieldEnum.link),
+						Origin.content, parentUrl, discoverLinks);
 			}
 			return discoverLinks;
 		}

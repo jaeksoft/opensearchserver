@@ -108,7 +108,7 @@
 					</rows>
 				</grid>
 
-				<grid
+				<grid mold="paging" pageSize="2"
 					model="@load(manualCrawl.crawlThread.currentCrawl.targetIndexDocuments)">
 					<columns>
 						<column />
@@ -117,30 +117,36 @@
 						<template name="model"
 							var="targetIndexDocument">
 							<row>
-								<listbox mold="paging" pageSize="20"
-									model="@load(targetIndexDocument.fieldContentArray)">
-									<template name="model"
-										var="fieldContent">
-										<listitem>
-											<listcell>
-												<panel
-													title="@load(fieldContent.field)" collapsible="true">
-													<panelchildren>
-														<listbox
-															model="@load(fieldContent.values)" mold="paging"
-															pageSize="10">
-															<template
-																name="model" var="fieldValue">
-																<listitem
-																	label="@load(fieldValue.value)" />
-															</template>
-														</listbox>
-													</panelchildren>
-												</panel>
-											</listcell>
-										</listitem>
-									</template>
-								</listbox>
+								<panel title="Index document"
+									collapsible="true">
+									<panelchildren>
+										<listbox mold="paging"
+											pageSize="20"
+											model="@load(targetIndexDocument.fieldContentArray)">
+											<template name="model"
+												var="fieldContent">
+												<listitem>
+													<listcell>
+														<panel
+															title="@load(fieldContent.field)" collapsible="true">
+															<panelchildren>
+																<listbox
+																	model="@load(fieldContent.values)" mold="paging"
+																	pageSize="10">
+																	<template
+																		name="model" var="fieldValue">
+																		<listitem
+																			label="@load(fieldValue.value)" />
+																	</template>
+																</listbox>
+															</panelchildren>
+														</panel>
+													</listcell>
+												</listitem>
+											</template>
+										</listbox>
+									</panelchildren>
+								</panel>
 							</row>
 						</template>
 					</rows>

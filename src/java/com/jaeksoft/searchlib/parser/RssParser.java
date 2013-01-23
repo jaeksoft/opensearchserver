@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.feedparser.DefaultFeedParserListener;
 import org.apache.commons.feedparser.FeedParser;
@@ -38,7 +39,9 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 public class RssParser extends Parser {
 
 	private static ParserFieldEnum[] fieldList = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.title, ParserFieldEnum.note, ParserFieldEnum.body };
+			ParserFieldEnum.channel_title, ParserFieldEnum.channel_link,
+			ParserFieldEnum.channel_description, ParserFieldEnum.title,
+			ParserFieldEnum.link, ParserFieldEnum.description };
 
 	public RssParser() {
 		super(fieldList);
@@ -46,25 +49,43 @@ public class RssParser extends Parser {
 
 	private class FeedListener extends DefaultFeedParserListener {
 
+		private String currentChannelTitle = null;
+		private String currentChannelLink = null;
+		private String currentChannelDescription = null;
+		private ParserResultItem currentResult = null;
+
 		@Override
-		public void onAuthor(FeedParserState state, String name, String email,
-				String resource) throws FeedParserException {
-			System.out.println("onAuthor: " + name + " | " + email + " | "
-					+ resource);
+		public void onChannel(FeedParserState state, String title, String link,
+				String description) throws FeedParserException {
+			this.currentChannelTitle = title;
+			this.currentChannelLink = link;
+			this.currentChannelDescription = description;
 		}
 
 		@Override
-		public void onContent(FeedParserState state, String type,
-				String format, String encoding, String mode, String value,
-				boolean isSummary) throws FeedParserException {
-			System.out.println("onContent: " + type + " | " + format + " | "
-					+ mode + " | " + value);
+		public void onItem(FeedParserState state, String title, String link,
+				String description, String permalink)
+				throws FeedParserException {
+			currentResult = getNewParserResultItem();
+			currentResult.addField(ParserFieldEnum.channel_title,
+					currentChannelTitle);
+			currentResult.addField(ParserFieldEnum.channel_link,
+					currentChannelLink);
+			currentResult.addField(ParserFieldEnum.channel_description,
+					currentChannelDescription);
+			currentResult.addField(ParserFieldEnum.title, title);
+			currentResult.addField(ParserFieldEnum.link, link);
+			currentResult.addField(ParserFieldEnum.description, description);
 		}
 
 		@Override
-		public void onContentEnd() throws FeedParserException {
-			System.out.println("CONTENT END");
+		public void onCreated(FeedParserState state, Date date)
+				throws FeedParserException {
+			if (currentResult == null)
+				return;
+			currentResult.addField(ParserFieldEnum.creation_date, date);
 		}
+
 	}
 
 	@Override

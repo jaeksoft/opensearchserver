@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -132,6 +132,21 @@ public enum ParserFieldEnum {
 
 	image_format,
 
-	image_area_size;
+	image_area_size,
+
+	channel_title,
+
+	channel_link,
+
+	channel_description,
+
+	link;
+
+	public static ParserFieldEnum find(String fieldName) {
+		for (ParserFieldEnum pfe : values())
+			if (pfe.name().equals(fieldName))
+				return pfe;
+		return null;
+	}
 
 }

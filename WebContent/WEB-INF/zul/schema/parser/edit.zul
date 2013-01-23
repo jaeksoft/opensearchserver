@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -15,209 +15,37 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <zk>
-	<panel title="Parser Attributes" border="normal">
-		<panelchildren>
-			<grid>
-				<columns>
-					<column width="150px" align="right" />
-					<column width="250px" align="left" />
-					<column align="left" />
-				</columns>
-				<rows>
-					<row>
-						<label value="Name" />
-						<textbox
-							value="@bind(parser.currentParser.parserName)" />
-						<label value="Choose a name for this parser" />
-					</row>
-					<row>
-						<label value="Type" />
-						<label
-							value="@load(parser.currentParser.parserType.name)" />
-						<label value="The type of this parser" />
-					</row>
-					<row>
-						<label value="Fail over" />
-						<combobox model="@load(parser.failOverList)"
-							value="@bind(parser.currentParser.failOverParserName)" />
-						<label
-							value="Choose a parser used in case of failure" />
-					</row>
-				</rows>
-			</grid>
-			<grid model="@load(parser.currentParser.userProperties)">
-				<columns>
-					<column width="150px" align="right" />
-					<column width="250px" align="left" />
-					<column align="left" />
-				</columns>
-				<rows>
-					<template name="model" var="property">
-						<row>
-							<label
-								tooltiptext="@load(property.classPropertyEnum.info)"
-								value="@load(property.classPropertyEnum.label)" />
-							<vbox>
-								<textbox
-									visible="@load(property.textbox)"
-									value="@bind(property.value)" />
-								<listbox mold="select"
-									visible="@load(property.list)"
-									model="@load(property.valueList)"
-									selectedItem="@bind(property.value)">
-									<template name="model">
-										<listitem label="@load(each)" />
-									</template>
-								</listbox>
-							</vbox>
-							<label
-								value="@load(property.classPropertyEnum.info)" />
-						</row>
-					</template>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator height="5px" />
-	<panel title="Supported extension" border="normal">
-		<panelchildren>
-			<hbox align="center">
-				<label value="Enter an extension to add: " />
-				<textbox cols="10"
-					value="@bind(parser.currentExtension)" />
-				<button label="Add"
-					onClick="@command('onAddExtension')" />
-			</hbox>
-			<grid width="100%" visible="@load(parser.parserExtension)"
-				model="@load(parser.currentParser.extensionSet)">
-				<columns>
-					<column label="Extension" />
-					<column label="Action" />
-				</columns>
-				<rows>
-					<template name="model" var="extensionItem">
-						<row>
-							<label value="@load(extensionItem)" />
-							<image src="/images/action_delete.png"
-								onClick="@command('onDeleteExtension', extensionItem=extensionItem)" />
-						</row>
-					</template>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator height="5px" />
-	<panel title="Supported MIME type" border="normal">
-		<panelchildren>
-			<hbox align="center">
-				<label value="Enter a MIME type to add: " />
-				<textbox cols="50"
-					value="@bind(parser.currentMimeType)" />
-				<button label="Add" onClick="@command('onAddMimeType')" />
-			</hbox>
-			<grid width="100%" visible="@load(parser.parserMimeType)"
-				model="@load(parser.currentParser.mimeTypeSet)">
-				<columns>
-					<column label="MIME type" />
-					<column label="Action" />
-				</columns>
-				<rows>
-					<template name="model" var="mimeTypeItem">
-						<row>
-							<label value="@load(mimeTypeItem)" />
-							<image src="/images/action_delete.png"
-								onClick="@command('onDeleteMimeType', mimeTypeItem=mimeTypeItem)" />
-						</row>
-					</template>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator height="5px" />
-	<panel title="URL pattern" border="normal">
-		<panelchildren>
-			<hbox align="center">
-				<label value="Enter an URL pattern to add: " />
-				<textbox cols="50"
-					value="@bind(parser.currentUrlPattern)" />
-				<button label="Add"
-					onClick="@command('onAddUrlPattern')" />
-			</hbox>
-			<grid width="100%" visible="@load(parser.parserUrlPattern)"
-				model="@load(parser.currentParser.urlPatternSet)">
-				<columns>
-					<column label="URL pattern" />
-					<column label="Action" />
-				</columns>
-				<rows>
-					<template name="model" var="urlPatternItem">
-						<row>
-							<label value="@load(urlPatternItem)" />
-							<image src="/images/action_delete.png"
-								onClick="@command('onDeleteUrlPattern', urlPatternItem=urlPatternItem)" />
-						</row>
-					</template>
-				</rows>
-			</grid>
-		</panelchildren>
-	</panel>
-	<separator height="5px" />
-	<panel title="Field mapping" border="normal">
-		<panelchildren>
-			<hbox align="center">
-				<listbox mold="select"
-					model="@load(parser.parserFieldList)"
-					selectedItem="@bind(parser.selectedParserField)">
-					<template name="model" var="parserField">
-						<listitem label="@load(parserField)"
-							value="@load(parserField)" />
-					</template>
-				</listbox>
-				<label>linked in</label>
-				<listbox mold="select"
-					model="@load(parser.indexFieldList)"
-					selectedItem="@bind(parser.selectedIndexField)">
-					<template name="model" var="indexField">
-						<listitem label="@load(indexField.name)"
-							value="@load(indexField)" />
-					</template>
-				</listbox>
-				<label>captured by (reg.exp.):</label>
-				<textbox cols="80" value="@bind(parser.captureRegexp)" />
-				<space />
-				<checkbox label="remove tags"
-					checked="@bind(parser.removeTag)" />
-				<space />
-				<button label="add" onClick="@command('onAdd')" />
-			</hbox>
-			<listbox model="@load(parser.currentParser.fieldMap.list)"
-				sizedByContent="true" span="true">
-				<listhead>
-					<listheader label="Parser field" />
-					<listheader label="Index field" />
-					<listheader label="Capture Reg.Exp." />
-					<listheader label="Remove tags" />
-					<listheader label="Action" />
-				</listhead>
-				<template name="model" var="fieldmapitem">
-					<listitem>
-						<listcell
-							label="@load(fieldmapitem.source.uniqueName)" />
-						<listcell
-							label="@load(fieldmapitem.target.name)" />
-						<listcell
-							label="@load(fieldmapitem.target.captureRegexp)" />
-						<listcell
-							label="@load(fieldmapitem.target.removeTag)" />
-						<listcell>
-							<image src="/images/action_delete.png"
-								onClick="@command('onLinkRemove', fieldmapitem=fieldmapitem)" />
-						</listcell>
-					</listitem>
-				</template>
-			</listbox>
-		</panelchildren>
-	</panel>
+	<tabbox>
+		<tabs>
+			<tab id="tabParserAttributes" label="Parser attributes"
+				selected="true" />
+			<tab id="tabParserExtensions" label="Supported extension" />
+			<tab id="tabParserMimeTypes" label="Supported MIME type" />
+			<tab id="tabParserUrlPattern" label="URL pattern" />
+			<tab id="tabParserFieldMapping" label="Field mapping" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include
+					src="WEB-INF/zul/schema/parser/edit_attributes.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include
+					src="WEB-INF/zul/schema/parser/edit_extensions.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/schema/parser/edit_mimes.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include
+					src="WEB-INF/zul/schema/parser/edit_url_pattern.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include
+					src="WEB-INF/zul/schema/parser/edit_fieldmap.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
 	<separator height="5px" />
 	<vbox width="100%" align="center">
 		<hbox visible="@load(parser.parserSelected)">

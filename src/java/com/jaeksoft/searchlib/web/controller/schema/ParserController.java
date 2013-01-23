@@ -72,6 +72,8 @@ public class ParserController extends CommonController {
 
 	private transient String currentUrlPattern;
 
+	private transient GenericLink<SourceField, ParserFieldTarget> selectedFieldMapItem;
+
 	private transient String captureRegexp;
 
 	private transient boolean removeTag;
@@ -108,6 +110,7 @@ public class ParserController extends CommonController {
 		selectedIndexField = null;
 		selectedParserField = null;
 		captureRegexp = null;
+		selectedFieldMapItem = null;
 	}
 
 	public ParserFactory[] getParsers() {
@@ -316,16 +319,28 @@ public class ParserController extends CommonController {
 	}
 
 	@Command
-	@NotifyChange("*")
-	public void onAdd() throws SearchLibException,
+	public void onSaveFieldMapItem() throws SearchLibException,
 			TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
 		if (selectedParserField == null || selectedIndexField == null)
 			return;
 		ParserFieldMap fieldMap = getFieldMap();
+		if (selectedFieldMapItem != null)
+			fieldMap.remove(selectedFieldMapItem);
 		fieldMap.add(new SourceField(selectedParserField.name()),
 				new ParserFieldTarget(selectedIndexField.getName(),
 						captureRegexp, removeTag));
+		onCancelFieldMapItem();
+	}
+
+	@Command
+	public void onCancelFieldMapItem() throws SearchLibException {
+		selectedParserField = null;
+		selectedIndexField = null;
+		selectedFieldMapItem = null;
+		captureRegexp = null;
+		removeTag = false;
+		reload();
 	}
 
 	@Command
@@ -343,14 +358,14 @@ public class ParserController extends CommonController {
 	}
 
 	@Command
-	@NotifyChange("*")
-	public void onLinkRemove(
+	public void onFieldMapItemRemove(
 			@BindingParam("fieldmapitem") GenericLink<SourceField, ParserFieldTarget> link)
 			throws SearchLibException, TransformerConfigurationException,
 			SAXException, IOException, XPathExpressionException,
 			ParserConfigurationException {
 		ParserFieldMap fieldMap = getFieldMap();
 		fieldMap.remove(link);
+		onCancelFieldMapItem();
 	}
 
 	/**
@@ -516,4 +531,36 @@ public class ParserController extends CommonController {
 		getClient().saveParsers();
 	}
 
+	/**
+	 * @return the currentFieldMapItem
+	 */
+	public GenericLink<SourceField, ParserFieldTarget> getSelectedFieldMapItem() {
+		return selectedFieldMapItem;
+	}
+
+	/**
+	 * @param currentFieldMapItem
+	 *            the currentFieldMapItem to set
+	 * @throws SearchLibException
+	 */
+	public void setSelectedFieldMapItem(
+			GenericLink<SourceField, ParserFieldTarget> selectedFieldMapItem)
+			throws SearchLibException {
+		this.selectedFieldMapItem = selectedFieldMapItem;
+		selectedParserField = ParserFieldEnum.find(selectedFieldMapItem
+				.getSource().getUniqueName());
+		selectedIndexField = getClient().getSchema().getFieldList()
+				.get(selectedFieldMapItem.getTarget().getName());
+		captureRegexp = selectedFieldMapItem.getTarget().getCaptureRegexp();
+		removeTag = selectedFieldMapItem.getTarget().isRemoveTag();
+		reload();
+	}
+
+	public boolean isFieldMapItemSelected() {
+		return getSelectedFieldMapItem() != null;
+	}
+
+	public boolean isFieldMapItemNotSelected() {
+		return !isFieldMapItemSelected();
+	}
 }
