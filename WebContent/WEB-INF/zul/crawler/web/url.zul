@@ -182,7 +182,7 @@
 				<space width="50px" />
 				<listbox mold="select"
 					selectedItem="@bind(searchUrl.batchCommand)"
-					disabled="@load(searchUrl.urlManager.currentTaskLog)">
+					disabled="@load(searchUrl.urlManager.currentTaskLogExists)">
 					<listitem label="Select an action" value="nothing"
 						selected="true" />
 					<listitem label="Export URLs" value="exportTxt" />
