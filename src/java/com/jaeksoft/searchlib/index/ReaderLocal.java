@@ -37,7 +37,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
@@ -56,6 +55,7 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.util.OpenBitSet;
+import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -106,8 +106,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	private void init() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException {
-		this.indexReader = IndexReader.open(indexDirectory.getDirectory(),
-				indexConfig.getReadWriteMode() == IndexMode.READ_ONLY);
+		this.indexReader = IndexReader.open(indexDirectory.getDirectory());
 		indexSearcher = new IndexSearcher(indexReader);
 		if (similarityClass != null) {
 			Similarity similarity = (Similarity) Class.forName(similarityClass)
@@ -204,7 +203,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public Collection<?> getFieldNames() {
 		rwl.r.lock();
 		try {
-			return indexReader.getFieldNames(FieldOption.ALL);
+			return ReaderUtil.getIndexedFields(indexReader);
 		} finally {
 			rwl.r.unlock();
 		}

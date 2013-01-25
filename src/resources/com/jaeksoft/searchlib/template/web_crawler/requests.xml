@@ -2,7 +2,7 @@
 
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -39,9 +39,10 @@ contentExact:($$) OR contentExact:("$$") OR
 contentPhonetic:($$) OR contentPhonetic:("$$")
 ]]>
 		</query>
-		
+
 		<returnFields>
 			<field name="url" />
+			<field name="backlinkCount" />
 		</returnFields>
 
 		<snippet>
@@ -51,6 +52,10 @@ contentPhonetic:($$) OR contentPhonetic:("$$")
 				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
 				fragmenterClass="SentenceFragmenter" />
 		</snippet>
+		<advancedScore>
+			<scoreItem fieldName="backlinkCount" ascending="true"
+				weight="1.0" />
+		</advancedScore>
 
 	</request>
 

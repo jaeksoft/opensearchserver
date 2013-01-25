@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
@@ -32,7 +33,8 @@ public class LowerCaseFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.LowerCaseFilter(tokenStream);
+		return new org.apache.lucene.analysis.LowerCaseFilter(
+				Version.LUCENE_36, tokenStream);
 	}
 
 }

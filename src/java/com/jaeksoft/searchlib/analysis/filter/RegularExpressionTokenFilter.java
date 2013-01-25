@@ -61,7 +61,7 @@ public class RegularExpressionTokenFilter extends AbstractTermFilter {
 		currentPos = 0;
 
 		synchronized (matcher) {
-			matcher.reset(termAtt.term());
+			matcher.reset(termAtt.toString());
 			while (matcher.find()) {
 				int l = matcher.groupCount();
 				for (int i = 1; i <= l; i++)

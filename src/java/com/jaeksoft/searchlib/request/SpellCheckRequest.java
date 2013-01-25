@@ -190,7 +190,7 @@ public class SpellCheckRequest extends AbstractRequest {
 		Schema schema = config.getSchema();
 		SchemaFieldList schemaFieldList = schema.getFieldList();
 		SchemaField schemaField = schemaFieldList.get(fieldName);
-		QueryParser queryParser = new QueryParser(Version.LUCENE_29, fieldName,
+		QueryParser queryParser = new QueryParser(Version.LUCENE_36, fieldName,
 				schema.getAnalyzer(schemaField, lang).getQueryAnalyzer());
 		try {
 			queryParser.parse(queryString).extractTerms(set);

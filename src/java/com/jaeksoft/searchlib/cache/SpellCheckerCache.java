@@ -26,9 +26,11 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
 
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 
@@ -49,7 +51,8 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 			LuceneDictionary dict = reader.getLuceneDirectionary(key
 					.getFieldName());
 			SpellChecker spellchecker = new SpellChecker(new RAMDirectory());
-			spellchecker.indexDictionary(dict);
+			spellchecker.indexDictionary(dict, new IndexWriterConfig(
+					Version.LUCENE_36, null), true);
 
 			put(key, spellchecker);
 			return spellchecker;

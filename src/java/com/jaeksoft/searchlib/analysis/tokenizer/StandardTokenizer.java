@@ -34,7 +34,7 @@ public class StandardTokenizer extends TokenizerFactory {
 	@Override
 	public Tokenizer create(Reader reader) {
 		return new org.apache.lucene.analysis.standard.StandardTokenizer(
-				Version.LUCENE_29, reader);
+				Version.LUCENE_36, reader);
 	}
 
 }

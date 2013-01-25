@@ -43,10 +43,11 @@ public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 		if (!input.incrementToken())
 			return false;
 		try {
-			URL url = new URL(new String(termAtt.term()));
+			URL url = new URL(termAtt.toString());
 			InternetDomainName domainName = InternetDomainName.from(url
 					.getHost());
-			termAtt.setTermBuffer(domainName.topPrivateDomain().name());
+			termAtt.setEmpty();
+			termAtt.append(domainName.topPrivateDomain().name());
 		} catch (MalformedURLException e) {
 			if (silent)
 				return false;

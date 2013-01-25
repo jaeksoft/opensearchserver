@@ -56,7 +56,7 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 	}
 
 	private final void createTokens() throws EncoderException {
-		String encoded = encoder.encode(termAtt.term());
+		String encoded = encoder.encode(termAtt.toString());
 		wordQueue = StringUtils.split(encoded, '|');
 		currentPos = 0;
 	}

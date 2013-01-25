@@ -364,6 +364,7 @@ public class AnalyzersController extends CommonController {
 				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
 		testList = compiledAnalyzer.test(testText);
 		reload();
+		compiledAnalyzer.close();
 	}
 
 	public List<DebugTokenFilter> getTestList() {

@@ -79,7 +79,7 @@ public class JsonPathFilter extends FilterFactory {
 						return true;
 					if (!input.incrementToken())
 						return false;
-					Object object = jsonPath.read(termAtt.term());
+					Object object = jsonPath.read(termAtt.toString());
 					if (object == null) {
 						if (isDefaultValue())
 							return defaultValueToken();

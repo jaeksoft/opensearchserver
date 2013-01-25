@@ -72,7 +72,7 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 				return createToken(shingle);
 			if (!input.incrementToken())
 				return false;
-			addToken(new ShingleToken(termAtt.term(),
+			addToken(new ShingleToken(termAtt.toString(),
 					posIncrAtt.getPositionIncrement(), offsetAtt.startOffset(),
 					offsetAtt.endOffset()));
 		}

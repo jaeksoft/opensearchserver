@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -122,6 +122,7 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TermSetTokenFilter(termSet, ts);
 		ts.incrementToken();
+		ts.close();
 	}
 
 	public void populate(String text, FieldContent fieldContent)
@@ -130,6 +131,7 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		TokenStream ts = tokenStream(null, reader);
 		ts = new FieldContentPopulateFilter(fieldContent, ts);
 		ts.incrementToken();
+		ts.close();
 	}
 
 }

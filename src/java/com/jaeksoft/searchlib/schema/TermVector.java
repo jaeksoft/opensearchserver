@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public enum TermVector {
 
 	POSITIONS_OFFSETS(
@@ -38,6 +40,7 @@ public enum TermVector {
 			org.apache.lucene.document.Field.TermVector.NO);
 
 	final public String description;
+	@XmlTransient
 	final public org.apache.lucene.document.Field.TermVector luceneTermVector;
 	final public String value;
 

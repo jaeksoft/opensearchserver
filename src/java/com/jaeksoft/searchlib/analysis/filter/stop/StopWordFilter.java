@@ -55,7 +55,7 @@ public class StopWordFilter extends AbstractTermFilter {
 		for (;;) {
 			if (!input.incrementToken())
 				return false;
-			if (keepTerm(termAtt.term())) {
+			if (keepTerm(termAtt.toString())) {
 				posIncrAtt.setPositionIncrement(posIncrAtt
 						.getPositionIncrement() + skippedPositions);
 				return true;

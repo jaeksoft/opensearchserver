@@ -30,15 +30,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 public class DebugTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
 	private ClassFactory classFactory;
-	private TermAttribute termAtt;
+	private CharTermAttribute termAtt;
 	private PositionIncrementAttribute posIncrAtt;
 	private OffsetAttribute offsetAtt;
 	private List<String> termList;
@@ -51,7 +51,7 @@ public class DebugTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 		termList = new ArrayList<String>();
 		stateList = new ArrayList<AttributeSource.State>();
 		cacheIterator = null;
-		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
+		this.termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 		this.posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
 		this.offsetAtt = (OffsetAttribute) addAttribute(OffsetAttribute.class);
 	}
@@ -61,9 +61,9 @@ public class DebugTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 		if (cacheIterator == null) {
 			while (input.incrementToken()) {
 				stateList.add(captureState());
-				termList.add(termAtt.term() + " [" + offsetAtt.startOffset()
-						+ ',' + offsetAtt.endOffset() + " - "
-						+ posIncrAtt.getPositionIncrement() + ']');
+				termList.add(termAtt.toString() + " ["
+						+ offsetAtt.startOffset() + ',' + offsetAtt.endOffset()
+						+ " - " + posIncrAtt.getPositionIncrement() + ']');
 			}
 			cacheIterator = stateList.iterator();
 			return false;

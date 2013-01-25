@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.Reader;
 
 import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -43,12 +44,12 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 		private char[] charArray;
 
 		public LetterOrDigitTokenizer(Reader input, char[] charArray) {
-			super(input);
+			super(Version.LUCENE_36, input);
 			this.charArray = charArray;
 		}
 
 		@Override
-		final protected boolean isTokenChar(char c) {
+		final protected boolean isTokenChar(int c) {
 			if (Character.isLetterOrDigit(c))
 				return true;
 			for (char ch : charArray)

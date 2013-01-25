@@ -105,8 +105,12 @@ public class Analyzer {
 	public void recompile() {
 		rwl.w.lock();
 		try {
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			if (queryAnalyzer != null)
+				queryAnalyzer.close();
+			queryAnalyzer = null;
+			if (indexAnalyzer != null)
+				indexAnalyzer.close();
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -134,8 +138,8 @@ public class Analyzer {
 		rwl.w.lock();
 		try {
 			this.tokenizer = TokenizerFactory.create(tokenizer);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -161,8 +165,8 @@ public class Analyzer {
 		rwl.w.lock();
 		try {
 			this.filters = filters;
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -222,8 +226,8 @@ public class Analyzer {
 		rwl.w.lock();
 		try {
 			filters.add(filter);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -292,8 +296,8 @@ public class Analyzer {
 				return;
 			filters.remove(i);
 			filters.add(i - 1, filter);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -312,8 +316,8 @@ public class Analyzer {
 				return;
 			filters.remove(i);
 			filters.add(i + 1, filter);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -328,8 +332,8 @@ public class Analyzer {
 		rwl.w.lock();
 		try {
 			filters.remove(filter);
-			this.queryAnalyzer = null;
-			this.indexAnalyzer = null;
+			queryAnalyzer = null;
+			indexAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}

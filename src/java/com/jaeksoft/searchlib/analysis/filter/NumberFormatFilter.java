@@ -82,7 +82,8 @@ public class NumberFormatFilter extends FilterFactory {
 			if (!input.incrementToken())
 				return false;
 			try {
-				String term = numberFormat.format(new Double(termAtt.term()));
+				String term = numberFormat
+						.format(new Double(termAtt.toString()));
 				if (term != null)
 					createToken(term);
 			} catch (NumberFormatException e) {

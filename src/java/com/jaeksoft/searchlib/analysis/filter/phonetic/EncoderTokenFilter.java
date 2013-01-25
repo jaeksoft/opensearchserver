@@ -46,7 +46,7 @@ public class EncoderTokenFilter extends AbstractTermFilter {
 		if (!input.incrementToken())
 			return false;
 		try {
-			createToken(encoder.encode(termAtt.term()));
+			createToken(encoder.encode(termAtt.toString()));
 		} catch (EncoderException e) {
 			throw new IOException(e);
 		}

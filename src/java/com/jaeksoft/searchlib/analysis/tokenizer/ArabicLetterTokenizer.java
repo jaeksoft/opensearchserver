@@ -27,12 +27,14 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.util.Version;
 
 public class ArabicLetterTokenizer extends TokenizerFactory {
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.ar.ArabicLetterTokenizer(reader);
+		return new org.apache.lucene.analysis.ar.ArabicLetterTokenizer(
+				Version.LUCENE_36, reader);
 	}
 
 }

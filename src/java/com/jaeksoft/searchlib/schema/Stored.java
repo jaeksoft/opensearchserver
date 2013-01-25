@@ -36,7 +36,7 @@ public enum Stored {
 
 	COMPRESS(
 			"The content of this field is stored, and queries can thus return it. This setting is useful for large bodies of text.",
-			Store.COMPRESS);
+			Store.YES);
 
 	final private String description;
 	final public Store luceneStore;

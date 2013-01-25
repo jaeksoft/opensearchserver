@@ -122,7 +122,7 @@ public class IndexLookupFilter extends FilterFactory {
 					if (!input.incrementToken())
 						return false;
 					searchRequest.reset();
-					searchRequest.setQueryString(termAtt.term());
+					searchRequest.setQueryString(termAtt.toString());
 					AbstractResultSearch result = (AbstractResultSearch) indexClient
 							.request(searchRequest);
 					if (result.getNumFound() == 0)

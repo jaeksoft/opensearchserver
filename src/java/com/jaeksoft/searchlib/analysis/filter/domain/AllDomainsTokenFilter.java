@@ -53,7 +53,7 @@ public class AllDomainsTokenFilter extends CommonDomainTokenFilter {
 
 	private final void createTokens() throws MalformedURLException {
 		try {
-			URL url = new URL(new String(termAtt.term()));
+			URL url = new URL(termAtt.toString());
 			subDomainQueue = UrlItem.buildSubHost(url.getHost());
 			currentPos = 0;
 		} catch (MalformedURLException e) {

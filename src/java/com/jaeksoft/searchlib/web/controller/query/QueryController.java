@@ -305,6 +305,7 @@ public final class QueryController extends AbstractQueryController {
 			Client client = getClient();
 			client.getRequestMap().remove(selectedRequest);
 			client.saveRequests();
+			reload();
 			PushEvent.eventRequestListChange.publish(client);
 		}
 

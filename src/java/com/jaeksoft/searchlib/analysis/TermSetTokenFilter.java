@@ -28,26 +28,26 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
 	protected AttributeSource.State current = null;
-	private TermAttribute termAtt;
+	private CharTermAttribute termAtt;
 	private Set<String> termSet;
 
 	protected TermSetTokenFilter(Set<String> termSet, TokenStream input) {
 		super(input);
 		this.termSet = termSet;
-		this.termAtt = (TermAttribute) addAttribute(TermAttribute.class);
+		this.termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
 		current = captureState();
 		while (input.incrementToken())
-			termSet.add(termAtt.term());
+			termSet.add(termAtt.toString());
 		return false;
 	}
 

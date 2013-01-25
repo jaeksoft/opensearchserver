@@ -27,12 +27,14 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.util.Version;
 
 public class RussianLetterTokenizer extends TokenizerFactory {
 
 	@Override
 	public Tokenizer create(Reader reader) {
-		return new org.apache.lucene.analysis.ru.RussianLetterTokenizer(reader);
+		return new org.apache.lucene.analysis.ru.RussianLetterTokenizer(
+				Version.LUCENE_36, reader);
 	}
 
 }

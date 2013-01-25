@@ -76,8 +76,8 @@ public class DuplicateCharactersFilter extends AbstractTermFilter {
 		current = captureState();
 		if (!input.incrementToken())
 			return false;
-		String term = removeConsecutiveCharacters(termAtt.termBuffer(),
-				termAtt.termLength());
+		String term = removeConsecutiveCharacters(termAtt.buffer(),
+				termAtt.length());
 		if (term != null)
 			createToken(term);
 		return true;

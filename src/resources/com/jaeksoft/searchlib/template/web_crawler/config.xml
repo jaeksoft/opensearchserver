@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -238,6 +238,8 @@
 			<field name="subhost" indexed="yes" stored="no" />
 			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
+			<field name="backlinkCount" analyzer="IntegerAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
 		</fields>
 	</schema>
 

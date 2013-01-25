@@ -78,7 +78,7 @@ public class ExpressionLookupFilter extends FilterFactory {
 		public final boolean incrementToken() throws IOException {
 			current = captureState();
 			while (input.incrementToken()) {
-				if (words.match(termAtt.term()))
+				if (words.match(termAtt.toString()))
 					return true;
 			}
 			return false;

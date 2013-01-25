@@ -296,7 +296,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 			throws ParseException {
 		if (query != null)
 			return query;
-		QueryParser queryParser = new QueryParser(Version.LUCENE_29,
+		QueryParser queryParser = new QueryParser(Version.LUCENE_36,
 				defaultField.getName(), analyzer);
 		queryParser.setLowercaseExpandedTerms(false);
 		try {

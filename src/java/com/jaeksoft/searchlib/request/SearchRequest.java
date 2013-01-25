@@ -339,7 +339,7 @@ public class SearchRequest extends AbstractRequest implements
 		if (field == null)
 			throw new SearchLibException(
 					"Please select a default field in the schema");
-		queryParser = new QueryParser(Version.LUCENE_29, field.getName(),
+		queryParser = new QueryParser(Version.LUCENE_36, field.getName(),
 				checkAnalyzer());
 		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
 		queryParser.setPhraseSlop(phraseSlop);

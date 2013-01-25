@@ -32,11 +32,13 @@ import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -59,17 +61,11 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexSingle indexSingle;
 
-	private String similarityClass;
-
-	private int maxNumSegments;
-
 	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
 			IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
 		this.indexSingle = indexSingle;
 		this.indexDirectory = indexDirectory;
-		this.similarityClass = indexConfig.getSimilarityClass();
-		this.maxNumSegments = indexConfig.getMaxNumSegments();
 	}
 
 	private IndexWriter close(IndexWriter indexWriter) {
@@ -105,20 +101,17 @@ public class WriterLocal extends WriterAbstract {
 	private final IndexWriter open(boolean create)
 			throws CorruptIndexException, LockObtainFailedException,
 			IOException {
-		return new IndexWriter(indexDirectory.getDirectory(), null, create,
-				IndexWriter.MaxFieldLength.UNLIMITED);
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36,
+				null);
+		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
+		config.setMergeScheduler(new SerialMergeScheduler());
+		return new IndexWriter(indexDirectory.getDirectory(),
+				new IndexWriterConfig(Version.LUCENE_36, null));
 	}
 
 	private IndexWriter open() throws IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		IndexWriter indexWriter = open(false);
-		indexWriter.setMaxMergeDocs(1000000);
-		if (similarityClass != null) {
-			Similarity similarity = (Similarity) Class.forName(similarityClass)
-					.newInstance();
-			indexWriter.setSimilarity(similarity);
-		}
-		indexWriter.setMergeScheduler(new SerialMergeScheduler());
 		return indexWriter;
 	}
 
@@ -251,6 +244,7 @@ public class WriterLocal extends WriterAbstract {
 			SchemaField field = schema.getFieldList().get(fieldName);
 			if (field != null) {
 				Analyzer analyzer = schema.getAnalyzer(field, lang);
+				@SuppressWarnings("resource")
 				CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null
 						: analyzer.getIndexAnalyzer();
 				for (FieldValueItem valueItem : fieldContent.getValues()) {
@@ -274,7 +268,7 @@ public class WriterLocal extends WriterAbstract {
 		try {
 			indexWriter = open();
 			optimizing = true;
-			indexWriter.optimize(maxNumSegments, true);
+			indexWriter.optimize(true);
 			optimizing = false;
 			indexWriter = close(indexWriter);
 		} catch (IOException e) {

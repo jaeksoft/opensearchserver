@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,8 +41,9 @@ public class HostnameTokenFilter extends CommonDomainTokenFilter {
 		if (!input.incrementToken())
 			return false;
 		try {
-			URL url = new URL(new String(termAtt.term()));
-			termAtt.setTermBuffer(url.getHost());
+			URL url = new URL(termAtt.toString());
+			termAtt.setEmpty();
+			termAtt.append(url.getHost());
 		} catch (MalformedURLException e) {
 			if (silent)
 				return false;

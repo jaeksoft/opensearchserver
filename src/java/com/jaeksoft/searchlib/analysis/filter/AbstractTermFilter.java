@@ -25,9 +25,9 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 public abstract class AbstractTermFilter extends TokenFilter {
@@ -38,11 +38,11 @@ public abstract class AbstractTermFilter extends TokenFilter {
 
 	protected OffsetAttribute offsetAtt = null;
 
-	protected TermAttribute termAtt = null;
+	protected CharTermAttribute termAtt = null;
 
 	protected AbstractTermFilter(TokenStream input) {
 		super(input);
-		termAtt = (TermAttribute) addAttribute(TermAttribute.class);
+		termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 		posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
 		offsetAtt = (OffsetAttribute) addAttribute(OffsetAttribute.class);
 	}
@@ -54,7 +54,8 @@ public abstract class AbstractTermFilter extends TokenFilter {
 		if (term.length() == 0)
 			return false;
 		restoreState(current);
-		termAtt.setTermBuffer(term);
+		termAtt.setEmpty();
+		termAtt.append(term);
 		posIncrAtt.setPositionIncrement(posInc);
 		offsetAtt.setOffset(startOff, endOff);
 		return true;

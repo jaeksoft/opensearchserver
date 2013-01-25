@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -144,12 +144,13 @@ public class Schema {
 					.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
-			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
+			Map<String, org.apache.lucene.analysis.Analyzer> mapField = new TreeMap<String, org.apache.lucene.analysis.Analyzer>();
 			for (SchemaField field : fieldList) {
 				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
-					pfa.addAnalyzer(field.name, analyzer.getQueryAnalyzer());
+					mapField.put(field.name, analyzer.getQueryAnalyzer());
 			}
+			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer(), mapField);
 			langQueryAnalyzers.put(lang.getCode(), pfa);
 			return pfa;
 		} finally {
@@ -176,12 +177,13 @@ public class Schema {
 					.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
-			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer());
+			Map<String, org.apache.lucene.analysis.Analyzer> mapField = new TreeMap<String, org.apache.lucene.analysis.Analyzer>();
 			for (SchemaField field : fieldList) {
 				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
-					pfa.addAnalyzer(field.name, analyzer.getIndexAnalyzer());
+					mapField.put(field.name, analyzer.getIndexAnalyzer());
 			}
+			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer(), mapField);
 			langIndexAnalyzers.put(lang.getCode(), pfa);
 			return pfa;
 		} finally {

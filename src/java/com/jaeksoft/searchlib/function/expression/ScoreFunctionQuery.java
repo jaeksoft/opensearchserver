@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,9 @@
 
 package com.jaeksoft.searchlib.function.expression;
 
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.function.CustomScoreProvider;
 import org.apache.lucene.search.function.CustomScoreQuery;
 import org.apache.lucene.search.function.ValueSourceQuery;
 
@@ -38,6 +40,24 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 	private Query subQuery;
 
 	private Expression expression;
+
+	private class ScoreFunctionProvider extends CustomScoreProvider {
+
+		public ScoreFunctionProvider(IndexReader reader) {
+			super(reader);
+		}
+
+		@Override
+		public float customScore(int doc, float subQueryScore, float valSrcScore) {
+			return expression.getValue(subQueryScore, valSrcScore);
+		}
+
+		@Override
+		public float customScore(int doc, float subQueryScore,
+				float[] valSrcScores) {
+			return expression.getValue(subQueryScore, valSrcScores);
+		}
+	}
 
 	protected ScoreFunctionQuery(Query subQuery, Expression expression)
 			throws SyntaxError {
@@ -63,13 +83,8 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 	}
 
 	@Override
-	public float customScore(int doc, float subQueryScore, float valSrcScore) {
-		return expression.getValue(subQueryScore, valSrcScore);
-	}
-
-	@Override
-	public float customScore(int doc, float subQueryScore, float[] valSrcScores) {
-		return expression.getValue(subQueryScore, valSrcScores);
+	protected CustomScoreProvider getCustomScoreProvider(IndexReader reader) {
+		return new ScoreFunctionProvider(reader);
 	}
 
 	@Override

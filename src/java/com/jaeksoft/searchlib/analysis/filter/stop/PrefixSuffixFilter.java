@@ -63,7 +63,7 @@ public class PrefixSuffixFilter extends AbstractTermFilter {
 		for (;;) {
 			if (!input.incrementToken())
 				return false;
-			if (keepTerm(this.termAtt.term())) {
+			if (keepTerm(this.termAtt.toString())) {
 				posIncrAtt.setPositionIncrement(posIncrAtt
 						.getPositionIncrement() + skippedPositions);
 				return true;

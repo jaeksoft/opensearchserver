@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.snowball.SnowballFilter;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 
@@ -32,7 +33,7 @@ public class FrenchStemFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new org.apache.lucene.analysis.fr.FrenchStemFilter(tokenStream);
+		return new SnowballFilter(tokenStream, "French");
 	}
 
 }
