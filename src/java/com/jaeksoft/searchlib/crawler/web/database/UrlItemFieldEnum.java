@@ -86,4 +86,6 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField headers = new ItemField(this, "headers");
 
+	final public ItemField backlinkCount = new ItemField(this, "backlinkCount");
+
 }

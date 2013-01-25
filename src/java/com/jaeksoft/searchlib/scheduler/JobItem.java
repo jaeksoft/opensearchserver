@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.mail.EmailException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -38,6 +41,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -58,6 +62,10 @@ public class JobItem extends ExecutionAbstract {
 
 	private JobLog jobLog;
 
+	private boolean emailNotificationOnFailure;
+
+	private String emailRecipients;
+
 	public JobItem(String name) {
 		this.name = name;
 		tasks = new ArrayList<TaskItem>();
@@ -72,7 +80,9 @@ public class JobItem extends ExecutionAbstract {
 			job.rwl.r.lock();
 			try {
 				this.name = job.name;
-				setActive(job.isActive());
+				this.emailNotificationOnFailure = job.emailNotificationOnFailure;
+				this.emailRecipients = job.emailRecipients;
+				this.setActive(job.isActive());
 				tasks.clear();
 				for (TaskItem task : job.tasks)
 					tasks.add(task);
@@ -202,11 +212,13 @@ public class JobItem extends ExecutionAbstract {
 			return;
 		}
 		TaskLog taskLog = null;
+		TaskAbstract currentTask = null;
 		try {
 			boolean indexHasChanged = false;
 			long originalVersion = client.getIndex().getVersion();
 			List<TaskItem> taskList = getTaskListCopy();
 			for (TaskItem task : taskList) {
+				currentTask = task.getTask();
 				taskLog = new TaskLog(task, indexHasChanged);
 				addTaskLog(taskLog);
 				task.run(client, taskLog);
@@ -220,16 +232,44 @@ public class JobItem extends ExecutionAbstract {
 				taskLog.setError(e);
 			setLastError(e);
 			Logging.warn(e);
+			sendErrorEmail(e, currentTask);
 		} catch (Exception e) {
 			SearchLibException se = new SearchLibException(e);
 			if (taskLog != null)
 				taskLog.setError(se);
 			setLastError(se);
 			Logging.warn(e);
+			sendErrorEmail(e, currentTask);
 		} finally {
 			if (taskLog != null)
 				taskLog.end();
 			runningEnd();
+		}
+	}
+
+	private void sendErrorEmail(Exception error, TaskAbstract currentTask) {
+		if (!isEmailNotificationOnFailure())
+			return;
+		Mailer email = null;
+		try {
+			email = new Mailer(false, getEmailRecipients(),
+					"OpenSearchServer Scheduler Error: " + getName());
+			PrintWriter pw = email.getTextPrintWriter();
+			pw.println("The scheduler job has failed.");
+			pw.print("Name of the job: ");
+			pw.println(getName());
+			if (currentTask != null) {
+				pw.print("Current task: ");
+				pw.println(currentTask.getName());
+			}
+			pw.print("Error message: ");
+			pw.println(error.getMessage());
+			email.send();
+		} catch (EmailException e) {
+			Logging.error(e);
+		} finally {
+			if (email != null)
+				IOUtils.closeQuietly(email);
 		}
 	}
 
@@ -238,7 +278,9 @@ public class JobItem extends ExecutionAbstract {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement("job", "name", name, "active",
-					isActive() ? "yes" : "no");
+					isActive() ? "yes" : "no", "emailNotificationOnFailure",
+					emailNotificationOnFailure ? "yes" : "no",
+					"emailRecipients", emailRecipients);
 			cron.writeXml(xmlWriter);
 			for (TaskItem task : tasks)
 				task.writeXml(xmlWriter);
@@ -255,7 +297,13 @@ public class JobItem extends ExecutionAbstract {
 				node, "active"));
 		if (name == null)
 			return null;
+		boolean emailNotificationOnFailure = "yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(node, "emailNotificationOnFailure"));
+		String emailRecipients = XPathParser.getAttributeString(node,
+				"emailRecipients");
 		JobItem jobItem = new JobItem(name);
+		jobItem.setEmailNotificationOnFailure(emailNotificationOnFailure);
+		jobItem.setEmailRecipients(emailRecipients);
 		Node cronNode = xpp.getNode(node, "cron");
 		if (cronNode != null)
 			jobItem.getCron().fromXml(cronNode);
@@ -351,6 +399,56 @@ public class JobItem extends ExecutionAbstract {
 		rwl.w.lock();
 		try {
 			this.name = name;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the emailNotificationOnFailure
+	 */
+	public boolean isEmailNotificationOnFailure() {
+		rwl.r.lock();
+		try {
+			return emailNotificationOnFailure;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param emailNotificationOnFailure
+	 *            the emailNotificationOnFailure to set
+	 */
+	public void setEmailNotificationOnFailure(boolean emailNotificationOnFailure) {
+		rwl.w.lock();
+		try {
+			this.emailNotificationOnFailure = emailNotificationOnFailure;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the emailRecipients
+	 */
+	public String getEmailRecipients() {
+		rwl.r.lock();
+		try {
+			return emailRecipients;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param emailRecipients
+	 *            the emailRecipients to set
+	 */
+	public void setEmailRecipients(String emailRecipients) {
+		rwl.w.lock();
+		try {
+			this.emailRecipients = emailRecipients;
 		} finally {
 			rwl.w.unlock();
 		}

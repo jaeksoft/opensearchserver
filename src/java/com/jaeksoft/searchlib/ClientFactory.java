@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,22 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<Integer> booleanQueryMaxClauseCount;
 
+	private PropertyItem<String> smtpHostname;
+
+	private PropertyItem<Integer> smtpPort;
+
+	private PropertyItem<Boolean> smtpUseSsl;
+
+	private PropertyItem<Boolean> smtpUseTls;
+
+	private PropertyItem<String> smtpSenderEmail;
+
+	private PropertyItem<String> smtpSenderName;
+
+	private PropertyItem<String> smtpUsername;
+
+	private PropertyItem<String> smtpPassword;
+
 	private PropertyManager advancedProperties;
 
 	public ClientFactory() throws SearchLibException {
@@ -64,6 +80,30 @@ public class ClientFactory implements PropertyItemListener {
 			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
 					.getValue());
 			booleanQueryMaxClauseCount.addListener(this);
+			smtpHostname = advancedProperties.newStringProperty("smtpHostname",
+					"localhost");
+			smtpHostname.addListener(this);
+			smtpPort = advancedProperties.newIntegerProperty("smtpPort", 25, 1,
+					65536);
+			smtpPort.addListener(this);
+			smtpUseSsl = advancedProperties.newBooleanProperty("smtpUseSsl",
+					false);
+			smtpUseSsl.addListener(this);
+			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls",
+					false);
+			smtpUseTls.addListener(this);
+			smtpSenderEmail = advancedProperties.newStringProperty(
+					"smtpSenderEmail", "no-reply@open-search-server.com");
+			smtpSenderEmail.addListener(this);
+			smtpSenderName = advancedProperties.newStringProperty(
+					"smtpSenderName", "");
+			smtpSenderName.addListener(this);
+			smtpUsername = advancedProperties.newStringProperty("smtpUsername",
+					"");
+			smtpUsername.addListener(this);
+			smtpPassword = advancedProperties.newStringProperty("smtpPassword",
+					"");
+			smtpPassword.addListener(this);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -108,16 +148,47 @@ public class ClientFactory implements PropertyItemListener {
 		return booleanQueryMaxClauseCount;
 	}
 
+	public PropertyItem<String> getSmtpHostname() {
+		return smtpHostname;
+	}
+
+	public PropertyItem<Integer> getSmtpPort() {
+		return smtpPort;
+	}
+
+	public PropertyItem<Boolean> getSmtpUseSsl() {
+		return smtpUseSsl;
+	}
+
+	public PropertyItem<Boolean> getSmtpUseTls() {
+		return smtpUseTls;
+	}
+
+	public PropertyItem<String> getSmtpSenderEmail() {
+		return smtpSenderEmail;
+	}
+
+	public PropertyItem<String> getSmtpSenderName() {
+		return smtpSenderName;
+	}
+
+	public PropertyItem<String> getSmtpUsername() {
+		return smtpUsername;
+	}
+
+	public PropertyItem<String> getSmtpPassword() {
+		return smtpPassword;
+	}
+
 	@Override
 	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
-		if (prop == booleanQueryMaxClauseCount) {
+		if (prop == booleanQueryMaxClauseCount)
 			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
 					.getValue());
-			try {
-				advancedProperties.save();
-			} catch (IOException e) {
-				throw new SearchLibException(e);
-			}
+		try {
+			advancedProperties.save();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		}
 	}
 

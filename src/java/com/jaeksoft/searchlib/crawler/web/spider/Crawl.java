@@ -271,6 +271,9 @@ public class Crawl {
 					urlItem.setRedirectionUrl(redirectUrlLocation.toURL()
 							.toExternalForm());
 
+				urlItem.setBacklinkCount(config.getUrlManager().countBackLinks(
+						urlItem.getUrl()));
+
 				if (code >= 200 && code < 300) {
 					if (!fromCache)
 						is = ClientCatalog.getCrawlCacheManager().storeCache(

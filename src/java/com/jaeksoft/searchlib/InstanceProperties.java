@@ -1,9 +1,7 @@
-package com.jaeksoft.searchlib;
-
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +22,8 @@ package com.jaeksoft.searchlib;
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
+package com.jaeksoft.searchlib;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,7 +35,6 @@ import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -88,14 +87,6 @@ public class InstanceProperties {
 
 	private final static String LIMIT_REQUEST_PER_MONTH = "requestPerMonth";
 
-	private final static String MAILER_URL = "mailerUrl";
-
-	private final static String MAILER_FROM_EMAIL = "mailerFromEmail";
-
-	private final static String MAILER_FROM_NAME = "mailerFromName";
-
-	private final Mailer mailer;
-
 	public InstanceProperties(File xmlFile)
 			throws ParserConfigurationException, SAXException, IOException,
 			XPathExpressionException, URISyntaxException {
@@ -126,10 +117,6 @@ public class InstanceProperties {
 				requestPerMonth = XPathParser.getAttributeValue(node,
 						LIMIT_REQUEST_PER_MONTH);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
-				mailer = new Mailer(XPathParser.getAttributeString(node,
-						MAILER_URL), XPathParser.getAttributeString(node,
-						MAILER_FROM_EMAIL), XPathParser.getAttributeString(
-						node, MAILER_FROM_NAME));
 				return;
 			}
 		} else
@@ -142,7 +129,6 @@ public class InstanceProperties {
 		maxApiRate = 0;
 		minApiDelay = 0;
 		requestPerMonth = 0;
-		mailer = null;
 	}
 
 	/**
@@ -344,13 +330,6 @@ public class InstanceProperties {
 		sb.append(" - chroot: ");
 		sb.append(chroot);
 		return sb.toString();
-	}
-
-	/**
-	 * @return the mailer
-	 */
-	public Mailer getMailer() {
-		return mailer;
 	}
 
 }

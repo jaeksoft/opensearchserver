@@ -58,15 +58,12 @@ public class AdvancedComposer extends CommonController {
 		new AlertController("OK");
 	}
 
-	@Command
-	public void onCheckHocr2pdf() throws SearchLibException,
-			InterruptedException {
-		ClientCatalog.getOcrManager().checkHocr2pdf();
-		new AlertController("OK");
-	}
-
 	public PropertyItem<Integer> getMaxClauseCount() {
 		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
+	}
+
+	public ClientFactory getClientFactory() {
+		return ClientFactory.INSTANCE;
 	}
 
 	public TesseractLanguageEnum[] getTesseractLanguageEnum() {

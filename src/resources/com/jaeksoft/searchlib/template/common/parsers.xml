@@ -109,7 +109,7 @@
 			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
-	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
+	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser" url_fragment="remove"
 		sizeLimit="33554432" defaultCharset="UTF-8">
 		<contentType>text/html</contentType>
 		<extension>htm</extension>

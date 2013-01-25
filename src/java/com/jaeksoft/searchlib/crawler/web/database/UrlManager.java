@@ -360,6 +360,26 @@ public class UrlManager extends AbstractManager {
 				.name());
 	}
 
+	public int countBackLinks(String url) throws SearchLibException {
+		try {
+			SearchRequest searchRequest = (SearchRequest) urlDbClient
+					.getNewRequest("urlExport");
+			StringBuffer sb = new StringBuffer();
+			urlItemFieldEnum.inlink.addQuery(sb, url, true);
+			sb.append(" OR");
+			urlItemFieldEnum.outlink.addQuery(sb, url, true);
+			urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
+					ParserStatus.PARSED.value, false, false);
+			searchRequest.setQueryString(sb.toString());
+			searchRequest.setRows(0);
+			AbstractResultSearch result = (AbstractResultSearch) urlDbClient
+					.request(searchRequest);
+			return result.getNumFound();
+		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 	public SearchRequest getSearchRequest(SearchTemplate urlSearchTemplate,
 			String like, String host, boolean includingSubDomain, String lang,
 			String langMethod, String contentBaseType,
@@ -452,7 +472,7 @@ public class UrlManager extends AbstractManager {
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
-				DecimalFormat df = UrlItem.getContentLengthFormat();
+				DecimalFormat df = UrlItem.getLongFormat();
 				if (minContentLength == null)
 					from = df.format(0);
 				else
@@ -610,9 +630,10 @@ public class UrlManager extends AbstractManager {
 				TargetStatus targetStatus = crawl.getUrlItem()
 						.getTargetResult();
 
-				if (targetStatus == TargetStatus.TARGET_UPDATE)
-					documentsToUpdate.add(indexDocument);
-				else if (targetStatus == TargetStatus.TARGET_DELETE)
+				if (targetStatus == TargetStatus.TARGET_UPDATE) {
+					if (indexDocument != null)
+						documentsToUpdate.add(indexDocument);
+				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(crawl.getUrlItem().getUrl());
 			}
 			if (documentsToUpdate.size() > 0)

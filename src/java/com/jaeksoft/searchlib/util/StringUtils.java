@@ -174,10 +174,12 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 		while (matcher.find()) {
 			boolean allowed = false;
 			String group = matcher.group();
-			for (String tag : allowedTags) {
-				if (tag.equals(group)) {
-					allowed = true;
-					break;
+			if (allowedTags != null) {
+				for (String tag : allowedTags) {
+					if (tag.equals(group)) {
+						allowed = true;
+						break;
+					}
 				}
 			}
 			matcher.appendReplacement(sb, allowed ? group : "");

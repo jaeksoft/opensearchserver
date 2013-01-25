@@ -37,6 +37,16 @@
 							checked="@bind(scheduleredit.currentJob.active)" />
 					</row>
 					<row>
+						<label value="Email notification: " />
+						<checkbox label="Send e-mail on failure"
+							checked="@bind(scheduleredit.currentJob.emailNotificationOnFailure)" />
+					</row>
+					<row>
+						<label value="Email recipients: " />
+						<textbox
+							value="@bind(scheduleredit.currentJob.emailRecipients)" />
+					</row>
+					<row>
 						<vbox>
 							<label value="Cron expression " />
 							<button target="_blank"

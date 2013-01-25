@@ -66,7 +66,6 @@ public class LogsController extends CommonController {
 		int i = 0;
 		for (File file : files)
 			names[i++] = file.getName();
-		System.out.println(names.length);
 		return names;
 	}
 

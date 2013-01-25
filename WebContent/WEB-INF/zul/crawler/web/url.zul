@@ -140,6 +140,8 @@
 						checked="@bind(searchUrl.withSubDomain)" />
 				</vbox>
 			</listheader>
+			<listheader label="Links" tooltiptext="Backlink count"
+				valign="top" />
 		</listhead>
 		<template name="model" var="url">
 			<listitem>
@@ -160,10 +162,11 @@
 				<listcell label="@load(url.parserStatus.name)" />
 				<listcell label="@load(url.indexStatus.name)" />
 				<listcell label="@load(url.host)" />
+				<listcell label="@load(url.backlinkCount)" />
 			</listitem>
 		</template>
 		<listfoot>
-			<listfooter span="15">
+			<listfooter span="16">
 				<paging id="paging" detailed="true"
 					totalSize="@load(searchUrl.totalSize)"
 					pageSize="@load(searchUrl.pageSize)"

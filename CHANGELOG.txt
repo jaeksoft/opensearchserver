@@ -18,6 +18,8 @@ New features:
 - 248: Upgrade ZK CE to 6.5
 - 247: Support of additional characters in LetterOrDigitTokenizer
 - 246: Named entity recognition based on a search request
+- 245: Highlighting in PDF documents and images (OCR)
+- 243: RSS Parser
 
 OpenSearchServer 1.3.1
 

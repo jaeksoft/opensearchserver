@@ -25,14 +25,11 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import org.apache.commons.mail.HtmlEmail;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.statistics.Aggregate;
 import com.jaeksoft.searchlib.statistics.StatisticPeriodEnum;
 import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
@@ -81,6 +78,7 @@ public class ReportServlet extends AbstractServlet {
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
+		Mailer email = null;
 		try {
 			Client client = ClientCatalog.getClient(transaction
 					.getParameterString("use"));
@@ -88,30 +86,24 @@ public class ReportServlet extends AbstractServlet {
 			String emails = transaction.getParameterString("emails");
 			if (emails == null)
 				return;
-			HtmlEmail htmlEmail = ClientFactory.INSTANCE.properties.getMailer()
-					.getHtmlEmail(emails, null);
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
+			email = new Mailer(true, emails, null);
 			if ("statistics".equals(report)) {
-				htmlEmail.setSubject("OpenSearchServer statistics report");
+				email.setSubject("OpenSearchServer statistics report");
 				doStatistics(client, transaction.getParameterString("stat"),
-						transaction.getParameterString("period"), pw);
+						transaction.getParameterString("period"),
+						email.getHtmlPrintWriter());
 			}
-			pw.close();
-			sw.close();
-			String html = sw.toString();
-			if (html == null || html.length() == 0) {
+			if (email.isEmpty()) {
 				transaction.addXmlResponse("Result", "Nothing to send");
 			} else {
-				htmlEmail.setHtmlMsg(sw.toString());
-				htmlEmail
-						.setTextMsg("Your email client does not support HTML messages");
-				htmlEmail.send();
+				email.send();
+				transaction.addXmlResponse("MailSent", emails);
 			}
-			transaction.addXmlResponse("MailSent", emails);
 		} catch (Exception e) {
 			throw new ServletException(e);
+		} finally {
+			if (email != null)
+				email.close();
 		}
 	}
-
 }

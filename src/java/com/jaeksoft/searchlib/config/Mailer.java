@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * 
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,55 +22,142 @@
  **/
 package com.jaeksoft.searchlib.config;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.Closeable;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.apache.commons.mail.SimpleEmail;
 
-public class Mailer {
+import com.jaeksoft.searchlib.ClientFactory;
 
-	private final String smtp_host;
-	private final String username;
-	private final String password;
-	private final boolean use_ssl;
-	private final int smtp_port;
-	private final String from_email;
-	private final String from_name;
+public class Mailer implements Closeable {
 
-	public Mailer(String url, String from_email, String from_name)
-			throws URISyntaxException {
-		URI uri = null;
-		if (url != null && url.length() > 0)
-			uri = new URI(url);
-		this.smtp_host = uri == null ? "localhost" : uri.getHost();
-		this.username = uri == null ? null : uri.getUserInfo();
-		this.password = uri == null ? null : uri.getAuthority();
-		this.smtp_port = uri == null ? 25 : uri.getPort();
-		this.use_ssl = smtp_port != 25;
-		this.from_email = from_email;
-		this.from_name = from_name;
+	private final Email email;
+	private PrintWriter textPrintWriter;
+	private PrintWriter htmlPrintWriter;
+	private StringWriter textStringWriter;
+	private StringWriter htmlStringWriter;
+
+	public Mailer(boolean isHtml, String toRecipients, String subject)
+			throws EmailException {
+		email = isHtml ? new HtmlEmail() : new SimpleEmail();
+		setupTransport();
+		setupContent(toRecipients, subject);
+		textPrintWriter = null;
+		htmlPrintWriter = null;
+		textStringWriter = null;
+		htmlStringWriter = null;
 	}
 
-	public HtmlEmail getHtmlEmail(String dest_emails, String subject)
-			throws EmailException {
-		HtmlEmail htmlEmail = new HtmlEmail();
-		htmlEmail.setHostName(smtp_host);
+	public void send() throws EmailException {
+		if (email instanceof HtmlEmail) {
+			HtmlEmail htmlEmail = (HtmlEmail) email;
+			if (htmlStringWriter != null)
+				htmlEmail.setHtmlMsg(htmlStringWriter.toString());
+			if (textStringWriter != null)
+				htmlEmail.setTextMsg(textStringWriter.toString());
+			else
+				htmlEmail.setTextMsg("This message contains an HTML content");
+		} else if (email instanceof SimpleEmail) {
+			SimpleEmail simpleEmail = (SimpleEmail) email;
+			if (textStringWriter != null)
+				simpleEmail.setMsg(textStringWriter.toString());
+		}
+		if (textStringWriter != null)
+			email.send();
+	}
+
+	@Override
+	public void close() {
+		if (textPrintWriter != null) {
+			IOUtils.closeQuietly(textPrintWriter);
+			textPrintWriter = null;
+		}
+		if (htmlPrintWriter != null) {
+			IOUtils.closeQuietly(htmlPrintWriter);
+			htmlPrintWriter = null;
+		}
+		if (textStringWriter != null) {
+			IOUtils.closeQuietly(textStringWriter);
+			textStringWriter = null;
+		}
+		if (htmlStringWriter != null) {
+			IOUtils.closeQuietly(htmlStringWriter);
+			htmlStringWriter = null;
+		}
+	}
+
+	private void setupTransport() throws EmailException {
+		String hostname = ClientFactory.INSTANCE.getSmtpHostname().getValue();
+		if (hostname == null || hostname.length() == 0)
+			throw new EmailException("The SMTP hostname is not setup");
+		email.setHostName(hostname);
+		String username = ClientFactory.INSTANCE.getSmtpUsername().getValue();
+		String password = ClientFactory.INSTANCE.getSmtpPassword().getValue();
 		if (username != null && password != null && username.length() > 0
 				&& password.length() > 0)
-			htmlEmail.setAuthentication(username, password);
-		htmlEmail.setSSL(use_ssl);
-		htmlEmail.setSmtpPort(smtp_port);
-		htmlEmail.setFrom(from_email, from_name);
+			email.setAuthentication(username, password);
+		boolean useSSL = ClientFactory.INSTANCE.getSmtpUseSsl().getValue();
+		boolean useTLS = ClientFactory.INSTANCE.getSmtpUseTls().getValue();
+		int port = ClientFactory.INSTANCE.getSmtpPort().getValue();
+		email.setSmtpPort(port);
+		email.setSSLOnConnect(useSSL);
+		email.setStartTLSEnabled(useTLS);
+		if (useSSL)
+			email.setSslSmtpPort(Integer.toString(port));
+		String senderEmail = ClientFactory.INSTANCE.getSmtpSenderEmail()
+				.getValue();
+		String senderName = ClientFactory.INSTANCE.getSmtpSenderName()
+				.getValue();
+		if (senderEmail == null || senderEmail.length() == 0)
+			throw new EmailException("The SMTP sender e-mail is not setup");
+		email.setFrom(senderEmail, senderName);
+	}
+
+	private void setupContent(String dest_emails, String subject)
+			throws EmailException {
 		if (dest_emails != null) {
 			String[] emailList = StringUtils.split(dest_emails, ',');
-			for (String email : emailList)
-				htmlEmail.addTo(email);
+			for (String address : emailList)
+				email.addTo(address);
 		}
+		setSubject(subject);
+	}
+
+	public void setSubject(String subject) {
 		if (subject != null)
-			htmlEmail.setSubject(subject);
-		return htmlEmail;
+			email.setSubject(subject);
+	}
+
+	public PrintWriter getTextPrintWriter() {
+		if (textPrintWriter != null)
+			return textPrintWriter;
+		textStringWriter = new StringWriter();
+		textPrintWriter = new PrintWriter(textStringWriter);
+		return textPrintWriter;
+	}
+
+	public PrintWriter getHtmlPrintWriter() {
+		if (htmlPrintWriter != null)
+			return htmlPrintWriter;
+		htmlStringWriter = new StringWriter();
+		htmlPrintWriter = new PrintWriter(htmlStringWriter);
+		return htmlPrintWriter;
+	}
+
+	public boolean isEmpty() {
+		if (textStringWriter != null)
+			if (textStringWriter.getBuffer().length() > 0)
+				return false;
+		if (htmlStringWriter != null)
+			if (htmlStringWriter.getBuffer().length() > 0)
+				return false;
+		return true;
 	}
 
 }

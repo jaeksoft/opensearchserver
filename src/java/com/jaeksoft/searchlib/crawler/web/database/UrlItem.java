@@ -74,6 +74,7 @@ public class UrlItem {
 	private String redirectionUrl;
 	private LinkItem.Origin origin;
 	private List<String> headers;
+	private int backlinkCount;
 
 	protected UrlItem() {
 		url = null;
@@ -103,6 +104,7 @@ public class UrlItem {
 		redirectionUrl = null;
 		origin = null;
 		headers = null;
+		backlinkCount = 0;
 	}
 
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
@@ -145,6 +147,8 @@ public class UrlItem {
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
 				urlItemFieldEnum.origin.getName(), 0)));
 		addHeaders(doc.getValueArray(urlItemFieldEnum.headers.getName()));
+		setBacklinkCount(doc.getValueContent(
+				urlItemFieldEnum.backlinkCount.getName(), 0));
 	}
 
 	private void addHeaders(FieldValueItem[] headersList) {
@@ -293,11 +297,10 @@ public class UrlItem {
 		if (v.length() == 0)
 			return;
 		try {
-			contentLength = getContentLengthFormat().parse(v).longValue();
+			contentLength = getLongFormat().parse(v).longValue();
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 		}
-
 	}
 
 	public void setContentLength(Long v) {
@@ -485,7 +488,7 @@ public class UrlItem {
 		return new SimpleDateFormat("yyyyMMddHHmmss");
 	}
 
-	final static DecimalFormat getContentLengthFormat() {
+	final static DecimalFormat getLongFormat() {
 		return new DecimalFormat("00000000000000");
 	}
 
@@ -566,7 +569,7 @@ public class UrlItem {
 					contentTypeCharset);
 		if (contentLength != null)
 			indexDocument.setString(urlItemFieldEnum.contentLength.getName(),
-					getContentLengthFormat().format(contentLength));
+					getLongFormat().format(contentLength));
 		if (contentEncoding != null)
 			indexDocument.setString(urlItemFieldEnum.contentEncoding.getName(),
 					contentEncoding);
@@ -602,6 +605,8 @@ public class UrlItem {
 		if (headers != null)
 			indexDocument.setStringList(urlItemFieldEnum.headers.getName(),
 					headers);
+		indexDocument.setString(urlItemFieldEnum.backlinkCount.getName(),
+				getLongFormat().format(backlinkCount));
 	}
 
 	public String getLang() {
@@ -668,4 +673,34 @@ public class UrlItem {
 		this.headers = headers;
 	}
 
+	/**
+	 * @return the backLinkCount
+	 */
+	public int getBacklinkCount() {
+		return backlinkCount;
+	}
+
+	/**
+	 * @param backLinkCount
+	 *            the backLinkCount to set
+	 */
+	private void setBacklinkCount(String v) {
+		if (v == null)
+			return;
+		if (v.length() == 0)
+			return;
+		try {
+			backlinkCount = getLongFormat().parse(v).intValue();
+		} catch (ParseException e) {
+			Logging.error(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * @param backLinkCount
+	 *            the backLinkCount to set
+	 */
+	public void setBacklinkCount(int backLinkCount) {
+		this.backlinkCount = backLinkCount;
+	}
 }

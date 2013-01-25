@@ -51,7 +51,8 @@
 				termVector="no" />
 			<field name="origin" indexed="yes" stored="no" termVector="no" />
 			<field name="headers" indexed="yes" stored="no" termVector="no" />
-
+			<field name="backlinkCount" indexed="yes" stored="no"
+				termVector="no" />
 		</fields>
 	</schema>
 	<requests>
@@ -62,7 +63,7 @@
 				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
 				lang,langMethod,when,responseCode,
 				robotsTxtStatus,parserStatus,fetchStatus,indexStatus,
-				md5size,lastModifiedDate,parentUrl,origin
+				md5size,lastModifiedDate,parentUrl,origin,headers,backlinkCount
 			</returnFields>
 		</request>
 		<request name="urlExport" defaultOperator="and" start="0"
