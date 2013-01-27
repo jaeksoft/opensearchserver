@@ -152,11 +152,15 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 	}
 
 	private final long purge(File[] files, long expiration) throws IOException {
+		if (files == null)
+			return 0;
 		long count = 0;
 		for (File file : files) {
 			if (file.isDirectory()) {
 				count += purge(file.listFiles(), expiration);
 				File[] fs = file.listFiles();
+				if (fs == null)
+					continue;
 				if (fs.length == 0)
 					if (file.delete())
 						count++;

@@ -64,6 +64,8 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<String> smtpPassword;
 
+	private PropertyItem<Integer> schedulerThreadPoolSize;
+
 	private PropertyManager advancedProperties;
 
 	public ClientFactory() throws SearchLibException {
@@ -104,6 +106,9 @@ public class ClientFactory implements PropertyItemListener {
 			smtpPassword = advancedProperties.newStringProperty("smtpPassword",
 					"");
 			smtpPassword.addListener(this);
+			schedulerThreadPoolSize = advancedProperties.newIntegerProperty(
+					"schedulerThreadPoolSize", 20, 1, 200);
+			schedulerThreadPoolSize.addListener(this);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -178,6 +183,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<String> getSmtpPassword() {
 		return smtpPassword;
+	}
+
+	public PropertyItem<Integer> getSchedulerThreadPoolSize() {
+		return schedulerThreadPoolSize;
 	}
 
 	@Override

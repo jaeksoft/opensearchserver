@@ -48,38 +48,54 @@ import org.quartz.impl.DirectSchedulerFactory;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.SimpleLock;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class TaskManager implements Job {
 
-	private final static SimpleLock lock = new SimpleLock();
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private static Scheduler scheduler = null;
+	private Scheduler scheduler;
 
-	private static DirectSchedulerFactory schedulerFactory = null;
+	private DirectSchedulerFactory schedulerFactory;
 
-	public static void start() throws SearchLibException {
-		lock.rl.lock();
+	private final static TaskManager INSTANCE = new TaskManager();
+
+	private int threadPoolSize;
+
+	public static TaskManager getInstance() {
+		return INSTANCE;
+	}
+
+	private TaskManager() {
+		scheduler = null;
+		schedulerFactory = null;
+	}
+
+	public void start() throws SearchLibException {
+		rwl.w.lock();
 		try {
 			if (scheduler == null) {
 				if (schedulerFactory == null)
 					schedulerFactory = DirectSchedulerFactory.getInstance();
-				schedulerFactory.createVolatileScheduler(50);
+				threadPoolSize = ClientFactory.INSTANCE
+						.getSchedulerThreadPoolSize().getValue();
+				schedulerFactory.createVolatileScheduler(threadPoolSize);
 				scheduler = schedulerFactory.getScheduler();
 			}
 			scheduler.start();
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.rl.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	public static void stop() throws SearchLibException {
-		lock.rl.lock();
+	public void stop() throws SearchLibException {
+		rwl.w.lock();
 		try {
 			if (scheduler != null) {
 				scheduler.shutdown();
@@ -88,18 +104,18 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.rl.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	private static void checkSchedulerAvailable() throws SearchLibException {
+	private void checkSchedulerAvailable() throws SearchLibException {
 		if (scheduler == null)
 			throw new SearchLibException("The scheduler is not availalbe.");
 	}
 
-	public static void cronJob(String indexName, String jobName,
+	public void cronJob(String indexName, String jobName,
 			TaskCronExpression cron) throws SearchLibException {
-		lock.rl.lock();
+		rwl.w.lock();
 		try {
 			checkSchedulerAvailable();
 			Trigger trigger = newTrigger().withIdentity(jobName, indexName)
@@ -130,7 +146,7 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.rl.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -142,7 +158,7 @@ public class TaskManager implements Job {
 	 * @throws SearchLibException
 	 * @throws NamingException
 	 */
-	public static void executeJob(String indexName, String jobName)
+	public void executeJob(String indexName, String jobName)
 			throws SearchLibException, NamingException {
 		Client client = ClientCatalog.getClient(indexName);
 		if (client == null)
@@ -162,7 +178,7 @@ public class TaskManager implements Job {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public static ImmediateExecution executeJob(Client client, JobItem jobItem)
+	public ImmediateExecution executeJob(Client client, JobItem jobItem)
 			throws InterruptedException {
 		ImmediateExecution execution = new ImmediateExecution(client, jobItem);
 		client.getThreadPool().execute(execution);
@@ -190,20 +206,20 @@ public class TaskManager implements Job {
 		return execution;
 	}
 
-	public static void removeJob(String indexName, String jobName)
+	public void removeJob(String indexName, String jobName)
 			throws SearchLibException {
-		lock.rl.lock();
+		rwl.w.lock();
 		try {
 			scheduler.deleteJob(jobKey(jobName, indexName));
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.rl.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	public static void removeJobs(String indexName) throws SearchLibException {
-		lock.rl.lock();
+	public void removeJobs(String indexName) throws SearchLibException {
+		rwl.w.lock();
 		try {
 			Set<JobKey> jobKeySet = scheduler
 					.getJobKeys(jobGroupEquals(indexName));
@@ -212,13 +228,12 @@ public class TaskManager implements Job {
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
-			lock.rl.unlock();
+			rwl.w.unlock();
 		}
 	}
 
-	public static String[] getActiveJobs(String indexName)
-			throws SchedulerException {
-		lock.rl.lock();
+	public String[] getActiveJobs(String indexName) throws SchedulerException {
+		rwl.r.lock();
 		try {
 			Set<JobKey> jobKeySet = scheduler
 					.getJobKeys(jobGroupEquals(indexName));
@@ -228,7 +243,7 @@ public class TaskManager implements Job {
 				jobs[i++] = jobKey.getName();
 			return jobs;
 		} finally {
-			lock.rl.unlock();
+			rwl.r.unlock();
 		}
 	}
 
@@ -237,14 +252,52 @@ public class TaskManager implements Job {
 			throws JobExecutionException {
 		if (StartStopListener.isShutdown())
 			throw new JobExecutionException("Aborted (application stopped)");
-		JobDetail jobDetail = context.getJobDetail();
-		JobKey jobKey = jobDetail.getKey();
+		rwl.r.lock();
 		try {
-			executeJob(jobKey.getGroup(), jobKey.getName());
-		} catch (SearchLibException e) {
-			Logging.error(e);
-		} catch (NamingException e) {
-			Logging.error(e);
+			JobDetail jobDetail = context.getJobDetail();
+			JobKey jobKey = jobDetail.getKey();
+			try {
+				executeJob(jobKey.getGroup(), jobKey.getName());
+			} catch (SearchLibException e) {
+				Logging.error(e);
+			} catch (NamingException e) {
+				Logging.error(e);
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public String getStatus() throws SchedulerException {
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			if (scheduler == null)
+				sb.append("No scheduler. ");
+			else {
+				if (scheduler.isInStandbyMode())
+					sb.append("Standby. ");
+				if (scheduler.isStarted())
+					sb.append("Started. ");
+				if (scheduler.isShutdown())
+					sb.append("Shutdown. ");
+			}
+			if (schedulerFactory == null)
+				sb.append("No factory. ");
+			else
+				sb.append(schedulerFactory.getAllSchedulers().size());
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public int getThreadPoolSize() {
+		rwl.r.lock();
+		try {
+			return threadPoolSize;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 }

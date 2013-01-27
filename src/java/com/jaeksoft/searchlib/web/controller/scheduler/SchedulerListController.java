@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -74,7 +74,7 @@ public class SchedulerListController extends SchedulerController {
 		if (job.isRunning())
 			throw new SearchLibException("The job " + job.getName()
 					+ " is already running.");
-		TaskManager.executeJob(client, job);
+		TaskManager.getInstance().executeJob(client, job);
 		reload();
 	}
 

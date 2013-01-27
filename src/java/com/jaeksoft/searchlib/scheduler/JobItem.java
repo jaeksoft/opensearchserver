@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -320,10 +320,11 @@ public class JobItem extends ExecutionAbstract {
 	public void checkTaskExecution(Config config) {
 		rwl.r.lock();
 		try {
+			TaskManager taskManager = TaskManager.getInstance();
 			if (isActive())
-				TaskManager.cronJob(config.getIndexName(), name, cron);
+				taskManager.cronJob(config.getIndexName(), name, cron);
 			else
-				TaskManager.removeJob(config.getIndexName(), name);
+				taskManager.removeJob(config.getIndexName(), name);
 		} catch (SearchLibException e) {
 			Logging.error(e);
 			setLastError(e);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -229,9 +229,10 @@ public class JobList {
 			for (JobItem job : jobs.values())
 				job.checkTaskExecution(config);
 
+			TaskManager taskManager = TaskManager.getInstance();
 			// Remove non existing job in the scheduler
 			String indexName = config.getIndexName();
-			String[] jobNames = TaskManager.getActiveJobs(indexName);
+			String[] jobNames = taskManager.getActiveJobs(indexName);
 			if (jobNames != null)
 				for (String jobName : jobNames) {
 					JobItem jobItem = jobs.get(jobName);
@@ -239,7 +240,7 @@ public class JobList {
 						if (!jobItem.isActive())
 							jobItem = null;
 					if (jobItem == null)
-						TaskManager.removeJob(indexName, jobName);
+						taskManager.removeJob(indexName, jobName);
 				}
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);

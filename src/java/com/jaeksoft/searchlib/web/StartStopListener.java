@@ -87,7 +87,7 @@ public class StartStopListener implements ServletContextListener {
 
 		Logging.info("OSS SHUTDOWN");
 		try {
-			TaskManager.stop();
+			TaskManager.getInstance().stop();
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}
@@ -122,7 +122,7 @@ public class StartStopListener implements ServletContextListener {
 
 		try {
 			ClientFactory.setInstance(new ClientFactory());
-			TaskManager.start();
+			TaskManager.getInstance().start();
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}

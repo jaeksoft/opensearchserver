@@ -72,7 +72,7 @@
 				<include src="WEB-INF/zul/runtime/crawlCache.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeAdvanced.onSelect">
-				<include src="WEB-INF/zul/runtime/advanced.zul" />
+				<include src="WEB-INF/zul/runtime/advanced/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeThreads.onSelect">
 				<include src="WEB-INF/zul/runtime/threads.zul" />
