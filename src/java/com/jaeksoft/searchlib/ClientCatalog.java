@@ -75,6 +75,8 @@ public class ClientCatalog {
 
 	private static final RendererResults rendererResults = new RendererResults();
 
+	private static final ThreadGroup threadGroup = new ThreadGroup("Catalog");
+
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException, NamingException {
 
@@ -487,6 +489,15 @@ public class ClientCatalog {
 		rwl.r.lock();
 		try {
 			return rendererResults;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public static ThreadGroup getThreadGroup() {
+		rwl.r.lock();
+		try {
+			return threadGroup;
 		} finally {
 			rwl.r.unlock();
 		}

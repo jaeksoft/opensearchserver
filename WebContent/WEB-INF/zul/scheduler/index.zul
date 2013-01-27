@@ -19,7 +19,8 @@
 	viewModel="@id('scheduler') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController')">
 	<caption>
 		<label id="currentTime" value="@load(scheduler.currentTime)"
-			onClick="@command('reload')" />
+			onClick="@command('reload')"
+			tooltiptext="Server time - Click to update" />
 	</caption>
 	<tabbox>
 		<tabs>

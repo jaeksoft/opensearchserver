@@ -36,6 +36,7 @@ import java.net.URLEncoder;
 import java.util.InvalidPropertiesFormatException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,6 +51,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
@@ -102,7 +104,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public abstract class Config {
+public abstract class Config implements ThreadFactory {
 
 	private IndexAbstract index = null;
 
@@ -111,6 +113,8 @@ public abstract class Config {
 	private RequestMap requests = null;
 
 	private ExecutorService threadPool = null;
+
+	private ThreadGroup threadGroup = null;
 
 	private StatisticsList statisticsList = null;
 
@@ -430,6 +434,11 @@ public abstract class Config {
 		}
 	}
 
+	@Override
+	public final Thread newThread(Runnable target) {
+		return new Thread(threadGroup, target);
+	}
+
 	public ExecutorService getThreadPool() {
 		rwl.r.lock();
 		try {
@@ -442,10 +451,22 @@ public abstract class Config {
 		try {
 			if (threadPool != null)
 				return threadPool;
-			threadPool = Executors.newCachedThreadPool();
+			if (threadGroup == null)
+				threadGroup = new ThreadGroup(ClientCatalog.getThreadGroup(),
+						getIndexName());
+			threadPool = Executors.newCachedThreadPool(this);
 			return threadPool;
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public ThreadGroup getThreadGroup() {
+		rwl.r.lock();
+		try {
+			return threadGroup;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

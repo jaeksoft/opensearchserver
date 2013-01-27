@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,14 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
-import java.text.ParseException;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
+
+import java.util.List;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -33,10 +40,11 @@ import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.DirectSchedulerFactory;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -51,10 +59,17 @@ public class TaskManager implements Job {
 
 	private static Scheduler scheduler = null;
 
+	private static DirectSchedulerFactory schedulerFactory = null;
+
 	public static void start() throws SearchLibException {
 		lock.rl.lock();
 		try {
-			scheduler = StdSchedulerFactory.getDefaultScheduler();
+			if (scheduler == null) {
+				if (schedulerFactory == null)
+					schedulerFactory = DirectSchedulerFactory.getInstance();
+				schedulerFactory.createVolatileScheduler(50);
+				scheduler = schedulerFactory.getScheduler();
+			}
 			scheduler.start();
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
@@ -87,14 +102,15 @@ public class TaskManager implements Job {
 		lock.rl.lock();
 		try {
 			checkSchedulerAvailable();
-			Trigger trigger = new CronTrigger(jobName, indexName,
-					cron.getStringExpression());
+			Trigger trigger = newTrigger().withIdentity(jobName, indexName)
+					.withSchedule(cronSchedule(cron.getStringExpression()))
+					.build();
 
 			// CHECK IF IT ALREADY EXIST
-			JobDetail jobDetail = scheduler.getJobDetail(jobName, indexName);
-			if (jobDetail != null) {
-				Trigger[] triggers = scheduler.getTriggersOfJob(jobName,
-						indexName);
+			JobKey jobKey = jobKey(jobName, indexName);
+			if (scheduler.checkExists(jobKey)) {
+				List<? extends Trigger> triggers = scheduler
+						.getTriggersOfJob(jobKey);
 				if (triggers != null) {
 					for (Trigger tr : triggers) {
 						if (tr instanceof CronTrigger) {
@@ -105,13 +121,12 @@ public class TaskManager implements Job {
 						}
 					}
 				}
-				scheduler.deleteJob(jobName, indexName);
+				scheduler.deleteJob(jobKey);
 			}
 
-			JobDetail job = new JobDetail(jobName, indexName, TaskManager.class);
+			JobDetail job = newJob(TaskManager.class).withIdentity(jobName,
+					indexName).build();
 			scheduler.scheduleJob(job, trigger);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -175,23 +190,11 @@ public class TaskManager implements Job {
 		return execution;
 	}
 
-	public static String[] getActiveJobs(String indexName)
-			throws SearchLibException {
-		lock.rl.lock();
-		try {
-			return scheduler.getJobNames(indexName);
-		} catch (SchedulerException e) {
-			throw new SearchLibException(e);
-		} finally {
-			lock.rl.unlock();
-		}
-	}
-
 	public static void removeJob(String indexName, String jobName)
 			throws SearchLibException {
 		lock.rl.lock();
 		try {
-			scheduler.deleteJob(jobName, indexName);
+			scheduler.deleteJob(jobKey(jobName, indexName));
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -202,11 +205,28 @@ public class TaskManager implements Job {
 	public static void removeJobs(String indexName) throws SearchLibException {
 		lock.rl.lock();
 		try {
-			String[] jobNames = scheduler.getJobNames(indexName);
-			for (String jobName : jobNames)
-				scheduler.deleteJob(jobName, indexName);
+			Set<JobKey> jobKeySet = scheduler
+					.getJobKeys(jobGroupEquals(indexName));
+			for (JobKey jobKey : jobKeySet)
+				scheduler.deleteJob(jobKey);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	public static String[] getActiveJobs(String indexName)
+			throws SchedulerException {
+		lock.rl.lock();
+		try {
+			Set<JobKey> jobKeySet = scheduler
+					.getJobKeys(jobGroupEquals(indexName));
+			String[] jobs = new String[jobKeySet.size()];
+			int i = 0;
+			for (JobKey jobKey : jobKeySet)
+				jobs[i++] = jobKey.getName();
+			return jobs;
 		} finally {
 			lock.rl.unlock();
 		}
@@ -218,10 +238,9 @@ public class TaskManager implements Job {
 		if (StartStopListener.isShutdown())
 			throw new JobExecutionException("Aborted (application stopped)");
 		JobDetail jobDetail = context.getJobDetail();
-		String indexName = jobDetail.getGroup();
-		String jobName = jobDetail.getName();
+		JobKey jobKey = jobDetail.getKey();
 		try {
-			executeJob(indexName, jobName);
+			executeJob(jobKey.getGroup(), jobKey.getName());
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		} catch (NamingException e) {

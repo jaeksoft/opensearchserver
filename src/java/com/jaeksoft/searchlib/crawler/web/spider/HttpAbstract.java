@@ -26,13 +26,20 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.net.ConnectException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
@@ -40,6 +47,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
@@ -51,6 +59,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -86,7 +95,30 @@ public abstract class HttpAbstract {
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		httpClient = new DefaultHttpClient(params);
 		this.proxyHandler = proxyHandler;
-		// TODO RETRY HANDLER ?
+		HttpRequestRetryHandler myRetryHandler = new HttpRequestRetryHandler() {
+			@Override
+			public boolean retryRequest(IOException exception,
+					int executionCount, HttpContext context) {
+				if (executionCount >= 1)
+					return false;
+				if (exception instanceof InterruptedIOException)
+					return false; // TimeOut
+				if (exception instanceof UnknownHostException)
+					return false;// Unknown host
+				if (exception instanceof ConnectException)
+					return false;// Connection refused
+				if (exception instanceof SSLException)
+					return false;// SSL handshake exception
+				HttpRequest request = (HttpRequest) context
+						.getAttribute(ExecutionContext.HTTP_REQUEST);
+				boolean idempotent = !(request instanceof HttpEntityEnclosingRequest);
+				if (idempotent)
+					return true; // Retry if the request is considered
+									// idempotent
+				return false;
+			}
+		};
+		httpClient.setHttpRequestRetryHandler(myRetryHandler);
 	}
 
 	protected void reset() {

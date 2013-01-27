@@ -100,8 +100,6 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	}
 
 	public boolean isAborted() {
-		if (StartStopListener.isShutdown())
-			abort();
 		rwl.r.lock();
 		try {
 			return abort;
@@ -145,10 +143,12 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	public boolean waitForStart(long secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (getStartTime() == 0) {
+			if (StartStopListener.isShutdown())
+				return false;
 			if (secTimeOut != 0)
 				if (System.currentTimeMillis() > finalTime)
 					return false;
-			sleepMs(100);
+			sleepMs(200);
 		}
 		return true;
 	}
@@ -156,12 +156,12 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	public boolean waitForEnd(long secTimeOut) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (isRunning()) {
-			if (isAborted())
+			if (StartStopListener.isShutdown())
 				return false;
 			if (secTimeOut != 0)
 				if (System.currentTimeMillis() > finalTime)
 					return false;
-			sleepMs(100);
+			sleepMs(200);
 		}
 		return true;
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,79 +24,30 @@
 
 package com.jaeksoft.searchlib.web.controller.runtime;
 
-import java.lang.Thread.State;
-import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.NamingException;
+
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils.ThreadInfo;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class ThreadsController extends CommonController {
 
 	private List<ThreadInfo> threadList = null;
 
-	public static class ThreadInfo {
-
-		private final String name;
-
-		private final String location;
-
-		private final State state;
-
-		private final String fullStackTrace;
-
-		public ThreadInfo(Thread thread) {
-			this.name = thread.getName();
-			StackTraceElement[] elements = thread.getStackTrace();
-			String l = ErrorParserLogger.getLocation(elements);
-			if (l == null)
-				l = ErrorParserLogger.getFirstLocation(elements);
-			this.fullStackTrace = ErrorParserLogger.getFullStackTrace(elements);
-			this.location = l;
-			this.state = thread.getState();
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public String getLocation() {
-			return location;
-		}
-
-		public State getState() {
-			return state;
-		}
-
-		public String getFullStackTrace() {
-			return fullStackTrace;
-		}
-	}
-
 	public ThreadsController() throws SearchLibException {
 		super();
 	}
 
-	public List<ThreadInfo> getList() throws SearchLibException {
+	public List<ThreadInfo> getList() throws SearchLibException,
+			NamingException {
 		if (threadList != null)
 			return threadList;
-		ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
-		ThreadGroup parentGroup;
-		while ((parentGroup = rootGroup.getParent()) != null) {
-			rootGroup = parentGroup;
-		}
-		Thread[] threads = new Thread[rootGroup.activeCount()];
-		for (;;) {
-			int l = rootGroup.enumerate(threads);
-			if (l == threads.length)
-				break;
-			threads = new Thread[l];
-		}
-		threadList = new ArrayList<ThreadInfo>(threads.length);
-		for (Thread thread : threads) {
-			threadList.add(new ThreadInfo(thread));
-		}
+
+		threadList = ThreadUtils.getInfos(ClientCatalog.getThreadGroup());
 		return threadList;
 	}
 

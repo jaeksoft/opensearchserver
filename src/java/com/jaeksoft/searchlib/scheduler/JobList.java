@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.quartz.SchedulerException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -240,6 +241,8 @@ public class JobList {
 					if (jobItem == null)
 						TaskManager.removeJob(indexName, jobName);
 				}
+		} catch (SchedulerException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
