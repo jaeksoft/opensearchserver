@@ -52,7 +52,12 @@
 		multiple="@load(exclusion.webCrawlerEditPatternsRights)"
 		model="@load(exclusion.patternList)">
 		<template name="model">
-			<listitem label="@load(each.pattern)" />
+			<listitem>
+				<listcell>
+					<textbox inplace="true" value="@load(each.pattern)"
+						width="95%" readonly="true" />
+				</listcell>
+			</listitem>
 		</template>
 		<listfoot>
 			<listfooter>

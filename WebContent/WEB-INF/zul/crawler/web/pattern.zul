@@ -55,7 +55,8 @@
 		<template name="model">
 			<listitem>
 				<listcell>
-					<label value="@load(each.pattern)" />
+					<textbox inplace="true" value="@load(each.pattern)"
+						width="95%" readonly="true" />
 				</listcell>
 			</listitem>
 		</template>
