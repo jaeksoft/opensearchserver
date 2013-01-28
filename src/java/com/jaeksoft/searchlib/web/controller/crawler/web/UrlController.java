@@ -98,7 +98,6 @@ public class UrlController extends CommonController {
 				return 0;
 			return urlManager.getSize();
 		}
-
 	}
 
 	public void setHost(String v) {

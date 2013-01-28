@@ -74,7 +74,7 @@ public class UrlManager extends AbstractManager {
 	protected Client urlDbClient;
 
 	public enum SearchTemplate {
-		urlSearch, urlExport;
+		urlSearch, urlExport, hostFacet;
 	}
 
 	protected final UrlItemFieldEnum urlItemFieldEnum;
@@ -536,6 +536,27 @@ public class UrlManager extends AbstractManager {
 				for (ResultDocument doc : result)
 					list.add(getNewUrlItem(doc));
 			return result.getNumFound();
+		} catch (RuntimeException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public Facet getHostFacetList(int minCount) throws SearchLibException {
+		try {
+			SearchRequest searchRequest = (SearchRequest) urlDbClient
+					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
+			searchRequest.setQueryString("*:*");
+			FacetField facetField = searchRequest.getFacetFieldList().get(
+					urlItemFieldEnum.host.getName());
+			if (minCount < 0)
+				minCount = 0;
+			facetField.setMinCount(minCount);
+			AbstractResultSearch result = (AbstractResultSearch) urlDbClient
+					.request(searchRequest);
+			if (result == null)
+				return null;
+			return result.getFacetList().getByField(
+					urlItemFieldEnum.host.getName());
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}

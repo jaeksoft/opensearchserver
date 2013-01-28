@@ -209,6 +209,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "ignoreMetaNoIndex", "Ignore meta noindex",
 			"Ignore the meta noindex tag in HTML header");
 
+	public static ClassPropertyEnum IGNORE_UNTITLED_DOCUMENTS = new ClassPropertyEnum(
+			true, "ignoreUntitledDocuments", "Ignore untitled documents",
+			"Ignore documents which don't have title");
+
 	private boolean isUser;
 
 	private String label;

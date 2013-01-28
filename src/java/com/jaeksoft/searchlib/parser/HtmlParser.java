@@ -76,6 +76,7 @@ public class HtmlParser extends Parser {
 	private Map<String, Float> boostTagMap;
 	private Float titleBoost;
 	private boolean ignoreMetaNoIndex;
+	private boolean ignoreUntitledDocuments;
 
 	public HtmlParser() {
 		super(fl);
@@ -118,6 +119,8 @@ public class HtmlParser extends Parser {
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
 				ClassPropertyEnum.KEEP_REMOVE_LIST);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
@@ -274,6 +277,7 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h5", getFloatProperty(ClassPropertyEnum.H5_BOOST));
 		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
+		ignoreUntitledDocuments = getBooleanProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS);
 
 		String currentCharset = null;
 		String headerCharset = null;
@@ -309,7 +313,14 @@ public class HtmlParser extends Parser {
 		if (htmlProvider == null)
 			return;
 
+		String title = htmlProvider.getTitle();
+		if (ignoreUntitledDocuments)
+			if (title == null || title.length() == 0)
+				return;
+
 		ParserResultItem result = getNewParserResultItem();
+
+		addFieldTitle(result, title);
 
 		result.addField(ParserFieldEnum.htmlProvider, htmlProvider.getName());
 
@@ -352,8 +363,6 @@ public class HtmlParser extends Parser {
 		}
 
 		result.addField(ParserFieldEnum.charset, currentCharset);
-
-		addFieldTitle(result, htmlProvider.getTitle());
 
 		String metaRobots = null;
 

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -21,8 +21,9 @@
 			<tab id="tabCrawlerWebPattern" label="Pattern list"
 				selected="true" />
 			<tab id="tabCrawlerWebExclusion" label="Exclusion list" />
-			<tab id="tabCrawlerWebUrlFilter" label="Url filter" />
-			<tab id="tabCrawlerWebUrl" label="Url browser" />
+			<tab id="tabCrawlerWebUrlFilter" label="URL filter" />
+			<tab id="tabCrawlerWebUrl" label="URL browser" />
+			<tab id="tabCrawlerWebHosts" label="Hostnames" />
 			<tab id="tabCrawlerWebCrawl" label="Crawl process" />
 			<tab id="tabCrawlerManualWebCrawl" label="Manual crawl" />
 			<tab id="tabCrawlerproxy" label="Proxy" />
@@ -45,6 +46,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebUrl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/url.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebHosts.onSelect">
+				<include src="WEB-INF/zul/crawler/web/hosts.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebCrawl.onSelect">
 				<include src="WEB-INF/zul/crawler/web/crawl.zul" />
