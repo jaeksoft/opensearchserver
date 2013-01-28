@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
 
 public class SpellCheckController extends AbstractQueryController {
 
-	private transient List<String> fieldLeft;
+	private transient TreeSet<String> fieldLeft;
 
 	private transient SpellCheckField currentSpellCheckField;
 
@@ -55,26 +55,21 @@ public class SpellCheckController extends AbstractQueryController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		getSpellCheckFieldLeft();
-		String fieldName = "";
-		if (fieldLeft != null && fieldLeft.size() > 0)
-			fieldName = fieldLeft.get(0);
-		currentSpellCheckField = new SpellCheckField(fieldName, 0.5F, 5,
-				SpellCheckDistanceEnum.LevensteinDistance);
 		fieldLeft = null;
+		currentSpellCheckField = null;
 		selectedSpellCheckField = null;
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
 		synchronized (this) {
-			List<String> list = getSpellCheckFieldLeft();
-			if (list == null)
+			Set<String> set = getSpellCheckFieldLeft();
+			if (set == null)
 				return false;
-			return list.size() > 0;
+			return set.size() > 0;
 		}
 	}
 
-	public List<String> getSpellCheckFieldLeft() throws SearchLibException {
+	public Set<String> getSpellCheckFieldLeft() throws SearchLibException {
 		synchronized (this) {
 			if (fieldLeft != null)
 				return fieldLeft;
@@ -86,7 +81,7 @@ public class SpellCheckController extends AbstractQueryController {
 				return null;
 			SpellCheckFieldList spellCheckFieldList = request
 					.getSpellCheckFieldList();
-			fieldLeft = new ArrayList<String>();
+			fieldLeft = new TreeSet<String>();
 			for (SchemaField field : client.getSchema().getFieldList()) {
 				String fieldName = field.getName();
 				if (selectedSpellCheckField != null
@@ -98,6 +93,7 @@ public class SpellCheckController extends AbstractQueryController {
 					if (spellCheckFieldList.get(fieldName) == null)
 						fieldLeft.add(field.getName());
 			}
+
 			return fieldLeft;
 		}
 	}
@@ -139,7 +135,15 @@ public class SpellCheckController extends AbstractQueryController {
 		return SpellCheckDistanceEnum.values();
 	}
 
-	public SpellCheckField getCurrent() {
+	public SpellCheckField getCurrent() throws SearchLibException {
+		if (currentSpellCheckField != null)
+			return currentSpellCheckField;
+		getSpellCheckFieldLeft();
+		if (fieldLeft == null || fieldLeft.size() == 0)
+			return null;
+		String fieldName = fieldLeft.first();
+		currentSpellCheckField = new SpellCheckField(fieldName, 0.5F, 5,
+				SpellCheckDistanceEnum.LevensteinDistance);
 		return currentSpellCheckField;
 	}
 

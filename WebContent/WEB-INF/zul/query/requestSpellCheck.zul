@@ -53,12 +53,12 @@
 					<auxhead visible="@load(spellcheck.fieldLeft)">
 						<auxheader>
 							<listbox mold="select"
-								selectedItem="@load(spellcheck.current.name)"
+								selectedItem="@bind(spellcheck.current.name)"
 								model="@load(spellcheck.spellCheckFieldLeft)">
 								<template name="model"
 									var="spellCheckField">
 									<listitem
-										label="@load(spellCheckField)" />
+										label="@load(spellCheckField)" value="@load(spellCheckField)" />
 								</template>
 							</listbox>
 						</auxheader>
