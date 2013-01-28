@@ -54,7 +54,30 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
-public class TaskManager implements Job {
+public class TaskManager {
+
+	public static class TaskManagerJob implements Job {
+
+		public TaskManagerJob() {
+		}
+
+		@Override
+		public void execute(JobExecutionContext context)
+				throws JobExecutionException {
+			if (StartStopListener.isShutdown())
+				throw new JobExecutionException("Aborted (application stopped)");
+			JobDetail jobDetail = context.getJobDetail();
+			JobKey jobKey = jobDetail.getKey();
+			try {
+				INSTANCE.executeJob(jobKey.getGroup(), jobKey.getName());
+			} catch (SearchLibException e) {
+				Logging.error(e);
+			} catch (NamingException e) {
+				Logging.error(e);
+			}
+		}
+
+	}
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -140,7 +163,7 @@ public class TaskManager implements Job {
 				scheduler.deleteJob(jobKey);
 			}
 
-			JobDetail job = newJob(TaskManager.class).withIdentity(jobName,
+			JobDetail job = newJob(TaskManagerJob.class).withIdentity(jobName,
 					indexName).build();
 			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
@@ -242,27 +265,6 @@ public class TaskManager implements Job {
 			for (JobKey jobKey : jobKeySet)
 				jobs[i++] = jobKey.getName();
 			return jobs;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
-		if (StartStopListener.isShutdown())
-			throw new JobExecutionException("Aborted (application stopped)");
-		rwl.r.lock();
-		try {
-			JobDetail jobDetail = context.getJobDetail();
-			JobKey jobKey = jobDetail.getKey();
-			try {
-				executeJob(jobKey.getGroup(), jobKey.getName());
-			} catch (SearchLibException e) {
-				Logging.error(e);
-			} catch (NamingException e) {
-				Logging.error(e);
-			}
 		} finally {
 			rwl.r.unlock();
 		}
