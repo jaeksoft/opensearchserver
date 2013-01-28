@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class UrlItem {
 
-	private String url;
+	private String urlString;
 	private String contentDispositionFilename;
 	private String contentBaseType;
 	private String contentTypeCharset;
@@ -77,7 +77,7 @@ public class UrlItem {
 	private int backlinkCount;
 
 	protected UrlItem() {
-		url = null;
+		urlString = null;
 		cachedUrl = null;
 		checkedUri = null;
 		contentDispositionFilename = null;
@@ -396,7 +396,7 @@ public class UrlItem {
 	public URL getURL() throws MalformedURLException {
 		synchronized (this) {
 			if (cachedUrl == null)
-				cachedUrl = new URL(url);
+				cachedUrl = new URL(urlString);
 			return cachedUrl;
 		}
 	}
@@ -416,12 +416,12 @@ public class UrlItem {
 	}
 
 	public String getUrl() {
-		return url;
+		return urlString;
 	}
 
 	public void setUrl(String url) {
 		synchronized (this) {
-			this.url = url;
+			this.urlString = url;
 			cachedUrl = null;
 		}
 	}
@@ -531,21 +531,17 @@ public class UrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument,
-			UrlItemFieldEnum urlItemFieldEnum) {
+			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException {
 		SimpleDateFormat df = getWhenDateFormat();
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
 		indexDocument.setString(urlItemFieldEnum.when.getName(),
 				df.format(when));
-		try {
-			URL url = getURL();
-			if (url != null) {
-				indexDocument.setString(urlItemFieldEnum.host.getName(),
-						url.getHost());
-				indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
-						buildSubHost(url.getHost()));
-			}
-		} catch (MalformedURLException e) {
-			Logging.warn(e);
+		URL url = getURL();
+		if (url != null) {
+			indexDocument.setString(urlItemFieldEnum.host.getName(),
+					url.getHost());
+			indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
+					buildSubHost(url.getHost()));
 		}
 		if (inLinks != null)
 			indexDocument.setStringList(urlItemFieldEnum.inlink.getName(),

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -45,6 +46,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
@@ -833,7 +835,15 @@ public class UrlManager extends AbstractManager {
 		for (Crawl crawl : crawls) {
 			if (crawl == null)
 				continue;
-			urlItems.add(crawl.getUrlItem());
+			UrlItem urlItem = crawl.getUrlItem();
+			try {
+				urlItem.getCheckedURI();
+				urlItems.add(crawl.getUrlItem());
+			} catch (MalformedURLException e) {
+				Logging.warn("Ignore wrong URL: " + urlItem.getUrl(), e);
+			} catch (URISyntaxException e) {
+				Logging.warn("Ignore wrong URI: " + urlItem.getUrl(), e);
+			}
 		}
 		updateUrlItems(urlItems);
 	}
