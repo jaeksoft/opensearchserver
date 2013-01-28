@@ -4,7 +4,7 @@
 		<column label="Distance unit" hflex="min" />
 		<column label="Distance" hflex="min" />
 		<column label="Latitude field" hflex="min" />
-		<column label="Longtude field" hflex="min" />
+		<column label="Longitude field" hflex="min" />
 		<column label="Latitude (lat)" hflex="min" />
 		<column label="Longitude (lon)" hflex="min" />
 		<column label="Location unit" hflex="min" />

@@ -48,7 +48,7 @@ public enum LanguageEnum {
 
 	ITALIAN("Italian", "it"),
 
-	JAPANESE("Japansese", "ja"),
+	JAPANESE("Japanese", "ja"),
 
 	KOREAN("Korean", "kr"),
 
