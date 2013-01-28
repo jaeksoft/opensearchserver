@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,27 +22,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.screenshot;
+package com.jaeksoft.searchlib.crawler.web.browser;
 
-import java.net.URL;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 
-public class ScreenshotMethodHomepage extends ScreenshotMethod {
-
-	public ScreenshotMethodHomepage() {
-		super("Homepage");
-	}
+public class InternetExplorerBrowserDriver extends
+		BrowserDriver<InternetExplorerDriver> {
 
 	@Override
-	public boolean doScreenshot(URL url) {
-		if (url == null)
-			return false;
-		String path = url.getPath();
-		if (path == null)
-			return true;
-		if (path.length() == 0)
-			return true;
-		if ("/".equals(path))
-			return true;
-		return false;
+	public InternetExplorerDriver initialize() {
+		return new InternetExplorerDriver();
 	}
+
 }

@@ -29,17 +29,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
-import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotMethod;
+import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotMethodEnum;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -138,7 +137,6 @@ public class ScreenshotController extends CrawlerController {
 
 	@Override
 	@Command
-	@NotifyChange("*")
 	public void onTimer() throws SearchLibException {
 		if (currentScreenshotThread != null)
 			showImage = currentScreenshotThread.getImage() != null;
@@ -152,6 +150,21 @@ public class ScreenshotController extends CrawlerController {
 				return false;
 			return currentScreenshotThread.isRunning();
 		}
+	}
+
+	public boolean isError() {
+		if (currentScreenshotThread == null)
+			return false;
+		return currentScreenshotThread.getException() != null;
+	}
+
+	public String getErrorMessage() {
+		if (currentScreenshotThread == null)
+			return null;
+		Exception e = currentScreenshotThread.getException();
+		if (e == null)
+			return null;
+		return e.getMessage();
 	}
 
 	public boolean isImageAvailable() {
@@ -191,25 +204,18 @@ public class ScreenshotController extends CrawlerController {
 
 	}
 
-	public List<ScreenshotMethod> getMethodList() throws SearchLibException {
+	public ScreenshotMethodEnum[] getMethodList() throws SearchLibException {
+		return ScreenshotMethodEnum.values();
+	}
+
+	public ScreenshotManager getScreenshotManager() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getScreenshotManager().getMethodList();
+		return client.getScreenshotManager();
 	}
 
-	public ScreenshotMethod getMethod() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getScreenshotManager().getMethod();
-	}
-
-	public void setMethod(ScreenshotMethod method) throws SearchLibException,
-			IOException {
-		Client client = getClient();
-		if (client == null)
-			return;
-		client.getScreenshotManager().setMethod(method);
+	public BrowserDriverEnum[] getBrowserList() {
+		return BrowserDriverEnum.values();
 	}
 }

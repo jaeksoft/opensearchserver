@@ -51,6 +51,10 @@
 				href="@load(screenshot.apiCaptureUrl)" target="_blank" />
 		</hbox>
 	</vbox>
+	<window visible="@load(screenshot.error)" title="Error!"
+		border="normal">
+		<label value="@load(screenshot.errorMessage)" />
+	</window>
 	<timer delay="3000" repeats="true" onTimer="@command('onTimer')"
 		running="@load(screenshot.refresh)" />
 </zk>

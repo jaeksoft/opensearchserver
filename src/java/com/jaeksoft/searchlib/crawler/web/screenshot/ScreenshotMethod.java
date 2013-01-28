@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,16 +26,29 @@ package com.jaeksoft.searchlib.crawler.web.screenshot;
 
 import java.net.URL;
 
-import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
+public class ScreenshotMethod {
 
-public class ScreenshotMethod extends ExtensibleEnumItem<ScreenshotMethod> {
+	protected final String name;
 
-	protected ScreenshotMethod(ScreenshotMethodEnum en, String name) {
-		super(en, name);
+	public ScreenshotMethod() {
+		this("No screenshot");
+	}
+
+	protected ScreenshotMethod(String name) {
+		this.name = name;
 	}
 
 	public boolean doScreenshot(URL url) {
 		return false;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }

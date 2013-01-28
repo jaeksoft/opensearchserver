@@ -24,9 +24,19 @@
 		<row>
 			<label value="Screenshot method: " />
 			<listbox model="@load(screenshot.methodList)" mold="select"
-				selectedItem="@bind(screenshot.method)">
+				selectedItem="@bind(screenshot.screenshotManager.method)">
 				<template name="model" var="method">
 					<listitem label="@load(method.name)" />
+				</template>
+			</listbox>
+			<space />
+		</row>
+		<row>
+			<label value="Browser: " />
+			<listbox model="@load(screenshot.browserList)" mold="select"
+				selectedItem="@bind(screenshot.screenshotManager.browserDriver)">
+				<template name="model" var="driver">
+					<listitem label="@load(driver.name)" />
 				</template>
 			</listbox>
 			<space />

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,16 +24,42 @@
 
 package com.jaeksoft.searchlib.crawler.web.screenshot;
 
-import com.jaeksoft.searchlib.util.ExtensibleEnum;
+import java.net.URL;
 
-public class ScreenshotMethodEnum extends ExtensibleEnum<ScreenshotMethod> {
+public enum ScreenshotMethodEnum {
 
-	public ScreenshotMethodEnum() {
+	NO_SCREENSHOT(new ScreenshotMethod()),
 
-		new ScreenshotMethod(this, "No screenshot");
+	HOMEPAGE(new ScreenshotMethodHomepage()),
 
-		new ScreenshotMethodHomepage(this);
+	ALL(new ScreenshotMethodAll());
 
-		new ScreenshotMethodAll(this);
+	protected final ScreenshotMethod method;
+
+	private ScreenshotMethodEnum(ScreenshotMethod method) {
+		this.method = method;
+	}
+
+	final public boolean doScreenshot(URL url) {
+		return method.doScreenshot(url);
+	}
+
+	@Override
+	final public String toString() {
+		return method.name;
+	}
+
+	final public String getName() {
+		return method.name;
+	}
+
+	public static ScreenshotMethodEnum find(String value) {
+		if (value == null)
+			return NO_SCREENSHOT;
+		for (ScreenshotMethodEnum methodEnum : ScreenshotMethodEnum.values())
+			if (value.equalsIgnoreCase(methodEnum.method.name)
+					|| value.equalsIgnoreCase(methodEnum.name()))
+				return methodEnum;
+		return NO_SCREENSHOT;
 	}
 }

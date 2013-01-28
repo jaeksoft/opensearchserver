@@ -39,10 +39,12 @@ import javax.imageio.ImageIO;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.Md5Spliter;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
@@ -53,24 +55,28 @@ public class ScreenshotManager implements PropertyItemListener {
 
 	private Config config;
 
-	private final SimpleLock lock = new SimpleLock();
+	private final ReadWriteLock rwl = new ReadWriteLock();
+
+	private final SimpleLock captureLock = new SimpleLock();
 
 	private ScreenshotMethodEnum screenshotMethodEnum;
-
-	private ScreenshotMethod screenshotMethod;
 
 	private Dimension captureDimension;
 
 	private Dimension resizeDimension;
+
+	private BrowserDriverEnum browserDriverEnum;
 
 	public ScreenshotManager(Config config) throws SearchLibException {
 		this.config = config;
 		screenshotDir = new File(config.getDirectory(), "screenshot");
 		if (!screenshotDir.exists())
 			screenshotDir.mkdir();
-		screenshotMethodEnum = new ScreenshotMethodEnum();
 		WebPropertyManager props = config.getWebPropertyManager();
-		screenshotMethod = getMethod(props);
+		browserDriverEnum = BrowserDriverEnum.find(props.getScreenshotBrowser()
+				.getValue());
+		screenshotMethodEnum = ScreenshotMethodEnum.find(props
+				.getScreenshotMethod().getValue());
 		captureDimension = getCaptureDimension(props);
 		resizeDimension = getResizeDimension(props);
 		props.getScreenshotCaptureHeight().addListener(this);
@@ -78,6 +84,7 @@ public class ScreenshotManager implements PropertyItemListener {
 		props.getScreenshotResizeHeight().addListener(this);
 		props.getScreenshotResizeWidth().addListener(this);
 		props.getScreenshotMethod().addListener(this);
+		props.getScreenshotBrowser().addListener(this);
 	}
 
 	private final File buildFile(URL url) throws SearchLibException {
@@ -95,30 +102,42 @@ public class ScreenshotManager implements PropertyItemListener {
 	}
 
 	public final File getPngFile(URL url) throws SearchLibException {
-		File file = buildFile(url);
-		return file.exists() ? file : null;
+		rwl.r.lock();
+		try {
+			File file = buildFile(url);
+			return file.exists() ? file : null;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public final BufferedImage getImage(URL url) throws SearchLibException,
 			IOException {
-		File file = buildFile(url);
-		return file.exists() ? ImageIO.read(file) : null;
+		rwl.r.lock();
+		try {
+			File file = buildFile(url);
+			return file.exists() ? ImageIO.read(file) : null;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	public List<ScreenshotMethod> getMethodList() {
-		return screenshotMethodEnum.getList();
+	private static BrowserDriverEnum getBrowser(WebPropertyManager props) {
+		return BrowserDriverEnum.find(props.getScreenshotBrowser().getValue());
 	}
 
-	private ScreenshotMethod getMethod(WebPropertyManager props) {
-		String name = props.getScreenshotMethod().getValue();
-		ScreenshotMethod method = screenshotMethodEnum.getValue(name);
-		if (method == null)
-			method = screenshotMethodEnum.getFirst();
-		return method;
+	private static ScreenshotMethodEnum getMethod(WebPropertyManager props) {
+		return ScreenshotMethodEnum
+				.find(props.getScreenshotMethod().getValue());
 	}
 
-	public ScreenshotMethod getMethod() throws SearchLibException {
-		return screenshotMethod;
+	public ScreenshotMethodEnum getMethod() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			return screenshotMethodEnum;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private Dimension getCaptureDimension(WebPropertyManager props)
@@ -129,7 +148,12 @@ public class ScreenshotManager implements PropertyItemListener {
 	}
 
 	public Dimension getCaptureDimension() {
-		return captureDimension;
+		rwl.r.lock();
+		try {
+			return captureDimension;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private Dimension getResizeDimension(WebPropertyManager props) {
@@ -139,68 +163,105 @@ public class ScreenshotManager implements PropertyItemListener {
 	}
 
 	public Dimension getResizeDimension() {
-		return resizeDimension;
+		rwl.r.lock();
+		try {
+			return resizeDimension;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	public void setMethod(ScreenshotMethod method) throws IOException,
+	public void setMethod(ScreenshotMethodEnum method) throws IOException,
 			SearchLibException {
-		config.getWebPropertyManager().getScreenshotMethod()
-				.setValue(method.getName());
+		rwl.w.lock();
+		try {
+			config.getWebPropertyManager().getScreenshotMethod()
+					.setValue(method.name());
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
 	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
-		WebPropertyManager props = config.getWebPropertyManager();
-		if (prop == props.getScreenshotCaptureHeight()
-				|| prop == props.getScreenshotCaptureWidth())
-			captureDimension = getCaptureDimension(props);
-		else if (prop == props.getScreenshotResizeHeight()
-				|| prop == props.getScreenshotResizeWidth())
-			resizeDimension = getResizeDimension(props);
-		else if (prop == props.getScreenshotMethod())
-			screenshotMethod = getMethod(props);
+		rwl.r.lock();
+		try {
+			WebPropertyManager props = config.getWebPropertyManager();
+			if (prop == props.getScreenshotCaptureHeight()
+					|| prop == props.getScreenshotCaptureWidth())
+				captureDimension = getCaptureDimension(props);
+			else if (prop == props.getScreenshotResizeHeight()
+					|| prop == props.getScreenshotResizeWidth())
+				resizeDimension = getResizeDimension(props);
+			else if (prop == props.getScreenshotMethod())
+				screenshotMethodEnum = getMethod(props);
+			else if (prop == props.getScreenshotBrowser())
+				browserDriverEnum = getBrowser(props);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public ScreenshotThread capture(URL url, CredentialItem credentialItem,
 			boolean waitForEnd, int secTimeOut) throws SearchLibException {
-		if (!screenshotMethod.doScreenshot(url))
-			return null;
-		lock.rl.lock();
+		rwl.r.lock();
 		try {
-			ScreenshotThread thread = new ScreenshotThread(config, this, url,
-					credentialItem);
-			thread.execute();
-			if (waitForEnd)
-				thread.waitForEnd(secTimeOut);
-			return thread;
+			if (!screenshotMethodEnum.doScreenshot(url))
+				return null;
+			captureLock.rl.lock();
+			try {
+				ScreenshotThread thread = new ScreenshotThread(config, this,
+						url, credentialItem, browserDriverEnum);
+				thread.execute();
+				if (waitForEnd)
+					thread.waitForEnd(secTimeOut);
+				return thread;
+			} finally {
+				captureLock.rl.unlock();
+			}
 		} finally {
-			lock.rl.unlock();
+			rwl.r.unlock();
 		}
 	}
 
 	public void store(URL url, BufferedImage image) throws SearchLibException,
 			IOException {
-		File file = buildFile(url);
-		File parentDir = file.getParentFile();
-		if (!parentDir.exists())
-			parentDir.mkdirs();
-		ImageIO.write(image, "png", file);
+		rwl.r.lock();
+		try {
+			File file = buildFile(url);
+			File parentDir = file.getParentFile();
+			if (!parentDir.exists())
+				parentDir.mkdirs();
+			ImageIO.write(image, "png", file);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void delete(URL url) throws SearchLibException {
-		getPngFile(url).delete();
+		rwl.r.lock();
+		try {
+			getPngFile(url).delete();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public void delete(List<String> urlList) throws SearchLibException {
-		for (String u : urlList) {
-			try {
-				URL url = new URL(u);
-				File f = getPngFile(url);
-				if (f != null)
-					getPngFile(url).delete();
-			} catch (MalformedURLException e) {
-				Logging.warn(e);
+		rwl.r.lock();
+		try {
+			for (String u : urlList) {
+				try {
+					URL url = new URL(u);
+					File f = getPngFile(url);
+					if (f != null)
+						getPngFile(url).delete();
+				} catch (MalformedURLException e) {
+					Logging.warn(e);
+				}
 			}
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -222,7 +283,41 @@ public class ScreenshotManager implements PropertyItemListener {
 	}
 
 	public LastModifiedAndSize getInfos() throws SearchLibException {
-		return new LastModifiedAndSize(screenshotDir, true);
+		rwl.r.lock();
+		try {
+			return new LastModifiedAndSize(screenshotDir, true);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the browserDriverEnum
+	 */
+	public BrowserDriverEnum getBrowserDriver() {
+		rwl.r.lock();
+		try {
+			return browserDriverEnum;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param browserDriverEnum
+	 *            the browserDriverEnum to set
+	 * @throws SearchLibException
+	 * @throws IOException
+	 */
+	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
+			throws IOException, SearchLibException {
+		rwl.w.lock();
+		try {
+			config.getWebPropertyManager().getScreenshotBrowser()
+					.setValue(browserDriverEnum.name());
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

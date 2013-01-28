@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,17 +29,15 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
-import javax.imageio.ImageIO;
-
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
-
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.SimpleLock;
@@ -47,10 +45,10 @@ import com.jaeksoft.searchlib.util.SimpleLock;
 public class ScreenshotThread extends ThreadAbstract {
 
 	private volatile URL url;
-	private volatile byte[] data;
 	private volatile Dimension capture;
 	private volatile Dimension resize;
-	private volatile FirefoxDriver driver;
+	private volatile BrowserDriverEnum browserDriverEnum;
+	private volatile BrowserDriver<?> browserDriver;
 	private volatile ScreenshotManager screenshotManager;
 	private volatile BufferedImage finalImage;
 	private volatile CredentialItem credentialItem;
@@ -58,11 +56,12 @@ public class ScreenshotThread extends ThreadAbstract {
 	private final SimpleLock lock = new SimpleLock();
 
 	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
-			URL url, CredentialItem credentialItem) {
+			URL url, CredentialItem credentialItem,
+			BrowserDriverEnum browserDriverEnum) {
 		super(config, null);
-		driver = null;
+		this.browserDriverEnum = browserDriverEnum;
+		browserDriver = null;
 		this.url = url;
-		data = null;
 		finalImage = null;
 		this.screenshotManager = screenshotManager;
 		this.capture = screenshotManager.getCaptureDimension();
@@ -70,12 +69,14 @@ public class ScreenshotThread extends ThreadAbstract {
 		this.credentialItem = credentialItem;
 	}
 
-	private final void initDriver() {
+	private final void initDriver() throws SearchLibException {
 		lock.rl.lock();
 		try {
-			FirefoxProfile profile = new FirefoxProfile();
-			profile.setPreference("network.http.phishy-userpass-length", 255);
-			driver = new FirefoxDriver(profile);
+			browserDriver = browserDriverEnum.getNewInstance();
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.rl.unlock();
 		}
@@ -154,9 +155,7 @@ public class ScreenshotThread extends ThreadAbstract {
 						url.getRef()).toString();
 			} else
 				sUrl = url.toExternalForm();
-			driver.get(sUrl);
-			data = driver.getScreenshotAs(OutputType.BYTES);
-			BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
+			BufferedImage image = browserDriver.getScreenshot(sUrl);
 			if (image.getWidth() < capture.width)
 				image = scaleWidth(image);
 			if (image.getHeight() < capture.height)
@@ -180,10 +179,11 @@ public class ScreenshotThread extends ThreadAbstract {
 	public void release() {
 		lock.rl.lock();
 		try {
-			if (driver == null)
+			if (browserDriver == null)
 				return;
-			driver.quit();
-			driver = null;
+			browserDriver.close();
+		} catch (IOException e) {
+			Logging.warn(e);
 		} finally {
 			lock.rl.unlock();
 		}

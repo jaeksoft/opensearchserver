@@ -46,6 +46,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	private PropertyItem<Boolean> exclusionEnabled;
 	private PropertyItem<Boolean> inclusionEnabled;
 	private PropertyItem<Boolean> robotsTxtEnabled;
+	private PropertyItem<String> screenshotBrowser;
 	private PropertyItem<String> screenshotMethod;
 	private PropertyItem<Integer> screenshotCaptureWidth;
 	private PropertyItem<Integer> screenshotCaptureHeight;
@@ -72,6 +73,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
 		screenshotMethod = newStringProperty("screenshotMethod", "");
+		screenshotBrowser = newStringProperty("screenshotBrowser", "");
 		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth",
 				1024, 1, null);
 		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight",
@@ -143,6 +145,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public PropertyItem<String> getScreenshotMethod() {
 		return screenshotMethod;
+	}
+
+	public PropertyItem<String> getScreenshotBrowser() {
+		return screenshotBrowser;
 	}
 
 	public PropertyItem<Integer> getScreenshotCaptureWidth() {
