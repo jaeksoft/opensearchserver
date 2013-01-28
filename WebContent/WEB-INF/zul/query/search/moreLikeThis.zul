@@ -64,7 +64,7 @@
 					</listhead>
 					<template name="model" var="mltField">
 						<listitem>
-							<listcell label="@load(mltField.name)" />
+							<listcell label="@load(mltField)" />
 							<listcell>
 								<button tooltiptext="Remove the field"
 									image="/images/action_delete.png"
