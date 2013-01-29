@@ -33,9 +33,9 @@ import java.util.TreeSet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.search.FieldCache.StringIndex;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.FieldContentCacheKey;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -93,7 +93,7 @@ public class FieldCache extends
 		// Check missing fields from StringIndex
 		if (indexedField.size() > 0) {
 			for (String fieldName : indexedField) {
-				StringIndex stringIndex = reader.getStringIndex(fieldName);
+				FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 				if (stringIndex != null) {
 					String term = stringIndex.lookup[stringIndex.order[docId]];
 					if (term != null) {

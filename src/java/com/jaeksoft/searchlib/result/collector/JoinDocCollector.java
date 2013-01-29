@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.result.collector;
 import java.io.IOException;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
@@ -184,9 +184,9 @@ public class JoinDocCollector implements JoinDocInterface {
 	}
 
 	final public static DocIdInterface join(DocIdInterface docs,
-			StringIndex doc1StringIndex, DocIdInterface docs2,
-			StringIndex doc2StringIndex, int joinResultSize, int joinResultPos,
-			Timer timer, boolean factorScore) {
+			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
+			FieldCacheIndex doc2StringIndex, int joinResultSize,
+			int joinResultPos, Timer timer, boolean factorScore) {
 		if (docs.getSize() == 0 || docs2.getSize() == 0)
 			return docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
 					: JoinDocCollector.EMPTY;

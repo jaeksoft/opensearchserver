@@ -24,9 +24,9 @@
 
 package com.jaeksoft.searchlib.collapse;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -40,7 +40,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 	@Override
 	protected CollapseDocInterface collapse(DocIdInterface collector,
-			int fetchLength, StringIndex collapseStringIndex, Timer timer) {
+			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "adjacent collapse");
 

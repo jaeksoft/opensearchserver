@@ -31,9 +31,9 @@ import java.util.TreeMap;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.External;
@@ -129,7 +129,7 @@ public class Facet implements Iterable<FacetItem>,
 			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
 				collector.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
@@ -139,7 +139,7 @@ public class Facet implements Iterable<FacetItem>,
 			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
-		StringIndex stringIndex = reader.getStringIndex(fieldName);
+		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeSinglevalued(stringIndex, collector.getIds());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
@@ -150,7 +150,7 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final private static int[] computeMultivalued(ReaderLocal reader,
-			String fieldName, StringIndex stringIndex, OpenBitSet bitset)
+			String fieldName, FieldCacheIndex stringIndex, OpenBitSet bitset)
 			throws IOException {
 		int[] countIndex = new int[stringIndex.lookup.length];
 		int i = 0;
@@ -169,7 +169,7 @@ public class Facet implements Iterable<FacetItem>,
 		return countIndex;
 	}
 
-	final private static int[] computeSinglevalued(StringIndex stringIndex,
+	final private static int[] computeSinglevalued(FieldCacheIndex stringIndex,
 			int[] docsId) throws IOException {
 		int[] countArray = new int[stringIndex.lookup.length];
 		int[] order = stringIndex.order;

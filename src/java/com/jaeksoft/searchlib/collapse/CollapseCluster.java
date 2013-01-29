@@ -27,8 +27,7 @@ package com.jaeksoft.searchlib.collapse;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
-
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -42,7 +41,7 @@ public class CollapseCluster extends CollapseAbstract {
 
 	@Override
 	protected CollapseDocInterface collapse(DocIdInterface collector,
-			int fetchLength, StringIndex collapseStringIndex, Timer timer) {
+			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "Build collapse map");
 		Map<String, Integer> collapsedDocMap = new TreeMap<String, Integer>();

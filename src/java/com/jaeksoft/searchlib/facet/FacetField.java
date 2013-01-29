@@ -28,11 +28,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -204,24 +204,27 @@ public class FacetField extends AbstractField<FacetField> {
 		return postCollapsing == f.postCollapsing ? 0 : -1;
 	}
 
-	public StringIndex getStringIndex(ReaderLocal reader) throws IOException {
+	public FieldCacheIndex getStringIndex(ReaderLocal reader)
+			throws IOException {
 		if (name.equals("score"))
 			return null;
 		else
 			return reader.getStringIndex(name);
 	}
 
-	public static StringIndex[] newStringIndexArrayForCollapsing(
+	public static FieldCacheIndex[] newStringIndexArrayForCollapsing(
 			FacetFieldList facetFieldList, ReaderLocal reader, Timer timer)
 			throws IOException {
 		if (facetFieldList.size() == 0)
 			return null;
-		List<StringIndex> facetFieldArray = new ArrayList<StringIndex>(0);
+		List<FieldCacheIndex> facetFieldArray = new ArrayList<FieldCacheIndex>(
+				0);
 		for (FacetField facetField : facetFieldList)
 			if (facetField.isCheckPostCollapsing())
 				facetFieldArray.add(facetField.getStringIndex(reader));
 
-		StringIndex[] stringIndexArray = new StringIndex[facetFieldArray.size()];
+		FieldCacheIndex[] stringIndexArray = new FieldCacheIndex[facetFieldArray
+				.size()];
 		return facetFieldArray.toArray(stringIndexArray);
 	}
 

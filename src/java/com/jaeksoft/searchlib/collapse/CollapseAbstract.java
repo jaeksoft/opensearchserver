@@ -26,9 +26,8 @@ package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
-
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -58,10 +57,11 @@ public abstract class CollapseAbstract {
 	}
 
 	protected abstract CollapseDocInterface collapse(DocIdInterface collector,
-			int fetchLength, StringIndex collapseStringIndex, Timer timer);
+			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer);
 
 	public CollapseDocInterface run(DocIdInterface collector, int fetchLength,
-			StringIndex collapseStringIndex, Timer timer) throws IOException {
+			FieldCacheIndex collapseStringIndex, Timer timer)
+			throws IOException {
 
 		collapsedDocs = null;
 
@@ -128,7 +128,7 @@ public abstract class CollapseAbstract {
 
 	private CollapseDocInterface collapseFromCollector(
 			DocIdInterface collector, int searchRows, int end,
-			StringIndex collapseFieldStringIndex, Timer timer)
+			FieldCacheIndex collapseFieldStringIndex, Timer timer)
 			throws IOException {
 		int lastRows = 0;
 		int rows = end;
@@ -165,7 +165,7 @@ public abstract class CollapseAbstract {
 
 		int searchRows = searchRequest.getRows();
 		int end = searchRequest.getEnd();
-		StringIndex collapseFieldStringIndex = reader
+		FieldCacheIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
 		return collapseFromCollector(collector, searchRows, end,
 				collapseFieldStringIndex, timer);
@@ -174,7 +174,7 @@ public abstract class CollapseAbstract {
 	private CollapseDocInterface collapseFull(ReaderLocal reader,
 			DocIdInterface collector, Timer timer) throws IOException,
 			ParseException, SyntaxError {
-		StringIndex collapseFieldStringIndex = reader
+		FieldCacheIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
 		collapsedDocs = run(collector, collector.getSize(),
 				collapseFieldStringIndex, timer);

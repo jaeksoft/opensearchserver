@@ -30,7 +30,6 @@ import java.util.List;
 import javax.naming.NamingException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -40,6 +39,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -301,7 +301,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				throw new SearchLibException(
 						"The request template is not a Search request: "
 								+ queryTemplate);
-			StringIndex localStringIndex = reader.getStringIndex(localField);
+			FieldCacheIndex localStringIndex = reader
+					.getStringIndex(localField);
 			if (localStringIndex == null)
 				throw new SearchLibException(
 						"No string index found for the local field: "
@@ -326,7 +327,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				searchRequest.getFacetFieldList().clear();
 			}
 
-			StringIndex foreignFieldIndex = resultSearch.getReader()
+			FieldCacheIndex foreignFieldIndex = resultSearch.getReader()
 					.getStringIndex(foreignField);
 			if (foreignFieldIndex == null)
 				throw new SearchLibException(

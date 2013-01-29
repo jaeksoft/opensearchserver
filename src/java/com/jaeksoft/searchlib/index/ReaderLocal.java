@@ -351,12 +351,13 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public StringIndex getStringIndex(String fieldName) throws IOException {
+	public FieldCacheIndex getStringIndex(String fieldName) throws IOException {
 		rwl.r.lock();
 		try {
 			StringIndex si = org.apache.lucene.search.FieldCache.DEFAULT
 					.getStringIndex(indexReader, fieldName);
-			return si;
+			return new FieldCacheIndex(indexReader.getVersion(), si.lookup,
+					si.order);
 		} finally {
 			rwl.r.unlock();
 		}

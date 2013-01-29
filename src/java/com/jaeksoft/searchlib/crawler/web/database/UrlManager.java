@@ -69,6 +69,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UrlManager extends AbstractManager {
@@ -761,23 +762,31 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public int deleteUrls(SearchRequest searchRequest, TaskLog taskLog)
+	public long deleteUrls(SearchRequest searchRequest, TaskLog taskLog)
 			throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
-			int total = 0;
+			long total = 0;
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+			long last = 0;
 			for (;;) {
 				urlItemList.clear();
-				getUrlList(searchRequest, 0, 1000, urlItemList);
+				long len = getUrlList(searchRequest, 0, 1000, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
+				if (len == last) {
+					Logging.warn("URLManager loop redundancy (deleteUrls): "
+							+ len + "/" + total);
+					break;
+				}
+				last = len;
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
 				urlDbClient.deleteDocuments(urlList);
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) deleted");
+				ThreadUtils.sleepMs(100);
 			}
 			return total;
 		} finally {
@@ -794,25 +803,33 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public int updateFetchStatus(SearchRequest searchRequest,
+	public long updateFetchStatus(SearchRequest searchRequest,
 			FetchStatus fetchStatus, TaskLog taskLog)
 			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
-			int total = 0;
+			long total = 0;
 			urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
 					fetchStatus.value, false, true);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
+			long last = 0;
 			for (;;) {
 				urlItemList.clear();
-				getUrlList(searchRequest, 0, 1000, urlItemList);
+				long len = getUrlList(searchRequest, 0, 1000, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
+				if (len == last) {
+					Logging.warn("URLManager loop redundancy (updateFetchStatus): "
+							+ len + "/" + total);
+					break;
+				}
+				last = len;
 				for (UrlItem urlItem : urlItemList)
 					urlItem.setFetchStatus(fetchStatus);
 				updateUrlItems(urlItemList);
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) updated");
+				ThreadUtils.sleepMs(100);
 			}
 			return total;
 		} catch (ParseException e) {

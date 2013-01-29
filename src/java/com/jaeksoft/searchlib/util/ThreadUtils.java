@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.naming.NamingException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 
@@ -116,6 +117,15 @@ public class ThreadUtils {
 			for (Thread thread : threadArray)
 				threadList.add(new ThreadInfo(thread));
 		return threadList;
+	}
+
+	public final static void sleepMs(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Logging.warn(e);
+		}
+
 	}
 
 }

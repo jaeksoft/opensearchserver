@@ -24,14 +24,13 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import org.apache.lucene.search.FieldCache.StringIndex;
-
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class AscStringIndexSorter extends AbstractStringIndexSorter {
 
 	public AscStringIndexSorter(DocIdInterface collector,
-			StringIndex stringIndex) {
+			FieldCacheIndex stringIndex) {
 		super(collector, stringIndex);
 	}
 
