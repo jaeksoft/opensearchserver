@@ -401,11 +401,11 @@ public class UrlManager extends AbstractManager {
 				like = like.trim();
 				if (like.length() > 0) {
 					like = SearchRequest.escapeQuery(like,
+							SearchRequest.CONTROL_CHARS);
+					like = SearchRequest.escapeQuery(like,
 							SearchRequest.RANGE_CHARS);
 					like = SearchRequest.escapeQuery(like,
 							SearchRequest.AND_OR_NOT_CHARS);
-					like = SearchRequest.escapeQuery(like,
-							SearchRequest.CONTROL_CHARS);
 					urlItemFieldEnum.url.addQuery(query, like, false);
 				}
 			}

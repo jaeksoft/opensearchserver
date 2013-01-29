@@ -72,7 +72,7 @@ public class WriterLocal extends WriterAbstract {
 		if (indexWriter == null)
 			return null;
 		try {
-			indexWriter.close(true);
+			indexWriter.close();
 			return null;
 		} catch (AlreadyClosedException e) {
 			Logging.warn(e.getMessage(), e);
@@ -105,6 +105,7 @@ public class WriterLocal extends WriterAbstract {
 				null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
+		Logging.debug("WriteLocal open " + indexDirectory.getDirectory());
 		return new IndexWriter(indexDirectory.getDirectory(),
 				new IndexWriterConfig(Version.LUCENE_36, null));
 	}
