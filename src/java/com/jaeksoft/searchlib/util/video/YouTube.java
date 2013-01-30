@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.util.video;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,23 +33,23 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.json.JSONException;
 
-import com.google.gdata.client.youtube.YouTubeService;
-import com.google.gdata.data.youtube.VideoEntry;
-import com.google.gdata.util.ServiceException;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public class YouTube {
 
 	private final static String API_URL = "http://gdata.youtube.com/feeds/api/videos/";
 	private final static String THUMBNAIL = "http://img.youtube.com/vi/";
 
-	private final static int TIMEOUT = 2000;
-
-	public static YouTubeItem getInfo(URL url) throws MalformedURLException,
-			IOException, ServiceException, URISyntaxException {
+	public static YouTubeItem getInfo(URL url, HttpDownloader httpDownloader)
+			throws MalformedURLException, IOException, URISyntaxException,
+			JSONException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);
@@ -58,16 +59,24 @@ public class YouTube {
 				Logging.debug("YouTube cache");
 			return youtubeItem;
 		}
-		YouTubeService youTubeService = new YouTubeService(null);
-		youTubeService.setConnectTimeout(TIMEOUT);
-		String videoApiURL = API_URL + videoId;
+
+		String videoApiURL = API_URL + videoId + "?alt=json";
 		String thumbnail = THUMBNAIL + videoId + "/default.jpg";
-		VideoEntry videoEntry = youTubeService.getEntry(new URL(videoApiURL),
-				VideoEntry.class);
-		youtubeItem = new YouTubeItem(videoEntry.getMediaGroup(), videoId,
-				thumbnail);
-		YouTubeItemCache.addItem(videoId, youtubeItem);
-		return youtubeItem;
+
+		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL),
+				null);
+		InputStream inputStream = downloadItem.getContentInputStream();
+		if (inputStream == null)
+			throw new IOException("No respond returned from YouTube API: "
+					+ videoApiURL);
+		try {
+			youtubeItem = new YouTubeItem(inputStream, videoId, thumbnail);
+			YouTubeItemCache.addItem(videoId, youtubeItem);
+			return youtubeItem;
+		} finally {
+			if (inputStream != null)
+				IOUtils.closeQuietly(inputStream);
+		}
 	}
 
 	private final static Pattern[] idPatterns = {
@@ -100,7 +109,7 @@ public class YouTube {
 	}
 
 	public final static void main(String[] args) throws MalformedURLException,
-			IOException, ServiceException, URISyntaxException {
+			IOException, URISyntaxException, JSONException {
 
 		String[] urls = {
 				"http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
@@ -110,8 +119,9 @@ public class YouTube {
 				"http://www.youtube.com/v/Ig1WxMI9bxQ?hl=fr" };
 		for (String u : urls) {
 			URL url = new URL(u);
-			String yti = getVideoId(url);
-			System.out.println(yti);
+			System.out.println(getInfo(url,
+					new HttpDownloader("OpenSearchServer", false, null))
+					.toJson(url));
 		}
 
 	}

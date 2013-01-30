@@ -67,8 +67,7 @@ public class VimeoFilter extends FilterFactory {
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
 		try {
-			WebPropertyManager propertyManager;
-			propertyManager = config.getWebPropertyManager();
+			WebPropertyManager propertyManager = config.getWebPropertyManager();
 			HttpDownloader httpDownloader = new HttpDownloader(propertyManager
 					.getUserAgent().getValue(), false,
 					propertyManager.getProxyHandler());

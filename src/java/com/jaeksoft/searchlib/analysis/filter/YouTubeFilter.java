@@ -28,6 +28,8 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public class YouTubeFilter extends FilterFactory {
 
@@ -62,7 +64,13 @@ public class YouTubeFilter extends FilterFactory {
 	}
 
 	@Override
-	public TokenStream create(TokenStream tokenStream) {
-		return new YouTubeTokenFilter(tokenStream, youtubeData, faultTolerant);
+	public TokenStream create(TokenStream tokenStream)
+			throws SearchLibException {
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		HttpDownloader httpDownloader = new HttpDownloader(propertyManager
+				.getUserAgent().getValue(), false,
+				propertyManager.getProxyHandler());
+		return new YouTubeTokenFilter(tokenStream, youtubeData, httpDownloader,
+				faultTolerant);
 	}
 }

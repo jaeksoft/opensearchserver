@@ -33,10 +33,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
-import com.google.gdata.util.ServiceException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -50,8 +48,8 @@ public class Dailymotion {
 			Pattern.compile("/swf/([^&]+).*") };
 
 	public static DailymotionItem getInfo(URL url, HttpDownloader httpDownloader)
-			throws MalformedURLException, IOException, ServiceException,
-			URISyntaxException, JSONException {
+			throws MalformedURLException, IOException, URISyntaxException,
+			JSONException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);
@@ -63,8 +61,9 @@ public class Dailymotion {
 		}
 		String videoApiURL = API_URL + videoId;
 		String thumbnail = THUMBNAIL + videoId;
-		InputStream dailymotionResponse = getDailyMotionResponse(
-				httpDownloader, videoApiURL);
+		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL),
+				null);
+		InputStream dailymotionResponse = downloadItem.getContentInputStream();
 		if (dailymotionResponse == null)
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
@@ -96,15 +95,8 @@ public class Dailymotion {
 		return null;
 	}
 
-	private static InputStream getDailyMotionResponse(
-			HttpDownloader httpDownload, String url)
-			throws ClientProtocolException, IOException, URISyntaxException {
-		DownloadItem downloadItem = httpDownload.get(new URI(url), null);
-		return downloadItem.getContentInputStream();
-	}
-
 	public final static void main(String[] args) throws MalformedURLException,
-			IOException, ServiceException, URISyntaxException, JSONException {
+			IOException, URISyntaxException, JSONException {
 		String[] urls = {
 				"http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1",
 				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0" };

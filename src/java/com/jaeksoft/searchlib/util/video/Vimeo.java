@@ -35,11 +35,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONException;
 
-import com.google.gdata.util.ServiceException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -52,8 +50,8 @@ public class Vimeo {
 			Pattern.compile("/video/([0-9]+)") };
 
 	public static VimeoItem getInfo(URL url, HttpDownloader httpDownloader)
-			throws MalformedURLException, IOException, ServiceException,
-			URISyntaxException, JSONException {
+			throws MalformedURLException, IOException, URISyntaxException,
+			JSONException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);
@@ -68,8 +66,10 @@ public class Vimeo {
 		videoApiURL.append(videoId);
 		videoApiURL.append(".json");
 
-		InputStream vimeoResponse = getVimeonResponse(httpDownloader,
-				videoApiURL.toString());
+		DownloadItem downloadItem = httpDownloader.get(
+				new URI(videoApiURL.toString()), null);
+		InputStream vimeoResponse = downloadItem.getContentInputStream();
+
 		if (vimeoResponse == null)
 			throw new IOException("No respond returned from Dailymotion API: "
 					+ videoApiURL);
@@ -106,15 +106,8 @@ public class Vimeo {
 		return null;
 	}
 
-	private static InputStream getVimeonResponse(HttpDownloader httpDownload,
-			String url) throws ClientProtocolException, IOException,
-			URISyntaxException {
-		DownloadItem downloadItem = httpDownload.get(new URI(url), null);
-		return downloadItem.getContentInputStream();
-	}
-
 	public final static void main(String[] args) throws MalformedURLException,
-			IOException, ServiceException, URISyntaxException, JSONException {
+			IOException, URISyntaxException, JSONException {
 		String[] urls = {
 				"http://vimeo.com/18609766",
 				"http://player.vimeo.com/video/18609766",

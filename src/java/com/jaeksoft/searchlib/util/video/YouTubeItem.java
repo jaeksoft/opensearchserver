@@ -23,11 +23,13 @@
  **/
 package com.jaeksoft.searchlib.util.video;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
-import org.json.simple.JSONObject;
-
-import com.google.gdata.data.youtube.YouTubeMediaGroup;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class YouTubeItem {
 
@@ -36,13 +38,24 @@ public class YouTubeItem {
 	private final String videoId;
 	private final String thumbnail;
 
-	public YouTubeItem(YouTubeMediaGroup youTubeMediaGroup, String videoId,
-			String thumbnail) {
-		this.title = youTubeMediaGroup.getTitle().getPlainTextContent();
-		this.description = youTubeMediaGroup.getDescription()
-				.getPlainTextContent();
+	public YouTubeItem(InputStream inputStream, String videoId, String thumbnail)
+			throws IOException, JSONException {
+		String jsonText = IOUtils.toString(inputStream);
+		JSONObject jsonRoot = new JSONObject(jsonText);
+		JSONObject jsonEntry = jsonRoot.getJSONObject("entry");
+		if (jsonEntry == null)
+			throw new JSONException("No entry item");
+		this.title = getText(jsonEntry, "title");
+		this.description = getText(jsonEntry, "content");
 		this.videoId = videoId;
 		this.thumbnail = thumbnail;
+	}
+
+	private String getText(JSONObject json, String key) throws JSONException {
+		json = json.getJSONObject(key);
+		if (json == null)
+			return null;
+		return json.getString("$t");
 	}
 
 	final public String getTitle() {
@@ -75,14 +88,13 @@ public class YouTubeItem {
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	final public String toJson(URL url) {
+	final public String toJson(URL url) throws JSONException {
 		JSONObject json = new JSONObject();
 		json.put("url", url.toExternalForm());
 		json.put("title", title);
 		json.put("description", description);
 		json.put("videoId", videoId);
 		json.put("thumbnail", thumbnail);
-		return json.toJSONString();
+		return json.toString(0);
 	}
 }

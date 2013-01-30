@@ -29,6 +29,7 @@ import java.net.URL;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.video.YouTube;
 import com.jaeksoft.searchlib.util.video.YouTubeItem;
 
@@ -36,11 +37,13 @@ public class YouTubeTokenFilter extends AbstractTermFilter {
 
 	private int youtubeData;
 	private boolean faultTolerant;
+	private HttpDownloader httpDownloader = null;
 
 	protected YouTubeTokenFilter(TokenStream input, int youtubeData,
-			boolean faultTolerant) {
+			HttpDownloader httpDownloader, boolean faultTolerant) {
 		super(input);
 		this.youtubeData = youtubeData;
+		this.httpDownloader = httpDownloader;
 		this.faultTolerant = faultTolerant;
 	}
 
@@ -53,7 +56,7 @@ public class YouTubeTokenFilter extends AbstractTermFilter {
 			String term = termAtt.toString();
 			try {
 				URL url = new URL(term);
-				YouTubeItem youtubeItem = YouTube.getInfo(url);
+				YouTubeItem youtubeItem = YouTube.getInfo(url, httpDownloader);
 				switch (youtubeData) {
 				case 0:
 					term = youtubeItem.getTitle();
