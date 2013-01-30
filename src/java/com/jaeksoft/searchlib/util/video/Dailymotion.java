@@ -44,7 +44,7 @@ public class Dailymotion {
 	private final static String API_URL = "https://api.dailymotion.com/video/";
 	private final static String THUMBNAIL = "http://www.dailymotion.com/thumbnail/video/";
 	private final static Pattern[] idPatterns = {
-			Pattern.compile("/video/([^_]+).*"),
+			Pattern.compile(".*/video/([^_&]+).*"),
 			Pattern.compile("/swf/([^&]+).*") };
 
 	public static DailymotionItem getInfo(URL url, HttpDownloader httpDownloader)
@@ -97,13 +97,17 @@ public class Dailymotion {
 
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, URISyntaxException, JSONException {
+		HttpDownloader downloader = new HttpDownloader("OpenSearchServer",
+				false, null);
 		String[] urls = {
 				"http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1",
-				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0" };
+				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0",
+				"http://www.dailymotion.com/embed/video/xayzui" };
 		for (String u : urls) {
 			URL url = new URL(u);
-			System.out.println(getVideoId(url));
+			System.out.println(getInfo(url, downloader).toJson(url));
 		}
+		downloader.release();
 
 	}
 }

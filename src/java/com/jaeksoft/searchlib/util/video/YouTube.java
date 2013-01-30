@@ -111,6 +111,8 @@ public class YouTube {
 	public final static void main(String[] args) throws MalformedURLException,
 			IOException, URISyntaxException, JSONException {
 
+		HttpDownloader downloader = new HttpDownloader("OpenSearchServer",
+				false, null);
 		String[] urls = {
 				"http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
 				"http://www.youtube.com/watch?v=HmQk3ovfiF0&feature=g-all-f",
@@ -119,10 +121,9 @@ public class YouTube {
 				"http://www.youtube.com/v/Ig1WxMI9bxQ?hl=fr" };
 		for (String u : urls) {
 			URL url = new URL(u);
-			System.out.println(getInfo(url,
-					new HttpDownloader("OpenSearchServer", false, null))
-					.toJson(url));
+			System.out.println(getInfo(url, downloader).toJson(url));
 		}
+		downloader.release();
 
 	}
 }
