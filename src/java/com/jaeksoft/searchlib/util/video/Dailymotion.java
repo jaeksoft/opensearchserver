@@ -102,7 +102,8 @@ public class Dailymotion {
 		String[] urls = {
 				"http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1",
 				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0",
-				"http://www.dailymotion.com/embed/video/xayzui" };
+				"http://www.dailymotion.com/embed/video/xayzui",
+				"http://www.dailymotion.com/embed/video/xl4c8y?logo=0&autoPlay=1&repeat=1&forcedQuality=sd" };
 		for (String u : urls) {
 			URL url = new URL(u);
 			System.out.println(getInfo(url, downloader).toJson(url));
