@@ -209,7 +209,14 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	@Override
 	public List<SecurityAccess> getSecurity() throws IOException {
 		SmbFile smbFile = getSmbFile();
-		ACE[] aces = smbFile.getSecurity();
+		ACE[] aces = null;
+		try {
+			aces = smbFile.getSecurity();
+		} catch (SmbException e) {
+			if (e.getNtStatus() == 0xC00000BB)
+				return null;
+			throw e;
+		}
 		if (aces == null)
 			return null;
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();

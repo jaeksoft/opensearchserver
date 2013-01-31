@@ -107,6 +107,8 @@ public class SecurityAccess {
 	public final static List<String> getIds(List<SecurityAccess> accessList,
 			Type type, Grant grant) {
 		List<String> idList = new ArrayList<String>();
+		if (accessList == null)
+			return null;
 		for (SecurityAccess access : accessList)
 			if (access.type == type && access.grant == grant)
 				idList.add(access.id);
