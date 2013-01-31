@@ -23,6 +23,7 @@ New features:
 
 Bug fixes:
 - 170: Wrong file path in file crawler
+- 169: java.lang.NullPointerException on flush expired contend from cash
 - 166: Query -> More like This causes  Property 'name' not found on type java.lang.String
 - 165: Not possible to copy an address in Crawler -> Web -> Pattern List
 - 163: Weight is ignored in query scoring item

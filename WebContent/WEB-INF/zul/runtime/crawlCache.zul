@@ -27,8 +27,7 @@
 				<rows>
 					<row>
 						<label value="Enabled" />
-						<checkbox
-							checked="@bind(crawlcache.crawlCacheManager.enabled)"
+						<checkbox checked="@bind(crawlcache.enabled)"
 							onCheck="@command('reload')" />
 						<space />
 					</row>

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 import java.io.IOException;
 
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -62,6 +63,26 @@ public class CrawlCacheComposer extends CommonController {
 		long count = manager.flushCache(expiration);
 		reload();
 		new AlertController(count + " content(s) deleted.");
+	}
+
+	public boolean isEnabled() throws SearchLibException {
+		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
+		if (manager == null)
+			return false;
+		return manager.isEnabled();
+	}
+
+	public void setEnabled(boolean b) throws SearchLibException,
+			InterruptedException {
+		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
+		if (manager == null)
+			return;
+		try {
+			manager.setEnabled(b);
+		} catch (Exception e) {
+			reload();
+			new AlertController(e.getMessage(), Messagebox.ERROR);
+		}
 	}
 
 	@Command

@@ -70,8 +70,7 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 	public void init(String configString) throws IOException {
 		rwl.w.lock();
 		try {
-			if (fileSystem != null)
-				IOUtils.closeQuietly(fileSystem);
+			closeNoLock();
 			configuration = new Configuration();
 			for (String configFile : configFiles)
 				configuration.addResource(new Path(configString, configFile));
@@ -81,13 +80,18 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		}
 	}
 
+	final private void closeNoLock() {
+		if (fileSystem != null) {
+			IOUtils.closeQuietly(fileSystem);
+			fileSystem = null;
+		}
+	}
+
 	@Override
 	public void close() {
 		rwl.w.lock();
 		try {
-			if (fileSystem != null)
-				IOUtils.closeQuietly(fileSystem);
-			fileSystem = null;
+			closeNoLock();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -136,6 +140,7 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 			JSONException, URISyntaxException {
 		rwl.r.lock();
 		try {
+			checkFileSystemAvailable();
 			Path path = uriToPath(uri, META_EXTENSION);
 			if (!fileSystem.exists(path))
 				return null;
@@ -174,10 +179,16 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		return count;
 	}
 
+	private void checkFileSystemAvailable() throws IOException {
+		if (fileSystem == null)
+			throw new IOException("File system not configured");
+	}
+
 	@Override
 	public long flush(long expiration) throws IOException {
 		rwl.r.lock();
 		try {
+			checkFileSystemAvailable();
 			Path path = new Path(PATH_HTTP_DOWNLOAD_CACHE);
 			return purge(fileSystem.listStatus(path), expiration);
 		} finally {
