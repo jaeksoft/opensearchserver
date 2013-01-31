@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
@@ -93,6 +94,18 @@ public abstract class FileInstanceAbstract {
 	public abstract Long getFileSize() throws SearchLibException;
 
 	public abstract InputStream getInputStream() throws IOException;
+
+	public boolean check() throws SearchLibException, URISyntaxException {
+
+		FileInstanceAbstract[] files = listFilesAndDirectories();
+		if (Logging.isDebug) {
+			Logging.debug(this + " check ");
+			if (files != null)
+				for (FileInstanceAbstract file : files)
+					Logging.debug(this + " check " + file.getPath());
+		}
+		return true;
+	}
 
 	public FilePathItem getFilePathItem() {
 		return filePathItem;

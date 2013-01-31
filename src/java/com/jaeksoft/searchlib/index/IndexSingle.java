@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,26 +66,21 @@ public class IndexSingle extends IndexAbstract {
 			ClassNotFoundException {
 		super(indexConfig);
 		online = true;
-		if (indexConfig.getNativeOSSE()) {
-			reader = new ReaderNativeOSSE(configDir, indexConfig);
-			writer = new WriterNativeOSSE(configDir, indexConfig,
-					(ReaderNativeOSSE) reader);
-		} else {
-			boolean bCreate = false;
-			File indexDir = new File(configDir, "index");
-			if (!indexDir.exists()) {
-				if (!createIfNotExists)
-					return;
-				indexDir.mkdir();
-				bCreate = true;
-			} else
-				indexDir = findIndexDirOrSub(indexDir);
-			indexDirectory = new IndexDirectory(indexDir);
-			writer = new WriterLocal(indexConfig, this, indexDirectory);
-			if (bCreate)
-				((WriterLocal) writer).create();
-			reader = new ReaderLocal(indexConfig, indexDirectory);
-		}
+
+		boolean bCreate = false;
+		File indexDir = new File(configDir, "index");
+		if (!indexDir.exists()) {
+			if (!createIfNotExists)
+				return;
+			indexDir.mkdir();
+			bCreate = true;
+		} else
+			indexDir = findIndexDirOrSub(indexDir);
+		indexDirectory = new IndexDirectory(indexDir);
+		writer = new WriterLocal(indexConfig, this, indexDirectory);
+		if (bCreate)
+			((WriterLocal) writer).create();
+		reader = new ReaderLocal(indexConfig, indexDirectory);
 	}
 
 	/**
@@ -153,14 +148,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocument(Schema schema, String uniqueField)
+	public int deleteDocument(Schema schema, String field, String value)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
 			checkReadOnly(false);
 			if (writer != null)
-				return writer.deleteDocument(schema, uniqueField);
+				return writer.deleteDocument(schema, field, value);
 			else
 				return 0;
 		} finally {
@@ -169,14 +164,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws SearchLibException {
+	public int deleteDocuments(Schema schema, String field,
+			Collection<String> values) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
 			checkReadOnly(false);
 			if (writer != null)
-				return writer.deleteDocuments(schema, uniqueFields);
+				return writer.deleteDocuments(schema, field, values);
 			else
 				return 0;
 		} finally {

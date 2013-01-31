@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.common.database;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.jaeksoft.searchlib.Client;
@@ -33,6 +34,11 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.schema.Indexed;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public abstract class AbstractManager {
 
@@ -62,6 +68,32 @@ public abstract class AbstractManager {
 				}
 			currentTaskLog = taskLog;
 		}
+	}
+
+	protected final String findIndexedFieldOfTargetIndex(String sourceField)
+			throws SearchLibException {
+
+		List<TargetField> mappedPath = targetClient.getFileCrawlerFieldMap()
+				.getLinks(new SourceField(sourceField));
+
+		if (mappedPath == null || mappedPath.isEmpty())
+			return null;
+
+		SchemaFieldList targetSchemaFieldList = targetClient.getSchema()
+				.getFieldList();
+		SchemaField targetUniqueField = targetSchemaFieldList.getUniqueField();
+		for (TargetField targetField : mappedPath) {
+			SchemaField field = targetSchemaFieldList
+					.get(targetField.getName());
+			if (field.getIndexed() != Indexed.YES)
+				continue;
+			if (targetUniqueField != null)
+				if (field.getName().equals(targetUniqueField.getName()))
+					return field.getName();
+			if (field.getIndexAnalyzer() == null)
+				return field.getName();
+		}
+		return null;
 	}
 
 	public void resetCurrentTaskLog() {

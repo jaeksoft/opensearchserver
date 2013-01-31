@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -105,8 +105,12 @@ public class UrlManager extends AbstractManager {
 
 	public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
-		targetClient.deleteDocuments(workDeleteUrlList);
-		urlDbClient.deleteDocuments(workDeleteUrlList);
+		String targetField = findIndexedFieldOfTargetIndex(urlItemFieldEnum.url
+				.getName());
+		if (targetField != null)
+			targetClient.deleteDocuments(targetField, workDeleteUrlList);
+		urlDbClient.deleteDocuments(urlItemFieldEnum.url.getName(),
+				workDeleteUrlList);
 	}
 
 	public UrlItem getNewUrlItem() {
@@ -663,7 +667,11 @@ public class UrlManager extends AbstractManager {
 			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
 			if (documentsToDelete.size() > 0) {
-				targetClient.deleteDocuments(documentsToDelete);
+				String targetField = findIndexedFieldOfTargetIndex(urlItemFieldEnum.url
+						.getName());
+				if (targetField != null)
+					targetClient
+							.deleteDocuments(targetField, documentsToDelete);
 				targetClient.getScreenshotManager().delete(documentsToDelete);
 			}
 		} catch (NoSuchAlgorithmException e) {
@@ -783,7 +791,8 @@ public class UrlManager extends AbstractManager {
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
-				urlDbClient.deleteDocuments(urlList);
+				urlDbClient.deleteDocuments(urlItemFieldEnum.url.getName(),
+						urlList);
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) deleted");
 				ThreadUtils.sleepMs(100);

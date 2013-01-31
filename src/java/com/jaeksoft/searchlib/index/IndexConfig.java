@@ -51,8 +51,6 @@ public class IndexConfig {
 
 	private IndexMode readWriteMode;
 
-	private boolean nativeOSSE;
-
 	private int maxNumSegments;
 
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
@@ -66,8 +64,6 @@ public class IndexConfig {
 		remoteUri = s == null ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
-		nativeOSSE = "yes".equals(XPathParser.getAttributeString(node,
-				"nativeOSSE"));
 		setSimilarityClass(XPathParser.getAttributeString(node,
 				"similarityClass"));
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
@@ -83,10 +79,9 @@ public class IndexConfig {
 				.toString(filterCache), "fieldCache", Integer
 				.toString(fieldCache), "remoteUrl",
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
-				keyField, "keyMd5RegExp", keyMd5RegExp, "nativeOSSE",
-				nativeOSSE ? "yes" : "no", "similarityClass", similarityClass,
-				"readWriteMode", readWriteMode.name(), "maxNumSegments",
-				Integer.toString(maxNumSegments));
+				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
+				similarityClass, "readWriteMode", readWriteMode.name(),
+				"maxNumSegments", Integer.toString(maxNumSegments));
 		xmlWriter.endElement();
 	}
 
@@ -148,10 +143,6 @@ public class IndexConfig {
 	 */
 	public void setRemoteUri(URI remoteUri) {
 		this.remoteUri = remoteUri;
-	}
-
-	public boolean getNativeOSSE() {
-		return nativeOSSE;
 	}
 
 	/**

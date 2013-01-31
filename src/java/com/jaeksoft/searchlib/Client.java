@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -142,7 +142,7 @@ public class Client extends Config {
 	private final int deleteUniqueKeyList(int totalCount, int docCount,
 			Collection<String> deleteList, InfoCallback infoCallBack)
 			throws SearchLibException {
-		docCount += deleteDocuments(deleteList);
+		docCount += deleteDocuments(null, deleteList);
 		StringBuffer sb = new StringBuffer();
 		sb.append(docCount);
 		sb.append(" / ");
@@ -182,21 +182,23 @@ public class Client extends Config {
 		return deleteCount;
 	}
 
-	public int deleteDocument(String uniqueField) throws SearchLibException {
-		Timer timer = new Timer("Delete document " + uniqueField);
+	public int deleteDocument(String field, String value)
+			throws SearchLibException {
+		Timer timer = new Timer("Delete document " + field + ": " + value);
 		try {
-			return getIndexAbstract().deleteDocument(getSchema(), uniqueField);
+			return getIndexAbstract().deleteDocument(getSchema(), field, value);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
 	}
 
-	public int deleteDocuments(Collection<String> uniqueFields)
+	public int deleteDocuments(String field, Collection<String> values)
 			throws SearchLibException {
-		Timer timer = new Timer("Delete " + uniqueFields.size() + " documents");
+		Timer timer = new Timer("Delete " + values.size() + " documents("
+				+ field + ")");
 		try {
-			return getIndexAbstract()
-					.deleteDocuments(getSchema(), uniqueFields);
+			return getIndexAbstract().deleteDocuments(getSchema(), field,
+					values);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}

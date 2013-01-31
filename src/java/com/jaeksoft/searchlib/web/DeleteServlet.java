@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.remote.StreamReadObject;
 import com.jaeksoft.searchlib.request.DeleteRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
@@ -52,19 +51,12 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
-	private int deleteUniqDoc(Client client, String uniq)
+	private int deleteUniqDoc(Client client, String field, String value)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		return client.deleteDocument(uniq);
+		return client.deleteDocument(field, value);
 
-	}
-
-	private int deleteUniqDocs(Client client, Collection<String> uniqFields)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return client.deleteDocuments(uniqFields);
 	}
 
 	private int deleteByQuery(Client client, String q)
@@ -74,28 +66,6 @@ public class DeleteServlet extends AbstractServlet {
 		SearchRequest request = new SearchRequest(client);
 		request.setQueryString(q);
 		return client.deleteDocuments(request);
-	}
-
-	@SuppressWarnings("unchecked")
-	private int doObjectRequest(Client client, ServletTransaction transaction)
-			throws ServletException {
-		StreamReadObject readObject = null;
-		try {
-
-			readObject = new StreamReadObject(transaction.getInputStream());
-			Object obj = readObject.read();
-			if (obj instanceof DeleteRequest) {
-				return deleteUniqDocs(client,
-						((DeleteRequest<String>) obj).getCollection());
-			} else if (obj instanceof String)
-				return deleteUniqDoc(client, (String) obj);
-			return 0;
-		} catch (Exception e) {
-			throw new ServletException(e);
-		} finally {
-			if (readObject != null)
-				readObject.close();
-		}
 	}
 
 	@Override
@@ -113,11 +83,9 @@ public class DeleteServlet extends AbstractServlet {
 			String q = transaction.getParameterString("q");
 			Integer result = null;
 			if (uniq != null)
-				result = deleteUniqDoc(client, uniq);
+				result = deleteUniqDoc(client, null, uniq);
 			else if (q != null)
 				result = deleteByQuery(client, q);
-			else
-				result = doObjectRequest(client, transaction);
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Deleted", result.toString());
 		} catch (Exception e) {

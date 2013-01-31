@@ -321,15 +321,15 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int deleteDocument(Schema schema, String uniqueField)
+	public int deleteDocument(Schema schema, String field, String value)
 			throws SearchLibException {
-		SchemaField uniqueSchemaField = schema.getFieldList().getUniqueField();
-		if (uniqueSchemaField == null)
+		SchemaField schemaField = field != null ? schema.getFieldList().get(
+				field) : schema.getFieldList().getUniqueField();
+		if (schemaField == null)
 			return 0;
 		lock.rl.lock();
 		try {
-			return deleteDocumentNoLock(uniqueSchemaField.getName(),
-					uniqueField);
+			return deleteDocumentNoLock(schemaField.getName(), value);
 		} finally {
 			lock.rl.unlock();
 		}
@@ -361,23 +361,23 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws SearchLibException {
-		SchemaField uniqueSchemaField = schema.getFieldList().getUniqueField();
-		if (uniqueSchemaField == null)
+	public int deleteDocuments(Schema schema, String field,
+			Collection<String> values) throws SearchLibException {
+		SchemaField schemaField = field != null ? schema.getFieldList().get(
+				field) : schema.getFieldList().getUniqueField();
+		if (schemaField == null)
 			return 0;
 		int countNonNullValues = 0;
-		for (String value : uniqueFields)
+		for (String value : values)
 			if (value != null)
 				countNonNullValues++;
 		if (countNonNullValues == 0)
 			return 0;
-		String uniqueField = uniqueSchemaField.getName();
 		Term[] terms = new Term[countNonNullValues];
 		int i = 0;
-		for (String value : uniqueFields)
+		for (String value : values)
 			if (value != null)
-				terms[i++] = new Term(uniqueField, value);
+				terms[i++] = new Term(field, value);
 		lock.rl.lock();
 		try {
 			return deleteDocumentsNoLock(schema, terms);

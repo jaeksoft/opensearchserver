@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,8 +30,10 @@ import java.net.URISyntaxException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -114,6 +116,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 *            the domain to set
 	 */
 	public void setDomain(String domain) {
+		if (domain != null)
+			if (domain.length() == 0)
+				domain = null;
 		this.domain = domain;
 	}
 
@@ -159,6 +164,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 *            the username to set
 	 */
 	public void setUsername(String username) {
+		if (username != null)
+			if (username.length() == 0)
+				username = null;
 		this.username = username;
 	}
 
@@ -174,6 +182,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 *            the password to set
 	 */
 	public void setPassword(String password) {
+		if (password != null)
+			if (password.length() == 0)
+				password = null;
 		this.password = password;
 	}
 
@@ -302,4 +313,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return sb.toString();
 	}
 
+	public boolean check() throws InstantiationException,
+			IllegalAccessException, SearchLibException, URISyntaxException {
+		if (Logging.isDebug)
+			Logging.debug("CHECK " + this.toString());
+		return FileInstanceAbstract.create(this, null, path).check();
+	}
 }

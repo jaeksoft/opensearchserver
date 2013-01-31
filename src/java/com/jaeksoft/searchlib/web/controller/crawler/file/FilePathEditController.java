@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -189,6 +189,14 @@ public class FilePathEditController extends FileCrawlerController {
 		if (filePath == null)
 			return;
 		new DeleteAlert(filePath);
+	}
+
+	@Command
+	public void onCheck() throws InterruptedException, InstantiationException,
+			IllegalAccessException, SearchLibException, URISyntaxException {
+		if (currentFilePath == null)
+			return;
+		new AlertController("Test results: " + currentFilePath.check());
 	}
 
 	@Command

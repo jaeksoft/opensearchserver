@@ -158,6 +158,9 @@
 						<vbox width="100%" align="center">
 							<hbox
 								visible="@load(filepathedit.filePathSelected)">
+								<button label="Check"
+									onClick="@command('onCheck')" />
+								<space width="20px" />
 								<button label="Cancel"
 									onClick="@command('onCancel')" />
 								<space width="10px" />
@@ -169,6 +172,9 @@
 							</hbox>
 							<hbox
 								visible="@load(filepathedit.noFilePathSelected)">
+								<button label="Check"
+									onClick="@command('onCheck')" />
+								<space width="20px" />
 								<button label="Cancel"
 									onClick="@command('onCancel')" />
 								<space width="10px" />

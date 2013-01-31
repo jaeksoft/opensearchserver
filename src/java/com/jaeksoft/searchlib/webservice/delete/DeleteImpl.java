@@ -107,6 +107,6 @@ public class DeleteImpl extends CommonServices implements Delete {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		return client.deleteDocuments(uniqFields);
+		return client.deleteDocuments(null, uniqFields);
 	}
 }

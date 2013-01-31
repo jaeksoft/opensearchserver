@@ -40,6 +40,7 @@ import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
@@ -79,12 +80,16 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		if (smbFileStore != null)
 			return smbFileStore;
 		URL url = getURI().toURL();
-		if (filePathItem.isGuest())
+		if (filePathItem.isGuest()) {
+			if (Logging.isDebug)
+				Logging.debug("SMB Connect to (without auth) " + url);
 			smbFileStore = new SmbFile(url);
-		else {
+		} else {
 			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
 					filePathItem.getDomain(), filePathItem.getUsername(),
 					filePathItem.getPassword());
+			if (Logging.isDebug)
+				Logging.debug("SMB Connect to (with auth) " + url);
 			smbFileStore = new SmbFile(url, auth);
 		}
 		return smbFileStore;

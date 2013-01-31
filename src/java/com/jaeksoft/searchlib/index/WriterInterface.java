@@ -34,11 +34,11 @@ public interface WriterInterface {
 
 	public void deleteAll() throws SearchLibException;
 
-	public int deleteDocument(Schema schema, String uniqueField)
+	public int deleteDocument(Schema schema, String field, String value)
 			throws SearchLibException;
 
-	public int deleteDocuments(Schema schema, Collection<String> uniqueFields)
-			throws SearchLibException;
+	public int deleteDocuments(Schema schema, String field,
+			Collection<String> values) throws SearchLibException;
 
 	public int deleteDocuments(SearchRequest query) throws SearchLibException;
 

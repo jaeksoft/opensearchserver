@@ -334,34 +334,20 @@ public class FileManager extends AbstractManager {
 
 	public final boolean deleteByUri(List<String> rowToDelete)
 			throws SearchLibException {
-		try {
-			if (rowToDelete == null
-					|| (rowToDelete != null && rowToDelete.isEmpty()))
-				return false;
 
-			deleteByUriFromFileDBIndex(rowToDelete);
-			deleteByUriFromTargetIndex(rowToDelete);
-			return true;
+		if (rowToDelete == null
+				|| (rowToDelete != null && rowToDelete.isEmpty()))
+			return false;
 
-		} catch (SearchLibException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		}
+		fileDbClient.deleteDocuments(fileItemFieldEnum.uri.getName(),
+				rowToDelete);
+
+		String targetField = findIndexedFieldOfTargetIndex(fileItemFieldEnum.uri
+				.getName());
+		if (targetField != null)
+			targetClient.deleteDocuments(targetField, rowToDelete);
+		return true;
+
 	}
 
 	public final boolean deleteByParentUri(List<String> rowToDelete)
@@ -398,68 +384,6 @@ public class FileManager extends AbstractManager {
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		}
-		return true;
-	}
-
-	/**
-	 * Send delete order to DB index for Filename list given
-	 * 
-	 * @param rowToDelete
-	 * @throws SearchLibException
-	 * @throws IOException
-	 * @throws ParseException
-	 * @throws SyntaxError
-	 * @throws URISyntaxException
-	 * @throws ClassNotFoundException
-	 * @throws InterruptedException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	private final void deleteByUriFromFileDBIndex(List<String> rowToDelete)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
-
-		SearchRequest deleteRequest = new SearchRequest(fileDbClient);
-
-		deleteRequest.setQueryString(buildQueryString(
-				fileItemFieldEnum.uri.getName(), rowToDelete, true));
-		fileDbClient.deleteDocuments(deleteRequest);
-	}
-
-	/**
-	 * Send delete order to final index for Filename list given
-	 * 
-	 * @param rowToDelete
-	 * @return
-	 * @throws SearchLibException
-	 * @throws IOException
-	 * @throws ParseException
-	 * @throws SyntaxError
-	 * @throws URISyntaxException
-	 * @throws ClassNotFoundException
-	 * @throws InterruptedException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	private final boolean deleteByUriFromTargetIndex(List<String> rowToDelete)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
-
-		List<TargetField> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(new SourceField(fileItemFieldEnum.uri.getName()));
-
-		if (mappedPath == null || mappedPath.isEmpty())
-			return false;
-
-		SearchRequest deleteRequestTarget = new SearchRequest(targetClient);
-		deleteRequestTarget.setQueryString(buildQueryString(mappedPath.get(0)
-				.getName(), rowToDelete, true));
-
-		targetClient.deleteDocuments(deleteRequestTarget);
 		return true;
 	}
 
@@ -566,8 +490,13 @@ public class FileManager extends AbstractManager {
 			}
 			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
-			if (documentsToDelete.size() > 0)
-				targetClient.deleteDocuments(documentsToDelete);
+			if (documentsToDelete.size() > 0) {
+				String targetField = findIndexedFieldOfTargetIndex(fileItemFieldEnum.uri
+						.getName());
+				if (targetField != null)
+					targetClient
+							.deleteDocuments(targetField, documentsToDelete);
+			}
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -612,26 +541,6 @@ public class FileManager extends AbstractManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	/**
-	 * Build query from a String list
-	 * 
-	 * @param rows
-	 * @return
-	 */
-	private String buildQueryString(String parameter, List<String> rows,
-			boolean fuzzy) {
-		StringBuffer query = new StringBuffer(parameter);
-		query.append(":(");
-		for (String name : rows) {
-			query.append(SearchRequest.escapeQuery(name));
-			if (fuzzy)
-				query.append("*");
-			query.append(" OR ");
-		}
-		query.replace(query.length() - 4, query.length(), ")");
-		return query.toString();
 	}
 
 	protected ExtensibleEnum<FileInstanceType> getNewFileInstanceTypeEnum() {
@@ -684,7 +593,8 @@ public class FileManager extends AbstractManager {
 				List<String> uriList = new ArrayList<String>(itemList.size());
 				for (FileItem fileItem : itemList)
 					uriList.add(fileItem.getUri());
-				fileDbClient.deleteDocuments(uriList);
+				fileDbClient.deleteDocuments(fileItemFieldEnum.uri.getName(),
+						uriList);
 				total += itemList.size();
 				taskLog.setInfo(total + " URI(s) deleted");
 			}
