@@ -164,8 +164,8 @@ public class ScreenshotThread extends ThreadAbstract {
 			if (resize.width != capture.width
 					&& resize.height != capture.height)
 				image = resizeImage(image);
-			finalImage = image;
 			screenshotManager.store(url, image);
+			finalImage = image;
 		} finally {
 			release();
 		}
