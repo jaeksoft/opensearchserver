@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.database;
+package com.jaeksoft.searchlib.crawler.common.database;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class DatabaseFieldTarget extends TargetField {
+public class CommonFieldTarget extends TargetField {
 
 	private boolean removeTag;
 
@@ -54,7 +54,7 @@ public class DatabaseFieldTarget extends TargetField {
 
 	private Matcher findRegexpMatcher;
 
-	public DatabaseFieldTarget(String targetName, boolean removeTag,
+	public CommonFieldTarget(String targetName, boolean removeTag,
 			boolean convertHtmlEntities, boolean filePath,
 			String filePathPrefix, boolean crawlUrl, String findRegexTag,
 			String replaceRegexTag) {
@@ -69,12 +69,12 @@ public class DatabaseFieldTarget extends TargetField {
 		checkRegexpPattern();
 	}
 
-	public DatabaseFieldTarget(DatabaseFieldTarget from) {
+	public CommonFieldTarget(CommonFieldTarget from) {
 		super(from.getName());
 		this.copy(from);
 	}
 
-	public void copy(DatabaseFieldTarget from) {
+	public void copy(CommonFieldTarget from) {
 		this.setName(from.getName());
 		this.removeTag = from.removeTag;
 		this.convertHtmlEntities = from.convertHtmlEntities;
@@ -86,7 +86,7 @@ public class DatabaseFieldTarget extends TargetField {
 		checkRegexpPattern();
 	}
 
-	public DatabaseFieldTarget(String targetName, Node targetNode) {
+	public CommonFieldTarget(String targetName, Node targetNode) {
 		super(targetName);
 		removeTag = false;
 		convertHtmlEntities = false;

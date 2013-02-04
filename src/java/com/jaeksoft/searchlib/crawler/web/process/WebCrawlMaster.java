@@ -41,7 +41,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
@@ -58,7 +57,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
-public class WebCrawlMaster extends CrawlMasterAbstract {
+public class WebCrawlMaster extends
+		CrawlMasterAbstract<WebCrawlMaster, WebCrawlThread> {
 
 	private final LinkedList<NamedItem> oldHostList;
 
@@ -123,8 +123,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 				if (hostUrlList == null)
 					continue;
 
-				CrawlThreadAbstract crawlThread = new WebCrawlThread(config,
-						this, currentStats, hostUrlList);
+				WebCrawlThread crawlThread = new WebCrawlThread(config, this,
+						currentStats, hostUrlList);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -299,8 +299,13 @@ public class WebCrawlMaster extends CrawlMasterAbstract {
 
 	}
 
-	@Override
 	public CrawlQueueAbstract getCrawlQueue() {
 		return urlCrawlQueue;
 	}
+
+	@Override
+	protected WebCrawlThread[] getNewArray(int size) {
+		return new WebCrawlThread[size];
+	}
+
 }

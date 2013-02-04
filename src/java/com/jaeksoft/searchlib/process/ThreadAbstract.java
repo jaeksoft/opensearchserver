@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,13 +34,16 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
-public abstract class ThreadAbstract implements Runnable, InfoCallback {
+public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
+		Runnable, InfoCallback {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private volatile Config config;
+	private final Config config;
 
-	private volatile ThreadMasterAbstract threadMaster;
+	private final ThreadMasterAbstract<?, T> threadMaster;
+
+	private final ThreadItem<?, T> threadItem;
 
 	private volatile String info;
 
@@ -58,8 +61,10 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 
 	private volatile Exception exception;
 
-	protected ThreadAbstract(Config config, ThreadMasterAbstract threadMaster) {
+	protected ThreadAbstract(Config config,
+			ThreadMasterAbstract<?, T> threadMaster, ThreadItem<?, T> threadItem) {
 		this.config = config;
+		this.threadItem = threadItem;
 		this.threadMaster = threadMaster;
 		exception = null;
 		abort = false;
@@ -72,12 +77,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 	}
 
 	public Config getConfig() {
-		rwl.r.lock();
-		try {
-			return config;
-		} finally {
-			rwl.r.unlock();
-		}
+		return config;
 	}
 
 	public String getInfo() {
@@ -243,6 +243,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	final public void run() {
 		rwl.w.lock();
@@ -264,7 +265,7 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 				Logging.error(e.getMessage(), e);
 		}
 		if (threadMaster != null) {
-			threadMaster.remove(this);
+			threadMaster.remove((T) this);
 			synchronized (threadMaster) {
 				threadMaster.notify();
 			}
@@ -317,6 +318,10 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		}
 	}
 
+	protected ThreadItem<?, T> getThreadItem() {
+		return threadItem;
+	}
+
 	final public void execute() {
 		rwl.w.lock();
 		try {
@@ -327,13 +332,8 @@ public abstract class ThreadAbstract implements Runnable, InfoCallback {
 		}
 	}
 
-	final protected ThreadMasterAbstract getThreadMaster() {
-		rwl.r.lock();
-		try {
-			return threadMaster;
-		} finally {
-			rwl.r.unlock();
-		}
+	protected ThreadMasterAbstract<?, T> getThreadMaster() {
+		return threadMaster;
 	}
 
 	/**

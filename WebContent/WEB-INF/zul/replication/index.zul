@@ -127,20 +127,18 @@
 						<listcell
 							label="@load(item.readWriteMode.label)" />
 						<listcell
-							label="@load(item.lastReplicationThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+							label="@load(item.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
 						<listcell
-							label="@load(item.lastReplicationThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+							label="@load(item.lastThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
 						<listcell>
 							<progressmeter width="95%"
-								visible="@load(item.lastReplicationThread.running)"
-								value="@load(item.lastReplicationThread.progress)" />
+								visible="@load(item.lastThread.running)"
+								value="@load(item.lastThread.progress)" />
 						</listcell>
-						<listcell
-							label="@load(item.lastReplicationThread.info)" />
+						<listcell label="@load(item.lastThread.info)" />
 						<listcell>
 							<button tooltiptext="Start the replication"
-								disabled="@load(item.replicationThread)"
-								image="/images/action_check.png"
+								disabled="@load(item.thread)" image="/images/action_check.png"
 								onClick="@command('execute', item=item)" />
 						</listcell>
 					</listitem>

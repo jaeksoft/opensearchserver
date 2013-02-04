@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,19 +24,9 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.database;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
-import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,49 +34,17 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
-import com.jaeksoft.searchlib.crawler.database.DatabaseFieldTarget;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
-import com.jaeksoft.searchlib.util.map.GenericLink;
-import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
+import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
-public class DatabaseCrawlListController extends CrawlerController {
-
-	private class DeleteAlert extends AlertController {
-
-		private DatabaseCrawl dbcrawl;
-
-		protected DeleteAlert(DatabaseCrawl dbcrawl)
-				throws InterruptedException {
-			super("Please, confirm that you want to delete the crawl process: "
-					+ dbcrawl.getName(), Messagebox.YES | Messagebox.NO,
-					Messagebox.QUESTION);
-			this.dbcrawl = dbcrawl;
-		}
-
-		@Override
-		protected void onYes() throws SearchLibException {
-			getDatabaseCrawlList().remove(dbcrawl);
-			getClient().saveDatabaseCrawlList();
-			onCancel();
-		}
-	}
-
-	private transient List<String> indexFieldList;
-
-	private transient DatabaseCrawl currentCrawl;
-
-	private transient DatabaseCrawl selectedCrawl;
-
-	private transient GenericLink<SourceField, DatabaseFieldTarget> selectedField;
-
-	private transient DatabaseFieldTarget currentFieldTarget;
+public class DatabaseCrawlListController
+		extends
+		CommonFieldTargetCrawlerController<DatabaseCrawl, DatabaseCrawlThread, DatabaseCrawlMaster> {
 
 	private transient DatabaseCrawlList dbCrawlList;
-
-	private transient String sqlColumn;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
@@ -95,50 +53,8 @@ public class DatabaseCrawlListController extends CrawlerController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		currentCrawl = null;
-		DatabaseCrawlMaster cm = getCrawlMaster();
-		if (cm != null)
-			new DatabaseCrawl(cm);
-		selectedCrawl = null;
+		super.reset();
 		dbCrawlList = null;
-		sqlColumn = null;
-		selectedField = null;
-		indexFieldList = null;
-		currentFieldTarget = newDatabaseFieldTarget();
-	}
-
-	private DatabaseFieldTarget newDatabaseFieldTarget()
-			throws SearchLibException {
-		String fieldName = null;
-		List<String> list = getIndexFieldList();
-		if (list != null && list.size() > 0)
-			fieldName = list.get(0);
-		return new DatabaseFieldTarget(fieldName, false, false, false, null,
-				false, null, null);
-	}
-
-	public DatabaseCrawl getCurrentCrawl() {
-		return currentCrawl;
-	}
-
-	public boolean isSelected() {
-		return selectedCrawl != null;
-	}
-
-	public boolean isNotSelected() {
-		return !isSelected();
-	}
-
-	public boolean isEditing() {
-		return currentCrawl != null;
-	}
-
-	public boolean isNotEditing() {
-		return !isEditing();
-	}
-
-	public DatabaseCrawl getSelectedCrawl() {
-		return selectedCrawl;
 	}
 
 	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {
@@ -156,145 +72,34 @@ public class DatabaseCrawlListController extends CrawlerController {
 				.getClass().getClassLoader());
 	}
 
-	public void setSelectedCrawl(DatabaseCrawl crawl) throws SearchLibException {
-		selectedCrawl = crawl;
-		currentCrawl = new DatabaseCrawl(getCrawlMaster(), selectedCrawl);
-		reload();
-	}
-
-	@Command
-	public void onCancelField() throws SearchLibException {
-		sqlColumn = null;
-		selectedField = null;
-		currentFieldTarget = newDatabaseFieldTarget();
-		reload();
-	}
-
-	@Command
-	public void onSaveField() throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
-		if (!isDatabaseCrawlerEditPatternsRights())
-			throw new SearchLibException("Not allowed");
-		if (currentFieldTarget == null || currentFieldTarget.getName() == null
-				|| currentFieldTarget.getName().length() == 0)
-			throw new SearchLibException("Error");
-		if (selectedField != null)
-			currentCrawl.getFieldMap().remove(selectedField);
-		currentCrawl.getFieldMap().add(new SourceField(sqlColumn),
-				currentFieldTarget);
-		onCancelField();
-	}
-
-	@Command
-	public void removeLink(
-			@BindingParam("fieldlink") GenericLink<SourceField, DatabaseFieldTarget> fieldLink)
-			throws SearchLibException, InterruptedException {
-		currentCrawl.getFieldMap().remove(fieldLink);
-		reload();
-	}
-
+	@Override
 	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		getDatabaseCrawlList();
-		if (selectedCrawl != null)
-			currentCrawl.copyTo(selectedCrawl);
+		if (getSelectedCrawl() != null)
+			getCurrentCrawl().copyTo(getSelectedCrawl());
 		else {
-			if (dbCrawlList.get(currentCrawl.getName()) != null) {
+			if (dbCrawlList.get(getCurrentCrawl().getName()) != null) {
 				new AlertController("The crawl name is already used");
 				return;
 			}
-			dbCrawlList.add(currentCrawl);
+			dbCrawlList.add(getCurrentCrawl());
 		}
 		getClient().saveDatabaseCrawlList();
 		onCancel();
 	}
 
+	@Override
 	@Command
 	public void onNew() throws SearchLibException {
-		DatabaseCrawl oldCurrentCrawl = currentCrawl;
-		selectedCrawl = null;
-		currentCrawl = new DatabaseCrawl(getCrawlMaster());
+		DatabaseCrawl oldCurrentCrawl = getCurrentCrawl();
+		setSelectedCrawl(null);
+		DatabaseCrawl newCrawl = new DatabaseCrawl(getCrawlMaster());
+		setCurrentCrawl(newCrawl);
 		if (oldCurrentCrawl != null)
-			oldCurrentCrawl.copyTo(currentCrawl);
-		currentCrawl.setName(null);
+			oldCurrentCrawl.copyTo(newCrawl);
+		newCrawl.setName(null);
 		reload();
-	}
-
-	@Command
-	public void onCancel() throws SearchLibException {
-		currentCrawl = null;
-		selectedCrawl = null;
-		reload();
-	}
-
-	@Command
-	public void delete(@BindingParam("dbcrawlitem") DatabaseCrawl item)
-			throws SearchLibException, InterruptedException {
-		new DeleteAlert(item);
-	}
-
-	@Command
-	public void edit(@BindingParam("dbcrawlitem") DatabaseCrawl item)
-			throws SearchLibException, InterruptedException {
-		setSelectedCrawl(item);
-	}
-
-	@Command
-	public void execute(@BindingParam("dbcrawlitem") DatabaseCrawl item)
-			throws SearchLibException, InterruptedException {
-		Client client = getClient();
-		if (client == null)
-			return;
-		getCrawlMaster().execute(client, item, false, null);
-		reload();
-	}
-
-	@Override
-	public DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getDatabaseCrawlMaster();
-	}
-
-	public String getCurrentEditMode() throws SearchLibException {
-		return selectedCrawl == null ? "Create a new database crawl process"
-				: "Edit the database crawl process : "
-						+ selectedCrawl.getName();
-	}
-
-	public List<String> getIndexFieldList() throws SearchLibException {
-		synchronized (this) {
-			if (indexFieldList != null)
-				return indexFieldList;
-			Client client = getClient();
-			if (client == null)
-				return null;
-			indexFieldList = new ArrayList<String>();
-			client.getSchema().getFieldList().toNameList(indexFieldList);
-			return indexFieldList;
-		}
-	}
-
-	public void setSelectedIndexField(String field) {
-		synchronized (this) {
-			currentFieldTarget.setName(field);
-		}
-	}
-
-	public String getSelectedIndexField() {
-		synchronized (this) {
-			return currentFieldTarget.getName();
-		}
-	}
-
-	@Override
-	public boolean isRefresh() throws SearchLibException {
-		DatabaseCrawlMaster crawlMaster = getCrawlMaster();
-		if (crawlMaster == null)
-			return false;
-		return crawlMaster.getThreadsCount() > 0;
 	}
 
 	@Override
@@ -304,63 +109,35 @@ public class DatabaseCrawlListController extends CrawlerController {
 		super.reload();
 	}
 
-	/**
-	 * @return the currentFieldTarget
-	 */
-	public DatabaseFieldTarget getCurrentFieldTarget() {
-		return currentFieldTarget;
-	}
-
-	/**
-	 * @return the sqlColumn
-	 */
-	public String getSqlColumn() {
-		return sqlColumn;
-	}
-
-	/**
-	 * @param sqlColumn
-	 *            the sqlColumn to set
-	 */
-	public void setSqlColumn(String sqlColumn) {
-		this.sqlColumn = sqlColumn;
-	}
-
-	/**
-	 * @return the selectedField
-	 */
-	public GenericLink<SourceField, DatabaseFieldTarget> getSelectedField() {
-		return selectedField;
-	}
-
-	/**
-	 * @param selectedField
-	 *            the selectedField to set
-	 * @throws SearchLibException
-	 */
-	public void setSelectedField(
-			GenericLink<SourceField, DatabaseFieldTarget> selectedField)
-			throws SearchLibException {
-		this.selectedField = selectedField;
-		this.sqlColumn = selectedField.getSource().getUniqueName();
-		currentFieldTarget = new DatabaseFieldTarget(selectedField.getTarget());
-		reload();
-	}
-
-	public boolean isFieldSelected() {
-		return selectedField != null;
-	}
-
-	public boolean isNoFieldSelected() {
-		return !isFieldSelected();
-	}
-
 	public IsolationLevelEnum[] getIsolationLevels() {
 		return IsolationLevelEnum.values();
 	}
 
 	public SqlUpdateMode[] getSqlUpdateModes() {
 		return DatabaseCrawl.SqlUpdateMode.values();
+	}
+
+	@Override
+	protected void doDelete(DatabaseCrawl crawlItem) throws SearchLibException {
+		getClient().getDatabaseCrawlList().remove(crawlItem);
+	}
+
+	@Override
+	protected DatabaseCrawl newCrawlItem(DatabaseCrawl crawl) {
+		return new DatabaseCrawl(crawl);
+	}
+
+	@Override
+	public boolean isCrawlerEditRights() throws SearchLibException {
+		return isDatabaseCrawlerEditPatternsRights();
+	}
+
+	@Override
+	public DatabaseCrawlMaster getCrawlMaster() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getDatabaseCrawlMaster();
 	}
 
 }

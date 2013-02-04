@@ -64,7 +64,7 @@ public class CrawlerController extends CommonController {
 	protected void reset() throws SearchLibException {
 	}
 
-	public CrawlMasterAbstract getCrawlMaster() throws SearchLibException {
+	public CrawlMasterAbstract<?, ?> getCrawlMaster() throws SearchLibException {
 		return null;
 	}
 
@@ -168,31 +168,31 @@ public class CrawlerController extends CommonController {
 				Role.DATABASE_CRAWLER_START_STOP);
 	}
 
-	public boolean isIndexCrawlerRights() throws SearchLibException {
+	public boolean isMailboxCrawlerRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
 		if (isNoUserList())
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_INDEX_CRAWLER);
+				Role.GROUP_MAILBOX_CRAWLER);
 	}
 
-	public boolean isIndexCrawlerEditRights() throws SearchLibException {
+	public boolean isMailboxCrawlerEditRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
 		if (isNoUserList())
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.INDEX_CRAWLER_EDIT);
+				Role.MAILBOX_CRAWLER_EDIT);
 	}
 
-	public boolean isIndexCrawlerExecuteRights() throws SearchLibException {
+	public boolean isMailboxCrawlerExecuteRights() throws SearchLibException {
 		if (!isLogged() || !isInstanceValid())
 			return false;
 		if (isNoUserList())
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.INDEX_CRAWLER_EXECUTE);
+				Role.MAILBOX_CRAWLER_EXECUTE);
 	}
 
 	public RunMode[] getRunModes() {
@@ -208,7 +208,7 @@ public class CrawlerController extends CommonController {
 	}
 
 	public boolean isRefresh() throws SearchLibException {
-		CrawlMasterAbstract crawlMaster = getCrawlMaster();
+		CrawlMasterAbstract<?, ?> crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
 			return false;
 		return crawlMaster.isRunning() || crawlMaster.isAborting();
@@ -219,7 +219,7 @@ public class CrawlerController extends CommonController {
 	}
 
 	public String getRunButtonLabel() throws SearchLibException {
-		CrawlMasterAbstract crawlMaster = getCrawlMaster();
+		CrawlMasterAbstract<?, ?> crawlMaster = getCrawlMaster();
 		if (crawlMaster == null)
 			return null;
 		if (crawlMaster.isAborting())

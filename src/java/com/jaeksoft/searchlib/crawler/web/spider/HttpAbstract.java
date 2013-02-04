@@ -31,8 +31,6 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -76,7 +74,6 @@ public abstract class HttpAbstract {
 	private HttpUriRequest httpUriRequest = null;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
-	private Header[] headers = null;
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
 			ProxyHandler proxyHandler) {
@@ -159,7 +156,6 @@ public abstract class HttpAbstract {
 			return;
 		statusLine = httpResponse.getStatusLine();
 		httpEntity = httpResponse.getEntity();
-		headers = httpResponse.getAllHeaders();
 	}
 
 	public URI getRedirectLocation() {
@@ -282,14 +278,12 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	public List<String> getHeaders() {
+	public Header[] getHeaders() {
 		synchronized (this) {
-			List<String> headerList = new ArrayList<String>();
-			if (headers == null)
+			if (httpResponse == null)
 				return null;
-			for (Header header : headers)
-				headerList.add(header.getName() + ":" + header.getValue());
-			return headerList;
+			return httpResponse.getAllHeaders();
 		}
 	}
+
 }

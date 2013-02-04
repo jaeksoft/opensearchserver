@@ -72,7 +72,7 @@ public class UploadXmlController extends CommonController {
 
 		private UpdateThread(Client client, StreamSource streamSource,
 				String xsl, String mediaName) {
-			super(client, null);
+			super(client, null, null);
 			this.client = client;
 			this.xsl = xsl;
 			this.mediaName = mediaName;

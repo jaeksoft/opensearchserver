@@ -52,7 +52,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract {
 
 	protected AutoCompletionBuildThread(Client sourceClient,
 			Client autoCompClient) {
-		super(sourceClient, null);
+		super(sourceClient, null, null);
 		this.sourceClient = sourceClient;
 		this.autoCompClient = autoCompClient;
 		this.fieldName = null;

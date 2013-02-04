@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,7 +49,8 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class DatabaseCrawlThread extends CrawlThreadAbstract {
+public class DatabaseCrawlThread extends
+		CrawlThreadAbstract<DatabaseCrawlThread, DatabaseCrawlMaster> {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -69,7 +70,7 @@ public class DatabaseCrawlThread extends CrawlThreadAbstract {
 
 	public DatabaseCrawlThread(Client client, DatabaseCrawlMaster crawlMaster,
 			DatabaseCrawl databaseCrawl, TaskLog taskLog) {
-		super(client, crawlMaster);
+		super(client, crawlMaster, databaseCrawl);
 		this.databaseCrawl = databaseCrawl;
 		this.client = client;
 		pendingIndexDocumentCount = 0;

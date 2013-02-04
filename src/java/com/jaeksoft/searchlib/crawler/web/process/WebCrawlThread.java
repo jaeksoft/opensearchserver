@@ -47,7 +47,8 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
-public class WebCrawlThread extends CrawlThreadAbstract {
+public class WebCrawlThread extends
+		CrawlThreadAbstract<WebCrawlThread, WebCrawlMaster> {
 
 	private UrlItem currentUrlItem;
 	private long delayBetweenAccesses;
@@ -63,7 +64,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, HostUrlList hostUrlList)
 			throws SearchLibException {
-		super(config, crawlMaster);
+		super(config, crawlMaster, null);
 		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
 		this.currentCrawl = null;
@@ -80,10 +81,6 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
 		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
 
-	}
-
-	final protected WebCrawlMaster getWebCrawlMaster() {
-		return (WebCrawlMaster) getCrawlMasterAbstract();
 	}
 
 	private void sleepInterval(long max) {
@@ -138,7 +135,7 @@ public class WebCrawlThread extends CrawlThreadAbstract {
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		Crawl crawl = getWebCrawlMaster().getNewCrawl(this);
+		Crawl crawl = ((WebCrawlMaster) getThreadMaster()).getNewCrawl(this);
 
 		try {
 			// Check the url

@@ -78,6 +78,8 @@ public class TargetField implements Comparable<TargetField> {
 
 	@Override
 	final public boolean equals(Object o) {
+		if (o == null)
+			return false;
 		if (!(o instanceof TargetField))
 			return false;
 		return this.name.equals(((TargetField) o).name);

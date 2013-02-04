@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SwiftFileinstance;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileInstanceTypeEnum extends ExtensibleEnum<FileInstanceType> {
@@ -48,6 +49,9 @@ public class FileInstanceTypeEnum extends ExtensibleEnum<FileInstanceType> {
 
 		new FileInstanceType(this, "Dropbox", "Dropbox", "dropbox",
 				DropboxFileInstance.class);
+
+		new FileInstanceType(this, "Swift", "Swift", "swift",
+				SwiftFileinstance.class);
 
 	}
 }

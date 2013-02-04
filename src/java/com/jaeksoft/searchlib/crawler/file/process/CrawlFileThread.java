@@ -46,7 +46,8 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 
-public class CrawlFileThread extends CrawlThreadAbstract {
+public class CrawlFileThread extends
+		CrawlThreadAbstract<CrawlFileThread, CrawlFileMaster> {
 
 	private FileItem currentFileItem;
 	private FileManager fileManager;
@@ -57,7 +58,7 @@ public class CrawlFileThread extends CrawlThreadAbstract {
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
 			CrawlStatistics sessionStats, FilePathItem filePathItem)
 			throws SearchLibException {
-		super(config, crawlMaster);
+		super(config, crawlMaster, null);
 		this.fileManager = config.getFileManager();
 		currentStats = new CrawlStatistics(sessionStats);
 		delayBetweenAccesses = filePathItem.getDelay();

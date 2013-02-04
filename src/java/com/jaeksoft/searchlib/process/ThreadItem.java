@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,20 +21,43 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.web.controller.crawler;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.controller.CommonController;
+package com.jaeksoft.searchlib.process;
 
-public class IndexCrawlerController extends CommonController {
+public abstract class ThreadItem<I extends ThreadItem<I, T>, T extends ThreadAbstract<T>>
+		implements Comparable<I> {
 
-	public IndexCrawlerController() throws SearchLibException {
-		super();
+	protected final ThreadMasterAbstract<?, T> threadMaster;
+
+	private T lastThread = null;
+
+	protected ThreadItem(ThreadMasterAbstract<?, T> threadMaster) {
+		this.threadMaster = threadMaster;
 	}
 
-	@Override
-	protected void reset() throws SearchLibException {
+	/**
+	 * @return the crawlThread
+	 */
+	public T getLastThread() {
+		return lastThread;
+	}
 
+	/**
+	 * @param crawlThread
+	 *            the crawlThread to set
+	 */
+	public void setLastThread(T lastThread) {
+		this.lastThread = lastThread;
+	}
+
+	protected void copyTo(I item) {
+		item.lastThread = this.lastThread;
+	}
+
+	public boolean isThread() {
+		if (threadMaster == null)
+			return false;
+		return threadMaster.isThread(this);
 	}
 
 }

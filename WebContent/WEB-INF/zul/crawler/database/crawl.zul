@@ -43,30 +43,30 @@
 					<listitem>
 						<listcell label="@load(dbcrawlitem.name)" />
 						<listcell
-							label="@load(dbcrawlitem.lastCrawlThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+							label="@load(dbcrawlitem.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
 						<listcell
-							label="@load(dbcrawlitem.lastCrawlThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+							label="@load(dbcrawlitem.lastThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
 						<listcell
-							tooltiptext="@load(dbcrawlitem.lastCrawlThread.info)"
-							label="@load(dbcrawlitem.lastCrawlThread.status.name)" />
+							tooltiptext="@load(dbcrawlitem.lastThread.info)"
+							label="@load(dbcrawlitem.lastThread.status.name)" />
 						<listcell
-							label="@load(dbcrawlitem.lastCrawlThread.countInfo)" />
+							label="@load(dbcrawlitem.lastThread.countInfo)" />
 						<listcell>
 							<hbox align="center">
 								<button
 									tooltiptext="Edit the database crawl" label="Edit"
-									onClick="@command('edit', dbcrawlitem=dbcrawlitem)" />
+									onClick="@command('edit', crawlitem=dbcrawlitem)" />
 								<space />
 								<button
 									tooltiptext="Execute the crawl process"
-									disabled="@load(dbcrawlitem.crawlThread)"
+									disabled="@load(dbcrawlitem.thread)"
 									image="/images/action_check.png"
-									onClick="@command('execute', dbcrawlitem=dbcrawlitem)" />
+									onClick="@command('execute', crawlitem=dbcrawlitem)" />
 								<space />
 								<button
 									tooltiptext="Delete crawl process"
 									image="/images/action_delete.png"
-									onClick="@command('delete', dbcrawlitem=dbcrawlitem)" />
+									onClick="@command('delete', crawlitem=dbcrawlitem)" />
 							</hbox>
 						</listcell>
 					</listitem>
@@ -249,7 +249,7 @@
 							<auxhead>
 								<auxheader align="center">
 									<textbox width="95%"
-										value="@bind(dbCrawlList.sqlColumn)" />
+										value="@bind(dbCrawlList.sourceFieldName)" />
 								</auxheader>
 								<auxheader align="center">
 									<listbox mold="select"

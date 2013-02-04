@@ -54,7 +54,7 @@ public class HttpDownloadThread extends ThreadAbstract {
 	public HttpDownloadThread(Config config, URI uri, File destFile)
 			throws SearchLibException, MalformedURLException,
 			URISyntaxException {
-		super(config, null);
+		super(config, null, null);
 		this.uri = uri;
 		contentSize = 0;
 		contentTransfered = 0;

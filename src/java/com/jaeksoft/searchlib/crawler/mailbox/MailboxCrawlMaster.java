@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,30 +22,33 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.database;
+package com.jaeksoft.searchlib.crawler.mailbox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 
-public class DatabaseCrawlMaster extends
-		CrawlMasterAbstract<DatabaseCrawlMaster, DatabaseCrawlThread> {
+;
 
-	public DatabaseCrawlMaster(Config config) {
+public class MailboxCrawlMaster extends
+		CrawlMasterAbstract<MailboxCrawlMaster, MailboxCrawlThread> {
+
+	public MailboxCrawlMaster(Config config) {
 		super(config);
 	}
 
 	@Override
-	public DatabaseCrawlThread getNewThread(Client client,
-			ThreadItem<?, DatabaseCrawlThread> databaseCrawl, TaskLog taskLog) {
-		return new DatabaseCrawlThread(client, this,
-				(DatabaseCrawl) databaseCrawl, taskLog);
+	protected MailboxCrawlThread[] getNewArray(int size) {
+		return new MailboxCrawlThread[size];
 	}
 
-	@Override
-	protected DatabaseCrawlThread[] getNewArray(int size) {
-		return new DatabaseCrawlThread[size];
+	public MailboxCrawlThread getNewCrawlThread(Client client,
+			FieldMapCrawlItem<?, MailboxCrawlThread, ?> crawlItem,
+			TaskLog taskLog) {
+		return new MailboxCrawlThread(client, this,
+				(MailboxCrawlItem) crawlItem, taskLog);
 	}
+
 }

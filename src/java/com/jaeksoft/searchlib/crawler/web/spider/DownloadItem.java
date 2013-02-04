@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +50,7 @@ public class DownloadItem {
 	private InputStream contentInputStream = null;
 	private boolean fromCache = false;
 	private List<String> headers = null;
+	private Header[] httpHeaders = null;
 
 	public DownloadItem(URI uri) {
 		this.uri = uri;
@@ -281,8 +283,27 @@ public class DownloadItem {
 		return headers;
 	}
 
-	public void setHeaders(List<String> headers) {
-		this.headers = headers;
+	public void setHeaders(Header[] headers) {
+		httpHeaders = headers;
+		if (headers == null)
+			return;
+		this.headers = new ArrayList<String>(headers.length);
+		for (Header header : headers) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(header.getName());
+			sb.append(": ");
+			sb.append(header.getValue());
+			this.headers.add(sb.toString());
+		}
+	}
+
+	public String getFirstHttpHeader(String name) {
+		if (httpHeaders == null)
+			return null;
+		for (Header header : httpHeaders)
+			if (header.getName().equalsIgnoreCase(name))
+				return header.getValue();
+		return null;
 	}
 
 }

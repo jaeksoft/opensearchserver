@@ -24,58 +24,31 @@
 
 package com.jaeksoft.searchlib.replication;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 
-public class ReplicationMaster extends ThreadMasterAbstract {
-
-	private Map<ReplicationItem, ReplicationThread> threadMap;
+public class ReplicationMaster extends
+		ThreadMasterAbstract<ReplicationMaster, ReplicationThread> {
 
 	public ReplicationMaster(Config config) {
 		super(config);
-		threadMap = new TreeMap<ReplicationItem, ReplicationThread>();
-	}
-
-	public boolean isReplicationThread(ReplicationItem replicationItem) {
-		synchronized (threadMap) {
-			return threadMap.containsKey(replicationItem);
-		}
-	}
-
-	public ReplicationThread execute(Client client,
-			ReplicationItem replicationItem, boolean bWaitForCompletion,
-			TaskLog taskLog) throws InterruptedException, SearchLibException {
-		ReplicationThread replicationThread = null;
-		synchronized (threadMap) {
-			if (threadMap.containsKey(replicationItem)) {
-				throw new SearchLibException("The job "
-						+ replicationItem.getName() + " is already running");
-			}
-			replicationThread = new ReplicationThread(client, this,
-					replicationItem, taskLog);
-			threadMap.put(replicationItem, replicationThread);
-		}
-		replicationItem.setReplicationThread(replicationThread);
-		add(replicationThread);
-		replicationThread.waitForStart(0);
-		if (bWaitForCompletion)
-			replicationThread.waitForEnd(0);
-		return replicationThread;
 	}
 
 	@Override
-	public void remove(ThreadAbstract thread) {
-		super.remove(thread);
-		synchronized (threadMap) {
-			threadMap.remove(((ReplicationThread) thread).getReplicationItem());
-		}
+	protected ReplicationThread getNewThread(Client client,
+			ThreadItem<?, ReplicationThread> replicationItem, TaskLog taskLog)
+			throws SearchLibException {
+		return new ReplicationThread(client, this,
+				(ReplicationItem) replicationItem, taskLog);
+	}
+
+	@Override
+	protected ReplicationThread[] getNewArray(int size) {
+		return new ReplicationThread[size];
 	}
 
 }

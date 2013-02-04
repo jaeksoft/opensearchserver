@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexMode;
+import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -42,7 +43,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.PushServlet;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public class ReplicationItem implements Comparable<ReplicationItem> {
+public class ReplicationItem extends
+		ThreadItem<ReplicationItem, ReplicationThread> {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -58,10 +60,6 @@ public class ReplicationItem implements Comparable<ReplicationItem> {
 
 	private String apiKey = null;
 
-	private ReplicationThread lastReplicationThread;
-
-	private ReplicationMaster replicationMaster;
-
 	private ReplicationType replicationType;
 
 	private IndexMode readWriteMode;
@@ -73,15 +71,14 @@ public class ReplicationItem implements Comparable<ReplicationItem> {
 	public final static String[] NOT_PUSHED_PATH_NODB = { "web_crawler_url",
 			"file_crawler_url" };
 
-	public ReplicationItem(ReplicationMaster replicationMaster, String name) {
-		this.replicationMaster = replicationMaster;
+	public ReplicationItem(ReplicationMaster crawlMaster, String name) {
+		super(crawlMaster);
 		replicationType = ReplicationType.MAIN_INDEX;
-		lastReplicationThread = null;
 		readWriteMode = IndexMode.READ_WRITE;
 	}
 
-	public ReplicationItem(ReplicationMaster replicationMaster) {
-		this(replicationMaster, null);
+	public ReplicationItem(ReplicationMaster crawlMaster) {
+		this(crawlMaster, null);
 	}
 
 	public ReplicationItem() {
@@ -89,13 +86,14 @@ public class ReplicationItem implements Comparable<ReplicationItem> {
 	}
 
 	public ReplicationItem(ReplicationItem item) {
+		super(item.threadMaster);
 		this.copy(item);
 	}
 
-	public ReplicationItem(ReplicationMaster replicationMaster,
-			XPathParser xpp, Node node) throws MalformedURLException {
+	public ReplicationItem(ReplicationMaster crawlMaster, XPathParser xpp,
+			Node node) throws MalformedURLException {
+		this(crawlMaster);
 		this.name = null;
-		this.replicationMaster = replicationMaster;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
 		if (url != null && url.length() > 0)
 			setInstanceUrl(new URL(url));
@@ -267,45 +265,17 @@ public class ReplicationItem implements Comparable<ReplicationItem> {
 	public void copy(ReplicationItem item) {
 		rwl.w.lock();
 		try {
+			item.copyTo(this);
 			this.name = item.name;
 			this.indexName = item.indexName;
 			this.instanceUrl = item.instanceUrl;
 			this.login = item.login;
 			this.apiKey = item.apiKey;
-			this.lastReplicationThread = item.lastReplicationThread;
-			this.replicationMaster = item.replicationMaster;
 			this.replicationType = item.replicationType;
 			this.cachedUrl = null;
 			this.readWriteMode = item.readWriteMode;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	protected void setReplicationThread(ReplicationThread replicationThread) {
-		rwl.w.lock();
-		try {
-			this.lastReplicationThread = replicationThread;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public ReplicationThread getLastReplicationThread() {
-		rwl.r.lock();
-		try {
-			return lastReplicationThread;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean isReplicationThread() {
-		rwl.r.lock();
-		try {
-			return replicationMaster.isReplicationThread(this);
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 

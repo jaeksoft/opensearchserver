@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,23 +27,32 @@ package com.jaeksoft.searchlib.process;
 import java.lang.Thread.State;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 
-public abstract class ThreadMasterAbstract extends ThreadAbstract {
+public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>, T extends ThreadAbstract<T>>
+		extends ThreadAbstract<M> {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private final LinkedHashSet<ThreadAbstract> threads;
+	private final LinkedHashSet<T> threads;
 
-	private volatile ThreadAbstract[] threadArray;
+	private final TreeMap<ThreadItem<?, T>, T> threadMap;
+
+	private volatile T[] threadArray;
 
 	protected ThreadMasterAbstract(Config config) {
-		super(config, null);
+		super(config, null, null);
 		threadArray = null;
-		threads = new LinkedHashSet<ThreadAbstract>();
+		threads = new LinkedHashSet<T>();
+		threadMap = new TreeMap<ThreadItem<?, T>, T>();
 	}
 
 	public int getThreadsCount() {
@@ -55,7 +64,7 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 		}
 	}
 
-	protected void add(ThreadAbstract thread) {
+	protected void add(T thread) {
 		rwl.w.lock();
 		try {
 			threads.add(thread);
@@ -66,9 +75,30 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 		}
 	}
 
-	public void remove(ThreadAbstract thread) {
+	public boolean isThread(ThreadItem<?, T> crawlItem) {
+		rwl.r.lock();
+		try {
+			return threadMap.containsKey(crawlItem);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public T getCrawlThread(ThreadItem<?, T> crawlItem) {
+		rwl.r.lock();
+		try {
+			return threadMap.get(crawlItem);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected void remove(T thread) {
 		rwl.w.lock();
 		try {
+			ThreadItem<?, T> uti = thread.getThreadItem();
+			if (uti != null)
+				threadMap.remove(uti);
 			threads.remove(thread);
 			threadArray = null;
 		} finally {
@@ -76,12 +106,14 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 		}
 	}
 
-	public ThreadAbstract[] getThreads() {
+	protected abstract T[] getNewArray(int size);
+
+	public T[] getThreads() {
 		rwl.r.lock();
 		try {
 			if (threadArray != null)
 				return threadArray;
-			threadArray = new ThreadAbstract[threads.size()];
+			threadArray = getNewArray(threads.size());
 			return threads.toArray(threadArray);
 		} finally {
 			rwl.r.unlock();
@@ -92,9 +124,8 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 	public void abort() {
 		rwl.r.lock();
 		try {
-			for (ThreadAbstract thread : threads)
+			for (T thread : threads)
 				thread.abort();
-			super.abort();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -111,9 +142,9 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 				try {
 					synchronized (threads) {
 						boolean remove = false;
-						Iterator<ThreadAbstract> it = threads.iterator();
+						Iterator<T> it = threads.iterator();
 						while (it.hasNext()) {
-							ThreadAbstract thread = it.next();
+							T thread = it.next();
 							if (thread.getThreadState() == State.TERMINATED) {
 								it.remove();
 								remove = true;
@@ -132,20 +163,74 @@ public abstract class ThreadMasterAbstract extends ThreadAbstract {
 			} catch (InterruptedException e) {
 				Logging.warn(e.getMessage(), e);
 			}
-			sleepSec(1);
+			ThreadUtils.sleepMs(1000);
 		}
+	}
+
+	public String getChildProcessInfo() {
+		rwl.r.lock();
+		try {
+			StringBuffer sb = new StringBuffer();
+			int l = threadMap.size();
+			switch (l) {
+			case 0:
+				sb.append("Not running");
+				break;
+			case 1:
+				sb.append("1 process");
+				break;
+			default:
+				sb.append(l);
+				sb.append(" processes");
+				break;
+			}
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public T execute(Client client, ThreadItem<?, T> threadItem,
+			boolean bWaitForCompletion, TaskLog taskLog)
+			throws InterruptedException, SearchLibException {
+		T crawlThread = null;
+		rwl.w.lock();
+		try {
+			if (threadItem != null) {
+				if (threadMap.containsKey(threadItem)) {
+					throw new SearchLibException("The job "
+							+ threadItem.toString() + " is already running");
+				}
+			}
+			crawlThread = getNewThread(client, threadItem, taskLog);
+			if (threadItem != null) {
+				threadMap.put(threadItem, crawlThread);
+				threadItem.setLastThread(crawlThread);
+			}
+			add(crawlThread);
+		} finally {
+			rwl.w.unlock();
+		}
+		if (crawlThread == null)
+			return null;
+		crawlThread.waitForStart(600);
+		if (bWaitForCompletion)
+			crawlThread.waitForEnd(0);
+		return crawlThread;
+	}
+
+	protected T getNewThread(Client client, ThreadItem<?, T> threadItem,
+			TaskLog taskLog) throws SearchLibException {
+		throw new SearchLibException("Not implemented");
 	}
 
 	@Override
 	public void runner() throws Exception {
-		// TODO Auto-generated method stub
-
+		throw new SearchLibException("Not implemented");
 	}
 
 	@Override
 	public void release() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

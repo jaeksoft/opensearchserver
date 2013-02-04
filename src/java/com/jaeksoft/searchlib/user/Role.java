@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,9 +48,9 @@ public enum Role {
 
 	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop"),
 
-	INDEX_CRAWLER_EDIT("Index crawler: edit"),
+	MAILBOX_CRAWLER_EDIT("Index crawler: edit"),
 
-	INDEX_CRAWLER_EXECUTE("Index crawler: execute");
+	MAILBOX_CRAWLER_EXECUTE("Index crawler: execute");
 
 	private String label;
 
@@ -66,8 +66,8 @@ public enum Role {
 	public static Role[] GROUP_DATABASE_CRAWLER = {
 			DATABASE_CRAWLER_EDIT_PARAMETERS, DATABASE_CRAWLER_START_STOP };
 
-	public static Role[] GROUP_INDEX_CRAWLER = { INDEX_CRAWLER_EDIT,
-			INDEX_CRAWLER_EXECUTE };
+	public static Role[] GROUP_MAILBOX_CRAWLER = { MAILBOX_CRAWLER_EDIT,
+			MAILBOX_CRAWLER_EXECUTE };
 
 	private Role(String label) {
 		this.label = label;

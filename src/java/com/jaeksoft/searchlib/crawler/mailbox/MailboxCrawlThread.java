@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,30 +22,39 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.database;
+package com.jaeksoft.searchlib.crawler.mailbox;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class DatabaseCrawlMaster extends
-		CrawlMasterAbstract<DatabaseCrawlMaster, DatabaseCrawlThread> {
+public class MailboxCrawlThread extends
+		CrawlThreadAbstract<MailboxCrawlThread, MailboxCrawlMaster> {
 
-	public DatabaseCrawlMaster(Config config) {
-		super(config);
+	private final ReadWriteLock rwl = new ReadWriteLock();
+
+	private Client client;
+
+	private TaskLog taskLog;
+
+	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster,
+			MailboxCrawlItem crawlItem, TaskLog taskLog) {
+		super(client, crawlMaster, crawlItem);
+		this.client = client;
+		this.taskLog = taskLog;
 	}
 
 	@Override
-	public DatabaseCrawlThread getNewThread(Client client,
-			ThreadItem<?, DatabaseCrawlThread> databaseCrawl, TaskLog taskLog) {
-		return new DatabaseCrawlThread(client, this,
-				(DatabaseCrawl) databaseCrawl, taskLog);
+	public void runner() throws Exception {
+		setStatus(CrawlStatus.STARTING);
+
 	}
 
 	@Override
-	protected DatabaseCrawlThread[] getNewArray(int size) {
-		return new DatabaseCrawlThread[size];
+	protected String getCurrentInfo() {
+		return "";
 	}
+
 }

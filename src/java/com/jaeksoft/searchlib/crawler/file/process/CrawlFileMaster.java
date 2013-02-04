@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
@@ -44,7 +43,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
-public class CrawlFileMaster extends CrawlMasterAbstract {
+public class CrawlFileMaster extends
+		CrawlMasterAbstract<CrawlFileMaster, CrawlFileThread> {
 
 	private FileCrawlQueue fileCrawlQueue;
 
@@ -90,8 +90,8 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 				if (filePathItem == null)
 					break;
 
-				CrawlThreadAbstract crawlThread = new CrawlFileThread(config,
-						this, currentStats, filePathItem);
+				CrawlFileThread crawlThread = new CrawlFileThread(config, this,
+						currentStats, filePathItem);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -146,9 +146,13 @@ public class CrawlFileMaster extends CrawlMasterAbstract {
 		}
 	}
 
-	@Override
 	public CrawlQueueAbstract getCrawlQueue() {
 		return fileCrawlQueue;
+	}
+
+	@Override
+	protected CrawlFileThread[] getNewArray(int size) {
+		return new CrawlFileThread[size];
 	}
 
 }

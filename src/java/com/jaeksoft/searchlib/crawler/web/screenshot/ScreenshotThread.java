@@ -58,7 +58,7 @@ public class ScreenshotThread extends ThreadAbstract {
 	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
 			URL url, CredentialItem credentialItem,
 			BrowserDriverEnum browserDriverEnum) {
-		super(config, null);
+		super(config, null, null);
 		this.browserDriverEnum = browserDriverEnum;
 		browserDriver = null;
 		this.url = url;

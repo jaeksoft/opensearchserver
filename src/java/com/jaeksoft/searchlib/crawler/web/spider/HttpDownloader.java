@@ -26,10 +26,13 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
@@ -40,11 +43,21 @@ public class HttpDownloader extends HttpAbstract {
 		super(userAgent, bFollowRedirect, proxyHandler);
 	}
 
-	public DownloadItem get(URI uri, CredentialItem credentialItem)
-			throws ClientProtocolException, IOException {
+	private void addHeader(HttpUriRequest httpUriRequest,
+			List<Header> additionalHeaders) {
+		if (additionalHeaders == null)
+			return;
+		for (Header header : additionalHeaders)
+			httpUriRequest.addHeader(header);
+	}
+
+	public DownloadItem get(URI uri, CredentialItem credentialItem,
+			List<Header> additionalHeaders) throws ClientProtocolException,
+			IOException {
 		synchronized (this) {
 			reset();
 			HttpGet httpGet = new HttpGet(uri);
+			addHeader(httpGet, additionalHeaders);
 			execute(httpGet, credentialItem);
 
 			DownloadItem downloadItem = new DownloadItem(uri);
@@ -62,13 +75,24 @@ public class HttpDownloader extends HttpAbstract {
 		}
 	}
 
-	public void head(URI uri, CredentialItem credentialItem)
+	public DownloadItem get(URI uri, CredentialItem credentialItem)
 			throws ClientProtocolException, IOException {
+		return get(uri, credentialItem, null);
+	}
+
+	public void head(URI uri, CredentialItem credentialItem,
+			List<Header> additionalHeaders) throws ClientProtocolException,
+			IOException {
 		synchronized (this) {
 			reset();
 			HttpHead httpHead = new HttpHead(uri);
+			addHeader(httpHead, additionalHeaders);
 			execute(httpHead, credentialItem);
 		}
 	}
 
+	public void head(URI uri, CredentialItem credentialItem)
+			throws ClientProtocolException, IOException {
+		head(uri, credentialItem, null);
+	}
 }

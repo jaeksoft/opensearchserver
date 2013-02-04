@@ -35,7 +35,7 @@ public class ImmediateExecution extends ThreadAbstract {
 	private TaskLog taskLog;
 
 	private ImmediateExecution(Client client) {
-		super(client, null);
+		super(client, null, null);
 		this.client = client;
 	}
 

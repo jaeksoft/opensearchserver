@@ -43,14 +43,12 @@ import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
 import com.jaeksoft.searchlib.web.ActionServlet;
 import com.jaeksoft.searchlib.web.PushServlet;
 
-public class ReplicationThread extends ThreadAbstract implements
-		RecursiveDirectoryBrowser.CallBack {
+public class ReplicationThread extends ThreadAbstract<ReplicationThread>
+		implements RecursiveDirectoryBrowser.CallBack {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private volatile Client client;
-
-	private volatile ReplicationItem replicationItem;
 
 	private volatile double totalSize;
 
@@ -68,8 +66,7 @@ public class ReplicationThread extends ThreadAbstract implements
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, TaskLog taskLog)
 			throws SearchLibException {
-		super(client, replicationMaster);
-		this.replicationItem = replicationItem;
+		super(client, replicationMaster, replicationItem);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.client = client;
 		totalSize = 0;
@@ -91,11 +88,15 @@ public class ReplicationThread extends ThreadAbstract implements
 		}
 	}
 
+	public ReplicationItem getReplicationItem() {
+		return (ReplicationItem) getThreadItem();
+	}
+
 	private void initNotPushedList() {
 		filesNotPushed = new ArrayList<File>(0);
 		dirsNotPushed = new ArrayList<File>(0);
-		replicationItem.getReplicationType().addNotPushedPath(sourceDirectory,
-				filesNotPushed, dirsNotPushed);
+		getReplicationItem().getReplicationType().addNotPushedPath(
+				sourceDirectory, filesNotPushed, dirsNotPushed);
 	}
 
 	@Override
@@ -117,15 +118,12 @@ public class ReplicationThread extends ThreadAbstract implements
 			setInfo("Completed");
 	}
 
-	public ReplicationItem getReplicationItem() {
-		return replicationItem;
-	}
-
 	public void push() throws SearchLibException, MalformedURLException,
 			URISyntaxException {
+		ReplicationItem replicationItem = getReplicationItem();
 		setTotalSize(new LastModifiedAndSize(sourceDirectory, false).getSize());
 		addSendSize(sourceDirectory);
-		PushServlet.call_init(replicationItem);
+		PushServlet.call_init(getReplicationItem());
 		new RecursiveDirectoryBrowser(sourceDirectory, this);
 		PushServlet.call_switch(replicationItem);
 		IndexMode mode = replicationItem.getReadWriteMode();
@@ -179,6 +177,7 @@ public class ReplicationThread extends ThreadAbstract implements
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
+			ReplicationItem replicationItem = getReplicationItem();
 			if (file.isFile()) {
 				if (checkFilePush(file))
 					PushServlet.call_file(client, replicationItem, file);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler.common.process;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -34,7 +35,8 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
+public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T extends CrawlThreadAbstract<T, M>>
+		extends ThreadMasterAbstract<M, T> {
 
 	private final LinkedList<CrawlStatistics> statistics;
 
@@ -178,6 +180,19 @@ public abstract class CrawlMasterAbstract extends ThreadMasterAbstract {
 		}
 	}
 
-	public abstract CrawlQueueAbstract getCrawlQueue();
+	@Override
+	public void remove(T thread) {
+		super.remove(thread);
+		if (super.getThreads().length == 0) {
+			Config config = getConfig();
+			if (config instanceof Client) {
+				try {
+					((Client) config).reload();
+				} catch (SearchLibException e) {
+					setException(e);
+				}
+			}
+		}
+	}
 
 }

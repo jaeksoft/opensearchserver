@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,10 +31,13 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
+public class DatabaseCrawl
+		extends
+		FieldMapCrawlItem<DatabaseCrawl, DatabaseCrawlThread, DatabaseCrawlMaster> {
 
 	public static enum SqlUpdateMode {
 		NO_CALL, ONE_CALL_PER_PRIMARY_KEY, PRIMARY_KEY_LIST, PRIMARY_KEY_CHAR_LIST;
@@ -48,10 +51,6 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	}
 
 	private String name;
-
-	private DatabaseCrawlMaster databaseCrawlMaster;
-
-	private DatabaseCrawlThread lastCrawlThread;
 
 	private String url;
 
@@ -71,17 +70,15 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 
 	private LanguageEnum lang;
 
-	private DatabaseFieldMap fieldMap;
-
 	private String primaryKey;
 
 	private String uniqueKeyDeleteField;
 
 	private int bufferSize;
 
-	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster, String name) {
+	public DatabaseCrawl(DatabaseCrawlMaster crawlMaster, String name) {
+		super(crawlMaster, new DatabaseFieldMap());
 		this.name = name;
-		this.databaseCrawlMaster = databaseCrawlMaster;
 		url = null;
 		driverClass = null;
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
@@ -91,24 +88,23 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		sqlUpdate = null;
 		sqlUpdateMode = SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY;
 		lang = LanguageEnum.UNDEFINED;
-		fieldMap = new DatabaseFieldMap();
-		lastCrawlThread = null;
 		primaryKey = null;
 		uniqueKeyDeleteField = null;
 		bufferSize = 100;
 	}
 
-	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster) {
-		this(databaseCrawlMaster, (String) null);
+	public DatabaseCrawl(DatabaseCrawlMaster crawlMaster) {
+		this(crawlMaster, null);
 	}
 
-	public DatabaseCrawl(DatabaseCrawlMaster databaseCrawlMaster,
-			DatabaseCrawl crawl) {
-		this(databaseCrawlMaster);
+	public DatabaseCrawl(DatabaseCrawl crawl) {
+		super((DatabaseCrawlMaster) crawl.threadMaster, new DatabaseFieldMap());
 		crawl.copyTo(this);
 	}
 
+	@Override
 	public void copyTo(DatabaseCrawl crawl) {
+		super.copyTo(crawl);
 		crawl.setName(this.getName());
 		crawl.url = this.url;
 		crawl.driverClass = this.driverClass;
@@ -119,11 +115,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		crawl.sqlUpdate = this.sqlUpdate;
 		crawl.sqlUpdateMode = this.sqlUpdateMode;
 		crawl.lang = this.lang;
-		crawl.lastCrawlThread = this.lastCrawlThread;
 		crawl.primaryKey = this.primaryKey;
 		crawl.uniqueKeyDeleteField = this.uniqueKeyDeleteField;
 		crawl.bufferSize = this.bufferSize;
-		this.fieldMap.copyTo(crawl.fieldMap);
 	}
 
 	/**
@@ -249,20 +243,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	/**
 	 * @return the fieldMap
 	 */
+	@Override
 	public DatabaseFieldMap getFieldMap() {
-		return fieldMap;
-	}
-
-	public boolean isCrawlThread() {
-		return databaseCrawlMaster.isDatabaseCrawlThread(this);
-	}
-
-	public DatabaseCrawlThread getLastCrawlThread() {
-		return lastCrawlThread;
-	}
-
-	public void setCrawlThread(DatabaseCrawlThread lastCrawlThread) {
-		this.lastCrawlThread = lastCrawlThread;
+		return (DatabaseFieldMap) super.getFieldMap();
 	}
 
 	/**
@@ -311,9 +294,9 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 	protected final static String DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE = "mode";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
-	public static DatabaseCrawl fromXml(DatabaseCrawlMaster dcm,
+	public static DatabaseCrawl fromXml(DatabaseCrawlMaster crawlMaster,
 			XPathParser xpp, Node item) throws XPathExpressionException {
-		DatabaseCrawl crawl = new DatabaseCrawl(dcm);
+		DatabaseCrawl crawl = new DatabaseCrawl(crawlMaster);
 		crawl.setName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_NAME));
 		crawl.setDriverClass(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DRIVER_CLASS));
@@ -342,7 +325,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 		}
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
-			crawl.fieldMap.load(xpp, mapNode);
+			crawl.getFieldMap().load(xpp, mapNode);
 		return crawl;
 	}
 
@@ -357,7 +340,7 @@ public class DatabaseCrawl implements Comparable<DatabaseCrawl> {
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
 				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(bufferSize));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
-		fieldMap.store(xmlWriter);
+		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
 		// SQL Select Node
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_SELECT);

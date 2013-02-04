@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
+import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
@@ -57,11 +58,11 @@ import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 
 public class DatabaseFieldMap extends
-		FieldMapGeneric<SourceField, DatabaseFieldTarget> {
+		FieldMapGeneric<SourceField, CommonFieldTarget> {
 
 	@Override
-	protected DatabaseFieldTarget loadTarget(String targetName, Node node) {
-		return new DatabaseFieldTarget(targetName, node);
+	protected CommonFieldTarget loadTarget(String targetName, Node node) {
+		return new CommonFieldTarget(targetName, node);
 	}
 
 	@Override
@@ -70,14 +71,14 @@ public class DatabaseFieldMap extends
 	}
 
 	@Override
-	protected void writeTarget(XmlWriter xmlWriter, DatabaseFieldTarget target)
+	protected void writeTarget(XmlWriter xmlWriter, CommonFieldTarget target)
 			throws SAXException {
 		target.writeXml(xmlWriter);
 	}
 
 	public boolean isUrl() {
-		for (GenericLink<SourceField, DatabaseFieldTarget> link : getList()) {
-			DatabaseFieldTarget dfTarget = link.getTarget();
+		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
+			CommonFieldTarget dfTarget = link.getTarget();
 			if (dfTarget.isCrawlUrl())
 				return true;
 		}
@@ -91,14 +92,14 @@ public class DatabaseFieldMap extends
 			IllegalAccessException, ClassNotFoundException, SearchLibException,
 			ParseException, IOException, SyntaxError, URISyntaxException,
 			InterruptedException {
-		for (GenericLink<SourceField, DatabaseFieldTarget> link : getList()) {
+		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			String columnName = link.getSource().getUniqueName();
 			if (!columns.contains(columnName))
 				continue;
 			String content = resultSet.getString(columnName);
 			if (content == null)
 				continue;
-			DatabaseFieldTarget dfTarget = link.getTarget();
+			CommonFieldTarget dfTarget = link.getTarget();
 			if (dfTarget == null)
 				continue;
 			if (dfTarget.isFilePath()) {

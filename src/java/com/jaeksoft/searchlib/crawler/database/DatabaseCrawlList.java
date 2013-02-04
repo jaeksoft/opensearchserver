@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,10 +53,9 @@ public class DatabaseCrawlList {
 
 	private final static String DBCRAWLLIST_ROOTNODE_NAME = "databaseCrawlList";
 
-	public static DatabaseCrawlList fromXml(
-			DatabaseCrawlMaster databaseCrawlMaster, File file)
-			throws XPathExpressionException, ParserConfigurationException,
-			SAXException, IOException {
+	public static DatabaseCrawlList fromXml(DatabaseCrawlMaster crawlMaster,
+			File file) throws XPathExpressionException,
+			ParserConfigurationException, SAXException, IOException {
 		DatabaseCrawlList dbCrawlList = new DatabaseCrawlList();
 		if (!file.exists())
 			return dbCrawlList;
@@ -69,8 +68,8 @@ public class DatabaseCrawlList {
 		if (nodes == null)
 			return dbCrawlList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			DatabaseCrawl dbCrawl = DatabaseCrawl.fromXml(databaseCrawlMaster,
-					xpp, nodes.item(i));
+			DatabaseCrawl dbCrawl = DatabaseCrawl.fromXml(crawlMaster, xpp,
+					nodes.item(i));
 			dbCrawlList.add(dbCrawl);
 		}
 		return dbCrawlList;
