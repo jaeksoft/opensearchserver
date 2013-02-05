@@ -34,13 +34,16 @@ import junit.framework.TestCase;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
 /**
  * @author Ayyathurai N Naveen
  * 
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WebTemplateTestCase extends TestCase {
 	private CommomTestCase commomTestCase = null;
 
@@ -50,7 +53,7 @@ public class WebTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testCreateIndex() throws IllegalStateException, IOException,
+	public void testACreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -69,7 +72,7 @@ public class WebTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testCreateSchemaField() throws IllegalStateException,
+	public void testDCreateSchemaField() throws IllegalStateException,
 			IOException, SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -92,7 +95,7 @@ public class WebTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testDeleteSchemaField() throws IllegalStateException,
+	public void testEDeleteSchemaField() throws IllegalStateException,
 			IOException, SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -108,7 +111,7 @@ public class WebTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testGetSchema() throws IllegalStateException, IOException,
+	public void testCGetSchema() throws IllegalStateException, IOException,
 			SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -125,7 +128,7 @@ public class WebTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testGetIndexLists() throws IllegalStateException, IOException,
+	public void testBGetIndexLists() throws IllegalStateException, IOException,
 			SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();

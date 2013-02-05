@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -94,8 +95,8 @@ public class CommomTestCase {
 			ParserConfigurationException, XPathExpressionException {
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpResponse httpResponse = httpClient.execute(httpPost);
-		XPathParser parser = new XPathParser(httpResponse.getEntity()
-				.getContent());
+		XPathParser parser = new XPathParser(new InputSource(httpResponse
+				.getEntity().getContent()));
 		return parser.getNodeString(xpath);
 
 	}
