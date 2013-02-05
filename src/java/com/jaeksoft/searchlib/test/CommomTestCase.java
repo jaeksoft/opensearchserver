@@ -49,10 +49,10 @@ import com.jaeksoft.searchlib.util.XPathParser;
  * 
  */
 public class CommomTestCase {
-	public static String INDEX_NAME = "oss_1.3";
-	public static String SERVER_URL = "http://localhost:8080/oss_1.3";
-	public static String USER_NAME = "admin";
-	public static String API_KEY = "b5ad4c14e38edaadfe3cec457bc38e9a";
+	public static String INDEX_NAME = "oss";
+	public static String SERVER_URL = "http://localhost:8080/jenkins-oss-1.4-testing/";
+	public static String USER_NAME = "";
+	public static String API_KEY = "";
 
 	public static String SCHEMA_API = "schema";
 	public static String PATTERN_API = "pattern";

@@ -48,7 +48,7 @@
 	<property name="tomcat-lib" location="pkg/tomcat_lib" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
-
+	<property name="junit-report" location="${build}/testreport" />
 	<loadproperties srcfile="version" />
 
 	<path id="project.class.path">
@@ -64,11 +64,14 @@
 		<fileset dir="${wlib}">
 			<include name="**.jar" />
 		</fileset>
+		<pathelement location="${lib}/junit-4.11.jar" />
+		<pathelement location="${build}" />
 	</path>
 
 	<target name="init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${temp}" />
+		<mkdir dir="${junit-report}" />
 		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="REVISION = ${env.SVN_REVISION}${line.separator}" />
@@ -208,6 +211,19 @@
 		<zip encoding="windows-1250" destfile="${dist}/${name}_aspnet-client.zip" basedir="${src.asp}" />
 	</target>
 
+	<!-- Build the junit test cases -->
+	<target name="junit-test" depends="compile">
+		<junit printsummary="on" fork="true" haltonfailure="yes">
+			<classpath refid="project.class.path" />
+			<formatter type="xml" />
+			<batchtest todir="${junit-report}">
+				<fileset dir="${src}">
+					<include name="**/*AllTests*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
 	<target name="javadoc">
 		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" classpathref="project.class.path" />
 	</target>
@@ -216,6 +232,7 @@
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
 		<delete dir="${temp}" />
+		<delete dir="${junit-report}" />
 	</target>
 
 </project>

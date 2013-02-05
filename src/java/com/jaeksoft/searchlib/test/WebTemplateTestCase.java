@@ -31,10 +31,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 /**
@@ -49,7 +49,8 @@ public class WebTemplateTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void createIndex() throws IllegalStateException, IOException,
+	@Test
+	public void testCreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -63,12 +64,13 @@ public class WebTemplateTestCase extends TestCase {
 				CommomTestCase.SCHEMA_API, false);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
-		assertEquals("Index created: oss_1.3", response);
+		assertEquals("Index created: oss", response);
 
 	}
 
-	public void createSchemaField() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
+	@Test
+	public void testCreateSchemaField() throws IllegalStateException,
+			IOException, SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd", "setField"));
@@ -89,8 +91,9 @@ public class WebTemplateTestCase extends TestCase {
 		assertEquals("field 'titleNew' added/updated", response);
 	}
 
-	public void deleteSchemaField() throws IllegalStateException, IOException,
-			SAXException, ParserConfigurationException,
+	@Test
+	public void testDeleteSchemaField() throws IllegalStateException,
+			IOException, SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
@@ -104,7 +107,8 @@ public class WebTemplateTestCase extends TestCase {
 		assertEquals("field 'titleNew' removed", response);
 	}
 
-	public void getSchema() throws IllegalStateException, IOException,
+	@Test
+	public void testGetSchema() throws IllegalStateException, IOException,
 			SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -120,7 +124,8 @@ public class WebTemplateTestCase extends TestCase {
 		assertEquals("titleExact", response);
 	}
 
-	public void getIndexLists() throws IllegalStateException, IOException,
+	@Test
+	public void testGetIndexLists() throws IllegalStateException, IOException,
 			SAXException, ParserConfigurationException,
 			XPathExpressionException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -133,15 +138,4 @@ public class WebTemplateTestCase extends TestCase {
 		assertEquals(CommomTestCase.INDEX_NAME, response);
 	}
 
-	public static TestSuite suite() {
-		TestSuite webTemplateTestSuite = new TestSuite();
-		webTemplateTestSuite.addTest(new WebTemplateTestCase("createIndex"));
-		webTemplateTestSuite.addTest(new WebTemplateTestCase(
-				"createSchemaField"));
-		webTemplateTestSuite.addTest(new WebTemplateTestCase(
-				"deleteSchemaField"));
-		webTemplateTestSuite.addTest(new WebTemplateTestCase("getSchema"));
-		webTemplateTestSuite.addTest(new WebTemplateTestCase("getIndexLists"));
-		return webTemplateTestSuite;
-	}
 }
