@@ -41,6 +41,8 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public abstract class HtmlDocumentProvider {
 
+	private final HtmlParserEnum parserEnum;
+
 	private String titleCache;
 
 	private List<HtmlNodeAbstract<?>> metasCache;
@@ -49,12 +51,16 @@ public abstract class HtmlDocumentProvider {
 
 	private int score;
 
-	public HtmlDocumentProvider(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
+	protected HtmlDocumentProvider(HtmlParserEnum parserEnum) {
+		this.parserEnum = parserEnum;
 		titleCache = null;
 		metasCache = null;
 		score = 0;
 		rootNode = null;
+	}
+
+	public void init(String charset, StreamLimiter streamLimiter)
+			throws LimitException {
 		try {
 			rootNode = getDocument(charset, streamLimiter.getNewInputStream());
 		} catch (LimitException e) {
@@ -68,7 +74,9 @@ public abstract class HtmlDocumentProvider {
 		return rootNode;
 	}
 
-	public abstract String getName();
+	public final String getName() {
+		return parserEnum.getLabel();
+	}
 
 	protected abstract HtmlNodeAbstract<?> getDocument(String charset,
 			InputStream inputStream) throws SAXException, IOException,

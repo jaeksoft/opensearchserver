@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,19 +33,10 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-
 public class NekoHtmlParser extends HtmlDocumentProvider {
 
-	public NekoHtmlParser(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
-		super(charset, streamLimiter);
-	}
-
-	@Override
-	public String getName() {
-		return "NekoHtml";
+	public NekoHtmlParser() {
+		super(HtmlParserEnum.NekoHtmlParser);
 	}
 
 	@Override

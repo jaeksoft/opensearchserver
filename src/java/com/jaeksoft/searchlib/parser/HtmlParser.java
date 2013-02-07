@@ -44,13 +44,9 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
-import com.jaeksoft.searchlib.parser.htmlParser.JSoupParser;
-import com.jaeksoft.searchlib.parser.htmlParser.NekoHtmlParser;
-import com.jaeksoft.searchlib.parser.htmlParser.StrictXhtmlParser;
-import com.jaeksoft.searchlib.parser.htmlParser.TagsoupParser;
+import com.jaeksoft.searchlib.parser.htmlParser.HtmlParserEnum;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
@@ -115,6 +111,9 @@ public class HtmlParser extends Parser {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
 		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
+		addProperty(ClassPropertyEnum.HTML_PARSER,
+				HtmlParserEnum.BestScoreParser.getLabel(),
+				HtmlParserEnum.getLabelArray());
 		addProperty(ClassPropertyEnum.URL_FRAGMENT,
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
 				ClassPropertyEnum.KEEP_REMOVE_LIST);
@@ -213,17 +212,21 @@ public class HtmlParser extends Parser {
 	private HtmlDocumentProvider findBestProvider(String charset,
 			StreamLimiter streamLimiter) throws IOException {
 
-		HtmlDocumentProvider provider = new StrictXhtmlParser(charset,
-				streamLimiter);
+		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
+				.getHtmlParser(charset, streamLimiter);
 		if (provider.getRootNode() != null)
 			return provider;
 
 		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
 				0);
-		providerList.add(new TagsoupParser(charset, streamLimiter));
-		providerList.add(new NekoHtmlParser(charset, streamLimiter));
-		providerList.add(new HtmlCleanerParser(charset, streamLimiter));
-		providerList.add(new JSoupParser(charset, streamLimiter));
+		providerList.add(HtmlParserEnum.TagSoupParser.getHtmlParser(charset,
+				streamLimiter));
+		providerList.add(HtmlParserEnum.NekoHtmlParser.getHtmlParser(charset,
+				streamLimiter));
+		providerList.add(HtmlParserEnum.HtmlCleanerParser.getHtmlParser(
+				charset, streamLimiter));
+		providerList.add(HtmlParserEnum.JSoupParser.getHtmlParser(charset,
+				streamLimiter));
 
 		return HtmlDocumentProvider.bestScore(providerList);
 	}

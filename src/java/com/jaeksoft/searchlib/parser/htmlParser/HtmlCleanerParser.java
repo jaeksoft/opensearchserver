@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,19 +36,10 @@ import org.htmlcleaner.TagNode;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-
 public class HtmlCleanerParser extends HtmlDocumentProvider {
 
-	public HtmlCleanerParser(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
-		super(charset, streamLimiter);
-	}
-
-	@Override
-	public String getName() {
-		return "HtmlCleaner";
+	public HtmlCleanerParser() {
+		super(HtmlParserEnum.HtmlCleanerParser);
 	}
 
 	@Override

@@ -62,4 +62,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		byte[] data = takesScreenshot.getScreenshotAs(OutputType.BYTES);
 		return ImageIO.read(new ByteArrayInputStream(data));
 	}
+
+	final public String getSourceCode(String sUrl) {
+		driver.get(sUrl);
+		return driver.getPageSource();
+	}
+
+	final public String getTitle(String sUrl) {
+		driver.get(sUrl);
+		return driver.getTitle();
+	}
 }

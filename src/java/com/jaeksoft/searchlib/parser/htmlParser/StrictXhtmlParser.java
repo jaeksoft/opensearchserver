@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,20 +32,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.DomUtils;
 
 public class StrictXhtmlParser extends HtmlDocumentProvider {
 
-	public StrictXhtmlParser(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
-		super(charset, streamLimiter);
-	}
-
-	@Override
-	public String getName() {
-		return "StrictXml";
+	public StrictXhtmlParser() {
+		super(HtmlParserEnum.StrictXhtmlParser);
 	}
 
 	@Override
