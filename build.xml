@@ -49,6 +49,9 @@
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
 	<property name="junit-report" location="${build}/testreport" />
+	<property name="tomcat-context-path" value="/jenkins-oss-1.4-testing" />
+	<property name="tomcat-test-url" value="http://localhost:8080/manager/text" />
+	<property name="tomcat-username" value="testing" />
 	<loadproperties srcfile="version" />
 
 	<path id="project.class.path">
@@ -64,7 +67,6 @@
 		<fileset dir="${wlib}">
 			<include name="**.jar" />
 		</fileset>
-		<pathelement location="${lib}/junit-4.11.jar" />
 		<pathelement location="${build}" />
 	</path>
 
@@ -234,5 +236,15 @@
 		<delete dir="${temp}" />
 		<delete dir="${junit-report}" />
 	</target>
+	
+	<!-- Undeploy the test existing instance. -->
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
+		<classpath refid="project.class.path" />
+	</taskdef>
+
+	<target name="undeploy">
+		<undeploy url="${tomcat-test-url}" username="${tomcat-username}" password="${tomcat-password}" path="${tomcat-context-path}" />
+	</target>
+
 
 </project>
