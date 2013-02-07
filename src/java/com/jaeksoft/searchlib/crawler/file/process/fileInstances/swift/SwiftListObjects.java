@@ -25,50 +25,35 @@
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.message.BasicHeader;
 
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
-public class SwiftAuthentication {
+public class SwiftListObjects {
 
-	private static final String X_Auth_User = "X-Auth-User";
-	private static final String X_Auth_Key = "X-Auth-Key";
-	private static final String X_Storage_Url = "X-Storage-Url";
-	private static final String X_Auth_Token = "X-Auth-Token";
+	private final List<String> objectList;
 
-	private final String storageUrl;
-	private final String authToken;
-
-	public SwiftAuthentication(HttpDownloader httpDownloader, String authUrl,
-			String authUser, String authKey) throws URISyntaxException,
-			ClientProtocolException, IOException {
+	public SwiftListObjects(HttpDownloader httpDownloader, SwiftToken swiftToken)
+			throws URISyntaxException, ClientProtocolException, IOException {
 
 		List<Header> headerList = new ArrayList<Header>(0);
-		headerList.add(new BasicHeader(X_Auth_User, authUser));
-		headerList.add(new BasicHeader(X_Auth_Key, authKey));
-		URI uri = new URI(authUrl);
+		swiftToken.putAuthTokenHeader(headerList);
+		URI uri = new URI(swiftToken.getStorageUrl());
 		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList);
-		storageUrl = downloadItem.getFirstHttpHeader(X_Storage_Url);
-		if (storageUrl == null)
-			throw new IOException("Authentication failed: no storage url given");
-		authToken = downloadItem.getFirstHttpHeader(X_Auth_Token);
-		if (authToken == null)
-			throw new IOException("Authentication failed: no auth token given");
+		InputStream is = downloadItem.getContentInputStream();
+		objectList = IOUtils.readLines(is, "UTF-8");
 	}
 
-	public String getStorageUrl() {
-		return storageUrl;
-	}
-
-	public String getAuthToken() {
-		return authToken;
+	public List<String> getObjectList() {
+		return objectList;
 	}
 }

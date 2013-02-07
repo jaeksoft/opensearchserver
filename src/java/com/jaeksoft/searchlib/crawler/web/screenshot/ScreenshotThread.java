@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
-public class ScreenshotThread extends ThreadAbstract {
+public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 
 	private volatile URL url;
 	private volatile Dimension capture;

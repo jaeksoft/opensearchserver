@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class HttpDownloadThread extends ThreadAbstract {
+public class HttpDownloadThread extends ThreadAbstract<HttpDownloadThread> {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 

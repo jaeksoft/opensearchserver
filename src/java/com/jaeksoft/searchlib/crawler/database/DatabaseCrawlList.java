@@ -44,11 +44,11 @@ public class DatabaseCrawlList {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private TreeMap<String, DatabaseCrawl> map;
-	private DatabaseCrawl[] array;
+	private TreeMap<String, DatabaseCrawlAbstract> map;
+	private DatabaseCrawlAbstract[] array;
 
 	private DatabaseCrawlList() {
-		map = new TreeMap<String, DatabaseCrawl>();
+		map = new TreeMap<String, DatabaseCrawlAbstract>();
 	}
 
 	private final static String DBCRAWLLIST_ROOTNODE_NAME = "databaseCrawlList";
@@ -64,18 +64,29 @@ public class DatabaseCrawlList {
 		if (rootNode == null)
 			return dbCrawlList;
 		NodeList nodes = xpp.getNodeList(rootNode,
-				DatabaseCrawl.DBCRAWL_NODE_NAME);
+				DatabaseCrawlAbstract.DBCRAWL_NODE_NAME);
 		if (nodes == null)
 			return dbCrawlList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			DatabaseCrawl dbCrawl = DatabaseCrawl.fromXml(crawlMaster, xpp,
-					nodes.item(i));
-			dbCrawlList.add(dbCrawl);
+			Node crawlNode = nodes.item(i);
+			DatabaseCrawlEnum type = DatabaseCrawlEnum.find(XPathParser
+					.getAttributeString(crawlNode,
+							DatabaseCrawlAbstract.DBCRAWL_ATTR_TYPE));
+			DatabaseCrawlAbstract dbCrawl = null;
+			switch (type) {
+			case DB_SQL:
+				dbCrawl = new DatabaseCrawlSql(crawlMaster, xpp, nodes.item(i));
+				break;
+			default:
+				break;
+			}
+			if (dbCrawl != null)
+				dbCrawlList.add(dbCrawl);
 		}
 		return dbCrawlList;
 	}
 
-	public void add(DatabaseCrawl dbCrawl) {
+	public void add(DatabaseCrawlAbstract dbCrawl) {
 		rwl.w.lock();
 		try {
 			map.put(dbCrawl.getName(), dbCrawl);
@@ -85,7 +96,7 @@ public class DatabaseCrawlList {
 		}
 	}
 
-	public DatabaseCrawl get(String name) {
+	public DatabaseCrawlAbstract get(String name) {
 		rwl.r.lock();
 		try {
 			return map.get(name);
@@ -94,7 +105,7 @@ public class DatabaseCrawlList {
 		}
 	}
 
-	public void remove(DatabaseCrawl dbCrawl) {
+	public void remove(DatabaseCrawlAbstract dbCrawl) {
 		rwl.w.lock();
 		try {
 			map.remove(dbCrawl.getName());
@@ -109,7 +120,7 @@ public class DatabaseCrawlList {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(DBCRAWLLIST_ROOTNODE_NAME);
-			for (DatabaseCrawl item : map.values())
+			for (DatabaseCrawlAbstract item : map.values())
 				item.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
@@ -118,11 +129,11 @@ public class DatabaseCrawlList {
 	}
 
 	private void buildArray() {
-		array = new DatabaseCrawl[map.size()];
+		array = new DatabaseCrawlAbstract[map.size()];
 		map.values().toArray(array);
 	}
 
-	public DatabaseCrawl[] getArray() {
+	public DatabaseCrawlAbstract[] getArray() {
 		rwl.r.lock();
 		try {
 			return array;

@@ -41,7 +41,8 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
-public class AutoCompletionBuildThread extends ThreadAbstract {
+public class AutoCompletionBuildThread extends
+		ThreadAbstract<AutoCompletionBuildThread> {
 
 	private volatile Client sourceClient;
 	private volatile Client autoCompClient;

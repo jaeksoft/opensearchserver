@@ -138,7 +138,8 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 
 	public void setSelectedCrawl(C crawl) throws SearchLibException {
 		selectedCrawl = crawl;
-		currentCrawl = newCrawlItem(selectedCrawl);
+		if (crawl != null)
+			currentCrawl = newCrawlItem(selectedCrawl);
 		reload();
 	}
 

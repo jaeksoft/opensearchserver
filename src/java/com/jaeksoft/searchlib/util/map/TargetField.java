@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util.map;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
@@ -82,7 +84,8 @@ public class TargetField implements Comparable<TargetField> {
 			return false;
 		if (!(o instanceof TargetField))
 			return false;
-		return this.name.equals(((TargetField) o).name);
+		TargetField tf = (TargetField) o;
+		return StringUtils.equals(tf.name, this.name);
 	}
 
 	@Override

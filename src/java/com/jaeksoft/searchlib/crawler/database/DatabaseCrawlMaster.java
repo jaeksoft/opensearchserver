@@ -40,8 +40,10 @@ public class DatabaseCrawlMaster extends
 	@Override
 	public DatabaseCrawlThread getNewThread(Client client,
 			ThreadItem<?, DatabaseCrawlThread> databaseCrawl, TaskLog taskLog) {
-		return new DatabaseCrawlThread(client, this,
-				(DatabaseCrawl) databaseCrawl, taskLog);
+		if (databaseCrawl instanceof DatabaseCrawlSql)
+			return new DatabaseCrawlSqlThread(client, this,
+					(DatabaseCrawlSql) databaseCrawl, taskLog);
+		return null;
 	}
 
 	@Override

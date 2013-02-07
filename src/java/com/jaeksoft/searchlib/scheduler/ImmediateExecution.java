@@ -25,9 +25,10 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 
-public class ImmediateExecution extends ThreadAbstract {
+public class ImmediateExecution extends ThreadAbstract<HttpDownloadThread> {
 
 	private Client client;
 	private JobItem jobItem;

@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.web;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -54,8 +54,8 @@ public class DatabaseServlet extends AbstractServlet {
 			Client client = transaction.getClient();
 
 			String name = transaction.getParameterString("name");
-			DatabaseCrawl databaseCrawl = client.getDatabaseCrawlList().get(
-					name);
+			DatabaseCrawlAbstract databaseCrawl = client.getDatabaseCrawlList()
+					.get(name);
 			if (databaseCrawl == null)
 				throw new SearchLibException("Database crawl name not found ("
 						+ name + ")");

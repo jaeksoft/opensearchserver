@@ -165,3 +165,8 @@ This software is licensed under the Apache 2 License.
 Dropbox Java SDK
 http://www.dropbox.com
 Copyright (c) 2009-2011 Dropbox Inc.
+
+----------------------------------------
+MongoDB Drivers
+http://www.mongodb.org
+This software is licensed under the Apache 2 License.

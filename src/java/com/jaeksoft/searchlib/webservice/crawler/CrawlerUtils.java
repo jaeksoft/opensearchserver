@@ -54,8 +54,9 @@ public class CrawlerUtils {
 		}
 	}
 
-	public static CommonResult crawlerAction(CrawlMasterAbstract crawlMaster,
-			int timeOut, boolean runOnce, CrawlerActionEnum action) {
+	public static CommonResult crawlerAction(
+			CrawlMasterAbstract<?, ?> crawlMaster, int timeOut,
+			boolean runOnce, CrawlerActionEnum action) {
 		if (CrawlerActionEnum.STOP.name().equalsIgnoreCase(action.name())) {
 			crawlMaster.abort();
 			if (crawlMaster.waitForEnd(timeOut))

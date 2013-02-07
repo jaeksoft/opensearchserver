@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.scheduler.task;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
@@ -57,12 +57,12 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
 			throws SearchLibException {
 		DatabaseCrawlList crawlList = config.getDatabaseCrawlList();
-		DatabaseCrawl[] crawls = crawlList.getArray();
+		DatabaseCrawlAbstract[] crawls = crawlList.getArray();
 		if (crawls == null)
 			return null;
 		String[] values = new String[crawls.length];
 		int i = 0;
-		for (DatabaseCrawl crawl : crawls)
+		for (DatabaseCrawlAbstract crawl : crawls)
 			values[i++] = crawl.getName();
 		return values;
 	}
@@ -82,7 +82,7 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 			taskLog.setInfo("The crawl name is missing");
 			return;
 		}
-		DatabaseCrawl crawl = crawlList.get(crawlName);
+		DatabaseCrawlAbstract crawl = crawlList.get(crawlName);
 		if (crawl == null) {
 			taskLog.setInfo("Crawl not found: " + crawlName);
 			return;

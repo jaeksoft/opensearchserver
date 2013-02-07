@@ -58,7 +58,7 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UploadXmlController extends CommonController {
 
-	public class UpdateThread extends ThreadAbstract {
+	public class UpdateThread extends ThreadAbstract<UpdateThread> {
 
 		private volatile String mediaName;
 

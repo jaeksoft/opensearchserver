@@ -29,7 +29,7 @@ import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SwiftFileinstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SwiftFileInstance;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileInstanceTypeEnum extends ExtensibleEnum<FileInstanceType> {
@@ -51,7 +51,7 @@ public class FileInstanceTypeEnum extends ExtensibleEnum<FileInstanceType> {
 				DropboxFileInstance.class);
 
 		new FileInstanceType(this, "Swift", "Swift", "swift",
-				SwiftFileinstance.class);
+				SwiftFileInstance.class);
 
 	}
 }

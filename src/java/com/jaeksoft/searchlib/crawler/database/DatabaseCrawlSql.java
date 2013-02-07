@@ -30,14 +30,10 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class DatabaseCrawl
-		extends
-		FieldMapCrawlItem<DatabaseCrawl, DatabaseCrawlThread, DatabaseCrawlMaster> {
+public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
 	public static enum SqlUpdateMode {
 		NO_CALL, ONE_CALL_PER_PRIMARY_KEY, PRIMARY_KEY_LIST, PRIMARY_KEY_CHAR_LIST;
@@ -50,17 +46,9 @@ public class DatabaseCrawl
 		}
 	}
 
-	private String name;
-
-	private String url;
-
 	private String driverClass;
 
 	private IsolationLevelEnum isolationLevel;
-
-	private String user;
-
-	private String password;
 
 	private String sqlSelect;
 
@@ -68,71 +56,51 @@ public class DatabaseCrawl
 
 	private SqlUpdateMode sqlUpdateMode;
 
-	private LanguageEnum lang;
-
 	private String primaryKey;
 
 	private String uniqueKeyDeleteField;
 
-	private int bufferSize;
-
-	public DatabaseCrawl(DatabaseCrawlMaster crawlMaster, String name) {
-		super(crawlMaster, new DatabaseFieldMap());
-		this.name = name;
-		url = null;
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, String name) {
+		super(crawlMaster, name);
 		driverClass = null;
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
-		user = null;
-		password = null;
 		sqlSelect = null;
 		sqlUpdate = null;
 		sqlUpdateMode = SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY;
-		lang = LanguageEnum.UNDEFINED;
 		primaryKey = null;
 		uniqueKeyDeleteField = null;
-		bufferSize = 100;
 	}
 
-	public DatabaseCrawl(DatabaseCrawlMaster crawlMaster) {
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster) {
 		this(crawlMaster, null);
 	}
 
-	public DatabaseCrawl(DatabaseCrawl crawl) {
-		super((DatabaseCrawlMaster) crawl.threadMaster, new DatabaseFieldMap());
+	protected DatabaseCrawlSql(DatabaseCrawlSql crawl) {
+		super((DatabaseCrawlMaster) crawl.threadMaster, null);
 		crawl.copyTo(this);
 	}
 
 	@Override
-	public void copyTo(DatabaseCrawl crawl) {
-		super.copyTo(crawl);
-		crawl.setName(this.getName());
-		crawl.url = this.url;
+	public DatabaseCrawlAbstract duplicate() {
+		return new DatabaseCrawlSql(this);
+	}
+
+	@Override
+	public void copyTo(DatabaseCrawlAbstract crawlAbstract) {
+		super.copyTo(crawlAbstract);
+		DatabaseCrawlSql crawl = (DatabaseCrawlSql) crawlAbstract;
 		crawl.driverClass = this.driverClass;
 		crawl.isolationLevel = this.isolationLevel;
-		crawl.user = this.user;
-		crawl.password = this.password;
 		crawl.sqlSelect = this.sqlSelect;
 		crawl.sqlUpdate = this.sqlUpdate;
 		crawl.sqlUpdateMode = this.sqlUpdateMode;
-		crawl.lang = this.lang;
 		crawl.primaryKey = this.primaryKey;
 		crawl.uniqueKeyDeleteField = this.uniqueKeyDeleteField;
-		crawl.bufferSize = this.bufferSize;
 	}
 
-	/**
-	 * @return the url
-	 */
-	public String getUrl() {
-		return url;
-	}
-
-	/**
-	 * @param url
-	 *            the url to set
-	 */
-	public void setUrl(String url) {
-		this.url = url;
+	@Override
+	public DatabaseCrawlEnum getType() {
+		return DatabaseCrawlEnum.DB_SQL;
 	}
 
 	/**
@@ -148,36 +116,6 @@ public class DatabaseCrawl
 	 */
 	public void setDriverClass(String driverClass) {
 		this.driverClass = driverClass;
-	}
-
-	/**
-	 * @return the user
-	 */
-	public String getUser() {
-		return user;
-	}
-
-	/**
-	 * @param user
-	 *            the user to set
-	 */
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * @param password
-	 *            the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	/**
@@ -226,29 +164,6 @@ public class DatabaseCrawl
 	}
 
 	/**
-	 * @param lang
-	 *            the lang to set
-	 */
-	public void setLang(LanguageEnum lang) {
-		this.lang = lang;
-	}
-
-	/**
-	 * @return the lang
-	 */
-	public LanguageEnum getLang() {
-		return lang;
-	}
-
-	/**
-	 * @return the fieldMap
-	 */
-	@Override
-	public DatabaseFieldMap getFieldMap() {
-		return (DatabaseFieldMap) super.getFieldMap();
-	}
-
-	/**
 	 * @param primaryKey
 	 *            the primaryKey to set
 	 */
@@ -263,82 +178,49 @@ public class DatabaseCrawl
 		return primaryKey;
 	}
 
-	/**
-	 * @return the bufferSize
-	 */
-	public int getBufferSize() {
-		return bufferSize;
-	}
-
-	/**
-	 * @param bufferSize
-	 *            the bufferSize to set
-	 */
-	public void setBufferSize(int bufferSize) {
-		this.bufferSize = bufferSize;
-	}
-
-	protected final static String DBCRAWL_NODE_NAME = "databaseCrawl";
-	protected final static String DBCRAWL_ATTR_NAME = "name";
 	protected final static String DBCRAWL_ATTR_DRIVER_CLASS = "driverClass";
-	protected final static String DBCRAWL_ATTR_USER = "user";
 	protected final static String DBCRAWL_ATTR_ISOLATION_LEVEL = "isolationLevel";
-	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
-	protected final static String DBCRAWL_ATTR_URL = "url";
-	protected final static String DBCRAWL_ATTR_LANG = "lang";
-	protected final static String DBCRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String DBCRAWL_ATTR_PRIMARY_KEY = "primaryKey";
 	protected final static String DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD = "uniqueKeyDeleteField";
 	protected final static String DBCRAWL_NODE_NAME_SQL_SELECT = "sql";
 	protected final static String DBCRAWL_NODE_NAME_SQL_UPDATE = "sqlUpdate";
 	protected final static String DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE = "mode";
-	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
-	public static DatabaseCrawl fromXml(DatabaseCrawlMaster crawlMaster,
-			XPathParser xpp, Node item) throws XPathExpressionException {
-		DatabaseCrawl crawl = new DatabaseCrawl(crawlMaster);
-		crawl.setName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_NAME));
-		crawl.setDriverClass(XPathParser.getAttributeString(item,
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, XPathParser xpp,
+			Node item) throws XPathExpressionException {
+		super(crawlMaster, xpp, item);
+		setDriverClass(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DRIVER_CLASS));
-		crawl.setIsolationLevel(IsolationLevelEnum.find(XPathParser
+		setIsolationLevel(IsolationLevelEnum.find(XPathParser
 				.getAttributeString(item, DBCRAWL_ATTR_ISOLATION_LEVEL)));
-		crawl.setUser(XPathParser.getAttributeString(item, DBCRAWL_ATTR_USER));
-		crawl.setPassword(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_PASSWORD));
-		crawl.setUrl(XPathParser.getAttributeString(item, DBCRAWL_ATTR_URL));
-		crawl.setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-				item, DBCRAWL_ATTR_LANG)));
-		crawl.setPrimaryKey(XPathParser.getAttributeString(item,
+		setPrimaryKey(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_PRIMARY_KEY));
-		crawl.setUniqueKeyDeleteField(XPathParser.getAttributeString(item,
+		setUniqueKeyDeleteField(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
-		crawl.setBufferSize(XPathParser.getAttributeValue(item,
+		setBufferSize(XPathParser.getAttributeValue(item,
 				DBCRAWL_ATTR_BUFFER_SIZE));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_SELECT);
 		if (sqlNode != null)
-			crawl.setSqlSelect(xpp.getNodeString(sqlNode, true));
+			setSqlSelect(xpp.getNodeString(sqlNode, true));
 		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_UPDATE);
 		if (sqlNode != null) {
-			crawl.setSqlUpdate(xpp.getNodeString(sqlNode, true));
-			crawl.setSqlUpdateMode(SqlUpdateMode.find(DOMUtils.getAttribute(
-					sqlNode, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
+			setSqlUpdate(xpp.getNodeString(sqlNode, true));
+			setSqlUpdateMode(SqlUpdateMode.find(DOMUtils.getAttribute(sqlNode,
+					DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
 		}
-		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
-		if (mapNode != null)
-			crawl.getFieldMap().load(xpp, mapNode);
-		return crawl;
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
-				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(),
-				DBCRAWL_ATTR_ISOLATION_LEVEL,
+				DBCRAWL_ATTR_TYPE, getType().name(), DBCRAWL_ATTR_DRIVER_CLASS,
+				getDriverClass(), DBCRAWL_ATTR_ISOLATION_LEVEL,
 				isolationLevel != null ? isolationLevel.name() : null,
 				DBCRAWL_ATTR_USER, getUser(), DBCRAWL_ATTR_PASSWORD,
 				getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
 				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
-				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(bufferSize));
+				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
@@ -352,26 +234,6 @@ public class DatabaseCrawl
 		xmlWriter.textNode(getSqlUpdate());
 		xmlWriter.endElement();
 		xmlWriter.endElement();
-	}
-
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public int compareTo(DatabaseCrawl o) {
-		return getName().compareTo(o.getName());
 	}
 
 	/**

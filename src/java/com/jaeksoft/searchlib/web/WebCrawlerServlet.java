@@ -45,7 +45,7 @@ public class WebCrawlerServlet extends AbstractServlet {
 		STARTED, STARTING, STOPPED, STOPPING;
 	}
 
-	protected void doCrawlMaster(CrawlMasterAbstract crawlMaster,
+	protected void doCrawlMaster(CrawlMasterAbstract<?, ?> crawlMaster,
 			ServletTransaction transaction) {
 
 		String action = transaction.getParameterString("action");

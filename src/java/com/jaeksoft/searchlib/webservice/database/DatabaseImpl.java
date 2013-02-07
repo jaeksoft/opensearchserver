@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -47,8 +47,8 @@ public class DatabaseImpl extends CommonServices implements Database {
 			Client client = ClientCatalog.getClient(use);
 			Long databaseIndexedCount = null;
 			if (isLogged(use, login, key)) {
-				DatabaseCrawl databaseCrawl = client.getDatabaseCrawlList()
-						.get(databaseName);
+				DatabaseCrawlAbstract databaseCrawl = client
+						.getDatabaseCrawlList().get(databaseName);
 				if (databaseCrawl == null) {
 					throw new WebServiceException(
 							"Database crawl name not found (" + databaseName

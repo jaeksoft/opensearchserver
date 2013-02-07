@@ -30,10 +30,12 @@ import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawl.SqlUpdateMode;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlEnum;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
@@ -42,9 +44,11 @@ import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerCon
 
 public class DatabaseCrawlListController
 		extends
-		CommonFieldTargetCrawlerController<DatabaseCrawl, DatabaseCrawlThread, DatabaseCrawlMaster> {
+		CommonFieldTargetCrawlerController<DatabaseCrawlAbstract, DatabaseCrawlThread, DatabaseCrawlMaster> {
 
 	private transient DatabaseCrawlList dbCrawlList;
+
+	private DatabaseCrawlEnum dbCrawlType;
 
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
@@ -55,6 +59,7 @@ public class DatabaseCrawlListController
 	protected void reset() throws SearchLibException {
 		super.reset();
 		dbCrawlList = null;
+		setDbCrawlType(DatabaseCrawlEnum.DB_SQL);
 	}
 
 	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {
@@ -92,9 +97,17 @@ public class DatabaseCrawlListController
 	@Override
 	@Command
 	public void onNew() throws SearchLibException {
-		DatabaseCrawl oldCurrentCrawl = getCurrentCrawl();
+		DatabaseCrawlAbstract oldCurrentCrawl = getCurrentCrawl();
 		setSelectedCrawl(null);
-		DatabaseCrawl newCrawl = new DatabaseCrawl(getCrawlMaster());
+		DatabaseCrawlAbstract newCrawl = null;
+		switch (dbCrawlType) {
+		case DB_SQL:
+			newCrawl = new DatabaseCrawlSql(getCrawlMaster());
+			break;
+		case DB_NO_SQL:
+			newCrawl = null;
+			break;
+		}
 		setCurrentCrawl(newCrawl);
 		if (oldCurrentCrawl != null)
 			oldCurrentCrawl.copyTo(newCrawl);
@@ -109,22 +122,27 @@ public class DatabaseCrawlListController
 		super.reload();
 	}
 
+	public DatabaseCrawlEnum[] getDatabaseCrawlTypes() {
+		return DatabaseCrawlEnum.values();
+	}
+
 	public IsolationLevelEnum[] getIsolationLevels() {
 		return IsolationLevelEnum.values();
 	}
 
 	public SqlUpdateMode[] getSqlUpdateModes() {
-		return DatabaseCrawl.SqlUpdateMode.values();
+		return DatabaseCrawlSql.SqlUpdateMode.values();
 	}
 
 	@Override
-	protected void doDelete(DatabaseCrawl crawlItem) throws SearchLibException {
+	protected void doDelete(DatabaseCrawlAbstract crawlItem)
+			throws SearchLibException {
 		getClient().getDatabaseCrawlList().remove(crawlItem);
 	}
 
 	@Override
-	protected DatabaseCrawl newCrawlItem(DatabaseCrawl crawl) {
-		return new DatabaseCrawl(crawl);
+	protected DatabaseCrawlAbstract newCrawlItem(DatabaseCrawlAbstract crawl) {
+		return crawl.duplicate();
 	}
 
 	@Override
@@ -138,6 +156,21 @@ public class DatabaseCrawlListController
 		if (client == null)
 			return null;
 		return client.getDatabaseCrawlMaster();
+	}
+
+	/**
+	 * @return the dbCrawlType
+	 */
+	public DatabaseCrawlEnum getDbCrawlType() {
+		return dbCrawlType;
+	}
+
+	/**
+	 * @param dbCrawlType
+	 *            the dbCrawlType to set
+	 */
+	public void setDbCrawlType(DatabaseCrawlEnum dbCrawlType) {
+		this.dbCrawlType = dbCrawlType;
 	}
 
 }
