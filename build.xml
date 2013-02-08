@@ -217,7 +217,7 @@
 	<target name="junit-test" depends="compile">
 		<junit printsummary="on" fork="true" haltonfailure="yes">
 			<classpath refid="project.class.path" />
-			<formatter type="xml" />
+			<formatter type="brief" />
 			<batchtest todir="${junit-report}">
 				<fileset dir="${src}">
 					<include name="**/*AllTests*.java" />
