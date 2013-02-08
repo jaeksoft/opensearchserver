@@ -43,8 +43,9 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 	}
 
 	@Override
-	protected DomHtmlNode getDocument(String charset, InputStream inputStream)
-			throws SAXException, IOException, ParserConfigurationException {
+	protected HtmlNodeAbstract<?> getDocument(String charset,
+			InputStream inputStream) throws SAXException, IOException,
+			ParserConfigurationException {
 		HtmlCleaner cleaner = new HtmlCleaner();
 		CleanerProperties props = cleaner.getProperties();
 		props.setNamespacesAware(true);
@@ -52,4 +53,5 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 		Document document = new DomSerializer(props, true).createDOM(node);
 		return new DomHtmlNode(document);
 	}
+
 }

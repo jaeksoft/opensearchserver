@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,29 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.streamlimiter;
+package com.jaeksoft.searchlib.parser.htmlParser;
 
-import java.io.File;
-import java.io.IOException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 
-public class StreamLimiterFile extends StreamLimiter {
+public class HtmlUnitParser extends WebDriverParserAbstract {
 
-	private final File file;
-
-	public StreamLimiterFile(long limit, File file) throws IOException {
-		super(limit, file.getName(), null);
-		this.file = file;
+	public HtmlUnitParser() {
+		super(HtmlParserEnum.HtmlUnitParser);
 	}
 
 	@Override
-	protected void loadOutputCache() throws LimitException, IOException {
-		loadOutputCache(file);
-
+	protected BrowserDriver<?> getWebDriver() throws InstantiationException,
+			IllegalAccessException {
+		return BrowserDriverEnum.HTML_UNIT.getNewInstance();
 	}
-
-	@Override
-	public File getFile() {
-		return file;
-	}
-
 }

@@ -36,6 +36,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
@@ -62,11 +63,11 @@ public abstract class HtmlDocumentProvider {
 	public void init(String charset, StreamLimiter streamLimiter)
 			throws LimitException {
 		try {
-			rootNode = getDocument(charset, streamLimiter.getNewInputStream());
+			rootNode = getDocument(charset, streamLimiter);
 		} catch (LimitException e) {
 			throw e;
 		} catch (Exception e) {
-			Logging.warn(e.getMessage());
+			Logging.warn(e);
 		}
 	}
 
@@ -82,15 +83,23 @@ public abstract class HtmlDocumentProvider {
 			InputStream inputStream) throws SAXException, IOException,
 			ParserConfigurationException;
 
+	protected HtmlNodeAbstract<?> getDocument(String charset,
+			StreamLimiter streamLimiter) throws SAXException, IOException,
+			ParserConfigurationException, SearchLibException {
+		return getDocument(charset, streamLimiter.getNewInputStream());
+	}
+
 	public void score() {
 		score = getTitle() != null ? 10000 : 0;
 		score += getMetas() != null ? metasCache.size() * 1000 : 0;
-		score += rootNode.countElements();
+		score += rootNode != null ? rootNode.countElements() : 0;
 	}
 
 	final public String getTitle() {
 		if (titleCache != null)
 			return titleCache;
+		if (rootNode == null)
+			return null;
 		String[] p1 = { "html", "head", "title" };
 		String title = rootNode.getTextNode(p1);
 		if (title != null)
@@ -105,6 +114,8 @@ public abstract class HtmlDocumentProvider {
 			return metasCache;
 		String[] p1 = { "html", "head", "meta" };
 		String[] p2 = { "html", "meta" };
+		if (rootNode == null)
+			return null;
 		metasCache = rootNode.getNewNodeList();
 		rootNode.getNodes(metasCache, p1);
 		rootNode.getNodes(metasCache, p2);

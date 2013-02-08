@@ -411,7 +411,7 @@ public class ParserSelector {
 		if (parser == null)
 			return null;
 		StreamLimiter streamLimiter = new StreamLimiterInputStream(
-				parser.getSizeLimit(), inputStream, filename);
+				parser.getSizeLimit(), inputStream, filename, url);
 		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 

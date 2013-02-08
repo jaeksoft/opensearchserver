@@ -25,13 +25,17 @@
 package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public enum HtmlParserEnum {
 
-	FirefoxParser("Firefox", null),
+	FirefoxParser("Firefox", FirefoxParser.class),
+
+	HtmlUnitParser("HtmlUnit", HtmlUnitParser.class),
 
 	HtmlCleanerParser("HtmlCleaner", HtmlCleanerParser.class),
 
@@ -49,6 +53,9 @@ public enum HtmlParserEnum {
 
 	private final Class<? extends HtmlDocumentProvider> classDef;
 
+	private static HtmlParserEnum[] bestScoreOrder = { TagSoupParser,
+			NekoHtmlParser, HtmlCleanerParser, JSoupParser };
+
 	private HtmlParserEnum(String label,
 			Class<? extends HtmlDocumentProvider> classDef) {
 		this.label = label;
@@ -59,9 +66,27 @@ public enum HtmlParserEnum {
 		return label;
 	}
 
+	private static HtmlDocumentProvider findBestProvider(String charset,
+			StreamLimiter streamLimiter) throws IOException {
+
+		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
+				.getHtmlParser(charset, streamLimiter);
+		if (provider.getRootNode() != null)
+			return provider;
+
+		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
+				bestScoreOrder.length);
+		for (HtmlParserEnum htmlParserEnum : bestScoreOrder)
+			providerList.add(htmlParserEnum.getHtmlParser(charset,
+					streamLimiter));
+		return HtmlDocumentProvider.bestScore(providerList);
+	}
+
 	public HtmlDocumentProvider getHtmlParser(String charset,
 			StreamLimiter streamLimiter) throws LimitException, IOException {
 		try {
+			if (this == BestScoreParser)
+				return findBestProvider(charset, streamLimiter);
 			HtmlDocumentProvider htmlParser = classDef.newInstance();
 			htmlParser.init(charset, streamLimiter);
 			return htmlParser;
@@ -78,5 +103,13 @@ public enum HtmlParserEnum {
 		for (HtmlParserEnum htmlParserEnum : values())
 			labelArray[i++] = htmlParserEnum.label;
 		return labelArray;
+	}
+
+	public static HtmlParserEnum find(String value) {
+		for (HtmlParserEnum htmlParserEnum : values())
+			if (htmlParserEnum.name().equalsIgnoreCase(value)
+					|| htmlParserEnum.label.equalsIgnoreCase(value))
+				return htmlParserEnum;
+		return BestScoreParser;
 	}
 }

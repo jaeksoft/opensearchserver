@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,15 +46,17 @@ public abstract class StreamLimiter implements Closeable {
 	private CachedStreamInterface outputCache;
 	private final List<File> tempFiles;
 	protected final String originalFileName;
+	private final String originURL;
 	private String detectedCharset;
 
-	protected StreamLimiter(long limit, String originalFileName)
-			throws IOException {
+	protected StreamLimiter(long limit, String originalFileName,
+			String originURL) throws IOException {
 		this.limit = limit;
 		this.outputCache = null;
 		this.inputStreamList = new ArrayList<InputStream>(0);
 		this.tempFiles = new ArrayList<File>(0);
 		this.originalFileName = originalFileName;
+		this.originURL = originURL;
 		this.detectedCharset = null;
 	}
 
@@ -105,6 +107,10 @@ public abstract class StreamLimiter implements Closeable {
 		return outputCache.getSize();
 	}
 
+	public long getLimit() {
+		return limit;
+	}
+
 	@Override
 	public void close() throws IOException {
 		for (InputStream inputStream : inputStreamList)
@@ -137,6 +143,13 @@ public abstract class StreamLimiter implements Closeable {
 			if (is != null)
 				IOUtils.closeQuietly(is);
 		}
+	}
+
+	/**
+	 * @return the originURL
+	 */
+	public String getOriginURL() {
+		return originURL;
 	}
 
 }

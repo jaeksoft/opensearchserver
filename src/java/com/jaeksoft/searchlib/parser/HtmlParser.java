@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -209,28 +208,6 @@ public class HtmlParser extends Parser {
 		}
 	}
 
-	private HtmlDocumentProvider findBestProvider(String charset,
-			StreamLimiter streamLimiter) throws IOException {
-
-		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
-				.getHtmlParser(charset, streamLimiter);
-		if (provider.getRootNode() != null)
-			return provider;
-
-		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
-				0);
-		providerList.add(HtmlParserEnum.TagSoupParser.getHtmlParser(charset,
-				streamLimiter));
-		providerList.add(HtmlParserEnum.NekoHtmlParser.getHtmlParser(charset,
-				streamLimiter));
-		providerList.add(HtmlParserEnum.HtmlCleanerParser.getHtmlParser(
-				charset, streamLimiter));
-		providerList.add(HtmlParserEnum.JSoupParser.getHtmlParser(charset,
-				streamLimiter));
-
-		return HtmlDocumentProvider.bestScore(providerList);
-	}
-
 	protected void addFieldTitle(ParserResultItem result, String value) {
 		result.addField(ParserFieldEnum.title, value, titleBoost);
 	}
@@ -269,7 +246,7 @@ public class HtmlParser extends Parser {
 
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter,
-			LanguageEnum forcedLang) throws IOException {
+			LanguageEnum forcedLang) throws IOException, SearchLibException {
 
 		titleBoost = getFloatProperty(ClassPropertyEnum.TITLE_BOOST);
 		boostTagMap = new TreeMap<String, Float>();
@@ -311,8 +288,10 @@ public class HtmlParser extends Parser {
 					.getValue();
 		}
 
-		HtmlDocumentProvider htmlProvider = findBestProvider(currentCharset,
-				streamLimiter);
+		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(
+				ClassPropertyEnum.HTML_PARSER).getValue());
+		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
+				currentCharset, streamLimiter);
 		if (htmlProvider == null)
 			return;
 
@@ -339,7 +318,8 @@ public class HtmlParser extends Parser {
 		if (selectedCharset != null) {
 			if (!selectedCharset.equals(currentCharset)) {
 				currentCharset = selectedCharset;
-				htmlProvider = findBestProvider(currentCharset, streamLimiter);
+				htmlProvider = htmlParserEnum.getHtmlParser(currentCharset,
+						streamLimiter);
 			}
 		}
 

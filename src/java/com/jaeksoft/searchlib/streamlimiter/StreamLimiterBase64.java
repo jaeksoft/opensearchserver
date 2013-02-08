@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,7 +39,7 @@ public class StreamLimiterBase64 extends StreamLimiter {
 
 	public StreamLimiterBase64(String base64text, int limit, String fileName)
 			throws IOException {
-		super(limit, fileName);
+		super(limit, fileName, null);
 		this.base64text = base64text;
 		this.extension = fileName != null ? FilenameUtils
 				.getExtension(fileName) : null;

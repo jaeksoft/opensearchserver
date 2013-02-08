@@ -24,38 +24,42 @@
 
 package com.jaeksoft.searchlib.streamlimiter;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
-import com.jaeksoft.searchlib.SearchLibException;
+public class StreamLimiterString extends StreamLimiter {
 
-public class StreamLimiterInputStream extends StreamLimiter {
+	private final String text;
+	private final String extension;
 
-	private final InputStream inputStream;
-
-	public StreamLimiterInputStream(long limit, InputStream inputStream,
-			String originalFileName, String originURL) throws IOException {
-		super(limit, originalFileName, originURL);
-		this.inputStream = inputStream;
+	public StreamLimiterString(String text, long limit, String fileName,
+			String url) throws IOException {
+		super(limit, fileName, url);
+		this.text = text;
+		this.extension = fileName != null ? FilenameUtils
+				.getExtension(fileName) : null;
 	}
 
 	@Override
 	protected void loadOutputCache() throws LimitException, IOException {
-		loadOutputCache(inputStream);
+		InputStream is = new ByteArrayInputStream(text.getBytes());
+		try {
+			loadOutputCache(is);
+		} finally {
+			if (is != null)
+				IOUtils.closeQuietly(is);
+		}
+
 	}
 
 	@Override
-	public File getFile() throws SearchLibException {
-		try {
-			String ext = originalFileName == null ? null : FilenameUtils
-					.getExtension(originalFileName);
-			return getTempFile(ext);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+	public File getFile() throws IOException {
+		return getTempFile(extension);
 	}
 
 }

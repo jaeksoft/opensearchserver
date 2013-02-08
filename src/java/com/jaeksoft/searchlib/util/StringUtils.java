@@ -252,6 +252,15 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 		return match.getName();
 	}
 
+	public final static String charsetDetector(byte[] bytes) {
+		CharsetDetector detector = new CharsetDetector();
+		detector.setText(bytes);
+		CharsetMatch match = detector.detect();
+		if (match == null)
+			return null;
+		return match.getName();
+	}
+
 	public final static String[] toStringArray(Collection<?> collection,
 			boolean sort) {
 		if (collection == null)

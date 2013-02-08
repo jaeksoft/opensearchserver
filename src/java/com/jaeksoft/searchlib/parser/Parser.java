@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
@@ -77,10 +78,11 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	protected abstract void parseContent(StreamLimiter streamLimiter,
-			LanguageEnum lang) throws IOException;
+			LanguageEnum lang) throws IOException, SearchLibException;
 
 	final public void doParserContent(IndexDocument sourceDocument,
-			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
+			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException,
+			SearchLibException {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
 		parseContent(streamLimiter, lang);

@@ -180,7 +180,7 @@ public class DomUtils {
 		dbf.setValidating(false);
 		dbf.setIgnoringComments(false);
 		dbf.setIgnoringElementContentWhitespace(true);
-		dbf.setNamespaceAware(true);
+		dbf.setNamespaceAware(false);
 
 		DocumentBuilder db = null;
 		db = dbf.newDocumentBuilder();

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -123,6 +124,12 @@ public abstract class FileInstanceAbstract {
 
 		public List<SecurityAccess> getSecurity() throws IOException;
 
+	}
+
+	public String getURL() throws MalformedURLException {
+		if (uri == null)
+			return null;
+		return uri.toURL().toExternalForm();
 	}
 
 }

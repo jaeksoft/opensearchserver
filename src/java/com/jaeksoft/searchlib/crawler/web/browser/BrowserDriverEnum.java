@@ -30,6 +30,8 @@ public enum BrowserDriverEnum {
 
 	FIREFOX(FirefoxBrowserDriver.class, "Firefox"),
 
+	HTML_UNIT(HtmlUnitBrowserDriver.class, "HtmlUnit"),
+
 	INTERNET_EXPLORER(InternetExplorerBrowserDriver.class, "Internet Exlorer"),
 
 	SAFARI(SafariBrowserDriver.class, "Safari");
