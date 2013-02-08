@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,10 +28,10 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Test;
 
 /**
  * @author Ayyathurai N Naveen
@@ -45,17 +45,12 @@ public class PatternTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void insertPattern() throws ClientProtocolException, IOException {
+	@Test
+	public void testInsertPattern() throws ClientProtocolException, IOException {
 		File patterns = FileUtils.toFile(this.getClass().getResource(
 				"patterns.txt"));
 		int status = commomTestCase.postFile(patterns, "text/plain",
 				CommomTestCase.PATTERN_API);
 		assertEquals(200, status);
-	}
-
-	public static TestSuite suite() {
-		TestSuite patternSuite = new TestSuite();
-		patternSuite.addTest(new PatternTestCase("insertPattern"));
-		return patternSuite;
 	}
 }

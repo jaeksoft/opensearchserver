@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,16 +32,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
 /**
  * @author Ayyathurai N Naveen
  * 
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WebCrawlerTestCase extends TestCase {
 	private CommomTestCase commomTestCase = null;
 
@@ -62,24 +65,20 @@ public class WebCrawlerTestCase extends TestCase {
 
 	}
 
-	public void startCrawler() throws IllegalStateException,
+	@Test
+	public void testAStartCrawler() throws IllegalStateException,
 			XPathExpressionException, IOException, SAXException,
 			ParserConfigurationException {
 		String response = startStopCrawler("start");
 		assertEquals("STARTED", response);
 	}
 
-	public void stopCrawler() throws IllegalStateException,
+	@Test
+	public void testBStopCrawler() throws IllegalStateException,
 			XPathExpressionException, IOException, SAXException,
 			ParserConfigurationException {
 		String response = startStopCrawler("stop");
 		assertEquals("STOPPED", response);
 	}
 
-	public static TestSuite suite() throws InterruptedException {
-		TestSuite webCrawlerTestCase = new TestSuite();
-		webCrawlerTestCase.addTest(new WebCrawlerTestCase("startCrawler"));
-		webCrawlerTestCase.addTest(new WebCrawlerTestCase("stopCrawler"));
-		return webCrawlerTestCase;
-	}
 }

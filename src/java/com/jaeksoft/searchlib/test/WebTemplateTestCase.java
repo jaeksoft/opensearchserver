@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,7 +68,6 @@ public class WebTemplateTestCase extends TestCase {
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("Index created: oss", response);
-
 	}
 
 	@Test
