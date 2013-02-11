@@ -32,16 +32,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
 /**
  * @author Ayyathurai N Naveen
  * 
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SearchTestCase extends TestCase {
 	private CommomTestCase commomTestCase = null;
 
@@ -50,8 +53,9 @@ public class SearchTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void getDocumentsFound() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testAgetDocumentsFound() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
@@ -60,11 +64,12 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
-		assertEquals("175", response);
+		assertEquals("174", response);
 	}
 
-	public void checkFacetField() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testBCheckFacetField() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
@@ -76,11 +81,12 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/faceting/field[@name='lang']/facet[@name='en']");
-		assertEquals("138", response);
+		assertEquals("137", response);
 	}
 
-	public void getFilterSearch() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testCgetFilterSearch() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
@@ -90,11 +96,12 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
-		assertEquals("138", response);
+		assertEquals("137", response);
 	}
 
-	public void getSortedSearch() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testDGetSortedSearch() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
@@ -107,21 +114,24 @@ public class SearchTestCase extends TestCase {
 		assertEquals("http://dev.open-search-server.com/13", response);
 	}
 
-	public void getReturnField() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testEGetReturnField() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
+		namedValuePairs.add(commomTestCase.getNameValuePair("query",
+				"open search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("rf", "lang"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/doc/field[@name='lang']");
-		assertEquals("en", response);
+		assertEquals("fr", response);
 	}
 
-	public void getRows() throws IllegalStateException, IOException,
+	@Test
+	public void testFGetRows() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -135,7 +145,8 @@ public class SearchTestCase extends TestCase {
 		assertEquals("50", response);
 	}
 
-	public void getStart() throws IllegalStateException, IOException,
+	@Test
+	public void testGgetStart() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -149,7 +160,8 @@ public class SearchTestCase extends TestCase {
 		assertEquals("20", response);
 	}
 
-	public void getCollapsedDocumentCount() throws IllegalStateException,
+	@Test
+	public void testHGetCollapsedDocumentCount() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -165,11 +177,12 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@collapsedDocCount");
-		assertEquals("174", response);
+		assertEquals("173", response);
 	}
 
-	public void checkSpellCheck() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	@Test
+	public void testICheckSpellCheck() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("query",
@@ -183,17 +196,4 @@ public class SearchTestCase extends TestCase {
 		assertEquals("opensearchserver", response);
 	}
 
-	public static TestSuite suite() throws InterruptedException {
-		TestSuite searchTestCase = new TestSuite();
-		searchTestCase.addTest(new SearchTestCase("getDocumentsFound"));
-		searchTestCase.addTest(new SearchTestCase("getCollapsedDocumentCount"));
-		searchTestCase.addTest(new SearchTestCase("getFilterSearch"));
-		searchTestCase.addTest(new SearchTestCase("getReturnField"));
-		searchTestCase.addTest(new SearchTestCase("getRows"));
-		searchTestCase.addTest(new SearchTestCase("getStart"));
-		searchTestCase.addTest(new SearchTestCase("getSortedSearch"));
-		searchTestCase.addTest(new SearchTestCase("checkFacetField"));
-		searchTestCase.addTest(new SearchTestCase("checkSpellCheck"));
-		return searchTestCase;
-	}
 }

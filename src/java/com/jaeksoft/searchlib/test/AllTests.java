@@ -29,7 +29,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
-		IndexTestCase.class, OptimizeTestCase.class, DeleteIndexTestCase.class })
+		IndexTestCase.class, OptimizeTestCase.class,
+		SearchTemplateTestCase.class, SearchTestCase.class,
+		DeleteIndexTestCase.class })
 public class AllTests {
 
 }

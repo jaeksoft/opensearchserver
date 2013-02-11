@@ -12,6 +12,7 @@ import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class SearchTemplateTestCase extends TestCase {
@@ -22,7 +23,8 @@ public class SearchTemplateTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void creatSpellCheckQuery() throws IllegalStateException,
+	@Test
+	public void testCreatSpellCheckQuery() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -47,7 +49,8 @@ public class SearchTemplateTestCase extends TestCase {
 		assertEquals("OK", response);
 	}
 
-	public void createMoreLikeThisTemplate() throws IllegalStateException,
+	@Test
+	public void testCreateMoreLikeThisTemplate() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
