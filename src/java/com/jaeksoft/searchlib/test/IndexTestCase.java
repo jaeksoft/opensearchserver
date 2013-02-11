@@ -27,10 +27,10 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.junit.Test;
 
 public class IndexTestCase extends TestCase {
 	private CommomTestCase commomTestCase = null;
@@ -40,7 +40,8 @@ public class IndexTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void indexDocument() throws ClientProtocolException, IOException {
+	@Test
+	public void testIndexDocument() throws ClientProtocolException, IOException {
 		File patterns = FileUtils.toFile(this.getClass().getResource(
 				"documents.xml"));
 		int status = commomTestCase.postFile(patterns, "text/xml",
@@ -48,9 +49,4 @@ public class IndexTestCase extends TestCase {
 		assertEquals(200, status);
 	}
 
-	public static TestSuite suite() {
-		TestSuite indexSuit = new TestSuite();
-		indexSuit.addTest(new IndexTestCase("indexDocument"));
-		return indexSuit;
-	}
 }

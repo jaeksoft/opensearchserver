@@ -68,6 +68,7 @@
 			<include name="**.jar" />
 		</fileset>
 		<pathelement location="${build}" />
+		<pathelement location="${resources}" />
 	</path>
 
 	<target name="init">

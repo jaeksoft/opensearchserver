@@ -31,10 +31,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class OptimizeTestCase extends TestCase {
@@ -45,7 +45,8 @@ public class OptimizeTestCase extends TestCase {
 		commomTestCase = new CommomTestCase();
 	}
 
-	public void optimizeIndex() throws IllegalStateException, IOException,
+	@Test
+	public void testOptimizeIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -54,12 +55,6 @@ public class OptimizeTestCase extends TestCase {
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Status']");
 		assertEquals("OK", response);
-	}
-
-	public static TestSuite suite() throws InterruptedException {
-		TestSuite optimizeTestSuit = new TestSuite();
-		optimizeTestSuit.addTest(new OptimizeTestCase("optimizeIndex"));
-		return optimizeTestSuit;
 	}
 
 }
