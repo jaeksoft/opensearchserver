@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -48,111 +49,78 @@ public class SchemaImpl extends CommonServices implements Schema {
 
 	@Override
 	public CommonResult deleteIndex(String login, String key, String indexName) {
-
 		try {
+			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (getAuthentication(login, key)) {
-				User user = getUser(login, key);
-				ClientCatalog.eraseIndex(user, indexName);
-				return new CommonResult(true, "Deleted Index " + indexName);
-			} else
-				throw new WebServiceException("Bad Credential");
+			ClientCatalog.eraseIndex(user, indexName);
+			return new CommonResult(true, "Index deleted: " + indexName);
 		} catch (SearchLibException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (NamingException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		}
-		return new CommonResult(false, "Something went wrong");
 	}
 
 	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
 			TemplateList indexTemplateName) {
 		try {
-			if (getAuthentication(login, key)) {
-				TemplateAbstract template = TemplateList
-						.findTemplate(indexTemplateName.name());
-				ClientCatalog.createIndex(null, indexName, template);
-				return new CommonResult(true, "Created Index " + indexName);
-			} else
-				throw new WebServiceException("Bad Credential");
+			User user = getLoggedUser(login, key);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (user != null && !user.isAdmin())
+				throw new WebServiceException("Not allowed");
+			TemplateAbstract template = TemplateList
+					.findTemplate(indexTemplateName.name());
+			ClientCatalog.createIndex(user, indexName, template);
+			return new CommonResult(true, "Created Index " + indexName);
 		} catch (SearchLibException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
 		}
-		return new CommonResult(false, "Something went wrong");
-	}
-
-	private User getUser(String login, String key) throws SearchLibException {
-		return ClientCatalog.authenticateKey(login, key);
-	}
-
-	private Boolean getAuthentication(String login, String key) {
-		try {
-			User user = getUser(login, key);
-			if (ClientCatalog.getUserList().isEmpty()) {
-				return true;
-			}
-			if (user != null && user.isAdmin()) {
-				return true;
-			}
-		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		}
-		return false;
-
 	}
 
 	@Override
 	public List<String> indexList(String login, String key) {
-		List<String> indexList = new ArrayList<String>();
 		try {
+			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (getAuthentication(login, key)) {
-				User user = getUser(login, key);
-				for (ClientCatalogItem catalogItem : ClientCatalog
-						.getClientCatalog(user)) {
-					indexList.add(catalogItem.getIndexName());
-				}
-			} else
-				throw new WebServiceException("Bad Credential");
+			List<String> indexList = new ArrayList<String>();
+			for (ClientCatalogItem catalogItem : ClientCatalog
+					.getClientCatalog(user))
+				indexList.add(catalogItem.getIndexName());
+			return indexList;
 		} catch (SearchLibException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		}
-		return indexList;
 	}
 
 	@Override
 	public CommonResult setField(String use, String login, String key,
 			SchemaFieldRecord schemaFieldRecord) {
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (isLoggedSchema(use, login, key)) {
-				Client client = ClientCatalog.getClient(use);
-				setField(client, schemaFieldRecord);
-				return new CommonResult(true, "Added Field "
-						+ schemaFieldRecord.name);
-			} else
-				throw new WebServiceException("Bad Credential");
+			setField(client, schemaFieldRecord);
+			return new CommonResult(true, "Added Field "
+					+ schemaFieldRecord.name);
 		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		} catch (NamingException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		}
-		return new CommonResult(false, "Something went wrong");
 	}
 
 	private void setField(Client client, SchemaFieldRecord schemaFieldRecord)
@@ -171,27 +139,18 @@ public class SchemaImpl extends CommonServices implements Schema {
 	@Override
 	public CommonResult deletefield(String use, String login, String key,
 			String deleteField) {
-		String message = null;
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = ClientCatalog.getClient(use);
-			if (isLoggedSchema(use, login, key))
-				message = delete(client, use, deleteField);
-			else
-				throw new WebServiceException("Bad Credential");
-		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		} catch (NamingException e) {
-			new WebServiceException(e);
-		} catch (InterruptedException e) {
-			new WebServiceException(e);
-		} catch (IOException e) {
-			new WebServiceException(e);
-		}
-		if (message != null)
+			String message = delete(client, use, deleteField);
 			return new CommonResult(true, message);
-		else
-			return new CommonResult(false, "Something went wrong");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	private String delete(Client client, String use, String deleteField)
@@ -206,104 +165,67 @@ public class SchemaImpl extends CommonServices implements Schema {
 		return "Deleted " + deleteField;
 	}
 
-	private Client getClient(String use) throws SearchLibException,
-			NamingException {
-		return ClientCatalog.getClient(use);
-	}
-
 	@Override
 	public CommonResult setDefaultField(String use, String login, String key,
 			String defaultField) {
-		String message = null;
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getClient(use);
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
-			if (isLoggedSchema(use, login, key)) {
-				if (defaultField != null
-						&& !defaultField.trim().equalsIgnoreCase("")) {
-					schema.getFieldList().setDefaultField(defaultField);
-					SchemaServlet.saveSchema(client, schema);
-					message = "Default Field has been set to " + defaultField;
-				}
-			}
-		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		} catch (NamingException e) {
-			new WebServiceException(e);
-		} catch (InterruptedException e) {
-			new WebServiceException(e);
-		} catch (IOException e) {
-			new WebServiceException(e);
-		}
-		if (message != null)
+			schema.getFieldList().setDefaultField(defaultField);
+			SchemaServlet.saveSchema(client, schema);
+			String message = "Default field has been set to " + defaultField;
 			return new CommonResult(true, message);
-		else
-			return new CommonResult(false, "Something went wrong");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
 	public CommonResult setUniqueField(String use, String login, String key,
 			String uniqueField) {
-		String message = null;
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getClient(use);
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
-			if (isLoggedSchema(use, login, key)) {
-				if (uniqueField != null
-						&& !uniqueField.trim().equalsIgnoreCase("")) {
-					schema.getFieldList().setUniqueField(uniqueField);
-					SchemaServlet.saveSchema(client, schema);
-					message = "Unique Field has been set to " + uniqueField;
-				}
-			}
-		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		} catch (NamingException e) {
-			new WebServiceException(e);
-		} catch (InterruptedException e) {
-			new WebServiceException(e);
-		} catch (IOException e) {
-			new WebServiceException(e);
-		}
-		if (message != null)
+			schema.getFieldList().setUniqueField(uniqueField);
+			SchemaServlet.saveSchema(client, schema);
+			String message = "Unique field has been set to " + uniqueField;
 			return new CommonResult(true, message);
-		else
-			return new CommonResult(false, "Something went wrong");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
 	public List<SchemaFieldRecord> getFieldList(String use, String login,
 			String key) {
-		List<SchemaFieldRecord> fieldList = new ArrayList<SchemaFieldRecord>();
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (isLoggedSchema(use, login, key)) {
-				Client client = getClient(use);
-				com.jaeksoft.searchlib.schema.Schema schema = client
-						.getSchema();
-				for (SchemaField schemaField : schema.getFieldList().getList()) {
-					SchemaFieldRecord fieldListResult = new SchemaFieldRecord(
-							schemaField.getName(),
-							schemaField.getIndexAnalyzer(),
-							schemaField.getIndexed(), schemaField.getStored(),
-							schemaField.getTermVector());
-					fieldList.add(fieldListResult);
-				}
-
-			} else
-				throw new WebServiceException("Bad Credential");
-		} catch (SearchLibException e) {
-			new WebServiceException(e);
-		} catch (NamingException e) {
-			new WebServiceException(e);
+			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
+			List<SchemaFieldRecord> fieldList = new ArrayList<SchemaFieldRecord>();
+			for (SchemaField schemaField : schema.getFieldList().getList()) {
+				SchemaFieldRecord fieldListResult = new SchemaFieldRecord(
+						schemaField.getName(), schemaField.getIndexAnalyzer(),
+						schemaField.getIndexed(), schemaField.getStored(),
+						schemaField.getTermVector());
+				fieldList.add(fieldListResult);
+			}
+			return fieldList;
 		} catch (InterruptedException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		} catch (IOException e) {
-			new WebServiceException(e);
+			throw new WebServiceException(e);
 		}
-		return fieldList;
 	}
 
 }

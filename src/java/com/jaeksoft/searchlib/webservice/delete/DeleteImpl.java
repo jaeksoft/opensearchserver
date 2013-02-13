@@ -30,16 +30,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class DeleteImpl extends CommonServices implements Delete {
@@ -50,28 +49,23 @@ public class DeleteImpl extends CommonServices implements Delete {
 			List<String> uniqueDocs) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = ClientCatalog.getClient(use);
-			if (isLogged(use, login, key)) {
-				if (q != null && !q.equals(""))
-					deletedDocs = deleteByQuery(client, q);
+			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			if (q != null && !q.equals(""))
+				deletedDocs = deleteByQuery(client, q);
 
-				if (uniqueDocs != null && uniqueDocs.size() > 0) {
-					List<String> uniqueList = new ArrayList<String>();
-					for (String uniq : uniqueDocs) {
-						uniq = uniq.trim();
-						if (uniq != null && !uniq.equals(""))
-							uniqueList.add(uniq);
-					}
-					if (uniqueList != null && uniqueList.size() > 0) {
-						deletedDocs = deleteUniqDocs(client, uniqueDocs);
-					}
+			if (uniqueDocs != null && uniqueDocs.size() > 0) {
+				List<String> uniqueList = new ArrayList<String>();
+				for (String uniq : uniqueDocs) {
+					uniq = uniq.trim();
+					if (uniq != null && !uniq.equals(""))
+						uniqueList.add(uniq);
 				}
-				return deletedDocs;
-			} else
-				throw new WebServiceException("Bad Credential");
+				if (uniqueList != null && uniqueList.size() > 0) {
+					deletedDocs = deleteUniqDocs(client, uniqueDocs);
+				}
+			}
+			return deletedDocs;
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
 			throw new WebServiceException(e);

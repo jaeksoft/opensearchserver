@@ -26,16 +26,15 @@ package com.jaeksoft.searchlib.webservice.action;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexMode;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -46,38 +45,35 @@ public class ActionImpl extends CommonServices implements Action {
 			Boolean optimize, Boolean reload, Boolean online, Boolean offline,
 			Boolean readonly, Boolean readwrite) {
 		try {
+			Client client = getLoggedClientAnyRole(use, login, key,
+					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (isLogged(use, login, key)) {
 
-				Client client = ClientCatalog.getClient(use);
-				if (optimize != null && optimize == true) {
-					optimize(client);
-					return new CommonResult(true, "optimized");
-				}
-				if (reload != null && reload == true) {
-					reload(client);
-					return new CommonResult(true, "reloaded");
-				}
-				if (online != null && online == true) {
-					online(client);
-					return new CommonResult(true, "online");
-				}
-				if (offline != null && offline == true) {
-					offline(client);
-					return new CommonResult(true, "offline ");
-				}
-				if (readonly != null && readonly == true) {
-					readOnly(client);
-					return new CommonResult(true, "readonly");
-				}
-				if (readwrite != null && readwrite == true) {
-					readWrite(client);
-					return new CommonResult(true, "readwrite");
-				}
+			if (optimize != null && optimize == true) {
+				optimize(client);
+				return new CommonResult(true, "optimized");
+			}
+			if (reload != null && reload == true) {
+				reload(client);
+				return new CommonResult(true, "reloaded");
+			}
+			if (online != null && online == true) {
+				online(client);
+				return new CommonResult(true, "online");
+			}
+			if (offline != null && offline == true) {
+				offline(client);
+				return new CommonResult(true, "offline ");
+			}
+			if (readonly != null && readonly == true) {
+				readOnly(client);
+				return new CommonResult(true, "readonly");
+			}
+			if (readwrite != null && readwrite == true) {
+				readWrite(client);
+				return new CommonResult(true, "readwrite");
 			}
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (URISyntaxException e) {
 			throw new WebServiceException(e);

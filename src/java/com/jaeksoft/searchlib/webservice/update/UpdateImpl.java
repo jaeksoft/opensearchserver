@@ -29,17 +29,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -51,17 +50,12 @@ public class UpdateImpl extends CommonServices implements Update {
 	public CommonResult update(String use, String login, String key,
 			List<Document> updateDocuments) {
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (isLogged(use, login, key)) {
-				Client client = ClientCatalog.getClient(use);
-				updateDocCount = updateDocument(client, updateDocuments);
-				return new CommonResult(true, "Updated " + updateDocCount
-						+ " Document");
-			} else
-				throw new WebServiceException("Bad Credential");
+			updateDocCount = updateDocument(client, updateDocuments);
+			return new CommonResult(true, "Updated " + updateDocCount
+					+ " Document");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (NoSuchAlgorithmException e) {
 			throw new WebServiceException(e);

@@ -25,46 +25,34 @@
 package com.jaeksoft.searchlib.webservice;
 
 import com.jaeksoft.searchlib.webservice.action.ActionImpl;
+import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
-import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FilePatternImpl;
-import com.jaeksoft.searchlib.webservice.crawler.webcrawler.URLBrowserImpl;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
-import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebPatternImpl;
-import com.jaeksoft.searchlib.webservice.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.delete.DeleteImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
-import com.jaeksoft.searchlib.webservice.screenshot.ScreenshotImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
 import com.jaeksoft.searchlib.webservice.update.UpdateImpl;
 
 public enum WebServiceEnum {
 
-	Action(ActionImpl.class, "/Action"),
+	Action(ActionImpl.class, "/action"),
 
-	Database(DatabaseImpl.class, "/Database"),
+	Database(DatabaseImpl.class, "/crawler/database"),
 
-	Delete(DeleteImpl.class, "/Delete"),
+	Delete(DeleteImpl.class, "/delete"),
 
-	FileCrawler(FileCrawlerImpl.class, "/FileCrawler"),
+	FileCrawler(FileCrawlerImpl.class, "/crawler/file"),
 
-	FilePattern(FilePatternImpl.class, "/FilePattern"),
+	Monitor(MonitorImpl.class, "/monitor"),
 
-	Monitor(MonitorImpl.class, "/Monitor"),
+	Shema(SchemaImpl.class, "/schema"),
 
-	Shema(SchemaImpl.class, "/Schema"),
+	Select(SelectImpl.class, "/select"),
 
-	Screenshot(ScreenshotImpl.class, "/Screenshot"),
+	Update(UpdateImpl.class, "/update"),
 
-	Select(SelectImpl.class, "/Select"),
-
-	Update(UpdateImpl.class, "/Update"),
-
-	URLBrowser(URLBrowserImpl.class, "/URLBrowser"),
-
-	WebCrawler(WebCrawlerImpl.class, "/WebCrawler"),
-
-	WebPattern(WebPatternImpl.class, "/WebPattern");
+	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
 
 	final private Class<?> serviceClass;
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,20 +24,30 @@
 package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
 
 import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-/**
- * @author Naveen
- * 
- */
-@WebService
-public interface FilePattern {
+@WebService(name = "FileCrawler")
+public interface SoapFileCrawler {
 
-	@WebResult(name = "filePattern")
-	public CommonResult filePattern(@WebParam(name = "use") String use,
+	public CommonResult runOnce(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult runForever(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult stop(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult status(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult injectRepository(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "filePath") String filePath,
@@ -49,5 +59,4 @@ public interface FilePattern {
 			@WebParam(name = "password") String password,
 			@WebParam(name = "domain") String domain,
 			@WebParam(name = "host") String host);
-
 }

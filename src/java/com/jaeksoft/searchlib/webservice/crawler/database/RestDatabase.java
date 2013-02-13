@@ -21,22 +21,31 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
+package com.jaeksoft.searchlib.webservice.crawler.database;
 
-import java.util.List;
-
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService
-public interface WebPattern {
-	@WebResult(name = "webPattern")
-	public CommonResult webPattern(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "deleteAll") Boolean deleteAll,
-			@WebParam(name = "inject") List<String> injectList);
+@Path("/database")
+public interface RestDatabase {
+
+	@GET
+	@Produces("application/xml")
+	@Path("/{index}/xml")
+	public CommonResult databaseXML(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("databaseName") String databaseName);
+
+	@GET
+	@Produces("application/json")
+	@Path("/{index}/json")
+	public CommonResult databaseJSON(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("databaseName") String databaseName);
+
 }

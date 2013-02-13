@@ -28,11 +28,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -52,6 +50,7 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class SelectImpl extends CommonServices implements Select {
@@ -71,26 +70,20 @@ public class SelectImpl extends CommonServices implements Select {
 			String mltStopWords, List<String> customLogs, boolean log,
 			boolean delete) {
 		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = ClientCatalog.getClient(use);
-			if (isLogged(use, login, key)) {
-				SearchRequest searchRequest = getSearchRequest(client, q, qt,
-						use, start, rows, lang, collapseField, collapseMax,
-						collapseMode, collapseType, filterQuery,
-						filterQueryNegetive, sort, returnField, withDocs,
-						highlight, facet, facetCollapse, facetMulti,
-						facetMultiCollapse, moreLikeThis, mltDocQuery,
-						mltMinWordLen, mltMaxWordLen, mltMinDocFeq,
-						mltMinTermFreq, mltStopWords, customLogs, log, delete);
+			SearchRequest searchRequest = getSearchRequest(client, q, qt, use,
+					start, rows, lang, collapseField, collapseMax,
+					collapseMode, collapseType, filterQuery,
+					filterQueryNegetive, sort, returnField, withDocs,
+					highlight, facet, facetCollapse, facetMulti,
+					facetMultiCollapse, moreLikeThis, mltDocQuery,
+					mltMinWordLen, mltMaxWordLen, mltMinDocFeq, mltMinTermFreq,
+					mltStopWords, customLogs, log, delete);
 
-				return new SelectResult(
-						(AbstractResultSearch) client.request(searchRequest));
-			} else
-				throw new WebServiceException("Bad Credential");
-
+			return new SelectResult(
+					(AbstractResultSearch) client.request(searchRequest));
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		} catch (SyntaxError e) {
 			throw new WebServiceException(e);

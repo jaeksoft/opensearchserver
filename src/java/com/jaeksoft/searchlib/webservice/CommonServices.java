@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,42 +34,56 @@ import com.jaeksoft.searchlib.user.User;
 
 public class CommonServices {
 
-	public Boolean isLogged(String use, String login, String key) {
+	private Client client = null;
+	private User user = null;
 
+	private void checkClientAndUser(String use, String login, String key)
+			throws SearchLibException, NamingException {
+		if (!ClientCatalog.getUserList().isEmpty()) {
+			user = ClientCatalog.authenticateKey(login, key);
+			if (user == null)
+				throw new WebServiceException("Authentication failed");
+		}
+		Client client = ClientCatalog.getClient(use);
+		if (client == null)
+			throw new WebServiceException("Index not found");
+	}
+
+	protected User getLoggedUser(String login, String key)
+			throws SearchLibException {
+		if (ClientCatalog.getUserList().isEmpty())
+			return null;
+		User user = ClientCatalog.authenticateKey(login, key);
+		if (user == null)
+			throw new WebServiceException("Authentication failed");
+		return user;
+	}
+
+	protected Client getLoggedClient(String use, String login, String key,
+			Role role) {
 		try {
-			User user = ClientCatalog.authenticateKey(login, key);
-			Client client = ClientCatalog.getClient(use);
-
-			if (user == null && ClientCatalog.getUserList().isEmpty())
-				return true;
-
-			if (user != null
-					&& user.hasRole(client.getIndexName(), Role.INDEX_QUERY))
-				return true;
-
-			return false;
-
+			checkClientAndUser(use, login, key);
+			if (user == null)
+				return client;
+			if (user.hasRole(client.getIndexName(), role))
+				return client;
+			throw new WebServiceException("Not allowed");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (NamingException e) {
 			throw new WebServiceException(e);
 		}
-
 	}
 
-	public Boolean isLoggedSchema(String use, String login, String key) {
+	protected Client getLoggedClientAnyRole(String use, String login,
+			String key, Role... roles) {
 		try {
-			User user = ClientCatalog.authenticateKey(login, key);
-			Client client = ClientCatalog.getClient(use);
-
-			if (user == null && ClientCatalog.getUserList().isEmpty())
-				return true;
-			if (user != null
-					&& user.hasRole(client.getIndexName(), Role.INDEX_SCHEMA))
-				return true;
-
-			return false;
-
+			checkClientAndUser(use, login, key);
+			if (user == null)
+				return client;
+			if (user.hasAnyRole(client.getIndexName(), roles))
+				return client;
+			throw new WebServiceException("Not allowed");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (NamingException e) {
@@ -77,20 +91,15 @@ public class CommonServices {
 		}
 	}
 
-	public Boolean isLoggedWebStartStop(String use, String login, String key) {
+	protected Client getLoggedClientAllRoles(String use, String login,
+			String key, Role... roles) {
 		try {
-			User user = ClientCatalog.authenticateKey(login, key);
-			Client client = ClientCatalog.getClient(use);
-
-			if (user == null && ClientCatalog.getUserList().isEmpty())
-				return true;
-			if (user != null
-					&& user.hasRole(client.getIndexName(),
-							Role.WEB_CRAWLER_START_STOP))
-				return true;
-
-			return false;
-
+			checkClientAndUser(use, login, key);
+			if (user == null)
+				return client;
+			if (user.hasAllRole(client.getIndexName(), roles))
+				return client;
+			throw new WebServiceException("Not allowed");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (NamingException e) {

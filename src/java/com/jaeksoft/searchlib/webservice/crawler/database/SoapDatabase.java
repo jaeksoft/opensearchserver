@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,21 +21,19 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.screenshot;
+package com.jaeksoft.searchlib.webservice.crawler.database;
 
-public enum ScreenshotActionEnum {
-	CAPTURE("capture"),
+import javax.jws.WebParam;
+import javax.jws.WebService;
 
-	CHECK("check");
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-	private String name;
+@WebService(name = "DatabaseCrawler")
+public interface SoapDatabase {
 
-	public String getName() {
-		return name;
-	}
+	public CommonResult database(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "databaseName") String databaseName);
 
-	private ScreenshotActionEnum(String name) {
-		this.name = name;
-
-	}
 }

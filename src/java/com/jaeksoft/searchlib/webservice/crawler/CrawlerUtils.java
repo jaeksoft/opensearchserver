@@ -24,62 +24,33 @@
 package com.jaeksoft.searchlib.webservice.crawler;
 
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
+import com.jaeksoft.searchlib.web.WebCrawlerServlet.InfoStatus;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class CrawlerUtils {
 
-	public enum InfoStatus {
-		STARTED, STARTING, STOPPED, STOPPING;
+	public static CommonResult stop(CrawlMasterAbstract<?, ?> crawlMaster) {
+		crawlMaster.abort();
+		return new CommonResult(true, InfoStatus.STOPPING.name());
 	}
 
-	public enum CrawlerActionEnum {
+	public static CommonResult runForever(CrawlMasterAbstract<?, ?> crawlMaster) {
+		crawlMaster.start(false);
+		return new CommonResult(true, InfoStatus.STARTING.name());
 
-		START("start"),
-
-		STOP("stop"),
-
-		STATUS("status"),
-
-		EMTPY("empty");
-
-		private String name;
-
-		public String getName() {
-			return name;
-		}
-
-		private CrawlerActionEnum(String name) {
-			this.name = name;
-
-		}
 	}
 
-	public static CommonResult crawlerAction(
-			CrawlMasterAbstract<?, ?> crawlMaster, int timeOut,
-			boolean runOnce, CrawlerActionEnum action) {
-		if (CrawlerActionEnum.STOP.name().equalsIgnoreCase(action.name())) {
-			crawlMaster.abort();
-			if (crawlMaster.waitForEnd(timeOut))
-				return new CommonResult(true, InfoStatus.STOPPED.name());
-			else
-				return new CommonResult(true, InfoStatus.STOPPING.name());
-		} else if (CrawlerActionEnum.START.name().equalsIgnoreCase(
-				action.name())) {
-			crawlMaster.start(runOnce);
-			if (crawlMaster.waitForStart(timeOut))
-				return new CommonResult(true, InfoStatus.STARTED.name());
-			else
-				return new CommonResult(true, InfoStatus.STARTING.name());
-		} else if (CrawlerActionEnum.STATUS.name().equalsIgnoreCase(
-				action.name())) {
-			if (crawlMaster.isAborting())
-				return new CommonResult(true, InfoStatus.STOPPING.name());
-			else if (crawlMaster.isRunning())
-				return new CommonResult(true, InfoStatus.STARTED.name());
-			else
-				return new CommonResult(true, InfoStatus.STOPPED.name());
-		} else
-			return new CommonResult(true, CrawlerActionEnum.EMTPY.name());
+	public static CommonResult runOnce(CrawlMasterAbstract<?, ?> crawlMaster) {
+		crawlMaster.start(true);
+		return new CommonResult(true, InfoStatus.STARTING.name());
+	}
 
+	public static CommonResult status(CrawlMasterAbstract<?, ?> crawlMaster) {
+		if (crawlMaster.isAborting())
+			return new CommonResult(true, InfoStatus.STOPPING.name());
+		else if (crawlMaster.isRunning())
+			return new CommonResult(true, InfoStatus.STARTED.name());
+		else
+			return new CommonResult(true, InfoStatus.STOPPED.name());
 	}
 }
