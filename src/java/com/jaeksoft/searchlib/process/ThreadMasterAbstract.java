@@ -124,6 +124,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 	public void abort() {
 		rwl.r.lock();
 		try {
+			super.abort();
 			for (T thread : threads)
 				thread.abort();
 		} finally {

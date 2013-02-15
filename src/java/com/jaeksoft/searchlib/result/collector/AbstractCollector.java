@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import org.apache.lucene.search.Scorer;
 
 public abstract class AbstractCollector extends Collector {
 
+	protected boolean hasDeletion = false;
 	protected IndexReader reader = null;
 	protected Scorer scorer = null;
 
@@ -44,6 +45,9 @@ public abstract class AbstractCollector extends Collector {
 	final public void setNextReader(IndexReader reader, int docId)
 			throws IOException {
 		this.reader = reader;
+		this.hasDeletion = reader.hasDeletions();
+		if (this.hasDeletion)
+			System.out.println("Has deletion  ? " + hasDeletion);
 	}
 
 	@Override

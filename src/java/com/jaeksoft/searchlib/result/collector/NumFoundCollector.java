@@ -32,6 +32,9 @@ public class NumFoundCollector extends AbstractCollector {
 
 	@Override
 	final public void collect(int docId) throws IOException {
+		if (hasDeletion)
+			if (reader.isDeleted(docId))
+				System.out.println("DELETED " + docId);
 		this.numFound++;
 	}
 
