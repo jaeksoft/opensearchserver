@@ -206,7 +206,8 @@ public class ClassifierController extends CommonController {
 		return selectedClassifierItem;
 	}
 
-	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
+	@NotifyChange({ "currentClassifier", "currentClassifierItem",
+			"selectedClassifierItem", "notItemSelected", "itemSelected" })
 	public void setSelectedClassifierItem(ClassifierItem classifierItem)
 			throws SearchLibException {
 		if (classifierItem == null)
@@ -216,7 +217,8 @@ public class ClassifierController extends CommonController {
 	}
 
 	@Command
-	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
+	@NotifyChange({ "currentClassifier", "currentClassifierItem",
+			"selectedClassifierItem", "notItemSelected", "itemSelected" })
 	public void onSaveClassifierItem() throws SearchLibException {
 		if (selectedClassifierItem != null)
 			currentClassifier.replace(selectedClassifierItem,
@@ -227,14 +229,16 @@ public class ClassifierController extends CommonController {
 	}
 
 	@Command
-	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
+	@NotifyChange({ "currentClassifier", "currentClassifierItem",
+			"selectedClassifierItem", "notItemSelected", "itemSelected" })
 	public void onCancelClassifierItem() throws SearchLibException {
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
 	}
 
 	@Command
-	@NotifyChange({ "currentClassifier", "selectedClassifierItem" })
+	@NotifyChange({ "currentClassifier", "currentClassifierItem",
+			"selectedClassifierItem", "notItemSelected", "itemSelected" })
 	public void onRemoveClassifierItem(
 			@BindingParam("classifierItem") ClassifierItem classifierItem)
 			throws SearchLibException {
