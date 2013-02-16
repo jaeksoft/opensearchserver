@@ -32,8 +32,7 @@ import org.apache.lucene.search.Scorer;
 
 public abstract class AbstractCollector extends Collector {
 
-	protected boolean hasDeletion = false;
-	protected IndexReader reader = null;
+	private int currentDocBase = 0;
 	protected Scorer scorer = null;
 
 	@Override
@@ -42,13 +41,17 @@ public abstract class AbstractCollector extends Collector {
 	}
 
 	@Override
-	final public void setNextReader(IndexReader reader, int docId)
+	final public void setNextReader(IndexReader reader, int docBase)
 			throws IOException {
-		this.reader = reader;
-		this.hasDeletion = reader.hasDeletions();
-		if (this.hasDeletion)
-			System.out.println("Has deletion  ? " + hasDeletion);
+		currentDocBase = docBase;
 	}
+
+	@Override
+	final public void collect(int doc) throws IOException {
+		collectDoc(doc + currentDocBase);
+	}
+
+	protected abstract void collectDoc(int doc) throws IOException;
 
 	@Override
 	final public void setScorer(Scorer scorer) throws IOException {

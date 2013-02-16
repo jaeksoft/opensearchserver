@@ -51,7 +51,7 @@ public class ScoreDocCollector extends DocIdCollector implements
 	}
 
 	@Override
-	final public void collect(int docId) throws IOException {
+	final public void collectDoc(int docId) throws IOException {
 		float sc = scorer.score();
 		if (sc > maxScore)
 			maxScore = sc;
