@@ -365,7 +365,7 @@ public class PatternManager {
 		PrintWriter pw = null;
 		try {
 			sw = new StringWriter();
-			pw = new PrintWriter(pw);
+			pw = new PrintWriter(sw);
 			for (PatternItem item : patternList)
 				pw.println(item.getPattern());
 			return sw.toString();
