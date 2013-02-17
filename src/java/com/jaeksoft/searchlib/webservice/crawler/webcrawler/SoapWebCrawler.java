@@ -51,7 +51,15 @@ public interface SoapWebCrawler {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult injectPatterns(@WebParam(name = "use") String use,
+	public CommonResult injectPatternsInclusion(
+			@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "deleteAll") Boolean deleteAll,
+			@WebParam(name = "inject") List<String> injectList);
+
+	public CommonResult injectPatternsExclusion(
+			@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "deleteAll") Boolean deleteAll,

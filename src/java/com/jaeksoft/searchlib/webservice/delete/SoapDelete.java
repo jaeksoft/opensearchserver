@@ -21,19 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.database;
+
+package com.jaeksoft.searchlib.webservice.delete;
+
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "DatabaseCrawler")
-public interface SoapDatabase {
+@WebService(name = "Delete")
+public interface SoapDelete {
 
-	public CommonResult crawl(@WebParam(name = "use") String use,
+	public CommonResult deleteByValue(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "databaseName") String databaseName);
+			@WebParam(name = "field") String field,
+			@WebParam(name = "values") List<String> values);
 
+	public CommonResult deleteByQuery(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "query") String query);
 }

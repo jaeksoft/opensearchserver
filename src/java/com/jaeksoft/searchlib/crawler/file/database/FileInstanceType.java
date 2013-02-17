@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,21 +25,38 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.util.ExtensibleEnum;
-import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpsFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SwiftFileInstance;
 
-public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
+public enum FileInstanceType {
 
-	private String label;
+	Local("LocalFileInstance", "Local files", "file", LocalFileInstance.class),
 
-	private String scheme;
+	Smb("SmbFileInstance", "SMB/CIFS", "smb", SmbFileInstance.class),
 
-	private Class<? extends FileInstanceAbstract> classInstance;
+	Ftp("FtpFileInstance", "FTP", "ftp", FtpFileInstance.class),
 
-	public FileInstanceType(ExtensibleEnum<FileInstanceType> enumeration,
-			String name, String label, String scheme,
+	Ftps("FtpsFileInstance", "FTP over SSL", "ftps", FtpsFileInstance.class),
+
+	Dropbox("Dropbox", "Dropbox", "dropbox", DropboxFileInstance.class),
+
+	Swift("Swift", "Swift", "swift", SwiftFileInstance.class);
+
+	private final String name;
+
+	private final String label;
+
+	private final String scheme;
+
+	private final Class<? extends FileInstanceAbstract> classInstance;
+
+	private FileInstanceType(String name, String label, String scheme,
 			Class<? extends FileInstanceAbstract> classInstance) {
-		super(enumeration, name);
+		this.name = name;
 		this.label = label;
 		this.scheme = scheme;
 		this.classInstance = classInstance;
@@ -47,10 +64,18 @@ public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 
 	/**
 	 * 
-	 * @return the label of the scheme
+	 * @return the label
 	 */
 	public String getLabel() {
 		return label;
+	}
+
+	/**
+	 * 
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -76,4 +101,21 @@ public class FileInstanceType extends ExtensibleEnumItem<FileInstanceType> {
 		return classInstance == fileInstanceClass;
 	}
 
+	public static FileInstanceType findByScheme(String scheme) {
+		if (scheme == null)
+			return null;
+		for (FileInstanceType fileInstance : values())
+			if (fileInstance.scheme.equalsIgnoreCase(scheme))
+				return fileInstance;
+		return null;
+	}
+
+	public static FileInstanceType findByName(String name) {
+		if (name == null)
+			return null;
+		for (FileInstanceType fileInstance : values())
+			if (fileInstance.name.equalsIgnoreCase(name))
+				return fileInstance;
+		return null;
+	}
 }

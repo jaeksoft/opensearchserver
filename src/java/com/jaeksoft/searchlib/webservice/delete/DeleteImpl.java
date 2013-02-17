@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,6 @@
 package com.jaeksoft.searchlib.webservice.delete;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.xml.ws.WebServiceException;
@@ -35,72 +31,71 @@ import javax.xml.ws.WebServiceException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class DeleteImpl extends CommonServices implements Delete {
-	public int deletedDocs;
+public class DeleteImpl extends CommonServices implements SoapDelete,
+		RestDelete {
 
 	@Override
-	public int delete(String q, String use, String login, String key,
-			List<String> uniqueDocs) {
+	public CommonResult deleteByQuery(String use, String login, String key,
+			String query) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
-			if (q != null && !q.equals(""))
-				deletedDocs = deleteByQuery(client, q);
-
-			if (uniqueDocs != null && uniqueDocs.size() > 0) {
-				List<String> uniqueList = new ArrayList<String>();
-				for (String uniq : uniqueDocs) {
-					uniq = uniq.trim();
-					if (uniq != null && !uniq.equals(""))
-						uniqueList.add(uniq);
-				}
-				if (uniqueList != null && uniqueList.size() > 0) {
-					deletedDocs = deleteUniqDocs(client, uniqueDocs);
-				}
-			}
-			return deletedDocs;
-		} catch (SearchLibException e) {
+			ClientFactory.INSTANCE.properties.checkApi();
+			SearchRequest request = new SearchRequest(client);
+			request.setQueryString(query);
+			int count = client.deleteDocuments(request);
+			return new CommonResult(true, count + " document(s) deleted");
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
 			throw new WebServiceException(e);
-		} catch (InstantiationException e) {
-			throw new WebServiceException(e);
-		} catch (IllegalAccessException e) {
-			throw new WebServiceException(e);
-		} catch (ClassNotFoundException e) {
-			throw new WebServiceException(e);
-		} catch (URISyntaxException e) {
-			throw new WebServiceException(e);
-		} catch (NoSuchAlgorithmException e) {
-			throw new WebServiceException(e);
-		} catch (ParseException e) {
-			throw new WebServiceException(e);
-		} catch (SyntaxError e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
-	private int deleteByQuery(Client client, String q)
-			throws SearchLibException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, URISyntaxException, InterruptedException {
-		SearchRequest request = new SearchRequest(client);
-		request.setQueryString(q);
-		return client.deleteDocuments(request);
+	@Override
+	public CommonResult deleteByValue(String use, String login, String key,
+			String field, List<String> values) {
+		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			int count = client.deleteDocuments(field, values);
+			return new CommonResult(true, count + " document(s) deleted");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
-	private int deleteUniqDocs(Client client, Collection<String> uniqFields)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		return client.deleteDocuments(null, uniqFields);
+	@Override
+	public CommonResult deleteByValueXML(String use, String login, String key,
+			String field, List<String> values) {
+		return deleteByValue(use, login, key, field, values);
+	}
+
+	@Override
+	public CommonResult deleteByValueJSON(String use, String login, String key,
+			String field, List<String> values) {
+		return deleteByValue(use, login, key, field, values);
+	}
+
+	@Override
+	public CommonResult deleteByQueryXML(String use, String login, String key,
+			String query) {
+		return deleteByQuery(use, login, key, query);
+	}
+
+	@Override
+	public CommonResult deleteByQueryJSON(String use, String login, String key,
+			String query) {
+		return deleteByQuery(use, login, key, query);
 	}
 }

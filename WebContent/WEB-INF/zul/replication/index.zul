@@ -61,14 +61,6 @@
 						<label
 							value="API Key for authentication (or empty if no rights are required)" />
 					</row>
-					<row>
-						<label value="Destination mode: " />
-						<listbox mold="select"
-							model="@load(replication.readWriteModeList)"
-							selectedItem="@bind(replication.item.readWriteMode)" />
-						<label
-							value="Select the read/write mode of the replicated index" />
-					</row>
 				</rows>
 				<foot>
 					<footer span="3">
@@ -108,7 +100,6 @@
 					<listheader label="Instance URL" />
 					<listheader label="Replication type" hflex="min" />
 					<listheader label="Index Name" hflex="min" />
-					<listheader label="Mode" hflex="min" />
 					<listheader label="Last execution time" hflex="min" />
 					<listheader label="Duration"
 						tooltiptext="last duration time" hflex="min" />
@@ -124,8 +115,6 @@
 						<listcell
 							label="@load(item.replicationType.label)" />
 						<listcell label="@load(item.indexName)" />
-						<listcell
-							label="@load(item.readWriteMode.label)" />
 						<listcell
 							label="@load(item.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
 						<listcell

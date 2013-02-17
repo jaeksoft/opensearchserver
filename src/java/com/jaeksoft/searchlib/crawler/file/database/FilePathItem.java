@@ -52,7 +52,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private int delay;
 
 	public FilePathItem(Config config) throws SearchLibException {
-		this.type = config.getFileManager().getFileTypeEnum().getFirst();
+		this.type = FileInstanceType.Local;
 		host = null;
 		path = null;
 		domain = null;
@@ -220,8 +220,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setPath(DomUtils.getText(node));
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
-			filePathItem.setType(config.getFileManager().getFileTypeEnum()
-					.getValue(type));
+			filePathItem.setType(FileInstanceType.findByName(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");

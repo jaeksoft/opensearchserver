@@ -24,32 +24,14 @@
 package com.jaeksoft.searchlib.webservice.monitor;
 
 import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-@WebService
-@Path("/monitor")
-public interface Monitor {
+@WebService(name = "Monitor")
+public interface SoapMonitor {
 
-	@WebResult(name = "monitor")
 	public MonitorResult monitor(
 			@QueryParam("login") @WebParam(name = "login") String login,
 			@QueryParam("key") @WebParam(name = "key") String key);
-
-	@GET
-	@Produces("application/xml")
-	@Path("/xml")
-	public MonitorResult getMonitorXML(@QueryParam("login") String login,
-			@QueryParam("key") String key);
-
-	@GET
-	@Produces("application/json")
-	@Path("/json")
-	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key);
 
 }

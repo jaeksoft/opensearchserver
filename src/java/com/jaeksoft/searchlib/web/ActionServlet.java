@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -59,10 +58,6 @@ public class ActionServlet extends AbstractServlet {
 				client.setOnline(true);
 			else if ("offline".equalsIgnoreCase(action))
 				client.setOnline(false);
-			else if ("readonly".equalsIgnoreCase(action))
-				client.setReadWriteMode(IndexMode.READ_ONLY);
-			else if ("readwrite".equalsIgnoreCase(action))
-				client.setReadWriteMode(IndexMode.READ_WRITE);
 			transaction.addXmlResponse("Status", "OK");
 		} catch (Exception e) {
 			throw new ServletException(e);
@@ -91,15 +86,4 @@ public class ActionServlet extends AbstractServlet {
 				"action=offline"));
 	}
 
-	public static void readOnly(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey,
-				"action=readonly"));
-	}
-
-	public static void readWrite(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey,
-				"action=readwrite"));
-	}
 }

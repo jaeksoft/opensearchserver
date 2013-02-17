@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -118,15 +121,14 @@ public class PatternManager {
 			MalformedURLException {
 		if (bDeleteAll)
 			patternMap.clear();
-
-		if (patternList != null) {
-			for (PatternItem item : patternList) {
-				if (!bDeleteAll && findPattern(item) != null)
-					item.setStatus(PatternItem.Status.ALREADY);
-				else {
-					addPatternWithoutLock(item);
-					item.setStatus(PatternItem.Status.INJECTED);
-				}
+		if (patternList == null)
+			return;
+		for (PatternItem item : patternList) {
+			if (!bDeleteAll && findPattern(item) != null)
+				item.setStatus(PatternItem.Status.ALREADY);
+			else {
+				addPatternWithoutLock(item);
+				item.setStatus(PatternItem.Status.INJECTED);
 			}
 		}
 	}
@@ -302,7 +304,7 @@ public class PatternManager {
 		addList(patternList, false);
 	}
 
-	private static void addLine(List<PatternItem> list, String pattern) {
+	final private static void addLine(List<PatternItem> list, String pattern) {
 		pattern = pattern.trim();
 		if (pattern.length() == 0)
 			return;
@@ -313,10 +315,39 @@ public class PatternManager {
 		list.add(item);
 	}
 
-	public static List<PatternItem> getPatternList(String pattern) {
-		List<PatternItem> patternList = new ArrayList<PatternItem>();
-		for (String sPattern : pattern.split("\n"))
-			addLine(patternList, sPattern);
+	final private static void addLines(List<PatternItem> list, String lines)
+			throws IOException {
+		if (lines == null)
+			return;
+		StringReader sr = null;
+		BufferedReader br = null;
+		try {
+			sr = new StringReader(lines);
+			br = new BufferedReader(sr);
+			String line;
+			while ((line = br.readLine()) != null)
+				addLine(list, line);
+		} finally {
+			if (br != null)
+				IOUtils.closeQuietly(br);
+			if (sr != null)
+				IOUtils.closeQuietly(sr);
+		}
+	}
+
+	public static List<PatternItem> getPatternList(String pattern)
+			throws IOException {
+		List<PatternItem> patternList = new ArrayList<PatternItem>(0);
+		addLines(patternList, pattern);
+		return patternList;
+	}
+
+	public static List<PatternItem> getPatternList(List<String> patterns)
+			throws IOException {
+		List<PatternItem> patternList = new ArrayList<PatternItem>(0);
+		if (patterns != null)
+			for (String sPattern : patterns)
+				addLines(patternList, sPattern);
 		return patternList;
 	}
 
@@ -330,12 +361,31 @@ public class PatternManager {
 	}
 
 	public static String getStringPatternList(List<PatternItem> patternList) {
-		StringBuffer sPattern = new StringBuffer();
-		for (PatternItem item : patternList) {
-			sPattern.append(item.getPattern());
-			sPattern.append("\n");
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		try {
+			sw = new StringWriter();
+			pw = new PrintWriter(pw);
+			for (PatternItem item : patternList)
+				pw.println(item.getPattern());
+			return sw.toString();
+		} finally {
+			if (pw != null)
+				IOUtils.closeQuietly(pw);
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
 		}
-		return sPattern.toString();
+	}
+
+	public static final int countStatus(List<PatternItem> patternList,
+			PatternItem.Status status) {
+		if (patternList == null)
+			return 0;
+		int count = 0;
+		for (PatternItem patternItem : patternList)
+			if (patternItem.getStatus() == status)
+				count++;
+		return count;
 	}
 
 }

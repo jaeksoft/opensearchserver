@@ -22,21 +22,30 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.delete;
-
-import java.util.List;
+package com.jaeksoft.searchlib.webservice.command;
 
 import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 
-@WebService
-public interface Delete {
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-	@WebResult(name = "delete")
-	public int delete(@WebParam(name = "q") String q,
-			@WebParam(name = "use") String use,
+@WebService(name = "Command")
+public interface SoapCommand {
+
+	public CommonResult optimize(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "uniq") List<String> uniqueDocs);
+			@WebParam(name = "key") String key);
+
+	public CommonResult reload(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult online(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult offline(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
 }

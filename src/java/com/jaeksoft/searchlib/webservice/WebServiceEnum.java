@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.webservice;
 
-import com.jaeksoft.searchlib.webservice.action.ActionImpl;
+import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.webservice.update.UpdateImpl;
 
 public enum WebServiceEnum {
 
-	Action(ActionImpl.class, "/action"),
+	Command(CommandImpl.class, "/command"),
 
 	Database(DatabaseImpl.class, "/crawler/database"),
 

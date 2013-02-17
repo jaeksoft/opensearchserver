@@ -130,11 +130,8 @@ public class FilePathEditController extends FileCrawlerController {
 		webAuthInfo = null;
 	}
 
-	public List<FileInstanceType> getTypeList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getFileManager().getFileTypeEnum().getList();
+	public FileInstanceType[] getTypeList() throws SearchLibException {
+		return FileInstanceType.values();
 	}
 
 	@Override

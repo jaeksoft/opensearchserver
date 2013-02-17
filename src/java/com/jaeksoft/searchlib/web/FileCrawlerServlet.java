@@ -31,7 +31,6 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileCrawlerServlet extends WebCrawlerServlet {
 
@@ -42,8 +41,6 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 
 	private void doCreateLocation(Client client, ServletTransaction transaction)
 			throws SearchLibException {
-		ExtensibleEnum<FileInstanceType> fileTypeEnum = client.getFileManager()
-				.getFileTypeEnum();
 		String fileType = transaction.getParameterString("type");
 		if (fileType != null) {
 			FilePathManager filePathManager = client.getFilePathManager();
@@ -51,7 +48,7 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 			Boolean setDefault = setDefaultValues(transaction, filePathItem);
 			if (setDefault) {
 				Boolean isValidTypeInstance = getFileCrawlInstance(client,
-						fileTypeEnum, filePathItem, transaction, fileType);
+						filePathItem, transaction, fileType);
 				FilePathItem checkFilePath = filePathManager.get(filePathItem);
 				if (isValidTypeInstance && checkFilePath == null) {
 					filePathManager.add(filePathItem);
@@ -69,11 +66,10 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 	}
 
 	private Boolean getFileCrawlInstance(Client client,
-			ExtensibleEnum<FileInstanceType> fileTypeEnum,
 			FilePathItem filePathItem, ServletTransaction transaction,
-			String fileType) throws SearchLibException {
-		FileInstanceType fileInstanceType = client.getFileManager()
-				.findTypeByScheme(fileType);
+			String scheme) throws SearchLibException {
+		FileInstanceType fileInstanceType = FileInstanceType
+				.findByScheme(scheme);
 		if (fileInstanceType != null) {
 			filePathItem.setType(fileInstanceType);
 			createFileCrawlInstance(fileInstanceType, client, filePathItem,

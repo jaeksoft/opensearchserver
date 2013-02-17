@@ -22,11 +22,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.action;
+package com.jaeksoft.searchlib.webservice.delete;
 
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -35,32 +34,36 @@ import javax.ws.rs.QueryParam;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService
-@Path("/action")
-public interface Action {
-
-	@WebResult(name = "action")
-	public CommonResult action(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "optimize") Boolean optimize,
-			@WebParam(name = "reload") Boolean reload,
-			@WebParam(name = "online") Boolean online,
-			@WebParam(name = "offline") Boolean offline,
-			@WebParam(name = "readonly") Boolean readonly,
-			@WebParam(name = "readwrite") Boolean readwrite);
+@Path("/delete")
+public interface RestDelete {
 
 	@GET
 	@Produces("application/xml")
-	@Path("/{index}/xml")
-	public CommonResult actionXML(@PathParam("index") String use,
+	@Path("/delete/value/{index}/xml")
+	public CommonResult deleteByValueXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("command") ActionEnum action);
+			@QueryParam("field") String field,
+			@QueryParam("value") List<String> values);
 
 	@GET
 	@Produces("application/json")
-	@Path("/{index}/json")
-	public CommonResult actionJSON(@PathParam("index") String use,
+	@Path("/delete/value/{index}/json")
+	public CommonResult deleteByValueJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("command") ActionEnum action);
+			@QueryParam("field") String field,
+			@QueryParam("value") List<String> values);
+
+	@GET
+	@Produces("application/xml")
+	@Path("/delete/query/{index}/xml")
+	public CommonResult deleteByQueryXML(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("query") String query);
+
+	@GET
+	@Produces("application/json")
+	@Path("/delete/query/{index}/json")
+	public CommonResult deleteByQueryJSON(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("query") String query);
 }

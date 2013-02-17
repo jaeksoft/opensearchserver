@@ -116,20 +116,13 @@ public class IndexSingle extends IndexAbstract {
 			throw new SearchLibException("Index is offline");
 	}
 
-	private void checkReadOnly(boolean readOnly) throws SearchLibException {
-		if (indexConfig.getReadWriteMode() == IndexMode.READ_ONLY)
-			throw new SearchLibException("Index is read only");
-	}
-
 	@Override
 	public void optimize() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				writer.optimize();
-			reloadNoLock();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -153,7 +146,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				return writer.deleteDocument(schema, field, value);
 			else
@@ -169,7 +161,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				return writer.deleteDocuments(schema, field, values);
 			else
@@ -184,7 +175,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				writer.deleteAll();
 		} finally {
@@ -197,7 +187,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			return writer.deleteDocuments(query);
 		} finally {
 			rwl.r.unlock();
@@ -222,7 +211,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				return writer.updateDocument(schema, document);
 			else
@@ -238,7 +226,6 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			checkReadOnly(false);
 			if (writer != null)
 				return writer.updateDocuments(schema, documents);
 			else
@@ -248,17 +235,12 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
-	private void reloadNoLock() throws SearchLibException {
-		if (reader != null)
-			reader.reload();
-	}
-
 	@Override
 	public void reload() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			reloadNoLock();
+			reader.reload();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -390,34 +372,10 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public IndexMode getReadWriteMode() {
-		rwl.r.lock();
-		try {
-			return indexConfig.getReadWriteMode();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
 	public void setOnline(boolean v) {
 		rwl.w.lock();
 		try {
 			online = v;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public void setReadWriteMode(IndexMode mode) throws SearchLibException {
-		rwl.w.lock();
-		try {
-			checkOnline(true);
-			if (mode == indexConfig.getReadWriteMode())
-				return;
-			indexConfig.setReadWriteMode(mode);
-			reloadNoLock();
 		} finally {
 			rwl.w.unlock();
 		}

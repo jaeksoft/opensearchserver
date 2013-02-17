@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -62,8 +61,6 @@ public class ReplicationItem extends
 
 	private ReplicationType replicationType;
 
-	private IndexMode readWriteMode;
-
 	public final static String[] NOT_PUSHED_PATH = { "replication.xml",
 			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report",
 			"statstore" };
@@ -74,7 +71,6 @@ public class ReplicationItem extends
 	public ReplicationItem(ReplicationMaster crawlMaster, String name) {
 		super(crawlMaster);
 		replicationType = ReplicationType.MAIN_INDEX;
-		readWriteMode = IndexMode.READ_WRITE;
 	}
 
 	public ReplicationItem(ReplicationMaster crawlMaster) {
@@ -104,8 +100,6 @@ public class ReplicationItem extends
 			setApiKey(StringUtils.base64decode(encodedApiKey));
 		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
 				node, "replicationType")));
-		readWriteMode = IndexMode.find(XPathParser.getAttributeString(node,
-				"readWriteMode"));
 		updateName();
 	}
 
@@ -135,8 +129,7 @@ public class ReplicationItem extends
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"login", login, "apiKey", encodedApiKey, "replicationType",
-					replicationType.name(), "readWriteMode",
-					readWriteMode.name());
+					replicationType.name());
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -273,7 +266,6 @@ public class ReplicationItem extends
 			this.apiKey = item.apiKey;
 			this.replicationType = item.replicationType;
 			this.cachedUrl = null;
-			this.readWriteMode = item.readWriteMode;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -344,17 +336,6 @@ public class ReplicationItem extends
 		} finally {
 			rwl.w.unlock();
 		}
-	}
-
-	/**
-	 * @return the setReadOnly
-	 */
-	public IndexMode getReadWriteMode() {
-		return readWriteMode;
-	}
-
-	public void setReadWriteMode(IndexMode mode) {
-		readWriteMode = mode;
 	}
 
 	@Override

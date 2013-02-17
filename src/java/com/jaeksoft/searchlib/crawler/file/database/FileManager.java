@@ -55,7 +55,6 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
-import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
@@ -68,8 +67,6 @@ public class FileManager extends AbstractManager {
 	private final Client fileDbClient;
 
 	private final FileItemFieldEnum fileItemFieldEnum = new FileItemFieldEnum();
-
-	private ExtensibleEnum<FileInstanceType> fileInstanceTypeEnum = null;
 
 	public FileManager(Client client, File dataDir) throws SearchLibException,
 			URISyntaxException, FileNotFoundException {
@@ -541,29 +538,6 @@ public class FileManager extends AbstractManager {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	protected ExtensibleEnum<FileInstanceType> getNewFileInstanceTypeEnum() {
-		return new FileInstanceTypeEnum();
-	}
-
-	public ExtensibleEnum<FileInstanceType> getFileTypeEnum() {
-		synchronized (this) {
-			if (fileInstanceTypeEnum != null)
-				return fileInstanceTypeEnum;
-			fileInstanceTypeEnum = getNewFileInstanceTypeEnum();
-			return fileInstanceTypeEnum;
-		}
-	}
-
-	public FileInstanceType findTypeByScheme(String scheme) {
-		List<FileInstanceType> fileInstanceType = fileInstanceTypeEnum
-				.getList();
-		FileInstanceType instanceName = null;
-		for (FileInstanceType fileInstance : fileInstanceType)
-			if (fileInstance.getScheme().equalsIgnoreCase(scheme))
-				instanceName = fileInstance;
-		return instanceName;
 	}
 
 	public FileItemFieldEnum getFileItemFieldEnum() {

@@ -33,14 +33,12 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
-import com.jaeksoft.searchlib.web.ActionServlet;
 import com.jaeksoft.searchlib.web.PushServlet;
 
 public class ReplicationThread extends ThreadAbstract<ReplicationThread>
@@ -126,15 +124,6 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		PushServlet.call_init(getReplicationItem());
 		new RecursiveDirectoryBrowser(sourceDirectory, this);
 		PushServlet.call_switch(replicationItem);
-		IndexMode mode = replicationItem.getReadWriteMode();
-		if (mode == IndexMode.READ_WRITE)
-			ActionServlet.readWrite(replicationItem.getInstanceUrl().toURI(),
-					replicationItem.getIndexName(), replicationItem.getLogin(),
-					replicationItem.getApiKey());
-		else if (mode == IndexMode.READ_ONLY)
-			ActionServlet.readOnly(replicationItem.getInstanceUrl().toURI(),
-					replicationItem.getIndexName(), replicationItem.getLogin(),
-					replicationItem.getApiKey());
 	}
 
 	private void setTotalSize(long size) {

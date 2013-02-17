@@ -20,7 +20,7 @@
 		<auxhead>
 			<auxheader colspan="3" label="Cache" align="center" />
 			<auxheader colspan="3" />
-			<auxheader colspan="6" label="Statistics &amp; status"
+			<auxheader colspan="5" label="Statistics &amp; status"
 				align="center" />
 			<auxheader />
 		</auxhead>
@@ -43,7 +43,6 @@
 				tooltiptext="Number of deleted documents" />
 			<column label="optimized?" hflex="min"
 				tooltiptext="Is the index optimized" />
-			<column label="read/write" hflex="min" />
 			<column />
 		</columns>
 		<rows>
@@ -62,8 +61,6 @@
 					<label
 						value="@load(index.statistics.numDeletedDocs)" />
 					<label value="@load(index.statistics.optimized)" />
-					<label
-						value="@load(index.indexConfig.readWriteMode.label)" />
 					<label value="" />
 				</row>
 			</template>

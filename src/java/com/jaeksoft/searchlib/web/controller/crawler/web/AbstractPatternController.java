@@ -23,6 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -213,7 +214,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 	}
 
 	@Command
-	public void onAdd() throws SearchLibException {
+	public void onAdd() throws SearchLibException, IOException {
 		synchronized (this) {
 			if (!isWebCrawlerEditPatternsRights())
 				throw new SearchLibException("Not allowed");

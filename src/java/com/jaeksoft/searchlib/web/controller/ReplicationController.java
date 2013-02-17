@@ -36,7 +36,6 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
@@ -160,7 +159,4 @@ public class ReplicationController extends CommonController {
 		return ReplicationType.values();
 	}
 
-	public IndexMode[] getReadWriteModeList() {
-		return IndexMode.values();
-	}
 }

@@ -50,7 +50,7 @@ public class PatternServlet extends AbstractServlet {
 
 	private List<PatternItem> inject(PatternManager patternManager,
 			String patternTextList, boolean bDeleteAll)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		List<PatternItem> patternList = PatternManager
 				.getPatternList(patternTextList);
 		patternManager.addList(patternList, bDeleteAll);

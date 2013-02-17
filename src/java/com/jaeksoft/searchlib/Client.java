@@ -41,7 +41,6 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -253,19 +252,6 @@ public class Client extends Config {
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
-	}
-
-	public void setReadWriteMode(IndexMode mode) throws SearchLibException {
-		if (mode == getIndexAbstract().getReadWriteMode())
-			return;
-		getIndexAbstract().setReadWriteMode(mode);
-		saveConfig();
-		if (mode == IndexMode.READ_WRITE)
-			removeReplCheck();
-	}
-
-	public IndexMode getReadWriteMode() {
-		return getIndexAbstract().getReadWriteMode();
 	}
 
 	public void setOnline(boolean online) {

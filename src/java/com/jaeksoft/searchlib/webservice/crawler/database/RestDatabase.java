@@ -31,20 +31,20 @@ import javax.ws.rs.QueryParam;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/database")
+@Path("/crawler/database")
 public interface RestDatabase {
 
 	@GET
 	@Produces("application/xml")
-	@Path("/{index}/xml")
-	public CommonResult databaseXML(@PathParam("index") String use,
+	@Path("/crawl/{index}/xml")
+	public CommonResult crawlXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("databaseName") String databaseName);
 
 	@GET
 	@Produces("application/json")
-	@Path("/{index}/json")
-	public CommonResult databaseJSON(@PathParam("index") String use,
+	@Path("/crawl/{index}/json")
+	public CommonResult crawlJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("databaseName") String databaseName);
 

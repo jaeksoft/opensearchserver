@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,8 +68,8 @@ public interface ReaderInterface {
 	public IndexStatistics getStatistics() throws IOException,
 			SearchLibException;
 
-	public void reload() throws SearchLibException;
-
 	public long getVersion() throws SearchLibException;
+
+	public void reload() throws SearchLibException;
 
 }

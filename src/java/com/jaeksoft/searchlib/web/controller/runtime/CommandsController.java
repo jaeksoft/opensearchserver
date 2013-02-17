@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,6 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.IndexMode;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
@@ -120,22 +119,6 @@ public class CommandsController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onReadOnly() throws SearchLibException {
-		synchronized (this) {
-			getClient().setReadWriteMode(IndexMode.READ_ONLY);
-		}
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onReadWrite() throws SearchLibException {
-		synchronized (this) {
-			getClient().setReadWriteMode(IndexMode.READ_WRITE);
-		}
-	}
-
-	@Command
-	@NotifyChange("*")
 	public void onOnline() throws SearchLibException {
 		synchronized (this) {
 			getClient().setOnline(true);
@@ -163,17 +146,6 @@ public class CommandsController extends CommonController {
 						"The optimization is already running");
 			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
 			TaskManager.executeTask(client, taskOptimize, null);
-		}
-	}
-
-	public String getReadOnlyStatus() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			if (!client.isOnline())
-				return "Unknown";
-			return client.getReadWriteMode().getLabel();
 		}
 	}
 
@@ -211,19 +183,6 @@ public class CommandsController extends CommonController {
 
 	public boolean isOffline() throws SearchLibException {
 		return !isOnline();
-	}
-
-	public boolean isReadOnly() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return false;
-			return client.getReadWriteMode() == IndexMode.READ_ONLY;
-		}
-	}
-
-	public boolean isReadWrite() throws SearchLibException {
-		return !isReadOnly();
 	}
 
 	public String getDocumentNumber() throws SearchLibException, IOException {

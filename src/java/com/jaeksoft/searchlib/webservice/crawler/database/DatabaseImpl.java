@@ -41,7 +41,7 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 		RestDatabase {
 
 	@Override
-	public CommonResult database(String use, String login, String key,
+	public CommonResult crawl(String use, String login, String key,
 			String databaseName) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -75,14 +75,14 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 	}
 
 	@Override
-	public CommonResult databaseXML(String use, String login, String key,
+	public CommonResult crawlXML(String use, String login, String key,
 			String databaseName) {
-		return database(use, login, key, databaseName);
+		return crawl(use, login, key, databaseName);
 	}
 
 	@Override
-	public CommonResult databaseJSON(String use, String login, String key,
+	public CommonResult crawlJSON(String use, String login, String key,
 			String databaseName) {
-		return database(use, login, key, databaseName);
+		return crawl(use, login, key, databaseName);
 	}
 }

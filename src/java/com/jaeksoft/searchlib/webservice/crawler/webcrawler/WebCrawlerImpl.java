@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.WebServiceException;
@@ -54,7 +53,8 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 
-public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler {
+public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
+		RestWebCrawler {
 
 	private WebCrawlMaster getCrawlMaster(String use, String login, String key) {
 		try {
@@ -146,22 +146,21 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler {
 		}
 	}
 
-	@Override
 	public CommonResult injectPatterns(String use, String login, String key,
-			Boolean deleteAll, List<String> injectList) {
+			Boolean deleteAll, List<String> patterns, boolean inclusion) {
 		try {
-			long count = 0;
 			Client client = getLoggedClientAnyRole(use, login, key,
 					Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			List<PatternItem> patternList = new ArrayList<PatternItem>();
-			for (String inject : injectList) {
-				patternList = inject(client.getInclusionPatternManager(),
-						inject, deleteAll);
-				count++;
-			}
-			addPatternList(patternList, client.getUrlManager());
-			return new CommonResult(true, count + "patterns injected");
+			List<PatternItem> patternList = PatternManager
+					.getPatternList(patterns);
+			PatternManager patternManager = inclusion ? client
+					.getInclusionPatternManager() : client
+					.getExclusionPatternManager();
+			patternManager.addList(patternList, deleteAll);
+			int count = PatternManager.countStatus(patternList,
+					PatternItem.Status.INJECTED);
+			return new CommonResult(true, count + " patterns injected");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
@@ -171,21 +170,16 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler {
 		}
 	}
 
-	private void addPatternList(List<PatternItem> patternList,
-			UrlManager urlManager) throws SearchLibException {
-		if (patternList == null)
-			return;
-		else
-			urlManager.injectPrefix(patternList);
+	@Override
+	public CommonResult injectPatternsInclusion(String use, String login,
+			String key, Boolean deleteAll, List<String> patterns) {
+		return injectPatterns(use, login, key, deleteAll, patterns, true);
 	}
 
-	private List<PatternItem> inject(PatternManager patternManager,
-			String patternTextList, boolean bDeleteAll)
-			throws SearchLibException {
-		List<PatternItem> patternList = PatternManager
-				.getPatternList(patternTextList);
-		patternManager.addList(patternList, bDeleteAll);
-		return patternList;
+	@Override
+	public CommonResult injectPatternsExclusion(String use, String login,
+			String key, Boolean deleteAll, List<String> patterns) {
+		return injectPatterns(use, login, key, deleteAll, patterns, false);
 	}
 
 	@Override
@@ -232,6 +226,94 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler {
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult runOnceXML(String use, String login, String key) {
+		return runOnce(use, login, key);
+	}
+
+	@Override
+	public CommonResult runOnceJSON(String use, String login, String key) {
+		return runOnce(use, login, key);
+	}
+
+	@Override
+	public CommonResult runForeverXML(String use, String login, String key) {
+		return runForever(use, login, key);
+	}
+
+	@Override
+	public CommonResult runForeverJSON(String use, String login, String key) {
+		return runForever(use, login, key);
+	}
+
+	@Override
+	public CommonResult stopXML(String use, String login, String key) {
+		return stop(use, login, key);
+	}
+
+	@Override
+	public CommonResult stopJSON(String use, String login, String key) {
+		return stop(use, login, key);
+	}
+
+	@Override
+	public CommonResult statusXML(String use, String login, String key) {
+		return status(use, login, key);
+	}
+
+	@Override
+	public CommonResult statusJSON(String use, String login, String key) {
+		return status(use, login, key);
+	}
+
+	@Override
+	public CommonResult injectPatternsInclusionXML(String use, String login,
+			String key, Boolean deleteAll, List<String> injectList) {
+		return injectPatternsInclusion(use, login, key, deleteAll, injectList);
+	}
+
+	@Override
+	public CommonResult injectPatternsInclusionJSON(String use, String login,
+			String key, Boolean deleteAll, List<String> injectList) {
+		return injectPatternsInclusion(use, login, key, deleteAll, injectList);
+	}
+
+	@Override
+	public CommonResult injectPatternsExclusionXML(String use, String login,
+			String key, Boolean deleteAll, List<String> injectList) {
+		return injectPatternsExclusion(use, login, key, deleteAll, injectList);
+	}
+
+	@Override
+	public CommonResult injectPatternsExclusionJSON(String use, String login,
+			String key, Boolean deleteAll, List<String> injectList) {
+		return injectPatternsExclusion(use, login, key, deleteAll, injectList);
+	}
+
+	@Override
+	public CommonResult captureScreenshotXML(String use, String login,
+			String key, URL url) {
+		return captureScreenshot(use, login, key, url);
+	}
+
+	@Override
+	public CommonResult captureScreenshotJSON(String use, String login,
+			String key, URL url) {
+		return captureScreenshot(use, login, key, url);
+	}
+
+	@Override
+	public CommonResult checkScreenshotXML(String use, String login,
+			String key, URL url) {
+		return checkScreenshot(use, login, key, url);
+	}
+
+	@Override
+	public CommonResult checkScreenshotJSON(String use, String login,
+			String key, URL url) {
+		return checkScreenshot(use, login, key, url);
 	}
 
 }

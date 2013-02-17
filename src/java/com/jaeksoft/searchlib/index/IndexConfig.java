@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,8 +49,6 @@ public class IndexConfig {
 
 	private String similarityClass;
 
-	private IndexMode readWriteMode;
-
 	private int maxNumSegments;
 
 	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
@@ -69,8 +67,6 @@ public class IndexConfig {
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
 		if (maxNumSegments == 0)
 			maxNumSegments = 1;
-		readWriteMode = IndexMode.find(XPathParser.getAttributeString(node,
-				"readWriteMode"));
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
@@ -80,8 +76,8 @@ public class IndexConfig {
 				.toString(fieldCache), "remoteUrl",
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
-				similarityClass, "readWriteMode", readWriteMode.name(),
-				"maxNumSegments", Integer.toString(maxNumSegments));
+				similarityClass, "maxNumSegments", Integer
+						.toString(maxNumSegments));
 		xmlWriter.endElement();
 	}
 
@@ -181,14 +177,6 @@ public class IndexConfig {
 	 */
 	public void setSimilarityClass(String similarityClass) {
 		this.similarityClass = similarityClass;
-	}
-
-	public final IndexMode getReadWriteMode() {
-		return readWriteMode;
-	}
-
-	public void setReadWriteMode(IndexMode mode) {
-		this.readWriteMode = mode;
 	}
 
 	/**

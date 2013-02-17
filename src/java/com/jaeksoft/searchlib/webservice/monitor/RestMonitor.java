@@ -21,19 +21,26 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.database;
+package com.jaeksoft.searchlib.webservice.monitor;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
-import com.jaeksoft.searchlib.webservice.CommonResult;
+@Path("/monitor")
+public interface RestMonitor {
 
-@WebService(name = "DatabaseCrawler")
-public interface SoapDatabase {
+	@GET
+	@Produces("application/xml")
+	@Path("/xml")
+	public MonitorResult getMonitorXML(@QueryParam("login") String login,
+			@QueryParam("key") String key);
 
-	public CommonResult crawl(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "databaseName") String databaseName);
+	@GET
+	@Produces("application/json")
+	@Path("/json")
+	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 }

@@ -43,20 +43,6 @@
 				</cell>
 			</row>
 			<row>
-				<label value="Read/Write mode: " />
-				<cell>
-					<button label="Read only"
-						onClick="@command('onReadOnly')"
-						visible="@load(commands.readWrite)"
-						disabled="@load(commands.offline)" />
-					<button label="Read/write"
-						onClick="@command('onReadWrite')"
-						visible="@load(commands.readOnly)"
-						disabled="@load(commands.offline)" />
-				</cell>
-				<label value="@load(commands.readOnlyStatus)" />
-			</row>
-			<row>
 				<label value="Offline/Online: " />
 				<cell>
 					<button label="Offline"

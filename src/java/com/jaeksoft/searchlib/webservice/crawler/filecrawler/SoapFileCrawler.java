@@ -47,10 +47,26 @@ public interface SoapFileCrawler {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult injectRepository(@WebParam(name = "use") String use,
+	public CommonResult injectLocalFileRepository(
+			@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "filePath") String filePath,
+			@WebParam(name = "path") String filePath,
+			@WebParam(name = "ignoreHiddenFile") Boolean ignoreHiddenFile,
+			@WebParam(name = "includeSubDirectory") Boolean withSubDirectory,
+			@WebParam(name = "enabled") Boolean enabled,
+			@WebParam(name = "delay") int delay);
+
+	public CommonResult removeLocalFileRepository(
+			@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String path);
+
+	public CommonResult injectSmbRepository(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String path,
 			@WebParam(name = "ignoreHiddenFile") Boolean ignoreHiddenFile,
 			@WebParam(name = "includeSubDirectory") Boolean withSubDirectory,
 			@WebParam(name = "enabled") Boolean enabled,
@@ -59,4 +75,35 @@ public interface SoapFileCrawler {
 			@WebParam(name = "password") String password,
 			@WebParam(name = "domain") String domain,
 			@WebParam(name = "host") String host);
+
+	public CommonResult removeSmbRepository(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String path,
+			@WebParam(name = "username") String username,
+			@WebParam(name = "domain") String domain,
+			@WebParam(name = "host") String host);
+
+	public CommonResult injectFtpRepository(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String filePath,
+			@WebParam(name = "ignoreHiddenFile") Boolean ignoreHiddenFile,
+			@WebParam(name = "includeSubDirectory") Boolean withSubDirectory,
+			@WebParam(name = "enabled") Boolean enabled,
+			@WebParam(name = "delay") int delay,
+			@WebParam(name = "username") String username,
+			@WebParam(name = "password") String password,
+			@WebParam(name = "domain") String domain,
+			@WebParam(name = "host") String host,
+			@WebParam(name = "ssl") boolean ssl);
+
+	public CommonResult removeFtpRepository(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String path,
+			@WebParam(name = "username") String username,
+			@WebParam(name = "host") String host,
+			@WebParam(name = "ssl") boolean ssl);
+
 }

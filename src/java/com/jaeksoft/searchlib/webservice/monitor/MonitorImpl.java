@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,31 +27,23 @@ import java.io.IOException;
 
 import javax.xml.ws.WebServiceException;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-/**
- * @author Naveen
- * 
- */
-public class MonitorImpl extends CommonServices implements Monitor {
+public class MonitorImpl extends CommonServices implements SoapMonitor,
+		RestMonitor {
 
 	@Override
 	public MonitorResult monitor(String login, String key) {
 		try {
+			User user = getLoggedUser(login, key);
+			if (user != null)
+				if (!user.isMonitoring() && !user.isAdmin())
+					throw new WebServiceException("Not allowed");
 			ClientFactory.INSTANCE.properties.checkApi();
-			User user = ClientCatalog.authenticateKey(login, key);
-			if (user == null && ClientCatalog.getUserList().isEmpty())
-				return new MonitorResult();
-
-			if (user != null && (user.isAdmin() || user.isMonitoring()))
-				return new MonitorResult();
-
-			throw new WebServiceException("Not permitted");
-
+			return new MonitorResult();
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
