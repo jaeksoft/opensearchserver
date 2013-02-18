@@ -25,19 +25,18 @@ package com.jaeksoft.searchlib.webservice;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
-@XmlType(name = "result")
 public class CommonResult {
 
-	@XmlElement(name = "successful")
+	@XmlAttribute
 	public Boolean successful;
 
-	@XmlElement(name = "info")
+	@XmlElement
 	public String info;
 
 	public CommonResult() {

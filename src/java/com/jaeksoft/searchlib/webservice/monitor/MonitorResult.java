@@ -37,34 +37,14 @@ import javax.xml.bind.annotation.XmlValue;
 
 import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlRootElement
-public class MonitorResult {
+@XmlRootElement(name = "result")
+public class MonitorResult extends CommonResult {
 
-	@XmlAttribute
-	public int availableProcessors = 0;
-
-	@XmlAttribute
-	public long freeMemory = 0;
-
-	@XmlAttribute
-	public double memoryRate = 0;
-
-	@XmlAttribute
-	public long maxMemory = 0;
-
-	@XmlAttribute
-	public long totalMemory = 0;
-
-	@XmlAttribute
-	public int indexCount = 0;
-
-	@XmlAttribute
-	public long freeDiskSpace = 0;
-
-	@XmlAttribute
-	public Double freeDiskRate = null;
+	@XmlElement
+	public MonitorBasic basic = null;
 
 	@XmlElement(name = "property")
 	public List<MonitorProperties> properties = null;
@@ -74,15 +54,9 @@ public class MonitorResult {
 
 	public MonitorResult(boolean full) throws SearchLibException,
 			SecurityException, IOException {
+		super(true, null);
 		Monitor monitor = new Monitor();
-		availableProcessors = monitor.getAvailableProcessors();
-		freeMemory = monitor.getFreeMemory();
-		memoryRate = monitor.getMemoryRate();
-		maxMemory = monitor.getMaxMemory();
-		totalMemory = monitor.getTotalMemory();
-		indexCount = monitor.getIndexCount();
-		freeDiskSpace = monitor.getFreeDiskSpace();
-		freeDiskRate = monitor.getDiskRate();
+		basic = new MonitorBasic(monitor);
 		if (full) {
 			properties = new ArrayList<MonitorProperties>();
 			for (Entry<Object, Object> prop : monitor.getProperties()) {
@@ -90,6 +64,48 @@ public class MonitorResult {
 						prop.getKey().toString(), prop.getValue().toString());
 				properties.add(monitorProperties);
 			}
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	public static class MonitorBasic {
+		@XmlAttribute
+		public int availableProcessors = 0;
+
+		@XmlAttribute
+		public long freeMemory = 0;
+
+		@XmlAttribute
+		public double memoryRate = 0;
+
+		@XmlAttribute
+		public long maxMemory = 0;
+
+		@XmlAttribute
+		public long totalMemory = 0;
+
+		@XmlAttribute
+		public int indexCount = 0;
+
+		@XmlAttribute
+		public long freeDiskSpace = 0;
+
+		@XmlAttribute
+		public Double freeDiskRate = null;
+
+		public MonitorBasic() {
+		}
+
+		public MonitorBasic(Monitor monitor) throws SearchLibException,
+				SecurityException, IOException {
+			availableProcessors = monitor.getAvailableProcessors();
+			freeMemory = monitor.getFreeMemory();
+			memoryRate = monitor.getMemoryRate();
+			maxMemory = monitor.getMaxMemory();
+			totalMemory = monitor.getTotalMemory();
+			indexCount = monitor.getIndexCount();
+			freeDiskSpace = monitor.getFreeDiskSpace();
+			freeDiskRate = monitor.getDiskRate();
 		}
 	}
 
