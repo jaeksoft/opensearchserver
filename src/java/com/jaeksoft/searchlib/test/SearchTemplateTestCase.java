@@ -8,7 +8,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
@@ -24,7 +23,7 @@ public class SearchTemplateTestCase extends TestCase {
 	}
 
 	@Test
-	public void testCreatSpellCheckQuery() throws IllegalStateException,
+	public void testCreateSpellCheckQuery() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
@@ -90,12 +89,4 @@ public class SearchTemplateTestCase extends TestCase {
 		assertEquals("OK", response);
 	}
 
-	public static TestSuite suite() {
-		TestSuite searchTemplateTestCase = new TestSuite();
-		searchTemplateTestCase.addTest(new SearchTemplateTestCase(
-				"creatSpellCheckQuery"));
-		searchTemplateTestCase.addTest(new SearchTemplateTestCase(
-				"createMoreLikeThisTemplate"));
-		return searchTemplateTestCase;
-	}
 }
