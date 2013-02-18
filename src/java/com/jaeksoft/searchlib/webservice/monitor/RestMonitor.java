@@ -27,18 +27,19 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 @Path("/monitor")
 public interface RestMonitor {
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/xml")
 	public MonitorResult getMonitorXML(@QueryParam("login") String login,
 			@QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/json")
 	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
 			@QueryParam("key") String key);

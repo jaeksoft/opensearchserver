@@ -23,11 +23,14 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -35,55 +38,55 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 public interface RestFileCrawler {
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/run/once/{index}/xml")
 	public CommonResult runOnceXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/run/once/{index}/json")
 	public CommonResult runOnceJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/run/forever/{index}/xml")
 	public CommonResult runForeverXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/run/forever/{index}/json")
 	public CommonResult runForeverJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/stop/{index}/xml")
 	public CommonResult stopXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stop/{index}/json")
 	public CommonResult stopJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/status/{index}/xml")
 	public CommonResult statusXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/status/{index}/json")
 	public CommonResult statusJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
-	@GET
-	@Produces("application/xml")
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/localfile/{index}/xml")
 	public CommonResult injectLocalFileRepositoryXML(
 			@PathParam("index") String use, @QueryParam("login") String login,
@@ -93,8 +96,8 @@ public interface RestFileCrawler {
 			@QueryParam("enabled") Boolean enabled,
 			@QueryParam("delay") int delay);
 
-	@GET
-	@Produces("application/json")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/localfile/{index}/json")
 	public CommonResult injectLocalFileRepositoryJSON(
 			@PathParam("index") String use, @QueryParam("login") String login,
@@ -104,22 +107,22 @@ public interface RestFileCrawler {
 			@QueryParam("enabled") Boolean enabled,
 			@QueryParam("delay") int delay);
 
-	@GET
-	@Produces("application/xml")
+	@DELETE
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/localfile/{index}/xml")
 	public CommonResult removeLocalFileRepositoryXML(
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path);
 
-	@GET
-	@Produces("application/json")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/localfile/{index}/json")
 	public CommonResult removeLocalFileRepositoryJSON(
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path);
 
-	@GET
-	@Produces("application/xml")
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/smb/{index}/xml")
 	public CommonResult injectSmbRepositoryXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -132,8 +135,8 @@ public interface RestFileCrawler {
 			@QueryParam("password") String password,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@GET
-	@Produces("application/json")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/smb/{index}/json")
 	public CommonResult injectSmbRepositoryJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -146,8 +149,8 @@ public interface RestFileCrawler {
 			@QueryParam("password") String password,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@GET
-	@Produces("application/xml")
+	@DELETE
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/smb/{index}/xml")
 	public CommonResult removeSmbRepositoryXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -155,8 +158,8 @@ public interface RestFileCrawler {
 			@QueryParam("username") String username,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@GET
-	@Produces("application/json")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/smb/{index}/json")
 	public CommonResult removeSmbRepositoryJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -164,8 +167,8 @@ public interface RestFileCrawler {
 			@QueryParam("username") String username,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@GET
-	@Produces("application/xml")
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/ftp/{index}/xml")
 	public CommonResult injectFtpRepositoryXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -179,8 +182,8 @@ public interface RestFileCrawler {
 			@QueryParam("domain") String domain,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
-	@GET
-	@Produces("application/json")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/ftp/{index}/json")
 	public CommonResult injectFtpRepositoryJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -194,8 +197,8 @@ public interface RestFileCrawler {
 			@QueryParam("domain") String domain,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
-	@GET
-	@Produces("application/xml")
+	@DELETE
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/ftp/{index}/xml")
 	public CommonResult removeFtpRepositoryXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -203,8 +206,8 @@ public interface RestFileCrawler {
 			@QueryParam("username") String username,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
-	@GET
-	@Produces("application/json")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/ftp/{index}/json")
 	public CommonResult removeFtpRepositoryJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,

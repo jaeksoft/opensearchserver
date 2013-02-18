@@ -26,42 +26,44 @@ package com.jaeksoft.searchlib.webservice.delete;
 
 import java.util.List;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @Path("/delete")
 public interface RestDelete {
 
-	@GET
-	@Produces("application/xml")
+	@DELETE
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/delete/value/{index}/xml")
 	public CommonResult deleteByValueXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("field") String field,
 			@QueryParam("value") List<String> values);
 
-	@GET
-	@Produces("application/json")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/delete/value/{index}/json")
 	public CommonResult deleteByValueJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("field") String field,
 			@QueryParam("value") List<String> values);
 
-	@GET
-	@Produces("application/xml")
+	@POST
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/delete/query/{index}/xml")
 	public CommonResult deleteByQueryXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("query") String query);
 
-	@GET
-	@Produces("application/json")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/delete/query/{index}/json")
 	public CommonResult deleteByQueryJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,

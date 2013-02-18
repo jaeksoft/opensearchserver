@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class MonitorProperties {
+
 	@XmlElement(name = "name")
 	public String name;
 

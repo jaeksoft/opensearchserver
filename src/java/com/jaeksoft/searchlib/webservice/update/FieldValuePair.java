@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,21 +29,21 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class UpdateFieldList {
+public class FieldValuePair {
 
-	@XmlElement(name = "name")
-	public String name;
+	@XmlElement(name = "field")
+	public String field;
 
 	@XmlElement(name = "value")
 	public String value;
 
-	public UpdateFieldList() {
-		name = null;
+	public FieldValuePair() {
+		field = null;
 		value = null;
 	}
 
-	public UpdateFieldList(String fieldName, String fieldValue) {
-		name = fieldName;
-		value = fieldValue;
+	public FieldValuePair(String field, String value) {
+		this.field = field;
+		this.value = value;
 	}
 }

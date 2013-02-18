@@ -21,9 +21,13 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.database;
+package com.jaeksoft.searchlib.webservice.update;
 
-import javax.ws.rs.GET;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -32,21 +36,22 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/crawler/database")
-public interface RestDatabase {
+@Path("/update")
+public interface RestUpdate {
 
-	@GET
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
 	@Produces(MediaType.APPLICATION_XML)
-	@Path("/crawl/{index}/xml")
-	public CommonResult crawlXML(@PathParam("index") String use,
+	@Path("/{index}/xml")
+	public CommonResult updateXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("databaseName") String databaseName);
+			@FormParam("document") List<Document> documents);
 
-	@GET
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/crawl/{index}/json")
-	public CommonResult crawlJSON(@PathParam("index") String use,
+	@Path("/{index}/json")
+	public CommonResult updateJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("databaseName") String databaseName);
-
+			@FormParam("document") List<Document> documents);
 }

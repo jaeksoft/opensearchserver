@@ -24,63 +24,62 @@
 
 package com.jaeksoft.searchlib.webservice.command;
 
-import javax.jws.WebService;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "Command")
 @Path("/command")
 public interface RestCommand {
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/optimize/{index}/json")
 	public CommonResult optimizeJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/optimize/{index}/xml")
 	public CommonResult optimizeXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/online/{index}/json")
 	public CommonResult onlineJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/online/{index}/xml")
 	public CommonResult onlineXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/offline/{index}/json")
 	public CommonResult offlineJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/offline/{index}/xml")
 	public CommonResult offlineXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/reload/{index}/json")
 	public CommonResult reloadJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces("application/xml")
+	@Produces(MediaType.APPLICATION_XML)
 	@Path("/reload/{index}/xml")
 	public CommonResult reloadXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);

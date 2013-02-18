@@ -25,17 +25,19 @@ package com.jaeksoft.searchlib.webservice.update;
 
 import java.util.List;
 
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
-import javax.jws.WebResult;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService
-public interface Update {
-	@WebResult(name = "update")
+@WebService(name = "update")
+public interface SoapUpdate {
+
+	@WebMethod(operationName = "update")
 	public CommonResult update(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "document") List<Document> updateDocuments);
+
 }

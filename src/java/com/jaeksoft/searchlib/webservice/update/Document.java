@@ -31,26 +31,22 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-/**
- * @author Naveen
- * 
- */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class Document {
 
 	@XmlElement(name = "lang")
 	public LanguageEnum lang;
 
-	@XmlElement(name = "field")
-	public List<UpdateFieldList> fields;
+	@XmlElement(name = "value")
+	public List<FieldValuePair> values;
 
 	public Document() {
-		lang = null;
-		fields = null;
+		lang = LanguageEnum.UNDEFINED;
+		values = null;
 	}
 
-	public Document(LanguageEnum language, List<UpdateFieldList> fieldList) {
-		lang = language;
-		fields = fieldList;
+	public Document(LanguageEnum lang, List<FieldValuePair> values) {
+		this.lang = lang;
+		this.values = values;
 	}
 }
