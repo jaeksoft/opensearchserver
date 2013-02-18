@@ -35,8 +35,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -44,16 +42,25 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class UpdateImpl extends CommonServices implements SoapUpdate,
 		RestUpdate {
 
-	private int updateDocument(Client client, List<Document> updateDocuments)
+	private int updateDocument(Client client, Documents documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>();
-		for (Document document : updateDocuments) {
+		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(0);
+		if (documents == null || documents.documents == null)
+			throw new WebServiceException("No documents");
+		for (Documents.Document document : documents.documents) {
 			IndexDocument indexDoc = new IndexDocument(document.lang);
-			for (FieldValuePair fieldValue : document.values)
-				indexDoc.add(fieldValue.field, new FieldValueItem(
-						FieldValueOriginEnum.EXTERNAL, fieldValue.value));
+			if (document.values != null)
+				for (Documents.Values values : document.values)
+					if (values.value != null)
+						for (Documents.Value value : values.value)
+							indexDoc.add(values.field, value.content,
+									value.boost != null ? value.boost
+											: values.boost);
+			if (document.value != null)
+				for (Documents.Value value : document.value)
+					indexDoc.add(value.field, value.content, value.boost);
 			indexDocuments.add(indexDoc);
 		}
 		return client.updateDocuments(indexDocuments);
@@ -61,7 +68,7 @@ public class UpdateImpl extends CommonServices implements SoapUpdate,
 
 	@Override
 	public CommonResult update(String use, String login, String key,
-			List<Document> documents) {
+			Documents documents) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -88,13 +95,13 @@ public class UpdateImpl extends CommonServices implements SoapUpdate,
 
 	@Override
 	public CommonResult updateJSON(String use, String login, String key,
-			List<Document> documents) {
+			Documents documents) {
 		return update(use, login, key, documents);
 	}
 
 	@Override
 	public CommonResult updateXML(String use, String login, String key,
-			List<Document> documents) {
+			Documents documents) {
 		return update(use, login, key, documents);
 	}
 

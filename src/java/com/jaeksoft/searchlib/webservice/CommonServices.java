@@ -44,7 +44,7 @@ public class CommonServices {
 			if (user == null)
 				throw new WebServiceException("Authentication failed");
 		}
-		Client client = ClientCatalog.getClient(use);
+		client = ClientCatalog.getClient(use);
 		if (client == null)
 			throw new WebServiceException("Index not found");
 	}
@@ -53,7 +53,7 @@ public class CommonServices {
 			throws SearchLibException {
 		if (ClientCatalog.getUserList().isEmpty())
 			return null;
-		User user = ClientCatalog.authenticateKey(login, key);
+		user = ClientCatalog.authenticateKey(login, key);
 		if (user == null)
 			throw new WebServiceException("Authentication failed");
 		return user;

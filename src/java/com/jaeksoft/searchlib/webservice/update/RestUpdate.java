@@ -23,10 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.update;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -45,7 +42,7 @@ public interface RestUpdate {
 	@Path("/{index}/xml")
 	public CommonResult updateXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@FormParam("document") List<Document> documents);
+			Documents documents);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -53,5 +50,5 @@ public interface RestUpdate {
 	@Path("/{index}/json")
 	public CommonResult updateJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@FormParam("document") List<Document> documents);
+			Documents documents);
 }

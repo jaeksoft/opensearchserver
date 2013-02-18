@@ -36,12 +36,12 @@ public interface RestMonitor {
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/xml")
 	public MonitorResult getMonitorXML(@QueryParam("login") String login,
-			@QueryParam("key") String key);
+			@QueryParam("key") String key, @QueryParam("full") boolean full);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/json")
 	public MonitorResult getMonitorJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key);
+			@QueryParam("key") String key, @QueryParam("full") boolean full);
 
 }

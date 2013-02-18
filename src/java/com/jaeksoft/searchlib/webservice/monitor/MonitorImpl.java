@@ -36,14 +36,14 @@ public class MonitorImpl extends CommonServices implements SoapMonitor,
 		RestMonitor {
 
 	@Override
-	public MonitorResult monitor(String login, String key) {
+	public MonitorResult monitor(String login, String key, boolean full) {
 		try {
 			User user = getLoggedUser(login, key);
 			if (user != null)
 				if (!user.isMonitoring() && !user.isAdmin())
 					throw new WebServiceException("Not allowed");
 			ClientFactory.INSTANCE.properties.checkApi();
-			return new MonitorResult();
+			return new MonitorResult(full);
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
@@ -54,12 +54,12 @@ public class MonitorImpl extends CommonServices implements SoapMonitor,
 	}
 
 	@Override
-	public MonitorResult getMonitorXML(String login, String key) {
-		return monitor(login, key);
+	public MonitorResult getMonitorXML(String login, String key, boolean full) {
+		return monitor(login, key, full);
 	}
 
 	@Override
-	public MonitorResult getMonitorJSON(String login, String key) {
-		return monitor(login, key);
+	public MonitorResult getMonitorJSON(String login, String key, boolean full) {
+		return monitor(login, key, full);
 	}
 }

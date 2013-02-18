@@ -25,13 +25,12 @@ package com.jaeksoft.searchlib.webservice.monitor;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.ws.rs.QueryParam;
 
 @WebService(name = "Monitor")
 public interface SoapMonitor {
 
-	public MonitorResult monitor(
-			@QueryParam("login") @WebParam(name = "login") String login,
-			@QueryParam("key") @WebParam(name = "key") String key);
+	public MonitorResult monitor(@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "full") boolean full);
 
 }

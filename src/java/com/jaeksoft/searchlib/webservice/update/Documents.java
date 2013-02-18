@@ -21,29 +21,65 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.webservice.update;
+
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class FieldValuePair {
+public class Documents {
 
-	@XmlElement(name = "field")
-	public String field;
+	@XmlElement(name = "document")
+	public List<Document> documents;
 
-	@XmlElement(name = "value")
-	public String value;
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	public static class Document {
 
-	public FieldValuePair() {
-		field = null;
-		value = null;
+		@XmlAttribute(required = true)
+		public LanguageEnum lang;
+
+		@XmlElement(name = "value")
+		public List<Value> value;
+
+		@XmlElement(name = "values")
+		public List<Values> values;
+
 	}
 
-	public FieldValuePair(String field, String value) {
-		this.field = field;
-		this.value = value;
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	public static class Value {
+
+		@XmlAttribute
+		public String field;
+
+		@XmlAttribute
+		public Float boost;
+
+		@XmlValue
+		public String content;
 	}
+
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	public static class Values {
+
+		@XmlAttribute
+		public String field;
+
+		@XmlAttribute
+		public Float boost;
+
+		@XmlElement(name = "value", required = true)
+		public List<Value> value;
+
+	}
+
 }

@@ -23,8 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice.update;
 
-import java.util.List;
-
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -38,6 +36,6 @@ public interface SoapUpdate {
 	public CommonResult update(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "document") List<Document> updateDocuments);
+			@WebParam(name = "documents") Documents updateDocuments);
 
 }
