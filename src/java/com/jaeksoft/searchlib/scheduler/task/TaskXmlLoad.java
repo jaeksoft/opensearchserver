@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
@@ -113,7 +114,9 @@ public class TaskXmlLoad extends TaskAbstract {
 		try {
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
-				credentialItem = new CredentialItem(null, login, password);
+				credentialItem = new CredentialItem(
+						CredentialType.BASIC_DIGEST, null, login, password,
+						null, null);
 			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
 					credentialItem);
 			Node xmlDoc = null;

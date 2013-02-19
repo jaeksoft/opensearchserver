@@ -29,6 +29,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -38,22 +41,46 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class CredentialItem {
 
+	public enum CredentialType {
+		BASIC_DIGEST, NTLM;
+
+		private static CredentialType find(String value) {
+			for (CredentialType type : values())
+				if (type.name().equalsIgnoreCase(value))
+					return type;
+			return null;
+		}
+	}
+
+	private CredentialType type;
+
 	private String pattern;
 
 	private String username;
 
 	private String password;
 
+	private String workstation;
+
+	private String domain;
+
 	public CredentialItem() {
+		type = null;
 		pattern = null;
 		username = null;
 		password = null;
+		workstation = null;
+		domain = null;
 	}
 
-	public CredentialItem(String pattern, String username, String password) {
+	public CredentialItem(CredentialType type, String pattern, String username,
+			String password, String workstation, String domain) {
+		this.type = type;
 		this.pattern = pattern;
 		this.username = username;
 		this.password = password;
+		this.workstation = workstation;
+		this.domain = domain;
 	}
 
 	public static CredentialItem fromXml(Node node) {
@@ -63,6 +90,12 @@ public class CredentialItem {
 				.getAttributeText(node, "username")));
 		credentialItem.setPassword(StringUtils.base64decode(DomUtils
 				.getAttributeText(node, "password")));
+		credentialItem.setWorkstation(StringUtils.base64decode(DomUtils
+				.getAttributeText(node, "workstation")));
+		credentialItem.setDomain(StringUtils.base64decode(DomUtils
+				.getAttributeText(node, "domain")));
+		credentialItem.setType(CredentialType.find(DomUtils.getAttributeText(
+				node, "type")));
 		return credentialItem;
 	}
 
@@ -70,7 +103,10 @@ public class CredentialItem {
 			throws UnsupportedEncodingException, SAXException {
 		xmlWriter.startElement("credential", "username",
 				new String(StringUtils.base64encode(username)), "password",
-				new String(StringUtils.base64encode(password)));
+				new String(StringUtils.base64encode(password)), "workstation",
+				new String(StringUtils.base64encode(workstation)), "domain",
+				new String(StringUtils.base64encode(domain)), "type",
+				type.name());
 		xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
 	}
@@ -145,6 +181,63 @@ public class CredentialItem {
 		sb.append(':');
 		sb.append(URLEncoder.encode(password, "UTF-8"));
 		return sb.toString();
+	}
+
+	/**
+	 * @return the workstation
+	 */
+	public String getWorkstation() {
+		return workstation;
+	}
+
+	/**
+	 * @param workstation
+	 *            the workstation to set
+	 */
+	public void setWorkstation(String workstation) {
+		this.workstation = workstation;
+	}
+
+	/**
+	 * @return the domain
+	 */
+	public String getDomain() {
+		return domain;
+	}
+
+	/**
+	 * @param domain
+	 *            the domain to set
+	 */
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public CredentialType getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(CredentialType type) {
+		this.type = type;
+	}
+
+	public Credentials getHttpCredential() {
+		switch (type) {
+		case BASIC_DIGEST:
+			return new UsernamePasswordCredentials(getUsername(), getPassword());
+		case NTLM:
+			return new NTCredentials(getUsername(), getPassword(),
+					getWorkstation(), getDomain());
+		default:
+			return null;
+		}
 	}
 
 }

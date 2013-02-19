@@ -42,7 +42,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -148,8 +147,7 @@ public abstract class HttpAbstract {
 		else
 			credential.setCredentials(
 					new AuthScope(uri.getHost(), uri.getPort()),
-					new UsernamePasswordCredentials(credentialItem
-							.getUsername(), credentialItem.getPassword()));
+					credentialItem.getHttpCredential());
 		httpContext = new BasicHttpContext();
 		httpResponse = httpClient.execute(httpUriRequest, httpContext);
 		if (httpResponse == null)
