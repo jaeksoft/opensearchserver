@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.web.controller;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererWidgets;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RendererController extends CommonController {
@@ -95,11 +95,14 @@ public class RendererController extends CommonController {
 		return client.getRendererManager().getArray();
 	}
 
-	public Set<String> getRequestList() throws SearchLibException {
+	public List<String> getRequestList() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getRequestMap().getNameList();
+		List<String> requestList = new ArrayList<String>(0);
+		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
+				requestList);
+		return requestList;
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
