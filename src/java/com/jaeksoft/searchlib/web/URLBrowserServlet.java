@@ -64,7 +64,7 @@ public class URLBrowserServlet extends AbstractServlet {
 			else if ("sitemap".equalsIgnoreCase(cmd))
 				exportSiteMap(urlManager, transaction, host);
 			else if ("deleteall".equalsIgnoreCase(cmd))
-				urlManager.deleteAll(null);
+				deleteAll(null, transaction);
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {
@@ -103,6 +103,13 @@ public class URLBrowserServlet extends AbstractServlet {
 		File file = urlManager.exportURLs(searchRequest);
 		transaction.sendFile(file, "OSS_URL_Export.txt",
 				"text/plain; charset-UTF-8");
+	}
+
+	private void deleteAll(UrlManager urlManager, ServletTransaction transaction)
+			throws SearchLibException {
+		urlManager.deleteAll(null);
+		transaction.addXmlResponse("Status", "OK");
+		transaction.addXmlResponse("Info", "URL database truncated");
 	}
 
 }

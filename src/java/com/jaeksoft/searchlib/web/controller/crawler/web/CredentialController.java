@@ -33,6 +33,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -262,5 +263,9 @@ public class CredentialController extends CrawlerController {
 			selectedCredential.copy(currentCredential);
 		client.saveJobs();
 		onCancel();
+	}
+
+	public CredentialType[] getCredentialTypes() {
+		return CredentialType.values();
 	}
 }
