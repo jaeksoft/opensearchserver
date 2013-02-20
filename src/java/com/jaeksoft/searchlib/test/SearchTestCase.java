@@ -96,7 +96,7 @@ public class SearchTestCase extends TestCase {
 				CommomTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
-		assertEquals("174", response);
+		assertEquals("137", response);
 	}
 
 	@Test
