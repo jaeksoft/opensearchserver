@@ -56,7 +56,7 @@ public class CredentialItem {
 			for (CredentialType type : values())
 				if (type.name().equalsIgnoreCase(value))
 					return type;
-			return null;
+			return BASIC_DIGEST;
 		}
 
 		public String getLabel() {
@@ -77,7 +77,7 @@ public class CredentialItem {
 	private String domain;
 
 	public CredentialItem() {
-		type = null;
+		type = CredentialType.BASIC_DIGEST;
 		pattern = null;
 		username = null;
 		password = null;
@@ -123,10 +123,13 @@ public class CredentialItem {
 		xmlWriter.endElement();
 	}
 
-	public void copy(CredentialItem credential) {
+	public void copyTo(CredentialItem credential) {
 		credential.pattern = this.pattern;
 		credential.username = this.username;
 		credential.password = this.password;
+		credential.domain = this.domain;
+		credential.workstation = this.workstation;
+		credential.type = this.type;
 	}
 
 	/**

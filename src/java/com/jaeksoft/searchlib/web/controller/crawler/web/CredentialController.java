@@ -210,7 +210,7 @@ public class CredentialController extends CrawlerController {
 		if (credential == null)
 			return;
 		selectedCredential = credential;
-		selectedCredential.copy(currentCredential);
+		selectedCredential.copyTo(currentCredential);
 		reload();
 	}
 
@@ -265,9 +265,10 @@ public class CredentialController extends CrawlerController {
 				return;
 			}
 			credentialManager.addCredential(currentCredential);
-		} else
-			selectedCredential.copy(currentCredential);
-		client.saveJobs();
+		} else {
+			currentCredential.copyTo(selectedCredential);
+			credentialManager.updateCredential(selectedCredential);
+		}
 		onCancel();
 	}
 

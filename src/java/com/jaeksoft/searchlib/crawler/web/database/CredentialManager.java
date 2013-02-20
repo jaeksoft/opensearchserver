@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -195,6 +195,29 @@ public class CredentialManager {
 		rwl.w.lock();
 		try {
 			addCredentialWithoutLock(credentialItem);
+			store();
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void updateCredential(CredentialItem credentialItem)
+			throws SearchLibException {
+		rwl.w.lock();
+		try {
+			boolean found = false;
+			Iterator<List<CredentialItem>> it = credentialMap.values()
+					.iterator();
+			while (it.hasNext() && !found)
+				found = it.next().contains(credentialItem);
+			if (!found)
+				throw new SearchLibException("Unknown credential item");
 			store();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
