@@ -1,0 +1,42 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="normal" title="Scheduler"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('scheduler') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerController')">
+	<caption>
+		<label id="currentTime" value="@load(scheduler.currentTime)"
+			onClick="@command('reload')"
+			tooltiptext="Server time - Click to update" />
+	</caption>
+	<tabbox>
+		<tabs>
+			<tab id="tabSchedulerList" label="Job list" selected="true" />
+			<tab id="tabSchedulerLog" label="Log" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/scheduler/list.zul"
+					visible="@load(scheduler.noJobItemEdit)" />
+				<include src="WEB-INF/zul/scheduler/edit.zul"
+					visible="@load(scheduler.jobItemEdit)" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/scheduler/log.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

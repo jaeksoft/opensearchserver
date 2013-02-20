@@ -1,0 +1,190 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('filepathedit') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FilePathEditController')">
+
+	<panel title="@load(filepathedit.currentEditMode)"
+		border="normal">
+		<panelchildren>
+			<grid>
+				<columns sizable="false">
+					<column align="right" width="150px" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Type " />
+						<listbox model="@load(filepathedit.typeList)"
+							mold="select"
+							selectedItem="@bind(filepathedit.currentFileType)">
+							<template name="model">
+								<listitem label="@load(each.label)" />
+							</template>
+						</listbox>
+					</row>
+					<row visible="@load(filepathedit.dropbox)">
+						<label value="Authorization" />
+						<hbox>
+							<button
+								label="Request dropbox authentication"
+								visible="@load(filepathedit.notDropboxWebAuthInfo)"
+								onClick="@command('onDropboxAuthRequest')" />
+							<button
+								href="@load(filepathedit.dropboxAuthUrl)"
+								label="Go to Dropbox authentication page"
+								visible="@load(filepathedit.dropboxWebAuthInfo)"
+								target="_blank" />
+							<space width="10px" />
+							<button label="Confirm authentication"
+								visible="@load(filepathedit.dropboxWebAuthInfo)"
+								onClick="@command('onDropboxConfirmAuth')" />
+						</hbox>
+					</row>
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
+						<label value="User name: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.username)" cols="50" />
+					</row>
+					<row visible="@load(filepathedit.domain)">
+						<label value="Domain: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.domain)" cols="50" />
+					</row>
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
+						<label value="Password: " />
+						<textbox type="password"
+							value="@bind(filepathedit.currentFilePath.password)" cols="30" />
+					</row>
+					<row
+						visible="@load(filepathedit.notLocalFileType)">
+						<label value="Host: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.host)" cols="100" />
+					</row>
+					<row>
+						<label value="Path: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.path)" cols="150" />
+					</row>
+					<row visible="@load(filepathedit.localFileType)">
+						<label value="Local folder" />
+						<listbox
+							model="@load(filepathedit.currentFileList)"
+							selectedItem="@bind(filepathedit.currentFile)" height="250px">
+							<listhead>
+								<listheader label="Local file system">
+									<label
+										visible="@load(filepathedit.notRoot)" value="Path: " />
+									<listbox
+										visible="@load(filepathedit.notRoot)"
+										model="@load(filepathedit.folderTree)"
+										selectedItem="@bind(filepathedit.currentFolder)"
+										mold="select">
+										<template name="model">
+											<listitem
+												label="@load(each.name)" />
+										</template>
+									</listbox>
+									<button
+										visible="@load(filepathedit.notRoot)"
+										label="go to parent folder"
+										onClick="@command('onParentFolder')" />
+									<space width="30px" />
+									<button label="Refresh the list"
+										onClick="@command('onRefreshList')" />
+									<space width="30px" />
+									<checkbox label="Show hidden file"
+										checked="@bind(filepathedit.showHidden)" />
+								</listheader>
+							</listhead>
+							<template name="model" var="file">
+								<listitem>
+									<listcell
+										onDoubleClick="@command('onOpenFile', file=file)">
+										<image src="/images/file.png"
+											visible="@load(file.file.file)" />
+										<image
+											src="/images/directory.png"
+											visible="@load(file.file.directory)" />
+										<label value="@load(file.name)" />
+									</listcell>
+								</listitem>
+							</template>
+							<listfoot>
+								<listfooter>
+									<button
+										disabled="@load(filepathedit.selectedFile)" label="Select"
+										onClick="@command('onSelectFile')" />
+									<label
+										value="@load(filepathedit.currentFile.file.absolutePath)" />
+								</listfooter>
+							</listfoot>
+						</listbox>
+					</row>
+					<row>
+						<label value="With sub directory: " />
+						<checkbox
+							checked="@bind(filepathedit.currentFilePath.withSubDir)" />
+					</row>
+					<row>
+						<label value="Delay between each access (ms): " />
+						<intbox
+							value="@bind(filepathedit.currentFilePath.delay)" />
+					</row>
+					<row>
+						<label value="Enabled: " />
+						<checkbox
+							checked="@bind(filepathedit.currentFilePath.enabled)" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="2">
+						<vbox width="100%" align="center">
+							<hbox
+								visible="@load(filepathedit.filePathSelected)">
+								<button label="Check"
+									onClick="@command('onCheck')" />
+								<space width="20px" />
+								<button label="Cancel"
+									onClick="@command('onCancel')" />
+								<space width="10px" />
+								<button label="Save"
+									onClick="@command('onSave')" />
+								<space width="30px" />
+								<button label="Delete"
+									onClick="@command('onDelete')" />
+							</hbox>
+							<hbox
+								visible="@load(filepathedit.noFilePathSelected)">
+								<button label="Check"
+									onClick="@command('onCheck')" />
+								<space width="20px" />
+								<button label="Cancel"
+									onClick="@command('onCancel')" />
+								<space width="10px" />
+								<button label="Create"
+									onClick="@command('onSave')" />
+							</hbox>
+						</vbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+</window>

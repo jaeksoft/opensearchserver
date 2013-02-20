@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel title="List of existing mailbox(es)" border="normal"
+	visible="@load(mbctrl.notEditing)">
+	<toolbar>
+		<button label="New mailbox..." onClick="@command('onNew')" />
+	</toolbar>
+	<panelchildren>
+		<listbox model="@load(mbctrl.mailboxList)" mold="paging"
+			pageSize="20">
+			<listhead>
+				<listheader label="Name" hflex="min" />
+				<listheader label="Last execution time" hflex="min" />
+				<listheader label="Duration"
+					tooltiptext="last duration time" hflex="min" />
+				<listheader label="Status" hflex="min" />
+				<listheader label="Info" hflex="min" />
+				<listheader label="Action" />
+			</listhead>
+			<template name="model" var="mailboxItem">
+				<listitem>
+					<listcell label="@load(mailboxItem.name)" />
+					<listcell
+						label="@load(mailboxItem.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+					<listcell
+						label="@load(mailboxItem.lastThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+					<listcell
+						tooltiptext="@load(mailboxItem.lastThread.info)"
+						label="@load(mailboxItem.lastThread.status.name)" />
+					<listcell
+						label="@load(mailboxItem.lastThread.countInfo)" />
+					<listcell>
+						<hbox align="center">
+							<button tooltiptext="Edit the mailbox item"
+								label="Edit"
+								onClick="@command('edit', mailboxItem=mailboxItem)" />
+							<space />
+							<button
+								tooltiptext="Execute the crawl process"
+								disabled="@load(mailboxItem.thread)"
+								image="/images/action_check.png"
+								onClick="@command('execute', mailboxItem=mailboxItem)" />
+							<space />
+							<button tooltiptext="Delete crawl process"
+								image="/images/action_delete.png"
+								onClick="@command('delete', mailboxItem=mailboxItem)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</template>
+		</listbox>
+		<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+			running="@load(mbctrl.refresh)" />
+	</panelchildren>
+</panel>

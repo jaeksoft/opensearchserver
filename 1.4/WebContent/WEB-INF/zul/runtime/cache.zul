@@ -1,0 +1,51 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('caches') @init('com.jaeksoft.searchlib.web.controller.runtime.CacheController')">
+	<listbox model="@load(caches.cacheList)">
+		<listhead>
+			<listheader label="Name" />
+			<listheader label="Size" width="60px" align="right" />
+			<listheader label="Max size" width="80px" />
+			<listheader label="Action" width="80px" />
+			<listheader label="Hit ratio" width="60px" align="right" />
+			<listheader label="Lookups" width="60px" align="right" />
+			<listheader label="Hits" width="60px" align="right" />
+			<listheader label="Inserts" width="60px" align="right" />
+			<listheader label="Evictions" width="60px" align="right" />
+		</listhead>
+		<template name="model" var="cache">
+			<listitem>
+				<listcell label="@load(cache.name)" />
+				<listcell label="@load(cache.size)" />
+				<listcell>
+					<intbox value="@bind(cache.maxSize)"
+						onChange="@command(onSave)" width="60px" />
+				</listcell>
+				<listcell>
+					<button label="Flush"
+						onClick="@command('doFlush', cache=cache)" />
+				</listcell>
+				<listcell label="@load(cache.hitRatioPercent)" />
+				<listcell label="@load(cache.lookups)" />
+				<listcell label="@load(cache.hits)" />
+				<listcell label="@load(cache.inserts)" />
+				<listcell label="@load(cache.evictions)" />
+			</listitem>
+		</template>
+	</listbox>
+</window>
