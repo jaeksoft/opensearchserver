@@ -123,6 +123,8 @@ public class IndexSingle extends IndexAbstract {
 			checkOnline(true);
 			if (writer != null)
 				writer.optimize();
+			if (reader != null)
+				reader.reload();
 		} finally {
 			rwl.r.unlock();
 		}
