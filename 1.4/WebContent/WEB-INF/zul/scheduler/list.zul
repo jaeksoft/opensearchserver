@@ -1,0 +1,82 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('schedulerlist') @init('com.jaeksoft.searchlib.web.controller.scheduler.SchedulerListController')">
+
+	<panel title="List of existing jobs and their settings"
+		border="normal">
+		<toolbar>
+			<button label="Create new scheduler job"
+				onClick="@command('onNewJob')" />
+		</toolbar>
+		<panelchildren>
+			<listbox model="@load(schedulerlist.jobs)">
+				<listhead>
+					<listheader label="Name" hflex="min" />
+					<listheader tooltiptext="Active" label="A"
+						hflex="min" />
+					<listheader tooltiptext="Seconds" label="S"
+						hflex="min" />
+					<listheader tooltiptext="Minutes" label="M"
+						hflex="min" />
+					<listheader tooltiptext="Hours" label="H"
+						hflex="min" />
+					<listheader tooltiptext="Day of month" label="DM"
+						hflex="min" />
+					<listheader tooltiptext="Month" label="M"
+						hflex="min" />
+					<listheader tooltiptext="Day of week" label="DW"
+						hflex="min" />
+					<listheader tooltiptext="Year" label="W"
+						hflex="min" />
+					<listheader label="Last start" hflex="min" />
+					<listheader label="Last error" />
+					<listheader label="Action" hflex="min" />
+				</listhead>
+				<template name="model" var="job">
+					<listitem>
+						<listcell label="@load(job.name)"
+							onDoubleClick="@command('doEdit', jobentry=job)" />
+						<listcell>
+							<image src="images/action_check.png"
+								visible="@load(job.active)" />
+						</listcell>
+						<listcell label="@load(job.cron.seconds)" />
+						<listcell label="@load(job.cron.minutes)" />
+						<listcell label="@load(job.cron.hours)" />
+						<listcell label="@load(job.cron.dayOfMonth)" />
+						<listcell label="@load(job.cron.month)" />
+						<listcell label="@load(job.cron.dayOfWeek)" />
+						<listcell label="@load(job.cron.year)" />
+						<listcell
+							label="@load(job.lastExecution) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+						<listcell label="@load(job.lastError.message)" />
+						<listcell>
+							<button label="Edit"
+								onClick="@command('doEdit', jobentry=job)" />
+							<button label="Execute"
+								onClick="@command('doExecute', jobentry=job)" />
+						</listcell>
+					</listitem>
+				</template>
+			</listbox>
+		</panelchildren>
+	</panel>
+
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(schedulerlist.refresh)" />
+</window>

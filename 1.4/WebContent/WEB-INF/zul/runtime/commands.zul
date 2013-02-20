@@ -1,0 +1,72 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('commands') @init('com.jaeksoft.searchlib.web.controller.runtime.CommandsController')">
+	<grid>
+		<columns>
+			<column label="Label" align="right" hflex="min" />
+			<column label="Command" align="center" hflex="min" />
+			<column label="Status" align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Reload the index: " />
+				<button label="Reload"
+					onClick="@command('onReloadClient')"
+					disabled="@load(commands.offline)" />
+				<label />
+			</row>
+			<row>
+				<label value="Optimization: " />
+				<button label="Optimize"
+					onClick="@command('onOptimize')"
+					disabled="@load(commands.offline)" />
+				<cell>
+					<label value="@load(commands.optimizeStatus)" />
+					<space />
+					<image visible="@load(commands.runningOptimize)"
+						src="/images/ajax-loader.gif" />
+				</cell>
+			</row>
+			<row>
+				<label value="Offline/Online: " />
+				<cell>
+					<button label="Offline"
+						onClick="@command('onOffline')" visible="@load(commands.online)" />
+					<button label="Online"
+						onClick="@command('onOnline')" visible="@load(commands.offline)" />
+				</cell>
+				<label value="@load(commands.onlineStatus)" />
+			</row>
+			<row>
+				<label value="Truncate: " />
+				<button label="Delete all"
+					onClick="@command('onDeleteAll')"
+					disabled="@load(commands.offline)" />
+				<cell>
+					<label value="@load(commands.documentNumber)" />
+					<space />
+					<image visible="@load(commands.runningTruncate)"
+						src="/images/ajax-loader.gif" />
+
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(commands.taskRunning)" />
+</window>
