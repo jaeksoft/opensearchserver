@@ -59,11 +59,12 @@ public class URLBrowserServlet extends AbstractServlet {
 			UrlManager urlManager = client.getUrlManager();
 			String cmd = transaction.getParameterString("cmd");
 			String host = transaction.getParameterString("host");
-			if ("urls".equalsIgnoreCase(cmd)) {
+			if ("urls".equalsIgnoreCase(cmd))
 				exportURLs(urlManager, transaction, host);
-			} else if ("sitemap".equalsIgnoreCase(cmd)) {
+			else if ("sitemap".equalsIgnoreCase(cmd))
 				exportSiteMap(urlManager, transaction, host);
-			}
+			else if ("deleteall".equalsIgnoreCase(cmd))
+				urlManager.deleteAll(null);
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {
@@ -89,9 +90,8 @@ public class URLBrowserServlet extends AbstractServlet {
 	private void exportSiteMap(UrlManager urlManager,
 			ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
-		File file;
 		SearchRequest searchRequest = getRequest(urlManager, host);
-		file = urlManager.exportSiteMap(searchRequest);
+		File file = urlManager.exportSiteMap(searchRequest);
 		transaction
 				.sendFile(file, "OSS_SiteMap.xml", "text/xml; charset-UTF-8");
 	}
@@ -99,10 +99,10 @@ public class URLBrowserServlet extends AbstractServlet {
 	private void exportURLs(UrlManager urlManager,
 			ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
-		File file;
 		SearchRequest searchRequest = getRequest(urlManager, host);
-		file = urlManager.exportURLs(searchRequest);
+		File file = urlManager.exportURLs(searchRequest);
 		transaction.sendFile(file, "OSS_URL_Export.txt",
 				"text/plain; charset-UTF-8");
 	}
+
 }
