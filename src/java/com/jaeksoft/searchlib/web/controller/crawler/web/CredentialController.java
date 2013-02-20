@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -234,6 +235,11 @@ public class CredentialController extends CrawlerController {
 	public void onCancel() throws SearchLibException {
 		reset();
 		reload();
+	}
+
+	@Command
+	@NotifyChange("currentCredential")
+	public void reloadCurrentCredential() {
 	}
 
 	@Command

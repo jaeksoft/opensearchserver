@@ -64,7 +64,7 @@ public class URLBrowserServlet extends AbstractServlet {
 			else if ("sitemap".equalsIgnoreCase(cmd))
 				exportSiteMap(urlManager, transaction, host);
 			else if ("deleteall".equalsIgnoreCase(cmd))
-				deleteAll(null, transaction);
+				deleteAll(urlManager, transaction);
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {

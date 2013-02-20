@@ -42,13 +42,25 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public class CredentialItem {
 
 	public enum CredentialType {
-		BASIC_DIGEST, NTLM;
+		BASIC_DIGEST("Basic or Digest"),
+
+		NTLM("NTLMv1, NTLMv2, or NTLM2SessionResponse");
+
+		private final String label;
+
+		private CredentialType(String label) {
+			this.label = label;
+		}
 
 		private static CredentialType find(String value) {
 			for (CredentialType type : values())
 				if (type.name().equalsIgnoreCase(value))
 					return type;
 			return null;
+		}
+
+		public String getLabel() {
+			return label;
 		}
 	}
 
@@ -238,6 +250,10 @@ public class CredentialItem {
 		default:
 			return null;
 		}
+	}
+
+	public boolean isNtlm() {
+		return type == CredentialType.NTLM;
 	}
 
 }
