@@ -49,7 +49,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
  * @author Ayyathurai N Naveen
  * 
  */
-public class CommomTestCase {
+public class CommonTestCase {
 	public static String INDEX_NAME = "oss";
 	public static String SERVER_URL = "http://localhost:8080/jenkins-oss-1.4-testing/";
 	public static String USER_NAME = "";
@@ -88,6 +88,18 @@ public class CommomTestCase {
 		put.setEntity(new FileEntity(file, contentType));
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		return httpClient.execute(put).getStatusLine().getStatusCode();
+	}
+
+	public int restAPIPostFile(File file, String contentType, String api)
+			throws IllegalStateException, IOException {
+		String url = SERVER_URL + "services/rest/" + api + "/" + INDEX_NAME
+				+ "/xml?" + "&login=" + USER_NAME + "&key=" + API_KEY;
+		HttpPost httpPost = new HttpPost(url);
+		FileEntity entity = new FileEntity(file);
+		httpPost.setEntity(entity);
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpResponse httpResponse = httpClient.execute(httpPost);
+		return httpResponse.getStatusLine().getStatusCode();
 	}
 
 	public String getHttpResponse(HttpPost httpPost, String xpath)

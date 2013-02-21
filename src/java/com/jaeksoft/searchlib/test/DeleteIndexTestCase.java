@@ -38,11 +38,11 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class DeleteIndexTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public DeleteIndexTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
@@ -53,11 +53,11 @@ public class DeleteIndexTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
 				"deleteindex"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-				CommomTestCase.INDEX_NAME));
+				CommonTestCase.INDEX_NAME));
 		namedValuePairs.add(commomTestCase.getNameValuePair(
-				"index.delete.name", CommomTestCase.INDEX_NAME));
+				"index.delete.name", CommonTestCase.INDEX_NAME));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, false);
+				CommonTestCase.SCHEMA_API, false);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("Index deleted: oss", response);

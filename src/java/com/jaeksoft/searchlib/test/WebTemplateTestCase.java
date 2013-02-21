@@ -45,11 +45,11 @@ import org.xml.sax.SAXException;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WebTemplateTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public WebTemplateTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
@@ -60,11 +60,11 @@ public class WebTemplateTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd",
 				"createindex"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("index.name",
-				CommomTestCase.INDEX_NAME));
+				CommonTestCase.INDEX_NAME));
 		namedValuePairs.add(commomTestCase.getNameValuePair("index.template",
 				"WEB_CRAWLER"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, false);
+				CommonTestCase.SCHEMA_API, false);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("Index created: oss", response);
@@ -87,7 +87,7 @@ public class WebTemplateTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("term.termvector",
 				"no"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
+				CommonTestCase.SCHEMA_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("field 'titleNew' added/updated", response);
@@ -103,7 +103,7 @@ public class WebTemplateTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("field.name",
 				"titleNew"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
+				CommonTestCase.SCHEMA_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("field 'titleNew' removed", response);
@@ -117,7 +117,7 @@ public class WebTemplateTestCase extends TestCase {
 		namedValuePairs
 				.add(commomTestCase.getNameValuePair("cmd", "getschema"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
+				CommonTestCase.SCHEMA_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/schema/fields/field[3]/@name");
 		String responseContent = commomTestCase.getHttpResponse(httpPost,
@@ -134,10 +134,10 @@ public class WebTemplateTestCase extends TestCase {
 		namedValuePairs
 				.add(commomTestCase.getNameValuePair("cmd", "indexlist"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SCHEMA_API, true);
+				CommonTestCase.SCHEMA_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/index/@name");
-		assertEquals(CommomTestCase.INDEX_NAME, response);
+		assertEquals(CommonTestCase.INDEX_NAME, response);
 	}
 
 }

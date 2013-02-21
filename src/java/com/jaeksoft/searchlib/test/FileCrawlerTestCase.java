@@ -15,11 +15,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.xml.sax.SAXException;
 
 public class FileCrawlerTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public FileCrawlerTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	public void createFileCrawlerInstance() throws IllegalStateException,
@@ -37,7 +37,7 @@ public class FileCrawlerTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("ignorehidden",
 				"true"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.FILE_CRAWLER_API, true);
+				CommonTestCase.FILE_CRAWLER_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("A new file crawler instance is created.", response);
@@ -50,7 +50,7 @@ public class FileCrawlerTestCase extends TestCase {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd", "start"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.FILE_CRAWLER_API, true);
+				CommonTestCase.FILE_CRAWLER_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("STARTED", response);
@@ -63,7 +63,7 @@ public class FileCrawlerTestCase extends TestCase {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("cmd", "stop"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.FILE_CRAWLER_API, true);
+				CommonTestCase.FILE_CRAWLER_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 		assertEquals("STOPPED", response);

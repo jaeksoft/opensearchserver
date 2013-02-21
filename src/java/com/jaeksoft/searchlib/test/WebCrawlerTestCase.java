@@ -46,11 +46,11 @@ import org.xml.sax.SAXException;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WebCrawlerTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public WebCrawlerTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	public String startStopCrawler(String action) throws IllegalStateException,
@@ -59,7 +59,7 @@ public class WebCrawlerTestCase extends TestCase {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		namedValuePairs.add(commomTestCase.getNameValuePair("action", action));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.WEBCRAWLER_API, true);
+				CommonTestCase.WEBCRAWLER_API, true);
 		return commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Info']");
 

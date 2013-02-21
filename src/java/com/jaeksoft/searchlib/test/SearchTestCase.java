@@ -46,11 +46,11 @@ import org.xml.sax.SAXException;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SearchTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public SearchTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("query", "*:*"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
 		assertEquals("174", response);
@@ -78,7 +78,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("facet.multi",
 				"true"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/faceting/field[@name='lang']/facet[@name='en']");
 		assertEquals("137", response);
@@ -93,7 +93,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("fq", "lang:en"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@numFound");
 		assertEquals("137", response);
@@ -108,7 +108,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("sort", "url"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/doc/field[@name='url']");
 		assertEquals("http://dev.open-search-server.com/13", response);
@@ -124,7 +124,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("rf", "lang"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/doc/field[@name='lang']");
 		assertEquals("fr", response);
@@ -139,7 +139,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("rows", "50"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"count(response/result/doc)");
 		assertEquals("50", response);
@@ -154,7 +154,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase.getNameValuePair("qt", "search"));
 		namedValuePairs.add(commomTestCase.getNameValuePair("start", "20"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/doc/@pos");
 		assertEquals("20", response);
@@ -174,7 +174,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs.add(commomTestCase
 				.getNameValuePair("collapse.max", "1"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/result/@collapsedDocCount");
 		assertEquals("173", response);
@@ -190,7 +190,7 @@ public class SearchTestCase extends TestCase {
 		namedValuePairs
 				.add(commomTestCase.getNameValuePair("qt", "spellcheck"));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.SEARCH_API, true);
+				CommonTestCase.SEARCH_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/spellcheck/field/word/suggest");
 		assertEquals("opensearchserver", response);

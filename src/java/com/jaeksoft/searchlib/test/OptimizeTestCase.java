@@ -38,11 +38,11 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class OptimizeTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public OptimizeTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class OptimizeTestCase extends TestCase {
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommomTestCase.OPTIMIZE_API, true);
+				CommonTestCase.OPTIMIZE_API, true);
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Status']");
 		assertEquals("OK", response);

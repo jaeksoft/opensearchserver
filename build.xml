@@ -2,7 +2,7 @@
 <!--   
 	License Agreement for OpenSearchServer
 	
-	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	
 	http://www.open-search-server.com
 	
@@ -222,6 +222,7 @@
 			<batchtest todir="${junit-report}">
 				<fileset dir="${src}">
 					<include name="**/*AllTests*.java" />
+					<include name="**/*AllRestAPITests*.java" />
 				</fileset>
 			</batchtest>
 		</junit>

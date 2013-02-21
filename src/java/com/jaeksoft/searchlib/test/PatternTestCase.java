@@ -38,11 +38,11 @@ import org.junit.Test;
  * 
  */
 public class PatternTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public PatternTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class PatternTestCase extends TestCase {
 		File patterns = FileUtils.toFile(this.getClass().getResource(
 				"patterns.txt"));
 		int status = commomTestCase.postFile(patterns, "text/plain",
-				CommomTestCase.PATTERN_API);
+				CommonTestCase.PATTERN_API);
 		assertEquals(200, status);
 	}
 }

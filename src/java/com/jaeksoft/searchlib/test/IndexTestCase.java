@@ -33,19 +33,19 @@ import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
 public class IndexTestCase extends TestCase {
-	private CommomTestCase commomTestCase = null;
+	private CommonTestCase commomTestCase = null;
 
 	public IndexTestCase(String name) {
 		super(name);
-		commomTestCase = new CommomTestCase();
+		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
 	public void testIndexDocument() throws ClientProtocolException, IOException {
-		File patterns = FileUtils.toFile(this.getClass().getResource(
+		File documents = FileUtils.toFile(this.getClass().getResource(
 				"documents.xml"));
-		int status = commomTestCase.postFile(patterns, "text/xml",
-				CommomTestCase.INDEX_API);
+		int status = commomTestCase.postFile(documents, "text/xml",
+				CommonTestCase.INDEX_API);
 		assertEquals(200, status);
 	}
 
