@@ -28,10 +28,17 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.auth.params.AuthPNames;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.params.HttpParams;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -243,16 +250,24 @@ public class CredentialItem {
 		this.type = type;
 	}
 
-	public Credentials getHttpCredential() {
+	public void setUpCredentials(HttpParams params,
+			CredentialsProvider credentialProvider) {
+		Credentials credentials = null;
 		switch (type) {
 		case BASIC_DIGEST:
-			return new UsernamePasswordCredentials(getUsername(), getPassword());
+			credentials = new UsernamePasswordCredentials(getUsername(),
+					getPassword());
+			break;
 		case NTLM:
-			return new NTCredentials(getUsername(), getPassword(),
+			List<String> authpref = new ArrayList<String>();
+			authpref.add(AuthPolicy.NTLM);
+			params.setParameter(AuthPNames.TARGET_AUTH_PREF, authpref);
+			credentials = new NTCredentials(getUsername(), getPassword(),
 					getWorkstation(), getDomain());
-		default:
-			return null;
+			break;
 		}
+		if (credentials != null)
+			credentialProvider.setCredentials(AuthScope.ANY, credentials);
 	}
 
 	public boolean isNtlm() {

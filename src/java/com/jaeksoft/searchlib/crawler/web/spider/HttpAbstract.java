@@ -41,7 +41,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -141,13 +140,13 @@ public abstract class HttpAbstract {
 		URI uri = httpUriRequest.getURI();
 		if (proxyHandler != null)
 			proxyHandler.check(httpClient, uri);
-		CredentialsProvider credential = httpClient.getCredentialsProvider();
+		CredentialsProvider credentialProvider = httpClient
+				.getCredentialsProvider();
 		if (credentialItem == null)
-			credential.clear();
+			credentialProvider.clear();
 		else
-			credential.setCredentials(
-					new AuthScope(uri.getHost(), uri.getPort()),
-					credentialItem.getHttpCredential());
+			credentialItem.setUpCredentials(httpClient.getParams(),
+					credentialProvider);
 		httpContext = new BasicHttpContext();
 		httpResponse = httpClient.execute(httpUriRequest, httpContext);
 		if (httpResponse == null)
