@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -57,7 +58,8 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	private void authentication(HttpDownloader downloader)
-			throws ClientProtocolException, URISyntaxException, IOException {
+			throws ClientProtocolException, URISyntaxException, IOException,
+			JSONException {
 		if (token != null)
 			return;
 		token = new SwiftToken(downloader, filePathItem.getHost(),
@@ -102,6 +104,8 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 		} catch (ClientProtocolException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (JSONException e) {
 			throw new SearchLibException(e);
 		} finally {
 			downloader.release();

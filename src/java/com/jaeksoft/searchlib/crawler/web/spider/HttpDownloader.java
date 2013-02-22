@@ -29,9 +29,11 @@ import java.net.URI;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -51,6 +53,22 @@ public class HttpDownloader extends HttpAbstract {
 			httpUriRequest.addHeader(header);
 	}
 
+	private DownloadItem getDownloadItem(URI uri) throws IllegalStateException,
+			IOException {
+		DownloadItem downloadItem = new DownloadItem(uri);
+		downloadItem.setRedirectLocation(getRedirectLocation());
+		downloadItem.setContentLength(getContentLength());
+		downloadItem
+				.setContentDispositionFilename(getContentDispositionFilename());
+		downloadItem.setContentBaseType(getContentBaseType());
+		downloadItem.setContentEncoding(getContentEncoding());
+		downloadItem.setContentTypeCharset(getContentTypeCharset());
+		downloadItem.setStatusCode(getStatusCode());
+		downloadItem.setContentInputStream(getContent());
+		downloadItem.setHeaders(getHeaders());
+		return downloadItem;
+	}
+
 	public DownloadItem get(URI uri, CredentialItem credentialItem,
 			List<Header> additionalHeaders) throws ClientProtocolException,
 			IOException {
@@ -59,19 +77,7 @@ public class HttpDownloader extends HttpAbstract {
 			HttpGet httpGet = new HttpGet(uri);
 			addHeader(httpGet, additionalHeaders);
 			execute(httpGet, credentialItem);
-
-			DownloadItem downloadItem = new DownloadItem(uri);
-			downloadItem.setRedirectLocation(getRedirectLocation());
-			downloadItem.setContentLength(getContentLength());
-			downloadItem
-					.setContentDispositionFilename(getContentDispositionFilename());
-			downloadItem.setContentBaseType(getContentBaseType());
-			downloadItem.setContentEncoding(getContentEncoding());
-			downloadItem.setContentTypeCharset(getContentTypeCharset());
-			downloadItem.setStatusCode(getStatusCode());
-			downloadItem.setContentInputStream(getContent());
-			downloadItem.setHeaders(getHeaders());
-			return downloadItem;
+			return getDownloadItem(uri);
 		}
 	}
 
@@ -94,5 +100,16 @@ public class HttpDownloader extends HttpAbstract {
 	public void head(URI uri, CredentialItem credentialItem)
 			throws ClientProtocolException, IOException {
 		head(uri, credentialItem, null);
+	}
+
+	public DownloadItem post(URI uri, CredentialItem credentialItem,
+			HttpEntity entity) throws ClientProtocolException, IOException {
+		synchronized (this) {
+			reset();
+			HttpPost httpPost = new HttpPost(uri);
+			httpPost.setEntity(entity);
+			execute(httpPost, credentialItem);
+			return getDownloadItem(uri);
+		}
 	}
 }

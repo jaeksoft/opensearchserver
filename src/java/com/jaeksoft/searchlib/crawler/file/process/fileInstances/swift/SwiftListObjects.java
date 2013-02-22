@@ -47,7 +47,7 @@ public class SwiftListObjects {
 
 		List<Header> headerList = new ArrayList<Header>(0);
 		swiftToken.putAuthTokenHeader(headerList);
-		URI uri = new URI(swiftToken.getStorageUrl());
+		URI uri = new URI(swiftToken.getInternalURL());
 		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList);
 		InputStream is = downloadItem.getContentInputStream();
 		objectList = IOUtils.readLines(is, "UTF-8");
