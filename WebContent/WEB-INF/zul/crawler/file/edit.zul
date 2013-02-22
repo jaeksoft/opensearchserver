@@ -77,6 +77,28 @@
 						<textbox
 							value="@bind(filepathedit.currentFilePath.host)" cols="100" />
 					</row>
+					<row visible="@load(filepathedit.swiftFileType)">
+						<label value="Tenant name: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.swiftTenant)"
+							cols="50" />
+					</row>
+					<row visible="@load(filepathedit.swiftFileType)">
+						<label value="Authentication URL: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.swiftAuthURL)"
+							cols="80" />
+					</row>
+					<row visible="@load(filepathedit.swiftFileType))">
+						<label value="Authentication method: " />
+						<listbox
+							model="@load(filepathedit.swiftAuthTypes)" mold="select"
+							selectedItem="@bind(filepathedit.currentFilePath.swiftAuthType)">
+							<template name="model">
+								<listitem label="@load(each.label)" />
+							</template>
+						</listbox>
+					</row>
 					<row>
 						<label value="Path: " />
 						<textbox

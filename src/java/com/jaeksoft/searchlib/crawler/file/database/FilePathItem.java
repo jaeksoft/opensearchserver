@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -41,12 +42,25 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public class FilePathItem implements Comparable<FilePathItem> {
 
 	private FileInstanceType type;
+
 	private String host;
 	private String path;
+
+	/**
+	 * For CIFS/SMB
+	 */
 	private String domain;
+
+	/**
+	 * For SWIFT
+	 */
+	private AuthType swiftAuthType;
+	private String swiftTenant;
+	private String swiftAuthURL;
 
 	private String username;
 	private String password;
+
 	private boolean withSub;
 	private boolean enabled;
 	private int delay;
@@ -61,6 +75,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		withSub = false;
 		enabled = false;
 		delay = 0;
+		swiftAuthType = null;
+		swiftTenant = null;
+		swiftAuthURL = null;
 	}
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
@@ -73,6 +90,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.password = password;
 		destFilePath.enabled = enabled;
 		destFilePath.delay = delay;
+		destFilePath.swiftAuthType = swiftAuthType;
+		destFilePath.swiftTenant = swiftTenant;
+		destFilePath.swiftAuthURL = swiftAuthURL;
 	}
 
 	/**
@@ -234,6 +254,12 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		String delay = DomUtils.getAttributeText(node, "delay");
 		if (delay != null)
 			filePathItem.setDelay(Integer.parseInt(delay));
+		filePathItem.setSwiftAuthType(AuthType.find(DomUtils.getAttributeText(
+				node, "swiftAuthType")));
+		filePathItem.setSwiftTenant(DomUtils.getAttributeText(node,
+				"swiftTenant"));
+		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node,
+				"swiftAuthURL"));
 		return filePathItem;
 	}
 
@@ -251,7 +277,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				domain, "username", username, "password",
 				password == null ? null : StringUtils.base64encode(password),
 				"host", host, "withSub", withSub ? "yes" : "no", "enabled",
-				enabled ? "yes" : "no", "delay", Integer.toString(delay));
+				enabled ? "yes" : "no", "delay", Integer.toString(delay),
+				"swiftAuthType", swiftAuthType.name(), "swiftTenant",
+				swiftTenant, "swiftAuthURL", swiftAuthURL);
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();
@@ -285,6 +313,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (path != null)
 			if ((c = path.compareTo(fpi.path)) != 0)
 				return c;
+		if (swiftTenant != null)
+			if ((c = swiftTenant.compareTo(fpi.swiftTenant)) != 0)
+				return c;
 		return 0;
 	}
 
@@ -317,5 +348,50 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (Logging.isDebug)
 			Logging.debug("CHECK " + this.toString());
 		return FileInstanceAbstract.create(this, null, path).check();
+	}
+
+	/**
+	 * @return the swiftAuthType
+	 */
+	public AuthType getSwiftAuthType() {
+		return swiftAuthType;
+	}
+
+	/**
+	 * @param swiftAuthType
+	 *            the swiftAuthType to set
+	 */
+	public void setSwiftAuthType(AuthType swiftAuthType) {
+		this.swiftAuthType = swiftAuthType;
+	}
+
+	/**
+	 * @return the swiftTenant
+	 */
+	public String getSwiftTenant() {
+		return swiftTenant;
+	}
+
+	/**
+	 * @param swiftTenant
+	 *            the swiftTenant to set
+	 */
+	public void setSwiftTenant(String tenant) {
+		this.swiftTenant = tenant;
+	}
+
+	/**
+	 * @return the swiftAuthURL
+	 */
+	public String getSwiftAuthURL() {
+		return swiftAuthURL;
+	}
+
+	/**
+	 * @param swiftAuthUrl
+	 *            the swiftAuthURL to set
+	 */
+	public void setSwiftAuthURL(String swiftAuthURL) {
+		this.swiftAuthURL = swiftAuthURL;
 	}
 }

@@ -25,24 +25,47 @@
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.List;
-
-import javax.ws.rs.core.MediaType;
 
 import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public class SwiftToken {
+
+	public enum AuthType {
+		KEYSTONE("Keystone"), IAM("IAM");
+
+		private final String label;
+
+		private AuthType(String label) {
+			this.label = label;
+		}
+
+		public static AuthType find(String type) {
+			for (AuthType authType : values())
+				if (authType.name().equalsIgnoreCase(type))
+					return authType;
+			return null;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
 
 	public static final String X_Auth_Token = "X-Auth-Token";
 
@@ -51,20 +74,22 @@ public class SwiftToken {
 	private final String authToken;
 
 	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
-			String username, String password) throws URISyntaxException,
-			ClientProtocolException, IOException, JSONException {
+			String username, String password, AuthType authType, String tenant)
+			throws URISyntaxException, ClientProtocolException, IOException,
+			JSONException, SearchLibException {
 
-		JSONObject jsonPasswordCredentials = new JSONObject();
-		jsonPasswordCredentials.put("username", username);
-		jsonPasswordCredentials.put("password", password);
-		JSONObject jsonAuth = new JSONObject();
-		jsonAuth.put("passwordCredentials", jsonPasswordCredentials);
-		jsonAuth.put("tenantName", username);
-
-		URI uri = new URI(authUrl);
-		DownloadItem downloadItem = httpDownloader.post(uri, null,
-				new StringEntity(jsonAuth.toString(),
-						MediaType.APPLICATION_JSON));
+		DownloadItem downloadItem = null;
+		switch (authType) {
+		case KEYSTONE:
+			downloadItem = keystoneRequest(httpDownloader, authUrl, username,
+					tenant, password);
+			break;
+		case IAM:
+			downloadItem = iamRequest(httpDownloader, authUrl, username, tenant);
+			break;
+		}
+		if (downloadItem == null)
+			throw new SearchLibException("Authentication failed");
 
 		JSONObject json = new JSONObject(downloadItem.getContentInputStream());
 		JSONObject jsonAccess = json.getJSONObject("access");
@@ -91,6 +116,36 @@ public class SwiftToken {
 		}
 		internalURL = intUrl;
 		publicURL = pubUrl;
+	}
+
+	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
+			String authUrl, String username, String tenantName, String password)
+			throws JSONException, URISyntaxException, ClientProtocolException,
+			UnsupportedEncodingException, IOException {
+		JSONObject jsonPasswordCredentials = new JSONObject();
+		jsonPasswordCredentials.put("username", username);
+		jsonPasswordCredentials.put("password", password);
+		JSONObject jsonAuth = new JSONObject();
+		jsonAuth.put("passwordCredentials", jsonPasswordCredentials);
+		jsonAuth.put("tenantName", tenantName);
+		URI uri = new URI(authUrl);
+		System.out.println(jsonAuth.toString());
+		return httpDownloader.post(uri, null,
+				new StringEntity(jsonAuth.toString(),
+						ContentType.APPLICATION_JSON));
+	}
+
+	private DownloadItem iamRequest(HttpDownloader httpDownloader,
+			String authUrl, String username, String tenantname)
+			throws URISyntaxException, ClientProtocolException, IOException {
+		username = URLEncoder.encode(username, "UTF-8");
+		StringBuffer u = new StringBuffer(authUrl);
+		u.append("/users/");
+		u.append(username);
+		u.append("/credentials/openstack?tenantname=");
+		u.append(tenantname);
+		URI uri = new URI(u.toString());
+		return httpDownloader.get(uri, null);
 	}
 
 	public void putAuthTokenHeader(List<Header> headerList) {

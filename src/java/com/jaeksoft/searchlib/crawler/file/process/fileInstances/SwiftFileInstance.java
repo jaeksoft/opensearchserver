@@ -59,11 +59,12 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 
 	private void authentication(HttpDownloader downloader)
 			throws ClientProtocolException, URISyntaxException, IOException,
-			JSONException {
+			JSONException, SearchLibException {
 		if (token != null)
 			return;
-		token = new SwiftToken(downloader, filePathItem.getHost(),
-				filePathItem.getUsername(), filePathItem.getPassword());
+		token = new SwiftToken(downloader, filePathItem.getSwiftAuthURL(),
+				filePathItem.getUsername(), filePathItem.getPassword(),
+				filePathItem.getSwiftAuthType(), filePathItem.getSwiftTenant());
 	}
 
 	@Override

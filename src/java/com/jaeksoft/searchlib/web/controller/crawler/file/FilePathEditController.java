@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
@@ -292,6 +293,20 @@ public class FilePathEditController extends FileCrawlerController {
 
 	public boolean isNotLocalFileType() {
 		return !isLocalFileType();
+	}
+
+	public boolean isSwiftFileType() {
+		if (currentFilePath == null)
+			return false;
+		return "swift".equals(currentFilePath.getType().getScheme());
+	}
+
+	public boolean isNotSwiftFileType() {
+		return !isSwiftFileType();
+	}
+
+	public AuthType[] getSwiftAuthTypes() {
+		return AuthType.values();
 	}
 
 	public boolean isDomain() {
