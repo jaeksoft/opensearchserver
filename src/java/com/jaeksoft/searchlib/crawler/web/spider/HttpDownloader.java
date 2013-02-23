@@ -36,6 +36,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public class HttpDownloader extends HttpAbstract {
@@ -54,10 +55,11 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	private DownloadItem getDownloadItem(URI uri) throws IllegalStateException,
-			IOException {
+			IOException, SearchLibException {
 		DownloadItem downloadItem = new DownloadItem(uri);
 		downloadItem.setRedirectLocation(getRedirectLocation());
 		downloadItem.setContentLength(getContentLength());
+		downloadItem.setLastModified(getLastModified());
 		downloadItem
 				.setContentDispositionFilename(getContentDispositionFilename());
 		downloadItem.setContentBaseType(getContentBaseType());
@@ -71,7 +73,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem,
 			List<Header> additionalHeaders) throws ClientProtocolException,
-			IOException {
+			IOException, IllegalStateException, SearchLibException {
 		synchronized (this) {
 			reset();
 			HttpGet httpGet = new HttpGet(uri);
@@ -82,28 +84,32 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem)
-			throws ClientProtocolException, IOException {
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException {
 		return get(uri, credentialItem, null);
 	}
 
-	public void head(URI uri, CredentialItem credentialItem,
+	public DownloadItem head(URI uri, CredentialItem credentialItem,
 			List<Header> additionalHeaders) throws ClientProtocolException,
-			IOException {
+			IOException, IllegalStateException, SearchLibException {
 		synchronized (this) {
 			reset();
 			HttpHead httpHead = new HttpHead(uri);
 			addHeader(httpHead, additionalHeaders);
 			execute(httpHead, credentialItem);
+			return getDownloadItem(uri);
 		}
 	}
 
-	public void head(URI uri, CredentialItem credentialItem)
-			throws ClientProtocolException, IOException {
-		head(uri, credentialItem, null);
+	public DownloadItem head(URI uri, CredentialItem credentialItem)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException {
+		return head(uri, credentialItem, null);
 	}
 
 	public DownloadItem post(URI uri, CredentialItem credentialItem,
-			HttpEntity entity) throws ClientProtocolException, IOException {
+			HttpEntity entity) throws ClientProtocolException, IOException,
+			IllegalStateException, SearchLibException {
 		synchronized (this) {
 			reset();
 			HttpPost httpPost = new HttpPost(uri);

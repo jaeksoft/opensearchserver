@@ -72,10 +72,6 @@ public class RepositoryController extends FileCrawlerController {
 		}
 	}
 
-	@Override
-	protected void reset() {
-	}
-
 	public FilePathItem getSelectedFilePathItem() {
 		return null;
 	}

@@ -35,8 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -158,7 +156,6 @@ public class FileItem extends FileInfo implements Serializable {
 		while ((dir = dir.getParent()) != null)
 			subDirectory.add(dir.getURI().getPath());
 		setCrawlDate(System.currentTimeMillis());
-		setFileExtension(FilenameUtils.getExtension(getUri()));
 		if (fileInstance instanceof SecurityInterface) {
 			SecurityInterface fileInstanceSecurity = (SecurityInterface) fileInstance;
 			List<SecurityAccess> securityAccesses;

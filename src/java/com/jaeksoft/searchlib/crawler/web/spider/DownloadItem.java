@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -32,10 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.jaeksoft.searchlib.SearchLibException;
 
 public class DownloadItem {
 
@@ -46,6 +50,7 @@ public class DownloadItem {
 	private String contentBaseType = null;
 	private String contentTypeCharset = null;
 	private String contentEncoding = null;
+	private Long lastModified = null;
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
 	private boolean fromCache = false;
@@ -59,6 +64,7 @@ public class DownloadItem {
 	protected final static String KEY_REDIRECT_LOCATION = "KEY_REDIRECT_LOCATION";
 	protected final static String KEY_CONTENT_DISPOSITION_FILENAME = "KEY_CONTENT_DISPOSITION_FILENAME";
 	protected final static String KEY_CONTENT_LENGTH = "KEY_CONTENT_LENGTH";
+	protected final static String KEY_LAST_MODIFIED = "KEY_LAST_MODIFIED";
 	protected final static String KEY_CONTENT_BASE_TYPE = "KEY_CONTENT_BASE_TYPE";
 	protected final static String KEY_CONTENT_TYPE_CHARSET = "KEY_CONTENT_TYPE_CHARSET";
 	protected final static String KEY_CONTENT_ENCODING = "KEY_CONTENT_ENCODING";
@@ -73,6 +79,9 @@ public class DownloadItem {
 
 		if (contentLength != null)
 			json.put(KEY_CONTENT_LENGTH, contentLength);
+
+		if (lastModified != null)
+			json.put(KEY_LAST_MODIFIED, lastModified);
 
 		if (contentDispositionFilename != null)
 			json.put(KEY_CONTENT_DISPOSITION_FILENAME,
@@ -108,6 +117,9 @@ public class DownloadItem {
 		}
 		if (json.has(KEY_CONTENT_LENGTH))
 			contentLength = json.getLong(KEY_CONTENT_LENGTH);
+
+		if (json.has(KEY_LAST_MODIFIED))
+			lastModified = json.getLong(KEY_LAST_MODIFIED);
 
 		if (json.has(KEY_CONTENT_DISPOSITION_FILENAME))
 			contentDispositionFilename = json
@@ -154,6 +166,21 @@ public class DownloadItem {
 	 */
 	public Long getContentLength() {
 		return contentLength;
+	}
+
+	/**
+	 * @return the lastModified
+	 */
+	public Long getLastModified() {
+		return lastModified;
+	}
+
+	/**
+	 * @param lastModified
+	 *            the lastModified to set
+	 */
+	public void setLastModified(Long lastModified) {
+		this.lastModified = lastModified;
 	}
 
 	/**
@@ -242,6 +269,15 @@ public class DownloadItem {
 		return statusCode;
 	}
 
+	public void checkNoError(int... validCodes) throws SearchLibException {
+		if (statusCode == null)
+			throw new SearchLibException("No status code");
+		for (int validCode : validCodes)
+			if (statusCode == validCode)
+				return;
+		throw new SearchLibException("Wrong status code: " + statusCode);
+	}
+
 	/**
 	 * @param statusCode
 	 *            the statusCode to set
@@ -304,6 +340,12 @@ public class DownloadItem {
 			if (header.getName().equalsIgnoreCase(name))
 				return header.getValue();
 		return null;
+	}
+
+	public String getContentAsString() throws IOException {
+		if (contentInputStream == null)
+			return null;
+		return IOUtils.toString(contentInputStream);
 	}
 
 }

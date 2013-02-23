@@ -62,6 +62,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private String password;
 
 	private boolean withSub;
+	private boolean ignoreHiddenFiles;
 	private boolean enabled;
 	private int delay;
 
@@ -74,6 +75,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		password = null;
 		withSub = false;
 		enabled = false;
+		ignoreHiddenFiles = false;
 		delay = 0;
 		swiftAuthType = null;
 		swiftTenant = null;
@@ -82,6 +84,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
 		destFilePath.withSub = withSub;
+		destFilePath.ignoreHiddenFiles = ignoreHiddenFiles;
 		destFilePath.type = type;
 		destFilePath.host = host;
 		destFilePath.path = path;
@@ -249,6 +252,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setHost(DomUtils.getAttributeText(node, "host"));
 		String withSubString = DomUtils.getAttributeText(node, "withSub");
 		filePathItem.setWithSubDir("yes".equalsIgnoreCase(withSubString));
+		String ignoreHiddenFiles = DomUtils.getAttributeText(node,
+				"ignoreHiddenFiles");
+		filePathItem.setIgnoreHiddenFiles("yes"
+				.equalsIgnoreCase(ignoreHiddenFiles));
 		String enabled = DomUtils.getAttributeText(node, "enabled");
 		filePathItem.setEnabled("yes".equalsIgnoreCase(enabled));
 		String delay = DomUtils.getAttributeText(node, "delay");
@@ -276,10 +283,12 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
 				domain, "username", username, "password",
 				password == null ? null : StringUtils.base64encode(password),
-				"host", host, "withSub", withSub ? "yes" : "no", "enabled",
-				enabled ? "yes" : "no", "delay", Integer.toString(delay),
-				"swiftAuthType", swiftAuthType.name(), "swiftTenant",
-				swiftTenant, "swiftAuthURL", swiftAuthURL);
+				"host", host, "withSub", withSub ? "yes" : "no",
+				"ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no",
+				"enabled", enabled ? "yes" : "no", "delay", Integer
+						.toString(delay), "swiftAuthType",
+				swiftAuthType != null ? swiftAuthType.name() : null,
+				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL);
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();
@@ -393,5 +402,20 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	public void setSwiftAuthURL(String swiftAuthURL) {
 		this.swiftAuthURL = swiftAuthURL;
+	}
+
+	/**
+	 * @return the ignoreHiddenFiles
+	 */
+	public boolean isIgnoreHiddenFiles() {
+		return ignoreHiddenFiles;
+	}
+
+	/**
+	 * @param ignoreHiddenFiles
+	 *            the ignoreHiddenFiles to set
+	 */
+	public void setIgnoreHiddenFiles(boolean ignoreHiddenFiles) {
+		this.ignoreHiddenFiles = ignoreHiddenFiles;
 	}
 }

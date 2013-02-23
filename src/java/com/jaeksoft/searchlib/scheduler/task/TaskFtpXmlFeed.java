@@ -171,7 +171,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			ftp = new FTPClient();
 			checkConnect(ftp, server, login, password);
 			FTPFile[] files = ftp.listFiles(path,
-					new FtpFileInstance.FileOnlyDirectoryFilter());
+					new FtpFileInstance.FtpInstanceFileFilter(true, false));
 			if (files == null)
 				return;
 			// Sort by ascendant filename

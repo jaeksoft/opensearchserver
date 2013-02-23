@@ -120,9 +120,7 @@ public class FilePathEditController extends FileCrawlerController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return;
+		super.reset();
 		currentFilePath = null;
 		currentFileList = null;
 		currentFile = null;

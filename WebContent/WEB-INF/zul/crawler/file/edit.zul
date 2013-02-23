@@ -160,9 +160,14 @@
 						</listbox>
 					</row>
 					<row>
-						<label value="With sub directory: " />
+						<label value="With sub directories: " />
 						<checkbox
 							checked="@bind(filepathedit.currentFilePath.withSubDir)" />
+					</row>
+					<row>
+						<label value="Ignore hidden files: " />
+						<checkbox
+							checked="@bind(filepathedit.currentFilePath.ignoreHiddenFiles)" />
 					</row>
 					<row>
 						<label value="Delay between each access (ms): " />

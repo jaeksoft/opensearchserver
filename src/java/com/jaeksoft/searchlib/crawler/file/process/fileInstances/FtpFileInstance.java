@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -120,25 +120,28 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		return fileInstances;
 	}
 
-	public static class IgnoreHiddenFilter implements FTPFileFilter {
+	public static class FtpInstanceFileFilter implements FTPFileFilter {
+
+		private final boolean ignoreHiddenFiles;
+		private final boolean fileOnly;
+
+		public FtpInstanceFileFilter(boolean ignoreHiddenFiles, boolean fileOnly) {
+			this.ignoreHiddenFiles = ignoreHiddenFiles;
+			this.fileOnly = fileOnly;
+		}
+
 		@Override
 		public boolean accept(FTPFile ff) {
 			String name = ff.getName();
 			if (name == null)
 				return false;
-			if (name.startsWith("."))
-				return false;
+			if (ignoreHiddenFiles)
+				if (name.startsWith("."))
+					return false;
+			if (fileOnly)
+				if (ff.getType() != FTPFile.FILE_TYPE)
+					return false;
 			return true;
-		}
-	}
-
-	public static class FileOnlyDirectoryFilter extends IgnoreHiddenFilter {
-
-		@Override
-		public boolean accept(FTPFile ff) {
-			if (!super.accept(ff))
-				return false;
-			return ff.getType() == FTPFile.FILE_TYPE;
 		}
 	}
 
@@ -147,8 +150,8 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath(),
-					new FileOnlyDirectoryFilter());
+			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(
+					filePathItem.isIgnoreHiddenFiles(), true));
 			return buildFileInstanceArray(files);
 		} catch (SocketException e) {
 			throw new SearchLibException(e);
@@ -169,7 +172,8 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath(), new IgnoreHiddenFilter());
+			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(
+					filePathItem.isIgnoreHiddenFiles(), false));
 			return buildFileInstanceArray(files);
 		} catch (SocketException e) {
 			throw new SearchLibException(e);

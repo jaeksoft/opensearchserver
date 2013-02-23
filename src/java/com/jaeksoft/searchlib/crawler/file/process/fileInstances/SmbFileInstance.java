@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -145,7 +145,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			throws SearchLibException {
 		try {
 			SmbFile smbFile = getSmbFile();
-			SmbFile[] files = smbFile.listFiles();
+			SmbFile[] files = smbFile
+					.listFiles(new SmbInstanceFileFilter(false));
 			return buildFileInstanceArray(files);
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
@@ -156,11 +157,25 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		}
 	}
 
-	private class SmbFileOnlyFilter implements SmbFileFilter {
+	private class SmbInstanceFileFilter implements SmbFileFilter {
+
+		private final boolean ignoreHiddenFiles;
+		private final boolean fileOnly;
+
+		private SmbInstanceFileFilter(boolean fileOnly) {
+			this.ignoreHiddenFiles = filePathItem.isIgnoreHiddenFiles();
+			this.fileOnly = fileOnly;
+		}
 
 		@Override
-		public boolean accept(SmbFile file) throws SmbException {
-			return file.isFile();
+		public boolean accept(SmbFile f) throws SmbException {
+			if (fileOnly)
+				if (!f.isFile())
+					return false;
+			if (ignoreHiddenFiles)
+				if (f.isHidden())
+					return false;
+			return true;
 		}
 
 	}
@@ -169,7 +184,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException {
 		try {
 			SmbFile smbFile = getSmbFile();
-			SmbFile[] files = smbFile.listFiles(new SmbFileOnlyFilter());
+			SmbFile[] files = smbFile
+					.listFiles(new SmbInstanceFileFilter(true));
 			return buildFileInstanceArray(files);
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);

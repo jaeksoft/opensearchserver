@@ -89,11 +89,7 @@ public class FileInfo {
 		setUri(uri.toASCIIString());
 
 		String path = uri.getPath();
-		if (FileTypeEnum.file == fileInstance.getFileType())
-			setFileName(FilenameUtils.getName(path));
-		else
-			setFileName(FilenameUtils.getName(FilenameUtils
-					.getPathNoEndSeparator(path)));
+		setFileName(FilenameUtils.getName(path));
 		setFileExtension(FilenameUtils.getExtension(fileName));
 
 		setFileSystemDate(fileInstance.getLastModified());

@@ -91,7 +91,18 @@ public class SwiftToken {
 		if (downloadItem == null)
 			throw new SearchLibException("Authentication failed");
 
-		JSONObject json = new JSONObject(downloadItem.getContentInputStream());
+		String jsonString = downloadItem.getContentAsString();
+		JSONObject json = new JSONObject(jsonString);
+
+		if (json.has("error")) {
+			JSONObject jsonError = json.getJSONObject("error");
+			String msg = jsonError.has("message") ? jsonError
+					.getString("message") : jsonError.toString();
+			throw new SearchLibException(msg);
+		}
+
+		downloadItem.checkNoError(200, 204);
+
 		JSONObject jsonAccess = json.getJSONObject("access");
 		json = jsonAccess.getJSONObject("token");
 		authToken = json.getString("id");
@@ -103,9 +114,9 @@ public class SwiftToken {
 			String type = jsonService.getString("type");
 			String name = jsonService.getString("name");
 			if ("object-store".equals(type) && "swift".equals(name)) {
-				JSONArray jsonEndpoints = jsonAccess.getJSONArray("endpoints");
+				JSONArray jsonEndpoints = jsonService.getJSONArray("endpoints");
 				for (int j = 0; j < jsonEndpoints.length(); j++) {
-					JSONObject jsonEndpoint = jsonEndpoints.getJSONObject(i);
+					JSONObject jsonEndpoint = jsonEndpoints.getJSONObject(j);
 					intUrl = jsonEndpoint.getString("internalURL");
 					pubUrl = jsonEndpoint.getString("publicURL");
 					if (intUrl != null && pubUrl != null)
@@ -121,23 +132,26 @@ public class SwiftToken {
 	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
 			String authUrl, String username, String tenantName, String password)
 			throws JSONException, URISyntaxException, ClientProtocolException,
-			UnsupportedEncodingException, IOException {
+			UnsupportedEncodingException, IOException, IllegalStateException,
+			SearchLibException {
 		JSONObject jsonPasswordCredentials = new JSONObject();
 		jsonPasswordCredentials.put("username", username);
 		jsonPasswordCredentials.put("password", password);
 		JSONObject jsonAuth = new JSONObject();
 		jsonAuth.put("passwordCredentials", jsonPasswordCredentials);
 		jsonAuth.put("tenantName", tenantName);
-		URI uri = new URI(authUrl);
-		System.out.println(jsonAuth.toString());
-		return httpDownloader.post(uri, null,
-				new StringEntity(jsonAuth.toString(),
-						ContentType.APPLICATION_JSON));
+		JSONObject json = new JSONObject();
+		json.put("auth", jsonAuth);
+		URI uri = new URI(authUrl + "/tokens");
+		System.out.println(json.toString());
+		return httpDownloader.post(uri, null, new StringEntity(json.toString(),
+				ContentType.APPLICATION_JSON));
 	}
 
 	private DownloadItem iamRequest(HttpDownloader httpDownloader,
 			String authUrl, String username, String tenantname)
-			throws URISyntaxException, ClientProtocolException, IOException {
+			throws URISyntaxException, ClientProtocolException, IOException,
+			IllegalStateException, SearchLibException {
 		username = URLEncoder.encode(username, "UTF-8");
 		StringBuffer u = new StringBuffer(authUrl);
 		u.append("/users/");
@@ -152,11 +166,18 @@ public class SwiftToken {
 		headerList.add(new BasicHeader(X_Auth_Token, authToken));
 	}
 
-	public String getInternalURL() {
-		return internalURL;
-	}
-
-	public String getPublicURL() {
-		return publicURL;
+	public URI getURI(String path, String queryString)
+			throws URISyntaxException {
+		StringBuffer sb = new StringBuffer(internalURL != null ? internalURL
+				: publicURL);
+		if (path == null || !path.startsWith("/"))
+			sb.append('/');
+		if (path != null)
+			sb.append(path);
+		if (queryString != null) {
+			sb.append('?');
+			sb.append(queryString);
+		}
+		return new URI(sb.toString());
 	}
 }

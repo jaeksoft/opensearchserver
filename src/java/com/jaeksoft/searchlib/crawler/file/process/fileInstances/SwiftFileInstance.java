@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
@@ -37,13 +38,17 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftListObjects;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProtocol;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProtocol.ObjectMeta;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SwiftFileInstance extends FileInstanceAbstract {
 
 	private SwiftToken token;
+
+	private ObjectMeta object;
 
 	public SwiftFileInstance() {
 		super();
@@ -51,10 +56,12 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	protected SwiftFileInstance(FilePathItem filePathItem,
-			SwiftFileInstance parent, SwiftToken token, String path)
+			SwiftFileInstance parent, SwiftToken token, ObjectMeta object)
 			throws URISyntaxException, SearchLibException {
-		init(filePathItem, parent, path);
 		this.token = token;
+		this.object = object;
+		init(filePathItem, parent,
+				LinkUtils.concatPath(filePathItem.getPath(), object.path));
 	}
 
 	private void authentication(HttpDownloader downloader)
@@ -69,38 +76,39 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public URI init() throws SearchLibException, URISyntaxException {
-		return new URI("swift", filePathItem.getHost(), getPath(), null);
+		String path = getPath();
+		System.out.println("PATH: " + path);
+		if (token != null)
+			return token.getURI(getPath(), null);
+		return new URI(LinkUtils.concatPath(
+				getFilePathItem().getSwiftAuthURL(), path));
 	}
 
 	@Override
 	public FileTypeEnum getFileType() throws SearchLibException {
-		// Check if there is another kind of file
-		return FileTypeEnum.file;
+		if (object == null)
+			return FileTypeEnum.directory;
+		return object.isDirectory() ? FileTypeEnum.directory
+				: FileTypeEnum.file;
 	}
 
-	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
+	private FileInstanceAbstract[] listFiles(boolean withDirectory)
 			throws URISyntaxException, SearchLibException {
-		return listFilesOnly();
-	}
-
-	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException {
 		HttpDownloader downloader = new HttpDownloader(null, false, null);
 		try {
 			authentication(downloader);
-			SwiftListObjects swiftListObjects = new SwiftListObjects(
-					downloader, token);
-			List<String> objectList = swiftListObjects.getObjectList();
+			List<ObjectMeta> objectList = SwiftProtocol.listObjects(downloader,
+					token, getPath(), withDirectory,
+					filePathItem.isIgnoreHiddenFiles());
 			if (objectList == null)
 				return null;
+
 			FileInstanceAbstract[] files = new FileInstanceAbstract[objectList
 					.size()];
 			int i = 0;
 			FilePathItem fpi = this.getFilePathItem();
-			for (String objectName : objectList)
-				files[i++] = new SwiftFileInstance(fpi, this, token, objectName);
+			for (ObjectMeta object : objectList)
+				files[i++] = new SwiftFileInstance(fpi, this, token, object);
 			return files;
 		} catch (ClientProtocolException e) {
 			throw new SearchLibException(e);
@@ -114,31 +122,55 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
+	public FileInstanceAbstract[] listFilesAndDirectories()
+			throws URISyntaxException, SearchLibException {
+		return listFiles(true);
+	}
+
+	@Override
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
+			SearchLibException {
+		return listFiles(false);
+
+	}
+
+	@Override
 	public Long getLastModified() throws SearchLibException {
-		// TODO
-		throw new SearchLibException("To do");
+		if (object == null)
+			return null;
+		return object.lastModified;
 
 	}
 
 	@Override
 	public Long getFileSize() throws SearchLibException {
-		// TODO
-		throw new SearchLibException("To do");
-
+		if (object == null)
+			return null;
+		return object.contentLength;
 	}
 
 	@Override
 	public String getFileName() throws SearchLibException {
-		// TODO
-		throw new SearchLibException("To do");
+		if (object == null)
+			return null;
+		System.out.println("NAME: " + FilenameUtils.getName(object.path));
+		return FilenameUtils.getName(object.path);
 
 	}
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		// TODO
-		throw new IOException("To do");
-
+		HttpDownloader downloader = new HttpDownloader(null, false, null);
+		try {
+			authentication(downloader);
+			return SwiftProtocol.getObject(downloader, getFilePathItem()
+					.getPath(), token, object);
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		} catch (JSONException e) {
+			throw new IOException(e);
+		} catch (SearchLibException e) {
+			throw new IOException(e);
+		}
 	}
-
 }

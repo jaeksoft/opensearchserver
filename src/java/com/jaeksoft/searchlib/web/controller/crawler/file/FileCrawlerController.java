@@ -71,6 +71,12 @@ public class FileCrawlerController extends CrawlerController {
 		return !isFilePathSelected();
 	}
 
+	@Override
+	protected void reset() throws SearchLibException {
+		setFilePathItemEdit(null);
+		setFilePathItemSelected(null);
+	}
+
 	@GlobalCommand
 	@Override
 	public void eventEditFileRepository(

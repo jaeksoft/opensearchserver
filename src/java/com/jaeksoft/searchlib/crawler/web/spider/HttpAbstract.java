@@ -31,6 +31,8 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.net.ssl.SSLException;
 
@@ -60,6 +62,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public abstract class HttpAbstract {
@@ -179,9 +182,15 @@ public abstract class HttpAbstract {
 
 	public Long getContentLength() {
 		synchronized (this) {
-			if (httpEntity == null)
+			if (httpEntity != null)
+				return httpEntity.getContentLength();
+			Header header = httpResponse.getFirstHeader("Content-Length");
+			if (header == null)
 				return null;
-			return httpEntity.getContentLength();
+			String value = header.getValue();
+			if (value == null)
+				return null;
+			return new Long(value);
 		}
 	}
 
@@ -217,6 +226,52 @@ public abstract class HttpAbstract {
 			if (i == -1)
 				return v;
 			return v.substring(0, i);
+		}
+	}
+
+	// Sun, 06 Nov 1994 08:49:37 GMT ; RFC 822, updated by RFC 1123
+	// Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
+	// Sun Nov 6 08:49:37 1994
+
+	private final static SimpleDateFormat[] httpDatesFormat = {
+			new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z"),
+			new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss z"),
+			new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy") };
+
+	public Long getLastModified() throws SearchLibException {
+		synchronized (this) {
+			Header header = httpResponse.getFirstHeader("Last-Modified");
+			if (header == null)
+				return null;
+			String v = header.getValue();
+			if (v == null)
+				return null;
+			ParseException parseException = null;
+			for (SimpleDateFormat dateFormat : httpDatesFormat) {
+				synchronized (dateFormat) {
+					try {
+						return dateFormat.parse(v).getTime();
+					} catch (ParseException e) {
+						parseException = e;
+					}
+				}
+			}
+			if (parseException != null)
+				throw new SearchLibException(parseException);
+			return null;
+		}
+	}
+
+	public final static void main(String[] argv) {
+		for (SimpleDateFormat dateFormat : httpDatesFormat) {
+			synchronized (dateFormat) {
+				try {
+					System.out.println(dateFormat.parse(
+							"Thu, 21 Feb 2013 20:11:52 GMT").getTime());
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 

@@ -43,7 +43,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
-public class StringUtils extends org.apache.commons.lang.StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	private enum SizeUnit {
 		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE(
@@ -142,6 +142,7 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 	}
 
 	public static void main(String[] args) throws IOException {
+
 		List<String> lines = FileUtils.readLines(new File(args[0]));
 		FileWriter fw = new FileWriter(new File(args[1]));
 		PrintWriter pw = new PrintWriter(fw);
@@ -273,4 +274,5 @@ public class StringUtils extends org.apache.commons.lang.StringUtils {
 			Arrays.sort(array);
 		return array;
 	}
+
 }

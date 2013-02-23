@@ -39,6 +39,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
@@ -49,7 +50,7 @@ public class YouTube {
 
 	public static YouTubeItem getInfo(URL url, HttpDownloader httpDownloader)
 			throws MalformedURLException, IOException, URISyntaxException,
-			JSONException {
+			JSONException, IllegalStateException, SearchLibException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);
@@ -109,7 +110,8 @@ public class YouTube {
 	}
 
 	public final static void main(String[] args) throws MalformedURLException,
-			IOException, URISyntaxException, JSONException {
+			IOException, URISyntaxException, JSONException,
+			IllegalStateException, SearchLibException {
 
 		HttpDownloader downloader = new HttpDownloader("OpenSearchServer",
 				false, null);

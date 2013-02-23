@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -86,6 +86,8 @@ public class SchedulerController extends CommonController {
 
 	@Override
 	protected void reset() throws SearchLibException {
+		setJobItemEdit(null);
+		setJobItemSelected(null);
 	}
 
 }

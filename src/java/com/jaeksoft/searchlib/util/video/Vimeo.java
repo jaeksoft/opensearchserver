@@ -39,6 +39,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
@@ -51,7 +52,7 @@ public class Vimeo {
 
 	public static VimeoItem getInfo(URL url, HttpDownloader httpDownloader)
 			throws MalformedURLException, IOException, URISyntaxException,
-			JSONException {
+			JSONException, IllegalStateException, SearchLibException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);

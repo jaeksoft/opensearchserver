@@ -77,6 +77,7 @@ public class SchedulerEditController extends SchedulerController {
 
 	@Override
 	protected void reset() throws SearchLibException {
+		super.reset();
 		currentJob = null;
 		currentTask = null;
 		selectedTask = null;

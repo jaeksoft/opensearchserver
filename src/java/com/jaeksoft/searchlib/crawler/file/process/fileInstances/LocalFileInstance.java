@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,11 +38,25 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class LocalFileInstance extends FileInstanceAbstract {
 
-	private class FileOnlyFilter implements FileFilter {
+	private class LocalFileFilter implements FileFilter {
+
+		private final boolean ignoreHiddenFiles;
+		private final boolean fileOnly;
+
+		private LocalFileFilter(boolean fileOnly) {
+			this.ignoreHiddenFiles = filePathItem.isIgnoreHiddenFiles();
+			this.fileOnly = fileOnly;
+		}
 
 		@Override
 		public boolean accept(File f) {
-			return f.isFile();
+			if (fileOnly)
+				if (!f.isFile())
+					return false;
+			if (ignoreHiddenFiles)
+				if (f.isHidden())
+					return false;
+			return true;
 		}
 
 	}
@@ -93,13 +107,14 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
 			throws URISyntaxException, SearchLibException {
-		return buildFileInstanceArray(file.listFiles());
+		return buildFileInstanceArray(file
+				.listFiles(new LocalFileFilter(false)));
 	}
 
 	@Override
 	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
 			SearchLibException {
-		return buildFileInstanceArray(file.listFiles(new FileOnlyFilter()));
+		return buildFileInstanceArray(file.listFiles(new LocalFileFilter(true)));
 	}
 
 	@Override
