@@ -24,10 +24,12 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
@@ -74,6 +76,31 @@ public class LinkUtils {
 			sb.append('/');
 		sb.append(path2);
 		return sb.toString();
+	}
+
+	public final static String lastPart(String path) {
+		if (path == null)
+			return null;
+		String[] parts = StringUtils.split(path, '/');
+		if (parts == null)
+			return path;
+		if (parts.length == 0)
+			return path;
+		return parts[parts.length - 1];
+	}
+
+	public final static String UTF8_URL_Encode(String s)
+			throws UnsupportedEncodingException {
+		return URLEncoder.encode(s, "UTF-8").replace("+", "%20");
+	}
+
+	public final static void main(String[] args) {
+		System.out.println(lastPart("/my+folder/"));
+		System.out.println(lastPart("my folder/"));
+		System.out.println(lastPart("my folder/my+sub-folder/"));
+		System.out.println(lastPart("/my+file.png"));
+		System.out.println(lastPart("my+file.png"));
+		System.out.println(lastPart("my+folder/my+sub-folder/my+file.png"));
 	}
 
 }

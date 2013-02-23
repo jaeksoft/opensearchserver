@@ -40,7 +40,7 @@ public class FileSystemParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-
+		getNewParserResultItem();
 	}
 
 }

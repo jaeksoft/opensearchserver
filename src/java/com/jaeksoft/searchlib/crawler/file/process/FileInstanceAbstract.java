@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,6 +60,8 @@ public abstract class FileInstanceAbstract {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -67,14 +70,16 @@ public abstract class FileInstanceAbstract {
 
 	final protected void init(FilePathItem filePathItem,
 			FileInstanceAbstract parent, String path)
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
 		this.path = path;
 		this.uri = init();
 	}
 
-	public abstract URI init() throws SearchLibException, URISyntaxException;
+	public abstract URI init() throws SearchLibException, URISyntaxException,
+			UnsupportedEncodingException;
 
 	public URI getURI() {
 		return uri;
@@ -83,10 +88,12 @@ public abstract class FileInstanceAbstract {
 	public abstract FileTypeEnum getFileType() throws SearchLibException;
 
 	public abstract FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException;
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException;
 
 	public abstract FileInstanceAbstract[] listFilesOnly()
-			throws URISyntaxException, SearchLibException;
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException;
 
 	public abstract String getFileName() throws SearchLibException;
 
@@ -96,7 +103,8 @@ public abstract class FileInstanceAbstract {
 
 	public abstract InputStream getInputStream() throws IOException;
 
-	public boolean check() throws SearchLibException, URISyntaxException {
+	public boolean check() throws SearchLibException, URISyntaxException,
+			UnsupportedEncodingException {
 
 		FileInstanceAbstract[] files = listFilesAndDirectories();
 		if (Logging.isDebug) {

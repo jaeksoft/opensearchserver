@@ -210,8 +210,8 @@
 
 		<fields default="content" unique="uri">
 			<!-- mandatory parameters -->
-			<field name="uri" indexed="yes" stored="yes" />
-			<field name="directory" indexed="yes" stored="yes" />
+			<field name="uri" indexed="yes" stored="no" />
+			<field name="directory" indexed="yes" stored="no" />
 			<field name="subDirectory" indexed="yes" stored="no" />
 			<field name="crawlDate" indexed="yes" stored="yes" />
 			<field name="fileName" analyzer="TextAnalyzer" indexed="yes"
@@ -219,11 +219,12 @@
 			<field name="fileNamePhonetic" analyzer="PhoneticAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
 			<field name="fileNameExact" analyzer="StandardAnalyzer"
-				indexed="yes" stored="yes" />
-			<field name="fileSystemDate" indexed="yes" stored="yes" />
-			<field name="fileExtension" indexed="yes" stored="yes" />
+				indexed="yes" stored="no" />
+			<field name="fileSystemDate" indexed="yes" stored="no" />
+			<field name="fileExtension" indexed="yes" stored="no" />
+			<field name="fileType" indexed="yes" stored="no" />
 			<!-- mandatory parameters -->
-			<field name="lang" indexed="yes" stored="yes" />
+			<field name="lang" indexed="yes" stored="no" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"

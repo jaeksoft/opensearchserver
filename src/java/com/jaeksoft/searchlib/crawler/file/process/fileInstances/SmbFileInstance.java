@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -65,7 +66,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	protected SmbFileInstance(FilePathItem filePathItem,
 			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		init(filePathItem, parent,
 				LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
 		this.smbFileStore = smbFile;
@@ -125,12 +126,13 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	protected SmbFileInstance newInstance(FilePathItem filePathItem,
 			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		return new SmbFileInstance(filePathItem, parent, smbFile);
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(SmbFile[] files)
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -142,17 +144,16 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws SearchLibException {
+			throws SearchLibException, UnsupportedEncodingException,
+			URISyntaxException {
 		try {
 			SmbFile smbFile = getSmbFile();
 			SmbFile[] files = smbFile
 					.listFiles(new SmbInstanceFileFilter(false));
 			return buildFileInstanceArray(files);
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
 		} catch (SmbException e) {
 			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
+		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -181,7 +182,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException {
+	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException,
+			UnsupportedEncodingException, URISyntaxException {
 		try {
 			SmbFile smbFile = getSmbFile();
 			SmbFile[] files = smbFile
@@ -190,8 +192,6 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		} catch (SmbException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		}
 	}

@@ -51,6 +51,11 @@ titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
 				separator="..." maxSnippetSize="200" fragmenterClass="SentenceFragmenter" />
 		</snippet>
 
+		<facetFields>
+			<facetField name="fileExtension" minCount="1" multivalued="no" postCollapsing="no"/>
+			<facetField name="fileType" minCount="1" multivalued="no" postCollapsing="no"/>
+		</facetFields>
+
 	</request>
 
 </requests>

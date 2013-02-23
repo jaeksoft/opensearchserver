@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
@@ -43,6 +43,7 @@ import org.json.JSONObject;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SwiftToken {
 
@@ -91,6 +92,8 @@ public class SwiftToken {
 		if (downloadItem == null)
 			throw new SearchLibException("Authentication failed");
 
+		downloadItem.checkNoError(200, 204);
+
 		String jsonString = downloadItem.getContentAsString();
 		JSONObject json = new JSONObject(jsonString);
 
@@ -101,11 +104,10 @@ public class SwiftToken {
 			throw new SearchLibException(msg);
 		}
 
-		downloadItem.checkNoError(200, 204);
-
 		JSONObject jsonAccess = json.getJSONObject("access");
 		json = jsonAccess.getJSONObject("token");
 		authToken = json.getString("id");
+		System.out.println("X-Auth-Token: " + authToken);
 		JSONArray jsonServices = jsonAccess.getJSONArray("serviceCatalog");
 		String intUrl = null;
 		String pubUrl = null;
@@ -152,7 +154,7 @@ public class SwiftToken {
 			String authUrl, String username, String tenantname)
 			throws URISyntaxException, ClientProtocolException, IOException,
 			IllegalStateException, SearchLibException {
-		username = URLEncoder.encode(username, "UTF-8");
+		username = LinkUtils.UTF8_URL_Encode(username);
 		StringBuffer u = new StringBuffer(authUrl);
 		u.append("/users/");
 		u.append(username);
@@ -166,17 +168,29 @@ public class SwiftToken {
 		headerList.add(new BasicHeader(X_Auth_Token, authToken));
 	}
 
-	public URI getURI(String path, String queryString)
-			throws URISyntaxException {
+	public URI getURI(String container, String path, boolean prefixAndDelimiter)
+			throws URISyntaxException, UnsupportedEncodingException {
 		StringBuffer sb = new StringBuffer(internalURL != null ? internalURL
 				: publicURL);
-		if (path == null || !path.startsWith("/"))
+		if (!container.startsWith("/"))
 			sb.append('/');
-		if (path != null)
-			sb.append(path);
-		if (queryString != null) {
+		sb.append(container);
+		if (!prefixAndDelimiter && path != null && path.length() > 0) {
+			String[] paths = StringUtils.split(path, '/');
+			for (String p : paths) {
+				sb.append('/');
+				sb.append(LinkUtils.UTF8_URL_Encode(p));
+			}
+			if (path.endsWith("/"))
+				sb.append('/');
+		} else {
 			sb.append('?');
-			sb.append(queryString);
+			if (path != null && path.length() > 0) {
+				sb.append("prefix=");
+				sb.append(LinkUtils.UTF8_URL_Encode(path));
+				sb.append('&');
+			}
+			sb.append("delimiter=/&format=json");
 		}
 		return new URI(sb.toString());
 	}

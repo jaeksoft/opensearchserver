@@ -57,6 +57,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private AuthType swiftAuthType;
 	private String swiftTenant;
 	private String swiftAuthURL;
+	private String swiftContainer;
 
 	private String username;
 	private String password;
@@ -80,6 +81,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		swiftAuthType = null;
 		swiftTenant = null;
 		swiftAuthURL = null;
+		swiftContainer = null;
 	}
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
@@ -96,6 +98,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.swiftAuthType = swiftAuthType;
 		destFilePath.swiftTenant = swiftTenant;
 		destFilePath.swiftAuthURL = swiftAuthURL;
+		destFilePath.swiftContainer = swiftContainer;
 	}
 
 	/**
@@ -267,6 +270,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				"swiftTenant"));
 		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node,
 				"swiftAuthURL"));
+		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node,
+				"swiftContainer"));
 		return filePathItem;
 	}
 
@@ -288,7 +293,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				"enabled", enabled ? "yes" : "no", "delay", Integer
 						.toString(delay), "swiftAuthType",
 				swiftAuthType != null ? swiftAuthType.name() : null,
-				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL);
+				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL,
+				"swiftContainer", swiftContainer);
 		if (path != null)
 			xmlWriter.textNode(path);
 		xmlWriter.endElement();
@@ -325,6 +331,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (swiftTenant != null)
 			if ((c = swiftTenant.compareTo(fpi.swiftTenant)) != 0)
 				return c;
+		if (swiftContainer != null)
+			if ((c = swiftContainer.compareTo(fpi.swiftContainer)) != 0)
+				return c;
 		return 0;
 	}
 
@@ -344,6 +353,11 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (host != null) {
 			sb.append(host);
 		}
+		if (swiftContainer != null) {
+			if (!swiftContainer.startsWith("/"))
+				sb.append('/');
+			sb.append(swiftContainer);
+		}
 		if (path != null) {
 			if (!path.startsWith("/"))
 				sb.append('/');
@@ -353,7 +367,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	}
 
 	public boolean check() throws InstantiationException,
-			IllegalAccessException, SearchLibException, URISyntaxException {
+			IllegalAccessException, SearchLibException, URISyntaxException,
+			UnsupportedEncodingException {
 		if (Logging.isDebug)
 			Logging.debug("CHECK " + this.toString());
 		return FileInstanceAbstract.create(this, null, path).check();
@@ -417,5 +432,20 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	public void setIgnoreHiddenFiles(boolean ignoreHiddenFiles) {
 		this.ignoreHiddenFiles = ignoreHiddenFiles;
+	}
+
+	/**
+	 * @return the swiftContainer
+	 */
+	public String getSwiftContainer() {
+		return swiftContainer;
+	}
+
+	/**
+	 * @param swiftContainer
+	 *            the swiftContainer to set
+	 */
+	public void setSwiftContainer(String swiftContainer) {
+		this.swiftContainer = swiftContainer;
 	}
 }

@@ -99,6 +99,12 @@
 							</template>
 						</listbox>
 					</row>
+					<row visible="@load(filepathedit.swiftFileType)">
+						<label value="Container: " />
+						<textbox
+							value="@bind(filepathedit.currentFilePath.swiftContainer)"
+							cols="50" />
+					</row>
 					<row>
 						<label value="Path: " />
 						<textbox

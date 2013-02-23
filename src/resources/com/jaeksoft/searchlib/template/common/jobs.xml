@@ -23,5 +23,8 @@
 		<cron seconds="0" minutes="*" hours="*" dayOfMonth="*" month="*"
 			dayOfWeek="?" year="*" />
 		<task class="TaskOptimizeIndex" />
+		<task class="TaskBuildAutocompletion">
+			<property name="Buffer size">1000</property>
+		</task>
 	</job>
 </jobs>

@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,12 +47,15 @@ public class FilePathItemIterator {
 					filePathItem.isWithSubDir());
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
 		} finally {
 			lock.rl.unlock();
 		}
 	}
 
-	protected ItemIterator next() throws URISyntaxException, SearchLibException {
+	protected ItemIterator next() throws URISyntaxException,
+			SearchLibException, UnsupportedEncodingException {
 		lock.rl.lock();
 		try {
 			for (;;) {

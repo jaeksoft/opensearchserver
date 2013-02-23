@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,7 +41,8 @@ public class ItemDirectoryIterator extends ItemIterator {
 
 	protected ItemDirectoryIterator(ItemIterator parent,
 			FileInstanceAbstract fileInstance, boolean withSubDir)
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		super(parent);
 		currentPos = 0;
 		this.withSubDir = withSubDir;
@@ -62,7 +64,7 @@ public class ItemDirectoryIterator extends ItemIterator {
 
 	@Override
 	protected ItemIterator nextImpl() throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		if (currentPos >= files.length)

@@ -42,6 +42,8 @@ public class WebCrawler extends TemplateAbstract {
 
 	"webcrawler-urlfilter.xml", "webcrawler-properties.xml",
 
+	"autocompletion-properties.xml",
+
 	"renderers" + '/' + "default.xml",
 
 	"stopwords" + '/' + "English stop words",

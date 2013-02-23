@@ -28,42 +28,66 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SwiftProtocol {
 
+	private final static String APPLICATION_DIRECTORY = "application/directory";
+
+	// 2013-02-23T10:53:26.184120
+	private final static SimpleDateFormat swiftDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+
 	public static class ObjectMeta {
 
-		public final String path;
+		public final String pathName;
+		public final String name;
 		public final Long lastModified;
 		public final String contentType;
 		public final Long contentLength;
+		public final boolean isDirectory;
+		public final boolean isHidden;
 
-		private ObjectMeta(String path, DownloadItem downloadItem) {
-			this.path = path;
-			lastModified = downloadItem.getLastModified();
-			contentType = downloadItem.getContentBaseType();
-			contentLength = downloadItem.getContentLength();
-		}
-
-		public boolean isDirectory() {
-			if (contentType == null)
-				return false;
-			return "application/directory".equals(contentType);
+		private ObjectMeta(JSONObject json) throws JSONException,
+				ParseException {
+			if (json.has("subdir")) {
+				this.pathName = json.getString("subdir");
+				this.isDirectory = true;
+				this.lastModified = null;
+				this.contentLength = null;
+				this.contentType = APPLICATION_DIRECTORY;
+			} else {
+				this.pathName = json.getString("name");
+				this.contentType = json.has("content_type") ? json
+						.getString("content_type") : null;
+				this.lastModified = json.has("last_modified") ? swiftDateFormat
+						.parse(json.getString("last_modified")).getTime()
+						: null;
+				this.contentLength = json.has("bytes") ? json.getLong("bytes")
+						: null;
+				this.isDirectory = APPLICATION_DIRECTORY.equals(contentType);
+			}
+			name = LinkUtils.lastPart(pathName);
+			isHidden = name.startsWith(".");
 		}
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer(path);
+			StringBuffer sb = new StringBuffer(pathName);
 			sb.append(' ');
 			sb.append(contentType);
 			sb.append(' ');
@@ -75,48 +99,43 @@ public class SwiftProtocol {
 	}
 
 	public static List<ObjectMeta> listObjects(HttpDownloader httpDownloader,
-			SwiftToken swiftToken, String path, boolean withDirectory,
-			boolean ignoreHiddenFiles) throws URISyntaxException,
-			ClientProtocolException, IOException, SearchLibException {
+			SwiftToken swiftToken, String container, String path,
+			boolean withDirectory, boolean ignoreHiddenFiles)
+			throws URISyntaxException, ClientProtocolException, IOException,
+			SearchLibException, JSONException, ParseException {
 
 		List<Header> headerList = new ArrayList<Header>(0);
 		swiftToken.putAuthTokenHeader(headerList);
 
-		URI uri = swiftToken.getURI(path, "delimiter=/");
+		URI uri = swiftToken.getURI(container, path, true);
 		System.out.println("SwiftProtocol:listOjbects: " + uri.toString());
 		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList);
 		downloadItem.checkNoError(200, 204);
-		InputStream is = downloadItem.getContentInputStream();
-		List<String> objectPaths = IOUtils.readLines(is, "UTF-8");
-		if (path == null)
-			return null;
+
+		String jsonString = downloadItem.getContentAsString();
+		JSONArray jsonArray = new JSONArray(jsonString);
 		List<ObjectMeta> objectMetaList = new ArrayList<ObjectMeta>(0);
-		for (String objectPath : objectPaths) {
-			// Ignore path which ends with separators
-			if (objectPath.endsWith("/"))
+		for (int i = 0; i < jsonArray.length(); i++) {
+			ObjectMeta objectMeta = new ObjectMeta(jsonArray.getJSONObject(i));
+			if (ignoreHiddenFiles && objectMeta.isHidden)
 				continue;
-			if (ignoreHiddenFiles)
-				if (objectPath.startsWith("."))
-					continue;
-			uri = swiftToken.getURI(path + '/' + objectPath, null);
-			System.out.println("SwiftProtocol:metas: " + uri.toString());
-			downloadItem = httpDownloader.head(uri, null, headerList);
-			downloadItem.checkNoError(200, 204);
-			ObjectMeta objectMeta = new ObjectMeta(objectPath, downloadItem);
-			if (!withDirectory && objectMeta.isDirectory())
+			if (!withDirectory && objectMeta.isDirectory)
+				continue;
+			if (path.equals(objectMeta.pathName))
 				continue;
 			objectMetaList.add(objectMeta);
 		}
+		System.out.println("FINAL LIST SIZE: " + objectMetaList.size());
 		return objectMetaList;
 	}
 
-	public static InputStream getObject(HttpDownloader downloader, String path,
-			SwiftToken swiftToken, ObjectMeta object)
+	public static InputStream getObject(HttpDownloader downloader,
+			String container, SwiftToken swiftToken, ObjectMeta object)
 			throws URISyntaxException, ClientProtocolException,
 			IllegalStateException, IOException, SearchLibException {
 		List<Header> headerList = new ArrayList<Header>(0);
 		swiftToken.putAuthTokenHeader(headerList);
-		URI uri = swiftToken.getURI(path + '/' + object.path, null);
+		URI uri = swiftToken.getURI(container, object.pathName, false);
 		System.out.println("SwiftProtocol:get: " + uri.toString());
 		DownloadItem downloadItem = downloader.get(uri, null, headerList);
 		downloadItem.checkNoError(200, 204);

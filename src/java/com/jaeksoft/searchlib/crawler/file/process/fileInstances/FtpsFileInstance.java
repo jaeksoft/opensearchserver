@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,15 +44,16 @@ public class FtpsFileInstance extends FtpFileInstance {
 		super();
 	}
 
-	public FtpsFileInstance(FilePathItem filePathItem, FtpFileInstance parent,
-			FTPFile ftpFile) throws URISyntaxException, SearchLibException {
+	protected FtpsFileInstance(FilePathItem filePathItem,
+			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
+			SearchLibException, UnsupportedEncodingException {
 		super(filePathItem, parent, ftpFile);
 	}
 
 	@Override
 	protected FtpFileInstance newInstance(FilePathItem filePathItem,
 			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		return new FtpsFileInstance(filePathItem, parent, ftpFile);
 	}
 

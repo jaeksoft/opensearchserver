@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -69,7 +70,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 
 	private LocalFileInstance(FilePathItem filePathItem,
 			FileInstanceAbstract parent, File file) throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		init(filePathItem, parent, file.getAbsolutePath());
 		this.file = file;
 	}
@@ -94,7 +95,8 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(File[] files)
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -106,14 +108,15 @@ public class LocalFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		return buildFileInstanceArray(file
 				.listFiles(new LocalFileFilter(false)));
 	}
 
 	@Override
 	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		return buildFileInstanceArray(file.listFiles(new LocalFileFilter(true)));
 	}
 

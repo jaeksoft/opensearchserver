@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -189,7 +190,8 @@ public class FilePathEditController extends FileCrawlerController {
 
 	@Command
 	public void onCheck() throws InterruptedException, InstantiationException,
-			IllegalAccessException, SearchLibException, URISyntaxException {
+			IllegalAccessException, SearchLibException, URISyntaxException,
+			UnsupportedEncodingException {
 		if (currentFilePath == null)
 			return;
 		new AlertController("Test results: " + currentFilePath.check());

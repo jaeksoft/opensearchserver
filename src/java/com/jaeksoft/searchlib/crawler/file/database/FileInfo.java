@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileInfo {
@@ -88,8 +89,7 @@ public class FileInfo {
 		URI uri = fileInstance.getURI();
 		setUri(uri.toASCIIString());
 
-		String path = uri.getPath();
-		setFileName(FilenameUtils.getName(path));
+		setFileName(fileInstance.getFileName());
 		setFileExtension(FilenameUtils.getExtension(fileName));
 
 		setFileSystemDate(fileInstance.getLastModified());
@@ -180,7 +180,7 @@ public class FileInfo {
 	private void setUriFileNameExtension(URI uri) {
 		String path = uri.getPath();
 		setUri(uri.toASCIIString());
-		setFileName(FilenameUtils.getName(path));
+		setFileName(LinkUtils.lastPart(path));
 		setFileExtension(FilenameUtils.getExtension(fileName));
 	}
 

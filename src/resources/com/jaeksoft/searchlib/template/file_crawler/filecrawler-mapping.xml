@@ -23,10 +23,13 @@
 	<link source="fileName" target="fileName" />
 	<link source="fileName" target="fileNameExact" />
 	<link source="fileName" target="fileNamePhonetic" />
+	<link source="fileName" target="autocomplete" />
 	<link source="directory" target="directory" />
 	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
 	<link source="fileSize" target="fileSize" />
+	<link source="fileType" target="fileType" />
+	<link source="fileExtension" target="fileExtension" />
 	<link source="lang" target="lang" />
 	<link source="md5size" target="md5size" />
 	<link source="crawlDate" target="crawlDate" />

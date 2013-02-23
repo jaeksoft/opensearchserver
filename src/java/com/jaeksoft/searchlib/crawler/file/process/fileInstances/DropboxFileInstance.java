@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -57,7 +58,8 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 
 	protected DropboxFileInstance(FilePathItem filePathItem,
 			DropboxFileInstance parent, DropboxAPI.Entry dpEntry)
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		init(filePathItem, parent, dpEntry.path);
 		this.dpEntry = dpEntry;
 	}
@@ -106,7 +108,8 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException {
+			throws URISyntaxException, SearchLibException,
+			UnsupportedEncodingException {
 		try {
 			DropboxAPI<?> dbAPI = connect();
 			DropboxAPI.Entry entries = dbAPI.metadata(getPath(), 0, null, true,
@@ -131,7 +134,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException {
+			SearchLibException, UnsupportedEncodingException {
 		try {
 			DropboxAPI<WebAuthSession> dbAPI = connect();
 			DropboxAPI.Entry entries = dbAPI.metadata(getPath(), 0, null, true,
