@@ -48,10 +48,10 @@ import com.jaeksoft.searchlib.webservice.update.DocumentResult;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class SelectResult extends CommonResult {
 
-	@XmlElement
+	@XmlElement(name = "document")
 	public List<DocumentResult> documents;
 
-	@XmlElement
+	@XmlElement(name = "facet")
 	public List<FacetResult> facets;
 
 	@XmlElement

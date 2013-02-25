@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FieldValueList {
 
-	@XmlElement(name = "fieldName")
+	@XmlElement(name = "name")
 	public String fieldName;
 
 	@XmlElement(name = "value")

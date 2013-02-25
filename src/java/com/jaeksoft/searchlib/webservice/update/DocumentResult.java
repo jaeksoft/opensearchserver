@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -39,13 +40,13 @@ import com.jaeksoft.searchlib.webservice.select.SnippetValueList;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class DocumentResult {
 
-	@XmlElement(name = "pos")
+	@XmlAttribute
 	public int pos;
 
-	@XmlElement(name = "score")
+	@XmlAttribute
 	public float score;
 
-	@XmlElement(name = "collapseCount")
+	@XmlAttribute
 	public int collapseCount;
 
 	@XmlElement(name = "field")
