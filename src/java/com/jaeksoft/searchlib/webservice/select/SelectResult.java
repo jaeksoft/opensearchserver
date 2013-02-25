@@ -29,7 +29,9 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,43 +41,42 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.update.DocumentResult;
 
+@XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class SelectResult {
+public class SelectResult extends CommonResult {
 
-	@XmlElement(name = "documentResult")
-	public List<DocumentResult> documentResults;
+	@XmlElement
+	public List<DocumentResult> documents;
 
-	@XmlElement(name = "spellCheck")
-	public List<SpellChecking> spellCheck;
+	@XmlElement
+	public List<FacetResult> facets;
 
-	@XmlElement(name = "facet")
-	public List<FacetResult> facet;
-
-	@XmlElement(name = "query")
+	@XmlElement
 	public String query;
 
-	@XmlElement(name = "rows")
+	@XmlAttribute
 	public int rows;
 
-	@XmlElement(name = "start")
+	@XmlAttribute
 	public int start;
 
-	@XmlElement(name = "numFound")
+	@XmlAttribute
 	public int numFound;
 
-	@XmlElement(name = "time")
+	@XmlAttribute
 	public long time;
 
-	@XmlElement(name = "collapsedDocCount")
+	@XmlAttribute
 	public long collapsedDocCount;
 
-	@XmlElement(name = "maxScore")
+	@XmlAttribute
 	public float maxScore;
 
 	public SelectResult() {
-		documentResults = null;
+		documents = null;
 		query = null;
 		rows = 0;
 		start = 0;
@@ -83,15 +84,14 @@ public class SelectResult {
 		time = 0;
 		collapsedDocCount = 0;
 		maxScore = 0;
-
 	}
 
 	public SelectResult(AbstractResultSearch result) {
+		super(true, null);
 		try {
 			SearchRequest searchRequest = result.getRequest();
-			documentResults = new ArrayList<DocumentResult>();
-			spellCheck = new ArrayList<SpellChecking>();
-			facet = new ArrayList<FacetResult>();
+			documents = new ArrayList<DocumentResult>();
+			facets = new ArrayList<FacetResult>();
 			query = searchRequest.getQueryParsed();
 			start = searchRequest.getStart();
 			rows = searchRequest.getRows();
@@ -106,18 +106,13 @@ public class SelectResult {
 				float docScore = result.getScore(i);
 				DocumentResult documentResult = new DocumentResult(
 						resultDocument, collapseDocCount, i, docScore);
-				documentResults.add(documentResult);
+				documents.add(documentResult);
 
 			}
 
-			// TODO Add Spellcheck result
-			// if (searchRequest.getSpellCheckFieldList().size() > 0)
-			// spellCheck.add(new SpellChecking(result, searchRequest
-			// .getQueryString()));
-
 			if (searchRequest.getFacetFieldList().size() > 0)
 				for (FacetField FacetField : searchRequest.getFacetFieldList())
-					facet.add(new FacetResult(result, FacetField.getName()));
+					facets.add(new FacetResult(result, FacetField.getName()));
 
 		} catch (ParseException e) {
 			throw new WebServiceException(e);
