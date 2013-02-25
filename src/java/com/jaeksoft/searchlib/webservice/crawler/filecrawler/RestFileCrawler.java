@@ -25,13 +25,14 @@ package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @Path("/crawler/file")
@@ -85,7 +86,7 @@ public interface RestFileCrawler {
 	public CommonResult statusJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/localfile/{index}/xml")
 	public CommonResult injectLocalFileRepositoryXML(
@@ -96,7 +97,7 @@ public interface RestFileCrawler {
 			@QueryParam("enabled") Boolean enabled,
 			@QueryParam("delay") int delay);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/localfile/{index}/json")
 	public CommonResult injectLocalFileRepositoryJSON(
@@ -121,7 +122,7 @@ public interface RestFileCrawler {
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/smb/{index}/xml")
 	public CommonResult injectSmbRepositoryXML(@PathParam("index") String use,
@@ -135,7 +136,7 @@ public interface RestFileCrawler {
 			@QueryParam("password") String password,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/smb/{index}/json")
 	public CommonResult injectSmbRepositoryJSON(@PathParam("index") String use,
@@ -167,7 +168,7 @@ public interface RestFileCrawler {
 			@QueryParam("username") String username,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/ftp/{index}/xml")
 	public CommonResult injectFtpRepositoryXML(@PathParam("index") String use,
@@ -182,7 +183,7 @@ public interface RestFileCrawler {
 			@QueryParam("domain") String domain,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
-	@POST
+	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/ftp/{index}/json")
 	public CommonResult injectFtpRepositoryJSON(@PathParam("index") String use,
@@ -215,4 +216,55 @@ public interface RestFileCrawler {
 			@QueryParam("username") String username,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
+	@PUT
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("/repository/inject/swift/{index}/xml")
+	public CommonResult injectSwiftRepositoryXML(
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
+			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
+			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
+			@QueryParam("enabled") Boolean enabled,
+			@QueryParam("delay") int delay,
+			@QueryParam("username") String username,
+			@QueryParam("password") String password,
+			@QueryParam("tenant") String tenant,
+			@QueryParam("container") String container,
+			@QueryParam("authUrl") String authUrl,
+			@QueryParam("authType") AuthType authType);
+
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/repository/inject/swift/{index}/json")
+	public CommonResult injectSwiftRepositoryJSON(
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
+			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
+			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
+			@QueryParam("enabled") Boolean enabled,
+			@QueryParam("delay") int delay,
+			@QueryParam("username") String username,
+			@QueryParam("password") String password,
+			@QueryParam("tenant") String tenant,
+			@QueryParam("container") String container,
+			@QueryParam("authUrl") String authUrl,
+			@QueryParam("authType") AuthType authType);
+
+	@DELETE
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("/repository/remove/swift/{index}/xml")
+	public CommonResult removeSwiftRepositoryXML(
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
+			@QueryParam("username") String username,
+			@QueryParam("container") String container);
+
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/repository/remove/swift/{index}/json")
+	public CommonResult removeSwiftRepositoryJSON(
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
+			@QueryParam("username") String username,
+			@QueryParam("container") String container);
 }

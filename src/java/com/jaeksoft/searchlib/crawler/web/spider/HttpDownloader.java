@@ -31,9 +31,11 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -113,9 +115,35 @@ public class HttpDownloader extends HttpAbstract {
 		synchronized (this) {
 			reset();
 			HttpPost httpPost = new HttpPost(uri);
-			httpPost.setEntity(entity);
+			if (entity != null)
+				httpPost.setEntity(entity);
 			execute(httpPost, credentialItem);
 			return getDownloadItem(uri);
 		}
+	}
+
+	public DownloadItem delete(URI uri, CredentialItem credentialItem)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException {
+		synchronized (this) {
+			reset();
+			HttpDelete httpDelete = new HttpDelete(uri);
+			execute(httpDelete, credentialItem);
+			return getDownloadItem(uri);
+		}
+	}
+
+	public DownloadItem put(URI uri, CredentialItem credentialItem,
+			HttpEntity entity) throws ClientProtocolException, IOException,
+			IllegalStateException, SearchLibException {
+		synchronized (this) {
+			reset();
+			HttpPut httpPut = new HttpPut(uri);
+			if (entity != null)
+				httpPut.setEntity(entity);
+			execute(httpPut, credentialItem);
+			return getDownloadItem(uri);
+		}
+
 	}
 }

@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.webservice.index;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -36,14 +37,14 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @Path("/index")
 public interface RestIndex {
 
-	@GET
+	@POST
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/create/xml")
 	public CommonResult createIndexXML(@QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("name") String name,
 			@QueryParam("template") TemplateList template);
 
-	@GET
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/create/json")
 	public CommonResult createIndexJSON(@QueryParam("login") String login,

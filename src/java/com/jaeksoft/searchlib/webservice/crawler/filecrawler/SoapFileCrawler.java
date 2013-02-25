@@ -26,29 +26,30 @@ package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @WebService(name = "FileCrawler")
 public interface SoapFileCrawler {
 
-	public CommonResult runOnce(@WebParam(name = "use") String use,
+	public CommonResult runOnce(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult runForever(@WebParam(name = "use") String use,
+	public CommonResult runForever(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult stop(@WebParam(name = "use") String use,
+	public CommonResult stop(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult status(@WebParam(name = "use") String use,
+	public CommonResult status(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
 	public CommonResult injectLocalFileRepository(
-			@WebParam(name = "use") String use,
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "path") String filePath,
@@ -58,12 +59,13 @@ public interface SoapFileCrawler {
 			@WebParam(name = "delay") int delay);
 
 	public CommonResult removeLocalFileRepository(
-			@WebParam(name = "use") String use,
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "path") String path);
 
-	public CommonResult injectSmbRepository(@WebParam(name = "use") String use,
+	public CommonResult injectSmbRepository(
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "path") String path,
@@ -84,7 +86,8 @@ public interface SoapFileCrawler {
 			@WebParam(name = "domain") String domain,
 			@WebParam(name = "host") String host);
 
-	public CommonResult injectFtpRepository(@WebParam(name = "use") String use,
+	public CommonResult injectFtpRepository(
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "path") String filePath,
@@ -98,7 +101,8 @@ public interface SoapFileCrawler {
 			@WebParam(name = "host") String host,
 			@WebParam(name = "ssl") boolean ssl);
 
-	public CommonResult removeFtpRepository(@WebParam(name = "use") String use,
+	public CommonResult removeFtpRepository(
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "path") String path,
@@ -106,4 +110,27 @@ public interface SoapFileCrawler {
 			@WebParam(name = "host") String host,
 			@WebParam(name = "ssl") boolean ssl);
 
+	public CommonResult injectSwiftRepository(
+			@WebParam(name = "index") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String filePath,
+			@WebParam(name = "ignoreHiddenFile") Boolean ignoreHiddenFile,
+			@WebParam(name = "includeSubDirectory") Boolean withSubDirectory,
+			@WebParam(name = "enabled") Boolean enabled,
+			@WebParam(name = "delay") int delay,
+			@WebParam(name = "username") String username,
+			@WebParam(name = "password") String password,
+			@WebParam(name = "tenant") String tenant,
+			@WebParam(name = "container") String container,
+			@WebParam(name = "authUrl") String authUrl,
+			@WebParam(name = "authType") AuthType authType);
+
+	public CommonResult removeSwiftRepository(
+			@WebParam(name = "index") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "path") String path,
+			@WebParam(name = "username") String username,
+			@WebParam(name = "container") String container);
 }

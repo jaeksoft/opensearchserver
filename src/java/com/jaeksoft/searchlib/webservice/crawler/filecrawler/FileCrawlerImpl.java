@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -81,7 +82,9 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	private CommonResult injectRepository(String use, String login, String key,
 			FileInstanceType type, String path, Boolean ignoreHiddenFile,
 			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host) {
+			String username, String password, String domain, String host,
+			String swiftContainer, String swiftTenant, String swiftAuthURL,
+			AuthType swiftAuthType) {
 		try {
 			Client client = getLoggedClient(use, login, key,
 					Role.FILE_CRAWLER_EDIT_PARAMETERS);
@@ -89,6 +92,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			FilePathItem filePathItem = new FilePathItem(client);
 			filePathItem.setType(type);
 			filePathItem.setPath(path);
+			filePathItem.setIgnoreHiddenFiles(ignoreHiddenFile);
 			filePathItem.setWithSubDir(withSubDirectory);
 			filePathItem.setEnabled(enabled);
 			filePathItem.setDelay(delay);
@@ -100,6 +104,14 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 				filePathItem.setDomain(domain);
 			if (host != null)
 				filePathItem.setHost(host);
+			if (swiftContainer != null)
+				filePathItem.setSwiftContainer(swiftContainer);
+			if (swiftTenant != null)
+				filePathItem.setSwiftTenant(swiftTenant);
+			if (swiftAuthURL != null)
+				filePathItem.setSwiftAuthURL(swiftAuthURL);
+			if (swiftAuthType != null)
+				filePathItem.setSwiftAuthType(swiftAuthType);
 			FilePathManager filePathManager = client.getFilePathManager();
 			FilePathItem checkFilePathItem = filePathManager.get(filePathItem);
 			if (checkFilePathItem != null)
@@ -122,12 +134,12 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			Boolean withSubDirectory, Boolean enabled, int delay) {
 		return injectRepository(use, login, key, FileInstanceType.Local, path,
 				ignoreHiddenFile, withSubDirectory, enabled, delay, null, null,
-				null, null);
+				null, null, null, null, null, null);
 	}
 
 	private CommonResult removeFileRepository(String use, String login,
 			String key, FileInstanceType type, String path, String username,
-			String domain, String host) {
+			String domain, String host, String swiftContainer) {
 		try {
 			Client client = getLoggedClient(use, login, key,
 					Role.FILE_CRAWLER_EDIT_PARAMETERS);
@@ -141,6 +153,8 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 				filePathItem.setDomain(domain);
 			if (host != null)
 				filePathItem.setHost(host);
+			if (swiftContainer != null)
+				filePathItem.setSwiftContainer(swiftContainer);
 			FilePathManager filePathManager = client.getFilePathManager();
 			FilePathItem checkFilePathItem = filePathManager.get(filePathItem);
 			if (checkFilePathItem == null)
@@ -160,7 +174,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	public CommonResult removeLocalFileRepository(String use, String login,
 			String key, String path) {
 		return removeFileRepository(use, login, key, FileInstanceType.Local,
-				path, null, null, null);
+				path, null, null, null, null);
 	}
 
 	@Override
@@ -170,7 +184,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			String username, String password, String domain, String host) {
 		return injectRepository(use, login, key, FileInstanceType.Smb, path,
 				ignoreHiddenFile, withSubDirectory, enabled, delay, username,
-				password, domain, host);
+				password, domain, host, null, null, null, null);
 	}
 
 	@Override
@@ -178,7 +192,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			String login, String key, String path, String username,
 			String domain, String host) {
 		return removeFileRepository(use, login, key, FileInstanceType.Smb,
-				path, username, domain, host);
+				path, username, domain, host, null);
 	}
 
 	@Override
@@ -190,7 +204,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 		return injectRepository(use, login, key, ssl ? FileInstanceType.Ftps
 				: FileInstanceType.Ftp, path, ignoreHiddenFile,
 				withSubDirectory, enabled, delay, username, password, domain,
-				host);
+				host, null, null, null, null);
 	}
 
 	@Override
@@ -199,7 +213,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			String host, boolean ssl) {
 		return removeFileRepository(use, login, key,
 				ssl ? FileInstanceType.Ftps : FileInstanceType.Ftp, path,
-				username, null, host);
+				username, null, host, null);
 	}
 
 	@Override
@@ -336,5 +350,57 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	public CommonResult removeFtpRepositoryJSON(String use, String login,
 			String key, String path, String username, String host, boolean ssl) {
 		return removeFtpRepository(use, login, key, path, username, host, ssl);
+	}
+
+	@Override
+	public CommonResult injectSwiftRepository(String use, String login,
+			String key, String path, Boolean ignoreHiddenFile,
+			Boolean withSubDirectory, Boolean enabled, int delay,
+			String username, String password, String tenant, String container,
+			String authURL, AuthType authType) {
+		return injectRepository(use, login, key, FileInstanceType.Swift, path,
+				ignoreHiddenFile, withSubDirectory, enabled, delay, username,
+				password, null, null, container, tenant, authURL, authType);
+	}
+
+	@Override
+	public CommonResult injectSwiftRepositoryXML(String use, String login,
+			String key, String path, Boolean ignoreHiddenFile,
+			Boolean withSubDirectory, Boolean enabled, int delay,
+			String username, String password, String tenant, String container,
+			String authURL, AuthType authType) {
+		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile,
+				withSubDirectory, enabled, delay, username, password, tenant,
+				container, authURL, authType);
+	}
+
+	@Override
+	public CommonResult injectSwiftRepositoryJSON(String use, String login,
+			String key, String path, Boolean ignoreHiddenFile,
+			Boolean withSubDirectory, Boolean enabled, int delay,
+			String username, String password, String tenant, String container,
+			String authURL, AuthType authType) {
+		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile,
+				withSubDirectory, enabled, delay, username, password, tenant,
+				container, authURL, authType);
+	}
+
+	@Override
+	public CommonResult removeSwiftRepository(String use, String login,
+			String key, String path, String username, String container) {
+		return removeFileRepository(use, login, key, FileInstanceType.Swift,
+				path, username, null, null, container);
+	}
+
+	@Override
+	public CommonResult removeSwiftRepositoryJSON(String use, String login,
+			String key, String path, String username, String container) {
+		return removeSwiftRepository(use, login, key, path, username, container);
+	}
+
+	@Override
+	public CommonResult removeSwiftRepositoryXML(String use, String login,
+			String key, String path, String username, String container) {
+		return removeSwiftRepository(use, login, key, path, username, container);
 	}
 }
