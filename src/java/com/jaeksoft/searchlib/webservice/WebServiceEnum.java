@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.delete.DeleteImpl;
+import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
@@ -43,6 +44,8 @@ public enum WebServiceEnum {
 	Delete(DeleteImpl.class, "/delete"),
 
 	FileCrawler(FileCrawlerImpl.class, "/crawler/file"),
+
+	Index(IndexImpl.class, "/index"),
 
 	Monitor(MonitorImpl.class, "/monitor"),
 

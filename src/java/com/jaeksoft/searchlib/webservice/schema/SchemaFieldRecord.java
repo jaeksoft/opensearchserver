@@ -55,7 +55,6 @@ public class SchemaFieldRecord {
 		indexed = null;
 		stored = null;
 		termVector = null;
-
 	}
 
 	public SchemaFieldRecord(String name, String analyzer, Indexed indexed,

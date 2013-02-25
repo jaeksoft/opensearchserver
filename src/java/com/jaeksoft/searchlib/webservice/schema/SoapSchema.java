@@ -23,31 +23,14 @@
  **/
 package com.jaeksoft.searchlib.webservice.schema;
 
-import java.util.List;
-
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 
-import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService
-public interface Schema {
-	@WebResult(name = "createIndex")
-	public CommonResult createIndex(@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "indexName") String indexName,
-			@WebParam(name = "indexTemplateName") TemplateList indexTemplateName);
-
-	@WebResult(name = "deleteIndex")
-	public CommonResult deleteIndex(@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "indexName") String indexName);
-
-	@WebResult(name = "indexList")
-	public List<String> indexList(@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+@WebService(name = "Schema")
+public interface SoapSchema {
 
 	@WebResult(name = "setField")
 	public CommonResult setField(@WebParam(name = "use") String use,
@@ -74,8 +57,7 @@ public interface Schema {
 			@WebParam(name = "uniqueField") String uniqueField);
 
 	@WebResult(name = "fieldList")
-	public List<SchemaFieldRecord> getFieldList(
-			@WebParam(name = "use") String use,
+	public ResultFieldList getFieldList(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 }

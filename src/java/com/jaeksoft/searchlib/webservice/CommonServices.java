@@ -59,6 +59,16 @@ public class CommonServices {
 		return user;
 	}
 
+	protected User getLoggedAdmin(String login, String key)
+			throws SearchLibException {
+		User user = getLoggedUser(login, key);
+		if (user == null)
+			return null;
+		if (!user.isAdmin())
+			throw new WebServiceException("Not allowed");
+		return user;
+	}
+
 	protected Client getLoggedClient(String use, String login, String key,
 			Role role) {
 		try {

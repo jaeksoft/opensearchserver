@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Messagebox;
@@ -34,18 +35,30 @@ public class AlertController implements EventListener<Event> {
 
 	private final static String ALERT_TITLE = "OpenSearchServer";
 
+	private final String redirection;
+
 	public AlertController(String msg) throws InterruptedException {
 		Messagebox.show(msg, ALERT_TITLE, Messagebox.OK,
 				Messagebox.INFORMATION, this);
+		redirection = null;
+	}
+
+	public AlertController(String title, String msg, String redirection)
+			throws InterruptedException {
+		Messagebox
+				.show(msg, title, Messagebox.OK, Messagebox.INFORMATION, this);
+		this.redirection = redirection;
 	}
 
 	public AlertController(String msg, int buttons, String icon)
 			throws InterruptedException {
 		Messagebox.show(msg, ALERT_TITLE, buttons, icon, this);
+		redirection = null;
 	}
 
 	public AlertController(String msg, String icon) throws InterruptedException {
 		Messagebox.show(msg, ALERT_TITLE, Messagebox.OK, icon, this);
+		redirection = null;
 	}
 
 	@Override
@@ -73,6 +86,8 @@ public class AlertController implements EventListener<Event> {
 			onRetry();
 			break;
 		}
+		if (redirection != null)
+			Executions.getCurrent().sendRedirect(redirection);
 	}
 
 	protected void onOk() throws SearchLibException {

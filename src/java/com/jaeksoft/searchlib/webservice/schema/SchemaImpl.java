@@ -27,83 +27,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.jaeksoft.searchlib.template.TemplateAbstract;
-import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class SchemaImpl extends CommonServices implements Schema {
-
-	@Override
-	public CommonResult deleteIndex(String login, String key, String indexName) {
-		try {
-			User user = getLoggedUser(login, key);
-			ClientFactory.INSTANCE.properties.checkApi();
-			ClientCatalog.eraseIndex(user, indexName);
-			return new CommonResult(true, "Index deleted: " + indexName);
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (NamingException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		}
-	}
-
-	@Override
-	public CommonResult createIndex(String login, String key, String indexName,
-			TemplateList indexTemplateName) {
-		try {
-			User user = getLoggedUser(login, key);
-			ClientFactory.INSTANCE.properties.checkApi();
-			if (user != null && !user.isAdmin())
-				throw new WebServiceException("Not allowed");
-			TemplateAbstract template = TemplateList
-					.findTemplate(indexTemplateName.name());
-			ClientCatalog.createIndex(user, indexName, template);
-			return new CommonResult(true, "Created Index " + indexName);
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		}
-	}
-
-	@Override
-	public List<String> indexList(String login, String key) {
-		try {
-			User user = getLoggedUser(login, key);
-			ClientFactory.INSTANCE.properties.checkApi();
-			List<String> indexList = new ArrayList<String>();
-			for (ClientCatalogItem catalogItem : ClientCatalog
-					.getClientCatalog(user))
-				indexList.add(catalogItem.getIndexName());
-			return indexList;
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException(e);
-		}
-	}
+public class SchemaImpl extends CommonServices implements SoapSchema,
+		RestSchema {
 
 	@Override
 	public CommonResult setField(String use, String login, String key,
@@ -121,6 +58,18 @@ public class SchemaImpl extends CommonServices implements Schema {
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult setFieldXML(String use, String login, String key,
+			SchemaFieldRecord schemaFieldRecord) {
+		return setField(use, login, key, schemaFieldRecord);
+	}
+
+	@Override
+	public CommonResult setFieldJSON(String use, String login, String key,
+			SchemaFieldRecord schemaFieldRecord) {
+		return setField(use, login, key, schemaFieldRecord);
 	}
 
 	private void setField(Client client, SchemaFieldRecord schemaFieldRecord)
@@ -151,6 +100,18 @@ public class SchemaImpl extends CommonServices implements Schema {
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult deleteFieldXML(String use, String login, String key,
+			String deleteField) {
+		return deletefield(use, login, key, deleteField);
+	}
+
+	@Override
+	public CommonResult deleteFieldJSON(String use, String login, String key,
+			String deleteField) {
+		return deletefield(use, login, key, deleteField);
 	}
 
 	private String delete(Client client, String use, String deleteField)
@@ -186,6 +147,18 @@ public class SchemaImpl extends CommonServices implements Schema {
 	}
 
 	@Override
+	public CommonResult setDefaultFieldXML(String use, String login,
+			String key, String defaultField) {
+		return setDefaultField(use, login, key, defaultField);
+	}
+
+	@Override
+	public CommonResult setDefaultFieldJSON(String use, String login,
+			String key, String defaultField) {
+		return setDefaultField(use, login, key, defaultField);
+	}
+
+	@Override
 	public CommonResult setUniqueField(String use, String login, String key,
 			String uniqueField) {
 		try {
@@ -206,8 +179,19 @@ public class SchemaImpl extends CommonServices implements Schema {
 	}
 
 	@Override
-	public List<SchemaFieldRecord> getFieldList(String use, String login,
-			String key) {
+	public CommonResult setUniqueFieldXML(String use, String login, String key,
+			String uniqueField) {
+		return setUniqueField(use, login, key, uniqueField);
+	}
+
+	@Override
+	public CommonResult setUniqueFieldJSON(String use, String login,
+			String key, String uniqueField) {
+		return setUniqueField(use, login, key, uniqueField);
+	}
+
+	@Override
+	public ResultFieldList getFieldList(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -220,7 +204,7 @@ public class SchemaImpl extends CommonServices implements Schema {
 						schemaField.getTermVector());
 				fieldList.add(fieldListResult);
 			}
-			return fieldList;
+			return new ResultFieldList(true, fieldList);
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
@@ -228,4 +212,13 @@ public class SchemaImpl extends CommonServices implements Schema {
 		}
 	}
 
+	@Override
+	public ResultFieldList getFieldListXML(String use, String login, String key) {
+		return getFieldList(use, login, key);
+	}
+
+	@Override
+	public ResultFieldList getFieldListJSON(String use, String login, String key) {
+		return getFieldList(use, login, key);
+	}
 }

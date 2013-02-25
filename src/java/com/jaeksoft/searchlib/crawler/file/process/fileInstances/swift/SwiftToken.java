@@ -73,6 +73,7 @@ public class SwiftToken {
 	private final String internalURL;
 	private final String publicURL;
 	private final String authToken;
+	private final String username;
 
 	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
 			String username, String password, AuthType authType, String tenant)
@@ -129,6 +130,7 @@ public class SwiftToken {
 		}
 		internalURL = intUrl;
 		publicURL = pubUrl;
+		this.username = username;
 	}
 
 	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
@@ -193,5 +195,9 @@ public class SwiftToken {
 			sb.append("delimiter=/&format=json");
 		}
 		return new URI(sb.toString());
+	}
+
+	public String getUsername() {
+		return username;
 	}
 }
