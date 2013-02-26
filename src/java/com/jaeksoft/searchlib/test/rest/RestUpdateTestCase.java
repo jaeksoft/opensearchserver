@@ -9,14 +9,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
-import com.jaeksoft.searchlib.test.CommonTestCase;
-
 public class RestUpdateTestCase extends TestCase {
-	private CommonTestCase commomTestCase = null;
+	private CommonRestTestCase commonRestTestCase = null;
 
 	public RestUpdateTestCase(String name) {
 		super(name);
-		commomTestCase = new CommonTestCase();
+		commonRestTestCase = new CommonRestTestCase();
 	}
 
 	@Test
@@ -24,8 +22,8 @@ public class RestUpdateTestCase extends TestCase {
 			IOException {
 		File documents = FileUtils.toFile(this.getClass().getResource(
 				"documents.xml"));
-		int status = commomTestCase.restAPIPostFile(documents,
-				"application/xml", CommonTestCase.INDEX_API);
+		int status = commonRestTestCase.restAPIPostFile(documents,
+				"application/xml", "/update");
 		assertEquals(200, status);
 	}
 }

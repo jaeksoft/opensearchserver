@@ -4,12 +4,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.jaeksoft.searchlib.test.DeleteIndexTestCase;
-import com.jaeksoft.searchlib.test.WebTemplateTestCase;
-
 @RunWith(Suite.class)
-@SuiteClasses({ WebTemplateTestCase.class, RestUpdateTestCase.class,
-		DeleteIndexTestCase.class })
+@SuiteClasses({ RestIndexTestCase.class, RestUpdateTestCase.class,
+		RestDeleteTestCase.class })
 public class AllRestAPITests {
 
 }

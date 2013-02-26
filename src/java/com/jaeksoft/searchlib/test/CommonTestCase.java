@@ -90,18 +90,6 @@ public class CommonTestCase {
 		return httpClient.execute(put).getStatusLine().getStatusCode();
 	}
 
-	public int restAPIPostFile(File file, String contentType, String api)
-			throws IllegalStateException, IOException {
-		String url = SERVER_URL + "services/rest/" + api + "/" + INDEX_NAME
-				+ "/xml?" + "&login=" + USER_NAME + "&key=" + API_KEY;
-		HttpPost httpPost = new HttpPost(url);
-		FileEntity entity = new FileEntity(file);
-		httpPost.setEntity(entity);
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpResponse httpResponse = httpClient.execute(httpPost);
-		return httpResponse.getStatusLine().getStatusCode();
-	}
-
 	public String getHttpResponse(HttpPost httpPost, String xpath)
 			throws IllegalStateException, SAXException, IOException,
 			ParserConfigurationException, XPathExpressionException {
