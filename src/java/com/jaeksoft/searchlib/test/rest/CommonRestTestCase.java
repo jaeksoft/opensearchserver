@@ -60,7 +60,6 @@ public class CommonRestTestCase {
 	public int restAPIPostFile(File file, String contentType, String api)
 			throws IllegalStateException, IOException {
 		String url = SERVER_URL + REST_PATH + api + "/" + INDEX_NAME + "/xml";
-		System.out.println(url);
 		HttpPost httpPost = new HttpPost(url);
 		FileEntity entity = new FileEntity(file);
 		httpPost.setEntity(entity);
