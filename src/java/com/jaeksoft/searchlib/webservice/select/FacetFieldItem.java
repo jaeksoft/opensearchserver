@@ -25,29 +25,21 @@ package com.jaeksoft.searchlib.webservice.select;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-/**
- * @author Naveen
- * 
- */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FacetFieldItem {
 
-	@XmlElement(name = "content")
-	public String content;
+	final public String term;
 
-	@XmlElement(name = "count")
-	public int count;
+	final public int count;
 
 	public FacetFieldItem() {
-
-		content = null;
+		term = null;
 		count = 0;
 	}
 
-	public FacetFieldItem(int value, String field) {
-		count = value;
-		content = field;
+	public FacetFieldItem(int count, String term) {
+		this.term = term;
+		this.count = count;
 	}
 }
