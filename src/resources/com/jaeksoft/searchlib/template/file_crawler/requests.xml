@@ -42,6 +42,8 @@ titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
 		<returnFields>
 			<field name="uri" />
 			<field name="fileSystemDate" />
+			<field name="fileType" />
+			<field name="fileSize" />
 		</returnFields>
 
 		<snippet>
@@ -52,8 +54,10 @@ titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
 		</snippet>
 
 		<facetFields>
-			<facetField name="fileExtension" minCount="1" multivalued="no" postCollapsing="no"/>
-			<facetField name="fileType" minCount="1" multivalued="no" postCollapsing="no"/>
+			<facetField name="fileExtension" minCount="1" multivalued="no"
+				postCollapsing="no" />
+			<facetField name="fileType" minCount="1" multivalued="no"
+				postCollapsing="no" />
 		</facetFields>
 
 	</request>

@@ -223,6 +223,7 @@
 			<field name="fileSystemDate" indexed="yes" stored="no" />
 			<field name="fileExtension" indexed="yes" stored="no" />
 			<field name="fileType" indexed="yes" stored="no" />
+			<field name="fileSize" indexed="yes" stored="no" analyzer="LongAnalyzer" />
 			<!-- mandatory parameters -->
 			<field name="lang" indexed="yes" stored="no" />
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
