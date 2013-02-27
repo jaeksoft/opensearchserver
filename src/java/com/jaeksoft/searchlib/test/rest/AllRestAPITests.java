@@ -6,7 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RestIndexTestCase.class, RestUpdateTestCase.class,
-		RestAutocompletionTestCase.class, RestDeleteTestCase.class })
+		RestAutocompletionTestCase.class, RestSearchTestCase.class,
+		RestDeleteTestCase.class })
 public class AllRestAPITests {
 
 }

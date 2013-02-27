@@ -25,12 +25,16 @@ package com.jaeksoft.searchlib.test.rest;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -51,6 +55,21 @@ public class CommonRestTestCase {
 
 	public Response doDeleteRequest(WebClient webClient) {
 		return webClient.delete();
+	}
+
+	public URIBuilder getURIBuilder(String apiPath) {
+		String restPath = REST_PATH + apiPath;
+		URIBuilder builder = new URIBuilder();
+		builder.setScheme("http").setHost("localhost:8080").setPath(restPath);
+		return builder;
+	}
+
+	public InputStream httpGet(URIBuilder builder)
+			throws IllegalStateException, IOException, URISyntaxException {
+		HttpGet httpGet = new HttpGet(builder.build());
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpResponse httpResponse = httpClient.execute(httpGet);
+		return httpResponse.getEntity().getContent();
 	}
 
 	public Response doGetRequest(WebClient webClient) {
