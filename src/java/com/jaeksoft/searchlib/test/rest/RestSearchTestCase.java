@@ -94,6 +94,38 @@ public class RestSearchTestCase extends TestCase {
 		checkFirstDocument(selectResult, "http://www.open-search-server.com/");
 	}
 
+	@Test
+	public void testAfullSearch() throws IllegalStateException, IOException,
+			URISyntaxException, JAXBException {
+		URIBuilder builder = commonRestTestCase
+				.getURIBuilder("/select/fullsearch/"
+						+ CommonRestTestCase.INDEX_NAME + "/xml");
+		builder.addParameter("query", "*:*");
+		builder.addParameter("template", "search");
+		builder.addParameter("collapseField", "title");
+		builder.addParameter("collapseMax", "1");
+		builder.addParameter("collapseMode", "CLUSTER");
+		builder.addParameter("collapseType", "FULL");
+		builder.addParameter("facet", "titleExact");
+		System.out.println(builder.build().toString());
+		InputStream inputStream = commonRestTestCase.httpGet(builder);
+		JAXBContext context = JAXBContext.newInstance(CommonResult.class,
+				SelectResult.class);
+		Unmarshaller unmarshaller = context.createUnmarshaller();
+		SelectResult selectResult = (SelectResult) unmarshaller
+				.unmarshal(inputStream);
+		checkNumResults(selectResult, 233);
+		checkRows(selectResult, 10);
+		checkCollapseDocCount(selectResult, 186);
+		checkFirstDocument(selectResult,
+				"http://www.open-search-server.com/features/");
+		checkFacet(selectResult, 45);
+	}
+
+	public void checkFacet(SelectResult selectResult, int facets) {
+		assertEquals(facets, selectResult.facets.get(0).terms.size());
+	}
+
 	public void checkNumResults(SelectResult selectResult, int numFound) {
 		assertEquals(numFound, selectResult.numFound);
 	}
