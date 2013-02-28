@@ -48,6 +48,10 @@ public enum Role {
 
 	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop"),
 
+	SCHEDULER_EDIT("Create / edit a scheduler"),
+
+	SCHEDULER_RUN("Run a scheduler"),
+
 	MAILBOX_CRAWLER_EDIT("Index crawler: edit"),
 
 	MAILBOX_CRAWLER_EXECUTE("Index crawler: execute");
@@ -68,6 +72,8 @@ public enum Role {
 
 	public static Role[] GROUP_MAILBOX_CRAWLER = { MAILBOX_CRAWLER_EDIT,
 			MAILBOX_CRAWLER_EXECUTE };
+
+	public static Role[] GROUP_SCHEDULER = { SCHEDULER_EDIT, SCHEDULER_RUN };
 
 	private Role(String label) {
 		this.label = label;
