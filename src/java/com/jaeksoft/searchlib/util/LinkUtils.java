@@ -50,14 +50,20 @@ public class LinkUtils {
 		try {
 			href = new URL(currentURL, href).toExternalForm();
 			href = UrlFilterList.doReplace(href, urlFilterList);
-			URI normalizedURL = URI.create(href);
-			if (!removeFragment)
-				fragment = normalizedURL.getRawFragment();
+			URI uri = URI.create(href);
+			uri = uri.normalize();
 
-			return new URI(normalizedURL.getScheme(),
-					normalizedURL.getUserInfo(), normalizedURL.getHost(),
-					normalizedURL.getPort(), normalizedURL.getPath(),
-					normalizedURL.getQuery(), fragment).normalize().toURL();
+			String p = uri.getPath();
+			if (p != null)
+				if (p.contains("/./") || p.contains("/../"))
+					return null;
+
+			if (!removeFragment)
+				fragment = uri.getRawFragment();
+
+			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),
+					uri.getPort(), uri.getPath(), uri.getQuery(), fragment)
+					.normalize().toURL();
 		} catch (MalformedURLException e) {
 			Logging.info(e.getMessage());
 			return null;
