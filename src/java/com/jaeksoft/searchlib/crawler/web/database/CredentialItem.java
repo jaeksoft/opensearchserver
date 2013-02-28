@@ -28,16 +28,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.apache.http.auth.AuthSchemeRegistry;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.params.HttpParams;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -45,6 +42,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 
 public class CredentialItem {
 
@@ -251,6 +249,7 @@ public class CredentialItem {
 	}
 
 	public void setUpCredentials(HttpParams params,
+			AuthSchemeRegistry authSchemesRegistry,
 			CredentialsProvider credentialProvider) {
 		Credentials credentials = null;
 		switch (type) {
@@ -259,9 +258,7 @@ public class CredentialItem {
 					getPassword());
 			break;
 		case NTLM:
-			List<String> authpref = new ArrayList<String>();
-			authpref.add(AuthPolicy.NTLM);
-			params.setParameter(AuthPNames.TARGET_AUTH_PREF, authpref);
+			authSchemesRegistry.register("ntlm", new NTLMSchemeFactory());
 			credentials = new NTCredentials(getUsername(), getPassword(),
 					getWorkstation(), getDomain());
 			break;

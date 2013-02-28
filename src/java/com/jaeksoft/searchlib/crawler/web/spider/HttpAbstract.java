@@ -149,7 +149,7 @@ public abstract class HttpAbstract {
 			credentialProvider.clear();
 		else
 			credentialItem.setUpCredentials(httpClient.getParams(),
-					credentialProvider);
+					httpClient.getAuthSchemes(), credentialProvider);
 		httpContext = new BasicHttpContext();
 		httpResponse = httpClient.execute(httpUriRequest, httpContext);
 		if (httpResponse == null)
