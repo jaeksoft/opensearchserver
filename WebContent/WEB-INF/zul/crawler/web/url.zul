@@ -167,51 +167,57 @@
 		</template>
 		<listfoot>
 			<listfooter span="16">
-				<hbox align="center">
-					<paging id="paging" detailed="true"
-						totalSize="@load(searchUrl.totalSize)"
-						pageSize="@load(searchUrl.pageSize)"
-						activePage="@bind(searchUrl.activePage)" />
-					<label value="Line per page: " />
-					<intbox cols="3"
-						constraint="no negative, no zero, no negative"
-						value="@bind(searchUrl.pageSize)" onChange="@command('onSearch')" />
-					<space width="50px" />
-					<label value="Total record number: " />
-					<longbox readonly="true"
-						value="@bind(searchUrl.recordNumber)" />
-					<space width="50px" />
-					<listbox mold="select"
-						visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)"
-						selectedItem="@bind(searchUrl.batchCommand)"
-						disabled="@load(searchUrl.urlManager.currentTaskLogExists)">
-						<listitem label="Select an action"
-							value="nothing" selected="true" />
-						<listitem label="Export URLs" value="exportTxt" />
-						<listitem label="Export XML SiteMap"
-							value="xmlSitemap" />
-						<listitem
-							label="Set selected URLs to Unfetched (re-crawl)"
-							value="setToUnfetched" />
-						<listitem label="Delete selected URLs"
-							value="deleteUrls" />
-						<listitem label="Delete all URLs"
-							value="deleteAll" />
-						<listitem label="Optimize URL database"
-							value="optimize" />
-					</listbox>
-					<space width="10px" />
-					<button label="Go" onClick="@command('onGo')"
-						visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />
-					<image src="/images/ajax-loader.gif"
-						visible="@load(searchUrl.urlManager.currentTaskLogExists)" />
-					<label
-						visible="@load(searchUrl.urlManager.currentTaskLogExists)"
-						value="@load(searchUrl.urlManager.currentTaskLog.info)" />
-					<timer delay="5000" repeats="true"
-						onTimer="@command('onRefreshCurrentTaskLog')"
-						running="@load(searchUrl.urlManager.currentTaskLogExists)" />
-				</hbox>
+				<vbox>
+					<hbox align="center">
+						<paging id="paging" detailed="true"
+							totalSize="@load(searchUrl.totalSize)"
+							pageSize="@load(searchUrl.pageSize)"
+							activePage="@bind(searchUrl.activePage)" />
+						<space width="50px" />
+						<label value="Line per page: " />
+						<intbox cols="3"
+							constraint="no negative, no zero, no negative"
+							value="@bind(searchUrl.pageSize)"
+							onChange="@command('onSearch')" />
+						<space width="50px" />
+						<label value="Total record number: " />
+						<longbox readonly="true"
+							value="@bind(searchUrl.recordNumber)" />
+					</hbox>
+					<hbox align="center">
+						<listbox mold="select"
+							visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)"
+							selectedItem="@bind(searchUrl.batchCommand)"
+							disabled="@load(searchUrl.urlManager.currentTaskLogExists)">
+							<listitem label="Select an action"
+								value="nothing" selected="true" />
+							<listitem label="Export URLs"
+								value="exportTxt" />
+							<listitem label="Export XML SiteMap"
+								value="xmlSitemap" />
+							<listitem
+								label="Set selected URLs to Unfetched (re-crawl)"
+								value="setToUnfetched" />
+							<listitem label="Delete selected URLs"
+								value="deleteUrls" />
+							<listitem label="Delete all URLs"
+								value="deleteAll" />
+							<listitem label="Optimize URL database"
+								value="optimize" />
+						</listbox>
+						<space width="10px" />
+						<button label="Go" onClick="@command('onGo')"
+							visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />
+						<image src="/images/ajax-loader.gif"
+							visible="@load(searchUrl.urlManager.currentTaskLogExists)" />
+						<label
+							visible="@load(searchUrl.urlManager.currentTaskLogExists)"
+							value="@load(searchUrl.urlManager.currentTaskLog.info)" />
+						<timer delay="5000" repeats="true"
+							onTimer="@command('onRefreshCurrentTaskLog')"
+							running="@load(searchUrl.urlManager.currentTaskLogExists)" />
+					</hbox>
+				</vbox>
 			</listfooter>
 		</listfoot>
 	</listbox>
