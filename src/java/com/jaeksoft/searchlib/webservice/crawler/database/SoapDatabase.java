@@ -34,6 +34,6 @@ public interface SoapDatabase {
 	public CommonResult crawl(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "databaseName") String databaseName);
+			@WebParam(name = "name") String databaseName);
 
 }
