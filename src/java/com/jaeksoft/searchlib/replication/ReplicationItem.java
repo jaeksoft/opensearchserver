@@ -92,7 +92,7 @@ public class ReplicationItem extends
 		this.name = null;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
 		if (url != null && url.length() > 0)
-			setInstanceUrl(new URL(url));
+			setInstanceUrl(url);
 		setIndexName(XPathParser.getAttributeString(node, "indexName"));
 		setLogin(XPathParser.getAttributeString(node, "login"));
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
@@ -104,7 +104,7 @@ public class ReplicationItem extends
 	}
 
 	private void updateName() throws MalformedURLException {
-		String u = getInstanceUrl().toExternalForm();
+		String u = getInstanceUrl();
 		if (!u.endsWith("/"))
 			u += '/';
 		u += getIndexName();
@@ -141,10 +141,10 @@ public class ReplicationItem extends
 	 *            the instanceUrl to set
 	 * @throws MalformedURLException
 	 */
-	public void setInstanceUrl(URL instanceUrl) throws MalformedURLException {
+	public void setInstanceUrl(String url) throws MalformedURLException {
 		rwl.w.lock();
 		try {
-			this.instanceUrl = instanceUrl;
+			this.instanceUrl = new URL(url);
 			updateName();
 			this.cachedUrl = null;
 		} finally {
@@ -156,20 +156,20 @@ public class ReplicationItem extends
 	 * @return the instanceUrl
 	 * @throws MalformedURLException
 	 */
-	public URL getInstanceUrl() throws MalformedURLException {
+	public String getInstanceUrl() throws MalformedURLException {
 		rwl.r.lock();
 		try {
 			if (instanceUrl != null)
-				return instanceUrl;
+				return instanceUrl.toExternalForm();
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
 			if (instanceUrl != null)
-				return instanceUrl;
+				return instanceUrl.toExternalForm();
 			instanceUrl = new URL(CommonController.getBaseUrl().toString());
-			return instanceUrl;
+			return instanceUrl.toExternalForm();
 		} finally {
 			rwl.w.unlock();
 		}

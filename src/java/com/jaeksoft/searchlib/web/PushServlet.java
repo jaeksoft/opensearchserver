@@ -218,7 +218,7 @@ public class PushServlet extends AbstractServlet {
 
 	public static String getCachedUrl(ReplicationItem replicationItem)
 			throws UnsupportedEncodingException, MalformedURLException {
-		String url = replicationItem.getInstanceUrl().toExternalForm();
+		String url = replicationItem.getInstanceUrl();
 		String cachedUrl = url + (url.endsWith("/") ? "" : '/') + "push?use="
 				+ URLEncoder.encode(replicationItem.getIndexName(), "UTF-8");
 
