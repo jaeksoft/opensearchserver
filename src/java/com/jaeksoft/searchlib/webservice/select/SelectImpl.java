@@ -71,8 +71,8 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, ParseException, URISyntaxException,
 			InterruptedException {
-		SearchRequest searchRequest = (SearchRequest) client
-				.getNewRequest(template);
+		SearchRequest searchRequest = template != null ? (SearchRequest) client
+				.getNewRequest(template) : new SearchRequest(client);
 		searchRequest.setQueryString(query);
 		if (start != null)
 			searchRequest.setStart(start);
