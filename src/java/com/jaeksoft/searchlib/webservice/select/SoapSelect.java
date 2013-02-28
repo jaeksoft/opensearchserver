@@ -68,6 +68,7 @@ public interface SoapSelect {
 			@WebParam(name = "start") Integer start,
 			@WebParam(name = "rows") Integer rows,
 			@WebParam(name = "lang") LanguageEnum lang,
+			@WebParam(name = "operator") OperatorEnum operator,
 			@WebParam(name = "collapseField") String collapseField,
 			@WebParam(name = "collapseMax") Integer collapseMax,
 			@WebParam(name = "collapseMode") CollapseParameters.Mode collapseMode,
@@ -81,6 +82,8 @@ public interface SoapSelect {
 			@WebParam(name = "facetCollapse") List<String> facetCollapse,
 			@WebParam(name = "facetMulti") List<String> facetMulti,
 			@WebParam(name = "facetMultiCollapse") List<String> facetMultiCollapse,
+			@WebParam(name = "filterParam") List<String> filterParams,
+			@WebParam(name = "joinParam") List<String> joinParams,
 			@WebParam(name = "enableLog") Boolean enableLog,
 			@WebParam(name = "customLog") List<String> customLog);
 }

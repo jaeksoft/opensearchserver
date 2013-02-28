@@ -33,6 +33,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -137,5 +138,11 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			prefix = "";
 		addFromServlet(transaction.getParameterValues(prefix + "fq"), false);
 		addFromServlet(transaction.getParameterValues(prefix + "fqn"), true);
+	}
+
+	public void setParam(int pos, String param) throws SearchLibException {
+		if (pos < 0 || pos >= filterList.size())
+			throw new SearchLibException("Wrong filter parameter (" + pos + ")");
+		filterList.get(pos).setParam(param);
 	}
 }

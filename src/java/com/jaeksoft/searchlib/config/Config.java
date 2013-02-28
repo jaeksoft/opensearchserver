@@ -1492,7 +1492,9 @@ public abstract class Config implements ThreadFactory {
 			throws ParseException, SyntaxError, SearchLibException {
 
 		String requestName = transaction.getParameterString("qt", "search");
-		AbstractRequest request = getNewRequest(requestName);
+		AbstractRequest request = null;
+		if (requestName != null)
+			request = getNewRequest(requestName);
 		if (request == null)
 			request = new SearchRequest(this);
 		request.setFromServlet(transaction);

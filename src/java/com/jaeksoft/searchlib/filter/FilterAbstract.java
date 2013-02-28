@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -110,5 +111,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	}
 
 	public abstract void setFromServlet(ServletTransaction transaction);
+
+	public abstract void setParam(String param) throws SearchLibException;
 
 }

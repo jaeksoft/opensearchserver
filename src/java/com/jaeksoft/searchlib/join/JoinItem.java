@@ -353,4 +353,9 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			setQueryString(q);
 		filterList.addFromServlet(transaction, paramPosition + ".");
 	}
+
+	public void setParam(String param) {
+		if (param != null)
+			setQueryString(param);
+	}
 }

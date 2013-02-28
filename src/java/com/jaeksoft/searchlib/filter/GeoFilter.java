@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 import java.text.NumberFormat;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
@@ -34,6 +35,7 @@ import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -433,5 +435,18 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		q = transaction.getParameterString(pp + ".dist");
 		if (q != null)
 			setDistance(Double.parseDouble(q));
+	}
+
+	@Override
+	public void setParam(String params) throws SearchLibException {
+		String[] values = StringUtils.split(params, '|');
+		if (values == null || values.length < 2 || values.length > 3)
+			throw new SearchLibException(
+					"GeoFilter: Wrong number of parameters (" + values.length
+							+ ")");
+		setLongitude(Double.parseDouble(values[0]));
+		setLatitude(Double.parseDouble(values[1]));
+		if (values.length == 3)
+			setDistance(Double.parseDouble(values[2]));
 	}
 }

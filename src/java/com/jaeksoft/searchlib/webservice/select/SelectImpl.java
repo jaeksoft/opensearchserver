@@ -58,13 +58,14 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 
 	private SearchRequest getSearchRequest(Client client, String template,
 			String query, Integer start, Integer rows, LanguageEnum lang,
-			String collapseField, Integer collapseMax,
+			OperatorEnum operator, String collapseField, Integer collapseMax,
 			CollapseParameters.Mode collapseMode,
 			CollapseParameters.Type collapseType, List<String> filter,
 			List<String> negativeFilter, List<String> sort,
 			List<String> returnedField, List<String> snippetField,
 			List<String> facet, List<String> facetCollapse,
 			List<String> facetMulti, List<String> facetMultiCollapse,
+			List<String> filterParams, List<String> joinParams,
 			Boolean enableLog, List<String> customLog)
 			throws SearchLibException, SyntaxError, IOException,
 			InstantiationException, IllegalAccessException,
@@ -79,6 +80,8 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 			searchRequest.setRows(rows);
 		if (lang != null)
 			searchRequest.setLang(lang);
+		if (operator != null)
+			searchRequest.setDefaultOperator(operator.name());
 		if (collapseField != null && !collapseField.equals(""))
 			searchRequest.setCollapseField(collapseField);
 		if (collapseMax != null)
@@ -154,6 +157,16 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 					facetList
 							.put(FacetField.buildFacetField(value, true, true));
 		}
+		if (filterParams != null && filterParams.size() > 0) {
+			int i = 0;
+			for (String param : filterParams)
+				searchRequest.getFilterList().setParam(i++, param);
+		}
+		if (joinParams != null && joinParams.size() > 0) {
+			int i = 0;
+			for (String param : joinParams)
+				searchRequest.getJoinList().setParam(i++, param);
+		}
 
 		if (enableLog != null)
 			searchRequest.setLogReport(enableLog);
@@ -169,22 +182,24 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 	@Override
 	public SelectResult fullSearch(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, String collapseField, Integer collapseMax,
-			CollapseParameters.Mode collapseMode,
+			LanguageEnum lang, OperatorEnum operator, String collapseField,
+			Integer collapseMax, CollapseParameters.Mode collapseMode,
 			CollapseParameters.Type collapseType, List<String> filter,
 			List<String> negativeFilter, List<String> sort,
 			List<String> returnedField, List<String> snippetField,
 			List<String> facet, List<String> facetCollapse,
 			List<String> facetMulti, List<String> facetMultiCollapse,
+			List<String> filterParams, List<String> joinParams,
 			Boolean enableLog, List<String> customLog) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SearchRequest searchRequest = getSearchRequest(client, template,
-					query, start, rows, lang, collapseField, collapseMax,
-					collapseMode, collapseType, filter, negativeFilter, sort,
-					returnedField, snippetField, facet, facetCollapse,
-					facetMulti, facetMultiCollapse, enableLog, customLog);
+					query, start, rows, lang, operator, collapseField,
+					collapseMax, collapseMode, collapseType, filter,
+					negativeFilter, sort, returnedField, snippetField, facet,
+					facetCollapse, facetMulti, facetMultiCollapse,
+					filterParams, joinParams, enableLog, customLog);
 			return new SelectResult(
 					(AbstractResultSearch) client.request(searchRequest));
 		} catch (SearchLibException e) {
@@ -211,37 +226,41 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 	@Override
 	public SelectResult fullSearchXML(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, String collapseField, Integer collapseMax,
-			CollapseParameters.Mode collapseMode,
+			LanguageEnum lang, OperatorEnum operator, String collapseField,
+			Integer collapseMax, CollapseParameters.Mode collapseMode,
 			CollapseParameters.Type collapseType, List<String> filter,
 			List<String> negativeFilter, List<String> sort,
 			List<String> returnedField, List<String> snippetField,
 			List<String> facet, List<String> facetCollapse,
 			List<String> facetMulti, List<String> facetMultiCollapse,
+			List<String> filterParams, List<String> joinParams,
 			Boolean enableLog, List<String> customLog) {
 		return fullSearch(index, login, key, template, query, start, rows,
-				lang, collapseField, collapseMax, collapseMode, collapseType,
-				filter, negativeFilter, sort, returnedField, snippetField,
-				facet, facetCollapse, facetMulti, facetMultiCollapse,
-				enableLog, customLog);
+				lang, operator, collapseField, collapseMax, collapseMode,
+				collapseType, filter, negativeFilter, sort, returnedField,
+				snippetField, facet, facetCollapse, facetMulti,
+				facetMultiCollapse, filterParams, joinParams, enableLog,
+				customLog);
 	}
 
 	@Override
 	public SelectResult fullSearchJSON(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, String collapseField, Integer collapseMax,
-			CollapseParameters.Mode collapseMode,
+			LanguageEnum lang, OperatorEnum operator, String collapseField,
+			Integer collapseMax, CollapseParameters.Mode collapseMode,
 			CollapseParameters.Type collapseType, List<String> filter,
 			List<String> negativeFilter, List<String> sort,
 			List<String> returnedField, List<String> snippetField,
 			List<String> facet, List<String> facetCollapse,
 			List<String> facetMulti, List<String> facetMultiCollapse,
+			List<String> filterParams, List<String> joinParams,
 			Boolean enableLog, List<String> customLog) {
 		return fullSearch(index, login, key, template, query, start, rows,
-				lang, collapseField, collapseMax, collapseMode, collapseType,
-				filter, negativeFilter, sort, returnedField, snippetField,
-				facet, facetCollapse, facetMulti, facetMultiCollapse,
-				enableLog, customLog);
+				lang, operator, collapseField, collapseMax, collapseMode,
+				collapseType, filter, negativeFilter, sort, returnedField,
+				snippetField, facet, facetCollapse, facetMulti,
+				facetMultiCollapse, filterParams, joinParams, enableLog,
+				customLog);
 	}
 
 	@Override
@@ -249,8 +268,8 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 			String template, String query, Integer start, Integer rows,
 			LanguageEnum lang, List<String> sort, List<String> filter) {
 		return fullSearch(index, login, key, template, query, start, rows,
-				lang, null, null, null, null, filter, null, sort, null, null,
-				null, null, null, null, null, null);
+				lang, null, null, null, null, null, filter, null, sort, null,
+				null, null, null, null, null, null, null, null, null);
 	}
 
 	@Override
@@ -275,8 +294,8 @@ public class SelectImpl extends CommonServices implements SoapSelect,
 			LanguageEnum lang, List<String> sort, List<String> filter,
 			Boolean enableLog, List<String> customLog) {
 		return fullSearch(index, login, key, template, query, start, rows,
-				lang, null, null, null, null, filter, null, sort, null, null,
-				null, null, null, null, enableLog, customLog);
+				lang, null, null, null, null, null, filter, null, sort, null,
+				null, null, null, null, null, null, null, enableLog, customLog);
 	}
 
 	@Override

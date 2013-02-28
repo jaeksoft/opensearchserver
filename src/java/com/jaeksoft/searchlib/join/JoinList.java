@@ -120,4 +120,10 @@ public class JoinList implements Iterable<JoinItem> {
 			item.setFromServlet(transaction);
 	}
 
+	public void setParam(int pos, String param) throws SearchLibException {
+		if (pos < 0 || pos >= joinList.size())
+			throw new SearchLibException("Wrong join parameter (" + pos + ")");
+		joinList.get(pos).setParam(param);
+	}
+
 }

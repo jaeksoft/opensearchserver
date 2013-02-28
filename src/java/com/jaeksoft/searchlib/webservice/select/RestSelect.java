@@ -105,6 +105,7 @@ public interface RestSelect {
 			@QueryParam("start") Integer start,
 			@QueryParam("rows") Integer rows,
 			@QueryParam("lang") LanguageEnum lang,
+			@QueryParam("operator") OperatorEnum operator,
 			@QueryParam("collapseField") String collapseField,
 			@QueryParam("collapseMax") Integer collapseMax,
 			@QueryParam("collapseMode") CollapseParameters.Mode collapseMode,
@@ -118,6 +119,8 @@ public interface RestSelect {
 			@QueryParam("facetCollapse") List<String> facetCollapse,
 			@QueryParam("facetMulti") List<String> facetMulti,
 			@QueryParam("facetMultiCollapse") List<String> facetMultiCollapse,
+			@QueryParam("filterParam") List<String> filterParams,
+			@QueryParam("joinParam") List<String> joinParams,
 			@QueryParam("enableLog") Boolean enableLog,
 			@QueryParam("customLog") List<String> customLog);
 
@@ -131,6 +134,7 @@ public interface RestSelect {
 			@QueryParam("start") Integer start,
 			@QueryParam("rows") Integer rows,
 			@QueryParam("lang") LanguageEnum lang,
+			@QueryParam("operator") OperatorEnum operator,
 			@QueryParam("collapseField") String collapseField,
 			@QueryParam("collapseMax") Integer collapseMax,
 			@QueryParam("collapseMode") CollapseParameters.Mode collapseMode,
@@ -144,6 +148,8 @@ public interface RestSelect {
 			@QueryParam("facetCollapse") List<String> facetCollapse,
 			@QueryParam("facetMulti") List<String> facetMulti,
 			@QueryParam("facetMultiCollapse") List<String> facetMultiCollapse,
+			@QueryParam("filterParam") List<String> filterParams,
+			@QueryParam("joinParam") List<String> joinParams,
 			@QueryParam("enableLog") Boolean enableLog,
 			@QueryParam("customLog") List<String> customLog);
 }
