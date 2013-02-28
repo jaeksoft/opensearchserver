@@ -112,6 +112,10 @@ public abstract class AbstractManager {
 		return getCurrentTaskLog() != null;
 	}
 
+	public boolean isNoCurrentTaskLogExists() {
+		return !isCurrentTaskLogExists();
+	}
+
 	public boolean waitForTask(TaskAbstract taskAbstract, long secTimeOut)
 			throws InterruptedException {
 		long timeOut = System.currentTimeMillis() + 1000 * secTimeOut;

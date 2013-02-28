@@ -544,14 +544,8 @@ public class UrlController extends CommonController {
 	}
 
 	@Command
-	@NotifyChange("currentTaskLog")
-	public void onTimer() {
+	@NotifyChange("urlManager")
+	public void onRefreshCurrentTaskLog() {
 	}
 
-	public boolean isRefresh() throws SearchLibException {
-		UrlManager urlManager = getUrlManager();
-		if (urlManager == null)
-			return false;
-		return urlManager.isCurrentTaskLogExists();
-	}
 }

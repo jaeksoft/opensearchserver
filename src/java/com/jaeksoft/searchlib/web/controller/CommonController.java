@@ -194,7 +194,8 @@ public abstract class CommonController implements EventInterface {
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
-		Logging.debug("reload " + this);
+		if (Logging.isDebug)
+			Logging.debug("reload " + this);
 	}
 
 	@Command
