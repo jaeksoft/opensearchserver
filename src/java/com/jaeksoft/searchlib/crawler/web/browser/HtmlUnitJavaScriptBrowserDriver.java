@@ -26,12 +26,13 @@ package com.jaeksoft.searchlib.crawler.web.browser;
 
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+
 public class HtmlUnitJavaScriptBrowserDriver extends
 		BrowserDriver<HtmlUnitDriver> {
 
 	@Override
 	public HtmlUnitDriver initialize() {
-		return new HtmlUnitDriver(true);
+		return new HtmlUnitDriver(BrowserVersion.FIREFOX_10);
 	}
-
 }
