@@ -30,7 +30,10 @@ public enum BrowserDriverEnum {
 
 	FIREFOX(FirefoxBrowserDriver.class, "Firefox"),
 
-	HTML_UNIT(HtmlUnitBrowserDriver.class, "HtmlUnit"),
+	HTML_UNIT(HtmlUnitBrowserDriver.class, "HtmlUnit (Javascript disabled)"),
+
+	HTML_UNIT_JS(HtmlUnitJavaScriptBrowserDriver.class,
+			"HtmlUnit (Javascript enabled)"),
 
 	INTERNET_EXPLORER(InternetExplorerBrowserDriver.class, "Internet Exlorer"),
 

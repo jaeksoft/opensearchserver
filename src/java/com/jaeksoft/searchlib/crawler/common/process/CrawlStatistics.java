@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,8 +44,10 @@ public class CrawlStatistics {
 	private volatile long ignoredCount;
 	private volatile long urlListSize;
 	private volatile long urlCount;
+	private volatile long selectedHostListSize;
 	private volatile long newHostListSize;
 	private volatile long oldHostListSize;
+	private volatile long selectedHostCount;
 	private volatile long newHostCount;
 	private volatile long oldHostCount;
 
@@ -64,6 +66,7 @@ public class CrawlStatistics {
 			startDate = new Date(startTime);
 			oldHostListSize = 0;
 			newHostListSize = 0;
+			selectedHostListSize = 0;
 			fetchedCount = 0;
 			fromCacheCount = 0;
 			pendingDeleteCount = 0;
@@ -77,6 +80,7 @@ public class CrawlStatistics {
 			fetchRate = 0;
 			oldHostCount = 0;
 			newHostCount = 0;
+			selectedHostCount = 0;
 			urlListSize = 0;
 			urlCount = 0;
 		}
@@ -206,6 +210,14 @@ public class CrawlStatistics {
 			parent.addOldHostListSize(value);
 	}
 
+	public void addSelectedHostListSize(long value) {
+		synchronized (this) {
+			selectedHostListSize += value;
+		}
+		if (parent != null)
+			parent.addSelectedHostListSize(value);
+	}
+
 	public void incOldHostCount() {
 		synchronized (this) {
 			oldHostCount++;
@@ -222,12 +234,24 @@ public class CrawlStatistics {
 			parent.incNewHostCount();
 	}
 
+	public void incSelectedHostCount() {
+		synchronized (this) {
+			selectedHostCount++;
+		}
+		if (parent != null)
+			parent.incSelectedHostCount();
+	}
+
 	public long getOldHostListSize() {
 		return oldHostListSize;
 	}
 
 	public long getNewHostListSize() {
 		return newHostListSize;
+	}
+
+	public long getSelectedHostListSize() {
+		return selectedHostListSize;
 	}
 
 	public Date getStartDate() {
@@ -284,6 +308,10 @@ public class CrawlStatistics {
 
 	public long getNewHostCount() {
 		return newHostCount;
+	}
+
+	public long getSelectedHostCount() {
+		return selectedHostCount;
 	}
 
 	public long getUrlCount() {

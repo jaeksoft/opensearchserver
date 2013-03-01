@@ -37,6 +37,9 @@ public enum HtmlParserEnum {
 
 	HtmlUnitParser("HtmlUnit", HtmlUnitParser.class),
 
+	HtmlUnitJSParser("HtmlUnit (with Javascript)",
+			HtmlUnitJavaScriptParser.class),
+
 	HtmlCleanerParser("HtmlCleaner", HtmlCleanerParser.class),
 
 	JSoupParser("Jsoup", JSoupParser.class),

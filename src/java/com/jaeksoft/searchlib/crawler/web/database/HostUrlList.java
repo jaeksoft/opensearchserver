@@ -40,7 +40,9 @@ public class HostUrlList {
 
 		MANUAL("manual"),
 
-		DBCRAWL("dbcrawl");
+		DBCRAWL("dbcrawl"),
+
+		URL_MANAGER("urlmanager");
 
 		private String label;
 

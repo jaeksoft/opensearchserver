@@ -35,23 +35,13 @@
 					<space width="20px" />
 					<label value="Commands: " />
 					<listbox mold="select"
+						model="@load(searchUrl.batchCommandEnum)"
 						visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)"
 						selectedItem="@bind(searchUrl.batchCommand)"
 						disabled="@load(searchUrl.urlManager.currentTaskLogExists)">
-						<listitem label="Select an action"
-							value="nothing" selected="true" />
-						<listitem label="Export URLs" value="exportTxt" />
-						<listitem label="Export XML SiteMap"
-							value="xmlSitemap" />
-						<listitem
-							label="Set selected URLs to Unfetched (re-crawl)"
-							value="setToUnfetched" />
-						<listitem label="Delete selected URLs"
-							value="deleteUrls" />
-						<listitem label="Delete all URLs"
-							value="deleteAll" />
-						<listitem label="Optimize URL database"
-							value="optimize" />
+						<template name="model" var="command">
+							<listitem label="@load(command.label)" />
+						</template>
 					</listbox>
 					<button label="Go" onClick="@command('onGo')"
 						visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />

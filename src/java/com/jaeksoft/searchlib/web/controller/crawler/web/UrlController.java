@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
@@ -56,13 +57,42 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class UrlController extends CommonController {
 
+	public static enum BatchCommandEnum {
+
+		NOTHING("Select an action"),
+
+		EXPORT_TXT("Export URLs"),
+
+		XML_SITEMAP("Export XML SiteMap"),
+
+		SET_TO_UNFETCHED("Set selected URLs to Unfetched"),
+
+		CRAWL_SELECTION("Crawl selected URLs"),
+
+		DELETE_URL("Delete selected URLs"),
+
+		OPTIMIZE("Optimize URL database"),
+
+		DELETE_ALL("Delete all URLs");
+
+		private final String label;
+
+		private BatchCommandEnum(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
+
 	private transient List<UrlItem> urlList;
 
 	private transient int totalSize;
 
 	private transient int activePage;
 
-	private transient String batchCommand;
+	private transient BatchCommandEnum batchCommand;
 
 	public UrlController() throws SearchLibException {
 		super();
@@ -73,6 +103,7 @@ public class UrlController extends CommonController {
 		urlList = null;
 		totalSize = 0;
 		activePage = 0;
+		batchCommand = BatchCommandEnum.NOTHING;
 	}
 
 	public int getActivePage() {
@@ -480,6 +511,18 @@ public class UrlController extends CommonController {
 		}
 	}
 
+	public void onCrawlSelected() throws SearchLibException,
+			InterruptedException {
+		synchronized (this) {
+			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
+			WebCrawlMaster crawlMaster = getClient().getWebCrawlMaster();
+			crawlMaster.start(searchRequest);
+			if (!crawlMaster.waitForStart(120))
+				throw new SearchLibException("Not started after 120 seconds");
+
+		}
+	}
+
 	public void onDeleteURLs() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
@@ -506,12 +549,16 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	public String getBatchCommand() {
+	public BatchCommandEnum getBatchCommand() {
 		return batchCommand;
 	}
 
-	public void setBatchCommand(String batchCommand) {
+	public void setBatchCommand(BatchCommandEnum batchCommand) {
 		this.batchCommand = batchCommand;
+	}
+
+	public BatchCommandEnum[] getBatchCommandEnum() {
+		return BatchCommandEnum.values();
 	}
 
 	@Command
@@ -526,19 +573,34 @@ public class UrlController extends CommonController {
 				new AlertController("Please stop the Web crawler first.");
 				return;
 			}
-			if ("exportTxt".equalsIgnoreCase(batchCommand))
+			if (batchCommand == null)
+				return;
+			switch (batchCommand) {
+			case NOTHING:
+				break;
+			case EXPORT_TXT:
 				onExportURLs();
-			else if ("xmlSitemap".equalsIgnoreCase(batchCommand))
+				break;
+			case XML_SITEMAP:
 				onExportSiteMap();
-			else if ("setToUnfetched".equalsIgnoreCase(batchCommand))
+				break;
+			case SET_TO_UNFETCHED:
 				onSetToUnfetched();
-			else if ("deleteUrls".equalsIgnoreCase(batchCommand))
+				break;
+			case CRAWL_SELECTION:
+				onCrawlSelected();
+				break;
+			case DELETE_URL:
 				onDeleteURLs();
-			else if ("optimize".equalsIgnoreCase(batchCommand))
+				break;
+			case OPTIMIZE:
 				onOptimize();
-			else if ("deleteAll".equalsIgnoreCase(batchCommand))
+				break;
+			case DELETE_ALL:
 				onDeleteAll();
-			batchCommand = null;
+				break;
+			}
+			batchCommand = BatchCommandEnum.NOTHING;
 			reload();
 		}
 	}

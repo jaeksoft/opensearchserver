@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -261,6 +262,12 @@ public class UrlManager extends AbstractManager {
 			throw new SearchLibException(e);
 		}
 		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
+	}
+
+	public void getSelectedHostToFetch(SearchRequest selectedSearchRequest,
+			LinkedList<NamedItem> selectedHostList) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
@@ -872,6 +879,12 @@ public class UrlManager extends AbstractManager {
 			}
 		}
 		updateUrlItems(urlItems);
+	}
+
+	public void getSelectedUtlToFetch(NamedItem host,
+			SearchRequest selectedSearchRequest, List<UrlItem> urlList) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

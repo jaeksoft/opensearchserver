@@ -55,14 +55,19 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class WebCrawlMaster extends
 		CrawlMasterAbstract<WebCrawlMaster, WebCrawlThread> {
 
+	private final LinkedList<NamedItem> selectedHostList;
+
 	private final LinkedList<NamedItem> oldHostList;
 
 	private final LinkedList<NamedItem> newHostList;
+
+	private SearchRequest selectedSearchRequest = null;
 
 	private Date fetchIntervalDate;
 
@@ -78,6 +83,7 @@ public class WebCrawlMaster extends
 		urlCrawlQueue = new UrlCrawlQueue(config, propertyManager);
 		oldHostList = new LinkedList<NamedItem>();
 		newHostList = new LinkedList<NamedItem>();
+		selectedHostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
 			start(false);
@@ -106,7 +112,11 @@ public class WebCrawlMaster extends
 			synchronized (oldHostList) {
 				oldHostList.clear();
 			}
-			extractSiteMapList();
+			synchronized (selectedHostList) {
+				selectedHostList.clear();
+			}
+			if (selectedSearchRequest == null)
+				extractSiteMapList();
 			extractHostList();
 
 			while (!isAborted()) {
@@ -153,6 +163,20 @@ public class WebCrawlMaster extends
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
+	@Override
+	public void start(boolean runOnce) {
+		selectedSearchRequest = null;
+		super.start(runOnce);
+	}
+
+	public void start(SearchRequest selectedSearchRequest)
+			throws SearchLibException {
+		if (super.isRunning())
+			throw new SearchLibException("Already running");
+		this.selectedSearchRequest = selectedSearchRequest;
+		super.start(true);
+	}
+
 	private void extractHostList() throws IOException, ParseException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException,
@@ -162,16 +186,22 @@ public class WebCrawlMaster extends
 		setStatus(CrawlStatus.OPTIMIZATION);
 		urlManager.reload(true, null);
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
-		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		fetchIntervalDate = AbstractManager.getPastDate(propertyManager
-				.getFetchInterval().getValue(), propertyManager
-				.getFetchIntervalUnit().getValue());
-		urlManager.getOldHostToFetch(fetchIntervalDate, maxUrlPerSession,
-				oldHostList);
-		currentStats.addOldHostListSize(oldHostList.size());
-		urlManager.getNewHostToFetch(fetchIntervalDate, maxUrlPerSession,
-				newHostList);
-		currentStats.addNewHostListSize(newHostList.size());
+		if (selectedSearchRequest == null) {
+			WebPropertyManager propertyManager = config.getWebPropertyManager();
+			fetchIntervalDate = AbstractManager.getPastDate(propertyManager
+					.getFetchInterval().getValue(), propertyManager
+					.getFetchIntervalUnit().getValue());
+			urlManager.getOldHostToFetch(fetchIntervalDate, maxUrlPerSession,
+					oldHostList);
+			currentStats.addOldHostListSize(oldHostList.size());
+			urlManager.getNewHostToFetch(fetchIntervalDate, maxUrlPerSession,
+					newHostList);
+			currentStats.addNewHostListSize(newHostList.size());
+		} else {
+			urlManager.getSelectedHostToFetch(selectedSearchRequest,
+					selectedHostList);
+			currentStats.addSelectedHostListSize(selectedHostList.size());
+		}
 	}
 
 	private void extractSiteMapList() throws SearchLibException {
@@ -260,6 +290,10 @@ public class WebCrawlMaster extends
 			hostUrlList.setListType(ListType.NEW_URL);
 			urlManager
 					.getNewUrlToFetch(host, fetchIntervalDate, count, urlList);
+		} else if (host.getList() == selectedHostList) {
+			hostUrlList.setListType(ListType.URL_MANAGER);
+			urlManager.getSelectedUtlToFetch(host, selectedSearchRequest,
+					urlList);
 		}
 		setInfo(null);
 		return hostUrlList;
