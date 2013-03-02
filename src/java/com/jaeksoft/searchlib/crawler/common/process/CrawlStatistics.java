@@ -44,12 +44,8 @@ public class CrawlStatistics {
 	private volatile long ignoredCount;
 	private volatile long urlListSize;
 	private volatile long urlCount;
-	private volatile long selectedHostListSize;
-	private volatile long newHostListSize;
-	private volatile long oldHostListSize;
-	private volatile long selectedHostCount;
-	private volatile long newHostCount;
-	private volatile long oldHostCount;
+	private volatile long hostListSize;
+	private volatile long hostCount;
 
 	public CrawlStatistics() {
 		this(null);
@@ -64,9 +60,7 @@ public class CrawlStatistics {
 		synchronized (this) {
 			startTime = System.currentTimeMillis();
 			startDate = new Date(startTime);
-			oldHostListSize = 0;
-			newHostListSize = 0;
-			selectedHostListSize = 0;
+			hostListSize = 0;
 			fetchedCount = 0;
 			fromCacheCount = 0;
 			pendingDeleteCount = 0;
@@ -78,9 +72,7 @@ public class CrawlStatistics {
 			newUrlCount = 0;
 			ignoredCount = 0;
 			fetchRate = 0;
-			oldHostCount = 0;
-			newHostCount = 0;
-			selectedHostCount = 0;
+			hostCount = 0;
 			urlListSize = 0;
 			urlCount = 0;
 		}
@@ -194,64 +186,24 @@ public class CrawlStatistics {
 			parent.incUrlCount();
 	}
 
-	public void addNewHostListSize(long value) {
+	public void addHostListSize(long value) {
 		synchronized (this) {
-			newHostListSize += value;
+			hostListSize += value;
 		}
 		if (parent != null)
-			parent.addNewHostListSize(value);
+			parent.addHostListSize(value);
 	}
 
-	public void addOldHostListSize(long value) {
+	public void incHostCount() {
 		synchronized (this) {
-			oldHostListSize += value;
+			hostCount++;
 		}
 		if (parent != null)
-			parent.addOldHostListSize(value);
+			parent.incHostCount();
 	}
 
-	public void addSelectedHostListSize(long value) {
-		synchronized (this) {
-			selectedHostListSize += value;
-		}
-		if (parent != null)
-			parent.addSelectedHostListSize(value);
-	}
-
-	public void incOldHostCount() {
-		synchronized (this) {
-			oldHostCount++;
-		}
-		if (parent != null)
-			parent.incOldHostCount();
-	}
-
-	public void incNewHostCount() {
-		synchronized (this) {
-			newHostCount++;
-		}
-		if (parent != null)
-			parent.incNewHostCount();
-	}
-
-	public void incSelectedHostCount() {
-		synchronized (this) {
-			selectedHostCount++;
-		}
-		if (parent != null)
-			parent.incSelectedHostCount();
-	}
-
-	public long getOldHostListSize() {
-		return oldHostListSize;
-	}
-
-	public long getNewHostListSize() {
-		return newHostListSize;
-	}
-
-	public long getSelectedHostListSize() {
-		return selectedHostListSize;
+	public long getHostListSize() {
+		return hostListSize;
 	}
 
 	public Date getStartDate() {
@@ -302,16 +254,8 @@ public class CrawlStatistics {
 		return ignoredCount;
 	}
 
-	public long getOldHostCount() {
-		return oldHostCount;
-	}
-
-	public long getNewHostCount() {
-		return newHostCount;
-	}
-
-	public long getSelectedHostCount() {
-		return selectedHostCount;
+	public long getHostCount() {
+		return hostCount;
 	}
 
 	public long getUrlCount() {

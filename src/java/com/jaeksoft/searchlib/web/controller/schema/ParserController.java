@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.parser.ParserFieldMap;
 import com.jaeksoft.searchlib.parser.ParserFieldTarget;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.parser.ParserType;
+import com.jaeksoft.searchlib.parser.ParserTypeEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -169,7 +170,16 @@ public class ParserController extends CommonController {
 	}
 
 	public List<ParserType> getParserTypeList() throws SearchLibException {
-		return getClient().getParserSelector().getParserTypeEnum().getList();
+		Client client = getClient();
+		if (client == null)
+			return null;
+		ParserSelector parserSelector = client.getParserSelector();
+		if (parserSelector == null)
+			return null;
+		ParserTypeEnum parterTypeEnum = parserSelector.getParserTypeEnum();
+		if (parterTypeEnum == null)
+			return null;
+		return parterTypeEnum.getList();
 	}
 
 	public void setSelectedParser(ParserFactory parser)

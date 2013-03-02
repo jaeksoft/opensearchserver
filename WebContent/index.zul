@@ -25,12 +25,9 @@
 			<toolbarbutton visible="@bind(index.logged)"
 				label=" (logout)" onClick="@command('onLogout')" />
 			<space width="50px" />
-			<toolbarbutton label="Visit the OSS web site"
-				target="_blank" href="http://www.open-search-server.com" />
-			<space width="10px" />
-			<toolbarbutton label="Documentation" target="_blank"
-				href="http://www.open-search-server.com/documentation" />
+			<include src="toolbar.zul" />
 		</hbox>
 	</caption>
-	<include src="@bind(index.currentPage)" />
+	<include visible="@load(index.logged)"
+		src="WEB-INF/zul/controlpanel.zul" />
 </window>

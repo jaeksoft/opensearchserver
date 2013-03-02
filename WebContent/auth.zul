@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,33 +14,20 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="normal" title="Login"
-	apply="com.jaeksoft.searchlib.web.controller.LoginComposer">
-	<vbox align="center" width="100%">
-		<grid width="500px" fixedLayout="true">
-			<columns>
-				<column width="120px" align="right" />
-				<column />
-			</columns>
-			<rows>
-				<row>
-					<label value="Login: " />
-					<textbox id="login" name="login" cols="40" />
-				</row>
-				<row>
-					<label value="
-						Password: " />
-					<textbox id="password" name="password" cols="16"
-						type="password" />
-				</row>
-			</rows>
-			<foot>
-				<footer span="2">
-					<vbox width="100%" align="center">
-						<button id="submit" label="Login" />
-					</vbox>
-				</footer>
-			</foot>
-		</grid>
-	</vbox>
+<window border="normal">
+	<caption image="images/oss_logo_32.png"
+		label="OpenSearchServer - Authentication error">
+		<include src="toolbar.zul" />
+	</caption>
+	<panel title="Authentication error" border="normal">
+		<panelchildren>
+			<vbox align="center" width="100%">
+				<separator />
+				<label value="The authentication failed" />
+				<separator />
+				<button href="/" label="Retry" />
+				<separator />
+			</vbox>
+		</panelchildren>
+	</panel>
 </window>

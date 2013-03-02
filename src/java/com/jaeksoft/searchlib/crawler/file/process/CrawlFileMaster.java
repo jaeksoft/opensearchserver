@@ -130,7 +130,7 @@ public class CrawlFileMaster extends
 		FilePathManager filePathManager = config.getFilePathManager();
 
 		filePathManager.getFilePathsToFetch(filePathList);
-		currentStats.addOldHostListSize(filePathList.size());
+		currentStats.addHostListSize(filePathList.size());
 	}
 
 	private FilePathItem getNextFilePathItem() {
@@ -141,7 +141,7 @@ public class CrawlFileMaster extends
 			FilePathItem filePathItem = filePathList.remove(0);
 			if (filePathItem == null)
 				return null;
-			currentStats.incNewHostCount();
+			currentStats.incHostCount();
 			return filePathItem;
 		}
 	}

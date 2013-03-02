@@ -24,13 +24,33 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.zk.ui.Executions;
+
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 
 public class IndexController extends CommonController {
 
-	public IndexController() throws SearchLibException {
+	public IndexController() throws SearchLibException, InterruptedException {
 		super();
+		if (isLogged())
+			return;
+		String username = getExecutionParameter("username");
+		String password = getExecutionParameter("password");
+		if (username != null && password != null) {
+			User user = ClientCatalog.authenticate(username, password);
+			if (user != null) {
+				getSession().setAttribute(ScopeAttribute.LOGGED_USER.name(),
+						user);
+				return;
+			}
+			Thread.sleep(2000);
+			Executions.sendRedirect("/auth.zul");
+			return;
+		}
+		Executions.sendRedirect("/login.html");
 	}
 
 	@Override

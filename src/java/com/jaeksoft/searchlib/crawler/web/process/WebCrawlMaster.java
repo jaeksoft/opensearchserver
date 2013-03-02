@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
@@ -55,21 +56,35 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
 public class WebCrawlMaster extends
 		CrawlMasterAbstract<WebCrawlMaster, WebCrawlThread> {
 
-	private final LinkedList<NamedItem> selectedHostList;
-
-	private final LinkedList<NamedItem> oldHostList;
-
-	private final LinkedList<NamedItem> newHostList;
-
-	private SearchRequest selectedSearchRequest = null;
+	private final LinkedList<NamedItem> hostList;
 
 	private Date fetchIntervalDate;
+
+	public class Selection {
+
+		private final ListType listType;
+
+		private final Date beforeDate;
+
+		private final Date afterDate;
+
+		private final FetchStatus fetchStatus;
+
+		public Selection(ListType listType, FetchStatus fetchStatus,
+				Date beforeDate, Date afterDate) {
+			this.listType = listType;
+			this.fetchStatus = fetchStatus;
+			this.beforeDate = beforeDate;
+			this.afterDate = afterDate;
+		}
+	}
+
+	private Selection selection;
 
 	private int maxUrlPerSession;
 
@@ -81,9 +96,7 @@ public class WebCrawlMaster extends
 		super(config);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config, propertyManager);
-		oldHostList = new LinkedList<NamedItem>();
-		newHostList = new LinkedList<NamedItem>();
-		selectedHostList = new LinkedList<NamedItem>();
+		hostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
 			start(false);
@@ -106,17 +119,11 @@ public class WebCrawlMaster extends
 			String schedulerJobName = propertyManager
 					.getSchedulerAfterSession().getValue();
 
-			synchronized (newHostList) {
-				newHostList.clear();
+			synchronized (hostList) {
+				hostList.clear();
 			}
-			synchronized (oldHostList) {
-				oldHostList.clear();
-			}
-			synchronized (selectedHostList) {
-				selectedHostList.clear();
-			}
-			if (selectedSearchRequest == null)
-				extractSiteMapList();
+
+			extractSiteMapList();
 			extractHostList();
 
 			while (!isAborted()) {
@@ -163,20 +170,6 @@ public class WebCrawlMaster extends
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	@Override
-	public void start(boolean runOnce) {
-		selectedSearchRequest = null;
-		super.start(runOnce);
-	}
-
-	public void start(SearchRequest selectedSearchRequest)
-			throws SearchLibException {
-		if (super.isRunning())
-			throw new SearchLibException("Already running");
-		this.selectedSearchRequest = selectedSearchRequest;
-		super.start(true);
-	}
-
 	private void extractHostList() throws IOException, ParseException,
 			SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException,
@@ -186,22 +179,37 @@ public class WebCrawlMaster extends
 		setStatus(CrawlStatus.OPTIMIZATION);
 		urlManager.reload(true, null);
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
-		if (selectedSearchRequest == null) {
-			WebPropertyManager propertyManager = config.getWebPropertyManager();
-			fetchIntervalDate = AbstractManager.getPastDate(propertyManager
-					.getFetchInterval().getValue(), propertyManager
-					.getFetchIntervalUnit().getValue());
-			urlManager.getOldHostToFetch(fetchIntervalDate, maxUrlPerSession,
-					oldHostList);
-			currentStats.addOldHostListSize(oldHostList.size());
-			urlManager.getNewHostToFetch(fetchIntervalDate, maxUrlPerSession,
-					newHostList);
-			currentStats.addNewHostListSize(newHostList.size());
-		} else {
-			urlManager.getSelectedHostToFetch(selectedSearchRequest,
-					selectedHostList);
-			currentStats.addSelectedHostListSize(selectedHostList.size());
+
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		fetchIntervalDate = AbstractManager.getPastDate(propertyManager
+				.getFetchInterval().getValue(), propertyManager
+				.getFetchIntervalUnit().getValue());
+
+		// First try fetch priority
+		selection = new Selection(ListType.PRIORITY_URL,
+				FetchStatus.FETCH_FIRST, null, null);
+		urlManager.getHostToFetch(selection.fetchStatus, selection.beforeDate,
+				selection.afterDate, maxUrlPerSession, hostList);
+
+		// Second try old URLs
+		if (hostList.size() == 0) {
+			selection = new Selection(ListType.OLD_URL, null,
+					fetchIntervalDate, null);
+			urlManager.getHostToFetch(selection.fetchStatus,
+					selection.beforeDate, selection.afterDate,
+					maxUrlPerSession, hostList);
 		}
+
+		// Finally try new unfetched URLs
+		if (hostList.size() == 0) {
+			selection = new Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED,
+					null, fetchIntervalDate);
+			urlManager.getHostToFetch(selection.fetchStatus,
+					selection.beforeDate, selection.afterDate,
+					maxUrlPerSession, hostList);
+		}
+		currentStats.addHostListSize(hostList.size());
+
 	}
 
 	private void extractSiteMapList() throws SearchLibException {
@@ -233,24 +241,13 @@ public class WebCrawlMaster extends
 	}
 
 	private NamedItem getNextHost() {
-		synchronized (oldHostList) {
-			int s = oldHostList.size();
+		synchronized (hostList) {
+			int s = hostList.size();
 			if (s > 0) {
-				NamedItem host = oldHostList.remove(new Random().nextInt(s));
+				NamedItem host = hostList.remove(new Random().nextInt(s));
 				if (host != null) {
-					host.setList(oldHostList);
-					currentStats.incOldHostCount();
-					return host;
-				}
-			}
-		}
-		synchronized (newHostList) {
-			int s = newHostList.size();
-			if (s > 0) {
-				NamedItem host = newHostList.remove(new Random().nextInt(s));
-				if (host != null) {
-					host.setList(newHostList);
-					currentStats.incNewHostCount();
+					host.setList(hostList);
+					currentStats.incHostCount();
 					return host;
 				}
 			}
@@ -282,19 +279,9 @@ public class WebCrawlMaster extends
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);
-		if (host.getList() == oldHostList) {
-			hostUrlList.setListType(ListType.OLD_URL);
-			urlManager
-					.getOldUrlToFetch(host, fetchIntervalDate, count, urlList);
-		} else if (host.getList() == newHostList) {
-			hostUrlList.setListType(ListType.NEW_URL);
-			urlManager
-					.getNewUrlToFetch(host, fetchIntervalDate, count, urlList);
-		} else if (host.getList() == selectedHostList) {
-			hostUrlList.setListType(ListType.URL_MANAGER);
-			urlManager.getSelectedUtlToFetch(host, selectedSearchRequest,
-					urlList);
-		}
+		hostUrlList.setListType(selection.listType);
+		urlManager.getUrlToFetch(host, selection.fetchStatus,
+				selection.beforeDate, selection.afterDate, count, urlList);
 		setInfo(null);
 		return hostUrlList;
 	}

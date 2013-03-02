@@ -42,7 +42,7 @@ public class HostUrlList {
 
 		DBCRAWL("dbcrawl"),
 
-		URL_MANAGER("urlmanager");
+		PRIORITY_URL("priority");
 
 		private String label;
 

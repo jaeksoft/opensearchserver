@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -187,26 +186,29 @@ public class UrlManager extends AbstractManager {
 		inject(urlList);
 	}
 
-	private void filterQueryToFetchOld(SearchRequest request,
-			Date fetchIntervalDate) throws ParseException {
-		StringBuffer query = new StringBuffer();
-		query.append("when:[00000000000000 TO ");
-		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
-		query.append("]");
-		request.addFilter(query.toString(), false);
-	}
-
-	private void filterQueryToFetchNew(SearchRequest request,
-			Date fetchIntervalDate) throws ParseException {
-		StringBuffer query = new StringBuffer();
-		query.append("fetchStatus:");
-		query.append(FetchStatus.UN_FETCHED.value);
-		request.addFilter(query.toString(), false);
-		query = new StringBuffer();
-		query.append("when:[");
-		query.append(UrlItem.getWhenDateFormat().format(fetchIntervalDate));
-		query.append(" TO 99999999999999]");
-		request.addFilter(query.toString(), false);
+	private void filterQueryToFetch(SearchRequest request,
+			FetchStatus fetchStatus, Date before, Date after)
+			throws ParseException {
+		if (fetchStatus != null) {
+			StringBuffer query = new StringBuffer();
+			query.append("fetchStatus:");
+			query.append(fetchStatus.value);
+			request.addFilter(query.toString(), false);
+		}
+		if (before != null) {
+			StringBuffer query = new StringBuffer();
+			query.append("when:[00000000000000 TO ");
+			query.append(UrlItem.getWhenDateFormat().format(before));
+			query.append("]");
+			request.addFilter(query.toString(), false);
+		}
+		if (after != null) {
+			StringBuffer query = new StringBuffer();
+			query.append("when:[");
+			query.append(UrlItem.getWhenDateFormat().format(after));
+			query.append(" TO 99999999999999]");
+			request.addFilter(query.toString(), false);
+		}
 	}
 
 	private void getFacetLimit(ItemField field, SearchRequest searchRequest,
@@ -228,7 +230,6 @@ public class UrlManager extends AbstractManager {
 				list.add(new NamedItem(term, facetItem.getCount()));
 			}
 		}
-
 	}
 
 	private SearchRequest getHostFacetSearchRequest() {
@@ -240,34 +241,17 @@ public class UrlManager extends AbstractManager {
 		return searchRequest;
 	}
 
-	public void getOldHostToFetch(Date fetchIntervalDate, int limit,
-			List<NamedItem> hostList) throws SearchLibException {
+	public void getHostToFetch(FetchStatus fetchStatus, Date before,
+			Date after, int limit, List<NamedItem> hostList)
+			throws SearchLibException {
 		SearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setQueryString("*:*");
 		try {
-			filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+			filterQueryToFetch(searchRequest, fetchStatus, before, after);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
 		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
-	}
-
-	public void getNewHostToFetch(Date fetchIntervalDate, int limit,
-			List<NamedItem> hostList) throws SearchLibException {
-		SearchRequest searchRequest = getHostFacetSearchRequest();
-		searchRequest.setQueryString("*:*");
-		try {
-			filterQueryToFetchNew(searchRequest, fetchIntervalDate);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		}
-		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
-	}
-
-	public void getSelectedHostToFetch(SearchRequest selectedSearchRequest,
-			LinkedList<NamedItem> selectedHostList) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
@@ -302,8 +286,9 @@ public class UrlManager extends AbstractManager {
 		return ui;
 	}
 
-	public void getOldUrlToFetch(NamedItem host, Date fetchIntervalDate,
-			long limit, List<UrlItem> urlList) throws SearchLibException {
+	public void getUrlToFetch(NamedItem host, FetchStatus fetchStatus,
+			Date before, Date after, long limit, List<UrlItem> urlList)
+			throws SearchLibException {
 		SearchRequest searchRequest = (SearchRequest) urlDbClient
 				.getNewRequest("urlSearch");
 		try {
@@ -311,7 +296,7 @@ public class UrlManager extends AbstractManager {
 					"host:\"" + SearchRequest.escapeQuery(host.getName())
 							+ "\"", false);
 			searchRequest.setQueryString("*:*");
-			filterQueryToFetchOld(searchRequest, fetchIntervalDate);
+			filterQueryToFetch(searchRequest, fetchStatus, before, after);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
@@ -346,26 +331,6 @@ public class UrlManager extends AbstractManager {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	public void getNewUrlToFetch(NamedItem host, Date fetchIntervalDate,
-			long limit, List<UrlItem> urlList) throws SearchLibException {
-		SearchRequest searchRequest = (SearchRequest) urlDbClient
-				.getNewRequest("urlSearch");
-		try {
-			searchRequest.addFilter(
-					"host:\"" + SearchRequest.escapeQuery(host.getName())
-							+ "\"", false);
-			searchRequest.setQueryString("*:*");
-			filterQueryToFetchNew(searchRequest, fetchIntervalDate);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		}
-		searchRequest.setRows((int) limit);
-		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
-				.request(searchRequest);
-		for (ResultDocument item : result)
-			urlList.add(getNewUrlItem(item));
 	}
 
 	public SearchRequest getSearchRequest(SearchTemplate urlSearchTemplate)
@@ -879,12 +844,6 @@ public class UrlManager extends AbstractManager {
 			}
 		}
 		updateUrlItems(urlItems);
-	}
-
-	public void getSelectedUtlToFetch(NamedItem host,
-			SearchRequest selectedSearchRequest, List<UrlItem> urlList) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

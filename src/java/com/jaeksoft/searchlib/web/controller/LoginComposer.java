@@ -77,7 +77,6 @@ public class LoginComposer extends SelectorComposer<Window> {
 			new AlertController("Authentication failed");
 			return;
 		}
-
 		session.setAttribute(ScopeAttribute.LOGGED_USER.name(), user);
 		Executions.sendRedirect("/");
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -75,12 +75,12 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	private boolean deleteSelection;
 
-	private boolean setToUnfetched;
+	private FetchStatus setToFetchStatus;
 
 	public void setSelection(SearchRequest selectionRequest,
-			boolean deleteSelection, boolean setToUnfetched) {
+			boolean deleteSelection, FetchStatus setToFetchStatus) {
 		this.selectionRequest = selectionRequest;
-		this.setToUnfetched = setToUnfetched;
+		this.setToFetchStatus = setToFetchStatus;
 		this.deleteSelection = deleteSelection;
 	}
 
@@ -90,10 +90,11 @@ public class TaskUrlManagerAction extends TaskAbstract {
 		UrlManager urlManager = client.getUrlManager();
 		taskLog.setInfo("URL manager Action started");
 		if (selectionRequest != null) {
-			if (setToUnfetched) {
-				taskLog.setInfo("URL manager: set selection to unfetched");
+			if (setToFetchStatus != null) {
+				taskLog.setInfo("URL manager: set selection to: "
+						+ setToFetchStatus.getName());
 				urlManager.updateFetchStatus(selectionRequest,
-						FetchStatus.UN_FETCHED, taskLog);
+						setToFetchStatus, taskLog);
 			} else if (deleteSelection) {
 				taskLog.setInfo("URL manager: delete selection");
 				urlManager.deleteUrls(selectionRequest, taskLog);

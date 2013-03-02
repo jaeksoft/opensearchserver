@@ -46,7 +46,6 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
@@ -67,7 +66,7 @@ public class UrlController extends CommonController {
 
 		SET_TO_UNFETCHED("Set selected URLs to Unfetched"),
 
-		CRAWL_SELECTION("Crawl selected URLs"),
+		SET_TO_FETCH_FIRST("Set selected URLs to fetch first"),
 
 		DELETE_URL("Delete selected URLs"),
 
@@ -505,21 +504,22 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(searchRequest, false, true);
+			taskUrlManagerAction.setSelection(searchRequest, false,
+					FetchStatus.UN_FETCHED);
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onCrawlSelected() throws SearchLibException,
+	public void onSetToFetchFirst() throws SearchLibException,
 			InterruptedException {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
-			WebCrawlMaster crawlMaster = getClient().getWebCrawlMaster();
-			crawlMaster.start(searchRequest);
-			if (!crawlMaster.waitForStart(120))
-				throw new SearchLibException("Not started after 120 seconds");
-
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setSelection(searchRequest, false,
+					FetchStatus.FETCH_FIRST);
+			taskUrlManagerAction.setOptimize();
+			onTask(taskUrlManagerAction);
 		}
 	}
 
@@ -527,7 +527,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(searchRequest, true, false);
+			taskUrlManagerAction.setSelection(searchRequest, true, null);
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -587,8 +587,8 @@ public class UrlController extends CommonController {
 			case SET_TO_UNFETCHED:
 				onSetToUnfetched();
 				break;
-			case CRAWL_SELECTION:
-				onCrawlSelected();
+			case SET_TO_FETCH_FIRST:
+				onSetToFetchFirst();
 				break;
 			case DELETE_URL:
 				onDeleteURLs();

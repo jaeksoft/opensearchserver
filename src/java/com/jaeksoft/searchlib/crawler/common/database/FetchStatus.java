@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.common.database;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 
 public enum FetchStatus {
+
+	FETCH_FIRST(12, "Fetch first", TargetStatus.TARGET_DO_NOTHING),
 
 	UN_FETCHED(0, "Unfetched", TargetStatus.TARGET_DO_NOTHING),
 

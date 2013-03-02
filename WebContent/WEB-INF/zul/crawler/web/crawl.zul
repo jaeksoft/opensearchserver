@@ -124,17 +124,15 @@
 	<listbox model="@load(crawlProcess.crawlMaster.statistics)"
 		hflex="min">
 		<auxhead>
-			<auxheader colspan="18"
+			<auxheader colspan="16"
 				label="Statistics for prior sessions" />
 		</auxhead>
 		<auxhead>
 			<auxheader label="Start time" tooltiptext="Start time" />
 			<auxheader label="Fetched" tooltiptext="Fetched"
 				align="center" colspan="3" />
-			<auxheader align="center" colspan="2" label="Old url host"
-				tooltiptext="Old url host" />
-			<auxheader align="center" colspan="2" label="New url host"
-				tooltiptext="New url host" />
+			<auxheader align="center" colspan="2" label="Host(s)"
+				tooltiptext="Hostname(s) count" />
 			<auxheader label="Parsed" tooltiptext="Parsed" />
 			<auxheader align="center" colspan="2" label="New url"
 				tooltiptext="New url" />
@@ -151,8 +149,6 @@
 			<listheader label="Count" tooltiptext="Count" />
 			<listheader label="Cache" tooltiptext="From cache" />
 			<listheader label="Rate" tooltiptext="Rate" />
-			<listheader label="Processed" tooltiptext="Processed" />
-			<listheader label="Total" tooltiptext="Total" />
 			<listheader label="Processed" tooltiptext="Processed" />
 			<listheader label="Total" tooltiptext="Total" />
 			<listheader label="Count" />
@@ -173,10 +169,8 @@
 				<listcell label="@load(stat.fromCacheCount)" />
 				<listcell
 					label="@load(stat.fetchRate) @converter('com.jaeksoft.searchlib.web.converter.RateConverter')" />
-				<listcell label="@load(stat.oldHostCount)" />
-				<listcell label="@load(stat.oldHostListSize)" />
-				<listcell label="@load(stat.newHostCount)" />
-				<listcell label="@load(stat.newHostListSize)" />
+				<listcell label="@load(stat.hostCount)" />
+				<listcell label="@load(stat.hostListSize)" />
 				<listcell label="@load(stat.parsedCount)" />
 				<listcell label="@load(stat.pendingNewUrlCount)" />
 				<listcell label="@load(stat.newUrlCount)" />
@@ -203,7 +197,7 @@
 			<listheader label="Fetched" tooltiptext="Fetched" />
 			<listheader label="Cache" tooltiptext="From cache" />
 			<listheader label="Rate" tooltiptext="Fetch rate" />
-			<listheader label="New url" tooltiptext="New url" />
+			<listheader label="New URL(s)" tooltiptext="New URL(s)" />
 			<listheader label="Updated" tooltiptext="Updated" />
 			<listheader label="Ignored" tooltiptext="Ignored" />
 			<listheader label="Deleted" tooltiptext="Deleted" />

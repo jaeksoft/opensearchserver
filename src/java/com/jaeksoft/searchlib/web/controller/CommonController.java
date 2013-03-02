@@ -40,7 +40,6 @@ import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
-import org.zkoss.zk.ui.select.annotation.WireVariable;
 import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
@@ -60,15 +59,21 @@ import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController implements EventInterface {
 
-	@WireVariable
-	private Session session;
-
-	@WireVariable
-	private Desktop desktop;
-
 	public CommonController() throws SearchLibException {
 		super();
 		reset();
+	}
+
+	final protected String getExecutionParameter(String name) {
+		return Executions.getCurrent().getParameter(name);
+	}
+
+	final protected Desktop getDesktop() {
+		return Executions.getCurrent().getDesktop();
+	}
+
+	final protected Session getSession() {
+		return Executions.getCurrent().getSession();
 	}
 
 	final protected static StringBuffer getBaseUrl(Execution exe) {
@@ -104,24 +109,16 @@ public abstract class CommonController implements EventInterface {
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute,
 			Object defaultValue) {
-		Object o = scopeAttribute.get(session);
+		Object o = scopeAttribute.get(getSession());
 		return o == null ? defaultValue : o;
 	}
 
 	protected Object getAttribute(ScopeAttribute scopeAttribute) {
-		return scopeAttribute.get(session);
+		return scopeAttribute.get(getSession());
 	}
 
 	protected void setAttribute(ScopeAttribute scopeAttribute, Object value) {
-		scopeAttribute.set(session, value);
-	}
-
-	protected Session getSession() {
-		return session;
-	}
-
-	protected Desktop getDesktop() {
-		return desktop;
+		scopeAttribute.set(getSession(), value);
 	}
 
 	public Version getVersion() throws IOException {
@@ -143,11 +140,6 @@ public abstract class CommonController implements EventInterface {
 
 	public boolean isInstanceNotValid() throws SearchLibException {
 		return getClient() == null;
-	}
-
-	public String getCurrentPage() throws SearchLibException {
-		String page = isLogged() ? "controlpanel.zul" : "login.zul";
-		return "WEB-INF/zul/" + page;
 	}
 
 	public User getLoggedUser() {
