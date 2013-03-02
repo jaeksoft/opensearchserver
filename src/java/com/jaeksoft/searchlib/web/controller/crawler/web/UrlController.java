@@ -85,6 +85,89 @@ public class UrlController extends CommonController {
 		}
 	}
 
+	public class ColView {
+
+		private boolean date = false;
+
+		private boolean contentType = false;
+
+		private boolean charsetEncoding = false;
+
+		private boolean language = false;
+
+		private boolean returnedCode = false;
+
+		public void setDate(boolean b) {
+			this.date = b;
+		}
+
+		public boolean isDate() {
+			return date;
+		}
+
+		/**
+		 * @return the contentType
+		 */
+		public boolean isContentType() {
+			return contentType;
+		}
+
+		/**
+		 * @param contentType
+		 *            the contentType to set
+		 */
+		public void setContentType(boolean contentType) {
+			this.contentType = contentType;
+		}
+
+		/**
+		 * @return the charsetEncoding
+		 */
+		public boolean isCharsetEncoding() {
+			return charsetEncoding;
+		}
+
+		/**
+		 * @param charsetEncoding
+		 *            the charsetEncoding to set
+		 */
+		public void setCharsetEncoding(boolean charsetEncoding) {
+			this.charsetEncoding = charsetEncoding;
+		}
+
+		/**
+		 * @return the language
+		 */
+		public boolean isLanguage() {
+			return language;
+		}
+
+		/**
+		 * @param language
+		 *            the language to set
+		 */
+		public void setLanguage(boolean language) {
+			this.language = language;
+		}
+
+		/**
+		 * @return the returnedCode
+		 */
+		public boolean isReturnedCode() {
+			return returnedCode;
+		}
+
+		/**
+		 * @param returnedCode
+		 *            the returnedCode to set
+		 */
+		public void setReturnedCode(boolean returnedCode) {
+			this.returnedCode = returnedCode;
+		}
+	}
+
+	private transient ColView colView;
+
 	private transient List<UrlItem> urlList;
 
 	private transient int totalSize;
@@ -95,6 +178,7 @@ public class UrlController extends CommonController {
 
 	public UrlController() throws SearchLibException {
 		super();
+		colView = new ColView();
 	}
 
 	@Override
@@ -103,6 +187,11 @@ public class UrlController extends CommonController {
 		totalSize = 0;
 		activePage = 0;
 		batchCommand = BatchCommandEnum.NOTHING;
+	}
+
+	public ColView getColView() {
+		return colView;
+
 	}
 
 	public int getActivePage() {
@@ -610,4 +699,8 @@ public class UrlController extends CommonController {
 	public void onRefreshCurrentTaskLog() {
 	}
 
+	@Command
+	@NotifyChange("*")
+	public void onChangeColView() {
+	}
 }
