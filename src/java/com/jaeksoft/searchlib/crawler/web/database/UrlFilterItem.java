@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,10 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -41,8 +45,13 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 
 	private String pattern;
 
+	private Set<String> hostnames;
+
 	private UrlFilterItem() {
 		compiledPattern = null;
+		name = null;
+		pattern = null;
+		hostnames = null;
 	}
 
 	public UrlFilterItem(String name, String pattern) {
@@ -54,13 +63,24 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 	public UrlFilterItem(Node node) {
 		this();
 		setName(DomUtils.getAttributeText(node, "name"));
-		setPattern(StringEscapeUtils.unescapeXml(DomUtils.getText(node)));
+		List<Node> nodes = DomUtils.getNodes(node, "pattern");
+		if (nodes != null && nodes.size() > 0)
+			setPattern(StringEscapeUtils.unescapeXml(DomUtils.getText(nodes
+					.get(0))));
+		else
+			setPattern(StringEscapeUtils.unescapeXml(DomUtils.getText(node)));
+		nodes = DomUtils.getNodes(node, "hostname");
+		if (nodes != null)
+			for (Node n : nodes)
+				addHostname(StringEscapeUtils.unescapeXml(DomUtils.getText(n)));
 	}
 
 	public void copyTo(UrlFilterItem filter) {
 		filter.name = this.name;
 		filter.pattern = this.pattern;
 		filter.compiledPattern = this.compiledPattern;
+		filter.hostnames = this.hostnames == null ? null : new TreeSet<String>(
+				this.hostnames);
 	}
 
 	/**
@@ -105,9 +125,56 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		compilePattern();
 	}
 
+	public Set<String> getHostnameSet() {
+		return hostnames;
+	}
+
+	public List<String> getHostnameList() {
+		if (hostnames == null)
+			return null;
+		return new ArrayList<String>(hostnames);
+	}
+
+	public void addHostname(String hostname) {
+		if (hostname == null)
+			return;
+		if (hostname.length() == 0)
+			return;
+		if (hostnames == null)
+			hostnames = new TreeSet<String>();
+		hostnames.add(hostname);
+	}
+
+	public void removeHostname(String hostname) {
+		if (hostnames == null)
+			return;
+		hostnames.remove(hostname);
+	}
+
+	public boolean isHostnames() {
+		if (hostnames == null)
+			return false;
+		return hostnames.size() > 0;
+	}
+
+	public boolean hostnameCheck(String hostname) {
+		if (hostnames == null)
+			return true;
+		return hostnames.contains(hostname);
+	}
+
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("urlFilter", "name", name);
+		xmlWriter.startElement("pattern");
 		xmlWriter.textNode(pattern);
+		xmlWriter.endElement();
+		if (hostnames != null) {
+			for (String hostname : hostnames) {
+				xmlWriter.startElement("hostname");
+				xmlWriter.textNode(hostname);
+				xmlWriter.endElement();
+			}
+		}
 		xmlWriter.endElement();
 	}
 
@@ -116,18 +183,22 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		return this.name.compareTo(o.name);
 	}
 
-	public final boolean isReplaceProspero(String part) {
+	public final boolean isReplaceProspero(String hostname, String part) {
 		if (compiledPattern == null)
 			return false;
 		if (part == null)
 			return false;
+		if (!hostnameCheck(hostname))
+			return false;
 		return compiledPattern.matcher(part).matches();
 	}
 
-	public final void doReplaceQuery(String[] queryParts) {
+	public final void doReplaceQuery(String hostname, String[] queryParts) {
 		if (compiledPattern == null)
 			return;
 		if (queryParts == null)
+			return;
+		if (!hostnameCheck(hostname))
 			return;
 		for (int i = 0; i < queryParts.length; i++) {
 			String queryPart = queryParts[i];

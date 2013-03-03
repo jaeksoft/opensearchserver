@@ -72,6 +72,8 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("No request has been found");
 			setLog(renderer, request, transaction);
 			request.setFromServlet(transaction);
+			if (query == null)
+				query = (String) transaction.getSession().getAttribute("query");
 			if (query != null && query.length() > 0) {
 				request.setQueryString(query);
 				Integer page = transaction.getParameterInteger("page");
@@ -102,6 +104,8 @@ public class RendererServlet extends AbstractServlet {
 					transaction.setRequestAttribute("facetResult", facetResult);
 				}
 			}
+			transaction.getSession().setAttribute("query", query);
+			transaction.setRequestAttribute("query", query);
 			transaction.setRequestAttribute("renderer", renderer);
 			String[] hiddenParameterList = { "use", "name", "login", "key" };
 			transaction.setRequestAttribute("hiddenParameterList",

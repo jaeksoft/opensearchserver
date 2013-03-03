@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -59,6 +60,8 @@ public class UrlFilterController extends CrawlerController {
 	private transient UrlFilterItem selectedFilter;
 
 	private transient UrlFilterItem currentFilter;
+
+	private transient String hostname;
 
 	public UrlFilterController() throws SearchLibException {
 		super();
@@ -112,6 +115,22 @@ public class UrlFilterController extends CrawlerController {
 	}
 
 	@Command
+	@NotifyChange("currentFilter")
+	public void addHostname() {
+		if (currentFilter == null)
+			return;
+		currentFilter.addHostname(hostname);
+	}
+
+	@Command
+	@NotifyChange("currentFilter")
+	public void removeHostname(@BindingParam("hostname") String hn) {
+		if (currentFilter == null)
+			return;
+		currentFilter.removeHostname(hn);
+	}
+
+	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
 		if (selectedFilter != null)
 			currentFilter.copyTo(selectedFilter);
@@ -132,6 +151,21 @@ public class UrlFilterController extends CrawlerController {
 	public void delete(@BindingParam("urlfilteritem") UrlFilterItem item)
 			throws SearchLibException, InterruptedException {
 		new DeleteAlert(item);
+	}
+
+	/**
+	 * @return the hostname
+	 */
+	public String getHostname() {
+		return hostname;
+	}
+
+	/**
+	 * @param hostname
+	 *            the hostname to set
+	 */
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
 	}
 
 }

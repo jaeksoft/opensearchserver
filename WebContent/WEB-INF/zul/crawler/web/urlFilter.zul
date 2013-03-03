@@ -37,38 +37,78 @@
 	<listbox selectedItem="@bind(urlfilter.selectedFilter)"
 		model="@load(urlfilter.urlFilterList.array)" mold="paging"
 		pageSize="20">
-		<listhead>
-			<listheader label="Filter name" width="120px" align="left"
-				tooltiptext="The name of the filter" />
+		<listhead sizable="true">
+			<listheader label="Filter name" hflex="min" align="left"
+				tooltiptext="The name of the filter">
+				<vbox width="95%">
+					<textbox value="@bind(urlfilter.currentFilter.name)"
+						width="100%" />
+				</vbox>
+			</listheader>
 			<listheader label="Regexp pattern" align="left"
-				tooltiptext="The regular expression pattern" />
-			<listheader label="Action" width="150px" align="center" />
+				tooltiptext="The regular expression pattern">
+				<vbox width="95%">
+					<textbox
+						value="@bind(urlfilter.currentFilter.pattern)" width="100%" />
+				</vbox>
+			</listheader>
+			<listheader label="Hostnames" align="left"
+				tooltiptext="The hostnames" hflex="min">
+				<vbox width="95%">
+					<hbox>
+						<textbox value="@bind(urlfilter.hostname)" />
+						<button label="add"
+							onClick="@command('addHostname')" />
+					</hbox>
+					<grid hflex="min"
+						model="@load(urlfilter.currentFilter.hostnameSet)"
+						visible="@load(urlfilter.currentFilter.hostnames)">
+						<columns>
+							<column hflex="min" />
+							<column hflex="min" />
+						</columns>
+						<rows>
+							<template name="model">
+								<row>
+									<label value="@load(each)" />
+									<button
+										tooltiptext="Delete the hostname"
+										image="/images/action_delete.png"
+										onClick="@command('removeHostname', hostname=each)" />
+								</row>
+							</template>
+						</rows>
+					</grid>
+				</vbox>
+			</listheader>
+			<listheader label="Action" hflex="min" align="center">
+				<vbox width="95%">
+					<hbox visible="@load(urlfilter.selected)">
+						<button label="Cancel"
+							onClick="@command('onCancel')" />
+						<space width="10px" />
+						<button label="Save"
+							onClick="@command('onSave')" />
+					</hbox>
+					<hbox visible="@load(urlfilter.notSelected)">
+						<button label="Create"
+							onClick="@command('onSave')" />
+					</hbox>
+				</vbox>
+			</listheader>
 		</listhead>
-		<auxhead>
-			<auxheader align="center">
-				<textbox value="@bind(urlfilter.currentFilter.name)"
-					width="95%" />
-			</auxheader>
-			<auxheader align="center">
-				<textbox value="@bind(urlfilter.currentFilter.pattern)"
-					width="95%" />
-			</auxheader>
-			<auxheader align="center">
-				<hbox visible="@load(urlfilter.selected)">
-					<button label="Cancel"
-						onClick="@command('onCancel')" />
-					<space width="10px" />
-					<button label="Save" onClick="@command('onSave')" />
-				</hbox>
-				<hbox visible="@load(urlfilter.notSelected)">
-					<button label="Create" onClick="@command('onSave')" />
-				</hbox>
-			</auxheader>
-		</auxhead>
 		<template name="model" var="urlfilteritem">
 			<listitem>
 				<listcell label="@load(urlfilteritem.name)" />
 				<listcell label="@load(urlfilteritem.pattern)" />
+				<listcell>
+					<vlayout
+						children="@load(urlfilteritem.hostnameList)">
+						<template name="model">
+							<label value="@load(each)" />
+						</template>
+					</vlayout>
+				</listcell>
 				<listcell>
 					<button tooltiptext="Delete the URL filter"
 						image="/images/action_delete.png"

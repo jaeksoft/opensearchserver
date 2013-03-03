@@ -151,8 +151,8 @@ public class UrlFilterList {
 		}
 	}
 
-	private static final String doReplaceQuery(String uriString,
-			UrlFilterItem[] urlFilterArray) {
+	private static final String doReplaceQuery(String hostname,
+			String uriString, UrlFilterItem[] urlFilterArray) {
 		int i = uriString.indexOf('?');
 		if (i == -1)
 			return uriString;
@@ -167,7 +167,7 @@ public class UrlFilterList {
 			return uriString;
 
 		for (UrlFilterItem urlFilter : urlFilterArray)
-			urlFilter.doReplaceQuery(queryParts);
+			urlFilter.doReplaceQuery(hostname, queryParts);
 		boolean first = true;
 		for (String queryPart : queryParts) {
 			if (queryPart != null) {
@@ -182,8 +182,8 @@ public class UrlFilterList {
 		return newUrl.toString();
 	}
 
-	private static final String doReplaceProspero(String uriString,
-			UrlFilterItem[] urlFilterArray) {
+	private static final String doReplaceProspero(String hostname,
+			String uriString, UrlFilterItem[] urlFilterArray) {
 		int i1 = uriString.indexOf(';');
 		if (i1 == -1)
 			return uriString;
@@ -203,7 +203,7 @@ public class UrlFilterList {
 				i1, i2);
 		boolean bReplace = false;
 		for (UrlFilterItem urlFilter : urlFilterArray) {
-			if (urlFilter.isReplaceProspero(part)) {
+			if (urlFilter.isReplaceProspero(hostname, part)) {
 				bReplace = true;
 				break;
 			}
@@ -216,10 +216,10 @@ public class UrlFilterList {
 		return newUrl.toString();
 	}
 
-	public static final String doReplace(String uriString,
+	public static final String doReplace(String hostname, String uriString,
 			UrlFilterItem[] urlFilterArray) {
-		uriString = doReplaceQuery(uriString, urlFilterArray);
-		uriString = doReplaceProspero(uriString, urlFilterArray);
+		uriString = doReplaceQuery(hostname, uriString, urlFilterArray);
+		uriString = doReplaceProspero(hostname, uriString, urlFilterArray);
 		return uriString;
 	}
 }

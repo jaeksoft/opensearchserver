@@ -4,7 +4,7 @@
 		action="renderer">
 		<%
 			Renderer renderer = (Renderer) request.getAttribute("renderer");
-			String query = request.getParameter("query");
+			String query = (String) request.getAttribute("query");
 			if (query == null)
 				query = "";
 			String[] hiddenParameterList = (String[]) request

@@ -466,8 +466,9 @@ public class Crawl {
 			discoverLinks = new ArrayList<LinkItem>();
 			if (redirectUrlLocation != null) {
 				String redirectedUrl = UrlFilterList.doReplace(
-						redirectUrlLocation.toString(), config
-								.getUrlFilterList().getArray());
+						redirectUrlLocation.getHost(), redirectUrlLocation
+								.toString(), config.getUrlFilterList()
+								.getArray());
 				discoverLinks.add(new LinkItem(redirectedUrl, Origin.redirect,
 						parentUrl));
 				return discoverLinks;

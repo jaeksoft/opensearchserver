@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -350,6 +351,10 @@ public class ServletTransaction {
 
 	public String getRequestContentType() {
 		return request.getContentType();
+	}
+
+	public HttpSession getSession() {
+		return request.getSession();
 	}
 
 	public void setRequestAttribute(String name, Object value) {
