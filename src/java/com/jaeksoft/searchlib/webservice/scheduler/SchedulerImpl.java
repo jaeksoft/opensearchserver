@@ -96,12 +96,12 @@ public class SchedulerImpl extends CommonServices implements SoapScheduler,
 
 	@Override
 	public CommonResult runXML(String use, String login, String key, String name) {
-		return status(use, login, key, name);
+		return run(use, login, key, name);
 	}
 
 	@Override
 	public CommonResult runJSON(String use, String login, String key,
 			String name) {
-		return status(use, login, key, name);
+		return run(use, login, key, name);
 	}
 }
