@@ -1,0 +1,31 @@
+.center {
+	text-align: center;
+}
+
+.blue {
+	color: #007AB1;
+}
+
+legend {
+	font-weight: bold;
+}
+
+fieldset {
+	display: inline-block;
+}
+
+p,label,input,legend {
+	color: #575757;
+	font-family: arial, sans-serif;
+	font-size: 14px;
+}
+
+h2 {
+	color: #8B8989;
+	font-family: arial, sans-serif;
+	font-size: 18px;
+	font-style: normal !important;
+	font-weight: normal !important;
+	text-transform: uppercase;
+	text-align: center;
+}
