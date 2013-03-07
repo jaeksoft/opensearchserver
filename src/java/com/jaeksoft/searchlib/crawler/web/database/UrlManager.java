@@ -71,7 +71,6 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.sun.tools.internal.ws.wscompile.AbortException;
 
 public class UrlManager extends AbstractManager {
 
@@ -769,7 +768,7 @@ public class UrlManager extends AbstractManager {
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) deleted");
 				if (taskLog.isAbortRequested())
-					throw new AbortException();
+					throw new SearchLibException.AbortException();
 				ThreadUtils.sleepMs(100);
 			}
 			return total;
@@ -814,7 +813,7 @@ public class UrlManager extends AbstractManager {
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) updated");
 				if (taskLog.isAbortRequested())
-					throw new AbortException();
+					throw new SearchLibException.AbortException();
 				ThreadUtils.sleepMs(100);
 			}
 			return total;

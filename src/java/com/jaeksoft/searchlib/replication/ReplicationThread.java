@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
 import com.jaeksoft.searchlib.web.PushServlet;
-import com.sun.tools.internal.ws.wscompile.AbortException;
 
 public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		implements RecursiveDirectoryBrowser.CallBack {
@@ -179,7 +178,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 			if (taskLog != null) {
 				taskLog.setInfo(getProgress() + "% transfered");
 				if (taskLog.isAbortRequested())
-					throw new AbortException();
+					throw new SearchLibException.AbortException();
 			}
 		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);

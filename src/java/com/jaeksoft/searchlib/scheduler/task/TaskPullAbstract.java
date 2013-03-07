@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.sun.tools.internal.ws.wscompile.AbortException;
 
 public abstract class TaskPullAbstract extends TaskAbstract {
 
@@ -186,7 +185,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 			buffer.clear();
 			taskLog.setInfo(totalCount + " document(s) indexed");
 			if (taskLog.isAbortRequested())
-				throw new AbortException();
+				throw new SearchLibException.AbortException();
 
 		}
 
