@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.scheduler;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.NamingException;
@@ -120,7 +121,10 @@ public class SchedulerEditController extends SchedulerController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getJobTaskEnum().getList();
+
+		List<TaskEnumItem> list = client.getJobTaskEnum().getList();
+		Collections.sort(list);
+		return list;
 	}
 
 	/**

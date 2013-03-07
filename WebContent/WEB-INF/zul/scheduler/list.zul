@@ -68,7 +68,11 @@
 						<listcell>
 							<button label="Edit"
 								onClick="@command('doEdit', jobentry=job)" />
+							<button label="Abort"
+								visible="@load(job.running)"
+								onClick="@command('doAbort', jobentry=job)" />
 							<button label="Execute"
+								visible="@load(job.notRunning)"
 								onClick="@command('doExecute', jobentry=job)" />
 						</listcell>
 					</listitem>

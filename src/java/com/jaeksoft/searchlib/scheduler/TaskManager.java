@@ -221,7 +221,7 @@ public class TaskManager {
 	public static ImmediateExecution executeTask(Client client,
 			TaskItem taskItem, TaskLog taskLog) throws InterruptedException {
 		if (taskLog == null)
-			taskLog = new TaskLog(taskItem, false);
+			taskLog = new TaskLog(taskItem, false, false);
 		ImmediateExecution execution = new ImmediateExecution(client, taskItem,
 				taskLog);
 		client.getThreadPool().execute(execution);

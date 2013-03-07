@@ -79,6 +79,19 @@ public class SchedulerListController extends SchedulerController {
 	}
 
 	@Command
+	public void doAbort(@BindingParam("jobentry") JobItem job)
+			throws SearchLibException, NamingException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		if (!job.isRunning())
+			throw new SearchLibException("The job " + job.getName()
+					+ " is already stopped.");
+		job.abort();
+		reload();
+	}
+
+	@Command
 	@NotifyChange("*")
 	public void onNewJob() throws SearchLibException {
 		setJobItemEdit(new JobItem("New job"));

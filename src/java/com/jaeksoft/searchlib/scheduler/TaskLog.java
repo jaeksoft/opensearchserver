@@ -29,8 +29,9 @@ import java.util.Date;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.web.StartStopListener.ShutdownWaitInterface;
 
-public class TaskLog implements InfoCallback {
+public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -46,6 +47,8 @@ public class TaskLog implements InfoCallback {
 
 	final private boolean indexHasChanged;
 
+	private boolean abortRequested;
+
 	private TaskAbstract taskAbstract;
 
 	private TaskProperty[] taskProperties;
@@ -54,10 +57,12 @@ public class TaskLog implements InfoCallback {
 
 	private String info;
 
-	protected TaskLog(TaskItem taskItem, boolean indexHasChanged) {
+	protected TaskLog(TaskItem taskItem, boolean indexHasChanged,
+			boolean abortRequested) {
 		taskAbstract = taskItem.getTask();
 		taskProperties = null;
 		this.indexHasChanged = indexHasChanged;
+		this.abortRequested = abortRequested;
 		error = null;
 		info = null;
 		TaskProperty[] tp = taskItem.getProperties();
@@ -190,6 +195,38 @@ public class TaskLog implements InfoCallback {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	/**
+	 * @return the abortRequested
+	 */
+	public boolean isAbortRequested() {
+		rwl.r.lock();
+		try {
+			return abortRequested;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param abortRequested
+	 *            the abortRequested to set
+	 */
+	public void abortRequested() {
+		rwl.w.lock();
+		try {
+			this.abortRequested = true;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public boolean abort() {
+		if (super.abort())
+			return true;
+		return isAbortRequested();
 	}
 
 }

@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.AbortException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -87,6 +88,10 @@ public class TaskItem extends ExecutionAbstract {
 		setRunningNow();
 		try {
 			task.execute(client, userProperties, taskLog);
+		} catch (AbortException abort) {
+			abort();
+		} catch (InterruptedException e) {
+			abort();
 		} finally {
 			runningEnd();
 		}

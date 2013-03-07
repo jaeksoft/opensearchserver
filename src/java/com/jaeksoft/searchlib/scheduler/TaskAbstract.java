@@ -66,13 +66,16 @@ public abstract class TaskAbstract {
 	/**
 	 * Implements the task execution
 	 * 
+	 * 
 	 * @param client
 	 * @param properties
 	 * @throws SearchLibException
 	 * @throws IOException
+	 * @throws InterruptedException
 	 */
 	public abstract void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException, IOException;
+			TaskLog taskLog) throws SearchLibException, IOException,
+			InterruptedException;
 
 	/**
 	 * Returns the default value of the property

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,10 +33,12 @@ import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStop;
 import com.jaeksoft.searchlib.scheduler.task.TaskFlushCrawlCache;
 import com.jaeksoft.searchlib.scheduler.task.TaskFtpXmlFeed;
 import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
+import com.jaeksoft.searchlib.scheduler.task.TaskOtherScheduler;
 import com.jaeksoft.searchlib.scheduler.task.TaskPullFields;
 import com.jaeksoft.searchlib.scheduler.task.TaskPullTerms;
 import com.jaeksoft.searchlib.scheduler.task.TaskReplicationRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskReportLoadLogFile;
+import com.jaeksoft.searchlib.scheduler.task.TaskSleep;
 import com.jaeksoft.searchlib.scheduler.task.TaskUploadMonitor;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskWebCrawlerStop;
@@ -60,7 +62,11 @@ public class TaskEnum extends ExtensibleEnum<TaskEnumItem> {
 
 		new TaskEnumItem(this, TaskOptimizeIndex.class);
 
+		new TaskEnumItem(this, TaskOtherScheduler.class);
+
 		new TaskEnumItem(this, TaskReplicationRun.class);
+
+		new TaskEnumItem(this, TaskSleep.class);
 
 		new TaskEnumItem(this, TaskUploadMonitor.class);
 

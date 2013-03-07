@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,5 +41,20 @@ public class SearchLibException extends Exception {
 
 	public SearchLibException(String message) {
 		super(message);
+	}
+
+	public static class AbortException extends SearchLibException {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -1855323556480709778L;
+
+		public AbortException() {
+			super("Aborted");
+		}
+
+		public AbortException(String message) {
+			super(message);
+		}
 	}
 }

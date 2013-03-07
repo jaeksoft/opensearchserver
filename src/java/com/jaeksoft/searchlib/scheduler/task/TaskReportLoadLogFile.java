@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.sun.tools.internal.ws.wscompile.AbortException;
 
 public class TaskReportLoadLogFile extends TaskAbstract {
 
@@ -141,6 +142,8 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 			String reportFileDateString = logfile.getName().replace(
 					replaceString, "");
 			taskLog.setInfo("Working on " + reportFileName);
+			if (taskLog.isAbortRequested())
+				throw new AbortException();
 			Date fromReportDate = dateFormatter.parse(reportFileDateString);
 			reportFileDate.setTime(fromReportDate);
 			boolean sameDay = date.get(Calendar.YEAR) == reportFileDate

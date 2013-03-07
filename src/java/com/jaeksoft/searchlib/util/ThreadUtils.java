@@ -128,4 +128,24 @@ public class ThreadUtils {
 
 	}
 
+	public static interface WaitInterface {
+
+		boolean done();
+
+		boolean abort();
+	}
+
+	public static boolean waitUntil(long secTimeOut, WaitInterface waiter) {
+		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
+		while (!waiter.done()) {
+			if (waiter.abort())
+				return false;
+			if (secTimeOut != 0)
+				if (System.currentTimeMillis() > finalTime)
+					return false;
+			sleepMs(200);
+		}
+		return true;
+	}
+
 }

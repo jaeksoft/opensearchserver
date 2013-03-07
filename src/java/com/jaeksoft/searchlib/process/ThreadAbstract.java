@@ -32,7 +32,8 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.web.StartStopListener.ShutdownWaitInterface;
 
 public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		Runnable, InfoCallback {
@@ -140,30 +141,30 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	}
 
-	public boolean waitForStart(long secTimeOut) {
-		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
-		while (getStartTime() == 0) {
-			if (StartStopListener.isShutdown())
-				return false;
-			if (secTimeOut != 0)
-				if (System.currentTimeMillis() > finalTime)
-					return false;
-			sleepMs(200);
+	private class StartInterface extends ShutdownWaitInterface {
+
+		@Override
+		public boolean done() {
+			return getStartTime() != 0;
 		}
-		return true;
+
+	}
+
+	private class EndInterface extends ShutdownWaitInterface {
+
+		@Override
+		public boolean done() {
+			return !isRunning();
+		}
+
+	}
+
+	public boolean waitForStart(long secTimeOut) {
+		return ThreadUtils.waitUntil(secTimeOut, new StartInterface());
 	}
 
 	public boolean waitForEnd(long secTimeOut) {
-		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
-		while (isRunning()) {
-			if (StartStopListener.isShutdown())
-				return false;
-			if (secTimeOut != 0)
-				if (System.currentTimeMillis() > finalTime)
-					return false;
-			sleepMs(200);
-		}
-		return true;
+		return ThreadUtils.waitUntil(secTimeOut, new EndInterface());
 	}
 
 	protected void sleepMs(long ms) {

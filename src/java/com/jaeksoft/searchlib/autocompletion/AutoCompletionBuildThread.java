@@ -80,8 +80,10 @@ public class AutoCompletionBuildThread extends
 			return docCount;
 		docCount += autoCompClient.updateDocuments(buffer);
 		buffer.clear();
-		if (infoCallBack != null)
+		if (infoCallBack != null) {
 			infoCallBack.setInfo(docCount + " term(s) indexed");
+
+		}
 		return docCount;
 	}
 

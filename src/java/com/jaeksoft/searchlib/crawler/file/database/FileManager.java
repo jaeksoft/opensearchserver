@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import com.sun.tools.internal.ws.wscompile.AbortException;
 
 public class FileManager extends AbstractManager {
 
@@ -571,6 +572,8 @@ public class FileManager extends AbstractManager {
 						uriList);
 				total += itemList.size();
 				taskLog.setInfo(total + " URI(s) deleted");
+				if (taskLog.isAbortRequested())
+					throw new AbortException();
 			}
 			return total;
 		} finally {
@@ -596,6 +599,8 @@ public class FileManager extends AbstractManager {
 				updateFileItems(fileItemList);
 				total += fileItemList.size();
 				taskLog.setInfo(total + " URI(s) updated");
+				if (taskLog.isAbortRequested())
+					throw new AbortException();
 			}
 			return total;
 		} catch (ParseException e) {

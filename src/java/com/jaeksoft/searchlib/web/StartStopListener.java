@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
 
 public class StartStopListener implements ServletContextListener {
 
@@ -78,6 +79,19 @@ public class StartStopListener implements ServletContextListener {
 			return StartStopListener.active == false;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public static class ShutdownWaitInterface implements WaitInterface {
+
+		@Override
+		public boolean done() {
+			return false;
+		}
+
+		@Override
+		public boolean abort() {
+			return isShutdown();
 		}
 	}
 

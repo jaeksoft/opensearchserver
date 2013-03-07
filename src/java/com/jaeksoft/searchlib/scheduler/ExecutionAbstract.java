@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.scheduler;
 import java.util.Date;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ExecutionAbstract {
 
@@ -36,12 +37,15 @@ public class ExecutionAbstract {
 
 	private boolean running;
 
+	private boolean abort;
+
 	private Date lastExecution;
 
 	protected ExecutionAbstract() {
 		lastExecution = null;
 		running = false;
 		active = false;
+		abort = false;
 	}
 
 	/**
@@ -78,6 +82,10 @@ public class ExecutionAbstract {
 		}
 	}
 
+	public boolean isNotRunning() {
+		return !isRunning();
+	}
+
 	protected void runningEnd() {
 		rwl.w.lock();
 		try {
@@ -106,6 +114,7 @@ public class ExecutionAbstract {
 		rwl.w.lock();
 		try {
 			running = true;
+			abort = false;
 			lastExecution = new Date();
 		} finally {
 			rwl.w.unlock();
@@ -115,11 +124,51 @@ public class ExecutionAbstract {
 	public boolean waitForStart(long secTimeOut) throws InterruptedException {
 		long timeOut = System.currentTimeMillis() + secTimeOut * 1000;
 		while (timeOut > System.currentTimeMillis()) {
+			if (StartStopListener.isShutdown())
+				return false;
 			if (getLastExecution() != null)
 				return true;
 			Thread.sleep(500);
 		}
 		return false;
+	}
+
+	public boolean waitForEnd(long secTimeOut) throws InterruptedException {
+		long timeOut = System.currentTimeMillis() + secTimeOut * 1000;
+		while (isRunning()) {
+			if (StartStopListener.isShutdown())
+				return false;
+			if (secTimeOut != 0)
+				if (System.currentTimeMillis() > timeOut)
+					return false;
+			Thread.sleep(500);
+		}
+		return true;
+	}
+
+	/**
+	 * @return the abort
+	 */
+	public boolean isAbort() {
+		rwl.r.lock();
+		try {
+			return abort;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param abort
+	 *            the abort to set
+	 */
+	public void abort() {
+		rwl.w.lock();
+		try {
+			this.abort = true;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

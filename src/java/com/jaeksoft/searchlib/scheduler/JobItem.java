@@ -62,6 +62,8 @@ public class JobItem extends ExecutionAbstract {
 
 	private JobLog jobLog;
 
+	private TaskLog currentTaskLog;
+
 	private boolean emailNotificationOnFailure;
 
 	private String emailRecipients;
@@ -211,40 +213,53 @@ public class JobItem extends ExecutionAbstract {
 			Logging.warn("The job " + name + "  is already running");
 			return;
 		}
-		TaskLog taskLog = null;
+		currentTaskLog = null;
 		TaskAbstract currentTask = null;
 		try {
 			boolean indexHasChanged = false;
 			long originalVersion = client.getIndex().getVersion();
 			List<TaskItem> taskList = getTaskListCopy();
 			for (TaskItem task : taskList) {
+				if (isAbort())
+					break;
 				currentTask = task.getTask();
-				taskLog = new TaskLog(task, indexHasChanged);
-				addTaskLog(taskLog);
-				task.run(client, taskLog);
-				taskLog.end();
+				setCurrentTaskLog(new TaskLog(task, indexHasChanged, isAbort()));
+				addTaskLog(currentTaskLog);
+				task.run(client, currentTaskLog);
+				currentTaskLog.end();
+				if (task.isAbort()) {
+					abort();
+					Logging.warn("The job " + name + "  is aborted");
+				}
 				if (!indexHasChanged)
 					if (client.getIndex().getVersion() != originalVersion)
 						indexHasChanged = true;
 			}
 		} catch (SearchLibException e) {
-			if (taskLog != null)
-				taskLog.setError(e);
+			if (currentTaskLog != null)
+				currentTaskLog.setError(e);
 			setLastError(e);
 			Logging.warn(e);
 			sendErrorEmail(e, currentTask);
 		} catch (Exception e) {
 			SearchLibException se = new SearchLibException(e);
-			if (taskLog != null)
-				taskLog.setError(se);
+			if (currentTaskLog != null)
+				currentTaskLog.setError(se);
 			setLastError(se);
 			Logging.warn(e);
 			sendErrorEmail(e, currentTask);
 		} finally {
-			if (taskLog != null)
-				taskLog.end();
+			if (currentTaskLog != null)
+				currentTaskLog.end();
 			runningEnd();
 		}
+	}
+
+	@Override
+	public void abort() {
+		super.abort();
+		if (currentTaskLog != null)
+			currentTaskLog.abortRequested();
 	}
 
 	private void sendErrorEmail(Exception error, TaskAbstract currentTask) {
@@ -450,6 +465,31 @@ public class JobItem extends ExecutionAbstract {
 		rwl.w.lock();
 		try {
 			this.emailRecipients = emailRecipients;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the currentTaskLog
+	 */
+	public TaskLog getCurrentTaskLog() {
+		rwl.r.lock();
+		try {
+			return currentTaskLog;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param currentTaskLog
+	 *            the currentTaskLog to set
+	 */
+	public void setCurrentTaskLog(TaskLog currentTaskLog) {
+		rwl.w.lock();
+		try {
+			this.currentTaskLog = currentTaskLog;
 		} finally {
 			rwl.w.unlock();
 		}
