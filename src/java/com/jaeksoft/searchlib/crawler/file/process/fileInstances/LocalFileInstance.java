@@ -76,9 +76,9 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public URI init() throws URISyntaxException {
+	public URI init() {
 		file = new File(getPath());
-		return new URI("file", "", file.getAbsolutePath(), null);
+		return file.toURI();
 	}
 
 	@Override
