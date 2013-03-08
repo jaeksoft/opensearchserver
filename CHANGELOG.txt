@@ -23,7 +23,8 @@ New features:
 - 243: RSS Parser
 
 Bug fixes:
-- 178 Error reading 'fieldOrSnippetList' on type RendererController
+- 183: maxClauseCount is set to 1024 when deleting large collection
+- 178: Error reading 'fieldOrSnippetList' on type RendererController
 - 170: Wrong file path in file crawler
 - 169: java.lang.NullPointerException on flush expired contend from cache
 - 168: Screenshot function not working

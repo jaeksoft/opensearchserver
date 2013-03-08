@@ -347,43 +347,6 @@ public class FileManager extends AbstractManager {
 
 	}
 
-	public final boolean deleteByParentUri(List<String> rowToDelete)
-			throws SearchLibException {
-		if (rowToDelete == null
-				|| (rowToDelete != null && rowToDelete.isEmpty()))
-			return false;
-		try {
-			List<TargetField> mappedPath = targetClient
-					.getFileCrawlerFieldMap().getLinks(
-							new SourceField(fileItemFieldEnum.subDirectory
-									.getName()));
-
-			for (String uriString : rowToDelete) {
-				URI uri = new URI(uriString);
-				String path = uri.getPath();
-
-				SearchRequest searchRequest = new SearchRequest(fileDbClient);
-				fileItemFieldEnum.subDirectory.setQuery(searchRequest, path,
-						true);
-				fileDbClient.deleteDocuments(searchRequest);
-
-				if (mappedPath != null && !mappedPath.isEmpty()) {
-					SearchRequest deleteRequestTarget = new SearchRequest(
-							targetClient);
-					StringBuffer query = new StringBuffer();
-					ItemField.addQuery(query, mappedPath.get(0).getName(),
-							path, true);
-					deleteRequestTarget.setQueryString(query.toString());
-					targetClient.deleteDocuments(deleteRequestTarget);
-
-				}
-			}
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		}
-		return true;
-	}
-
 	/**
 	 * delete file item from this repository
 	 * 
