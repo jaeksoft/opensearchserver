@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,7 +26,10 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
@@ -40,6 +43,7 @@ import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
@@ -373,17 +377,34 @@ public class WriterLocal extends WriterAbstract {
 				countNonNullValues++;
 		if (countNonNullValues == 0)
 			return 0;
-		Term[] terms = new Term[countNonNullValues];
-		int i = 0;
-		for (String value : values)
-			if (value != null)
+		int maxClauseCount = ClientFactory.INSTANCE
+				.getBooleanQueryMaxClauseCount().getValue();
+
+		Iterator<String> valueIterator = values.iterator();
+
+		int count = 0;
+		while (valueIterator.hasNext()) {
+			List<String> termList = new ArrayList<String>();
+			while (valueIterator.hasNext() && termList.size() < maxClauseCount) {
+				String value = valueIterator.next();
+				if (value == null)
+					continue;
+				termList.add(value);
+			}
+			if (termList.size() == 0)
+				continue;
+			Term[] terms = new Term[termList.size()];
+			int i = 0;
+			for (String value : termList)
 				terms[i++] = new Term(field, value);
-		lock.rl.lock();
-		try {
-			return deleteDocumentsNoLock(schema, terms);
-		} finally {
-			lock.rl.unlock();
+			lock.rl.lock();
+			try {
+				count += deleteDocumentsNoLock(schema, terms);
+			} finally {
+				lock.rl.unlock();
+			}
 		}
+		return count;
 	}
 
 	private int deleteDocumentsNoLock(SearchRequest query)

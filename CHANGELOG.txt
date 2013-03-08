@@ -10,6 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchserver 1.4
 
 New features:
+- 265: Retaining Search - Switch Between Renders
 - 260: Add Visio parser and Publisher parser
 - 257: Upgrade Apache CXF to 2.7.x
 - 251: A report module
