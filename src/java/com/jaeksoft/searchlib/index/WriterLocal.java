@@ -324,16 +324,21 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
+	private String getSchemaFieldOrUnique(Schema schema, String field) {
+		SchemaField schemaField = field != null ? schema.getFieldList().get(
+				field) : schema.getFieldList().getUniqueField();
+		return schemaField == null ? null : schemaField.getName();
+	}
+
 	@Override
 	public int deleteDocument(Schema schema, String field, String value)
 			throws SearchLibException {
-		SchemaField schemaField = field != null ? schema.getFieldList().get(
-				field) : schema.getFieldList().getUniqueField();
-		if (schemaField == null)
+		field = getSchemaFieldOrUnique(schema, field);
+		if (field == null)
 			return 0;
 		lock.rl.lock();
 		try {
-			return deleteDocumentNoLock(schemaField.getName(), value);
+			return deleteDocumentNoLock(field, value);
 		} finally {
 			lock.rl.unlock();
 		}
@@ -367,9 +372,8 @@ public class WriterLocal extends WriterAbstract {
 	@Override
 	public int deleteDocuments(Schema schema, String field,
 			Collection<String> values) throws SearchLibException {
-		SchemaField schemaField = field != null ? schema.getFieldList().get(
-				field) : schema.getFieldList().getUniqueField();
-		if (schemaField == null)
+		field = getSchemaFieldOrUnique(schema, field);
+		if (field == null)
 			return 0;
 		int countNonNullValues = 0;
 		for (String value : values)
@@ -477,6 +481,12 @@ public class WriterLocal extends WriterAbstract {
 		} finally {
 			lock.rl.unlock();
 		}
+	}
+
+	@Override
+	public void mergeData(IndexAbstract source) throws SearchLibException {
+		// TODO Auto-generated method stub
+
 	}
 
 }

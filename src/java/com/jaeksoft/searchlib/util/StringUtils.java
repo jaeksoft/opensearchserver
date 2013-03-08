@@ -262,8 +262,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return match.getName();
 	}
 
-	public final static String[] toStringArray(Collection<?> collection,
-			boolean sort) {
+	public final static String[] toStringArray(
+			Collection<? extends Object> collection, boolean sort) {
 		if (collection == null)
 			return null;
 		String[] array = new String[collection.size()];

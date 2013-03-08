@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class TaskPullAbstract extends TaskAbstract {
 
@@ -101,7 +102,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 		} else if (propertyDef == propSourceField) {
 			populateFieldValues(config, values);
 		}
-		return toValueArray(values);
+		return StringUtils.toStringArray(values, false);
 	}
 
 	@Override
@@ -111,14 +112,6 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 		else if (propertyDef == propLanguage)
 			return LanguageEnum.UNDEFINED.getName();
 		return null;
-	}
-
-	protected String[] toValueArray(List<String> values) {
-		if (values.size() == 0)
-			return null;
-		String[] valueArray = new String[values.size()];
-		values.toArray(valueArray);
-		return valueArray;
 	}
 
 	protected class ExecutionData {

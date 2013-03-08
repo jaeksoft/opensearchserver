@@ -479,4 +479,10 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
+	public void mergeData(IndexAbstract source) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

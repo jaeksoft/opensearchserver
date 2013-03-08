@@ -55,4 +55,5 @@ public interface WriterInterface {
 
 	public boolean isOptimizing();
 
+	public void mergeData(IndexAbstract source) throws SearchLibException;
 }

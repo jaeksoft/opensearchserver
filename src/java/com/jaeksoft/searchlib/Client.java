@@ -328,4 +328,8 @@ public class Client extends Config {
 	public void removeReplCheck() {
 		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
 	}
+
+	public void mergeData(Client sourceClient) {
+		getIndexAbstract().mergeData(sourceClient.getIndexAbstract());
+	}
 }
