@@ -225,6 +225,12 @@
 				indexed="yes" stored="no" termVector="yes" />
 			<field name="contentBaseType" indexed="yes" stored="no"
 				termVector="no" />
+			<field name="full" analyzer="TextAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
+			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
+			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
 			<field name="url" indexed="yes" stored="no" termVector="no" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
 				termVector="no" />

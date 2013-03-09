@@ -36,7 +36,10 @@ urlExact:($$)^5 OR urlExact:("$$")^5 OR
 urlPhonetic:($$)^5 OR urlPhonetic:("$$")^5 OR
 content:($$) OR content:("$$") OR
 contentExact:($$) OR contentExact:("$$") OR
-contentPhonetic:($$) OR contentPhonetic:("$$")
+contentPhonetic:($$) OR contentPhonetic:("$$") OR
+full:($$)^0.1 OR full:("$$")^0.1 OR
+fullExact:($$)^0.1 OR fullExact:("$$")^0.1 OR
+fullPhonetic:($$)^0.1 OR fullPhonetic:("$$")^0.1
 ]]>
 		</query>
 

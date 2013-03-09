@@ -238,6 +238,12 @@
 				stored="no" termVector="no" />
 			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
+			<field name="full" analyzer="TextAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
+			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
+			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
+				stored="no" termVector="no" />
 			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
 				indexed="yes" stored="no" termVector="no" />
 			<field name="userAllow" indexed="yes" stored="no" />

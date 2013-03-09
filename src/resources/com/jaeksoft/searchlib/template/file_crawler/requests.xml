@@ -35,7 +35,10 @@ contentExact:($$) OR contentExact:("$$") OR
 contentPhonetic:($$) OR contentPhonetic:("$$") OR
 title:($$)^10 OR title:("$$")^10 OR
 titleExact:($$)^10 OR titleExact:("$$")^10 OR
-titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10
+titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10 OR
+full:($$)^0.1 OR full:("$$")^0.1 OR
+fullExact:($$)^0.1 OR fullExact:("$$")^0.1 OR
+fullPhonetic:($$)^0.1 OR fullPhonetic:("$$")^0.1
 ]]>
 		</query>
 

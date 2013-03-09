@@ -27,5 +27,8 @@
 	<link source="url" target="urlSplit" />
 	<link source="url" target="urlExact" />
 	<link source="url" target="urlPhonetic" />
+	<link source="url" target="full" />
+	<link source="url" target="fullExact" />
+	<link source="url" target="fullPhonetic" />
 	<link source="backlinkCount" target="backlinkCount" />
 </map>
