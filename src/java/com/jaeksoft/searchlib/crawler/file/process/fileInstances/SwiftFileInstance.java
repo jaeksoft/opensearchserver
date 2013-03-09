@@ -79,7 +79,6 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	public URI init() throws SearchLibException, URISyntaxException,
 			UnsupportedEncodingException {
 		String path = getPath();
-		System.out.println("PATH: " + path);
 		if (token != null)
 			return token.getURI(filePathItem.getSwiftContainer(), getPath(),
 					false);

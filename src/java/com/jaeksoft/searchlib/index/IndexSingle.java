@@ -480,8 +480,22 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void mergeData(IndexAbstract source) {
-		// TODO Auto-generated method stub
+	public void mergeData(WriterInterface source) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (!(source instanceof IndexSingle))
+				throw new SearchLibException("Unsupported operation");
+			IndexSingle sourceIndex = (IndexSingle) source;
+			sourceIndex.rwl.r.lock();
+			try {
+				if (writer != null)
+					writer.mergeData(sourceIndex.writer);
+			} finally {
+				sourceIndex.rwl.r.unlock();
+			}
+		} finally {
+			rwl.r.unlock();
+		}
 
 	}
 

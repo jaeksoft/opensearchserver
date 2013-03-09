@@ -55,6 +55,4 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		xmlWriter.endElement();
 	}
 
-	public abstract void mergeData(IndexAbstract source);
-
 }

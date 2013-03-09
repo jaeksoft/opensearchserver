@@ -329,7 +329,7 @@ public class Client extends Config {
 		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
 	}
 
-	public void mergeData(Client sourceClient) {
+	public void mergeData(Client sourceClient) throws SearchLibException {
 		getIndexAbstract().mergeData(sourceClient.getIndexAbstract());
 	}
 }

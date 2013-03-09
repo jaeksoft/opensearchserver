@@ -483,10 +483,44 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	@Override
-	public void mergeData(IndexAbstract source) throws SearchLibException {
-		// TODO Auto-generated method stub
+	private void mergeNoLock(IndexDirectory directory)
+			throws SearchLibException {
+		IndexWriter indexWriter = null;
+		try {
+			indexWriter = open();
+			indexWriter.addIndexes(directory.getDirectory());
+			indexWriter = close(indexWriter);
+			indexSingle.reload();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} finally {
+			close(indexWriter);
+		}
 
+	}
+
+	@Override
+	public void mergeData(WriterInterface source) throws SearchLibException {
+		lock.rl.lock();
+		try {
+			if (!(source instanceof WriterLocal))
+				throw new SearchLibException("Unsupported operation");
+			WriterLocal sourceWriter = (WriterLocal) source;
+			sourceWriter.lock.rl.lock();
+			try {
+				mergeNoLock(sourceWriter.indexDirectory);
+			} finally {
+				sourceWriter.lock.rl.unlock();
+			}
+		} finally {
+			lock.rl.unlock();
+		}
 	}
 
 }

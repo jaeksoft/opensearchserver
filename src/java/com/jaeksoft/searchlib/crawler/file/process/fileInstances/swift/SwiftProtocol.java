@@ -108,7 +108,6 @@ public class SwiftProtocol {
 		swiftToken.putAuthTokenHeader(headerList);
 
 		URI uri = swiftToken.getURI(container, path, true);
-		System.out.println("SwiftProtocol:listOjbects: " + uri.toString());
 		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList);
 		downloadItem.checkNoError(200, 204);
 
@@ -125,7 +124,6 @@ public class SwiftProtocol {
 				continue;
 			objectMetaList.add(objectMeta);
 		}
-		System.out.println("FINAL LIST SIZE: " + objectMetaList.size());
 		return objectMetaList;
 	}
 
