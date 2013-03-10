@@ -272,9 +272,7 @@ public class WriterLocal extends WriterAbstract {
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = open();
-			optimizing = true;
 			indexWriter.optimize(true);
-			optimizing = false;
 			indexWriter = close(indexWriter);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -285,7 +283,6 @@ public class WriterLocal extends WriterAbstract {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
-			optimizing = false;
 			close(indexWriter);
 		}
 	}
@@ -294,8 +291,10 @@ public class WriterLocal extends WriterAbstract {
 	public void optimize() throws SearchLibException {
 		lock.rl.lock();
 		try {
+			setOptimizing(true);
 			optimizeNoLock();
 		} finally {
+			setOptimizing(false);
 			lock.rl.unlock();
 		}
 	}
@@ -507,18 +506,24 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public void mergeData(WriterInterface source) throws SearchLibException {
+		WriterLocal sourceWriter = null;
+		if (!(source instanceof WriterLocal))
+			throw new SearchLibException("Unsupported operation");
+		sourceWriter = (WriterLocal) source;
 		lock.rl.lock();
 		try {
-			if (!(source instanceof WriterLocal))
-				throw new SearchLibException("Unsupported operation");
-			WriterLocal sourceWriter = (WriterLocal) source;
 			sourceWriter.lock.rl.lock();
+			sourceWriter.setMergingSource(true);
+			setMergingTarget(true);
 			try {
 				mergeNoLock(sourceWriter.indexDirectory);
 			} finally {
 				sourceWriter.lock.rl.unlock();
 			}
 		} finally {
+			if (sourceWriter != null)
+				sourceWriter.setMergingSource(false);
+			setMergingTarget(false);
 			lock.rl.unlock();
 		}
 	}

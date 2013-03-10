@@ -162,7 +162,7 @@ public class SchedulerEditController extends SchedulerController {
 
 	@Command
 	public void onTaskSave() throws SearchLibException {
-		selectedJobTask.setProperties(currentTask.getProperties());
+		selectedJobTask.setProperties(currentTask.getProperties().getArray());
 		onTaskCancel();
 	}
 

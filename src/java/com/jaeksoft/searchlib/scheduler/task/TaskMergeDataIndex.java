@@ -91,6 +91,16 @@ public class TaskMergeDataIndex extends TaskAbstract {
 		return null;
 	}
 
+	public void setValues(TaskProperties properties, String index,
+			String login, String apiKey) {
+		if (index != null)
+			properties.setValue(propSourceIndex, index);
+		if (login != null)
+			properties.setValue(propLogin, login);
+		if (apiKey != null)
+			properties.setValue(propApiKey, apiKey);
+	}
+
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {

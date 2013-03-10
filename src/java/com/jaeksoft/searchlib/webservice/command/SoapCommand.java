@@ -48,4 +48,13 @@ public interface SoapCommand {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
+	public CommonResult truncate(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult merge(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "index") String index);
+
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,18 +30,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.util.Md5Spliter;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class WriterAbstract implements WriterInterface {
+
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	final protected IndexConfig indexConfig;
 	final private Md5Spliter md5spliter;
 	private String keyField = null;
 	protected List<BeforeUpdateInterface> beforeUpdateList = null;
-	protected boolean optimizing;
+
+	private boolean isMergingSource = false;
+	private boolean isMergingTarget = false;
+	protected boolean isOptimizing = false;
 
 	protected WriterAbstract(IndexConfig indexConfig) {
 		this.indexConfig = indexConfig;
-		optimizing = false;
 		this.keyField = indexConfig.getKeyField();
 		if (indexConfig.getKeyMd5RegExp() != null)
 			md5spliter = new Md5Spliter(indexConfig.getKeyMd5RegExp());
@@ -51,28 +56,97 @@ public abstract class WriterAbstract implements WriterInterface {
 
 	protected boolean acceptDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		if (keyField == null)
-			return true;
-		if (md5spliter == null)
-			return true;
-		FieldContent fieldContent = document.getField(keyField);
-		if (fieldContent == null)
-			return false;
-		return md5spliter.acceptAnyKey(fieldContent.getValues());
+		rwl.r.lock();
+		try {
+			if (keyField == null)
+				return true;
+			if (md5spliter == null)
+				return true;
+			FieldContent fieldContent = document.getField(keyField);
+			if (fieldContent == null)
+				return false;
+			return md5spliter.acceptAnyKey(fieldContent.getValues());
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate) {
-		if (beforeUpdate == null)
-			return;
-		if (beforeUpdateList == null)
-			beforeUpdateList = new ArrayList<BeforeUpdateInterface>();
-		beforeUpdateList.add(beforeUpdate);
+		rwl.w.lock();
+		try {
+			if (beforeUpdate == null)
+				return;
+			if (beforeUpdateList == null)
+				beforeUpdateList = new ArrayList<BeforeUpdateInterface>();
+			beforeUpdateList.add(beforeUpdate);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	protected void setOptimizing(boolean optimizing) {
+		rwl.w.lock();
+		try {
+			this.isOptimizing = optimizing;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
 	public boolean isOptimizing() {
-		return optimizing;
+		rwl.r.lock();
+		try {
+			return isOptimizing;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
+	protected void setMergingSource(boolean merging) {
+		rwl.w.lock();
+		try {
+			this.isMergingSource = merging;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isMergingSource() {
+		rwl.r.lock();
+		try {
+			return isMergingSource;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected void setMergingTarget(boolean merging) {
+		rwl.w.lock();
+		try {
+			this.isMergingTarget = merging;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public boolean isMergingTarget() {
+		rwl.r.lock();
+		try {
+			return isMergingTarget;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean isMerging() {
+		rwl.r.lock();
+		try {
+			return isMergingSource || isMergingTarget;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
 }

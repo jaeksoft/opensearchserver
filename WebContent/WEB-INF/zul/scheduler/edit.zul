@@ -117,7 +117,7 @@
 									<vbox width="100%">
 										<grid
 											visible="@load(scheduleredit.currentTask.task.property)"
-											model="@load(scheduleredit.currentTask.properties)">
+											model="@load(scheduleredit.currentTask.properties.array)">
 											<columns>
 												<column hflex="min"
 													align="right" />
@@ -188,7 +188,7 @@
 									<listcell>
 										<listbox
 											visible="@load(taskItem.task.property)"
-											model="@load(taskItem.properties)">
+											model="@load(taskItem.properties.array)">
 											<listhead>
 												<listheader
 													align="right" width="150px" />

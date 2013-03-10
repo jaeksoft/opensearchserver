@@ -58,7 +58,7 @@ public class TaskItem extends ExecutionAbstract {
 
 	public TaskItem(TaskItem selectedJobTask) {
 		this(selectedJobTask.config, selectedJobTask.task);
-		setProperties(selectedJobTask.getProperties());
+		setProperties(selectedJobTask.getProperties().getArray());
 	}
 
 	public void setProperties(TaskProperty[] taskProps) {
@@ -77,10 +77,10 @@ public class TaskItem extends ExecutionAbstract {
 
 	/**
 	 * 
-	 * @return the property list
+	 * @return user properties
 	 */
-	public TaskProperty[] getProperties() {
-		return userProperties.getArray();
+	public TaskProperties getProperties() {
+		return userProperties;
 	}
 
 	public void run(Client client, TaskLog taskLog) throws SearchLibException,

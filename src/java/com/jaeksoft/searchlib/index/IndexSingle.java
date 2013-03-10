@@ -65,7 +65,7 @@ public class IndexSingle extends IndexAbstract {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(indexConfig);
-		online = true;
+		this.online = true;
 
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
@@ -121,8 +121,9 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (writer != null)
-				writer.optimize();
+			if (writer == null)
+				return;
+			writer.optimize();
 			if (reader != null)
 				reader.reload();
 		} finally {
@@ -134,9 +135,7 @@ public class IndexSingle extends IndexAbstract {
 	public boolean isOptimizing() {
 		rwl.r.lock();
 		try {
-			if (writer != null)
-				return writer.isOptimizing();
-			return false;
+			return writer != null ? writer.isOptimizing() : false;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -481,22 +480,34 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void mergeData(WriterInterface source) throws SearchLibException {
+		if (!(source instanceof IndexSingle))
+			throw new SearchLibException("Unsupported operation");
+		IndexSingle sourceIndex = (IndexSingle) source;
 		rwl.r.lock();
 		try {
-			if (!(source instanceof IndexSingle))
-				throw new SearchLibException("Unsupported operation");
-			IndexSingle sourceIndex = (IndexSingle) source;
+			if (writer == null)
+				return;
 			sourceIndex.rwl.r.lock();
 			try {
-				if (writer != null)
-					writer.mergeData(sourceIndex.writer);
+				writer.mergeData(sourceIndex.writer);
+				if (reader != null)
+					reader.reload();
 			} finally {
 				sourceIndex.rwl.r.unlock();
 			}
 		} finally {
 			rwl.r.unlock();
 		}
+	}
 
+	@Override
+	public boolean isMerging() {
+		rwl.r.lock();
+		try {
+			return writer != null ? writer.isMerging() : false;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }

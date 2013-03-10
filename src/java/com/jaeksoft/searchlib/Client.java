@@ -236,6 +236,16 @@ public class Client extends Config {
 				.isOptimized());
 	}
 
+	public String getMergeStatus() {
+		if (!isOnline())
+			return "Unknown";
+		return isMerging() ? "Merging" : null;
+	}
+
+	public boolean isMerging() {
+		return getIndexAbstract().isMerging();
+	}
+
 	public void deleteAll() throws SearchLibException {
 		Timer timer = new Timer("DeleteAll");
 		try {

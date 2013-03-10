@@ -83,4 +83,31 @@ public interface RestCommand {
 	@Path("/reload/{index}/xml")
 	public CommonResult reloadXML(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/truncate/{index}/json")
+	public CommonResult truncateJSON(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("/truncate/{index}/xml")
+	public CommonResult truncateXML(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/merge/{index}/json")
+	public CommonResult mergeJSON(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("index") String index);
+
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("/merge/{index}/xml")
+	public CommonResult mergeXML(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("index") String index);
+
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,4 +56,6 @@ public interface WriterInterface {
 	public boolean isOptimizing();
 
 	public void mergeData(WriterInterface source) throws SearchLibException;
+
+	public boolean isMerging();
 }

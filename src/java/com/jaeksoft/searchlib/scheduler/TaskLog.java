@@ -65,7 +65,7 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 		this.abortRequested = abortRequested;
 		error = null;
 		info = null;
-		TaskProperty[] tp = taskItem.getProperties();
+		TaskProperty[] tp = taskItem.getProperties().getArray();
 		if (tp != null) {
 			taskProperties = new TaskProperty[tp.length];
 			for (int i = 0; i < taskProperties.length; i++) {
