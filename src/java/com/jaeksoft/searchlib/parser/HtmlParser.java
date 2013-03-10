@@ -72,6 +72,8 @@ public class HtmlParser extends Parser {
 	private Float titleBoost;
 	private boolean ignoreMetaNoIndex;
 	private boolean ignoreUntitledDocuments;
+	private boolean ignoreNonCanonical;
+	private boolean isCanonical = true;
 
 	public HtmlParser() {
 		super(fl);
@@ -120,6 +122,8 @@ public class HtmlParser extends Parser {
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
 		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
@@ -258,6 +262,7 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
 		ignoreUntitledDocuments = getBooleanProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS);
+		ignoreNonCanonical = getBooleanProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL);
 
 		String currentCharset = null;
 		String headerCharset = null;
@@ -294,6 +299,18 @@ public class HtmlParser extends Parser {
 				currentCharset, streamLimiter);
 		if (htmlProvider == null)
 			return;
+
+		String canonicalLink = htmlProvider.getCanonicalLink();
+		if (canonicalLink != null) {
+			addDetectedLink(canonicalLink);
+			if (ignoreNonCanonical) {
+				if (!canonicalLink.equals(streamLimiter.getOriginURL())) {
+					isCanonical = false;
+					return;
+				}
+			}
+		}
+		isCanonical = true;
 
 		String title = htmlProvider.getTitle();
 		if (ignoreUntitledDocuments)
@@ -434,7 +451,10 @@ public class HtmlParser extends Parser {
 						else
 							field = ParserFieldEnum.external_link_nofollow;
 					}
-					result.addField(field, newUrl.toExternalForm());
+					String link = newUrl.toExternalForm();
+					result.addField(field, link);
+					if (follow)
+						addDetectedLink(link);
 				}
 			}
 		}
@@ -477,4 +497,12 @@ public class HtmlParser extends Parser {
 			lang = result.langDetection(10000, ParserFieldEnum.body);
 
 	}
+
+	/**
+	 * @return the isCanonical
+	 */
+	public boolean isCanonical() {
+		return isCanonical;
+	}
+
 }

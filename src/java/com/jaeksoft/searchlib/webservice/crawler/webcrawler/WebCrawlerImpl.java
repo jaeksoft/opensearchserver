@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -39,18 +41,24 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
+import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 
 public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
@@ -180,6 +188,45 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	public CommonResult injectPatternsExclusion(String use, String login,
 			String key, Boolean deleteAll, List<String> patterns) {
 		return injectPatterns(use, login, key, deleteAll, patterns, false);
+	}
+
+	@Override
+	public CommonResult crawl(String use, String login, String key, URL url) {
+		try {
+			WebCrawlMaster crawlMaster = getCrawlMaster(use, login, key);
+			WebCrawlThread webCrawlThread = crawlMaster.manualCrawl(url,
+					HostUrlList.ListType.MANUAL);
+			if (!webCrawlThread.waitForStart(120))
+				throw new WebServiceException("Time out reached (120 seconds)");
+			if (!webCrawlThread.waitForEnd(3600))
+				throw new WebServiceException("Time out reached (3600 seconds)");
+			UrlItem urlItem = webCrawlThread.getCurrentUrlItem();
+			String message = urlItem != null ? "Result: "
+					+ urlItem.getFetchStatus() + " - "
+					+ urlItem.getParserStatus() + " - "
+					+ urlItem.getIndexStatus() : null;
+			return new CommonResult(true, message);
+		} catch (MalformedURLException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (ParseException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SyntaxError e) {
+			throw new WebServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new WebServiceException(e);
+		} catch (ClassNotFoundException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (InstantiationException e) {
+			throw new WebServiceException(e);
+		} catch (IllegalAccessException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
@@ -316,4 +363,25 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return checkScreenshot(use, login, key, url);
 	}
 
+	@Override
+	public CommonResult crawlXML(String use, String login, String key, URL url) {
+		return crawl(use, login, key, url);
+	}
+
+	@Override
+	public CommonResult crawlJSON(String use, String login, String key, URL url) {
+		return crawl(use, login, key, url);
+	}
+
+	public static String getCrawlXML(User user, Client client, String url)
+			throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/crawler/web/crawl/{index}/xml",
+				user, client, "url", url);
+	}
+
+	public static String getCrawlJSON(User user, Client client, String url)
+			throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/crawler/web/crawl/{index}/json",
+				user, client, "url", url);
+	}
 }

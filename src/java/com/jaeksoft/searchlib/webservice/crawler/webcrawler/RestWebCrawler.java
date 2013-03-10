@@ -150,4 +150,18 @@ public interface RestWebCrawler {
 	public CommonResult checkScreenshotJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("url") URL url);
+
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("/crawl/{index}/xml")
+	public CommonResult crawlXML(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("url") URL url);
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/crawl/{index}/json")
+	public CommonResult crawlJSON(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("url") URL url);
 }

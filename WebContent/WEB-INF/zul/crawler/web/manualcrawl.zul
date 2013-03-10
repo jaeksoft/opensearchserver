@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -20,7 +20,8 @@
 		<hbox align="center">
 			<label value="URL to crawl: " />
 			<textbox cols="100" value="@bind(manualCrawl.url)"
-				readonly="@load(manualCrawl.refresh)" />
+				readonly="@load(manualCrawl.refresh)"
+				onChanging="@command('onChanging')" />
 			<button label="Crawl" onClick="@command('onCrawl')"
 				disabled="@load(manualCrawl.refresh)" />
 			<image visible="@load(manualCrawl.refresh)"
@@ -29,6 +30,11 @@
 			<button label="Download crawl cache"
 				visible="@load(manualCrawl.crawlCache)"
 				onClick="@command('onDownload')" />
+			<space />
+			<button target="_blank"
+				href="@load(manualCrawl.crawlXmlApi)" label="XML" />
+			<button target="_blank"
+				href="@load(manualCrawl.crawlJsonApi)" label="JSON" />
 		</hbox>
 		<panel title="Crawl result"
 			visible="@load(manualCrawl.crawlComplete)" collapsible="true"

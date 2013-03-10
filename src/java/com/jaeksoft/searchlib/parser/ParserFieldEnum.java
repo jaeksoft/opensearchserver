@@ -46,8 +46,6 @@ public enum ParserFieldEnum {
 
 	external_link,
 
-	frameset_link,
-
 	htmlProvider,
 
 	htmlSource,

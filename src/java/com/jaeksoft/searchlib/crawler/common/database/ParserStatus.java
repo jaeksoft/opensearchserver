@@ -36,6 +36,8 @@ public enum ParserStatus {
 
 	NOPARSER(3, "No parser", TargetStatus.TARGET_DELETE),
 
+	PARSED_NON_CANONICAL(4, "Parsed non-canonical", TargetStatus.TARGET_DELETE),
+
 	ALL(99, "All", null);
 
 	final public int value;

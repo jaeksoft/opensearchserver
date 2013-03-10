@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -65,6 +66,7 @@ import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.HtmlParser;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserResultItem;
@@ -168,7 +170,11 @@ public class Crawl {
 			urlItem.setContentTypeCharset(result.getFieldValue(
 					ParserFieldEnum.charset, 0));
 		}
-		urlItem.setParserStatus(ParserStatus.PARSED);
+		ParserStatus parsedStatus = ParserStatus.PARSED;
+		if (parser instanceof HtmlParser)
+			if (!((HtmlParser) parser).isCanonical())
+				parsedStatus = ParserStatus.PARSED_NON_CANONICAL;
+		urlItem.setParserStatus(parsedStatus);
 		String oldMd5size = urlItem.getMd5size();
 		String newMd5size = parser.getMd5size();
 		urlItem.setMd5size(newMd5size);
@@ -431,16 +437,12 @@ public class Crawl {
 
 	final private static void discoverLinks(UrlManager urlManager,
 			PatternManager inclusionManager, PatternManager exclusionManager,
-			FieldContent urlFieldContent, Origin origin, String parentUrl,
+			Collection<String> linkSet, Origin origin, String parentUrl,
 			List<LinkItem> newUrlList) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
-		if (urlFieldContent == null)
+		if (linkSet == null)
 			return;
-		FieldValueItem[] links = urlFieldContent.getValues();
-		if (links == null)
-			return;
-		for (FieldValueItem linkItem : links) {
-			String link = linkItem.getValue();
+		for (String link : linkSet) {
 			try {
 				URL url = new URL(link);
 				if (exclusionManager != null)
@@ -475,28 +477,14 @@ public class Crawl {
 			}
 			if (parser == null || !urlItem.isLinkDiscoverable())
 				return discoverLinks;
-			List<ParserResultItem> results = parser.getParserResults();
-			if (results == null)
-				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
 			PatternManager inclusionManager = inclusionEnabled ? config
 					.getInclusionPatternManager() : null;
 			PatternManager exclusionManager = exclusionEnabled ? config
 					.getExclusionPatternManager() : null;
-			for (ParserResultItem result : results) {
-				discoverLinks(urlManager, inclusionManager, exclusionManager,
-						result.getFieldContent(ParserFieldEnum.internal_link),
-						Origin.content, parentUrl, discoverLinks);
-				discoverLinks(urlManager, inclusionManager, exclusionManager,
-						result.getFieldContent(ParserFieldEnum.external_link),
-						Origin.content, parentUrl, discoverLinks);
-				discoverLinks(urlManager, inclusionManager, exclusionManager,
-						result.getFieldContent(ParserFieldEnum.frameset_link),
-						Origin.frameset, parentUrl, discoverLinks);
-				discoverLinks(urlManager, inclusionManager, exclusionManager,
-						result.getFieldContent(ParserFieldEnum.link),
-						Origin.content, parentUrl, discoverLinks);
-			}
+			discoverLinks(urlManager, inclusionManager, exclusionManager,
+					parser.getDetectedLinks(), Origin.content, parentUrl,
+					discoverLinks);
 			return discoverLinks;
 		}
 	}

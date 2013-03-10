@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -43,11 +45,14 @@ public abstract class Parser extends ParserFactory {
 
 	private List<ParserResultItem> resultItems;
 
+	private Set<String> detectedLinks;
+
 	protected Parser(ParserFieldEnum[] fieldList) {
 		super(fieldList);
 		sourceDocument = null;
 		streamLimiter = null;
 		resultItems = new ArrayList<ParserResultItem>(0);
+		detectedLinks = new TreeSet<String>();
 	}
 
 	public IndexDocument getSourceDocument() {
@@ -66,6 +71,14 @@ public abstract class Parser extends ParserFactory {
 
 	public List<ParserResultItem> getParserResults() {
 		return resultItems;
+	}
+
+	public Set<String> getDetectedLinks() {
+		return detectedLinks;
+	}
+
+	protected final void addDetectedLink(String link) {
+		detectedLinks.add(link);
 	}
 
 	public boolean popupateResult(int resultPos, IndexDocument indexDocument) {

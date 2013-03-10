@@ -208,4 +208,7 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		}
 	}
 
+	public final static void main(String[] args) {
+		String test = "http://www.open-search-server.com/confluence/display/EN/Home;jsessionid=B9D40B1C9E1B93570E2A7EACD1CB8808";
+	}
 }

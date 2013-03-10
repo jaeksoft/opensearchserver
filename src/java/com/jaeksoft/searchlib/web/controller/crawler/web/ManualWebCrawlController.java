@@ -24,10 +24,15 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -38,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
 
 public class ManualWebCrawlController extends CommonController {
 
@@ -59,8 +65,17 @@ public class ManualWebCrawlController extends CommonController {
 	 * @param url
 	 *            the url to set
 	 */
+	@NotifyChange("*")
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	@Command
+	@NotifyChange({ "crawlJsonApi", "crawlXmlApi" })
+	public void onChanging(
+			@ContextParam(ContextType.TRIGGER_EVENT) InputEvent event)
+			throws SearchLibException {
+		setUrl(event.getValue());
 	}
 
 	/**
@@ -141,5 +156,17 @@ public class ManualWebCrawlController extends CommonController {
 				return false;
 			return currentCrawlThread.isRunning();
 		}
+	}
+
+	public String getCrawlXmlApi() throws UnsupportedEncodingException,
+			SearchLibException {
+		return WebCrawlerImpl.getCrawlXML(getLoggedUser(), getClient(),
+				getUrl());
+	}
+
+	public String getCrawlJsonApi() throws UnsupportedEncodingException,
+			SearchLibException {
+		return WebCrawlerImpl.getCrawlJSON(getLoggedUser(), getClient(),
+				getUrl());
 	}
 }

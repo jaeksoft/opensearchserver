@@ -219,6 +219,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "ignoreUntitledDocuments", "Ignore untitled documents",
 			"Ignore documents which don't have title");
 
+	public static ClassPropertyEnum IGNORE_NON_CANONICAL = new ClassPropertyEnum(
+			true, "ignoreNonCanonical", "Ignore non canonical pages",
+			"Ignore documents which have a canonical link reference");
+
 	private boolean isUser;
 
 	private String label;

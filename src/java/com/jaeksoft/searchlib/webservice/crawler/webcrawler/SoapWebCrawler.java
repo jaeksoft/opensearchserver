@@ -82,4 +82,8 @@ public interface SoapWebCrawler {
 	public CommonResult checkScreenshot(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key, @WebParam(name = "url") URL url);
+
+	public CommonResult crawl(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key, @WebParam(name = "url") URL url);
 }

@@ -109,6 +109,26 @@ public abstract class HtmlDocumentProvider {
 		return titleCache;
 	}
 
+	final public String getCanonicalLink() {
+		if (rootNode == null)
+			return null;
+		String[] p1 = { "html", "head", "link" };
+		List<HtmlNodeAbstract<?>> nodes = rootNode.getNodes(p1);
+		if (nodes == null)
+			return null;
+		for (HtmlNodeAbstract<?> node : nodes) {
+			String rel = node.getAttribute("rel");
+			if (rel == null)
+				continue;
+			if (!"canonical".equalsIgnoreCase(rel))
+				continue;
+			String href = node.getAttribute("href");
+			if (href != null)
+				return href;
+		}
+		return null;
+	}
+
 	final public List<HtmlNodeAbstract<?>> getMetas() {
 		if (metasCache != null)
 			return metasCache;
