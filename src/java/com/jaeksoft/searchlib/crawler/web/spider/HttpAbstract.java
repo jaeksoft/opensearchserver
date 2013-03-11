@@ -298,7 +298,17 @@ public abstract class HttpAbstract {
 				return null;
 			return header.getValue();
 		}
+	}
 
+	public String getContentLocation() {
+		synchronized (this) {
+			if (httpResponse == null)
+				return null;
+			Header header = httpResponse.getFirstHeader("Content-Location");
+			if (header == null)
+				return null;
+			return header.getValue();
+		}
 	}
 
 	protected InputStream getContent() throws IllegalStateException,

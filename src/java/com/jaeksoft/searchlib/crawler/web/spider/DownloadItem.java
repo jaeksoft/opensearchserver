@@ -50,6 +50,7 @@ public class DownloadItem {
 	private String contentBaseType = null;
 	private String contentTypeCharset = null;
 	private String contentEncoding = null;
+	private String contentLocation = null;
 	private Long lastModified = null;
 	private Integer statusCode = null;
 	private InputStream contentInputStream = null;
@@ -68,6 +69,7 @@ public class DownloadItem {
 	protected final static String KEY_CONTENT_BASE_TYPE = "KEY_CONTENT_BASE_TYPE";
 	protected final static String KEY_CONTENT_TYPE_CHARSET = "KEY_CONTENT_TYPE_CHARSET";
 	protected final static String KEY_CONTENT_ENCODING = "KEY_CONTENT_ENCODING";
+	protected final static String KEY_CONTENT_LOCATION = "KEY_CONTENT_LOCATION";
 	protected final static String KEY_STATUS_CODE = "KEY_STATUS_CODE";
 	protected final static String KEY_HEADERS = "KEY_HEADERS";
 
@@ -95,6 +97,9 @@ public class DownloadItem {
 
 		if (contentEncoding != null)
 			json.put(KEY_CONTENT_ENCODING, contentEncoding);
+
+		if (contentLocation != null)
+			json.put(KEY_CONTENT_LOCATION, contentLocation);
 
 		if (statusCode != null)
 			json.put(KEY_STATUS_CODE, statusCode);
@@ -133,6 +138,9 @@ public class DownloadItem {
 
 		if (json.has(KEY_CONTENT_ENCODING))
 			contentEncoding = json.getString(KEY_CONTENT_ENCODING);
+
+		if (json.has(KEY_CONTENT_LOCATION))
+			contentLocation = json.getString(KEY_CONTENT_ENCODING);
 
 		if (json.has(KEY_STATUS_CODE))
 			statusCode = json.getInt(KEY_STATUS_CODE);
@@ -346,6 +354,21 @@ public class DownloadItem {
 		if (contentInputStream == null)
 			return null;
 		return IOUtils.toString(contentInputStream);
+	}
+
+	/**
+	 * @return the contentLocation
+	 */
+	public String getContentLocation() {
+		return contentLocation;
+	}
+
+	/**
+	 * @param contentLocation
+	 *            the contentLocation to set
+	 */
+	public void setContentLocation(String contentLocation) {
+		this.contentLocation = contentLocation;
 	}
 
 }

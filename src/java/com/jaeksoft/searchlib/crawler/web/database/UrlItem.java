@@ -651,16 +651,6 @@ public class UrlItem {
 		this.md5size = md5size;
 	}
 
-	public boolean isLinkDiscoverable() {
-		if (fetchStatus != FetchStatus.FETCHED)
-			return false;
-		if (indexStatus == IndexStatus.INDEXED)
-			return true;
-		if (indexStatus == IndexStatus.META_NOINDEX)
-			return true;
-		return false;
-	}
-
 	public List<String> getHeaders() {
 		return headers;
 	}

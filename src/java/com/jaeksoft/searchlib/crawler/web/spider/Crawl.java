@@ -57,7 +57,7 @@ import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
-import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
@@ -75,6 +75,7 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Crawl {
 
@@ -435,28 +436,41 @@ public class Crawl {
 		}
 	}
 
-	final private static void discoverLinks(UrlManager urlManager,
+	final private static void addDiscoverLink(UrlManager urlManager,
+			PatternManager inclusionManager, PatternManager exclusionManager,
+			String href, Origin origin, String parentUrl, URL currentURL,
+			UrlFilterItem[] urlFilterList, List<LinkItem> newUrlList) {
+		if (href == null)
+			return;
+		try {
+			URL url = currentURL != null ? LinkUtils.getLink(currentURL, href,
+					urlFilterList, false) : new URL(href);
+
+			if (exclusionManager != null)
+				if (exclusionManager.matchPattern(url))
+					return;
+			if (inclusionManager != null)
+				if (!inclusionManager.matchPattern(url))
+					return;
+			newUrlList
+					.add(new LinkItem(url.toExternalForm(), origin, parentUrl));
+		} catch (MalformedURLException e) {
+			Logging.warn(href + " " + e.getMessage(), e);
+		}
+	}
+
+	final private static void addDiscoverLinks(UrlManager urlManager,
 			PatternManager inclusionManager, PatternManager exclusionManager,
 			Collection<String> linkSet, Origin origin, String parentUrl,
+			URL currentURL, UrlFilterItem[] urlFilterList,
 			List<LinkItem> newUrlList) throws NoSuchAlgorithmException,
 			IOException, SearchLibException {
 		if (linkSet == null)
 			return;
-		for (String link : linkSet) {
-			try {
-				URL url = new URL(link);
-				if (exclusionManager != null)
-					if (exclusionManager.matchPattern(url))
-						continue;
-				if (inclusionManager != null)
-					if (!inclusionManager.matchPattern(url))
-						continue;
-				newUrlList.add(new LinkItem(link, origin, parentUrl));
-			} catch (MalformedURLException e) {
-				Logging.warn(link + " " + e.getMessage(), e);
-			}
-		}
-		urlManager.removeExisting(newUrlList);
+		for (String link : linkSet)
+			addDiscoverLink(urlManager, inclusionManager, exclusionManager,
+					link, origin, parentUrl, currentURL, urlFilterList,
+					newUrlList);
 	}
 
 	public List<LinkItem> getDiscoverLinks() throws NoSuchAlgorithmException,
@@ -464,27 +478,28 @@ public class Crawl {
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;
-			String parentUrl = urlItem.getUrl();
-			discoverLinks = new ArrayList<LinkItem>();
-			if (redirectUrlLocation != null) {
-				String redirectedUrl = UrlFilterList.doReplace(
-						redirectUrlLocation.getHost(), redirectUrlLocation
-								.toString(), config.getUrlFilterList()
-								.getArray());
-				discoverLinks.add(new LinkItem(redirectedUrl, Origin.redirect,
-						parentUrl));
-				return discoverLinks;
-			}
-			if (parser == null || !urlItem.isLinkDiscoverable())
-				return discoverLinks;
 			UrlManager urlManager = config.getUrlManager();
 			PatternManager inclusionManager = inclusionEnabled ? config
 					.getInclusionPatternManager() : null;
 			PatternManager exclusionManager = exclusionEnabled ? config
 					.getExclusionPatternManager() : null;
-			discoverLinks(urlManager, inclusionManager, exclusionManager,
-					parser.getDetectedLinks(), Origin.content, parentUrl,
-					discoverLinks);
+			UrlFilterItem[] urlFilterList = config.getUrlFilterList()
+					.getArray();
+			String parentUrl = urlItem.getUrl();
+			URL currentURL = urlItem.getURL();
+			discoverLinks = new ArrayList<LinkItem>();
+			if (redirectUrlLocation != null) {
+				addDiscoverLink(urlManager, inclusionManager, exclusionManager,
+						redirectUrlLocation.toString(), Origin.redirect,
+						parentUrl, currentURL, urlFilterList, discoverLinks);
+			}
+			if (parser != null
+					&& urlItem.getFetchStatus() == FetchStatus.FETCHED)
+				addDiscoverLinks(urlManager, inclusionManager,
+						exclusionManager, parser.getDetectedLinks(),
+						Origin.content, parentUrl, currentURL, urlFilterList,
+						discoverLinks);
+			urlManager.removeExisting(discoverLinks);
 			return discoverLinks;
 		}
 	}

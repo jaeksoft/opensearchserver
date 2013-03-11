@@ -66,6 +66,7 @@ public class HttpDownloader extends HttpAbstract {
 				.setContentDispositionFilename(getContentDispositionFilename());
 		downloadItem.setContentBaseType(getContentBaseType());
 		downloadItem.setContentEncoding(getContentEncoding());
+		downloadItem.setContentLocation(getContentLocation());
 		downloadItem.setContentTypeCharset(getContentTypeCharset());
 		downloadItem.setStatusCode(getStatusCode());
 		downloadItem.setContentInputStream(getContent());
