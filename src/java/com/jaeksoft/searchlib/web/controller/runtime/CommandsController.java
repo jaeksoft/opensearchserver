@@ -227,8 +227,11 @@ public class CommandsController extends CommonController {
 
 	public List<String> getIndexList() throws SearchLibException {
 		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
 			List<String> list = new ArrayList<String>(0);
-			String currentName = getClient().getIndexName();
+			String currentName = client.getIndexName();
 			for (ClientCatalogItem item : ClientCatalog
 					.getClientCatalog(getLoggedUser())) {
 				String v = item.getIndexName();
