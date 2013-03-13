@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -183,8 +184,11 @@ public class SnippetField extends AbstractField<SnippetField> {
 		String separator = XPathParser.getAttributeString(node, "separator");
 		if (separator == null)
 			separator = "...";
-		SnippetField field = new SnippetField(source.get(fieldName).getName(),
-				tag, separator, maxSnippetSize, fragmenter);
+		SchemaField schemaField = source.get(fieldName);
+		if (schemaField == null)
+			return;
+		SnippetField field = new SnippetField(schemaField.getName(), tag,
+				separator, maxSnippetSize, fragmenter);
 		target.put(field);
 	}
 
