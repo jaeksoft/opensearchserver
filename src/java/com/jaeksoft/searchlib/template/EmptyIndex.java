@@ -32,8 +32,6 @@ public class EmptyIndex extends TemplateAbstract {
 
 	"config.xml", "parsers.xml", "jobs.xml",
 
-	"renderers" + '/' + "default.xml",
-
 	"stopwords" + '/' + "English stop words",
 
 	"stopwords" + '/' + "French stop words",
