@@ -48,6 +48,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -89,8 +90,11 @@ public abstract class HttpAbstract {
 		HttpConnectionParams.setStaleCheckingEnabled(params, true);
 		// paramsBean.setVersion(HttpVersion.HTTP_1_1);
 		// paramsBean.setContentCharset("UTF-8");
+
 		paramsBean.setUserAgent(userAgent);
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
+		HttpClientParams.setCookiePolicy(params,
+				CookiePolicy.BROWSER_COMPATIBILITY);
 		httpClient = new DefaultHttpClient(params);
 		this.proxyHandler = proxyHandler;
 		HttpRequestRetryHandler myRetryHandler = new HttpRequestRetryHandler() {
