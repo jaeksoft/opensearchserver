@@ -60,7 +60,7 @@ public class PrivilegesController extends CommonController {
 
 	@Override
 	protected void reset() {
-		user = new User("", "", false, false);
+		user = new User("", "", false, false, false);
 		confirmPassword = null;
 		selectedUserName = null;
 		selectedIndexRole = null;
@@ -190,7 +190,7 @@ public class PrivilegesController extends CommonController {
 	@Command
 	@NotifyChange("*")
 	public void onCancel() throws SearchLibException {
-		user = new User("", "", false, false);
+		user = new User("", "", false, false, false);
 		selectedUserName = null;
 		confirmPassword = null;
 		selectedIndex = null;

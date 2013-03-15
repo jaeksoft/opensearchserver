@@ -59,12 +59,14 @@ public class User implements Comparable<User> {
 		indexRoles = new TreeSet<IndexRole>();
 	}
 
-	public User(String name, String password, boolean isAdmin, boolean readOnly) {
+	public User(String name, String password, boolean isAdmin,
+			boolean isMonitoring, boolean readOnly) {
 		this();
 		this.name = name;
 		this.password = password;
 		this.apiKey = null;
 		this.isAdmin = isAdmin;
+		this.isMonitoring = isMonitoring;
 		this.readOnly = readOnly;
 	}
 
@@ -81,6 +83,7 @@ public class User implements Comparable<User> {
 				user.name = name;
 				user.password = password;
 				user.isAdmin = isAdmin;
+				user.isMonitoring = isMonitoring;
 				user.readOnly = readOnly;
 				user.indexRoles.clear();
 				for (IndexRole indexRole : indexRoles)
@@ -191,9 +194,11 @@ public class User implements Comparable<User> {
 			return null;
 		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, "isAdmin"));
+		boolean isMonitoring = "yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(node, "isMonitoring"));
 		boolean readOnly = "yes".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, "readOnly"));
-		User user = new User(name, password, isAdmin, readOnly);
+		User user = new User(name, password, isAdmin, isMonitoring, readOnly);
 		NodeList nodes = xpp.getNodeList(node, "role");
 		if (nodes != null) {
 			int l = nodes.getLength();
@@ -213,7 +218,8 @@ public class User implements Comparable<User> {
 			String encodedPassword = StringUtils.base64encode(password);
 			xmlWriter.startElement(userElement, "name", name, "password",
 					encodedPassword, "isAdmin", isAdmin ? "yes" : "no",
-					"readOnly", readOnly ? "yes" : "no");
+					"isMonitoring", isMonitoring ? "yes" : "no", "readOnly",
+					readOnly ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)
 				indexRole.writeXml(xmlWriter);
 			xmlWriter.endElement();
