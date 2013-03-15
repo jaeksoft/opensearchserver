@@ -1,0 +1,70 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('scoring') @init('com.jaeksoft.searchlib.web.controller.query.ScoringComposer')">
+	<listbox model="@load(scoring.advancedScore.array)"
+		selectedItem="@bind(scoring.selectedScoreItem)">
+		<listhead>
+			<listheader label="Field" />
+			<listheader label="Direction" />
+			<listheader label="Weight" />
+			<listheader label="Action" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<listbox mold="select" model="@load(scoring.fieldList)"
+					selectedItem="@bind(scoring.scoreItem.fieldName)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</auxheader>
+			<auxheader>
+				<listbox mold="select"
+					model="@load(scoring.directionList)"
+					selectedItem="@bind(scoring.scoreItem.direction)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</auxheader>
+			<auxheader>
+				<doublebox value="@bind(scoring.scoreItem.weight)" />
+			</auxheader>
+			<auxheader>
+				<button label="add" onClick="@command('onSave')"
+					visible="@load(scoring.notSelected)" />
+				<button label="save" onClick="@command('onSave')"
+					visible="@load(scoring.selected)" />
+				<button label="cancel" onClick="@command('onCancel')"
+					visible="@load(scoring.selected)" />
+			</auxheader>
+		</auxhead>
+		<template name="model" var="item">
+			<listitem>
+				<listcell label="@load(item.fieldName)" />
+				<listcell label="@load(item.direction)" />
+				<listcell label="@load(item.weight)" />
+				<listcell>
+					<button tooltiptext="Erase index"
+						onClick="@command('onRemove', item=item)"
+						image="/images/action_delete.png" />
+				</listcell>
+			</listitem>
+		</template>
+	</listbox>
+</window>

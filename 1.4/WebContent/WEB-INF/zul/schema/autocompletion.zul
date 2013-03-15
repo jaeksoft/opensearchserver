@@ -1,0 +1,85 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('auto') @init('com.jaeksoft.searchlib.web.controller.schema.AutoCompletionComposer')">
+	<panel title="Auto-completion" border="normal">
+		<panelchildren>
+			<grid sizedByContent="true">
+				<columns>
+					<column align="right" />
+					<column align="left" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Field source" />
+						<listbox model="@load(auto.fieldList)"
+							mold="select" selectedItem="@bind(auto.field)">
+							<template name="model" var="field">
+								<listitem label="@load(field.name)" />
+							</template>
+						</listbox>
+						<label
+							value="Select which field will be used to populate the auto-completion" />
+					</row>
+					<row>
+						<label value="Number of suggestion" />
+						<intbox value="@bind(auto.rows)" />
+						<label
+							value="Set how many suggestions will be submitted" />
+					</row>
+					<row>
+						<label value="Build status" />
+						<label
+							value="@load(auto.autoCompletionManager.buildThread.status)" />
+						<label value="The status of the build process" />
+					</row>
+					<row>
+						<label value="Number of terms" />
+						<label
+							value="@load(auto.autoCompletionManager.buildThread.indexNumDocs)" />
+						<label
+							value="The number of terms in the auto-completion index" />
+					</row>
+					<row>
+						<label value="Testing" />
+						<combobox cols="50" autodrop="true"
+							model="@load(auto.comboList)" onChanging="@command('onChanging')"
+							buttonVisible="false" />
+						<label
+							value="Enter any text here to test the autocompletion" />
+					</row>
+				</rows>
+				<foot>
+					<footer span="3">
+						<hbox align="center" width="100%">
+							<button label="Save"
+								onClick="@command('onSave')" />
+							<space />
+							<button label="Build"
+								onClick="@command('onBuild')"
+								disabled="@load(auto.autoCompletionManager.buildThread.running)" />
+						</hbox>
+					</footer>
+				</foot>
+			</grid>
+		</panelchildren>
+	</panel>
+	<timer id="timer" delay="5000" repeats="true"
+		running="@load(auto.autoCompletionManager.buildThread.running)"
+		onTimer="@command('reload')" />
+</window>
