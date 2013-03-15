@@ -45,9 +45,6 @@
 		mold="paging" visible="@load(upload.updateListNotEmpty)">
 		<auxhead>
 			<auxheader colspan="4">
-				<space />
-				<button label="Refresh" onClick="@command('onReload')" />
-				<space />
 				<button label="Remove non-running"
 					onClick="@command('onPurge')" />
 			</auxheader>
