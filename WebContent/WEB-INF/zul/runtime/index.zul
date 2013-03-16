@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,10 +16,10 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('runtime') @init('com.jaeksoft.searchlib.web.controller.runtime.RuntimeController')">
-	<tabbox>
+	<tabbox id="tabRuntime"
+		selectedIndex="@bind(runtime.selectedTabIndex)">
 		<tabs>
 			<tab id="tabRuntimeStatistics" label="Statistics"
-				selected="@load(runtime.instanceValid)"
 				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeCommands" label="Commands"
 				visible="@load(runtime.commandsRights)" />
@@ -30,8 +30,7 @@
 			<tab id="tabRuntimeTerms" label="Terms"
 				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeSystem" label="System"
-				visible="@load(runtime.adminOrMonitoringOrNoUser)"
-				selected="@load(runtime.instanceNotValid)" />
+				visible="@load(runtime.adminOrMonitoringOrNoUser)" />
 			<tab id="tabRuntimeLogs" label="Logs"
 				visible="@load(runtime.adminOrMonitoringOrNoUser)" />
 			<tab id="tabRuntimeOpenSearch" label="OpenSearch"
