@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -56,7 +54,6 @@ public class UrlItem {
 	private String lang;
 	private String langMethod;
 	private URL cachedUrl;
-	private URI checkedUri;
 	private String host;
 	private List<String> subhost;
 	private Date when;
@@ -79,7 +76,6 @@ public class UrlItem {
 	protected UrlItem() {
 		urlString = null;
 		cachedUrl = null;
-		checkedUri = null;
 		contentDispositionFilename = null;
 		contentBaseType = null;
 		contentTypeCharset = null;
@@ -398,20 +394,6 @@ public class UrlItem {
 			if (cachedUrl == null)
 				cachedUrl = new URL(urlString);
 			return cachedUrl;
-		}
-	}
-
-	public URI getCheckedURI() throws MalformedURLException, URISyntaxException {
-		synchronized (this) {
-			if (checkedUri != null)
-				return checkedUri;
-			URL url;
-			url = getURL();
-			checkedUri = new URI(url.getProtocol(), url.getUserInfo(),
-					url.getHost(), url.getPort(), url.getPath(),
-					url.getQuery(), url.getRef());
-			return checkedUri;
-
 		}
 	}
 

@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -837,15 +836,7 @@ public class UrlManager extends AbstractManager {
 		for (Crawl crawl : crawls) {
 			if (crawl == null)
 				continue;
-			UrlItem urlItem = crawl.getUrlItem();
-			try {
-				urlItem.getCheckedURI();
-				urlItems.add(crawl.getUrlItem());
-			} catch (MalformedURLException e) {
-				Logging.warn("Ignore wrong URL: " + urlItem.getUrl(), e);
-			} catch (URISyntaxException e) {
-				Logging.warn("Ignore wrong URI: " + urlItem.getUrl(), e);
-			}
+			urlItems.add(crawl.getUrlItem());
 		}
 		updateUrlItems(urlItems);
 	}

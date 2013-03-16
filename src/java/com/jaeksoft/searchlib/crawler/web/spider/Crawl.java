@@ -237,7 +237,7 @@ public class Crawl {
 			InputStream is = null;
 			DownloadItem downloadItem = null;
 			try {
-				URI uri = urlItem.getCheckedURI();
+				URI uri = urlItem.getURL().toURI();
 
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(uri.toURL());
