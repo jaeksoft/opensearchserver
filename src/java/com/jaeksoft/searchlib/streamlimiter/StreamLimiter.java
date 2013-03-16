@@ -60,7 +60,7 @@ public abstract class StreamLimiter implements Closeable {
 		this.detectedCharset = null;
 	}
 
-	public abstract File getFile() throws SearchLibException, IOException;
+	public abstract File getFile() throws IOException, SearchLibException;
 
 	final protected void loadOutputCache(InputStream inputStream)
 			throws LimitException, IOException {

@@ -30,8 +30,6 @@ import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.jaeksoft.searchlib.SearchLibException;
-
 public class StreamLimiterInputStream extends StreamLimiter {
 
 	private final InputStream inputStream;
@@ -48,14 +46,10 @@ public class StreamLimiterInputStream extends StreamLimiter {
 	}
 
 	@Override
-	public File getFile() throws SearchLibException {
-		try {
-			String ext = originalFileName == null ? null : FilenameUtils
-					.getExtension(originalFileName);
-			return getTempFile(ext);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+	public File getFile() throws IOException {
+		String ext = originalFileName == null ? null : FilenameUtils
+				.getExtension(originalFileName);
+		return getTempFile(ext);
 	}
 
 }

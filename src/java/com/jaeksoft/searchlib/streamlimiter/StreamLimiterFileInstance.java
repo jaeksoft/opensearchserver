@@ -59,15 +59,11 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 	}
 
 	@Override
-	public File getFile() throws SearchLibException {
-		try {
-			if (fileInstance instanceof LocalFileInstance)
-				return ((LocalFileInstance) fileInstance).getFile();
-			String ext = FilenameUtils.getExtension(fileInstance.getFileName());
-			return getTempFile(ext);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+	public File getFile() throws IOException, SearchLibException {
+		if (fileInstance instanceof LocalFileInstance)
+			return ((LocalFileInstance) fileInstance).getFile();
+		String ext = FilenameUtils.getExtension(fileInstance.getFileName());
+		return getTempFile(ext);
 	}
 
 }
