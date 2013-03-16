@@ -329,6 +329,10 @@ public class Crawl {
 				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
+			} catch (IllegalArgumentException e) {
+				Logging.error(e.getMessage(), e);
+				urlItem.setFetchStatus(FetchStatus.ERROR);
+				setError(e.getMessage());
 			} catch (Exception e) {
 				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
