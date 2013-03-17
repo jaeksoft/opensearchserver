@@ -66,7 +66,8 @@ public class InjectUrlItem {
 	public InjectUrlItem(PatternItem patternUrl) {
 		this();
 		try {
-			url = patternUrl.extractUrl(true);
+			url = LinkUtils.newEncodedURL(patternUrl
+					.getPatternWithoutWildcard());
 		} catch (MalformedURLException e) {
 			setMalformated(patternUrl.getPattern());
 		} catch (URISyntaxException e) {

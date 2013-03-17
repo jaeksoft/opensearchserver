@@ -25,11 +25,9 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PatternItem {
@@ -91,10 +89,12 @@ public class PatternItem {
 		pattern = StringUtils.wildcardPattern(s);
 	}
 
-	public URL extractUrl(boolean removeWildcard) throws MalformedURLException,
-			URISyntaxException {
-		return LinkUtils.newEncodedURL(removeWildcard ? sPattern.replace("*",
-				"") : sPattern);
+	public final String getPatternWithoutWildcard() {
+		return sPattern.replace("*", "");
+	}
+
+	public String getHost() throws MalformedURLException {
+		return new URL(getPatternWithoutWildcard()).getHost();
 	}
 
 	public String getPattern() {

@@ -158,7 +158,7 @@ public class PatternManager {
 
 	private void delPatternWithoutLock(String sPattern)
 			throws MalformedURLException, URISyntaxException {
-		String host = new PatternItem(sPattern).extractUrl(true).getHost();
+		String host = new PatternItem(sPattern).getHost();
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null)
 			return;
@@ -215,7 +215,7 @@ public class PatternManager {
 
 	private void addPatternWithoutLock(PatternItem patternItem)
 			throws MalformedURLException, URISyntaxException {
-		String host = patternItem.extractUrl(true).getHost();
+		String host = patternItem.getHost();
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null) {
 			itemList = new ArrayList<PatternItem>();
@@ -273,8 +273,7 @@ public class PatternManager {
 			throws MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
-			List<PatternItem> patternList = patternMap.get(pattern.extractUrl(
-					true).getHost());
+			List<PatternItem> patternList = patternMap.get(pattern.getHost());
 			if (patternList == null)
 				return null;
 			String sPattern = pattern.getPattern();
