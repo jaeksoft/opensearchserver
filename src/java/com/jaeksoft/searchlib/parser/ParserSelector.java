@@ -376,12 +376,17 @@ public class ParserSelector {
 		}
 	}
 
-	private final Parser getFailOverParser(Parser parser,
-			IOException ioException) throws SearchLibException, IOException {
+	private final Parser getFailOverParser(Parser parser, Exception exception)
+			throws SearchLibException, IOException {
 		ParserFactory parserFactory = getParserByName(parser
 				.getFailOverParserName());
-		if (parserFactory == null)
-			throw ioException;
+		if (parserFactory == null) {
+			if (exception instanceof SearchLibException)
+				throw (SearchLibException) exception;
+			if (exception instanceof IOException)
+				throw (IOException) exception;
+			throw new SearchLibException(exception);
+		}
 		return getParser(parserFactory);
 	}
 
@@ -395,8 +400,12 @@ public class ParserSelector {
 				try {
 					parser.doParserContent(sourceDocument, streamLimiter, lang);
 					return parser;
-				} catch (IOException ioException) {
-					parser = getFailOverParser(parser, ioException);
+				} catch (IllegalArgumentException iae) {
+					parser = getFailOverParser(parser, iae);
+				} catch (NullPointerException npe) {
+					parser = getFailOverParser(parser, npe);
+				} catch (IOException ioe) {
+					parser = getFailOverParser(parser, ioe);
 				}
 			}
 			return lastValidParser;
