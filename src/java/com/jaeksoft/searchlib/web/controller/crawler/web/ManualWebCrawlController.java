@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
 
@@ -100,7 +100,7 @@ public class ManualWebCrawlController extends CommonController {
 			if (currentCrawlThread != null && currentCrawlThread.isRunning())
 				throw new SearchLibException("A crawl is already running");
 			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(
-					new URL(url), ListType.MANUAL);
+					LinkUtils.newEncodedURL(url), ListType.MANUAL);
 			currentCrawlThread.waitForStart(60);
 			reload();
 		}

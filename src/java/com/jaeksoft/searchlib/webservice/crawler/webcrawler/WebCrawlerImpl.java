@@ -251,6 +251,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			throw new WebServiceException(e);
 		} catch (IOException e) {
 			throw new WebServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new WebServiceException(e);
 		}
 	}
 

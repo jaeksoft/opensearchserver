@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -120,7 +120,7 @@ public class PushServlet extends AbstractServlet {
 	private static String getPushTargetUrl(Client client,
 			ReplicationItem replicationItem, File sourceFile)
 			throws UnsupportedEncodingException, SearchLibException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		String dataPath = replicationItem.getDirectory(client)
 				.getAbsolutePath();
 		String filePath = sourceFile.getAbsolutePath();
@@ -136,7 +136,7 @@ public class PushServlet extends AbstractServlet {
 
 	private static String getPushTargetUrl(ReplicationItem replicationItem,
 			String cmd) throws UnsupportedEncodingException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		return replicationItem.getCachedUrl() + "&" + CALL_XML_KEY_CMD + "="
 				+ URLEncoder.encode(cmd, "UTF-8");
 	}
@@ -217,7 +217,8 @@ public class PushServlet extends AbstractServlet {
 	}
 
 	public static String getCachedUrl(ReplicationItem replicationItem)
-			throws UnsupportedEncodingException, MalformedURLException {
+			throws UnsupportedEncodingException, MalformedURLException,
+			URISyntaxException {
 		String url = replicationItem.getInstanceUrl();
 		String cachedUrl = url + (url.endsWith("/") ? "" : '/') + "push?use="
 				+ URLEncoder.encode(replicationItem.getIndexName(), "UTF-8");

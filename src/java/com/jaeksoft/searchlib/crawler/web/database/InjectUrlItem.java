@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
@@ -32,6 +33,7 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class InjectUrlItem {
 
@@ -66,20 +68,26 @@ public class InjectUrlItem {
 		try {
 			url = patternUrl.extractUrl(true);
 		} catch (MalformedURLException e) {
-			status = Status.MALFORMATED;
-			badUrl = patternUrl.getPattern();
-			url = null;
+			setMalformated(patternUrl.getPattern());
+		} catch (URISyntaxException e) {
+			setMalformated(patternUrl.getPattern());
 		}
+	}
+
+	private final void setMalformated(String u) {
+		status = Status.MALFORMATED;
+		badUrl = u;
+		url = null;
 	}
 
 	public InjectUrlItem(String u) {
 		this();
 		try {
-			url = new URL(u);
+			url = LinkUtils.newEncodedURL(u);
 		} catch (MalformedURLException e) {
-			status = Status.MALFORMATED;
-			badUrl = u;
-			url = null;
+			setMalformated(u);
+		} catch (URISyntaxException e) {
+			setMalformated(u);
 		}
 	}
 
@@ -123,9 +131,24 @@ public class InjectUrlItem {
 				RobotsTxtStatus.UNKNOWN.value);
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer("[ ");
+		sb.append(getUrl());
+		sb.append(" ");
+		sb.append(status);
+		sb.append(']');
+		return sb.toString();
+	}
+
 	public IndexDocument getIndexDocument(UrlItemFieldEnum urlItemFieldEnum) {
 		IndexDocument indexDocument = new IndexDocument();
 		populate(indexDocument, urlItemFieldEnum);
 		return indexDocument;
+	}
+
+	public static void main(String[] args) {
+		final String urlTest = "http://www.economie.gouv.fr/files/Claude ROCHET les joutes de l'innovation_0.ppt#fragment";
+		System.out.println(new InjectUrlItem(urlTest));
 	}
 }

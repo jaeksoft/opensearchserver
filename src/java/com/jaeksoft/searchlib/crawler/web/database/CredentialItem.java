@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -40,6 +41,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
@@ -148,9 +150,10 @@ public class CredentialItem {
 	 * 
 	 * @return an URL object
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	public URL extractUrl() throws MalformedURLException {
-		return new URL(pattern);
+	public URL extractUrl() throws MalformedURLException, URISyntaxException {
+		return LinkUtils.newEncodedURL(pattern);
 	}
 
 	/**

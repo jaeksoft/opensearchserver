@@ -25,12 +25,14 @@
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class RobotsTxt {
 
@@ -55,8 +57,10 @@ public class RobotsTxt {
 	 * @param url
 	 * @return
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	protected static URL getRobotsUrl(URL url) throws MalformedURLException {
+	protected static URL getRobotsUrl(URL url) throws MalformedURLException,
+			URISyntaxException {
 		StringBuffer sb = new StringBuffer();
 		sb.append(url.getProtocol());
 		sb.append("://");
@@ -66,7 +70,7 @@ public class RobotsTxt {
 			sb.append(url.getPort());
 		}
 		sb.append("/robots.txt");
-		return new URL(sb.toString());
+		return LinkUtils.newEncodedURL(sb.toString());
 	}
 
 	/**
@@ -76,9 +80,10 @@ public class RobotsTxt {
 	 * @param userAgent
 	 * @return
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
 	public RobotsTxtStatus getStatus(String userAgent, UrlItem urlItem)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		Integer code = crawl.getUrlItem().getResponseCode();
 		if (code == null)
 			return RobotsTxtStatus.ERROR;

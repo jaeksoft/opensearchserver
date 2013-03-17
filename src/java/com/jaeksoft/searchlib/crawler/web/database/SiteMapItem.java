@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SiteMapItem implements Comparable<SiteMapItem> {
@@ -102,7 +103,7 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 						String href = DomUtils.getText(node);
 						if (href != null && !href.equalsIgnoreCase("")) {
 							// check url format
-							URL newUrl = new URL(href);
+							URL newUrl = LinkUtils.newEncodedURL(href);
 							urls.add(newUrl.toExternalForm());
 						}
 					}

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
@@ -412,11 +413,18 @@ public class HtmlParser extends Parser {
 		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			URL currentURL = htmlProvider.getBaseHref();
-			if (currentURL == null && urlItemFieldEnum != null) {
-				FieldValueItem fvi = srcDoc.getFieldValue(
-						urlItemFieldEnum.url.getName(), 0);
-				if (fvi != null)
-					currentURL = new URL(fvi.getValue());
+			try {
+				if (currentURL == null)
+					currentURL = LinkUtils.newEncodedURL(streamLimiter
+							.getOriginURL());
+				if (currentURL == null && urlItemFieldEnum != null) {
+					FieldValueItem fvi = srcDoc.getFieldValue(
+							urlItemFieldEnum.url.getName(), 0);
+					if (fvi != null)
+						currentURL = LinkUtils.newEncodedURL(fvi.getValue());
+				}
+			} catch (URISyntaxException e) {
+				throw new IOException(e);
 			}
 			for (HtmlNodeAbstract<?> node : nodes) {
 				String href = null;

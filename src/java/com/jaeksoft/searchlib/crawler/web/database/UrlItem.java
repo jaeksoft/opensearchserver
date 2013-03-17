@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -42,6 +43,7 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class UrlItem {
 
@@ -227,7 +229,7 @@ public class UrlItem {
 		this.host = host;
 	}
 
-	public void checkHost() throws MalformedURLException {
+	public void checkHost() throws MalformedURLException, URISyntaxException {
 		setHost(getURL().getHost());
 	}
 
@@ -389,10 +391,10 @@ public class UrlItem {
 		return responseCode;
 	}
 
-	public URL getURL() throws MalformedURLException {
+	public URL getURL() throws MalformedURLException, URISyntaxException {
 		synchronized (this) {
 			if (cachedUrl == null)
-				cachedUrl = new URL(urlString);
+				cachedUrl = LinkUtils.newEncodedURL(urlString);
 			return cachedUrl;
 		}
 	}
@@ -513,7 +515,8 @@ public class UrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument,
-			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException {
+			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException,
+			URISyntaxException {
 		SimpleDateFormat df = getWhenDateFormat();
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
 		indexDocument.setString(urlItemFieldEnum.when.getName(),

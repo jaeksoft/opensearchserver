@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.web.process;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -189,6 +190,9 @@ public class WebCrawlThread extends
 				currentStats.incIgnoredCount();
 
 		} catch (MalformedURLException e) {
+			crawl.setError(e.getMessage());
+			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
+		} catch (URISyntaxException e) {
 			crawl.setError(e.getMessage());
 			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
 		}

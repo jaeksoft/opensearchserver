@@ -133,7 +133,7 @@ public class Crawl {
 	protected void parseContent(InputStream inputStream)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, SearchLibException,
-			NoSuchAlgorithmException {
+			NoSuchAlgorithmException, URISyntaxException {
 		if (parserSelector == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -209,7 +209,8 @@ public class Crawl {
 	}
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)
-			throws MalformedURLException, SearchLibException {
+			throws MalformedURLException, SearchLibException,
+			URISyntaxException {
 		RobotsTxtStatus robotsTxtStatus;
 		if (robotsTxtEnabled) {
 			RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(
@@ -288,7 +289,7 @@ public class Crawl {
 					else
 						is = downloadItem.getContentInputStream();
 					parseContent(is);
-				} else if ("301".equals(code)) {
+				} else if (code == 301) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
 				} else if (code > 301 && code < 400) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_TEMP);
@@ -385,7 +386,7 @@ public class Crawl {
 	}
 
 	public IndexDocument getTargetIndexDocument(int documentPos)
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, URISyntaxException {
 		if (targetIndexDocuments == null)
 			getTargetIndexDocuments();
 		if (targetIndexDocuments == null)
@@ -396,7 +397,7 @@ public class Crawl {
 	}
 
 	public List<IndexDocument> getTargetIndexDocuments()
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, URISyntaxException {
 		synchronized (this) {
 			if (targetIndexDocuments != null)
 				return targetIndexDocuments;
@@ -448,7 +449,7 @@ public class Crawl {
 			return;
 		try {
 			URL url = currentURL != null ? LinkUtils.getLink(currentURL, href,
-					urlFilterList, false) : new URL(href);
+					urlFilterList, false) : LinkUtils.newEncodedURL(href);
 
 			if (exclusionManager != null)
 				if (exclusionManager.matchPattern(url))
@@ -459,6 +460,8 @@ public class Crawl {
 			newUrlList
 					.add(new LinkItem(url.toExternalForm(), origin, parentUrl));
 		} catch (MalformedURLException e) {
+			Logging.warn(href + " " + e.getMessage(), e);
+		} catch (URISyntaxException e) {
 			Logging.warn(href + " " + e.getMessage(), e);
 		}
 	}
@@ -478,7 +481,7 @@ public class Crawl {
 	}
 
 	public List<LinkItem> getDiscoverLinks() throws NoSuchAlgorithmException,
-			IOException, SearchLibException {
+			IOException, SearchLibException, URISyntaxException {
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;

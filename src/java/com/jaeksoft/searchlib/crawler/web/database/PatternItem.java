@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,9 +25,11 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PatternItem {
@@ -89,8 +91,10 @@ public class PatternItem {
 		pattern = StringUtils.wildcardPattern(s);
 	}
 
-	public URL extractUrl(boolean removeWildcard) throws MalformedURLException {
-		return new URL(removeWildcard ? sPattern.replace("*", "") : sPattern);
+	public URL extractUrl(boolean removeWildcard) throws MalformedURLException,
+			URISyntaxException {
+		return LinkUtils.newEncodedURL(removeWildcard ? sPattern.replace("*",
+				"") : sPattern);
 	}
 
 	public String getPattern() {

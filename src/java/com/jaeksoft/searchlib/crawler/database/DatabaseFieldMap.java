@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.crawler.database;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
@@ -52,6 +51,7 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -116,7 +116,7 @@ public class DatabaseFieldMap extends
 			}
 			if (dfTarget.isCrawlUrl()) {
 				WebCrawlThread crawlThread = webCrawlMaster.manualCrawl(
-						new URL(content), ListType.DBCRAWL);
+						LinkUtils.newEncodedURL(content), ListType.DBCRAWL);
 				crawlThread.waitForStart(60);
 				crawlThread.waitForEnd(60);
 				Crawl crawl = crawlThread.getCurrentCrawl();

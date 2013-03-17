@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.parser.htmlParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public abstract class HtmlDocumentProvider {
 
@@ -175,8 +177,11 @@ public abstract class HtmlDocumentProvider {
 		if (url == null)
 			return null;
 		try {
-			return new URL(url);
+			return LinkUtils.newEncodedURL(url);
 		} catch (MalformedURLException e) {
+			Logging.warn(e);
+			return null;
+		} catch (URISyntaxException e) {
 			Logging.warn(e);
 			return null;
 		}

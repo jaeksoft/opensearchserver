@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.Md5Spliter;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
@@ -252,11 +254,13 @@ public class ScreenshotManager implements PropertyItemListener {
 		try {
 			for (String u : urlList) {
 				try {
-					URL url = new URL(u);
+					URL url = LinkUtils.newEncodedURL(u);
 					File f = getPngFile(url);
 					if (f != null)
 						getPngFile(url).delete();
 				} catch (MalformedURLException e) {
+					Logging.warn(e);
+				} catch (URISyntaxException e) {
 					Logging.warn(e);
 				}
 			}

@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,11 +77,14 @@ public class PatternManager {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	private void load() throws ParserConfigurationException, SAXException,
-			IOException, XPathExpressionException, SearchLibException {
+			IOException, XPathExpressionException, SearchLibException,
+			URISyntaxException {
 		if (!patternFile.exists())
 			return;
 		XPathParser xpp = new XPathParser(patternFile);
@@ -118,7 +122,7 @@ public class PatternManager {
 
 	private void addListWithoutStoreAndLock(List<PatternItem> patternList,
 			boolean bDeleteAll) throws SearchLibException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		if (bDeleteAll)
 			patternMap.clear();
 		if (patternList == null)
@@ -145,13 +149,15 @@ public class PatternManager {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	private void delPatternWithoutLock(String sPattern)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		String host = new PatternItem(sPattern).extractUrl(true).getHost();
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null)
@@ -177,6 +183,8 @@ public class PatternManager {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -197,6 +205,8 @@ public class PatternManager {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -204,7 +214,7 @@ public class PatternManager {
 	}
 
 	private void addPatternWithoutLock(PatternItem patternItem)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		String host = patternItem.extractUrl(true).getHost();
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null) {
@@ -224,6 +234,8 @@ public class PatternManager {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
@@ -258,7 +270,7 @@ public class PatternManager {
 	}
 
 	private PatternItem findPattern(PatternItem pattern)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(pattern.extractUrl(

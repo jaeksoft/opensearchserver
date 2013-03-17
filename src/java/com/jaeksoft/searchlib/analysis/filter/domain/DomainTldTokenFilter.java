@@ -25,11 +25,13 @@ package com.jaeksoft.searchlib.analysis.filter.domain;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.lucene.analysis.TokenStream;
 
 import com.google.common.net.InternetDomainName;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 
@@ -43,7 +45,7 @@ public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 		if (!input.incrementToken())
 			return false;
 		try {
-			URL url = new URL(termAtt.toString());
+			URL url = LinkUtils.newEncodedURL(termAtt.toString());
 			InternetDomainName domainName = InternetDomainName.from(url
 					.getHost());
 			termAtt.setEmpty();
@@ -56,6 +58,10 @@ public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 			if (silent)
 				return false;
 			throw e;
+		} catch (URISyntaxException e) {
+			if (silent)
+				return false;
+			throw new IOException(e);
 		}
 		return true;
 	}

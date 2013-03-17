@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.video.Dailymotion;
 import com.jaeksoft.searchlib.util.video.DailymotionItem;
 
@@ -55,7 +56,7 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 				return false;
 			String term = termAtt.toString();
 			try {
-				URL url = new URL(term);
+				URL url = LinkUtils.newEncodedURL(term);
 				DailymotionItem dailymotionItem = Dailymotion.getInfo(url,
 						httpDownloader);
 				httpDownloader.release();

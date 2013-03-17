@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.replication;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.w3c.dom.Node;
@@ -35,6 +36,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -87,7 +89,7 @@ public class ReplicationItem extends
 	}
 
 	public ReplicationItem(ReplicationMaster crawlMaster, XPathParser xpp,
-			Node node) throws MalformedURLException {
+			Node node) throws MalformedURLException, URISyntaxException {
 		this(crawlMaster);
 		this.name = null;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
@@ -103,7 +105,7 @@ public class ReplicationItem extends
 		updateName();
 	}
 
-	private void updateName() throws MalformedURLException {
+	private void updateName() throws MalformedURLException, URISyntaxException {
 		String u = getInstanceUrl();
 		if (!u.endsWith("/"))
 			u += '/';
@@ -140,11 +142,13 @@ public class ReplicationItem extends
 	 * @param instanceUrl
 	 *            the instanceUrl to set
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	public void setInstanceUrl(String url) throws MalformedURLException {
+	public void setInstanceUrl(String url) throws MalformedURLException,
+			URISyntaxException {
 		rwl.w.lock();
 		try {
-			this.instanceUrl = new URL(url);
+			this.instanceUrl = LinkUtils.newEncodedURL(url);
 			updateName();
 			this.cachedUrl = null;
 		} finally {
@@ -155,8 +159,10 @@ public class ReplicationItem extends
 	/**
 	 * @return the instanceUrl
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	public String getInstanceUrl() throws MalformedURLException {
+	public String getInstanceUrl() throws MalformedURLException,
+			URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (instanceUrl != null)
@@ -168,7 +174,8 @@ public class ReplicationItem extends
 		try {
 			if (instanceUrl != null)
 				return instanceUrl.toExternalForm();
-			instanceUrl = new URL(CommonController.getBaseUrl().toString());
+			instanceUrl = LinkUtils.newEncodedURL(CommonController.getBaseUrl()
+					.toString());
 			return instanceUrl.toExternalForm();
 		} finally {
 			rwl.w.unlock();
@@ -179,8 +186,10 @@ public class ReplicationItem extends
 	 * @param indexName
 	 *            the indexName to set
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	public void setIndexName(String indexName) throws MalformedURLException {
+	public void setIndexName(String indexName) throws MalformedURLException,
+			URISyntaxException {
 		rwl.w.lock();
 		try {
 			this.indexName = indexName;
@@ -272,7 +281,7 @@ public class ReplicationItem extends
 	}
 
 	public String getCachedUrl() throws UnsupportedEncodingException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (cachedUrl != null)

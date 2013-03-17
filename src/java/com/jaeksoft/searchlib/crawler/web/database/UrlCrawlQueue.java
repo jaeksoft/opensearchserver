@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,7 +63,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	public void add(CrawlStatistics currentStats, Crawl crawl)
-			throws NoSuchAlgorithmException, IOException, SearchLibException {
+			throws NoSuchAlgorithmException, IOException, SearchLibException,
+			URISyntaxException {
 		rwl.r.lock();
 		try {
 			updateCrawlList.add(crawl);

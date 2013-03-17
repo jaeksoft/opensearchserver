@@ -25,12 +25,14 @@ package com.jaeksoft.searchlib.analysis.filter.domain;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class AllDomainsTokenFilter extends CommonDomainTokenFilter {
 
@@ -51,14 +53,17 @@ public class AllDomainsTokenFilter extends CommonDomainTokenFilter {
 		return true;
 	}
 
-	private final void createTokens() throws MalformedURLException {
+	private final void createTokens() throws IOException {
 		try {
-			URL url = new URL(termAtt.toString());
+			URL url = LinkUtils.newEncodedURL(termAtt.toString());
 			subDomainQueue = UrlItem.buildSubHost(url.getHost());
 			currentPos = 0;
 		} catch (MalformedURLException e) {
 			if (!silent)
 				throw e;
+		} catch (URISyntaxException e) {
+			if (!silent)
+				throw new IOException(e);
 		}
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Vimeo {
 
@@ -114,7 +115,7 @@ public class Vimeo {
 				"http://player.vimeo.com/video/18609766",
 				"http://vimeo.com/moogaloop.swf?clip_id=18609766&amp;server=vimeo.com&amp;color=00adef&amp;fullscreen=1" };
 		for (String u : urls) {
-			URL url = new URL(u);
+			URL url = LinkUtils.newEncodedURL(u);
 			System.out.println(getVideoId(url));
 		}
 

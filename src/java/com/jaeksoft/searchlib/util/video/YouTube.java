@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class YouTube {
 
@@ -122,7 +123,7 @@ public class YouTube {
 				"http://www.youtube.com/v/Ig1WxMI9bxQ&hl=fr&fs=1&color1=0x2b405b&color2=0x6b8ab6",
 				"http://www.youtube.com/v/Ig1WxMI9bxQ?hl=fr" };
 		for (String u : urls) {
-			URL url = new URL(u);
+			URL url = LinkUtils.newEncodedURL(u);
 			System.out.println(getInfo(url, downloader).toJson(url));
 		}
 		downloader.release();

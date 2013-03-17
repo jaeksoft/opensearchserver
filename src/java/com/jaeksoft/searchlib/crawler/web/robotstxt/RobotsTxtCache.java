@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class RobotsTxtCache {
 
@@ -85,10 +87,11 @@ public class RobotsTxtCache {
 	 * @return
 	 * @throws MalformedURLException
 	 * @throws SearchLibException
+	 * @throws URISyntaxException
 	 */
 	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config,
 			URL url, boolean reloadRobotsTxt) throws MalformedURLException,
-			SearchLibException {
+			SearchLibException, URISyntaxException {
 		UrlItem urlItem = config.getUrlManager().getNewUrlItem();
 		urlItem.setUrl(RobotsTxt.getRobotsUrl(url).toExternalForm());
 		String robotsKey = urlItem.getUrl();
@@ -120,16 +123,18 @@ public class RobotsTxtCache {
 	}
 
 	private static String getRobotsUrlKey(String pattern)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		pattern = pattern.trim();
 		if (pattern.length() == 0)
 			return null;
 		if (pattern.indexOf(':') == -1)
 			pattern = "http://" + pattern;
-		return RobotsTxt.getRobotsUrl(new URL(pattern)).toExternalForm();
+		return RobotsTxt.getRobotsUrl(LinkUtils.newEncodedURL(pattern))
+				.toExternalForm();
 	}
 
-	public RobotsTxt findRobotsTxt(String pattern) throws MalformedURLException {
+	public RobotsTxt findRobotsTxt(String pattern)
+			throws MalformedURLException, URISyntaxException {
 		synchronized (robotsTxtList) {
 			return robotsTxtList.get(getRobotsUrlKey(pattern));
 		}

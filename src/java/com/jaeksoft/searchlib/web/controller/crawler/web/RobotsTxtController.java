@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,7 +63,7 @@ public class RobotsTxtController extends CrawlerController {
 	}
 
 	public RobotsTxt[] getRobotsTxtList() throws SearchLibException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		Client client = getClient();
 		if (client == null)
 			return null;

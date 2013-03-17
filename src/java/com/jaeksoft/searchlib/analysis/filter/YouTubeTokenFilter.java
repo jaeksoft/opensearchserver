@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.video.YouTube;
 import com.jaeksoft.searchlib.util.video.YouTubeItem;
 
@@ -55,7 +56,7 @@ public class YouTubeTokenFilter extends AbstractTermFilter {
 				return false;
 			String term = termAtt.toString();
 			try {
-				URL url = new URL(term);
+				URL url = LinkUtils.newEncodedURL(term);
 				YouTubeItem youtubeItem = YouTube.getInfo(url, httpDownloader);
 				switch (youtubeData) {
 				case 0:

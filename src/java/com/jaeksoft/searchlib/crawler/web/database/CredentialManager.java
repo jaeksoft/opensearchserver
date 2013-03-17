@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +46,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -110,10 +112,10 @@ public class CredentialManager {
 	}
 
 	public CredentialItem getCredential(String sPattern)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
-			String host = new URL(sPattern).getHost();
+			String host = LinkUtils.newEncodedURL(sPattern).getHost();
 			List<CredentialItem> itemList = credentialMap.get(host);
 			if (itemList == null)
 				return null;
@@ -130,8 +132,8 @@ public class CredentialManager {
 	}
 
 	private void delCredentialWithoutLock(String sPattern)
-			throws MalformedURLException {
-		String host = new URL(sPattern).getHost();
+			throws MalformedURLException, URISyntaxException {
+		String host = LinkUtils.newEncodedURL(sPattern).getHost();
 		List<CredentialItem> itemList = credentialMap.get(host);
 		if (itemList == null)
 			return;
@@ -154,6 +156,8 @@ public class CredentialManager {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -174,13 +178,15 @@ public class CredentialManager {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	private void addCredentialWithoutLock(CredentialItem credentialItem)
-			throws MalformedURLException {
+			throws MalformedURLException, URISyntaxException {
 		String host = credentialItem.extractUrl().getHost();
 		List<CredentialItem> itemList = credentialMap.get(host);
 		if (itemList == null) {
@@ -201,6 +207,8 @@ public class CredentialManager {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();

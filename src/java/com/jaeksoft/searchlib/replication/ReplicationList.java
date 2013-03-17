@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.replication;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -50,7 +51,7 @@ public class ReplicationList {
 
 	public ReplicationList(ReplicationMaster replicationMaster, File file)
 			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, SearchLibException {
+			XPathExpressionException, SearchLibException, URISyntaxException {
 		replicationMap = new TreeMap<String, ReplicationItem>();
 		replicationArray = null;
 		if (!file.exists())

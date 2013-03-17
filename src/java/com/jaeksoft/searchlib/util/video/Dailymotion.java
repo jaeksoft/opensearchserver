@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Dailymotion {
 
@@ -107,7 +108,7 @@ public class Dailymotion {
 				"http://www.dailymotion.com/embed/video/xayzui",
 				"http://www.dailymotion.com/embed/video/xl4c8y?logo=0&autoPlay=1&repeat=1&forcedQuality=sd" };
 		for (String u : urls) {
-			URL url = new URL(u);
+			URL url = LinkUtils.newEncodedURL(u);
 			System.out.println(getInfo(url, downloader).toJson(url));
 		}
 		downloader.release();

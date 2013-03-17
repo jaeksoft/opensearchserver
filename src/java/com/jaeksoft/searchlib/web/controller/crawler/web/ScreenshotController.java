@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
@@ -74,9 +75,11 @@ public class ScreenshotController extends CrawlerController {
 	 * @param url
 	 *            the url to set
 	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
-	public void setUrl(String url) throws MalformedURLException {
-		this.url = url == null ? null : new URL(url);
+	public void setUrl(String url) throws MalformedURLException,
+			URISyntaxException {
+		this.url = url == null ? null : LinkUtils.newEncodedURL(url);
 	}
 
 	/**

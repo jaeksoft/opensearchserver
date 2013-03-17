@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -833,6 +833,8 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();

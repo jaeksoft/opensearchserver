@@ -101,6 +101,14 @@ public class LinkUtils {
 		return URLEncoder.encode(s, "UTF-8").replace("+", "%20");
 	}
 
+	public final static URL newEncodedURL(String u)
+			throws MalformedURLException, URISyntaxException {
+		URL tmpUrl = new URL(u);
+		return new URI(tmpUrl.getProtocol(), tmpUrl.getUserInfo(),
+				tmpUrl.getHost(), tmpUrl.getPort(), tmpUrl.getPath(),
+				tmpUrl.getQuery(), tmpUrl.getRef()).toURL();
+	}
+
 	public final static void main(String[] args) {
 		System.out.println(lastPart("/my+folder/"));
 		System.out.println(lastPart("my folder/"));

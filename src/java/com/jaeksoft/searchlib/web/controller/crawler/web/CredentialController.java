@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -254,7 +255,7 @@ public class CredentialController extends CrawlerController {
 
 	@Command
 	public void onSave() throws InterruptedException, SearchLibException,
-			MalformedURLException {
+			MalformedURLException, URISyntaxException {
 		Client client = getClient();
 		if (client == null)
 			return;

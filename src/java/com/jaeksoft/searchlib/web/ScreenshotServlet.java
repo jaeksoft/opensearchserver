@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -37,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class ScreenshotServlet extends AbstractServlet {
 
@@ -48,7 +50,8 @@ public class ScreenshotServlet extends AbstractServlet {
 	final public static void doCapture(ServletTransaction transaction,
 			ScreenshotManager screenshotManager,
 			CredentialManager credentialManager, URL url)
-			throws SearchLibException, MalformedURLException {
+			throws SearchLibException, MalformedURLException,
+			URISyntaxException {
 		if (!screenshotManager.getMethod().doScreenshot(url))
 			throw new SearchLibException(
 					"The capture is not allowed by the current method");
@@ -118,7 +121,8 @@ public class ScreenshotServlet extends AbstractServlet {
 			CredentialManager credentialManager = client
 					.getWebCredentialManager();
 			String action = transaction.getParameterString("action");
-			URL url = new URL(transaction.getParameterString("url"));
+			URL url = LinkUtils.newEncodedURL(transaction
+					.getParameterString("url"));
 			if ("capture".equalsIgnoreCase(action))
 				doCapture(transaction, screenshotManager, credentialManager,
 						url);
