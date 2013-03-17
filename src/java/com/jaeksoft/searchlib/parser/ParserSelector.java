@@ -389,7 +389,9 @@ public class ParserSelector {
 			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
 			throws SearchLibException, IOException {
 		try {
+			Parser lastValidParser = null;
 			while (parser != null) {
+				lastValidParser = parser;
 				try {
 					parser.doParserContent(sourceDocument, streamLimiter, lang);
 					return parser;
@@ -397,7 +399,7 @@ public class ParserSelector {
 					parser = getFailOverParser(parser, ioException);
 				}
 			}
-			return null;
+			return lastValidParser;
 		} finally {
 			streamLimiter.close();
 		}
