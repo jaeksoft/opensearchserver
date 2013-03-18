@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -376,41 +377,31 @@ public class ParserSelector {
 		}
 	}
 
-	private final Parser getFailOverParser(Parser parser, Exception exception)
-			throws SearchLibException, IOException {
-		ParserFactory parserFactory = getParserByName(parser
-				.getFailOverParserName());
-		if (parserFactory == null) {
-			if (exception instanceof SearchLibException)
-				throw (SearchLibException) exception;
-			if (exception instanceof IOException)
-				throw (IOException) exception;
-			throw new SearchLibException(exception);
-		}
-		return getParser(parserFactory);
-	}
-
 	private final Parser parserLoop(IndexDocument sourceDocument,
 			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
-			throws SearchLibException, IOException {
+			throws SearchLibException {
 		try {
-			Parser lastValidParser = null;
+			Set<ParserType> parserSet = new HashSet<ParserType>();
 			while (parser != null) {
-				lastValidParser = parser;
-				try {
-					parser.doParserContent(sourceDocument, streamLimiter, lang);
+				if (parserSet.contains(parser.getParserType()))
+					throw new SearchLibException(
+							"Infinite loop in parser fail over loop");
+				parserSet.add(parser.getParserType());
+				parser.doParserContent(sourceDocument, streamLimiter, lang);
+				if (parser.getError() == null)
 					return parser;
-				} catch (IllegalArgumentException iae) {
-					parser = getFailOverParser(parser, iae);
-				} catch (NullPointerException npe) {
-					parser = getFailOverParser(parser, npe);
-				} catch (IOException ioe) {
-					parser = getFailOverParser(parser, ioe);
-				}
+				ParserFactory parserFactory = getParserByName(parser
+						.getFailOverParserName());
+				if (parserFactory == null)
+					return parser;
+				Parser nextParser = getParser(parserFactory);
+				if (nextParser == null)
+					return parser;
+				parser = nextParser;
 			}
-			return lastValidParser;
+			return parser;
 		} finally {
-			streamLimiter.close();
+			IOUtils.closeQuietly(streamLimiter);
 		}
 	}
 

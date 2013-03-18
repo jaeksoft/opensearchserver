@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -47,12 +48,15 @@ public abstract class Parser extends ParserFactory {
 
 	private Set<String> detectedLinks;
 
+	private Exception error;
+
 	protected Parser(ParserFieldEnum[] fieldList) {
 		super(fieldList);
 		sourceDocument = null;
 		streamLimiter = null;
 		resultItems = new ArrayList<ParserResultItem>(0);
 		detectedLinks = new TreeSet<String>();
+		error = null;
 	}
 
 	public IndexDocument getSourceDocument() {
@@ -94,11 +98,25 @@ public abstract class Parser extends ParserFactory {
 			LanguageEnum lang) throws IOException, SearchLibException;
 
 	final public void doParserContent(IndexDocument sourceDocument,
-			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException,
-			SearchLibException {
+			StreamLimiter streamLimiter, LanguageEnum lang) {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
-		parseContent(streamLimiter, lang);
+		try {
+			parseContent(streamLimiter, lang);
+		} catch (IllegalArgumentException e) {
+			this.error = e;
+			Logging.warn(e);
+		} catch (NullPointerException e) {
+			this.error = e;
+			Logging.warn(e);
+		} catch (Exception e) {
+			this.error = e;
+			Logging.warn(e);
+		}
+	}
+
+	final public Exception getError() {
+		return error;
 	}
 
 	final public StreamLimiter getStreamLimiter() {

@@ -153,6 +153,10 @@ public class Crawl {
 			return;
 		}
 
+		if (parser.getError() != null) {
+			urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
+			return;
+		}
 		urlItem.clearInLinks();
 		urlItem.clearOutLinks();
 

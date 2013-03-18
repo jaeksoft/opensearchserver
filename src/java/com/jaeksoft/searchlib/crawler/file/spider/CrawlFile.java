@@ -99,8 +99,12 @@ public class CrawlFile {
 
 				if (parser == null)
 					fileItem.setParserStatus(ParserStatus.NOPARSER);
-				else
-					fileItem.setLang(parser.getFirstLang());
+				else {
+					if (parser.getError() != null)
+						fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
+					else
+						fileItem.setLang(parser.getFirstLang());
+				}
 
 			} catch (MalformedURLException e) {
 				fileItem.setFetchStatus(FetchStatus.ERROR);
