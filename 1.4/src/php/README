@@ -1,0 +1,67 @@
+OSS API Connector for PHP
+
+This API connector is intended to be used with PHP5 with any version >= 5.0.1
+For some part it would have been easier to use native functions of latests PHP5.
+
+You can find more about the OSS API on the OSS WiKi
+
+http://sourceforge.net/apps/mediawiki/opensearchserve
+
+I) Error handling
+
+ We know that some of you hate exceptions and some others won't work without
+ them so to consiliate both party we provide two methods:
+
+ - Returning a false and trigger the error as E_USER_ERROR or E_USER_WARNING
+ - Throw exceptions
+
+ If you want to use exception, just include le file OSS_Exceptions.class.php.
+ To know the method to use to handle errors the API connector look for the
+ existence of the class OSSException. If found exceptions are thrown. On the
+ other hand if not, errors are triggered and false is returned.
+
+II) How to use the provided samples
+
+ You need an HTTP Server that can parse PHP5. There's many of them around the
+ web you can use for free. We won't provide a complete guide to install,
+ configure and use them.
+ 
+ Windows)
+ 
+  If you have administrator rights:
+   
+   We recommand the WAMP server that provide you with all you need to run theses
+   samples. When installed check if these PHP module is activated:
+   
+    - curl
+   
+   Once started copy the directories contrib and lib in your server root folder.
+   On WAMP if you installed it with default options you'll find it under this
+   path:
+   
+   C:\Program Files\wamp\www
+   
+   Then launch your favorite browser and browse http://localhost/contrib/
+   
+  If you don't have administrator rights:
+  
+   We provide a package with minimal PHP5 support plus a web server (nginx) in a
+   single archive file.
+   
+   Grab it here: <<PROVIDE URL TO D/L>>
+   
+   Note: The API and samples are already included in this archive so you only
+   need to unzip, launch start.bat and start your browser pointing
+   
+   http://localhost/
+   
+ Linux)
+ 
+  Get a look at one of those:
+  
+   - Apache2 + mod_php5
+   - lighttpd + php5 in fast_cgi
+   - nginx + php5 in fast_cgi
+  
+  There's so many tutorial on the net to install them that we won't bother you
+  explaining further.

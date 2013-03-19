@@ -1,0 +1,77 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@load(parser.currentParser.fieldMap.list)"
+	selectedItem="@bind(parser.selectedFieldMapItem)">
+	<auxhead>
+		<auxheader colspan="5">
+			<hbox align="center">
+				<listbox mold="select"
+					model="@load(parser.parserFieldList)"
+					selectedItem="@bind(parser.selectedParserField)">
+					<template name="model" var="parserField">
+						<listitem label="@load(parserField)"
+							value="@load(parserField)" />
+					</template>
+				</listbox>
+				<label>linked in</label>
+				<listbox mold="select"
+					model="@load(parser.indexFieldList)"
+					selectedItem="@bind(parser.selectedIndexField)">
+					<template name="model" var="indexField">
+						<listitem label="@load(indexField.name)"
+							value="@load(indexField)" />
+					</template>
+				</listbox>
+				<label>captured by (reg.exp.):</label>
+				<textbox cols="80" value="@bind(parser.captureRegexp)" />
+				<space />
+				<checkbox label="remove tags"
+					checked="@bind(parser.removeTag)" />
+				<space />
+				<button label="Add"
+					onClick="@command('onSaveFieldMapItem')"
+					visible="@load(parser.fieldMapItemNotSelected)" />
+				<hbox visible="@load(parser.fieldMapItemSelected)">
+					<button label="Cancel"
+						onClick="@command('onCancelFieldMapItem')" />
+					<space />
+					<button label="Save"
+						onClick="@command('onSaveFieldMapItem')" />
+				</hbox>
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<listhead>
+		<listheader label="Parser field" hflex="min" />
+		<listheader label="Index field" hflex="min" />
+		<listheader label="Capture Reg.Exp." />
+		<listheader label="Remove tags" hflex="min" />
+		<listheader label="Action" hflex="min" />
+	</listhead>
+	<template name="model" var="fieldmapitem">
+		<listitem>
+			<listcell label="@load(fieldmapitem.source.uniqueName)" />
+			<listcell label="@load(fieldmapitem.target.name)" />
+			<listcell label="@load(fieldmapitem.target.captureRegexp)" />
+			<listcell label="@load(fieldmapitem.target.removeTag)" />
+			<listcell>
+				<image src="/images/action_delete.png"
+					onClick="@command('onFieldMapItemRemove', fieldmapitem=fieldmapitem)" />
+			</listcell>
+		</listitem>
+	</template>
+</listbox>

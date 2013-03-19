@@ -1,0 +1,46 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('filecrawler') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FileCrawlerController')">
+	<tabbox>
+		<tabs>
+			<tab id="tabCrawlerRepository" label="Locations"
+				selected="true" />
+			<tab id="tabCrawlerFileCrawl" label="Crawl process" />
+			<tab id="tabCrawlerFileCrawled" label="File browser" />
+			<tab id="tabCrawlerFileMapping" label="Field mapping"
+				visible="@load(filecrawler.fileCrawlerParametersRights)" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/file/edit.zul"
+					visible="@load(filecrawler.filePathEdit)" />
+				<include src="WEB-INF/zul/crawler/file/repository.zul"
+					visible="@load(filecrawler.noFilePathEdit)" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileCrawl.onSelect">
+				<include src="WEB-INF/zul/crawler/file/crawlfile.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileCrawled.onSelect">
+				<include src="WEB-INF/zul/crawler/file/path.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerFileMapping.onSelect">
+				<include src="WEB-INF/zul/crawler/file/mappingfile.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

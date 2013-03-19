@@ -1,0 +1,48 @@
+<zk>
+	<style>body { padding: 0 0; }</style>
+	<window apply="org.zkoss.bind.BindComposer" height="100%"
+		width="100%" border="none"
+		viewModel="@id('viewer') @init('com.jaeksoft.searchlib.web.controller.ViewerController')">
+		<borderlayout>
+			<north border="none">
+				<toolbar>
+					<space />
+					<label value="Page: " />
+					<button label="&lt;"
+						onClick="@command('onPageDown')" />
+					<intbox value="@bind(viewer.page)" cols="3" />
+					<button label="&gt;" onClick="@command('onPageUp')" />
+					<space />
+					<label value="Zoom: " />
+					<button label="-" onClick="@command('onZoomDown')" />
+					<intbox value="@bind(viewer.zoom)" cols="3" />
+					<button label="+" onClick="@command('onZoomUp')" />
+					<space />
+					<label value="Search: " />
+					<textbox value="@bind(viewer.search)" cols="40" />
+					<space />
+					<button label="Download"
+						onClick="@command('onDownload')" />
+				</toolbar>
+			</north>
+			<center autoscroll="true" border="normal"
+				style="background-color:#E0E0E0;">
+				<image visible="@load(viewer.downloaded)"
+					style="border-right: 1px solid #A0A0A0;"
+					content="@load(viewer.currentImage)" />
+			</center>
+			<south border="none">
+				<toolbar>
+					<hbox align="center">
+						<label value="@load(viewer.message)" />
+						<progressmeter
+							visible="@load(viewer.downloading)"
+							value="@load(viewer.downloadPercent)" />
+					</hbox>
+				</toolbar>
+			</south>
+		</borderlayout>
+		<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+			running="@load(viewer.downloading)" />
+	</window>
+</zk>

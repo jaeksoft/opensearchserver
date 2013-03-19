@@ -1,0 +1,65 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('collapse') @init('com.jaeksoft.searchlib.web.controller.query.CollapsingController')">
+	<grid>
+		<columns>
+			<column align="right" width="30%" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label>Mode</label>
+				<listbox mold="select"
+					model="@load(collapse.collapseModes)"
+					selectedItem="@bind(collapse.request.collapseMode)">
+					<template name="model" var="mode">
+						<listitem label="@load(mode.label)"
+							value="@load(mode)" />
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label>Type</label>
+				<listbox mold="select"
+					model="@load(collapse.collapseTypes)"
+					selectedItem="@bind(collapse.request.collapseType)">
+					<template name="model" var="type">
+						<listitem label="@load(type.label)"
+							value="@load(type)" />
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label>Field</label>
+				<listbox mold="select"
+					model="@load(collapse.indexedFields)"
+					selectedItem="@bind(collapse.request.collapseField)">
+					<template name="model" var="field">
+						<listitem label="@load(field)"
+							value="@load(field)" />
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label>Max consecutive documents:</label>
+				<intbox cols="5" constraint="no empty, no negative"
+					value="@bind(collapse.request.collapseMax)" />
+			</row>
+		</rows>
+	</grid>
+</window>
