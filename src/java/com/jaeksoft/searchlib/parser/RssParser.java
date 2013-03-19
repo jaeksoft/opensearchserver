@@ -53,6 +53,8 @@ public class RssParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
+		addProperty(ClassPropertyEnum.RSS_METHOD,
+				ClassPropertyEnum.RSS_METHODS[0], ClassPropertyEnum.RSS_METHODS);
 	}
 
 	private class FeedListener extends DefaultFeedParserListener {
@@ -61,6 +63,18 @@ public class RssParser extends Parser {
 		private String currentChannelLink = null;
 		private String currentChannelDescription = null;
 		private ParserResultItem currentResult = null;
+		private final boolean oneResult;
+
+		private FeedListener(boolean oneResult) {
+			this.oneResult = oneResult;
+		}
+
+		private ParserResultItem nextResult() {
+			if (oneResult && currentResult != null)
+				return currentResult;
+			currentResult = getNewParserResultItem();
+			return currentResult;
+		}
 
 		@Override
 		public void onChannel(FeedParserState state, String title, String link,
@@ -74,7 +88,7 @@ public class RssParser extends Parser {
 		public void onItem(FeedParserState state, String title, String link,
 				String description, String permalink)
 				throws FeedParserException {
-			currentResult = getNewParserResultItem();
+			currentResult = nextResult();
 			currentResult.addField(ParserFieldEnum.channel_title,
 					currentChannelTitle);
 			currentResult.addField(ParserFieldEnum.channel_link,
@@ -84,6 +98,7 @@ public class RssParser extends Parser {
 			currentResult.addField(ParserFieldEnum.title, title);
 			currentResult.addField(ParserFieldEnum.link, link);
 			currentResult.addField(ParserFieldEnum.description, description);
+			addDetectedLink(link);
 		}
 
 		@Override
@@ -101,9 +116,13 @@ public class RssParser extends Parser {
 			throws IOException {
 
 		try {
+			String p = getProperty(ClassPropertyEnum.RSS_METHOD).getValue();
+			boolean oneResult = p == null
+					|| ClassPropertyEnum.RSS_METHODS[0].equals(p);
+
 			FeedParser parser = FeedParserFactory.newFeedParser();
-			parser.parse(new FeedListener(), streamLimiter.getNewInputStream(),
-					null);
+			parser.parse(new FeedListener(oneResult),
+					streamLimiter.getNewInputStream(), null);
 		} catch (FeedParserException e) {
 			throw new IOException(e);
 		}

@@ -223,6 +223,15 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "ignoreNonCanonical", "Ignore non canonical pages",
 			"Ignore documents which have a canonical link reference");
 
+	public final static String[] RSS_METHODS = { "One document for all items",
+			"One document per item" };
+
+	public static final ClassPropertyEnum RSS_METHOD = new ClassPropertyEnum(
+			true,
+			"rssMethod",
+			"The way RSS feed are indexed",
+			"One document in the index per item in the RSS feed, or one document for all items");
+
 	private boolean isUser;
 
 	private String label;

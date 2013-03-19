@@ -438,13 +438,13 @@ public class FileManager extends AbstractManager {
 					continue;
 				List<IndexDocument> indexDocuments = crawl
 						.getTargetIndexDocuments();
-				if (indexDocuments == null)
-					continue;
 				TargetStatus targetStatus = crawl.getFileItem()
 						.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
-					for (IndexDocument indexDocument : indexDocuments)
-						documentsToUpdate.add(indexDocument);
+					if (indexDocuments != null)
+						for (IndexDocument indexDocument : indexDocuments)
+							if (indexDocument != null)
+								documentsToUpdate.add(indexDocument);
 				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(crawl.getFileItem().getUri());
 			}

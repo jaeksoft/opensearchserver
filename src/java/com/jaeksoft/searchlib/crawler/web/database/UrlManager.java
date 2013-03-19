@@ -625,13 +625,15 @@ public class UrlManager extends AbstractManager {
 					continue;
 				if (crawl.getHostUrlList().getListType() == ListType.DBCRAWL)
 					continue;
-				IndexDocument indexDocument = crawl.getTargetIndexDocument(0);
+				List<IndexDocument> indexDocuments = crawl
+						.getTargetIndexDocuments();
 				TargetStatus targetStatus = crawl.getUrlItem()
 						.getTargetResult();
-
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
-					if (indexDocument != null)
-						documentsToUpdate.add(indexDocument);
+					if (indexDocuments != null)
+						for (IndexDocument indexDocument : indexDocuments)
+							if (indexDocument != null)
+								documentsToUpdate.add(indexDocument);
 				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(crawl.getUrlItem().getUrl());
 			}

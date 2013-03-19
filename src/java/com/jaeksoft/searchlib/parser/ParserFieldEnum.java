@@ -138,7 +138,9 @@ public enum ParserFieldEnum {
 
 	channel_description,
 
-	link;
+	link,
+
+	rss_mode;
 
 	public static ParserFieldEnum find(String fieldName) {
 		for (ParserFieldEnum pfe : values())
