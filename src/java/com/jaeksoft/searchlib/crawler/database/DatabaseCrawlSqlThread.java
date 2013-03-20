@@ -131,7 +131,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				transaction.update(lastSql);
 			}
 		} catch (SQLException e) {
-			throw new SearchLibException("SQL Failed: " + lastSql);
+			throw new SearchLibException(e);
 		}
 	}
 
