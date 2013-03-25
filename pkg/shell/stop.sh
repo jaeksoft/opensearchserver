@@ -24,12 +24,22 @@
 
 cd `dirname "$0"`
 
-EXECUTABLE=apache-tomcat-7.0.35/bin/shutdown.sh
+EXECUTABLE=apache-tomcat-7.0.37/bin/shutdown.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"
     echo "This file is needed to run this program"
     exit 1
+fi
+
+SYSCONFIGFILE=/etc/sysconfig/opensearchserver
+if [ -f "$SYSCONFIGFILE" ]; then
+    . "$SYSCONFIGFILE"
+fi
+
+CONFIGFILE=/etc/opensearchserver
+if [ -f "$CONFIGFILE" ]; then
+    . "$CONFIGFILE"
 fi
 
 exec "$EXECUTABLE"

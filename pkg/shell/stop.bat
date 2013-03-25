@@ -24,7 +24,7 @@ rem	 If not, see <http://www.gnu.org/licenses/>.
 
 if "%OS%" == "Windows_NT" setlocal
 
-set EXECUTABLE=%cd%\apache-tomcat-7.0.35\bin\shutdown.bat
+set EXECUTABLE=%cd%\apache-tomcat-7.0.37\bin\shutdown.bat
 
 if exist "%EXECUTABLE%" goto okExec
 echo Cannot find %EXECUTABLE%
@@ -33,7 +33,7 @@ goto end
 
 :okExec
 
-cd %cd%\apache-tomcat-7.0.35
+cd %cd%\apache-tomcat-7.0.37
 call "%EXECUTABLE%"
 
 :end

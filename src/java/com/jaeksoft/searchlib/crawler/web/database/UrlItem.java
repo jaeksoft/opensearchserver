@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class UrlItem {
 
@@ -391,10 +390,10 @@ public class UrlItem {
 		return responseCode;
 	}
 
-	public URL getURL() throws MalformedURLException, URISyntaxException {
+	public URL getURL() throws MalformedURLException {
 		synchronized (this) {
 			if (cachedUrl == null)
-				cachedUrl = LinkUtils.newEncodedURL(urlString);
+				cachedUrl = new URL(urlString);
 			return cachedUrl;
 		}
 	}
