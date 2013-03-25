@@ -33,6 +33,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import javax.net.ssl.SSLException;
 
@@ -63,7 +64,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public abstract class HttpAbstract {
@@ -237,12 +237,19 @@ public abstract class HttpAbstract {
 	// Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
 	// Sun Nov 6 08:49:37 1994
 
-	private final static SimpleDateFormat[] httpDatesFormat = {
-			new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z"),
-			new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss z"),
-			new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy") };
+	private final static String[] LastModifiedDateFormats = {
+			"EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z",
+			"EEE MMM d HH:mm:ss yyyy" };
 
-	public Long getLastModified() throws SearchLibException {
+	private final static SimpleDateFormat[] httpDatesFormats = {
+			new SimpleDateFormat(LastModifiedDateFormats[0]),
+			new SimpleDateFormat(LastModifiedDateFormats[1]),
+			new SimpleDateFormat(LastModifiedDateFormats[2]),
+			new SimpleDateFormat(LastModifiedDateFormats[0], Locale.ENGLISH),
+			new SimpleDateFormat(LastModifiedDateFormats[1], Locale.ENGLISH),
+			new SimpleDateFormat(LastModifiedDateFormats[2], Locale.ENGLISH) };
+
+	public Long getLastModified() {
 		synchronized (this) {
 			Header header = httpResponse.getFirstHeader("Last-Modified");
 			if (header == null)
@@ -251,7 +258,7 @@ public abstract class HttpAbstract {
 			if (v == null)
 				return null;
 			ParseException parseException = null;
-			for (SimpleDateFormat dateFormat : httpDatesFormat) {
+			for (SimpleDateFormat dateFormat : httpDatesFormats) {
 				synchronized (dateFormat) {
 					try {
 						return dateFormat.parse(v).getTime();
@@ -261,13 +268,13 @@ public abstract class HttpAbstract {
 				}
 			}
 			if (parseException != null)
-				throw new SearchLibException(parseException);
+				Logging.warn(parseException);
 			return null;
 		}
 	}
 
 	public final static void main(String[] argv) {
-		for (SimpleDateFormat dateFormat : httpDatesFormat) {
+		for (SimpleDateFormat dateFormat : httpDatesFormats) {
 			synchronized (dateFormat) {
 				try {
 					System.out.println(dateFormat.parse(
