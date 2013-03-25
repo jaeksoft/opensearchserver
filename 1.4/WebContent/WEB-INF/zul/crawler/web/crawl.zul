@@ -1,0 +1,238 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('crawlProcess') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CrawlWebController')">
+	<grid visible="@load(crawlProcess.webCrawlerParametersRights)">
+		<auxhead>
+			<auxheader colspan="4" label="Crawling parameters" />
+		</auxhead>
+		<columns visible="false">
+			<column align="right" hflex="min" />
+			<column hflex="min" />
+			<column align="right" hflex="min" />
+			<column hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="User-Agent: " />
+				<textbox width="95%"
+					readonly="@load(crawlProcess.refresh)"
+					value="@bind(crawlProcess.properties.userAgent.value)" />
+				<label value="Number of URLs to crawl: " />
+				<intbox constraint="no empty, no negative"
+					readonly="@load(crawlProcess.refresh)"
+					value="@bind(crawlProcess.properties.maxUrlPerSession.value)" />
+				<cell />
+			</row>
+			<row>
+				<label value="Fetch interval between re-fetches: " />
+				<hbox align="center">
+					<intbox constraint="no empty, no negative"
+						readonly="@load(crawlProcess.refresh)"
+						value="@bind(crawlProcess.properties.fetchInterval.value)" />
+					<listbox visible="@load(crawlProcess.notRefresh)"
+						model="@load(crawlProcess.fetchIntervalUnitValues)" mold="select"
+						selectedItem="@bind(crawlProcess.properties.fetchIntervalUnit.value)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+					<label visible="@load(crawlProcess.refresh)"
+						value="@load(crawlProcess.properties.fetchIntervalUnit.value)" />
+				</hbox>
+				<label value="Maximum number of URLs per host: " />
+				<intbox constraint="no empty, no negative"
+					readonly="@load(crawlProcess.refresh)"
+					value="@bind(crawlProcess.properties.maxUrlPerHost.value)" />
+				<cell />
+			</row>
+			<row>
+				<label value="Number of simultaneous threads: " />
+				<intbox constraint="no empty, no negative"
+					readonly="@load(crawlProcess.refresh)"
+					value="@bind(crawlProcess.properties.maxThreadNumber.value)" />
+				<label
+					value="Delay between each successive access, in seconds: " />
+				<intbox constraint="no empty, no negative"
+					readonly="@load(crawlProcess.refresh)"
+					value="@bind(crawlProcess.properties.delayBetweenAccesses.value)" />
+				<cell />
+			</row>
+			<row>
+				<label value="Job run when each session ends: " />
+				<hbox>
+					<label visible="@load(crawlProcess.refresh)"
+						value="@load(crawlProcess.properties.schedulerAfterSession.value)" />
+					<listbox visible="@load(crawlProcess.notRefresh)"
+						model="@load(crawlProcess.schedulerTaskList)" mold="select"
+						selectedItem="@bind(crawlProcess.properties.schedulerAfterSession.value)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</hbox>
+				<cell colspan="3" />
+			</row>
+		</rows>
+	</grid>
+	<separator />
+	<grid>
+		<columns>
+			<column label="Current status" />
+		</columns>
+		<rows>
+			<row>
+				<cell>
+					<textbox readonly="true" cols="50"
+						value="@bind(crawlProcess.crawlMaster.statusInfo)" />
+					<space />
+					<listbox
+						visible="@load(crawlProcess.webCrawlerStartStopRights)"
+						model="@load(crawlProcess.runModes)" mold="select"
+						disabled="@load(crawlProcess.crawlMaster.running)"
+						selectedItem="@bind(crawlProcess.runMode)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+					<space />
+					<button
+						visible="@load(crawlProcess.webCrawlerStartStopRights)"
+						disabled="@load(crawlProcess.crawlMaster.aborting)"
+						label="@load(crawlProcess.runButtonLabel)"
+						onClick="@command('onRun')" />
+				</cell>
+			</row>
+		</rows>
+	</grid>
+	<separator />
+	<listbox model="@load(crawlProcess.crawlMaster.statistics)"
+		hflex="min">
+		<auxhead>
+			<auxheader colspan="16"
+				label="Statistics for prior sessions" />
+		</auxhead>
+		<auxhead>
+			<auxheader label="Start time" tooltiptext="Start time" />
+			<auxheader label="Fetched" tooltiptext="Fetched"
+				align="center" colspan="3" />
+			<auxheader align="center" colspan="2" label="Host(s)"
+				tooltiptext="Hostname(s) count" />
+			<auxheader label="Parsed" tooltiptext="Parsed" />
+			<auxheader align="center" colspan="2" label="New url"
+				tooltiptext="New url" />
+			<auxheader align="center" colspan="2" label="Updated"
+				tooltiptext="Updated" />
+			<auxheader label="Ignored" tooltiptext="Ignored" />
+			<auxheader align="center" colspan="2" label="Deleted"
+				tooltiptext="Deleted" />
+			<auxheader align="center" colspan="2" label="URL(s)"
+				tooltiptext="URL(s)" />
+		</auxhead>
+		<listhead>
+			<listheader />
+			<listheader label="Count" tooltiptext="Count" />
+			<listheader label="Cache" tooltiptext="From cache" />
+			<listheader label="Rate" tooltiptext="Rate" />
+			<listheader label="Processed" tooltiptext="Processed" />
+			<listheader label="Total" tooltiptext="Total" />
+			<listheader label="Count" />
+			<listheader label="Pending" tooltiptext="Pending" />
+			<listheader label="Committed" tooltiptext="Committed" />
+			<listheader label="Pending" tooltiptext="Pending" />
+			<listheader label="Committed" tooltiptext="Committed" />
+			<listheader label="Count" />
+			<listheader label="Pending" tooltiptext="Pending" />
+			<listheader label="Committed" tooltiptext="Committed" />
+			<listheader label="Processed" tooltiptext="Processed" />
+			<listheader label="Total" tooltiptext="Total" />
+		</listhead>
+		<template name="model" var="stat">
+			<listitem>
+				<listcell label="@load(stat.startDate)" />
+				<listcell label="@load(stat.fetchedCount)" />
+				<listcell label="@load(stat.fromCacheCount)" />
+				<listcell
+					label="@load(stat.fetchRate) @converter('com.jaeksoft.searchlib.web.converter.RateConverter')" />
+				<listcell label="@load(stat.hostCount)" />
+				<listcell label="@load(stat.hostListSize)" />
+				<listcell label="@load(stat.parsedCount)" />
+				<listcell label="@load(stat.pendingNewUrlCount)" />
+				<listcell label="@load(stat.newUrlCount)" />
+				<listcell label="@load(stat.pendingUpdatedCount)" />
+				<listcell label="@load(stat.updatedCount)" />
+				<listcell label="@load(stat.ignoredCount)" />
+				<listcell label="@load(stat.pendingDeletedCount)" />
+				<listcell label="@load(stat.deletedCount)" />
+				<listcell label="@load(stat.urlCount)" />
+				<listcell label="@load(stat.urlListSize)" />
+			</listitem>
+		</template>
+	</listbox>
+	<separator />
+	<listbox model="@load(crawlProcess.crawlMaster.threads)"
+		mold="paging" pageSize="20" hflex="min">
+		<auxhead>
+			<auxheader colspan="12" label="Thread list" />
+		</auxhead>
+		<listhead>
+			<listheader label="Current host name"
+				tooltiptext="Current host name" />
+			<listheader label="Type" tooltiptext="Type" />
+			<listheader label="Fetched" tooltiptext="Fetched" />
+			<listheader label="Cache" tooltiptext="From cache" />
+			<listheader label="Rate" tooltiptext="Fetch rate" />
+			<listheader label="New URL(s)" tooltiptext="New URL(s)" />
+			<listheader label="Updated" tooltiptext="Updated" />
+			<listheader label="Ignored" tooltiptext="Ignored" />
+			<listheader label="Deleted" tooltiptext="Deleted" />
+			<listheader label="URL(s)" tooltiptext="URL(s)" />
+			<listheader label="Total" tooltiptext="Total" />
+			<listheader label="Status" tooltiptext="Status" />
+		</listhead>
+		<template name="model" var="thread">
+			<listitem>
+				<listcell
+					label="@load(thread.hostUrlList.namedItem.name)" />
+				<listcell
+					label="@load(thread.hostUrlList.listType.label)" />
+				<listcell
+					label="@load(thread.currentStatistics.fetchedCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.fromCacheCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.fetchRate) @converter('com.jaeksoft.searchlib.web.converter.RateConverter')" />
+				<listcell
+					label="@load(thread.currentStatistics.pendingNewUrlCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.pendingUpdatedCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.ignoredCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.pendingDeletedCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.urlCount)" />
+				<listcell
+					label="@load(thread.currentStatistics.urlListSize)" />
+				<listcell label="@load(thread.statusInfo)" />
+			</listitem>
+		</template>
+	</listbox>
+	<timer delay="5000" repeats="true" onTimer="@command('onTimer')"
+		running="@load(crawlProcess.refresh)" />
+</window>
