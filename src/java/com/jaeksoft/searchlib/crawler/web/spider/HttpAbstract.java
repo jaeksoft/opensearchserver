@@ -243,10 +243,10 @@ public abstract class HttpAbstract {
 
 	private final static SimpleDateFormat[] httpDatesFormats = {
 			new SimpleDateFormat(LastModifiedDateFormats[0]),
-			new SimpleDateFormat(LastModifiedDateFormats[1]),
-			new SimpleDateFormat(LastModifiedDateFormats[2]),
 			new SimpleDateFormat(LastModifiedDateFormats[0], Locale.ENGLISH),
+			new SimpleDateFormat(LastModifiedDateFormats[1]),
 			new SimpleDateFormat(LastModifiedDateFormats[1], Locale.ENGLISH),
+			new SimpleDateFormat(LastModifiedDateFormats[2]),
 			new SimpleDateFormat(LastModifiedDateFormats[2], Locale.ENGLISH) };
 
 	public Long getLastModified() {
