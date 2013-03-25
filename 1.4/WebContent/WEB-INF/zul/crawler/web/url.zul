@@ -1,0 +1,259 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('searchUrl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.UrlController')">
+
+	<panel>
+		<panelchildren>
+			<hbox align="center">
+				<label value="URL(s) per page: " />
+				<intbox cols="3"
+					constraint="no negative, no zero, no negative"
+					value="@bind(searchUrl.pageSize)" onChange="@command('onSearch')" />
+				<space width="20px" />
+				<menubar autodrop="true">
+					<menu label="Columns view">
+						<menupopup>
+							<menuitem label="Date"
+								checked="@bind(searchUrl.colView.date)"
+								onClick="@command('onChangeColView')" checkmark="true"
+								autocheck="true" />
+							<menuitem label="Content-Type"
+								checked="@bind(searchUrl.colView.contentType)"
+								onClick="@command('onChangeColView')" checkmark="true"
+								autocheck="true" />
+							<menuitem label="Charset / Encoding"
+								checked="@bind(searchUrl.colView.charsetEncoding)"
+								onClick="@command('onChangeColView')" checkmark="true"
+								autocheck="true" />
+							<menuitem label="Language"
+								checked="@bind(searchUrl.colView.language)"
+								onClick="@command('onChangeColView')" checkmark="true"
+								autocheck="true" />
+							<menuitem label="HTTP returned code"
+								checked="@bind(searchUrl.colView.returnedCode)"
+								onClick="@command('onChangeColView')" checkmark="true"
+								autocheck="true" />
+						</menupopup>
+					</menu>
+				</menubar>
+				<space width="20px" />
+				<label value="Total URL number: " />
+				<label value="@load(searchUrl.recordNumber)" />
+				<space width="20px" />
+				<label value="Selected URL number: " />
+				<label value="@load(searchUrl.totalSize)" />
+				<space width="20px" />
+				<label value="Commands: " />
+				<listbox mold="select"
+					model="@load(searchUrl.batchCommandEnum)"
+					visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)"
+					selectedItem="@bind(searchUrl.batchCommand)"
+					disabled="@load(searchUrl.urlManager.currentTaskLogExists)">
+					<template name="model" var="command">
+						<listitem label="@load(command.label)" />
+					</template>
+				</listbox>
+				<button label="Go" onClick="@command('onGo')"
+					visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />
+				<image src="/images/ajax-loader.gif"
+					visible="@load(searchUrl.urlManager.currentTaskLogExists)" />
+				<label
+					visible="@load(searchUrl.urlManager.currentTaskLogExists)"
+					value="@load(searchUrl.urlManager.currentTaskLog.info)" />
+				<timer delay="5000" repeats="true"
+					onTimer="@command('onRefreshCurrentTaskLog')"
+					running="@load(searchUrl.urlManager.currentTaskLogExists)" />
+			</hbox>
+		</panelchildren>
+	</panel>
+	<listbox model="@load(searchUrl.urlList)" multiple="false"
+		checkmark="false"
+		emptyMessage="Click on the search button to see the URLs">
+		<listhead sizable="true">
+			<listheader label="Url" valign="top">
+				<vbox width="100%">
+					<textbox width="90%" value="@bind(searchUrl.like)" />
+					<button label="Search"
+						onClick="@command('onSearch')" />
+				</vbox>
+			</listheader>
+			<listheader label="Ev. Date"
+				visible="@load(searchUrl.colView.date)"
+				tooltiptext="Last event date" hflex="min" valign="top">
+				<vbox>
+					<datebox compact="true"
+						value="@bind(searchUrl.eventDateStart)" />
+					<datebox compact="true"
+						value="@bind(searchUrl.eventDateEnd)" />
+				</vbox>
+			</listheader>
+			<listheader label="Mod. date"
+				visible="@load(searchUrl.colView.date)" hflex="min"
+				tooltiptext="Last modified date" valign="top">
+				<vbox>
+					<datebox compact="true"
+						value="@bind(searchUrl.modifiedDateStart)" />
+					<datebox compact="true"
+						value="@bind(searchUrl.modifiedDateEnd)" />
+				</vbox>
+			</listheader>
+			<listheader label="Type"
+				visible="@load(searchUrl.colView.contentType)" hflex="min"
+				valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@bind(searchUrl.contentBaseType)" />
+				</vbox>
+			</listheader>
+			<listheader label="Charset"
+				visible="@load(searchUrl.colView.charsetEncoding)" hflex="min"
+				valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@bind(searchUrl.contentTypeCharset)" />
+				</vbox>
+			</listheader>
+			<listheader label="Encoding"
+				visible="@load(searchUrl.colView.charsetEncoding)" hflex="min"
+				valign="top">
+				<vbox>
+					<textbox cols="5"
+						value="@bind(searchUrl.contentEncoding)" />
+				</vbox>
+			</listheader>
+			<listheader label="Content length" hflex="min"
+				valign="top">
+				<vbox>
+					<intbox cols="8"
+						value="@bind(searchUrl.minContentLength)" />
+					<intbox cols="8"
+						value="@bind(searchUrl.maxContentLength)" />
+				</vbox>
+			</listheader>
+			<listheader label="Lang"
+				visible="@load(searchUrl.colView.language)" hflex="min"
+				valign="top">
+				<vbox>
+					<textbox cols="4" value="@bind(searchUrl.lang)" />
+				</vbox>
+			</listheader>
+			<listheader label="Lang method"
+				visible="@load(searchUrl.colView.language)" hflex="min"
+				valign="top">
+				<vbox>
+					<textbox cols="8"
+						value="@bind(searchUrl.langMethod)" />
+				</vbox>
+			</listheader>
+			<listheader label="Robots" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@load(searchUrl.robotsTxtStatusList)"
+						selectedItem="@bind(searchUrl.robotsTxtStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Fetch" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@load(searchUrl.fetchStatusList)"
+						selectedItem="@bind(searchUrl.fetchStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Code"
+				visible="@load(searchUrl.colView.returnedCode)" hflex="min"
+				valign="top">
+				<vbox>
+					<intbox cols="5"
+						value="@bind(searchUrl.responseCode)" />
+				</vbox>
+			</listheader>
+			<listheader label="Parsing" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@load(searchUrl.parserStatusList)"
+						selectedItem="@bind(searchUrl.parserStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Index" hflex="min" valign="top">
+				<vbox>
+					<listbox mold="select" width="50px"
+						fixedLayout="true" model="@load(searchUrl.indexStatusList)"
+						selectedItem="@bind(searchUrl.indexStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Host" valign="top" hflex="min">
+				<vbox>
+					<textbox width="90%" value="@bind(searchUrl.host)" />
+					<checkbox label="with sub"
+						checked="@bind(searchUrl.withSubDomain)" />
+				</vbox>
+			</listheader>
+			<listheader label="Links" tooltiptext="Backlink count"
+				valign="top" hflex="min" />
+		</listhead>
+		<template name="model" var="url">
+			<listitem>
+				<listcell>
+					<a target="_blank" label="@load(url.url)"
+						tooltiptext="@load(url.url)" href="@load(url.url)" />
+				</listcell>
+				<listcell
+					label="@load(url.when) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell
+					label="@load(url.lastModifiedDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell label="@load(url.contentBaseType)" />
+				<listcell label="@load(url.contentTypeCharset)" />
+				<listcell label="@load(url.contentEncoding)" />
+				<listcell label="@load(url.contentLength)" />
+				<listcell label="@load(url.lang)" />
+				<listcell label="@load(url.langMethod)" />
+				<listcell label="@load(url.robotsTxtStatus.name)" />
+				<listcell label="@load(url.fetchStatus.name)" />
+				<listcell label="@load(url.responseCode)" />
+				<listcell label="@load(url.parserStatus.name)" />
+				<listcell label="@load(url.indexStatus.name)" />
+				<listcell label="@load(url.host)" />
+				<listcell label="@load(url.backlinkCount)" />
+			</listitem>
+		</template>
+		<listfoot>
+			<listfooter span="16">
+				<paging id="paging" detailed="true"
+					totalSize="@load(searchUrl.totalSize)"
+					pageSize="@load(searchUrl.pageSize)"
+					activePage="@bind(searchUrl.activePage)" />
+			</listfooter>
+		</listfoot>
+	</listbox>
+</window>

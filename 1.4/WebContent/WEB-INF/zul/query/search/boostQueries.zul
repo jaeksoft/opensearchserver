@@ -1,0 +1,58 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('boost') @init('com.jaeksoft.searchlib.web.controller.query.BoostQueriesController')"
+	border="normal">
+	<listbox model="@load(boost.request.boostingQueries)" width="100%"
+		selectedItem="@bind(boost.selectedBoostQuery)" mold="paging"
+		pageSize="10">
+		<listhead>
+			<listheader label="Query" hflex="true" />
+			<listheader label="Boost" />
+			<listheader label="Action" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<textbox value="@bind(boost.currentBoostQuery.query)"
+					width="90%" />
+			</auxheader>
+			<auxheader>
+				<doublebox value="@bind(boost.currentBoostQuery.boost)"
+					constraint="no empty" />
+			</auxheader>
+			<auxheader>
+				<button visible="@load(boost.notSelected)" label="add"
+					onClick="@command('onSave')" />
+				<hbox visible="@load(boost.selected)">
+					<button label="save" onClick="@command('onSave')" />
+					<button label="cancel"
+						onClilck="@command('onCancel')" />
+				</hbox>
+			</auxheader>
+		</auxhead>
+		<template name="model" var="boostQuery">
+			<listitem>
+				<listcell label="@load(boostQuery.query)" />
+				<listcell label="@load(boostQuery.boost)" />
+				<listcell>
+					<button label="Remove"
+						onClick="@command('onRemove', boostQuery=boostQuery)" />
+				</listcell>
+			</listitem>
+		</template>
+	</listbox>
+</window>

@@ -1,0 +1,52 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid>
+	<columns>
+		<column align="right" hflex="min" />
+		<column align="left" hflex="min" />
+		<column align="left" />
+	</columns>
+	<rows>
+		<row>
+			<label value="Enabled OCR" />
+			<checkbox checked="@bind(advanced.ocrManager.enabled)" />
+			<space />
+		</row>
+		<row>
+			<label value="Tesseract path" />
+			<cell>
+				<textbox cols="80"
+					value="@bind(advanced.ocrManager.tesseractPath)" />
+				<button label="Check"
+					onClick="@command('onCheckTesseract')" />
+			</cell>
+			<label
+				value="Enter the path to the Tesseract executable Eg.: /usr/local/bin/tesseract" />
+		</row>
+		<row>
+			<label value="Tesseract default language" />
+			<listbox mold="select"
+				selectedItem="@bind(advanced.ocrManager.defaultLanguage)"
+				model="@load(advanced.tesseractLanguageEnum)">
+				<template name="model" var="langEnum">
+					<listitem label="@load(langEnum.name)" />
+				</template>
+			</listbox>
+			<label value="Enter the default language used by Tesseract" />
+		</row>
+	</rows>
+</grid>
