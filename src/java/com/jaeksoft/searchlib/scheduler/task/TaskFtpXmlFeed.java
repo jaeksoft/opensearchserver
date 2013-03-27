@@ -136,6 +136,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		} catch (FTPConnectionClosedException e) {
 			Logging.warn(e);
 		}
+		ftp.setConnectTimeout(120000);
+		ftp.setControlKeepAliveTimeout(180);
 		ftp.connect(server);
 		ftp.login(login, password);
 	}

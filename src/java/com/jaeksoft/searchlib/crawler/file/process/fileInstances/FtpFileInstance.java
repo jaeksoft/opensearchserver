@@ -89,6 +89,8 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			NoSuchAlgorithmException {
 		FilePathItem fpi = getFilePathItem();
 		FTPClient f = new FTPClient();
+		f.setControlKeepAliveTimeout(180);
+		f.setConnectTimeout(120000);
 		f.connect(fpi.getHost());
 		f.login(fpi.getUsername(), fpi.getPassword());
 		return f;

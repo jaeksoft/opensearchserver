@@ -215,4 +215,9 @@ public abstract class DatabaseCrawlAbstract
 		return getName().compareTo(o.getName());
 	}
 
+	@Override
+	public String toString() {
+		return getName();
+	}
+
 }

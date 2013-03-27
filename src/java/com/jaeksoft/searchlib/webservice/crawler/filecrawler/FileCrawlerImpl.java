@@ -199,11 +199,10 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	public CommonResult injectFtpRepository(String use, String login,
 			String key, String path, Boolean ignoreHiddenFile,
 			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host,
-			boolean ssl) {
+			String username, String password, String host, boolean ssl) {
 		return injectRepository(use, login, key, ssl ? FileInstanceType.Ftps
 				: FileInstanceType.Ftp, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, domain,
+				withSubDirectory, enabled, delay, username, password, null,
 				host, null, null, null, null);
 	}
 
@@ -322,22 +321,18 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	public CommonResult injectFtpRepositoryXML(String use, String login,
 			String key, String path, Boolean ignoreHiddenFile,
 			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host,
-			boolean ssl) {
+			String username, String password, String host, boolean ssl) {
 		return injectFtpRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, domain,
-				host, ssl);
+				withSubDirectory, enabled, delay, username, password, host, ssl);
 	}
 
 	@Override
 	public CommonResult injectFtpRepositoryJSON(String use, String login,
 			String key, String path, Boolean ignoreHiddenFile,
 			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host,
-			boolean ssl) {
+			String username, String password, String host, boolean ssl) {
 		return injectFtpRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, domain,
-				host, ssl);
+				withSubDirectory, enabled, delay, username, password, host, ssl);
 	}
 
 	@Override

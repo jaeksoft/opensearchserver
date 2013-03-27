@@ -97,7 +97,6 @@ public interface SoapFileCrawler {
 			@WebParam(name = "delay") int delay,
 			@WebParam(name = "username") String username,
 			@WebParam(name = "password") String password,
-			@WebParam(name = "domain") String domain,
 			@WebParam(name = "host") String host,
 			@WebParam(name = "ssl") boolean ssl);
 

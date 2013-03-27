@@ -180,7 +180,6 @@ public interface RestFileCrawler {
 			@QueryParam("delay") int delay,
 			@QueryParam("username") String username,
 			@QueryParam("password") String password,
-			@QueryParam("domain") String domain,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
 	@PUT
@@ -195,7 +194,6 @@ public interface RestFileCrawler {
 			@QueryParam("delay") int delay,
 			@QueryParam("username") String username,
 			@QueryParam("password") String password,
-			@QueryParam("domain") String domain,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
 	@DELETE
