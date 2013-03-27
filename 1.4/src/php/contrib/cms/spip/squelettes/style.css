@@ -1,0 +1,11 @@
+@CHARSET "UTF-8";
+.configuration #contenu .cadre.cadre-sous_rub.available .titrem {
+	background-color: #C5E41C;
+}
+.configuration #contenu .cadre.cadre-sous_rub.unavailable .titrem {
+	background-color: #F4B50C;
+}
+
+table.oss_config td input.text {
+	width: 100%;
+}

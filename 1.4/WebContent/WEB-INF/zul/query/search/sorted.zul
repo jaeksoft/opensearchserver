@@ -1,0 +1,53 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('sorted') @init('com.jaeksoft.searchlib.web.controller.query.SortedController')">
+	<grid model="@load(sorted.request.sortFieldList.list)">
+		<columns>
+			<column label="Field" />
+			<column label="Direction" />
+			<column label="Action" />
+		</columns>
+		<rows>
+			<template name="model" var="sortfield">
+				<row>
+					<label value="@load(sortfield.name)" />
+					<listbox mold="select"
+						selectedItem="@bind(sortfield.direction)">
+						<listitem label="ascending" value="ascending" />
+						<listitem label="descending" value="descending" />
+					</listbox>
+					<button label="Remove"
+						onClick="@command('onSortRemove', sortfield=sortfield)" />
+				</row>
+			</template>
+		</rows>
+		<foot visible="@load(sorted.fieldLeft)">
+			<footer span="2">
+				<listbox mold="select"
+					selectedItem="@bind(sorted.selectedSort)"
+					model="@load(sorted.sortFieldLeft)">
+					<template name="model" var="sortField">
+						<listitem label="@load(sortField)" />
+					</template>
+				</listbox>
+				<button label="add sort field"
+					onClick="@command('onSortAdd')" />
+			</footer>
+		</foot>
+	</grid>
+</window>

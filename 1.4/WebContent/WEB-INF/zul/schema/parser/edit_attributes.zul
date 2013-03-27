@@ -1,0 +1,74 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<grid>
+		<columns>
+			<column hflex="min" align="right" />
+			<column hflex="min" align="left" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Name" />
+				<textbox value="@bind(parser.currentParser.parserName)" />
+				<label value="Choose a name for this parser" />
+			</row>
+			<row>
+				<label value="Type" />
+				<label
+					value="@load(parser.currentParser.parserType.name)" />
+				<label value="The type of this parser" />
+			</row>
+			<row>
+				<label value="Fail over" />
+				<combobox model="@load(parser.failOverList)"
+					value="@bind(parser.currentParser.failOverParserName)" />
+				<label value="Choose a parser used in case of failure" />
+			</row>
+		</rows>
+	</grid>
+	<separator />
+	<grid model="@load(parser.currentParser.userProperties)">
+		<columns sizable="true">
+			<column hflex="min" align="right" label="Name" />
+			<column hflex="min" align="left" label="Value" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<template name="model" var="property">
+				<row>
+					<label
+						tooltiptext="@load(property.classPropertyEnum.info)"
+						value="@load(property.classPropertyEnum.label)" />
+					<vbox>
+						<textbox visible="@load(property.textbox)"
+							value="@bind(property.value)" />
+						<listbox mold="select"
+							visible="@load(property.list)" model="@load(property.valueList)"
+							selectedItem="@bind(property.value)">
+							<template name="model">
+								<listitem label="@load(each)" />
+							</template>
+						</listbox>
+					</vbox>
+					<label
+						value="@load(property.classPropertyEnum.info)" />
+				</row>
+			</template>
+		</rows>
+	</grid>
+</zk>

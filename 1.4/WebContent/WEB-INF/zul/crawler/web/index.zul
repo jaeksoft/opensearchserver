@@ -1,0 +1,80 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('webcrawler') @init('com.jaeksoft.searchlib.web.controller.crawler.CrawlerController')">
+	<tabbox>
+		<tabs>
+			<tab id="tabCrawlerWebPattern" label="Pattern list"
+				selected="true" />
+			<tab id="tabCrawlerWebExclusion" label="Exclusion list" />
+			<tab id="tabCrawlerWebUrlFilter" label="URL filter" />
+			<tab id="tabCrawlerWebUrl" label="URL browser" />
+			<tab id="tabCrawlerWebHosts" label="Hostnames" />
+			<tab id="tabCrawlerWebCrawl" label="Crawl process" />
+			<tab id="tabCrawlerManualWebCrawl" label="Manual crawl" />
+			<tab id="tabCrawlerproxy" label="Proxy" />
+			<tab id="tabCrawlerScreenshot" label="Screenshot" />
+			<tab id="tabCrawlerCredential" label="Authentication" />
+			<tab id="tabCrawlerWebMapping" label="Field mapping"
+				visible="@load(webcrawler.webCrawlerParametersRights)" />
+			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
+			<tab id="tabCrawlerWebSitemap" label="Site Map" />
+		</tabs>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/web/pattern.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebExclusion.onSelect">
+				<include src="WEB-INF/zul/crawler/web/exclusion.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebUrlFilter.onSelect">
+				<include src="WEB-INF/zul/crawler/web/urlFilter.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebUrl.onSelect">
+				<include src="WEB-INF/zul/crawler/web/url.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebHosts.onSelect">
+				<include src="WEB-INF/zul/crawler/web/hosts.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebCrawl.onSelect">
+				<include src="WEB-INF/zul/crawler/web/crawl.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerManualWebCrawl.onSelect">
+				<include src="WEB-INF/zul/crawler/web/manualcrawl.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerproxy.onSelect">
+				<include src="WEB-INF/zul/crawler/web/proxy.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerScreenshot.onSelect">
+				<include
+					src="WEB-INF/zul/crawler/web/screenshot/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerCredential.onSelect">
+				<include src="WEB-INF/zul/crawler/web/credential.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebMapping.onSelect">
+				<include src="WEB-INF/zul/crawler/web/mapping.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebRobotsTxt.onSelect">
+				<include src="WEB-INF/zul/crawler/web/robotstxt.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebSitemap.onSelect">
+				<include src="WEB-INF/zul/crawler/web/sitemap.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

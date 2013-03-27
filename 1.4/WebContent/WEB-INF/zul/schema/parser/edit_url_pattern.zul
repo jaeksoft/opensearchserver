@@ -1,0 +1,44 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid model="@load(parser.currentParser.urlPatternSet)"
+	emptyMessage="No URL pattern">
+	<auxhead>
+		<auxheader colspan="2">
+			<hbox align="center">
+				<label value="Enter an URL pattern to add: " />
+				<textbox cols="50"
+					value="@bind(parser.currentUrlPattern)" />
+				<button label="Add"
+					onClick="@command('onAddUrlPattern')" />
+			</hbox>
+
+		</auxheader>
+	</auxhead>
+	<columns>
+		<column label="URL pattern" />
+		<column label="Action" hflex="min" />
+	</columns>
+	<rows>
+		<template name="model" var="urlPatternItem">
+			<row>
+				<label value="@load(urlPatternItem)" />
+				<image src="/images/action_delete.png"
+					onClick="@command('onDeleteUrlPattern', urlPatternItem=urlPatternItem)" />
+			</row>
+		</template>
+	</rows>
+</grid>
