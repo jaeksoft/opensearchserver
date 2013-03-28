@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
  */
 public class CommonTestCase {
 	public static String INDEX_NAME = "oss";
-	public static String SERVER_URL = "http://localhost:8080/jenkins-oss-1.4-testing/";
+	public static String SERVER_URL = "http://localhost:8080/jenkins-oss-1.5-testing/";
 	public static String USER_NAME = "";
 	public static String API_KEY = "";
 
