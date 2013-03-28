@@ -150,4 +150,16 @@ public class ImageUtils {
 		for (Rectangle box : boxes)
 			g2d.fill(box);
 	}
+
+	public static final String rectToCoordString(Rectangle box, char separator) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(Integer.toString(box.x));
+		sb.append(separator);
+		sb.append(Integer.toString(box.y));
+		sb.append(separator);
+		sb.append(Integer.toString(box.x + box.width));
+		sb.append(separator);
+		sb.append(Integer.toString(box.y + box.height));
+		return sb.toString();
+	}
 }

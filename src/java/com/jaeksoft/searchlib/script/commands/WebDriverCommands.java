@@ -192,11 +192,9 @@ public class WebDriverCommands {
 								element.getSize().height);
 						boxes.add(box);
 						ImageUtils.yellowHighlight(image, boxes);
-						String area = HTML_AREA.replace(
-								SUBST_COORD,
-								box.x + "," + box.y + "," + box.getMaxX() + ","
-										+ box.getMaxY()).replace(SUBST_ALT,
-								"#" + (i++));
+						String area = HTML_AREA.replace(SUBST_COORD,
+								ImageUtils.rectToCoordString(box, ','))
+								.replace(SUBST_ALT, "#" + (i++));
 						sbHtml.append(area);
 					}
 				}
