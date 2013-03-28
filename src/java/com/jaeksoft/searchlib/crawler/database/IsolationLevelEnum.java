@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,7 @@ public enum IsolationLevelEnum {
 
 	TRANSACTION_SERIALIZABLE(java.sql.Connection.TRANSACTION_SERIALIZABLE);
 
-	protected final int value;
+	public final int value;
 
 	private IsolationLevelEnum(int value) {
 		this.value = value;
@@ -52,4 +52,11 @@ public enum IsolationLevelEnum {
 		return TRANSACTION_NONE;
 	}
 
+	public static String[] getNameList() {
+		String[] list = new String[values().length];
+		int i = 0;
+		for (IsolationLevelEnum isoLevel : values())
+			list[i++] = isoLevel.name();
+		return list;
+	}
 }

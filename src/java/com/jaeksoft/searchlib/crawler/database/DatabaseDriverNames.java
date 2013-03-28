@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.database;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.zk.ui.Executions;
+
 public enum DatabaseDriverNames {
 
 	DERBY("org.apache.derby.jdbc.EmbeddedDriver"),
@@ -83,5 +85,10 @@ public enum DatabaseDriverNames {
 		dbDriverList = new String[list.size()];
 		list.toArray(dbDriverList);
 		return dbDriverList;
+	}
+
+	public static synchronized String[] getAvailableList() {
+		return getAvailableList(Executions.getCurrent().getDesktop()
+				.getWebApp().getClass().getClassLoader());
 	}
 }

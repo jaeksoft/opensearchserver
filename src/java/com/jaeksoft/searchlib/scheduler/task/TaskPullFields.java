@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,10 +51,12 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 public class TaskPullFields extends TaskPullAbstract {
 
 	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source query", 50);
+			TaskPropertyType.textBox, "Source query", "Source query",
+			"The search query on the source index", 50);
 
 	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields on source", 80, 5);
+			TaskPropertyType.multilineTextBox, "Mapped fields on source",
+			"Mapped fields on source", null, 80, 5);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
 			propLogin, propApiKey, propSourceQuery, propLanguage,

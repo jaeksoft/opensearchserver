@@ -1,0 +1,221 @@
+/**   
+ * License Agreement for OpenSearchServer
+ *
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of OpenSearchServer.
+ *
+ * OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+package com.jaeksoft.searchlib.script.commands;
+
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.IOUtils;
+import org.openqa.selenium.WebElement;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.script.CommandAbstract;
+import com.jaeksoft.searchlib.script.CommandEnum;
+import com.jaeksoft.searchlib.script.ScriptCommandContext;
+import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.ImageUtils;
+
+public class WebDriverCommands {
+
+	public static class Open extends CommandAbstract {
+
+		public Open() {
+			super(CommandEnum.WEBDRIVER_OPEN);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				Object... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			BrowserDriverEnum browserDriverEnum = BrowserDriverEnum.find(
+					getParameterString(0), null);
+			if (browserDriverEnum == null)
+				throw new ScriptException("Web driver not found: "
+						+ parameters[0]);
+			context.setBrowserDriver(browserDriverEnum);
+		}
+	}
+
+	public static class Close extends CommandAbstract {
+
+		public Close() {
+			super(CommandEnum.WEBDRIVER_CLOSE);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				Object... parameters) throws ScriptException {
+			context.setBrowserDriver(null);
+		}
+	}
+
+	public static class Resize extends CommandAbstract {
+
+		public Resize() {
+			super(CommandEnum.WEBDRIVER_RESIZE);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				Object... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			String width = getParameterString(0);
+			if (width == null)
+				throwError("No width given");
+			String height = getParameterString(0);
+			if (height == null)
+				throwError("No height given");
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			try {
+				browserDriver.setSize(Integer.parseInt(width),
+						Integer.parseInt(height));
+			} catch (NumberFormatException e) {
+				throw new ScriptException(e);
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			}
+		}
+	}
+
+	public static class Get extends CommandAbstract {
+
+		public Get() {
+			super(CommandEnum.WEBDRIVER_GET);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				Object... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			String url = getParameterString(0);
+			if (url == null)
+				throwError("No URL given");
+			browserDriver.get(url);
+		}
+
+	}
+
+	public static class Capture extends CommandAbstract {
+
+		private final static String SUBST_FILE = "{file}";
+		private final static String SUBST_WIDTH = "{width}";
+		private final static String SUBST_HEIGHT = "{height}";
+		private final static String SUBST_COORD = "{coord}";
+		private final static String SUBST_ALT = "{alt}";
+
+		private final static String HTML_START = "<html><body>"
+				+ "<img src=\"{file}\" width=\"" + SUBST_WIDTH + "\" height=\""
+				+ SUBST_HEIGHT
+				+ "\" usemap=\"#capturemap\"/><map name=\"capturemap\"/>";
+
+		private final static String HTML_AREA = "<area shape=\"rect\" coords=\""
+				+ SUBST_COORD + "\" href=\"#\" alt=\"" + SUBST_ALT + "\"/>";
+
+		private final static String HTML_END = "</map></body></html>";
+
+		public Capture() {
+			super(CommandEnum.WEBDRIVER_CAPTURE);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				Object... parameters) throws ScriptException {
+			FileWriter writer = null;
+			checkParameters(1, parameters);
+			String dest = getParameterString(0);
+			if (dest == null)
+				throwError("No destination path given");
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			try {
+				BufferedImage image = browserDriver.getScreenshot();
+				File pngFile = new File(dest + ".png");
+				File htmlFile = new File(dest + ".html");
+				String html = HTML_START.replace(SUBST_FILE, pngFile.getName());
+				html = html.replace(SUBST_WIDTH,
+						Integer.toString(image.getWidth()));
+				html = html.replace(SUBST_HEIGHT,
+						Integer.toString(image.getHeight()));
+				StringBuffer sbHtml = new StringBuffer(html);
+
+				Collection<String> selectors = context.getCssSelectors();
+				if (selectors != null) {
+					HashSet<WebElement> elementSet = new HashSet<WebElement>();
+					for (String selector : selectors)
+						browserDriver.locateByCss(selector, elementSet);
+					List<Rectangle> boxes = new ArrayList<Rectangle>(
+							elementSet.size());
+					int i = 1;
+					for (WebElement element : elementSet) {
+						Rectangle box = new Rectangle(element.getLocation().x,
+								element.getLocation().y,
+								element.getSize().width,
+								element.getSize().height);
+						boxes.add(box);
+						ImageUtils.yellowHighlight(image, boxes);
+						String area = HTML_AREA.replace(
+								SUBST_COORD,
+								box.x + "," + box.y + "," + box.getMaxX() + ","
+										+ box.getMaxY()).replace(SUBST_ALT,
+								"#" + (i++));
+						sbHtml.append(area);
+					}
+				}
+				sbHtml.append(HTML_END);
+				if (!pngFile.getParentFile().exists())
+					pngFile.getParentFile().mkdirs();
+				ImageIO.write(image, "png", pngFile);
+				writer = new FileWriter(htmlFile);
+				IOUtils.write(sbHtml.toString(), writer);
+				writer.close();
+				writer = null;
+
+			} catch (IOException e) {
+				throw new ScriptException(e);
+			} finally {
+				if (writer != null)
+					IOUtils.closeQuietly(writer);
+			}
+		}
+	}
+
+}

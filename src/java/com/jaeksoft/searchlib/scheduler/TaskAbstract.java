@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -88,17 +88,17 @@ public abstract class TaskAbstract {
 			TaskPropertyDef propertyDef);
 
 	/**
-	 * Find a propertyDef from its name
+	 * Find a propertyDef from its configName
 	 * 
 	 * @param name
 	 * @return
 	 */
-	public TaskPropertyDef findProperty(String name) {
+	public TaskPropertyDef findPropertyByConfigName(String configName) {
 		TaskPropertyDef[] propDefs = getPropertyList();
 		if (propDefs == null)
 			return null;
 		for (TaskPropertyDef propDef : propDefs)
-			if (propDef.name.equals(name))
+			if (propDef.configName.equalsIgnoreCase(configName))
 				return propDef;
 		return null;
 	}

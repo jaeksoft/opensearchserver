@@ -54,14 +54,15 @@ public enum BrowserDriverEnum {
 		return driverClass.newInstance();
 	}
 
-	public static BrowserDriverEnum find(String value) {
+	public static BrowserDriverEnum find(String value,
+			BrowserDriverEnum defaultValue) {
 		if (value == null)
-			return FIREFOX;
+			return defaultValue;
 		for (BrowserDriverEnum driver : BrowserDriverEnum.values())
 			if (value.equalsIgnoreCase(driver.name())
 					|| value.equalsIgnoreCase(driver.name))
 				return driver;
-		return FIREFOX;
+		return defaultValue;
 	}
 
 	public String getName() {

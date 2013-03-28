@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,16 +61,16 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskUploadMonitor extends TaskAbstract {
 
 	final private TaskPropertyDef propUrl = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Url", 100);
+			TaskPropertyType.textBox, "URL", "Url", null, 100);
 
 	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", 50);
+			TaskPropertyType.textBox, "Login", "Login", null, 50);
 
 	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", 20);
+			TaskPropertyType.password, "Password", "Password", null, 20);
 
 	final private TaskPropertyDef propInstanceId = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Instance ID", 80);
+			TaskPropertyType.textBox, "Instance ID", "Instance ID", null, 80);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propUrl, propLogin,
 			propPassword, propInstanceId };

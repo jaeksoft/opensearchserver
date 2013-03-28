@@ -24,9 +24,6 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -63,6 +60,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
+import com.jaeksoft.searchlib.util.ImageUtils;
 
 public class ViewerController extends CommonController {
 
@@ -291,14 +289,7 @@ public class ViewerController extends CommonController {
 			currentImage = pdf.getPageImage(pdfPage,
 					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
 					zoom / 100);
-			Graphics2D g2d = (Graphics2D) currentImage.getGraphics();
-			g2d.setColor(Color.YELLOW);
-
-			AlphaComposite ac = AlphaComposite.getInstance(
-					AlphaComposite.SRC_OVER, 0.4f);
-			g2d.setComposite(ac);
-			for (Rectangle box : boxList)
-				g2d.fill(box);
+			ImageUtils.yellowHighlight(currentImage, boxList);
 			numberOfPages = pdf.getNumberOfPages();
 		} finally {
 			if (pdf != null)

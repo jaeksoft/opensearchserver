@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -147,7 +147,7 @@ public class TaskProperty {
 	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
 			UnsupportedEncodingException {
-		xmlWriter.startElement("property", "name", propertyDef.name);
+		xmlWriter.startElement("property", "name", propertyDef.configName);
 		if (propertyDef.type == TaskPropertyType.password) {
 			if (value != null && value.length() > 0)
 				xmlWriter.textNode(StringUtils.base64encode(value));

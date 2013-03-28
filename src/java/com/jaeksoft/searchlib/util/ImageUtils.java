@@ -24,12 +24,17 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -129,5 +134,20 @@ public class ImageUtils {
 			}
 		}
 		return false;
+	}
+
+	public static final void yellowHighlight(Image image,
+			Collection<Rectangle> boxes) {
+		if (boxes == null)
+			return;
+		if (boxes.size() == 0)
+			return;
+		Graphics2D g2d = (Graphics2D) image.getGraphics();
+		g2d.setColor(Color.YELLOW);
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				0.4f);
+		g2d.setComposite(ac);
+		for (Rectangle box : boxes)
+			g2d.fill(box);
 	}
 }

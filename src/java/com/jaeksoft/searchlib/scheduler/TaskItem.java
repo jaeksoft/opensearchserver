@@ -118,9 +118,11 @@ public class TaskItem extends ExecutionAbstract {
 		NodeList nodeList = xpp.getNodeList(node, "property");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node propNode = nodeList.item(i);
-			String name = XPathParser.getAttributeString(propNode, "name");
+			String configName = XPathParser
+					.getAttributeString(propNode, "name");
 			String value = xpp.getNodeString(propNode, false);
-			TaskPropertyDef propDef = taskAbstract.findProperty(name);
+			TaskPropertyDef propDef = taskAbstract
+					.findPropertyByConfigName(configName);
 			if (propDef != null) {
 				if (propDef.type == TaskPropertyType.password)
 					value = StringUtils.base64decode(value);

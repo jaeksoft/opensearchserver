@@ -43,13 +43,15 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskOtherScheduler extends TaskAbstract {
 
 	final private TaskPropertyDef propSchedulerName = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Scheduler name", 50);
+			TaskPropertyType.comboBox, "Scheduler name", "Scheduler name",
+			"The name of the scheduler", 50);
 
 	final private TaskPropertyDef propAction = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Which action", 50);
+			TaskPropertyType.comboBox, "Which action", "Which action",
+			"Select a behavior", 50);
 
 	final private TaskPropertyDef propTimeOut = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Time out", 20);
+			TaskPropertyType.textBox, "Time out", "Time out", null, 20);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSchedulerName,
 			propAction, propTimeOut };

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,10 +46,11 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskReportLoadLogFile extends TaskAbstract {
 
 	final private TaskPropertyDef propLogFile = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Log file selection", 60);
+			TaskPropertyType.comboBox, "Log file selection",
+			"Log file selection", null, 60);
 
 	final private TaskPropertyDef propArchive = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Archive", 10);
+			TaskPropertyType.comboBox, "Archive", "Archive", null, 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propLogFile,
 			propArchive };

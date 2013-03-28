@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,7 +39,8 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskDatabaseCrawlerRun extends TaskAbstract {
 
 	final private TaskPropertyDef propCrawlName = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "crawl name", 50);
+			TaskPropertyType.comboBox, "crawl name", "crawl name",
+			"The name of the database crawl item", 50);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName };
 

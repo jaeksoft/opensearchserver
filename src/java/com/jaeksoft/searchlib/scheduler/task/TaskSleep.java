@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.util.ThreadUtils;
 public class TaskSleep extends TaskAbstract {
 
 	final private TaskPropertyDef propSeconds = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Seconds", 10);
+			TaskPropertyType.textBox, "Seconds", "Seconds", null, 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSeconds, };
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,28 +53,36 @@ import com.jaeksoft.searchlib.util.StringUtils;
 public abstract class TaskPullAbstract extends TaskAbstract {
 
 	final protected TaskPropertyDef propSourceIndex = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Index source", 100);
+			TaskPropertyType.comboBox, "Index source", "Index source",
+			"The source index which will be read", 100);
 
 	final protected TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login (Index target)", 20);
+			TaskPropertyType.textBox, "Login (Index target)",
+			"Login (Index target)",
+			"The login used to connect to the targeted index", 20);
 
 	final protected TaskPropertyDef propApiKey = new TaskPropertyDef(
-			TaskPropertyType.password, "API Key (Index target)", 50);
+			TaskPropertyType.password, "API Key (Index target)",
+			"API Key (Index target)",
+			"The API key used to connect to the targeted index", 50);
 
 	final protected TaskPropertyDef propSourceField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source field name", 50);
+			TaskPropertyType.textBox, "Source field name", "Source field name",
+			null, 50);
 
 	final protected TaskPropertyDef propTargetField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Target field name", 50);
+			TaskPropertyType.textBox, "Target field name", "Target field name",
+			null, 50);
 
 	final protected TaskPropertyDef propTargetMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields on target", 80, 5);
+			TaskPropertyType.multilineTextBox, "Mapped fields on target",
+			"Mapped fields on target", null, 80, 5);
 
 	final protected TaskPropertyDef propBufferSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 10);
+			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
 	final protected TaskPropertyDef propLanguage = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Language", 30);
+			TaskPropertyType.comboBox, "Language", "Language", null, 30);
 
 	protected void populateSourceIndexValues(Config config, List<String> values)
 			throws SearchLibException {

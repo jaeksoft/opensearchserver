@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,8 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskWebCrawlerStart extends TaskAbstract {
 
 	final private TaskPropertyDef propRunOnce = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Run once", 10);
+			TaskPropertyType.comboBox, "Run once", "Run once",
+			"Choose if the crawler will run once or indefinitely", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propRunOnce };
 

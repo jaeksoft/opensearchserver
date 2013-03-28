@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,10 +43,12 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskReplicationRun extends TaskAbstract {
 
 	final private TaskPropertyDef propReplicationName = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "replication name", 50);
+			TaskPropertyType.comboBox, "replication name", "replication name",
+			"The name of the replication item", 50);
 
 	final private TaskPropertyDef propReplicationIfUpdated = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Only if the index has been updated", 50);
+			TaskPropertyType.comboBox, "Only if the index has been updated",
+			"Only if the index has been updated", null, 50);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propReplicationName,
 			propReplicationIfUpdated };

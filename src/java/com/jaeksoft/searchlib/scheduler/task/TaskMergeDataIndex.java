@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,13 +46,16 @@ import com.jaeksoft.searchlib.util.StringUtils;
 public class TaskMergeDataIndex extends TaskAbstract {
 
 	final protected TaskPropertyDef propSourceIndex = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Index source", 100);
+			TaskPropertyType.comboBox, "Index source", "Index source",
+			"Select the external index which will be merged", 100);
 
 	final protected TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", 20);
+			TaskPropertyType.textBox, "Login", "Login",
+			"The login to the external index", 20);
 
 	final protected TaskPropertyDef propApiKey = new TaskPropertyDef(
-			TaskPropertyType.password, "API Key", 50);
+			TaskPropertyType.password, "API Key", "API Key",
+			"The API Key to connect to the external index", 50);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
 			propLogin, propApiKey };

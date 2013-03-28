@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,10 +46,12 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskPullTerms extends TaskPullAbstract {
 
 	final private TaskPropertyDef propFreqField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Frequency field name", 50);
+			TaskPropertyType.textBox, "Frequency field name",
+			"Frequency field name", null, 50);
 
 	final private TaskPropertyDef propFreqMin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Minimum frequency", 20);
+			TaskPropertyType.textBox, "Minimum frequency", "Minimum frequency",
+			null, 20);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
 			propLogin, propApiKey, propSourceField, propTargetField,

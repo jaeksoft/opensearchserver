@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskBuildAutocompletion extends TaskAbstract {
 
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 10);
+			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize };
 

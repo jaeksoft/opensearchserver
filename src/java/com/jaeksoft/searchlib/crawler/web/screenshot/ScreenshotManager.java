@@ -76,7 +76,7 @@ public class ScreenshotManager implements PropertyItemListener {
 			screenshotDir.mkdir();
 		WebPropertyManager props = config.getWebPropertyManager();
 		browserDriverEnum = BrowserDriverEnum.find(props.getScreenshotBrowser()
-				.getValue());
+				.getValue(), BrowserDriverEnum.FIREFOX);
 		screenshotMethodEnum = ScreenshotMethodEnum.find(props
 				.getScreenshotMethod().getValue());
 		captureDimension = getCaptureDimension(props);
@@ -125,7 +125,8 @@ public class ScreenshotManager implements PropertyItemListener {
 	}
 
 	private static BrowserDriverEnum getBrowser(WebPropertyManager props) {
-		return BrowserDriverEnum.find(props.getScreenshotBrowser().getValue());
+		return BrowserDriverEnum.find(props.getScreenshotBrowser().getValue(),
+				BrowserDriverEnum.FIREFOX);
 	}
 
 	private static ScreenshotMethodEnum getMethod(WebPropertyManager props) {

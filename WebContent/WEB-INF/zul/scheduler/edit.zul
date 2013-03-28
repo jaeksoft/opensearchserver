@@ -21,7 +21,7 @@
 		<panelchildren>
 			<grid>
 				<columns sizable="false">
-					<column align="right" width="150px" />
+					<column align="right" hflex="min" />
 					<column align="left" />
 				</columns>
 				<rows>
@@ -112,16 +112,17 @@
 											value="@load(scheduleredit.currentTask.task.name)" />
 									</vbox>
 								</listheader>
-								<listheader label="Properties"
-									valign="top">
+								<listheader valign="top">
 									<vbox width="100%">
 										<grid
 											visible="@load(scheduleredit.currentTask.task.property)"
 											model="@load(scheduleredit.currentTask.properties.array)">
-											<columns>
+											<columns sizable="true">
 												<column hflex="min"
-													align="right" />
-												<column />
+													label="Properties" align="right" />
+												<column hflex="min"
+													label="Values" />
+												<column label="Help" />
 											</columns>
 											<rows>
 												<template name="model"
@@ -156,6 +157,8 @@
 																visible="@load(property.type.ctrlPassword)"
 																value="@bind(property.value)" />
 														</hbox>
+														<label
+															value="@load(property.def.help)" />
 													</row>
 												</template>
 											</rows>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -62,32 +62,44 @@ import com.jaeksoft.searchlib.util.DomUtils;
 public class TaskFtpXmlFeed extends TaskAbstract {
 
 	final private TaskPropertyDef propServer = new TaskPropertyDef(
-			TaskPropertyType.textBox, "FTP server (hostname)", 100);
+			TaskPropertyType.textBox, "FTP server", "FTP server (hostname)",
+			"The hostname of the FTP server", 100);
 
 	final private TaskPropertyDef propPath = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Path", 100);
+			TaskPropertyType.textBox, "Path", "Path", "The remote path", 100);
 
 	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", 50);
+			TaskPropertyType.textBox, "Login", "Login",
+			"The username on the FTP server", 50);
 
 	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", 50);
+			TaskPropertyType.password, "Password", "Password",
+			"The password on the FTP server", 50);
 
 	final private TaskPropertyDef propFileNamePattern = new TaskPropertyDef(
-			TaskPropertyType.textBox, "File name pattern", 50);
+			TaskPropertyType.textBox, "File name pattern", "File name pattern",
+			"A regular expression to filter which files will be handled", 50);
 
 	final private TaskPropertyDef propXsl = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "XSL", 100, 30);
+			TaskPropertyType.multilineTextBox, "XSL", "XSL",
+			"An option XSL stylesheet", 100, 30);
 
 	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Delete after load", 10);
+			TaskPropertyType.comboBox, "Delete after load",
+			"Delete after load",
+			"Decide if the document will be deleted after being loaded", 10);
 
 	final private TaskPropertyDef propTruncateIndexWhenFilesFound = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Truncate index when files are found",
-			10);
+			"Truncate index when files are found",
+			"Decide to truncate the index before loading the XML file", 10);
 
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 10);
+			TaskPropertyType.textBox,
+			"Buffer size",
+			"Buffer size",
+			"How many documents will be write to the index in each transaction",
+			10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propServer, propPath,
 			propLogin, propPassword, propFileNamePattern, propXsl,

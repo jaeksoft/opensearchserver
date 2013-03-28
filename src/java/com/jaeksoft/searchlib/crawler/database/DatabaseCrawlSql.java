@@ -44,6 +44,14 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 					return v;
 			return NO_CALL;
 		}
+
+		public static String[] getNameList() {
+			String[] list = new String[values().length];
+			int i = 0;
+			for (SqlUpdateMode item : values())
+				list[i++] = item.name();
+			return list;
+		}
 	}
 
 	private String driverClass;

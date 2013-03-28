@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,8 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskDeleteQuery extends TaskAbstract {
 
 	final private TaskPropertyDef propQuery = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Query", 200);
+			TaskPropertyType.textBox, "Query", "Query",
+			"The search query which returns the documents to delete", 200);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propQuery };
 

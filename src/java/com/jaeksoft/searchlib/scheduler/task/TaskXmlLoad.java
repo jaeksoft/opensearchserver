@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,19 +57,19 @@ import com.jaeksoft.searchlib.util.DomUtils;
 public class TaskXmlLoad extends TaskAbstract {
 
 	final private TaskPropertyDef propUri = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Uri", 100);
+			TaskPropertyType.textBox, "URI", "Uri", null, 100);
 
 	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", 50);
+			TaskPropertyType.textBox, "Login", "Login", null, 50);
 
 	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", 20);
+			TaskPropertyType.password, "Password", "Password", null, 20);
 
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", 10);
+			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
 	final private TaskPropertyDef propXsl = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "XSL", 100, 30);
+			TaskPropertyType.multilineTextBox, "XSL", "XSL", null, 100, 30);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
 			propPassword, propBuffersize, propXsl };
