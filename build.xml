@@ -49,7 +49,7 @@
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
 	<property name="junit-report" location="${build}/testreport" />
-	<property name="tomcat-context-path" value="/jenkins-oss-1.4-testing" />
+	<property name="tomcat-context-path" value="/jenkins-oss-1.5-testing" />
 	<property name="tomcat-test-url" value="http://localhost:8080/manager/text" />
 	<property name="tomcat-username" value="testing" />
 	<loadproperties srcfile="version" />
