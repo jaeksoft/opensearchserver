@@ -41,7 +41,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class CommonRestTestCase {
 	public static String INDEX_NAME = "oss";
 	public static String SERVER_URL = "http://localhost:8080";
-	public static String REST_PATH = "/jenkins-oss-1.4-testing/services/rest";
+	public static String REST_PATH = "/jenkins-oss-1.5-testing/services/rest";
 
 	public WebClient getNewWebClient(String path) {
 		String restPath = REST_PATH + path;
