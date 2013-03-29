@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -40,6 +42,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.DatabaseUtils;
 
 public class DatabaseScript implements Closeable {
 
@@ -96,9 +99,13 @@ public class DatabaseScript implements Closeable {
 			for (int i = 1; i <= columnCount; i++)
 				if (columns.contains(COLUMN_PARAM + i))
 					paramCount = i;
-
+			List<String> pkList = sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST
+					|| sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST ? new ArrayList<String>(
+					0) : null;
 			while (resultSet.next()) {
 				String id = resultSet.getString(COLUMN_ID);
+				if (pkList != null)
+					pkList.add(id);
 				String command = resultSet.getString(COLUMN_COMMAND);
 				Object[] parameters = null;
 				if (paramCount > 0) {
@@ -109,8 +116,14 @@ public class DatabaseScript implements Closeable {
 				}
 				CommandEnum.execute(scriptCommandContext, id, command,
 						parameters);
+				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
+					DatabaseUtils.update(transaction, id, sqlUpdateMode,
+							sqlUpdate);
 			}
-
+			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
+					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)
+				DatabaseUtils.update(transaction, pkList, sqlUpdateMode,
+						sqlUpdate);
 		} finally {
 			IOUtils.closeQuietly(this);
 		}

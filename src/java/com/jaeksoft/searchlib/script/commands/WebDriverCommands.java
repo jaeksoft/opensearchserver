@@ -135,15 +135,14 @@ public class WebDriverCommands {
 
 	public static class Capture extends CommandAbstract {
 
-		private final static String SUBST_FILE = "{file}";
 		private final static String SUBST_WIDTH = "{width}";
 		private final static String SUBST_HEIGHT = "{height}";
 		private final static String SUBST_COORD = "{coord}";
 		private final static String SUBST_ALT = "{alt}";
 
 		private final static String HTML_START = "<html><body>"
-				+ "<img src=\"{file}\" width=\"" + SUBST_WIDTH + "\" height=\""
-				+ SUBST_HEIGHT
+				+ "<img src=\"screenshot.png\" width=\"" + SUBST_WIDTH
+				+ "\" height=\"" + SUBST_HEIGHT
 				+ "\" usemap=\"#capturemap\"/><map name=\"capturemap\"/>";
 
 		private final static String HTML_AREA = "<area shape=\"rect\" coords=\""
@@ -163,14 +162,20 @@ public class WebDriverCommands {
 			String dest = getParameterString(0);
 			if (dest == null)
 				throwError("No destination path given");
+			File destFile = new File(dest);
+			if (destFile.exists() && !destFile.isDirectory())
+				throw new ScriptException("The destination " + dest
+						+ " is not a directory");
+			destFile.mkdirs();
+
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();
 			if (browserDriver == null)
 				throwError("No browser open");
 			try {
 				BufferedImage image = browserDriver.getScreenshot();
-				File pngFile = new File(dest + ".png");
-				File htmlFile = new File(dest + ".html");
-				String html = HTML_START.replace(SUBST_FILE, pngFile.getName());
+				File pngFile = new File(destFile, "screenshot.png");
+				File htmlFile = new File(destFile, "screenshot.html");
+				String html = HTML_START;
 				html = html.replace(SUBST_WIDTH,
 						Integer.toString(image.getWidth()));
 				html = html.replace(SUBST_HEIGHT,

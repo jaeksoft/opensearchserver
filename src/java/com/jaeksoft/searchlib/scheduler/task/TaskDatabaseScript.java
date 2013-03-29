@@ -66,11 +66,11 @@ public class TaskDatabaseScript extends TaskAbstract {
 
 	final private TaskPropertyDef propSelectSQL = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "SQL Select", "SQL Select",
-			"The SQL statement to retrieve the list of commands", 50, 5);
+			"The SQL statement to retrieve the list of commands", 70, 5);
 
 	final private TaskPropertyDef propUpdateSQL = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "SQL Update", "SQL Update",
-			"The SQ statement called when the command has been executed", 50, 2);
+			"The SQ statement called when the command has been executed", 70, 5);
 
 	final private TaskPropertyDef propUpdateMethod = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Update method", "Update method",

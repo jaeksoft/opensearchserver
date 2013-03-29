@@ -41,11 +41,11 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
@@ -65,7 +65,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			List<IndexDocument> indexDocumentList, int limit,
 			List<String> pkList) throws NoSuchAlgorithmException, IOException,
 			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, SQLException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -79,7 +79,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		update(transaction, pkList);
+		DatabaseUtils.update(transaction, pkList,
+				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 		pkList.clear();
 		indexDocumentList.clear();
 		if (taskLog != null)
@@ -87,59 +88,11 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		return true;
 	}
 
-	final private String toIdList(List<String> pkList, boolean quote) {
-		StringBuffer sb = new StringBuffer();
-		boolean b = false;
-		for (String uk : pkList) {
-			if (b)
-				sb.append(',');
-			else
-				b = true;
-			if (quote) {
-				sb.append('\'');
-				sb.append(uk.replace("'", "''"));
-				sb.append('\'');
-			} else
-				sb.append(uk);
-		}
-		return sb.toString();
-	}
-
-	private final static String PRIMARY_KEY_VARIABLE_NAME = "$PK";
-
-	private void update(Transaction transaction, List<String> pkList)
-			throws SearchLibException {
-		SqlUpdateMode sqlUpdateMode = databaseCrawl.getSqlUpdateMode();
-		if (sqlUpdateMode == SqlUpdateMode.NO_CALL)
-			return;
-		String sqlUpdate = databaseCrawl.getSqlUpdate();
-		String lastSql = null;
-		try {
-			if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
-				for (String uk : pkList) {
-					lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, uk);
-					transaction.update(lastSql);
-				}
-				transaction.commit();
-			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
-				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-						toIdList(pkList, false));
-				transaction.update(lastSql);
-			} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
-				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-						toIdList(pkList, true));
-				transaction.update(lastSql);
-			}
-		} catch (SQLException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
 	private boolean delete(Transaction transaction,
 			List<String> deleteDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			ClassNotFoundException, SQLException {
 		int i = deleteDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -153,7 +106,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		update(transaction, deleteDocumentList);
+		DatabaseUtils.update(transaction, deleteDocumentList,
+				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 
 		deleteDocumentList.clear();
 		if (taskLog != null)
