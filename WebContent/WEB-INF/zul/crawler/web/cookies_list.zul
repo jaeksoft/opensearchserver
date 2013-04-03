@@ -1,0 +1,43 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@load(cookies.cookieList)"
+	selectedItem="@bind(cookies.selectedCookie)">
+	<listhead sizable="true">
+		<listheader label="Pattern" hflex="min" />
+		<listheader label="Name" hflex="min" />
+		<listheader label="Value" hflex="min" />
+		<listheader />
+	</listhead>
+	<template name="model" var="cookie">
+		<listitem>
+			<listcell label="@load(cookie.pattern)" />
+			<listcell label="@load(cookie.name)" />
+			<listcell>
+				<label value="@load(cookie.value)" multiline="true" />
+			</listcell>
+			<listcell />
+		</listitem>
+	</template>
+	<listfoot>
+		<listfooter span="4">
+			<paging id="paging" detailed="true"
+				totalSize="@load(cookies.totalSize)"
+				pageSize="@load(cookies.pageSize)"
+				activePage="@bind(cookies.activePage)" />
+		</listfooter>
+	</listfoot>
+</listbox>

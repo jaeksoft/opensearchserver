@@ -212,6 +212,8 @@ public class WebDriverCommands {
 				writer.close();
 				writer = null;
 
+				browserDriver.saveArchive();
+
 			} catch (IOException e) {
 				throw new ScriptException(e);
 			} finally {
@@ -221,4 +223,18 @@ public class WebDriverCommands {
 		}
 	}
 
+	// <link rel="stylesheet" id="responsive-style-css"
+	// href="./OpenSearchServer   Search Engine API_files/style.css"
+	// type="text/css" media="all">
+	// <link rel="canonical"
+	// href="./OpenSearchServer   Search Engine API_files/OpenSearchServer   Search Engine API.html">
+	// <script id="LR1" type="text/javascript" async=""
+	// src="./OpenSearchServer   Search Engine API_files/client.js"></script>
+	// <iframe id="twttrHubFrameSecure" allowtransparency="true" frameborder="0"
+	// scrolling="no" tabindex="0" name="twttrHubFrameSecure"
+	// style="position: absolute; top: -9999em; width: 10px; height: 10px;"
+	// src="./OpenSearchServer   Search Engine API_files/hub(1).html"></iframe>
+	// <img
+	// src="./OpenSearchServer   Search Engine API_files/copy-new-oss-header.png"
+	// width="343" height="95" alt="OpenSearchServer">
 }

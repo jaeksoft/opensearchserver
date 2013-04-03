@@ -7,6 +7,14 @@ All new features and bugs are described here:
 http://sourceforge.net/p/opensearchserve/feature-request/
 http://sourceforge.net/p/opensearchserve/bug-report/
 
+OpenSearchServer 1.5
+
+New features:
+- 272: Automatically set cookies in the web crawler
+- 271: Disable nofollow directive
+- 270: Database based script
+- 269: Upgrade ZK library (6.5.2)
+
 OpenSearchserver 1.4
 
 New features:

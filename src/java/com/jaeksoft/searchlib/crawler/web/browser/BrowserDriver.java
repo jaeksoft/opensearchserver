@@ -109,4 +109,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			set.add(element);
 		return list.size();
 	}
+
+	final public void saveArchive() {
+		List<WebElement> elements = driver.findElements(new By.ByXPath(
+				"//*[@src]"));
+		for (WebElement element : elements) {
+			System.out.println(element.getTagName() + " "
+					+ element.getAttribute("src"));
+		}
+
+	}
 }

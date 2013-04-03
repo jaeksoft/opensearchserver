@@ -29,10 +29,12 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.SSLException;
@@ -52,6 +54,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.params.BasicHttpParams;
@@ -64,6 +67,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public abstract class HttpAbstract {
@@ -141,8 +145,15 @@ public abstract class HttpAbstract {
 	}
 
 	protected void execute(HttpUriRequest httpUriRequest,
-			CredentialItem credentialItem) throws ClientProtocolException,
-			IOException {
+			CredentialItem credentialItem, List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, URISyntaxException {
+		if (cookies != null && cookies.size() > 0) {
+			BasicCookieStore cookieStore = new BasicCookieStore();
+			for (CookieItem cookie : cookies)
+				cookieStore.addCookie(cookie.getCookie());
+			httpClient.setCookieStore(cookieStore);
+		}
+
 		this.httpUriRequest = httpUriRequest;
 		URI uri = httpUriRequest.getURI();
 		if (proxyHandler != null)

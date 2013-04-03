@@ -72,6 +72,7 @@ public class HtmlParser extends Parser {
 	private Map<String, Float> boostTagMap;
 	private Float titleBoost;
 	private boolean ignoreMetaNoIndex;
+	private boolean ignoreMetaNoFollow;
 	private boolean ignoreUntitledDocuments;
 	private boolean ignoreNonCanonical;
 	private boolean isCanonical = true;
@@ -120,6 +121,8 @@ public class HtmlParser extends Parser {
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
 				ClassPropertyEnum.KEEP_REMOVE_LIST);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
@@ -262,6 +265,7 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h5", getFloatProperty(ClassPropertyEnum.H5_BOOST));
 		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
+		ignoreMetaNoFollow = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW);
 		ignoreUntitledDocuments = getBooleanProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS);
 		ignoreNonCanonical = getBooleanProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL);
 
@@ -396,7 +400,7 @@ public class HtmlParser extends Parser {
 				metaRobotsNoIndex = true;
 				result.addField(ParserFieldEnum.meta_robots, "noindex");
 			}
-			if (metaRobots.contains("nofollow")) {
+			if (metaRobots.contains("nofollow") && !ignoreMetaNoFollow) {
 				metaRobotsFollow = false;
 				result.addField(ParserFieldEnum.meta_robots, "nofollow");
 			}

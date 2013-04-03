@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.http.Header;
@@ -39,6 +40,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public class HttpDownloader extends HttpAbstract {
@@ -75,74 +77,79 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem,
-			List<Header> additionalHeaders) throws ClientProtocolException,
-			IOException, IllegalStateException, SearchLibException {
+			List<Header> additionalHeaders, List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException, URISyntaxException {
 		synchronized (this) {
 			reset();
 			HttpGet httpGet = new HttpGet(uri);
 			addHeader(httpGet, additionalHeaders);
-			execute(httpGet, credentialItem);
+			execute(httpGet, credentialItem, cookies);
 			return getDownloadItem(uri);
 		}
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem)
 			throws ClientProtocolException, IOException, IllegalStateException,
-			SearchLibException {
-		return get(uri, credentialItem, null);
+			SearchLibException, URISyntaxException {
+		return get(uri, credentialItem, null, null);
 	}
 
 	public DownloadItem head(URI uri, CredentialItem credentialItem,
-			List<Header> additionalHeaders) throws ClientProtocolException,
-			IOException, IllegalStateException, SearchLibException {
+			List<Header> additionalHeaders, List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException, URISyntaxException {
 		synchronized (this) {
 			reset();
 			HttpHead httpHead = new HttpHead(uri);
 			addHeader(httpHead, additionalHeaders);
-			execute(httpHead, credentialItem);
+			execute(httpHead, credentialItem, cookies);
 			return getDownloadItem(uri);
 		}
 	}
 
 	public DownloadItem head(URI uri, CredentialItem credentialItem)
 			throws ClientProtocolException, IOException, IllegalStateException,
-			SearchLibException {
-		return head(uri, credentialItem, null);
+			SearchLibException, URISyntaxException {
+		return head(uri, credentialItem, null, null);
 	}
 
 	public DownloadItem post(URI uri, CredentialItem credentialItem,
-			HttpEntity entity) throws ClientProtocolException, IOException,
-			IllegalStateException, SearchLibException {
+			List<CookieItem> cookies, HttpEntity entity)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException, URISyntaxException {
 		synchronized (this) {
 			reset();
 			HttpPost httpPost = new HttpPost(uri);
 			if (entity != null)
 				httpPost.setEntity(entity);
-			execute(httpPost, credentialItem);
+			execute(httpPost, credentialItem, cookies);
 			return getDownloadItem(uri);
 		}
 	}
 
-	public DownloadItem delete(URI uri, CredentialItem credentialItem)
-			throws ClientProtocolException, IOException, IllegalStateException,
-			SearchLibException {
+	public DownloadItem delete(URI uri, CredentialItem credentialItem,
+			List<CookieItem> cookies) throws ClientProtocolException,
+			IOException, IllegalStateException, SearchLibException,
+			URISyntaxException {
 		synchronized (this) {
 			reset();
 			HttpDelete httpDelete = new HttpDelete(uri);
-			execute(httpDelete, credentialItem);
+			execute(httpDelete, credentialItem, cookies);
 			return getDownloadItem(uri);
 		}
 	}
 
 	public DownloadItem put(URI uri, CredentialItem credentialItem,
-			HttpEntity entity) throws ClientProtocolException, IOException,
-			IllegalStateException, SearchLibException {
+			List<CookieItem> cookies, HttpEntity entity)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException, URISyntaxException {
 		synchronized (this) {
 			reset();
 			HttpPut httpPut = new HttpPut(uri);
 			if (entity != null)
 				httpPut.setEntity(entity);
-			execute(httpPut, credentialItem);
+			execute(httpPut, credentialItem, cookies);
 			return getDownloadItem(uri);
 		}
 

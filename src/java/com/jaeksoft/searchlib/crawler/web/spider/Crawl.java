@@ -50,6 +50,8 @@ import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
@@ -83,6 +85,7 @@ public class Crawl {
 	private HostUrlList hostUrlList;
 	private UrlItem urlItem;
 	private CredentialManager credentialManager;
+	private CookieManager cookieManager;
 	private CredentialItem credentialItem;
 	private String userAgent;
 	private ParserSelector parserSelector;
@@ -100,6 +103,7 @@ public class Crawl {
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
 			ParserSelector parserSelector) throws SearchLibException {
 		this.credentialManager = config.getWebCredentialManager();
+		this.cookieManager = config.getWebCookieManager();
 		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
@@ -243,17 +247,21 @@ public class Crawl {
 			DownloadItem downloadItem = null;
 			try {
 				URI uri = urlItem.getURL().toURI();
+				URL url = uri.toURL();
 
 				credentialItem = credentialManager == null ? null
-						: credentialManager.matchCredential(uri.toURL());
+						: credentialManager.matchCredential(url);
 
+				List<CookieItem> cookieList = cookieManager.getCookies(url
+						.toExternalForm());
 				downloadItem = ClientCatalog.getCrawlCacheManager().loadCache(
 						uri);
 
 				boolean fromCache = (downloadItem != null);
 
 				if (!fromCache)
-					downloadItem = httpDownloader.get(uri, credentialItem);
+					downloadItem = httpDownloader.get(uri, credentialItem,
+							null, cookieList);
 				else if (Logging.isDebug)
 					Logging.debug("Crawl cache deliver: " + uri);
 

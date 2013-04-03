@@ -31,6 +31,7 @@
 			<tab id="tabCrawlerCredential" label="Authentication" />
 			<tab id="tabCrawlerWebMapping" label="Field mapping"
 				visible="@load(webcrawler.webCrawlerParametersRights)" />
+			<tab id="tabCrawlerWebCookies" label="Cookies" />
 			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
 			<tab id="tabCrawlerWebSitemap" label="Site Map" />
 		</tabs>
@@ -68,6 +69,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebMapping.onSelect">
 				<include src="WEB-INF/zul/crawler/web/mapping.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebCookies.onSelect">
+				<include src="WEB-INF/zul/crawler/web/cookies.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebRobotsTxt.onSelect">
 				<include src="WEB-INF/zul/crawler/web/robotstxt.zul" />

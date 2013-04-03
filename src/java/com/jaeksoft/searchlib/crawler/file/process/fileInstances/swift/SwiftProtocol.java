@@ -108,7 +108,8 @@ public class SwiftProtocol {
 		swiftToken.putAuthTokenHeader(headerList);
 
 		URI uri = swiftToken.getURI(container, path, true);
-		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList);
+		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList,
+				null);
 		downloadItem.checkNoError(200, 204);
 
 		String jsonString = downloadItem.getContentAsString();
@@ -135,7 +136,7 @@ public class SwiftProtocol {
 		swiftToken.putAuthTokenHeader(headerList);
 		URI uri = swiftToken.getURI(container, object.pathName, false);
 		System.out.println("SwiftProtocol:get: " + uri.toString());
-		DownloadItem downloadItem = downloader.get(uri, null, headerList);
+		DownloadItem downloadItem = downloader.get(uri, null, headerList, null);
 		downloadItem.checkNoError(200, 204);
 		return downloadItem.getContentInputStream();
 	}

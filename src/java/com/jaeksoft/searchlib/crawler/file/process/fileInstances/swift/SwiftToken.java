@@ -148,8 +148,9 @@ public class SwiftToken {
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
 		System.out.println(json.toString());
-		return httpDownloader.post(uri, null, new StringEntity(json.toString(),
-				ContentType.APPLICATION_JSON));
+		return httpDownloader
+				.post(uri, null, null, new StringEntity(json.toString(),
+						ContentType.APPLICATION_JSON));
 	}
 
 	private DownloadItem iamRequest(HttpDownloader httpDownloader,
