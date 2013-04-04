@@ -216,7 +216,7 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"Ignore the meta noindex tag in HTML header");
 
 	public static ClassPropertyEnum IGNORE_META_NOFOLLOW = new ClassPropertyEnum(
-			true, "ignoreMetaNoIndex", "Ignore meta nofollow",
+			true, "ignoreMetaNoFollow", "Ignore meta nofollow",
 			"Ignore the meta nofollow tag in HTML header");
 
 	public static ClassPropertyEnum IGNORE_UNTITLED_DOCUMENTS = new ClassPropertyEnum(
