@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -72,16 +72,17 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 		queryMap = new HashMap<LanguageEnum, Query>();
 	}
 
-	public ClassifierItem(XPathParser xpp, Node node)
-			throws XPathExpressionException {
+	public ClassifierItem(Node node) throws XPathExpressionException {
 		this();
-		Node valueNode = xpp.getNode(node, CLASSIFIER_ITEM_VALUE_NODE);
+		Node valueNode = DomUtils
+				.getFirstNode(node, CLASSIFIER_ITEM_VALUE_NODE);
 		if (valueNode != null) {
 			setValue(DomUtils.getText(valueNode));
 			setBoost(XPathParser.getAttributeFloat(valueNode,
 					CLASSIFIER_ITEM_VALUE_BOOST_ATTRIBUTE));
 		}
-		Node queryNode = xpp.getNode(node, CLASSIFIER_ITEM_QUERY_NODE);
+		Node queryNode = DomUtils
+				.getFirstNode(node, CLASSIFIER_ITEM_QUERY_NODE);
 		if (queryNode != null) {
 			setQuery(DomUtils.getText(queryNode));
 			setRequestName(DomUtils.getAttributeText(queryNode,

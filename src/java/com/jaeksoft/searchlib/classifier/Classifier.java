@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,15 +27,18 @@ package com.jaeksoft.searchlib.classifier;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.memory.MemoryIndex;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -45,6 +48,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -124,8 +128,9 @@ public class Classifier implements Comparable<Classifier> {
 		this();
 		if (!file.exists())
 			return;
-		XPathParser xpp = new XPathParser(file);
-		Node rootNode = xpp.getNode(CLASSIFIER_ITEM_ROOTNODE_NAME);
+		Document document = DOMUtils.readXml(new StreamSource(file));
+		Node rootNode = DomUtils.getFirstNode(document,
+				CLASSIFIER_ITEM_ROOTNODE_NAME);
 		if (rootNode == null)
 			return;
 		setName(XPathParser.getAttributeString(rootNode,
@@ -138,15 +143,17 @@ public class Classifier implements Comparable<Classifier> {
 				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE)));
 		setMethod(ClassificationMethodEnum.find(XPathParser.getAttributeString(
 				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_METHOD)));
-		Node defaultValueNode = xpp.getNode(rootNode,
+		Node defaultValueNode = DomUtils.getFirstNode(rootNode,
 				CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
 		if (defaultValueNode != null)
 			setDefaultValue(defaultValueNode.getTextContent());
-		NodeList nodes = xpp.getNodeList(rootNode, CLASSIFIER_ITEM_NODE_NAME);
+		List<Node> nodes = DomUtils.getNodes(rootNode,
+				CLASSIFIER_ITEM_NODE_NAME);
 		if (nodes == null)
 			return;
-		for (int i = 0; i < nodes.getLength(); i++)
-			add(new ClassifierItem(xpp, nodes.item(i)));
+		for (Node n : nodes)
+			addNoLock(new ClassifierItem(n));
+		buildValueSetArray();
 	}
 
 	/**
@@ -182,15 +189,19 @@ public class Classifier implements Comparable<Classifier> {
 		}
 	}
 
-	private void buildValueSetArray() {
+	private final void buildValueSetArray() {
 		valueSetArray = new ClassifierItem[valueSet.size()];
 		valueSet.toArray(valueSetArray);
+	}
+
+	private final void addNoLock(ClassifierItem item) {
+		valueSet.add(item);
 	}
 
 	public void add(ClassifierItem item) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			valueSet.add(item);
+			addNoLock(item);
 			buildValueSetArray();
 		} finally {
 			rwl.w.unlock();

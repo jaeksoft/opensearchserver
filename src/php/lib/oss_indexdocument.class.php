@@ -39,7 +39,7 @@ class OssIndexDocument extends ArrayObject {
    * @param string $language ISO 639-1 format (en, de, fr, ...)
    * @return OssIndexDocument_Document
    */
-  public function newDocument($language = '') {
+  public function newDocument($language = NULL) {
     $document = new OssIndexDocument_Document($this, $language);
     $this->append($document);
 
@@ -104,7 +104,7 @@ class OssIndexDocument_Document extends ArrayObject {
    * @param string $language ISO 639-1 format (en, de, fr, ...)
    * @return OSS_DocumentNode
    */
-  public function __construct(OssIndexDocument $indexDocument, $language = '') {
+  public function __construct(OssIndexDocument $indexDocument, $language = NULL) {
     $this->indexDocument = $indexDocument;
     $this->setLanguage($language);
   }
@@ -118,7 +118,7 @@ class OssIndexDocument_Document extends ArrayObject {
   public function setLanguage($language) {
     static $supportedLanguages = NULL;
 
-    if ($language === NULL) {
+    if ($language === NULL || $language == '') {
       $this->language = $language;
       return NULL;
     }
