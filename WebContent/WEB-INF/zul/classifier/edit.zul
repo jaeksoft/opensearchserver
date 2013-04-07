@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -63,9 +63,9 @@
 				</row>
 				<row>
 					<label value="Item list: " />
-					<listbox mold="paging" pageSize="20"
+					<listbox
 						selectedItem="@bind(classifier.selectedClassifierItem)"
-						model="@load(classifier.currentClassifier.valueSet)">
+						model="@load(classifier.classifierItemList)">
 						<listhead>
 							<listheader label="Value" width="250px" />
 							<listheader label="Boost" width="80px" />
@@ -137,6 +137,14 @@
 								</listcell>
 							</listitem>
 						</template>
+						<listfoot>
+							<listfooter span="5">
+								<paging id="paging" detailed="true"
+									totalSize="@load(classifier.totalSize)"
+									pageSize="@load(classifier.pageSize)"
+									activePage="@bind(classifier.activePage)" />
+							</listfooter>
+						</listfoot>
 					</listbox>
 				</row>
 			</rows>

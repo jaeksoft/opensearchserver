@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,6 +51,11 @@ public class ClassifierController extends CommonController {
 	private ClassifierItem currentClassifierItem;
 	private LanguageEnum lang;
 
+	private transient int totalSize;
+	private transient int activePage;
+
+	private List<ClassifierItem> classifierItemList;
+
 	public ClassifierController() throws SearchLibException {
 		super();
 		reset();
@@ -62,6 +67,9 @@ public class ClassifierController extends CommonController {
 		selectedClassifier = null;
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
+		classifierItemList = null;
+		totalSize = 0;
+		activePage = 0;
 		lang = LanguageEnum.UNDEFINED;
 	}
 
@@ -218,19 +226,22 @@ public class ClassifierController extends CommonController {
 
 	@Command
 	@NotifyChange({ "currentClassifier", "currentClassifierItem",
-			"selectedClassifierItem", "notItemSelected", "itemSelected" })
+			"classifierItemList", "selectedClassifierItem", "notItemSelected",
+			"itemSelected" })
 	public void onSaveClassifierItem() throws SearchLibException {
 		if (selectedClassifierItem != null)
 			currentClassifier.replace(selectedClassifierItem,
 					currentClassifierItem);
 		else
 			currentClassifier.add(currentClassifierItem);
+		computeClassifierItemList();
 		onCancelClassifierItem();
 	}
 
 	@Command
 	@NotifyChange({ "currentClassifier", "currentClassifierItem",
-			"selectedClassifierItem", "notItemSelected", "itemSelected" })
+			"classifierItemList", "selectedClassifierItem", "notItemSelected",
+			"itemSelected" })
 	public void onCancelClassifierItem() throws SearchLibException {
 		currentClassifierItem = new ClassifierItem();
 		selectedClassifierItem = null;
@@ -238,11 +249,13 @@ public class ClassifierController extends CommonController {
 
 	@Command
 	@NotifyChange({ "currentClassifier", "currentClassifierItem",
-			"selectedClassifierItem", "notItemSelected", "itemSelected" })
+			"classifierItemList", "selectedClassifierItem", "notItemSelected",
+			"itemSelected" })
 	public void onRemoveClassifierItem(
 			@BindingParam("classifierItem") ClassifierItem classifierItem)
 			throws SearchLibException {
 		currentClassifier.remove(classifierItem);
+		computeClassifierItemList();
 		onCancelClassifierItem();
 	}
 
@@ -251,6 +264,53 @@ public class ClassifierController extends CommonController {
 			InterruptedException {
 		int n = currentClassifierItem.query(getClient(), lang);
 		new AlertController(n + " document(s) found.");
+	}
+
+	private void computeClassifierItemList() {
+		synchronized (this) {
+			classifierItemList = null;
+			totalSize = 0;
+			if (currentClassifier == null)
+				return;
+			classifierItemList = new ArrayList<ClassifierItem>(0);
+			ClassifierItem[] classifierItemArray = currentClassifier
+					.getValueSet();
+			if (classifierItemArray == null)
+				return;
+			totalSize = classifierItemArray.length;
+			int start = getPageSize() * getActivePage();
+			int end = start + getPageSize();
+			if (end > totalSize)
+				end = totalSize;
+			for (int i = start; i < end; i++)
+				classifierItemList.add(classifierItemArray[i]);
+		}
+	}
+
+	public List<ClassifierItem> getClassifierItemList() {
+		if (classifierItemList == null)
+			computeClassifierItemList();
+		return classifierItemList;
+	}
+
+	public int getPageSize() {
+		return 20;
+	}
+
+	public int getActivePage() {
+		return activePage;
+	}
+
+	public void setActivePage(int page) throws SearchLibException {
+		synchronized (this) {
+			activePage = page;
+			computeClassifierItemList();
+			reload();
+		}
+	}
+
+	public int getTotalSize() {
+		return totalSize;
 	}
 
 }

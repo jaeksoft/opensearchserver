@@ -101,6 +101,15 @@ public class DomUtils {
 		return nodes;
 	}
 
+	final public static Node getFirstNode(Node parent, String... path) {
+		List<Node> nodes = getNodes(parent, path);
+		if (nodes == null)
+			return null;
+		if (nodes.size() == 0)
+			return null;
+		return nodes.get(0);
+	}
+
 	final private static void getText(Node parent, StringBuffer sb) {
 		if (parent.getNodeType() == Node.TEXT_NODE)
 			sb.append(parent.getNodeValue());
