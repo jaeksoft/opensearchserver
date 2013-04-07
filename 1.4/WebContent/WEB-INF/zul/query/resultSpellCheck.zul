@@ -1,0 +1,92 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('resultSpellCheck') @init('com.jaeksoft.searchlib.web.controller.query.ResultSpellCheckController')">
+	<panel title="Summary"
+		visible="@load(resultSpellCheck.resultSpellCheck)" collapsible="true"
+		border="normal">
+		<caption>
+			<button label="XML/HTTP API call" target="_blank"
+				href="@load(query.requestApiCall)" />
+		</caption>
+		<panelchildren>
+			<listbox
+				model="@load(resultSpellCheck.result.spellCheckList)">
+				<template name="model" var="spellCheck">
+					<listitem>
+						<listcell>
+							<separator />
+							<panel title="" collapsible="true">
+								<caption>
+									<hbox width="100%">
+										<label value="Field: " />
+										<label
+											value="@load(spellCheck.fieldName)" />
+									</hbox>
+								</caption>
+								<panelchildren>
+									<listbox
+										model="@load(spellCheck.list)">
+										<template name="model"
+											var="item">
+											<listitem>
+												<listcell>
+													<panel title="">
+														<caption>
+															<hbox
+																width="100%">
+																<label
+																	value="Query term: " />
+																<label
+																	value="@load(item.word)" />
+															</hbox>
+														</caption>
+														<panelchildren>
+															<listbox
+																sizedByContent="true" model="@load(item.suggestions)">
+																<listhead>
+																	<listheader
+																		label="Suggested term" />
+																	<listheader
+																		label="Frequency" />
+																</listhead>
+																<template
+																	name="model" var="suggestItem">
+																	<listitem
+																		label="@load(suggestItem)">
+																		<listcell
+																			label="@load(suggestItem.term)" />
+																		<listcell
+																			label="@load(suggestItem.freq)" />
+																	</listitem>
+																</template>
+															</listbox>
+														</panelchildren>
+													</panel>
+												</listcell>
+											</listitem>
+										</template>
+									</listbox>
+								</panelchildren>
+							</panel>
+						</listcell>
+					</listitem>
+				</template>
+			</listbox>
+		</panelchildren>
+	</panel>
+</window>

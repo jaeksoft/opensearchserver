@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install type="module" version="0.1.0">
+	<name>mod_OSS_RESULTS</name>
+	<author>PhilCube</author>
+	<creationDate>October 2009</creationDate>
+	<copyright>Copyright (C) 2008 - 2009 PhilCube - Open Search Server. All rights
+		reserved.</copyright>
+	<license></license>
+	<authorEmail>egosse@open-search-server.com</authorEmail>
+	<authorUrl>www.open-search-server.com</authorUrl>
+	<version>0.1.0</version>
+	<description>This module will display a Open Search Server results list
+	</description>
+	<files>
+		<filename module="mod_search">mod_oss_results.php</filename>
+	</files>
+	<params>
+		<param name="moduleclass_sfx" type="text" default=""
+			label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+		<param name="urlSearchEngine" type="text" label="Search Engine url"
+			description="Size of the search text box in characters" length="100"
+			default="http://localhost:8081/oss" />
+
+		<param name="ossEngineConnectTimeOut" type="text" label="timeOut"
+			default="5" length="100" />
+		<param name="ossEngineIndexName" type="text" label="Index name"
+			default="fileCrawler" length="100" />
+
+		<param name="welcomeMessage" type="textarea" label="Welcome message"
+			rows="5" cols="50" />
+		<param name="buttonName" type="text" label="Button name" />
+		<param name="maxResultPerPage" type="text" label="Max result per page"
+			default="10" />
+		<param name="endMessage" type="textarea" label="Welcome message"
+			rows="5" cols="50" default="Powered by Open Search Server"/>
+	</params>
+</install>

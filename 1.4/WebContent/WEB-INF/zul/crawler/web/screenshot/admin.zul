@@ -1,0 +1,84 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid>
+	<columns>
+		<column align="right" width="200px" />
+		<column align="left" width="200px" />
+		<column align="left" />
+	</columns>
+	<rows>
+		<row>
+			<label value="Screenshot method: " />
+			<listbox model="@load(screenshot.methodList)" mold="select"
+				selectedItem="@bind(screenshot.screenshotManager.method)">
+				<template name="model" var="method">
+					<listitem label="@load(method.name)" />
+				</template>
+			</listbox>
+			<space />
+		</row>
+		<row>
+			<label value="Browser: " />
+			<listbox model="@load(screenshot.browserList)" mold="select"
+				selectedItem="@bind(screenshot.screenshotManager.browserDriver)">
+				<template name="model" var="driver">
+					<listitem label="@load(driver.name)" />
+				</template>
+			</listbox>
+			<space />
+		</row>
+		<row>
+			<label value="Capture width: " />
+			<intbox
+				value="@bind(screenshot.properties.screenshotCaptureWidth.value)"
+				readonly="@load(screenshot.refresh)" />
+			<label value="Maximum width size of the capture" />
+		</row>
+		<row>
+			<label value="Capture height: " />
+			<intbox
+				value="@bind(screenshot.properties.screenshotCaptureHeight.value)"
+				readonly="@load(screenshot.refresh)" />
+			<label value="Maxixum height size of the capture" />
+		</row>
+		<row>
+			<label value="Resize width: " />
+			<intbox
+				value="@bind(screenshot.properties.screenshotResizeWidth.value)"
+				readonly="@load(screenshot.refresh)" />
+			<label value="Resize width size of the capture" />
+		</row>
+		<row>
+			<label value="Resize height: " />
+			<intbox
+				value="@bind(screenshot.properties.screenshotResizeHeight.value)"
+				readonly="@load(screenshot.refresh)" />
+			<label value="Resize height size of the capture" />
+		</row>
+		<row>
+			<label value="Screenshot count: " />
+			<label value="@load(screenshot.infos.count)" />
+			<button label="Info" onClick="@command('onInfos')" />
+		</row>
+		<row>
+			<label value="Total size: " />
+			<label
+				value="@load(screenshot.infos.size) @converter('com.jaeksoft.searchlib.web.converter.SizeConverter')" />
+			<button label="Info" onClick="@command('onInfos')" />
+		</row>
+	</rows>
+</grid>

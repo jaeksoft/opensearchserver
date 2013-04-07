@@ -1,0 +1,65 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<panel visible="@load(ctrl.notEdit)" border="normal">
+		<panelchildren>
+			<listbox model="@load(ctrl.manager.list)">
+				<listhead>
+					<listheader label="List name" />
+					<listheader label="Action" align="center"
+						hflex="min" />
+				</listhead>
+				<auxhead>
+					<auxheader>
+						<textbox value="@bind(ctrl.editName)"
+							readonly="@load(edit)" cols="50" />
+					</auxheader>
+					<auxheader>
+						<button image="/images/action_add.png"
+							onClick="@command('onAdd')" />
+					</auxheader>
+				</auxhead>
+				<template name="model" var="listname">
+					<listitem>
+						<listcell label="@load(listname)" />
+						<listcell>
+							<hbox align="center">
+								<button label="Edit"
+									onClick="@command('onEdit', listname=listname)" />
+								<button
+									image="/images/action_delete.png"
+									onClick="@command('onDelete', listname=listname)" />
+							</hbox>
+						</listcell>
+					</listitem>
+				</template>
+			</listbox>
+		</panelchildren>
+	</panel>
+	<panel visible="@load(ctrl.edit)" border="normal"
+		title="@load(ctrl.currentName)">
+		<toolbar>
+			<button label="Cancel" onClick="@command('onCancel')" />
+			<space />
+			<button label="Save" onClick="@command('onSave')" />
+		</toolbar>
+		<panelchildren>
+			<textbox multiline="true" height="300px" width="100%"
+				value="@bind(ctrl.content)" />
+		</panelchildren>
+	</panel>
+</zk>
