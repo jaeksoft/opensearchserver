@@ -73,6 +73,10 @@ public class ScriptCommandContext implements Closeable {
 		return currentWebDriver;
 	}
 
+	public Config getConfig() {
+		return config;
+	}
+
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
 			throws ScriptException {
 		releaseCurrentWebDriver(false);

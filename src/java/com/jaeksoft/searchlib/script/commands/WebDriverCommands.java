@@ -29,19 +29,23 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.WebElement;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
@@ -158,6 +162,7 @@ public class WebDriverCommands {
 		public void run(ScriptCommandContext context, String id,
 				Object... parameters) throws ScriptException {
 			FileWriter writer = null;
+			HttpDownloader httpDownloader = null;
 			checkParameters(1, parameters);
 			String dest = getParameterString(0);
 			if (dest == null)
@@ -212,13 +217,35 @@ public class WebDriverCommands {
 				writer.close();
 				writer = null;
 
-				browserDriver.saveArchive();
+				httpDownloader = context.getConfig().getWebCrawlMaster()
+						.getNewHttpDownloader();
+				browserDriver.saveArchive(httpDownloader, destFile);
 
 			} catch (IOException e) {
+				throw new ScriptException(e);
+			} catch (IllegalStateException e) {
+				throw new ScriptException(e);
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			} catch (URISyntaxException e) {
+				throw new ScriptException(e);
+			} catch (SAXException e) {
+				throw new ScriptException(e);
+			} catch (ParserConfigurationException e) {
+				throw new ScriptException(e);
+			} catch (ClassCastException e) {
+				throw new ScriptException(e);
+			} catch (ClassNotFoundException e) {
+				throw new ScriptException(e);
+			} catch (InstantiationException e) {
+				throw new ScriptException(e);
+			} catch (IllegalAccessException e) {
 				throw new ScriptException(e);
 			} finally {
 				if (writer != null)
 					IOUtils.closeQuietly(writer);
+				if (httpDownloader != null)
+					httpDownloader.release();
 			}
 		}
 	}

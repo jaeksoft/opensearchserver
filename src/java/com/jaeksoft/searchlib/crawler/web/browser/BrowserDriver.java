@@ -27,20 +27,30 @@ package com.jaeksoft.searchlib.crawler.web.browser;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.lucene.util.IOUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
@@ -110,13 +120,25 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return list.size();
 	}
 
-	final public void saveArchive() {
-		List<WebElement> elements = driver.findElements(new By.ByXPath(
-				"//*[@src]"));
-		for (WebElement element : elements) {
-			System.out.println(element.getTagName() + " "
-					+ element.getAttribute("src"));
-		}
+	final public void saveArchive(HttpDownloader httpDownloader,
+			File parentDirectory) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException, SAXException, ParserConfigurationException,
+			ClassCastException, ClassNotFoundException, InstantiationException,
+			IllegalAccessException {
 
+		URL currentURL = new URL(driver.getCurrentUrl());
+		StringReader reader = null;
+		try {
+			// reader = new StringReader(driver.getPageSource());
+			// InputSource input = new InputSource(reader);
+			// Document doc = DomUtils.readXml(input, false);
+			HtmlArchiver archiver = new HtmlArchiver(parentDirectory,
+					httpDownloader, currentURL);
+			archiver.archive(driver.getPageSource());
+		} finally {
+			if (reader != null)
+				IOUtils.close(reader);
+		}
 	}
 }

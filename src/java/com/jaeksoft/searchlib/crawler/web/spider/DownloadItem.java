@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -219,7 +221,7 @@ public class DownloadItem {
 			return contentDispositionFilename;
 		if (uri == null)
 			return null;
-		String urlFile = uri.toURL().getFile();
+		String urlFile = uri.toURL().getPath();
 		if (urlFile == null)
 			return null;
 		return FilenameUtils.getName(urlFile);
@@ -371,4 +373,16 @@ public class DownloadItem {
 		this.contentLocation = contentLocation;
 	}
 
+	public void writeToFile(File file) throws IOException {
+		if (contentInputStream == null)
+			return;
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+			IOUtils.copy(contentInputStream, fos);
+		} finally {
+			if (fos != null)
+				IOUtils.closeQuietly(fos);
+		}
+	}
 }

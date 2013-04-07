@@ -153,10 +153,10 @@ public class UrlFilterList {
 
 	private static final String doReplaceQuery(String hostname,
 			String uriString, UrlFilterItem[] urlFilterArray) {
+		if (urlFilterArray == null)
+			return uriString;
 		int i = uriString.indexOf('?');
 		if (i == -1)
-			return uriString;
-		if (urlFilterArray == null)
 			return uriString;
 		StringBuffer newUrl = new StringBuffer(uriString.substring(0, i++));
 		String queryString = uriString.substring(i);
@@ -184,6 +184,8 @@ public class UrlFilterList {
 
 	private static final String doReplaceProspero(String hostname,
 			String uriString, UrlFilterItem[] urlFilterArray) {
+		if (urlFilterArray == null)
+			return uriString;
 		int i1 = uriString.indexOf(';');
 		if (i1 == -1)
 			return uriString;

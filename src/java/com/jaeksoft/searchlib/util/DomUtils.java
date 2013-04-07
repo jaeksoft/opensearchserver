@@ -141,7 +141,18 @@ public class DomUtils {
 		Node attr = nnm.getNamedItem(name);
 		if (attr == null)
 			return null;
-		return getText(attr);
+		return attr.getNodeValue();
+	}
+
+	final public static void updateAttributeText(Node node, String name,
+			String value) {
+		NamedNodeMap nnm = node.getAttributes();
+		if (nnm == null)
+			return;
+		Node attr = nnm.getNamedItem(name);
+		if (attr == null)
+			return;
+		attr.setNodeValue(value);
 	}
 
 	final private static void getAllNodes(Node parent, String[] tags,
