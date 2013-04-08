@@ -40,7 +40,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.lucene.util.IOUtils;
-import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -51,6 +50,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.script.commands.Selectors;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
@@ -110,9 +110,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.manage().window().setSize(new Dimension(width, height));
 	}
 
-	final public int locateByCss(String selector, Set<WebElement> set) {
-		List<WebElement> list = driver.findElements(new By.ByCssSelector(
-				selector));
+	final public int locateBy(Selectors.Selector selector, Set<WebElement> set) {
+		List<WebElement> list = driver.findElements(selector.getBy());
 		if (list == null)
 			return 0;
 		for (WebElement element : list)

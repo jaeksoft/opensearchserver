@@ -24,15 +24,21 @@
 
 package com.jaeksoft.searchlib.script;
 
-import com.jaeksoft.searchlib.script.commands.CssSelector;
+import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.SleepCommand;
 import com.jaeksoft.searchlib.script.commands.WebDriverCommands;
 
 public enum CommandEnum {
 
-	CSS_SELECTOR_ADD(CssSelector.Add.class),
+	CSS_SELECTOR_ADD(Selectors.CSS_Add.class),
 
-	CSS_SELECTOR_RESET(CssSelector.Reset.class),
+	CSS_SELECTOR_RESET(Selectors.CSS_Reset.class),
+
+	XPATH_SELECTOR_ADD(Selectors.XPATH_Add.class),
+
+	XPATH_SELECTOR_RESET(Selectors.XPATH_Reset.class),
+
+	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
 	SLEEP(SleepCommand.class),
 

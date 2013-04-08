@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.script;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -36,6 +37,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.script.commands.Selectors;
 
 public class ScriptCommandContext implements Closeable {
 
@@ -45,13 +47,13 @@ public class ScriptCommandContext implements Closeable {
 
 	private BrowserDriver<?> currentWebDriver;
 
-	private TreeSet<String> cssSelectors;
+	private TreeSet<Selectors.Selector> selectors;
 
 	public ScriptCommandContext(Config config, TaskLog taskLog) {
 		this.config = config;
 		this.taskLog = taskLog;
 		currentWebDriver = null;
-		cssSelectors = null;
+		selectors = null;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -90,23 +92,34 @@ public class ScriptCommandContext implements Closeable {
 		}
 	}
 
-	public void resetCssSelector() {
-		if (cssSelectors == null)
+	public void resetSelector(Selectors.Type type) {
+		if (selectors == null)
 			return;
-		cssSelectors.clear();
-		cssSelectors = null;
+		if (type == null) {
+			selectors.clear();
+		} else {
+			synchronized (selectors) {
+				Iterator<Selectors.Selector> it = selectors.iterator();
+				while (it.hasNext()) {
+					if (it.next().type == type)
+						it.remove();
+				}
+			}
+		}
+		if (selectors.size() == 0)
+			selectors = null;
 	}
 
-	public void addCssSelector(String selector) {
-		if (cssSelectors == null)
-			cssSelectors = new TreeSet<String>();
-		cssSelectors.add(selector);
+	public void addSelector(Selectors.Selector selector) {
+		if (selectors == null)
+			selectors = new TreeSet<Selectors.Selector>();
+		selectors.add(selector);
 	}
 
-	public Collection<String> getCssSelectors() {
-		if (cssSelectors == null)
+	public Collection<Selectors.Selector> getSelectors() {
+		if (selectors == null)
 			return null;
-		return cssSelectors;
+		return selectors;
 	}
 
 	public TaskLog getTaskLog() {

@@ -187,11 +187,12 @@ public class WebDriverCommands {
 						Integer.toString(image.getHeight()));
 				StringBuffer sbHtml = new StringBuffer(html);
 
-				Collection<String> selectors = context.getCssSelectors();
+				Collection<Selectors.Selector> selectors = context
+						.getSelectors();
 				if (selectors != null) {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
-					for (String selector : selectors)
-						browserDriver.locateByCss(selector, elementSet);
+					for (Selectors.Selector selector : selectors)
+						browserDriver.locateBy(selector, elementSet);
 					List<Rectangle> boxes = new ArrayList<Rectangle>(
 							elementSet.size());
 					int i = 1;
