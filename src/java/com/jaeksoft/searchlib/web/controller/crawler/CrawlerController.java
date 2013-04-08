@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -193,6 +193,33 @@ public class CrawlerController extends CommonController {
 			return true;
 		return getLoggedUser().hasAnyRole(getIndexName(),
 				Role.MAILBOX_CRAWLER_EXECUTE);
+	}
+
+	public boolean isRestCrawlerRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.GROUP_REST_CRAWLER);
+	}
+
+	public boolean isRestCrawlerEditRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.REST_CRAWLER_EDIT);
+	}
+
+	public boolean isRestCrawlerExecuteRights() throws SearchLibException {
+		if (!isLogged() || !isInstanceValid())
+			return false;
+		if (isNoUserList())
+			return true;
+		return getLoggedUser().hasAnyRole(getIndexName(),
+				Role.REST_CRAWLER_EXECUTE);
 	}
 
 	public RunMode[] getRunModes() {

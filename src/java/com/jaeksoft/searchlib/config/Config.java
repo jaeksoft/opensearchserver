@@ -67,6 +67,8 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
@@ -158,6 +160,10 @@ public abstract class Config implements ThreadFactory {
 	private DatabaseCrawlMaster databaseCrawlMaster = null;
 
 	private DatabaseCrawlList databaseCrawlList = null;
+
+	private RestCrawlMaster restCrawlMaster = null;
+
+	private RestCrawlList restCrawlList = null;
 
 	private ScreenshotManager screenshotManager = null;
 
@@ -646,6 +652,61 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
+	public RestCrawlList getRestCrawlList() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (restCrawlList != null)
+				return restCrawlList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (restCrawlList != null)
+				return restCrawlList;
+			restCrawlList = RestCrawlList.fromXml(getRestCrawlMaster(),
+					new File(indexDir, "restCrawlList.xml"));
+			return restCrawlList;
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void saveRestCrawlList() throws SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(indexDir, "restCrawlList.xml");
+		if (!longTermLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				getRestCrawlList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			longTermLock.rl.unlock();
+			cfr.abort();
+		}
+	}
+
 	protected WebCrawlMaster getNewWebCrawlMaster() throws SearchLibException {
 		return new WebCrawlMaster(this);
 	}
@@ -701,6 +762,24 @@ public abstract class Config implements ThreadFactory {
 			if (databaseCrawlMaster != null)
 				return databaseCrawlMaster;
 			return databaseCrawlMaster = new DatabaseCrawlMaster(this);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public RestCrawlMaster getRestCrawlMaster() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (restCrawlMaster != null)
+				return restCrawlMaster;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (restCrawlMaster != null)
+				return restCrawlMaster;
+			return restCrawlMaster = new RestCrawlMaster(this);
 		} finally {
 			rwl.w.unlock();
 		}

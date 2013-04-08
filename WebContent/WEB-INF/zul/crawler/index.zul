@@ -24,10 +24,12 @@
 				visible="@load(crawler.databaseCrawlerRights)" />
 			<tab id="tabFileCrawler" label="Files"
 				visible="@load(crawler.fileCrawlerRights)" />
-				<!-- 
-			<tab id="tabMailboxCrawler" label="Mailboxes"
+			<!-- 
+				<tab id="tabMailboxCrawler" label="Mailboxes"
 				visible="@load(crawler.mailboxCrawlerRights)" />
-				 -->
+			-->
+			<tab id="tabRestCrawler" label="REST"
+				visible="@load(crawler.restCrawlerRights)" />
 		</tabs>
 
 		<tabpanels>
@@ -44,11 +46,14 @@
 				<include src="WEB-INF/zul/crawler/file/index.zul" />
 			</tabpanel>
 
-<!-- 
-			<tabpanel fulfill="tabMailboxCrawler.onSelect">
+			<!-- 
+				<tabpanel fulfill="tabMailboxCrawler.onSelect">
 				<include src="WEB-INF/zul/crawler/mailbox/index.zul" />
+				</tabpanel>
+			-->
+			<tabpanel fulfill="tabRestCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/rest/index.zul" />
 			</tabpanel>
--->
 
 		</tabpanels>
 	</tabbox>

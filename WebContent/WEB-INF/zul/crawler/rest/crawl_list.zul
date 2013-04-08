@@ -1,0 +1,68 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel
+	title="List of existing REST crawl - click on an crawl name to edit it"
+	border="normal" visible="@load(restCrawl.notEditing)">
+	<toolbar>
+		<button label="New crawl..." onClick="@command('onNew')" />
+	</toolbar>
+	<panelchildren>
+		<listbox model="@load(restCrawl.restCrawlList.array)"
+			mold="paging" pageSize="20">
+			<listhead>
+				<listheader label="Name" />
+				<listheader label="Last execution time" width="150px" />
+				<listheader label="Duration"
+					tooltiptext="last duration time" width="100px" />
+				<listheader label="Status" width="100px" />
+				<listheader label="Info" width="150px" />
+				<listheader label="Action" width="150px" align="center" />
+			</listhead>
+			<template name="model" var="restcrawlitem">
+				<listitem>
+					<listcell label="@load(restcrawlitem.name)" />
+					<listcell
+						label="@load(restcrawlitem.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+					<listcell
+						label="@load(restcrawlitem.lastThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+					<listcell
+						tooltiptext="@load(restcrawlitem.lastThread.info)"
+						label="@load(restcrawlitem.lastThread.status.name)" />
+					<listcell
+						label="@load(restcrawlitem.lastThread.countInfo)" />
+					<listcell>
+						<hbox align="center">
+							<button tooltiptext="Edit the REST crawl"
+								label="Edit"
+								onClick="@command('edit', crawlitem=restcrawlitem)" />
+							<space />
+							<button
+								tooltiptext="Execute the crawl process"
+								disabled="@load(restcrawlitem.thread)"
+								image="/images/action_check.png"
+								onClick="@command('execute', crawlitem=restcrawlitem)" />
+							<space />
+							<button tooltiptext="Delete crawl process"
+								image="/images/action_delete.png"
+								onClick="@command('delete', crawlitem=restcrawlitem)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</template>
+		</listbox>
+	</panelchildren>
+</panel>

@@ -52,9 +52,13 @@ public enum Role {
 
 	SCHEDULER_RUN("Run a scheduler"),
 
-	MAILBOX_CRAWLER_EDIT("Index crawler: edit"),
+	MAILBOX_CRAWLER_EDIT("Mail crawler: edit"),
 
-	MAILBOX_CRAWLER_EXECUTE("Index crawler: execute");
+	MAILBOX_CRAWLER_EXECUTE("Mail crawler: execute"),
+
+	REST_CRAWLER_EDIT("REST crawler: edit"),
+
+	REST_CRAWLER_EXECUTE("REST crawler: execute");
 
 	private String label;
 
@@ -72,6 +76,9 @@ public enum Role {
 
 	public static Role[] GROUP_MAILBOX_CRAWLER = { MAILBOX_CRAWLER_EDIT,
 			MAILBOX_CRAWLER_EXECUTE };
+
+	public static Role[] GROUP_REST_CRAWLER = { REST_CRAWLER_EDIT,
+			REST_CRAWLER_EXECUTE };
 
 	public static Role[] GROUP_SCHEDULER = { SCHEDULER_EDIT, SCHEDULER_RUN };
 
