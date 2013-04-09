@@ -24,6 +24,8 @@ New features:
 - 243: RSS Parser
 
 Bug fixes:
+- 187: ICEPdf parser puts brackets to the indexed words
+- 186: ICEPdf parser: only the first page is indexed
 - 185: A more efficient Classifier loader
 - 184: NullPointerException on SnippetField.copySnippetFields
 - 183: maxClauseCount is set to 1024 when deleting large collection
