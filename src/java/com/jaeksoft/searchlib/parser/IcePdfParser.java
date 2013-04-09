@@ -39,6 +39,7 @@ import org.icepdf.core.pobjects.PInfo;
 import org.icepdf.core.pobjects.Page;
 import org.icepdf.core.pobjects.graphics.text.LineText;
 import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.core.pobjects.graphics.text.WordText;
 import org.icepdf.core.util.GraphicsRenderingHints;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -96,15 +97,24 @@ public class IcePdfParser extends Parser {
 		int pages = pdf.getNumberOfPages();
 		result.addField(ParserFieldEnum.number_of_pages, pages);
 
-		int pagNumber = 0;
-		PageText pageText = pdf.getPageText(pagNumber);
-		if (pageText != null && pageText.getPageLines() != null) {
-			List<LineText> lineTextArray = pageText.getPageLines();
-			if (lineTextArray != null)
-				for (LineText lineText : lineTextArray)
-					result.addField(ParserFieldEnum.content, StringUtils
-							.replaceConsecutiveSpaces(lineText.toString(), " ")
-							.trim());
+		for (int page = 0; page < pages; page++) {
+			PageText pageText = pdf.getPageText(page);
+			if (pageText != null && pageText.getPageLines() != null) {
+				List<LineText> lineTextArray = pageText.getPageLines();
+				if (lineTextArray != null)
+					for (LineText lineText : lineTextArray) {
+						StringBuffer sb = new StringBuffer();
+						List<WordText> words = lineText.getWords();
+						if (words != null)
+							for (WordText word : words)
+								sb.append(word.getText());
+						if (sb.length() > 0)
+							result.addField(
+									ParserFieldEnum.content,
+									StringUtils.replaceConsecutiveSpaces(
+											sb.toString(), " ").trim());
+					}
+			}
 		}
 		result.langDetection(10000, ParserFieldEnum.content);
 	}
