@@ -29,6 +29,12 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+
+import jcifs.UniAddress;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbSession;
 
 import org.apache.http.auth.AuthSchemeRegistry;
 import org.apache.http.auth.AuthScope;
@@ -40,6 +46,7 @@ import org.apache.http.params.HttpParams;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -274,4 +281,17 @@ public class CredentialItem {
 		return type == CredentialType.NTLM;
 	}
 
+	public void checkAuth(String serverHostname) throws UnknownHostException,
+			SmbException, SearchLibException {
+		switch (type) {
+		case NTLM:
+			UniAddress uniaddress = UniAddress.getByName(serverHostname);
+			NtlmPasswordAuthentication ntlmpasswordauthentication = new NtlmPasswordAuthentication(
+					domain, username, password);
+			SmbSession.logon(uniaddress, ntlmpasswordauthentication);
+			break;
+		default:
+			throw new SearchLibException("Not yet implemented");
+		}
+	}
 }

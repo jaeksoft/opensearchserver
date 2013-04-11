@@ -384,4 +384,11 @@ public class ServletTransaction {
 	public String getUserName() {
 		return request.getRemoteUser();
 	}
+
+	public String getAnyUserName() {
+		String n = getUserPrincipalName();
+		if (n != null)
+			return n;
+		return getUserName();
+	}
 }

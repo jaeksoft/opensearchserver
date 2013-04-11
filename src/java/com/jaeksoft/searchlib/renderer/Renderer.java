@@ -65,6 +65,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE = "contentTypeField";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME = "filenameField";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR = "ocrField";
+	private final static String RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD = "credentialUserField";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -100,6 +101,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String hocrField;
 
+	private String credentialUserField;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -117,6 +120,7 @@ public class Renderer implements Comparable<Renderer> {
 		contentTypeField = null;
 		filenameField = null;
 		hocrField = null;
+		credentialUserField = null;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -143,6 +147,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
 		setHocrField(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
+		setCredentialUserField(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD));
 
 		String p = XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
@@ -340,6 +346,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.contentTypeField = contentTypeField;
 				target.filenameField = filenameField;
 				target.hocrField = hocrField;
+				target.credentialUserField = credentialUserField;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 
@@ -521,7 +528,8 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE,
 					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
 					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
-					hocrField);
+					hocrField, RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD,
+					credentialUserField);
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -844,6 +852,21 @@ public class Renderer implements Comparable<Renderer> {
 			if (hocrField.length() == 0)
 				hocrField = null;
 		this.hocrField = hocrField;
+	}
+
+	/**
+	 * @return the credentialUserField
+	 */
+	public String getCredentialUserField() {
+		return credentialUserField;
+	}
+
+	/**
+	 * @param credentialUserField
+	 *            the credentialUserField to set
+	 */
+	public void setCredentialUserField(String credentialUserField) {
+		this.credentialUserField = credentialUserField;
 	}
 
 }

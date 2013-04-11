@@ -65,6 +65,7 @@ public class RendererServlet extends AbstractServlet {
 					transaction.getParameterString("name"));
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
+
 			String query = transaction.getParameterString("query");
 			SearchRequest request = (SearchRequest) client
 					.getNewRequest(renderer.getRequestName());
@@ -72,6 +73,17 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("No request has been found");
 			setLog(renderer, request, transaction);
 			request.setFromServlet(transaction);
+			String userField = renderer.getCredentialUserField();
+			if (userField != null && userField.length() > 0) {
+				StringBuffer sb = new StringBuffer(userField);
+				sb.append(":\"");
+				String n = transaction.getAnyUserName();
+				if (n != null)
+					sb.append(n);
+				sb.append('"');
+				request.addFilter(sb.toString(), false);
+				System.out.println("RENDERER FILTER: " + sb.toString());
+			}
 			if (query == null)
 				query = (String) transaction.getSession().getAttribute("query");
 			if (query != null && query.length() > 0) {
