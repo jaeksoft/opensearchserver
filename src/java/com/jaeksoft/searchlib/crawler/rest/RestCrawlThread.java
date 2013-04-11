@@ -24,10 +24,25 @@
 
 package com.jaeksoft.searchlib.crawler.rest;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jayway.jsonpath.JsonPath;
 
 public class RestCrawlThread extends
 		CrawlThreadAbstract<RestCrawlThread, RestCrawlMaster> {
@@ -118,10 +133,67 @@ public class RestCrawlThread extends
 		return "";
 	}
 
-	@Override
-	public void runner() throws Exception {
-		// TODO Auto-generated method stub
-
+	private final boolean index(List<IndexDocument> indexDocumentList, int limit)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		int i = indexDocumentList.size();
+		if (i == 0 || i < limit)
+			return false;
+		setStatus(CrawlStatus.INDEXATION);
+		client.updateDocuments(indexDocumentList);
+		rwl.w.lock();
+		try {
+			pendingIndexDocumentCount -= i;
+			updatedIndexDocumentCount += i;
+		} finally {
+			rwl.w.unlock();
+		}
+		indexDocumentList.clear();
+		if (taskLog != null)
+			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		return true;
 	}
 
+	@Override
+	public void runner() throws Exception {
+		setStatus(CrawlStatus.STARTING);
+		HttpDownloader downloader = null;
+		try {
+			URI uri = new URI(restCrawlItem.getUrl());
+			CredentialItem credentialItem = restCrawlItem.getCredentialItem();
+			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader();
+			setStatus(CrawlStatus.CRAWL);
+			DownloadItem dlItem = downloader.get(uri, credentialItem);
+			JsonPath path = JsonPath.compile(restCrawlItem.getPathDocument());
+			RestFieldMap restFieldMap = restCrawlItem.getFieldMap();
+			LanguageEnum lang = restCrawlItem.getLang();
+			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
+					0);
+			int limit = restCrawlItem.getBufferSize();
+			List<Object> documents = path.read(dlItem.getContentInputStream());
+			if (documents == null)
+				return;
+			for (Object document : documents) {
+				setStatus(CrawlStatus.CRAWL);
+				IndexDocument newIndexDocument = new IndexDocument(lang);
+				restFieldMap.mapJson(client.getWebCrawlMaster(),
+						client.getParserSelector(), lang, document,
+						newIndexDocument);
+				indexDocumentList.add(newIndexDocument);
+				rwl.w.lock();
+				try {
+					pendingIndexDocumentCount++;
+				} finally {
+					rwl.w.unlock();
+				}
+				index(indexDocumentList, limit);
+			}
+			index(indexDocumentList, 0);
+
+		} finally {
+			if (downloader != null)
+				downloader.release();
+		}
+	}
 }

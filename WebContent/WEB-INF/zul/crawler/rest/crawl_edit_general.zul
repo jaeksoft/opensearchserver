@@ -24,20 +24,20 @@
 		<row>
 			<label value="Name: " />
 			<textbox value="@bind(restCrawl.currentCrawl.name)"
-				readonly="@load(restCrawl.selected)" width="80%" />
+				readonly="@load(restCrawl.selected)" cols="30" />
 			<label value="Choose a name" />
 		</row>
 		<row>
 			<label value="User: " />
 			<textbox value="@bind(restCrawl.currentCrawl.user)"
-				width="50%" />
+				cols="40" />
 			<label
 				value="Enter the user name for the HTTP/REST connection" />
 		</row>
 		<row>
 			<label value="Password: " />
 			<textbox type="password"
-				value="@bind(restCrawl.currentCrawl.password)" width="50%" />
+				value="@bind(restCrawl.currentCrawl.password)" cols="20" />
 			<label
 				value="Enter the password for the HTTP/REST connection" />
 		</row>
@@ -57,6 +57,19 @@
 			<intbox cols="5"
 				value="@bind(restCrawl.currentCrawl.bufferSize)" />
 			<label value="Enter the size of the buffer" />
+		</row>
+		<row>
+			<label value="URL: " />
+			<textbox value="@bind(restCrawl.currentCrawl.url)"
+				cols="120" />
+			<label value="Enter the URL of the HTTP/REST call" />
+		</row>
+		<row>
+			<label value="Path to documents: " />
+			<textbox value="@bind(restCrawl.currentCrawl.pathDocument)"
+				cols="120" />
+			<label
+				value="Enter the Query JSON PATH or XPATH to get the documents" />
 		</row>
 	</rows>
 </grid>

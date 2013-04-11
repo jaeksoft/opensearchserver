@@ -24,14 +24,25 @@
 
 package com.jaeksoft.searchlib.crawler.rest;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jayway.jsonpath.JsonPath;
 
 public class RestFieldMap extends
 		FieldMapGeneric<SourceField, CommonFieldTarget> {
@@ -59,6 +70,23 @@ public class RestFieldMap extends
 				return true;
 		}
 		return false;
+	}
+
+	public void mapJson(WebCrawlMaster webCrawlMaster,
+			ParserSelector parserSelector, LanguageEnum lang,
+			Object jsonObject, IndexDocument target) throws SearchLibException,
+			IOException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
+		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
+			String jsonPath = link.getSource().getUniqueName();
+			String content = JsonPath.read(jsonObject, jsonPath);
+			if (content == null)
+				continue;
+			this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
+					link.getTarget(), content, target);
+		}
+
 	}
 
 }

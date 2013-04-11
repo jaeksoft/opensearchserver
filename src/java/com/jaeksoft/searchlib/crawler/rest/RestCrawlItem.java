@@ -26,11 +26,14 @@ package com.jaeksoft.searchlib.crawler.rest;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -49,12 +52,15 @@ public class RestCrawlItem extends
 
 	private int bufferSize;
 
+	private String pathDocument;
+
 	public RestCrawlItem(RestCrawlMaster crawlMaster) {
 		super(crawlMaster, new RestFieldMap());
 		name = null;
 		url = null;
 		user = null;
 		password = null;
+		pathDocument = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
 	}
@@ -65,7 +71,7 @@ public class RestCrawlItem extends
 	}
 
 	protected RestCrawlItem(RestCrawlItem crawl) {
-		super((RestCrawlMaster) crawl.threadMaster, null);
+		this((RestCrawlMaster) crawl.threadMaster);
 		crawl.copyTo(this);
 	}
 
@@ -78,6 +84,7 @@ public class RestCrawlItem extends
 		super.copyTo(crawl);
 		crawl.setName(this.getName());
 		crawl.url = this.url;
+		crawl.pathDocument = this.pathDocument;
 		crawl.user = this.user;
 		crawl.password = this.password;
 		crawl.lang = this.lang;
@@ -175,6 +182,7 @@ public class RestCrawlItem extends
 	protected final static String REST_CRAWL_ATTR_LANG = "lang";
 	protected final static String REST_CRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String REST_CRAWL_NODE_NAME_MAP = "map";
+	protected final static String REST_CRAWL_NODE_DOC_PATH = "documentPath";
 
 	public RestCrawlItem(RestCrawlMaster crawlMaster, XPathParser xpp, Node item)
 			throws XPathExpressionException {
@@ -191,6 +199,11 @@ public class RestCrawlItem extends
 		Node mapNode = xpp.getNode(item, REST_CRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			getFieldMap().load(xpp, mapNode);
+		Node pathNode = xpp.getNode(item, REST_CRAWL_NODE_DOC_PATH);
+		if (pathNode != null)
+			setPathDocument(StringEscapeUtils.unescapeXml(pathNode
+					.getTextContent()));
+
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
@@ -202,6 +215,8 @@ public class RestCrawlItem extends
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
+		xmlWriter.writeSubTextNodeIfAny(REST_CRAWL_NODE_DOC_PATH,
+				xmlWriter.escapeXml(getPathDocument()));
 		xmlWriter.endElement();
 	}
 
@@ -230,4 +245,27 @@ public class RestCrawlItem extends
 		return getName();
 	}
 
+	public CredentialItem getCredentialItem() {
+		if (user == null || user.length() == 0)
+			return null;
+		if (password == null || password.length() == 0)
+			return null;
+		return new CredentialItem(CredentialType.BASIC_DIGEST, user, password,
+				null, null, null);
+	}
+
+	/**
+	 * @return the pathDocument
+	 */
+	public String getPathDocument() {
+		return pathDocument;
+	}
+
+	/**
+	 * @param pathDocument
+	 *            the pathDocument to set
+	 */
+	public void setPathDocument(String pathDocument) {
+		this.pathDocument = pathDocument;
+	}
 }
