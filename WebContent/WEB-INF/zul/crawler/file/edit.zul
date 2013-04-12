@@ -89,7 +89,7 @@
 							value="@bind(filepathedit.currentFilePath.swiftAuthURL)"
 							cols="80" />
 					</row>
-					<row visible="@load(filepathedit.swiftFileType))">
+					<row visible="@load(filepathedit.swiftFileType)">
 						<label value="Authentication method: " />
 						<listbox
 							model="@load(filepathedit.swiftAuthTypes)" mold="select"

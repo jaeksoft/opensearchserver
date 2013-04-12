@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.crawler.rest;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -33,7 +35,6 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -44,9 +45,7 @@ public class RestCrawlItem extends
 
 	private String url;
 
-	private String user;
-
-	private String password;
+	private CredentialItem credential;
 
 	private LanguageEnum lang;
 
@@ -58,8 +57,7 @@ public class RestCrawlItem extends
 		super(crawlMaster, new RestFieldMap());
 		name = null;
 		url = null;
-		user = null;
-		password = null;
+		credential = new CredentialItem();
 		pathDocument = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
@@ -85,8 +83,7 @@ public class RestCrawlItem extends
 		crawl.setName(this.getName());
 		crawl.url = this.url;
 		crawl.pathDocument = this.pathDocument;
-		crawl.user = this.user;
-		crawl.password = this.password;
+		this.credential.copyTo(crawl.credential);
 		crawl.lang = this.lang;
 		crawl.bufferSize = this.bufferSize;
 	}
@@ -107,33 +104,10 @@ public class RestCrawlItem extends
 	}
 
 	/**
-	 * @return the user
+	 * @return the credential
 	 */
-	public String getUser() {
-		return user;
-	}
-
-	/**
-	 * @param user
-	 *            the user to set
-	 */
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * @param password
-	 *            the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
+	public CredentialItem getCredential() {
+		return credential;
 	}
 
 	/**
@@ -176,8 +150,7 @@ public class RestCrawlItem extends
 
 	protected final static String REST_CRAWL_NODE_NAME = "restCrawl";
 	protected final static String REST_CRAWL_ATTR_NAME = "name";
-	protected final static String REST_CRAWL_ATTR_USER = "user";
-	protected final static String REST_CRAWL_ATTR_PASSWORD = "password";
+	protected final static String REST_CRAWL_NODE_CREDENTIAL = "credential";
 	protected final static String REST_CRAWL_ATTR_URL = "url";
 	protected final static String REST_CRAWL_ATTR_LANG = "lang";
 	protected final static String REST_CRAWL_ATTR_BUFFER_SIZE = "bufferSize";
@@ -188,9 +161,6 @@ public class RestCrawlItem extends
 			throws XPathExpressionException {
 		this(crawlMaster);
 		setName(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_NAME));
-		setUser(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_USER));
-		setPassword(XPathParser.getAttributeString(item,
-				REST_CRAWL_ATTR_PASSWORD));
 		setUrl(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_URL));
 		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(item,
 				REST_CRAWL_ATTR_LANG)));
@@ -203,20 +173,24 @@ public class RestCrawlItem extends
 		if (pathNode != null)
 			setPathDocument(StringEscapeUtils.unescapeXml(pathNode
 					.getTextContent()));
+		Node credNode = xpp.getNode(item, REST_CRAWL_NODE_CREDENTIAL);
+		if (credNode != null)
+			credential = CredentialItem.fromXml(credNode);
 
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException,
+			UnsupportedEncodingException {
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME, REST_CRAWL_ATTR_NAME,
-				getName(), REST_CRAWL_ATTR_USER, getUser(),
-				REST_CRAWL_ATTR_PASSWORD, getPassword(), REST_CRAWL_ATTR_URL,
-				getUrl(), REST_CRAWL_ATTR_LANG, getLang().getCode(),
-				REST_CRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()));
+				getName(), REST_CRAWL_ATTR_URL, getUrl(), REST_CRAWL_ATTR_LANG,
+				getLang().getCode(), REST_CRAWL_ATTR_BUFFER_SIZE,
+				Integer.toString(getBufferSize()));
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
 		xmlWriter.writeSubTextNodeIfAny(REST_CRAWL_NODE_DOC_PATH,
 				xmlWriter.escapeXml(getPathDocument()));
+		credential.writeXml(xmlWriter);
 		xmlWriter.endElement();
 	}
 
@@ -245,15 +219,6 @@ public class RestCrawlItem extends
 		return getName();
 	}
 
-	public CredentialItem getCredentialItem() {
-		if (user == null || user.length() == 0)
-			return null;
-		if (password == null || password.length() == 0)
-			return null;
-		return new CredentialItem(CredentialType.BASIC_DIGEST, user, password,
-				null, null, null);
-	}
-
 	/**
 	 * @return the pathDocument
 	 */
@@ -268,4 +233,5 @@ public class RestCrawlItem extends
 	public void setPathDocument(String pathDocument) {
 		this.pathDocument = pathDocument;
 	}
+
 }

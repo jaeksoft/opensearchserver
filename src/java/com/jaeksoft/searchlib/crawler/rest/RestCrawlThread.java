@@ -161,7 +161,7 @@ public class RestCrawlThread extends
 		HttpDownloader downloader = null;
 		try {
 			URI uri = new URI(restCrawlItem.getUrl());
-			CredentialItem credentialItem = restCrawlItem.getCredentialItem();
+			CredentialItem credentialItem = restCrawlItem.getCredential();
 			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader();
 			setStatus(CrawlStatus.CRAWL);
 			DownloadItem dlItem = downloader.get(uri, credentialItem);

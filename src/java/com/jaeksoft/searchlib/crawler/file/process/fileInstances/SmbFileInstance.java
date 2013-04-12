@@ -241,7 +241,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 				continue;
 			SID sid = ace.getSID();
 			SecurityAccess access = new SecurityAccess();
-			access.setId(sid.toString());
+			access.setId(sid.toDisplayString());
 			if (ace.isAllow())
 				access.setGrant(SecurityAccess.Grant.ALLOW);
 			else

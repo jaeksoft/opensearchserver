@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.rest;
 import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -35,6 +36,7 @@ import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlThread;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
@@ -69,6 +71,15 @@ public class RestCrawlController
 	public String[] getDriverClassList() {
 		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
 				.getClass().getClassLoader());
+	}
+
+	public CredentialType[] getCredentialTypes() {
+		return CredentialType.values();
+	}
+
+	@Command
+	@NotifyChange("currentCrawl")
+	public void reloadCurrentCredential() {
 	}
 
 	@Override

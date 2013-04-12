@@ -28,18 +28,36 @@
 			<label value="Choose a name" />
 		</row>
 		<row>
-			<label value="User: " />
-			<textbox value="@bind(restCrawl.currentCrawl.user)"
-				cols="40" />
-			<label
-				value="Enter the user name for the HTTP/REST connection" />
+			<label value="Type" />
+			<listbox model="@load(restCrawl.credentialTypes)"
+				mold="select"
+				selectedItem="@bind(restCrawl.currentCrawl.credential.type)"
+				onSelect="@command('reloadCurrentCredential')">
+				<template name="model" var="credentialtype">
+					<listitem label="@load(credentialtype.label)" />
+				</template>
+			</listbox>
+		</row>
+		<row>
+			<label value="Username: " />
+			<textbox
+				value="@bind(restCrawl.currentCrawl.credential.username)" cols="30" />
 		</row>
 		<row>
 			<label value="Password: " />
 			<textbox type="password"
-				value="@bind(restCrawl.currentCrawl.password)" cols="20" />
-			<label
-				value="Enter the password for the HTTP/REST connection" />
+				value="@bind(restCrawl.currentCrawl.credential.password)" cols="20" />
+		</row>
+		<row visible="@load(restCrawl.currentCrawl.credential.ntlm)">
+			<label value="Workstation " />
+			<textbox
+				value="@bind(restCrawl.currentCrawl.credential.workstation)"
+				cols="40" />
+		</row>
+		<row visible="@load(restCrawl.currentCrawl.credential.ntlm)">
+			<label value="Domain: " />
+			<textbox
+				value="@bind(restCrawl.currentCrawl.credential.domain)" cols="40" />
 		</row>
 		<row>
 			<label value="Language: " />

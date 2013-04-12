@@ -108,7 +108,6 @@ public class SwiftToken {
 		JSONObject jsonAccess = json.getJSONObject("access");
 		json = jsonAccess.getJSONObject("token");
 		authToken = json.getString("id");
-		System.out.println("X-Auth-Token: " + authToken);
 		JSONArray jsonServices = jsonAccess.getJSONArray("serviceCatalog");
 		String intUrl = null;
 		String pubUrl = null;
@@ -147,7 +146,6 @@ public class SwiftToken {
 		JSONObject json = new JSONObject();
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
-		System.out.println(json.toString());
 		return httpDownloader
 				.post(uri, null, null, new StringEntity(json.toString(),
 						ContentType.APPLICATION_JSON));

@@ -74,15 +74,25 @@ public class RendererServlet extends AbstractServlet {
 			setLog(renderer, request, transaction);
 			request.setFromServlet(transaction);
 			String userField = renderer.getCredentialUserField();
+			boolean bOr = false;
 			if (userField != null && userField.length() > 0) {
-				StringBuffer sb = new StringBuffer(userField);
-				sb.append(":\"");
-				String n = transaction.getAnyUserName();
-				if (n != null)
-					sb.append(n);
-				sb.append('"');
-				request.addFilter(sb.toString(), false);
-				System.out.println("RENDERER FILTER: " + sb.toString());
+				/*
+				 * StringBuffer sb = new StringBuffer(userField);
+				 * sb.append(":(");
+				 * 
+				 * System.out.println("USER1: " + transaction.getUserName());
+				 * System.out.println("USER2: " +
+				 * transaction.getUserPrincipalName());
+				 * 
+				 * String n = transaction.getAnyUserName();
+				 * 
+				 * String[] groups = transaction.getJespaGroup(); if (groups !=
+				 * null) { for (String group : groups) { if (bOr)
+				 * sb.append(" OR "); else bOr = true; sb.append('"');
+				 * sb.append(group); sb.append('"'); } } sb.append(')');
+				 * request.addFilter(sb.toString(), false);
+				 * System.out.println("RENDERER FILTER: " + sb.toString());
+				 */
 			}
 			if (query == null)
 				query = (String) transaction.getSession().getAttribute("query");

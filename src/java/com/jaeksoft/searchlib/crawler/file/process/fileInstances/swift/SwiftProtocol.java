@@ -135,7 +135,6 @@ public class SwiftProtocol {
 		List<Header> headerList = new ArrayList<Header>(0);
 		swiftToken.putAuthTokenHeader(headerList);
 		URI uri = swiftToken.getURI(container, object.pathName, false);
-		System.out.println("SwiftProtocol:get: " + uri.toString());
 		DownloadItem downloadItem = downloader.get(uri, null, headerList, null);
 		downloadItem.checkNoError(200, 204);
 		return downloadItem.getContentInputStream();
