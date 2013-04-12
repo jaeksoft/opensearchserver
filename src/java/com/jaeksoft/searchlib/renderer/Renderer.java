@@ -35,18 +35,48 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SID;
+
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.RendererServlet;
 
 public class Renderer implements Comparable<Renderer> {
+
+	public static enum AuthType {
+
+		NO_AUTH("No authentication"),
+
+		NTLM("NTLM");
+
+		private final String label;
+
+		private AuthType(String label) {
+			this.label = label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
+		public static AuthType find(String name) {
+			for (AuthType type : values())
+				if (type.name().equalsIgnoreCase(name))
+					return type;
+			return NO_AUTH;
+		}
+	}
 
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
@@ -65,7 +95,16 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE = "contentTypeField";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME = "filenameField";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR = "ocrField";
-	private final static String RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD = "credentialUserField";
+	private final static String RENDERER_ITEM_AUTH_NODE = "auth";
+	private final static String RENDERER_ITEM_AUTH_ATTR_SERVER_HOST = "serverHostname";
+	private final static String RENDERER_ITEM_AUTH_ATTR_USERNAME = "username";
+	private final static String RENDERER_ITEM_AUTH_ATTR_PASSWORD = "password";
+	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "password";
+	private final static String RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD = "userAllowField";
+	private final static String RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
+	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
+	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD = "groupDenyField";
+	private final static String RENDERER_ITEM_AUTH_ATTR_TYPE = "type";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -101,7 +140,23 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String hocrField;
 
-	private String credentialUserField;
+	private AuthType authType;
+
+	private String authUsername;
+
+	private String authPassword;
+
+	private String authDomain;
+
+	private String authServer;
+
+	private String authUserAllowField;
+
+	private String authGroupAllowField;
+
+	private String authUserDenyField;
+
+	private String authGroupDenyField;
 
 	public Renderer() {
 		name = null;
@@ -120,7 +175,15 @@ public class Renderer implements Comparable<Renderer> {
 		contentTypeField = null;
 		filenameField = null;
 		hocrField = null;
-		credentialUserField = null;
+		authType = AuthType.NO_AUTH;
+		authUsername = null;
+		authPassword = null;
+		authDomain = null;
+		authServer = null;
+		authUserAllowField = "userAllow";
+		authGroupAllowField = "groupAllow";
+		authUserDenyField = "userDeny";
+		authGroupDenyField = "groupDeny";
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -147,8 +210,28 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
 		setHocrField(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
-		setCredentialUserField(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD));
+
+		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
+		if (authNode != null) {
+			setAuthType(AuthType.find(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_TYPE)));
+			setAuthUsername(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_USERNAME));
+			setAuthPassword(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_PASSWORD));
+			setAuthDomain(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_DOMAIN));
+			setAuthServer(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
+			setAuthUserAllowField(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD));
+			setAuthUserDenyField(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD));
+			setAuthGroupAllowField(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD));
+			setAuthGroupDenyField(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD));
+		}
 
 		String p = XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
@@ -346,7 +429,15 @@ public class Renderer implements Comparable<Renderer> {
 				target.contentTypeField = contentTypeField;
 				target.filenameField = filenameField;
 				target.hocrField = hocrField;
-				target.credentialUserField = credentialUserField;
+				target.authType = authType;
+				target.authUsername = authUsername;
+				target.authPassword = authPassword;
+				target.authDomain = authDomain;
+				target.authServer = authServer;
+				target.authUserAllowField = authUserAllowField;
+				target.authUserDenyField = authUserDenyField;
+				target.authGroupAllowField = authGroupAllowField;
+				target.authGroupDenyField = authGroupDenyField;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 
@@ -528,8 +619,7 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE,
 					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
 					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
-					hocrField, RENDERER_ITEM_ROOT_ATTR_CREDENTIAL_USER_FIELD,
-					credentialUserField);
+					hocrField);
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -540,6 +630,21 @@ public class Renderer implements Comparable<Renderer> {
 			for (RendererLogField logReportField : logFields)
 				logReportField
 						.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);
+
+			xmlWriter.startElement(RENDERER_ITEM_AUTH_NODE,
+					RENDERER_ITEM_AUTH_ATTR_TYPE, authType.name(),
+					RENDERER_ITEM_AUTH_ATTR_USERNAME, authUsername,
+					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
+					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
+					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
+					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD,
+					authUserAllowField,
+					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD, authUserDenyField,
+					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD,
+					authGroupAllowField,
+					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD,
+					authGroupDenyField);
+			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -855,18 +960,239 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @return the credentialUserField
+	 * @return the authType
 	 */
-	public String getCredentialUserField() {
-		return credentialUserField;
+	public AuthType getAuthType() {
+		return authType;
 	}
 
 	/**
-	 * @param credentialUserField
-	 *            the credentialUserField to set
+	 * @param authType
+	 *            the authType to set
 	 */
-	public void setCredentialUserField(String credentialUserField) {
-		this.credentialUserField = credentialUserField;
+	public void setAuthType(AuthType authType) {
+		this.authType = authType;
 	}
 
+	/**
+	 * @return the authUsername
+	 */
+	public String getAuthUsername() {
+		return authUsername;
+	}
+
+	/**
+	 * @param authUsername
+	 *            the authUsername to set
+	 */
+	public void setAuthUsername(String authUsername) {
+		this.authUsername = authUsername;
+	}
+
+	/**
+	 * @return the authPassword
+	 */
+	public String getAuthPassword() {
+		return authPassword;
+	}
+
+	/**
+	 * @param authPassword
+	 *            the authPassword to set
+	 */
+	public void setAuthPassword(String authPassword) {
+		this.authPassword = authPassword;
+	}
+
+	/**
+	 * @return the authDomain
+	 */
+	public String getAuthDomain() {
+		return authDomain;
+	}
+
+	/**
+	 * @param authDomain
+	 *            the authDomain to set
+	 */
+	public void setAuthDomain(String authDomain) {
+		this.authDomain = authDomain;
+	}
+
+	/**
+	 * @return the authServer
+	 */
+	public String getAuthServer() {
+		return authServer;
+	}
+
+	/**
+	 * @param authServer
+	 *            the authServer to set
+	 */
+	public void setAuthServer(String authServer) {
+		this.authServer = authServer;
+	}
+
+	/**
+	 * @return the authUserAllowField
+	 */
+	public String getAuthUserAllowField() {
+		return authUserAllowField;
+	}
+
+	/**
+	 * @param authUserAllowField
+	 *            the authUserAllowField to set
+	 */
+	public void setAuthUserAllowField(String authUserAllowField) {
+		this.authUserAllowField = authUserAllowField;
+	}
+
+	/**
+	 * @return the authGroupAllowField
+	 */
+	public String getAuthGroupAllowField() {
+		return authGroupAllowField;
+	}
+
+	/**
+	 * @param authGroupAllowField
+	 *            the authGroupAllowField to set
+	 */
+	public void setAuthGroupAllowField(String authGroupAllowField) {
+		this.authGroupAllowField = authGroupAllowField;
+	}
+
+	/**
+	 * @return the authUserDenyField
+	 */
+	public String getAuthUserDenyField() {
+		return authUserDenyField;
+	}
+
+	/**
+	 * @param authUserDenyField
+	 *            the authUserDenyField to set
+	 */
+	public void setAuthUserDenyField(String authUserDenyField) {
+		this.authUserDenyField = authUserDenyField;
+	}
+
+	/**
+	 * @return the authGroupDenyField
+	 */
+	public String getAuthGroupDenyField() {
+		return authGroupDenyField;
+	}
+
+	/**
+	 * @param authGroupDenyField
+	 *            the authGroupDenyField to set
+	 */
+	public void setAuthGroupDenyField(String authGroupDenyField) {
+		this.authGroupDenyField = authGroupDenyField;
+	}
+
+	public String[] authGetGroups(String username) throws IOException {
+		switch (authType) {
+		case NO_AUTH:
+			return null;
+		case NTLM:
+			if (username == null)
+				throw new IOException("No username for NTLM authentication");
+			NtlmPasswordAuthentication ntlmAuth = new NtlmPasswordAuthentication(
+					authDomain, authUsername, authPassword);
+			SID sid = new SID(username);
+			sid.resolve(authServer, ntlmAuth);
+			SID[] sids = sid.getGroupMemberSids(authServer, ntlmAuth,
+					SID.SID_FLAG_RESOLVE_SIDS);
+			if (sids == null)
+				return null;
+			String[] groups = new String[sids.length];
+			int i = 0;
+			for (SID gsid : sids)
+				groups[i++] = gsid.toDisplayString();
+			return groups;
+		default:
+			return null;
+		}
+	}
+
+	public void configureAuthRequest(SearchRequest request, String username)
+			throws ParseException, IOException {
+		if (authType == AuthType.NO_AUTH)
+			return;
+		String[] groups = null;
+		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
+				|| (authGroupDenyField != null && authGroupDenyField.length() > 0)) {
+			groups = authGetGroups(username);
+		}
+
+		StringBuffer sbPositiveFilter = new StringBuffer();
+		if (authUserAllowField != null && authUserAllowField.length() > 0) {
+			if (sbPositiveFilter.length() > 0)
+				sbPositiveFilter.append(" OR ");
+			sbPositiveFilter.append(authUserAllowField);
+			sbPositiveFilter.append(":\"");
+			if (username != null)
+				sbPositiveFilter.append(username);
+			sbPositiveFilter.append("\"");
+		}
+		if (authGroupAllowField != null && authGroupAllowField.length() > 0
+				&& groups != null) {
+			if (sbPositiveFilter.length() > 0)
+				sbPositiveFilter.append(" OR ");
+			sbPositiveFilter.append(authGroupAllowField);
+			sbPositiveFilter.append(":(");
+			boolean bOr = false;
+			for (String group : groups) {
+				if (bOr)
+					sbPositiveFilter.append(" OR ");
+				else
+					bOr = true;
+				sbPositiveFilter.append('"');
+				sbPositiveFilter.append(group);
+				sbPositiveFilter.append('"');
+			}
+			sbPositiveFilter.append(')');
+		}
+		System.out.println("RENDERER FILTER+: " + sbPositiveFilter.toString());
+		if (sbPositiveFilter.length() > 0)
+			request.addFilter(sbPositiveFilter.toString(), false);
+
+		if (authUserDenyField != null && authUserDenyField.length() > 0) {
+			StringBuffer sbNegativeFilter = new StringBuffer();
+			sbNegativeFilter.append(authUserDenyField);
+			sbNegativeFilter.append(":\"");
+			if (username != null)
+				sbNegativeFilter.append(username);
+			sbNegativeFilter.append("\"");
+			System.out.println("RENDERER FILTER-: "
+					+ sbNegativeFilter.toString());
+			request.addFilter(sbNegativeFilter.toString(), true);
+		}
+
+		if (authGroupDenyField != null && authGroupDenyField.length() > 0
+				&& groups != null) {
+			StringBuffer sbNegativeFilter = new StringBuffer();
+			sbNegativeFilter.append(authGroupDenyField);
+			sbNegativeFilter.append(":(");
+			boolean bOr = false;
+			for (String group : groups) {
+				if (bOr)
+					sbNegativeFilter.append(" OR ");
+				else
+					bOr = true;
+				sbNegativeFilter.append('"');
+				sbNegativeFilter.append(group);
+				sbNegativeFilter.append('"');
+			}
+			sbNegativeFilter.append(')');
+			System.out.println("RENDERER FILTER-: "
+					+ sbNegativeFilter.toString());
+			request.addFilter(sbNegativeFilter.toString(), true);
+		}
+
+	}
 }

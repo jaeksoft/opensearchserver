@@ -35,6 +35,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.Renderer.AuthType;
 import com.jaeksoft.searchlib.renderer.RendererField;
 import com.jaeksoft.searchlib.renderer.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
@@ -132,6 +133,19 @@ public class RendererController extends CommonController {
 
 	public boolean isNotFieldSelected() {
 		return !isFieldSelected();
+	}
+
+	public List<String> getIndexedFieldList() throws SearchLibException {
+		List<String> fields = new ArrayList<String>(0);
+		Client client = getClient();
+		if (client == null)
+			return fields;
+		client.getSchema().getFieldList().getIndexedFields(fields);
+		return fields;
+	}
+
+	public AuthType[] getAuthTypeList() {
+		return Renderer.AuthType.values();
 	}
 
 	@Command

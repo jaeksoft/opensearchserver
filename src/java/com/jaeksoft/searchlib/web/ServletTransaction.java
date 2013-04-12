@@ -386,10 +386,11 @@ public class ServletTransaction {
 	}
 
 	public String getAnyUserName() {
+		System.out.println("USER PRINCIPAL: " + request.getUserPrincipal());
+		System.out.println("USER REMOTE: " + request.getRemoteUser());
 		String n = getUserPrincipalName();
 		if (n != null)
 			return n;
 		return getUserName();
 	}
-
 }
