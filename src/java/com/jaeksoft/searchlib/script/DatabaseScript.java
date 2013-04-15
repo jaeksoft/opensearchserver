@@ -30,7 +30,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -54,6 +56,12 @@ public class DatabaseScript implements Closeable {
 
 	private final IsolationLevelEnum isolationLevel;
 
+	private final String sqlVariable;
+
+	private final String varColumnName;
+
+	private final String varColumnValue;
+
 	private final String sqlSelect;
 
 	private final String sqlUpdate;
@@ -64,9 +72,12 @@ public class DatabaseScript implements Closeable {
 
 	private Transaction transaction;
 
+	private HashMap<String, String> variablesMap;
+
 	public DatabaseScript(Config config, String driverClass, String jdbcURL,
 			String username, String password,
-			IsolationLevelEnum isolationLevel, String sqlSelect,
+			IsolationLevelEnum isolationLevel, String sqlVariable,
+			String varColumnName, String varColumnValue, String sqlSelect,
 			String sqlUpdate, SqlUpdateMode sqlUpdateMode, TaskLog taskLog)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -76,18 +87,51 @@ public class DatabaseScript implements Closeable {
 		connectionManager.setUsername(username);
 		connectionManager.setPassword(password);
 		this.isolationLevel = isolationLevel;
+		this.sqlVariable = sqlVariable;
+		this.varColumnName = varColumnName;
+		this.varColumnValue = varColumnValue;
 		this.sqlSelect = sqlSelect;
 		this.sqlUpdate = sqlUpdate;
 		this.sqlUpdateMode = sqlUpdateMode;
 		scriptCommandContext = new ScriptCommandContext(config, taskLog);
 		transaction = null;
+		variablesMap = null;
+	}
+
+	private final String doVariableReplacement(String text) {
+		if (variablesMap == null || text == null)
+			return text;
+		for (Map.Entry<String, String> entry : variablesMap.entrySet())
+			text = text.replace(entry.getKey(), entry.getValue());
+		return text;
 	}
 
 	public void run() throws SQLException, ScriptException {
 		try {
 			transaction = connectionManager.getNewTransaction(false,
 					isolationLevel.value);
-			Query query = transaction.prepare(sqlSelect);
+
+			// Load variables
+			if (sqlVariable != null && sqlVariable.length() > 0) {
+				variablesMap = new HashMap<String, String>();
+				Query query = transaction.prepare(sqlVariable);
+				ResultSet resultSet = query.getResultSet();
+				while (resultSet.next()) {
+					String name = resultSet.getString(varColumnName);
+					String value = resultSet.getString(varColumnValue);
+					if (name == null || value == null)
+						continue;
+					StringBuffer sb = new StringBuffer();
+					sb.append('{');
+					sb.append(name);
+					sb.append('}');
+					variablesMap.put(sb.toString(), value);
+				}
+			}
+
+			String sqlU = doVariableReplacement(sqlUpdate);
+			String sqlS = doVariableReplacement(sqlSelect);
+			Query query = transaction.prepare(sqlS);
 			ResultSet resultSet = query.getResultSet();
 
 			ResultSetMetaData metaData = resultSet.getMetaData();
@@ -107,23 +151,24 @@ public class DatabaseScript implements Closeable {
 				if (pkList != null)
 					pkList.add(id);
 				String command = resultSet.getString(COLUMN_COMMAND);
-				Object[] parameters = null;
+				String[] parameters = null;
 				if (paramCount > 0) {
-					parameters = new Object[paramCount];
-					for (int i = 0; i < paramCount; i++)
-						parameters[i] = resultSet.getObject(COLUMN_PARAM
-								+ (i + 1));
+					parameters = new String[paramCount];
+					for (int i = 0; i < paramCount; i++) {
+						Object o = resultSet.getObject(COLUMN_PARAM + (i + 1));
+						if (o == null)
+							continue;
+						parameters[i] = doVariableReplacement(o.toString());
+					}
 				}
 				CommandEnum.execute(scriptCommandContext, id, command,
 						parameters);
 				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
-					DatabaseUtils.update(transaction, id, sqlUpdateMode,
-							sqlUpdate);
+					DatabaseUtils.update(transaction, id, sqlUpdateMode, sqlU);
 			}
 			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
 					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)
-				DatabaseUtils.update(transaction, pkList, sqlUpdateMode,
-						sqlUpdate);
+				DatabaseUtils.update(transaction, pkList, sqlUpdateMode, sqlU);
 		} finally {
 			IOUtils.closeQuietly(this);
 		}

@@ -74,7 +74,7 @@ public class Selectors {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			context.addSelector(new Selector(Type.CSS_SELECTOR,
 					getParameterString(0)));
@@ -90,7 +90,7 @@ public class Selectors {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			context.resetSelector(Type.CSS_SELECTOR);
 		}
 
@@ -104,7 +104,7 @@ public class Selectors {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			context.addSelector(new Selector(Type.XPATH_SELECTOR,
 					getParameterString(0)));
@@ -119,7 +119,7 @@ public class Selectors {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			context.resetSelector(Type.XPATH_SELECTOR);
 		}
 
@@ -133,7 +133,7 @@ public class Selectors {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			context.resetSelector(null);
 		}
 

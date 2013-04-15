@@ -38,7 +38,7 @@ public class SleepCommand extends CommandAbstract {
 
 	@Override
 	public void run(ScriptCommandContext context, String id,
-			Object... parameters) throws ScriptException {
+			String... parameters) throws ScriptException {
 		checkParameters(1, parameters);
 		ThreadUtils.waitUntil(Integer.parseInt(parameters[0].toString()),
 				context.taskLog);

@@ -64,7 +64,7 @@ public enum CommandEnum {
 	}
 
 	public static void execute(ScriptCommandContext context, String id,
-			String command, Object... parameters) throws ScriptException {
+			String command, String... parameters) throws ScriptException {
 		try {
 			CommandEnum commandEnum = valueOf(command);
 			commandEnum.getNewInstance().run(context, id, parameters);

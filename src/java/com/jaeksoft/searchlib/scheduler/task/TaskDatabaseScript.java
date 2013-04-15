@@ -64,9 +64,27 @@ public class TaskDatabaseScript extends TaskAbstract {
 			TaskPropertyType.comboBox, "Isolation Level", "Isolation Level",
 			"Select the right isolation level", 20);
 
+	final private TaskPropertyDef propSelectSQLVariables = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "SQL Select for variables",
+			"SQL Select", "The SQL statement to retrieve the variables", 70, 5);
+
+	final private TaskPropertyDef propVariablesNameColumn = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Variable name column",
+			"Variable name column",
+			"The label of the column which contains the name of the variable",
+			20);
+
+	final private TaskPropertyDef propVariablesValueColumn = new TaskPropertyDef(
+			TaskPropertyType.textBox,
+			"Variable value column",
+			"Variable value column",
+			"The label of the columns which contains the value of the variable",
+			20);
+
 	final private TaskPropertyDef propSelectSQL = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "SQL Select", "SQL Select",
-			"The SQL statement to retrieve the list of commands", 70, 5);
+			TaskPropertyType.multilineTextBox, "SQL Select for script",
+			"SQL Select", "The SQL statement to retrieve the list of commands",
+			70, 5);
 
 	final private TaskPropertyDef propUpdateSQL = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "SQL Update", "SQL Update",
@@ -78,7 +96,9 @@ public class TaskDatabaseScript extends TaskAbstract {
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propDatabaseDriver,
 			propDatabaseURL, propDatabaseUsername, propDatabasePassword,
-			propIsolationLevel, propSelectSQL, propUpdateSQL, propUpdateMethod };
+			propIsolationLevel, propSelectSQL, propUpdateSQL, propUpdateMethod,
+			propSelectSQLVariables, propVariablesNameColumn,
+			propVariablesValueColumn };
 
 	@Override
 	public String getName() {
@@ -119,6 +139,9 @@ public class TaskDatabaseScript extends TaskAbstract {
 		String dbURL = properties.getValue(propDatabaseURL);
 		String dbUsername = properties.getValue(propDatabaseUsername);
 		String dbPassword = properties.getValue(propDatabasePassword);
+		String sqlSelectVar = properties.getValue(propSelectSQLVariables);
+		String sqlVariableName = properties.getValue(propVariablesNameColumn);
+		String sqlVariableValue = properties.getValue(propVariablesValueColumn);
 		String sqlSelect = properties.getValue(propSelectSQL);
 		String sqlUpdate = properties.getValue(propUpdateSQL);
 		IsolationLevelEnum isolationLevelEnum = IsolationLevelEnum
@@ -128,7 +151,8 @@ public class TaskDatabaseScript extends TaskAbstract {
 		DatabaseScript dbScript = null;
 		try {
 			dbScript = new DatabaseScript(client, dbDriver, dbURL, dbUsername,
-					dbPassword, isolationLevelEnum, sqlSelect, sqlUpdate,
+					dbPassword, isolationLevelEnum, sqlSelectVar,
+					sqlVariableName, sqlVariableValue, sqlSelect, sqlUpdate,
 					sqlUpdateMode, taskLog);
 			dbScript.run();
 		} catch (InstantiationException e) {

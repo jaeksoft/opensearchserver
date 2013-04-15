@@ -62,7 +62,7 @@ public class WebDriverCommands {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			BrowserDriverEnum browserDriverEnum = BrowserDriverEnum.find(
 					getParameterString(0), null);
@@ -81,7 +81,7 @@ public class WebDriverCommands {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			context.setBrowserDriver(null);
 		}
 	}
@@ -94,7 +94,7 @@ public class WebDriverCommands {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			checkParameters(2, parameters);
 			String width = getParameterString(0);
 			if (width == null)
@@ -124,7 +124,7 @@ public class WebDriverCommands {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();
 			if (browserDriver == null)
@@ -160,7 +160,7 @@ public class WebDriverCommands {
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
-				Object... parameters) throws ScriptException {
+				String... parameters) throws ScriptException {
 			FileWriter writer = null;
 			HttpDownloader httpDownloader = null;
 			checkParameters(1, parameters);

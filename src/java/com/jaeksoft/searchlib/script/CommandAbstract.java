@@ -28,14 +28,14 @@ public abstract class CommandAbstract {
 
 	private final CommandEnum commandEnum;
 
-	private Object[] parameters;
+	private String[] parameters;
 
 	protected CommandAbstract(CommandEnum commandEnum) {
 		this.commandEnum = commandEnum;
 		this.parameters = null;
 	}
 
-	protected void checkParameters(int count, Object... parameters)
+	protected void checkParameters(int count, String... parameters)
 			throws ScriptException {
 		if (count == 0)
 			return;
@@ -52,10 +52,10 @@ public abstract class CommandAbstract {
 	protected String getParameterString(int pos) {
 		if (pos >= parameters.length)
 			return null;
-		Object p = parameters[pos];
+		String p = parameters[pos];
 		if (p == null)
 			return null;
-		return p.toString();
+		return p;
 	}
 
 	protected void throwError(String message) throws ScriptException {
@@ -64,5 +64,5 @@ public abstract class CommandAbstract {
 	}
 
 	public abstract void run(ScriptCommandContext context, String id,
-			Object... parameters) throws ScriptException;
+			String... parameters) throws ScriptException;
 }
