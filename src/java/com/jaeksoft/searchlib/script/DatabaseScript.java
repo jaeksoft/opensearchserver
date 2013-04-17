@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
@@ -146,6 +147,7 @@ public class DatabaseScript implements Closeable {
 			List<String> pkList = sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST
 					|| sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST ? new ArrayList<String>(
 					0) : null;
+			CommandEnum commandFinder = null;
 			while (resultSet.next()) {
 				String id = resultSet.getString(COLUMN_ID);
 				if (pkList != null)
@@ -161,8 +163,29 @@ public class DatabaseScript implements Closeable {
 						parameters[i] = doVariableReplacement(o.toString());
 					}
 				}
-				CommandEnum.execute(scriptCommandContext, id, command,
-						parameters);
+				CommandEnum commandEnum = CommandEnum.find(command);
+				if (commandFinder != null) {
+					if (commandFinder != commandEnum)
+						continue;
+					commandFinder = null;
+				}
+				CommandAbstract commandAbstract = commandEnum.getNewInstance();
+				try {
+					commandAbstract.run(scriptCommandContext, id, parameters);
+				} catch (ScriptException e) {
+					switch (scriptCommandContext.getOnError()) {
+					case FAILURE:
+						throw e;
+					case RESUME:
+						Logging.warn(e);
+						break;
+					case NEXT_COMMAND:
+						Logging.warn(e);
+						commandFinder = scriptCommandContext
+								.getOnErrorNextCommand();
+						break;
+					}
+				}
 				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
 					DatabaseUtils.update(transaction, id, sqlUpdateMode, sqlU);
 			}

@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.script;
 
+import com.jaeksoft.searchlib.script.commands.ExecutionCommands;
 import com.jaeksoft.searchlib.script.commands.Selectors;
-import com.jaeksoft.searchlib.script.commands.SleepCommand;
 import com.jaeksoft.searchlib.script.commands.WebDriverCommands;
 
 public enum CommandEnum {
@@ -40,7 +40,9 @@ public enum CommandEnum {
 
 	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
-	SLEEP(SleepCommand.class),
+	SLEEP(ExecutionCommands.SleepCommand.class),
+
+	ON_ERROR(ExecutionCommands.OnErrorCommand.class),
 
 	WEBDRIVER_OPEN(WebDriverCommands.Open.class),
 
@@ -50,6 +52,8 @@ public enum CommandEnum {
 
 	WEBDRIVER_CAPTURE(WebDriverCommands.Capture.class),
 
+	WEBDRIVER_SET_TIMEOUTS(WebDriverCommands.SetTimeOuts.class),
+
 	WEBDRIVER_CLOSE(WebDriverCommands.Close.class);
 
 	private final Class<? extends CommandAbstract> commandClass;
@@ -58,24 +62,24 @@ public enum CommandEnum {
 		this.commandClass = commandClass;
 	}
 
-	private CommandAbstract getNewInstance() throws InstantiationException,
-			IllegalAccessException {
-		return commandClass.newInstance();
-	}
-
-	public static void execute(ScriptCommandContext context, String id,
-			String command, String... parameters) throws ScriptException {
+	public CommandAbstract getNewInstance() throws ScriptException {
 		try {
-			CommandEnum commandEnum = valueOf(command);
-			commandEnum.getNewInstance().run(context, id, parameters);
-		} catch (IllegalArgumentException e) {
-			throw new ScriptException("Unknown command: " + command, e);
+			return commandClass.newInstance();
 		} catch (InstantiationException e) {
-			throw new ScriptException(
-					"Cannot instance the command: " + command, e);
+			throw new ScriptException("Cannot instance the command: " + name(),
+					e);
 		} catch (IllegalAccessException e) {
-			throw new ScriptException(
-					"Cannot instance the command: " + command, e);
+			throw new ScriptException("Cannot instance the command: " + name(),
+					e);
 		}
 	}
+
+	public static final CommandEnum find(String command) throws ScriptException {
+		try {
+			return valueOf(command);
+		} catch (IllegalArgumentException e) {
+			throw new ScriptException("Unknown command: " + command, e);
+		}
+	}
+
 }

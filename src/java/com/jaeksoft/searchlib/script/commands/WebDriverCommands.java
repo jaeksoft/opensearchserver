@@ -96,18 +96,17 @@ public class WebDriverCommands {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(2, parameters);
-			String width = getParameterString(0);
-			if (width == null)
-				throwError("No width given");
-			String height = getParameterString(0);
-			if (height == null)
-				throwError("No height given");
-			BrowserDriver<?> browserDriver = context.getBrowserDriver();
-			if (browserDriver == null)
-				throwError("No browser open");
 			try {
-				browserDriver.setSize(Integer.parseInt(width),
-						Integer.parseInt(height));
+				Integer width = getParameterInt(0);
+				if (width == null)
+					throwError("No width given");
+				Integer height = getParameterInt(1);
+				if (height == null)
+					throwError("No height given");
+				BrowserDriver<?> browserDriver = context.getBrowserDriver();
+				if (browserDriver == null)
+					throwError("No browser open");
+				browserDriver.setSize(width, height);
 			} catch (NumberFormatException e) {
 				throw new ScriptException(e);
 			} catch (SearchLibException e) {
@@ -247,6 +246,33 @@ public class WebDriverCommands {
 					IOUtils.closeQuietly(writer);
 				if (httpDownloader != null)
 					httpDownloader.release();
+			}
+		}
+	}
+
+	public static class SetTimeOuts extends CommandAbstract {
+
+		public SetTimeOuts() {
+			super(CommandEnum.WEBDRIVER_SET_TIMEOUTS);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			try {
+				Integer pageLoad = getParameterInt(0);
+				if (pageLoad == null)
+					throwError("No time-out for page load (seconds) given");
+				Integer script = getParameterInt(1);
+				if (script == null)
+					throwError("No time-out for script (seconds) given");
+				BrowserDriver<?> browserDriver = context.getBrowserDriver();
+				if (browserDriver == null)
+					throwError("No browser open");
+				browserDriver.setTimeouts(pageLoad, script);
+			} catch (NumberFormatException e) {
+				throw new ScriptException(e);
 			}
 		}
 	}

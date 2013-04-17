@@ -27,20 +27,49 @@ package com.jaeksoft.searchlib.script.commands;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
+import com.jaeksoft.searchlib.script.ScriptCommandContext.OnError;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 
-public class SleepCommand extends CommandAbstract {
+public class ExecutionCommands {
 
-	public SleepCommand() {
-		super(CommandEnum.SLEEP);
+	public static class SleepCommand extends CommandAbstract {
+
+		public SleepCommand() {
+			super(CommandEnum.SLEEP);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			ThreadUtils.waitUntil(Integer.parseInt(parameters[0].toString()),
+					context.taskLog);
+		}
 	}
 
-	@Override
-	public void run(ScriptCommandContext context, String id,
-			String... parameters) throws ScriptException {
-		checkParameters(1, parameters);
-		ThreadUtils.waitUntil(Integer.parseInt(parameters[0].toString()),
-				context.taskLog);
+	public static class OnErrorCommand extends CommandAbstract {
+
+		public OnErrorCommand() {
+			super(CommandEnum.ON_ERROR);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			OnError onError = OnError.valueOf(getParameterString(0));
+			switch (onError) {
+			case FAILURE:
+			case RESUME:
+				context.setOnError(onError, null);
+				break;
+			case NEXT_COMMAND:
+				checkParameters(2, parameters);
+				context.setOnError(onError,
+						CommandEnum.find(getParameterString(1)));
+				break;
+			}
+		}
 	}
 }

@@ -58,6 +58,13 @@ public abstract class CommandAbstract {
 		return p;
 	}
 
+	protected Integer getParameterInt(int pos) {
+		String s = getParameterString(pos);
+		if (s == null)
+			return null;
+		return new Integer(s);
+	}
+
 	protected void throwError(String message) throws ScriptException {
 		throw new ScriptException("Command " + commandEnum.name() + " - "
 				+ message);

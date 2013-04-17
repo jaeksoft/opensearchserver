@@ -66,7 +66,8 @@ public class TaskDatabaseScript extends TaskAbstract {
 
 	final private TaskPropertyDef propSelectSQLVariables = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "SQL Select for variables",
-			"SQL Select", "The SQL statement to retrieve the variables", 70, 5);
+			"SQL Select variables",
+			"The SQL statement to retrieve the variables", 70, 5);
 
 	final private TaskPropertyDef propVariablesNameColumn = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Variable name column",

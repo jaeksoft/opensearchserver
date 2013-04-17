@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,6 +45,7 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
@@ -110,6 +112,12 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.manage().window().setSize(new Dimension(width, height));
 	}
 
+	final public void setTimeouts(Integer pageLoad, Integer script) {
+		Timeouts timeOuts = driver.manage().timeouts();
+		timeOuts.pageLoadTimeout(pageLoad, TimeUnit.SECONDS);
+		timeOuts.setScriptTimeout(script, TimeUnit.SECONDS);
+	}
+
 	final public int locateBy(Selectors.Selector selector, Set<WebElement> set) {
 		List<WebElement> list = driver.findElements(selector.getBy());
 		if (list == null)
@@ -140,4 +148,5 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				IOUtils.close(reader);
 		}
 	}
+
 }

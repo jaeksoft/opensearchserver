@@ -49,11 +49,21 @@ public class ScriptCommandContext implements Closeable {
 
 	private TreeSet<Selectors.Selector> selectors;
 
+	private OnError onError;
+
+	private CommandEnum onErrorNextCommand;
+
+	public static enum OnError {
+		FAILURE, RESUME, NEXT_COMMAND;
+	}
+
 	public ScriptCommandContext(Config config, TaskLog taskLog) {
 		this.config = config;
 		this.taskLog = taskLog;
 		currentWebDriver = null;
 		selectors = null;
+		onError = OnError.FAILURE;
+		onErrorNextCommand = null;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -133,6 +143,19 @@ public class ScriptCommandContext implements Closeable {
 		} catch (ScriptException e) {
 			Logging.info(e);
 		}
+	}
+
+	public void setOnError(OnError onError, CommandEnum onErrorNextCommand) {
+		this.onError = onError;
+		this.onErrorNextCommand = onErrorNextCommand;
+	}
+
+	public OnError getOnError() {
+		return onError;
+	}
+
+	public CommandEnum getOnErrorNextCommand() {
+		return onErrorNextCommand;
 	}
 
 }
