@@ -1108,7 +1108,7 @@ public class Renderer implements Comparable<Renderer> {
 			sbPositiveFilter.append("\"");
 		}
 		if (authGroupAllowField != null && authGroupAllowField.length() > 0
-				&& groups != null) {
+				&& groups != null && groups.length > 0) {
 			if (sbPositiveFilter.length() > 0)
 				sbPositiveFilter.append(" OR ");
 			sbPositiveFilter.append(authGroupAllowField);
@@ -1142,7 +1142,7 @@ public class Renderer implements Comparable<Renderer> {
 		}
 
 		if (authGroupDenyField != null && authGroupDenyField.length() > 0
-				&& groups != null) {
+				&& groups != null && groups.length > 0) {
 			StringBuffer sbNegativeFilter = new StringBuffer();
 			sbNegativeFilter.append(authGroupDenyField);
 			sbNegativeFilter.append(":(");
