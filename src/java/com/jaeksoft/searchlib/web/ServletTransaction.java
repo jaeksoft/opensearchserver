@@ -41,7 +41,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -353,10 +352,6 @@ public class ServletTransaction {
 		return request.getContentType();
 	}
 
-	public HttpSession getSession() {
-		return request.getSession();
-	}
-
 	public void setRequestAttribute(String name, Object value) {
 		request.setAttribute(name, value);
 	}
@@ -366,31 +361,8 @@ public class ServletTransaction {
 		request.setCharacterEncoding(encoding);
 	}
 
-	public String getIPAddress() {
-		return request.getRemoteAddr();
+	public HttpServletRequest getRequest() {
+		return request;
 	}
 
-	public String getUserPrincipalName() {
-		if (request.getUserPrincipal() != null)
-			return request.getUserPrincipal().getName();
-		else
-			return null;
-	}
-
-	public String getUserSessionId() {
-		return request.getRequestedSessionId();
-	}
-
-	public String getUserName() {
-		return request.getRemoteUser();
-	}
-
-	public String getAnyUserName() {
-		System.out.println("USER PRINCIPAL: " + request.getUserPrincipal());
-		System.out.println("USER REMOTE: " + request.getRemoteUser());
-		String n = getUserPrincipalName();
-		if (n != null)
-			return n;
-		return getUserName();
-	}
 }

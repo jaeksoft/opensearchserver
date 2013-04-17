@@ -25,9 +25,8 @@
 			<rows>
 				<row>
 					<label value="Authentication type: " />
-					<listbox model="@load(renderer.authTypeList)"
-						mold="select"
-						selectedItem="@bind(renderer.currentRenderer.authType)" />
+					<combobox model="@load(renderer.authTypeList)"
+						cols="50" value="@bind(renderer.currentRenderer.authType)" />
 					<label value="Select the authentication type" />
 				</row>
 				<row>
@@ -36,6 +35,13 @@
 						value="@bind(renderer.currentRenderer.authServer)" cols="50" />
 					<label
 						value="Enter the hostname of the server providing the authentication" />
+				</row>
+				<row>
+					<label value="Domain: " />
+					<textbox
+						value="@bind(renderer.currentRenderer.authDomain)" cols="40" />
+					<label
+						value="Enter the domain to use when connecting to the authentication server" />
 				</row>
 				<row>
 					<label value="Username: " />

@@ -32,11 +32,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SID;
 
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
@@ -45,6 +43,8 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -52,31 +52,6 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.RendererServlet;
 
 public class Renderer implements Comparable<Renderer> {
-
-	public static enum AuthType {
-
-		NO_AUTH("No authentication"),
-
-		NTLM("NTLM");
-
-		private final String label;
-
-		private AuthType(String label) {
-			this.label = label;
-		}
-
-		@Override
-		public String toString() {
-			return label;
-		}
-
-		public static AuthType find(String name) {
-			for (AuthType type : values())
-				if (type.name().equalsIgnoreCase(name))
-					return type;
-			return NO_AUTH;
-		}
-	}
 
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
@@ -99,12 +74,12 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_AUTH_ATTR_SERVER_HOST = "serverHostname";
 	private final static String RENDERER_ITEM_AUTH_ATTR_USERNAME = "username";
 	private final static String RENDERER_ITEM_AUTH_ATTR_PASSWORD = "password";
-	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "password";
+	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "domain";
+	private final static String RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS = "authPluginClass";
 	private final static String RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD = "userAllowField";
 	private final static String RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
 	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
 	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD = "groupDenyField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_TYPE = "type";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -140,8 +115,6 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String hocrField;
 
-	private AuthType authType;
-
 	private String authUsername;
 
 	private String authPassword;
@@ -149,6 +122,8 @@ public class Renderer implements Comparable<Renderer> {
 	private String authDomain;
 
 	private String authServer;
+
+	private String authPluginClass;
 
 	private String authUserAllowField;
 
@@ -175,11 +150,11 @@ public class Renderer implements Comparable<Renderer> {
 		contentTypeField = null;
 		filenameField = null;
 		hocrField = null;
-		authType = AuthType.NO_AUTH;
 		authUsername = null;
 		authPassword = null;
 		authDomain = null;
 		authServer = null;
+		authPluginClass = null;
 		authUserAllowField = "userAllow";
 		authGroupAllowField = "groupAllow";
 		authUserDenyField = "userDeny";
@@ -213,8 +188,6 @@ public class Renderer implements Comparable<Renderer> {
 
 		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
 		if (authNode != null) {
-			setAuthType(AuthType.find(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_TYPE)));
 			setAuthUsername(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_USERNAME));
 			setAuthPassword(XPathParser.getAttributeString(authNode,
@@ -223,6 +196,8 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN));
 			setAuthServer(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
+			setAuthPluginClass(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS));
 			setAuthUserAllowField(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD));
 			setAuthUserDenyField(XPathParser.getAttributeString(authNode,
@@ -429,11 +404,11 @@ public class Renderer implements Comparable<Renderer> {
 				target.contentTypeField = contentTypeField;
 				target.filenameField = filenameField;
 				target.hocrField = hocrField;
-				target.authType = authType;
 				target.authUsername = authUsername;
 				target.authPassword = authPassword;
 				target.authDomain = authDomain;
 				target.authServer = authServer;
+				target.authPluginClass = authPluginClass;
 				target.authUserAllowField = authUserAllowField;
 				target.authUserDenyField = authUserDenyField;
 				target.authGroupAllowField = authGroupAllowField;
@@ -632,11 +607,11 @@ public class Renderer implements Comparable<Renderer> {
 						.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);
 
 			xmlWriter.startElement(RENDERER_ITEM_AUTH_NODE,
-					RENDERER_ITEM_AUTH_ATTR_TYPE, authType.name(),
 					RENDERER_ITEM_AUTH_ATTR_USERNAME, authUsername,
 					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
+					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass,
 					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD,
 					authUserAllowField,
 					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD, authUserDenyField,
@@ -960,21 +935,6 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @return the authType
-	 */
-	public AuthType getAuthType() {
-		return authType;
-	}
-
-	/**
-	 * @param authType
-	 *            the authType to set
-	 */
-	public void setAuthType(AuthType authType) {
-		this.authType = authType;
-	}
-
-	/**
 	 * @return the authUsername
 	 */
 	public String getAuthUsername() {
@@ -1094,40 +1054,48 @@ public class Renderer implements Comparable<Renderer> {
 		this.authGroupDenyField = authGroupDenyField;
 	}
 
-	public String[] authGetGroups(String username) throws IOException {
-		switch (authType) {
-		case NO_AUTH:
+	public void setAuthType(String authTypeName) {
+		AuthPluginEnum authPlugin = AuthPluginEnum.find(authTypeName);
+		authPluginClass = authPlugin == null ? authTypeName : authPlugin
+				.getClassName();
+	}
+
+	public String getAuthType() {
+		AuthPluginEnum authPlugin = AuthPluginEnum.find(authPluginClass);
+		return authPlugin == null ? authPluginClass : authPlugin.label;
+	}
+
+	private AuthPluginInterface getNewAuthPluginInterface()
+			throws SearchLibException {
+		if (authPluginClass == null || authPluginClass.length() == 0)
 			return null;
-		case NTLM:
-			if (username == null)
-				throw new IOException("No username for NTLM authentication");
-			NtlmPasswordAuthentication ntlmAuth = new NtlmPasswordAuthentication(
-					authDomain, authUsername, authPassword);
-			SID sid = new SID(username);
-			sid.resolve(authServer, ntlmAuth);
-			SID[] sids = sid.getGroupMemberSids(authServer, ntlmAuth,
-					SID.SID_FLAG_RESOLVE_SIDS);
-			if (sids == null)
-				return null;
-			String[] groups = new String[sids.length];
-			int i = 0;
-			for (SID gsid : sids)
-				groups[i++] = gsid.toDisplayString();
-			return groups;
-		default:
-			return null;
+		try {
+			return (AuthPluginInterface) Class.forName(authPluginClass)
+					.newInstance();
+		} catch (InstantiationException e) {
+			throw new SearchLibException(
+					"Unable to instance the authentication plugin", e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(
+					"Unable to instance the authentication plugin", e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(
+					"Unable to instance the authentication plugin", e);
 		}
 	}
 
-	public void configureAuthRequest(SearchRequest request, String username)
-			throws ParseException, IOException {
-		if (authType == AuthType.NO_AUTH)
+	public void configureAuthRequest(SearchRequest searchRequest,
+			HttpServletRequest servletRequest) throws ParseException,
+			IOException, SearchLibException {
+		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
+		if (authPlugin == null)
 			return;
+		String userId = authPlugin.getUserId(servletRequest);
 		String[] groups = null;
 		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
-				|| (authGroupDenyField != null && authGroupDenyField.length() > 0)) {
-			groups = authGetGroups(username);
-		}
+				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))
+			if (userId != null)
+				groups = authPlugin.authGetGroups(this, userId);
 
 		StringBuffer sbPositiveFilter = new StringBuffer();
 		if (authUserAllowField != null && authUserAllowField.length() > 0) {
@@ -1135,8 +1103,8 @@ public class Renderer implements Comparable<Renderer> {
 				sbPositiveFilter.append(" OR ");
 			sbPositiveFilter.append(authUserAllowField);
 			sbPositiveFilter.append(":\"");
-			if (username != null)
-				sbPositiveFilter.append(username);
+			if (userId != null)
+				sbPositiveFilter.append(userId);
 			sbPositiveFilter.append("\"");
 		}
 		if (authGroupAllowField != null && authGroupAllowField.length() > 0
@@ -1159,18 +1127,18 @@ public class Renderer implements Comparable<Renderer> {
 		}
 		System.out.println("RENDERER FILTER+: " + sbPositiveFilter.toString());
 		if (sbPositiveFilter.length() > 0)
-			request.addFilter(sbPositiveFilter.toString(), false);
+			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 
 		if (authUserDenyField != null && authUserDenyField.length() > 0) {
 			StringBuffer sbNegativeFilter = new StringBuffer();
 			sbNegativeFilter.append(authUserDenyField);
 			sbNegativeFilter.append(":\"");
-			if (username != null)
-				sbNegativeFilter.append(username);
+			if (userId != null)
+				sbNegativeFilter.append(userId);
 			sbNegativeFilter.append("\"");
 			System.out.println("RENDERER FILTER-: "
 					+ sbNegativeFilter.toString());
-			request.addFilter(sbNegativeFilter.toString(), true);
+			searchRequest.addFilter(sbNegativeFilter.toString(), true);
 		}
 
 		if (authGroupDenyField != null && authGroupDenyField.length() > 0
@@ -1191,8 +1159,23 @@ public class Renderer implements Comparable<Renderer> {
 			sbNegativeFilter.append(')');
 			System.out.println("RENDERER FILTER-: "
 					+ sbNegativeFilter.toString());
-			request.addFilter(sbNegativeFilter.toString(), true);
+			searchRequest.addFilter(sbNegativeFilter.toString(), true);
 		}
 
+	}
+
+	/**
+	 * @return the authPluginClass
+	 */
+	public String getAuthPluginClass() {
+		return authPluginClass;
+	}
+
+	/**
+	 * @param authPluginClass
+	 *            the authPluginClass to set
+	 */
+	public void setAuthPluginClass(String authPluginClass) {
+		this.authPluginClass = authPluginClass;
 	}
 }

@@ -35,13 +35,13 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
-import com.jaeksoft.searchlib.renderer.Renderer.AuthType;
 import com.jaeksoft.searchlib.renderer.RendererField;
 import com.jaeksoft.searchlib.renderer.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererWidgets;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
 
@@ -144,8 +144,8 @@ public class RendererController extends CommonController {
 		return fields;
 	}
 
-	public AuthType[] getAuthTypeList() {
-		return Renderer.AuthType.values();
+	public AuthPluginEnum[] getAuthTypeList() {
+		return AuthPluginEnum.values();
 	}
 
 	@Command

@@ -222,17 +222,20 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		return smbFile.getInputStream();
 	}
 
-	@Override
-	public List<SecurityAccess> getSecurity() throws IOException {
-		SmbFile smbFile = getSmbFile();
-		ACE[] aces = null;
+	public final static ACE[] getSecurity(SmbFile smbFile) throws IOException {
 		try {
-			aces = smbFile.getSecurity();
+			return smbFile.getSecurity();
 		} catch (SmbException e) {
 			if (e.getNtStatus() == 0xC00000BB)
 				return null;
 			throw e;
 		}
+	}
+
+	@Override
+	public List<SecurityAccess> getSecurity() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		ACE[] aces = getSecurity(smbFile);
 		if (aces == null)
 			return null;
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
