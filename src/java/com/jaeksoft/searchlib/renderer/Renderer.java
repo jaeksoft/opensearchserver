@@ -1119,12 +1119,11 @@ public class Renderer implements Comparable<Renderer> {
 				else
 					bOr = true;
 				sbPositiveFilter.append('"');
-				sbPositiveFilter.append(group);
+				sbPositiveFilter.append(SearchRequest.escapeQuery(group));
 				sbPositiveFilter.append('"');
 			}
 			sbPositiveFilter.append(')');
 		}
-		System.out.println("RENDERER FILTER+: " + sbPositiveFilter.toString());
 		if (sbPositiveFilter.length() > 0)
 			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 
@@ -1133,9 +1132,7 @@ public class Renderer implements Comparable<Renderer> {
 			sbNegativeFilter.append(authUserDenyField);
 			sbNegativeFilter.append(':');
 			AuthPluginInterface.User.usernamesToFilterQuery(user,
-					sbPositiveFilter);
-			System.out.println("RENDERER FILTER-: "
-					+ sbNegativeFilter.toString());
+					sbNegativeFilter);
 			searchRequest.addFilter(sbNegativeFilter.toString(), true);
 		}
 
@@ -1151,12 +1148,10 @@ public class Renderer implements Comparable<Renderer> {
 				else
 					bOr = true;
 				sbNegativeFilter.append('"');
-				sbNegativeFilter.append(group);
+				sbNegativeFilter.append(SearchRequest.escapeQuery(group));
 				sbNegativeFilter.append('"');
 			}
 			sbNegativeFilter.append(')');
-			System.out.println("RENDERER FILTER-: "
-					+ sbNegativeFilter.toString());
 			searchRequest.addFilter(sbNegativeFilter.toString(), true);
 		}
 

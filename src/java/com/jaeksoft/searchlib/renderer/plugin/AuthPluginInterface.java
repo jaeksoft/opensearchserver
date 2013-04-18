@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.request.SearchRequest;
 
 public interface AuthPluginInterface {
 
@@ -61,7 +62,6 @@ public interface AuthPluginInterface {
 				return;
 			if (username.length() == 0)
 				return;
-			System.out.println("AUTH USERNAME: " + username);
 			usernames.add(username);
 		}
 
@@ -79,7 +79,7 @@ public interface AuthPluginInterface {
 				else
 					bOr = true;
 				sbQuery.append('"');
-				sbQuery.append(username);
+				sbQuery.append(SearchRequest.escapeQuery(username));
 				sbQuery.append('"');
 			}
 			sbQuery.append(')');

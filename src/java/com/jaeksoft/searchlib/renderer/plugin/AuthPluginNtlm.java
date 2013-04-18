@@ -62,13 +62,8 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			String authServer = renderer.getAuthServer();
 			SID sid = new SID(user.userId);
 			sid.resolve(authServer, ntlmAuth);
-			System.out.println("JCIFS SID RESOLVED: " + sid.toDisplayString());
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
-			if (sids != null)
-				System.out.println("JCIFS MEMBER SIDS FOUND: " + sids.length);
-			else
-				System.out.println("JCIFS. MEMBER SIDS is NULL");
 		} catch (SmbAuthException e) {
 			throw new IOException("SMB authentication failed. Domain: "
 					+ renderer.getAuthDomain() + " User: "
@@ -78,10 +73,8 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			return null;
 		String[] groups = new String[sids.length];
 		int i = 0;
-		for (SID gsid : sids) {
+		for (SID gsid : sids)
 			groups[i++] = gsid.toDisplayString();
-			System.out.println("JCIFS GROUP ADD: " + gsid.toDisplayString());
-		}
 		return groups;
 	}
 
