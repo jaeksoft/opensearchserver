@@ -1090,22 +1090,21 @@ public class Renderer implements Comparable<Renderer> {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return;
-		String userId = authPlugin.getUserId(servletRequest);
+		AuthPluginInterface.User user = authPlugin.getUser(servletRequest);
 		String[] groups = null;
 		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
 				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))
-			if (userId != null)
-				groups = authPlugin.authGetGroups(this, userId);
+			if (user != null)
+				groups = authPlugin.authGetGroups(this, user);
 
 		StringBuffer sbPositiveFilter = new StringBuffer();
 		if (authUserAllowField != null && authUserAllowField.length() > 0) {
 			if (sbPositiveFilter.length() > 0)
 				sbPositiveFilter.append(" OR ");
 			sbPositiveFilter.append(authUserAllowField);
-			sbPositiveFilter.append(":\"");
-			if (userId != null)
-				sbPositiveFilter.append(userId);
-			sbPositiveFilter.append("\"");
+			sbPositiveFilter.append(':');
+			AuthPluginInterface.User.usernamesToFilterQuery(user,
+					sbPositiveFilter);
 		}
 		if (authGroupAllowField != null && authGroupAllowField.length() > 0
 				&& groups != null && groups.length > 0) {
@@ -1132,10 +1131,9 @@ public class Renderer implements Comparable<Renderer> {
 		if (authUserDenyField != null && authUserDenyField.length() > 0) {
 			StringBuffer sbNegativeFilter = new StringBuffer();
 			sbNegativeFilter.append(authUserDenyField);
-			sbNegativeFilter.append(":\"");
-			if (userId != null)
-				sbNegativeFilter.append(userId);
-			sbNegativeFilter.append("\"");
+			sbNegativeFilter.append(':');
+			AuthPluginInterface.User.usernamesToFilterQuery(user,
+					sbPositiveFilter);
 			System.out.println("RENDERER FILTER-: "
 					+ sbNegativeFilter.toString());
 			searchRequest.addFilter(sbNegativeFilter.toString(), true);

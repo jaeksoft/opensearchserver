@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,8 +35,59 @@ import com.jaeksoft.searchlib.renderer.Renderer;
 
 public interface AuthPluginInterface {
 
-	public String[] authGetGroups(Renderer renderer, String userId)
+	public static class User {
+
+		public final Principal principal;
+		public final String remoteUser;
+		public final String userId;
+		public final Set<String> usernames;
+
+		public User(HttpServletRequest request, String userId,
+				Object... objectNames) {
+			usernames = new TreeSet<String>();
+			principal = request.getUserPrincipal();
+			if (principal != null)
+				addUsername(principal.getName());
+			remoteUser = request.getRemoteUser();
+			addUsername(remoteUser);
+			this.userId = userId != null ? userId : remoteUser;
+			for (Object objectName : objectNames)
+				if (objectName != null)
+					addUsername(objectName.toString());
+		}
+
+		protected void addUsername(String username) {
+			if (username == null)
+				return;
+			if (username.length() == 0)
+				return;
+			System.out.println("AUTH USERNAME: " + username);
+			usernames.add(username);
+		}
+
+		public final static void usernamesToFilterQuery(User user,
+				StringBuffer sbQuery) {
+			if (user == null || user.usernames.size() == 0) {
+				sbQuery.append("\"\"");
+				return;
+			}
+			sbQuery.append('(');
+			boolean bOr = false;
+			for (String username : user.usernames) {
+				if (bOr)
+					sbQuery.append(" OR ");
+				else
+					bOr = true;
+				sbQuery.append('"');
+				sbQuery.append(username);
+				sbQuery.append('"');
+			}
+			sbQuery.append(')');
+		}
+	}
+
+	public String[] authGetGroups(Renderer renderer, User user)
 			throws IOException;
 
-	public String getUserId(HttpServletRequest request) throws IOException;
+	public User getUser(HttpServletRequest request) throws IOException;
 }
