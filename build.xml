@@ -26,8 +26,6 @@
 
 	<property environment="env" />
 	<property name="src" location="src/java" />
-	<property name="src.php" location="src/php" />
-	<property name="src.asp" location="src/asp" />
 	<property name="resources" location="src/resources" />
 	<property name="web" location="WebContent" />
 	<property name="lib" location="lib" />
@@ -102,7 +100,7 @@
 		</war>
 	</target>
 
-	<target name="dist" depends="dist-war,php-client,aspnet-client">
+	<target name="dist" depends="dist-war">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -137,16 +135,6 @@
 		<!-- Copy lib -->
 		<copy todir="${dist}/${product}/${tomcat-name}/lib">
 			<fileset dir="${tomcat-lib}" />
-		</copy>
-
-		<!-- Copy PHP source -->
-		<copy todir="${dist}/${product}/php">
-			<fileset dir="${src.php}" />
-		</copy>
-
-		<!-- Copy ASP source -->
-		<copy todir="${dist}/${product}/asp">
-			<fileset dir="${src.asp}" />
 		</copy>
 
 		<!-- Check executable file flag for batches -->
@@ -199,19 +187,6 @@
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
 		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
-	</target>
-
-	<!-- The PHP library archive -->
-	<target name="php-client">
-		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${name}_php-client.tar.gz" basedir="${src.php}" />
-		<zip encoding="windows-1250" destfile="${dist}/${name}_php-client.zip" basedir="${src.php}" />
-	</target>
-
-	<!-- The ASP.NET library archive -->
-	<target name="aspnet-client">
-		<mkdir dir="${dist}" />
-		<zip encoding="windows-1250" destfile="${dist}/${name}_aspnet-client.zip" basedir="${src.asp}" />
 	</target>
 
 	<!-- Build the junit test cases -->
