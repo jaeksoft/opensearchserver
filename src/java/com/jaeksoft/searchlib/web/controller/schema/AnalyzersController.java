@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -364,7 +365,7 @@ public class AnalyzersController extends CommonController {
 				.getQueryAnalyzer() : currentAnalyzer.getIndexAnalyzer();
 		testList = compiledAnalyzer.test(testText);
 		reload();
-		compiledAnalyzer.close();
+		IOUtils.closeQuietly(compiledAnalyzer);
 	}
 
 	public List<DebugTokenFilter> getTestList() {
