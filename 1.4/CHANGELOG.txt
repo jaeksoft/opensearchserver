@@ -1,0 +1,397 @@
+OpenSearchServer
+http://www.open-search-server.com
+-----------------------
+CHANGE LOG
+
+All new features and bugs are described here:
+http://sourceforge.net/p/opensearchserve/feature-request/
+http://sourceforge.net/p/opensearchserve/bug-report/
+
+OpenSearchserver 1.4
+
+New features:
+- 266: Merge multiple indices
+- 265: Retaining Search - Switch Between Renders
+- 260: Add Visio parser and Publisher parser
+- 257: Upgrade Apache CXF to 2.7.x
+- 251: A report module
+- 250: Server time in scheduler interface
+- 249: Extraction of user and group rights when crawling CIFS/SMB and FTP
+- 248: Upgrade ZK CE to 6.5
+- 247: Support of additional characters in LetterOrDigitTokenizer
+- 246: Named entity recognition based on a search request
+- 245: Highlighting in PDF documents and images (OCR)
+- 243: RSS Parser
+
+Bug fixes:
+- 187: ICEPdf parser puts brackets to the indexed words
+- 186: ICEPdf parser: only the first page is indexed
+- 185: A more efficient Classifier loader
+- 184: NullPointerException on SnippetField.copySnippetFields
+- 183: maxClauseCount is set to 1024 when deleting large collection
+- 178: Error reading 'fieldOrSnippetList' on type RendererController
+- 170: Wrong file path in file crawler
+- 169: java.lang.NullPointerException on flush expired contend from cache
+- 168: Screenshot function not working
+- 167: java.lang.NullPointerException on enabling crawler cache
+- 166: Query -> More like This causes  Property 'name' not found on type java.lang.String
+- 165: Not possible to copy an address in Crawler -> Web -> Pattern List
+- 163: Weight is ignored in query scoring item
+- 161: ParseException while crawling files
+
+OpenSearchServer 1.3.1
+
+New features:
+- 244: Exportable autocompletion index
+- 242: Be able to run only one crawl session
+- 240: Several HTML parser configuration per index
+
+Bug fixes:
+- 158: File crawler infinite loop while crawling FTP directory
+- 157: NullPointerException while deleting documents from web crawler
+- 156: Cannot forcefully unlock a NativeFSLock error
+- 155: Trigger name cannot be null error when clicking optimize
+- 153: Failed replication from Windows to Linux because of file separator
+
+OpenSearchServer 1.3
+
+New features:
+- 238: Job called when crawl session ends
+- 237: Transaction isolation level should editable
+- 236: Default value in the Classifier
+- 235: Named entity recognition
+- 234: Free text submission to MoreLikeThis query
+- 233: Add deletion support in XML indexation
+- 232: FTP feed XML task
+- 231: Autocompletion API
+- 230: Dropbox indexation
+- 228: Group all token filter
+- 227: Squared Geographical Filter
+- 226: Json Path filter
+- 225: Degrees to radians converter
+- 224: A delete all feature
+- 223: A flush crawl cache scheduler task
+- 222: Disable Meta NoIndex on HTML parser
+- 221: Dailymotion and Vimeo API support
+- 220: Youtube API support
+- 218: URL and FILE database scheduler task
+- 217: Tag boost in HTML parser	
+- 216: A number format filter	
+- 214: JBIG2 format support for PDF text extraction
+- 210: Classifier feature
+- 209: SOAP WebService
+- 206: Image Parser with OCR
+- 204: XSL support on XML upload
+- 3510432: Support of Arabic language
+- 202: OCR Integration
+- 197: Adding regular expression capture in parser	
+- 187: Jsoup HTML parser
+- 179: Consecutive duplicate characters filter
+- 177: Phonetic filters
+- 176: A filter to extract the domain information
+- 175: Multiple OpenSearchServer instances on one Tomcat server
+- 174: Adding NumDeletedDocs in Runtime/Index
+- 166: Upgrade to ZK 5.0.10
+- 162: Upgrade Tomcat to version 6.0.35
+- 3421240: JSON response for OpenSearchServer
+- 151: OpenSearch Standards
+
+OpenSearchServer 1.2.4
+
+New features:
+- 3527810: Removing fragment in URL
+- 3518687: URL normalization required in the Web crawler
+- 3510598: Add CSV format in the select XML/HTTP API
+- 3498421: Set a default URL value for replication
+- 3498373: Remove script and object tag content in db crawler
+- 3495004: Add progress info in scheduler task	
+- 3490031: Asynchronous XML upload
+- 3489935: Default stop words list
+- 3489934: A default autocomplete field and analyzer
+- 3489873: A scheduler task to copy terms to an index
+- 3489642: Unable to scroll all the log in runtime/logs panel
+- 3487772: Advanced spell check
+- 3487219: RegExp filter for DatabaseCrawler
+- 3483920: BoostQuery support
+- 3483681: Add a download button for log files
+- 3482284: LimitInputStream should be buffered
+- 3477836: A separated error log for the parser	
+- 3469777: Scored snippets
+- 3466445: Upgrade Apache POI to 3.8	
+
+Bug fixes:
+- 3531057: crawling always fails when using proxy
+- 3531279: Epected='obj' actual='o' error while parsing the PDF	
+- 3527244: URL filter does not work for jsessionid
+- 3521414: File not parsed in database crawler
+- 3516114: NPE with Web Crawler when no unique field is set
+- 3509333: Error 500 when loading robots.txt
+- 3500288: Wrong facet count when using optimized collapsing
+- 3498607: NPE when collapsing is enable with no documents found
+- 3495681: StringIndexOutOfBoundsException on snippet
+- 3489854: A faster indexation when using XML upload
+- 3489550: Schema API gives IllegalStateException
+- 3485241: Pages with meta noindex are indexed
+- 3483798: HTML parser prints many logs
+- 3483259: Underscore added when using synonyms on expression
+- 3482151: Monitor API response gives error
+- 3479649: SetField and DeleteField API don't update config.xml
+- 3479548: Report log files are truncated
+- 3476578: UTF-8 character as separator in snippet field
+- 3475446: head indexed instead of body (using <script /> in head)
+- 3476551: Query with Quotation Marks has unusual results	
+- 3474877: URL Filter doesn't work for jsessionid
+- 3472905: Error while crawling local HTML file
+- 3471749: Out Of Memory Error while indexing PDF document
+
+OpenSearchServer 1.2.3
+
+New features:
+- 3431741: Fault tolerant parser on XML upload
+- 3429967: Scheduler task: monitoring upload
+- 3419014: Delete by query task in scheduler
+- 3396935: Log files viewable in the user interface
+- 3393751: XML load sheduler task
+- 3393063: Upgrade to SeleniumHQ 2.0.4
+- 3393052: Upgrade to NekoHTML 1.9.15
+- 3393047: Upgrade to TagSoup 1.2.1
+- 3393046: Upgrade to PDFBox 1.6.x
+- 3393032: Frameset support
+- 3392359: Drupal module for OpenSearchServer
+- 3380911: Scheduler informations in home view	
+- 3370376: Parser have editable parameters
+- 3366055: URLBrowser API
+- 3353874: OSS could be a great sitemap generator
+- 3356222: Export the search result into csv file
+- 3344564: Adding Snippet Field Size and Tag from the API
+- 3310490: File Crawler API
+- 3310489: Web Crawler API
+- 2958005: Upgrade Apache HttpClient library to 4.1.1
+
+Bug fixes:
+- 3429305: NullPointerException while index Word document
+- 3426912: Authorization error when loading binary with XML Load
+- 3419013: Scheduler job end date error
+- 3325102: Bug Report	Disabled Robots doesn't work
+- 3409814: Error: The document is really a RTF file
+- 3408193: Password of the XMLLoad task is not encrypted
+- 3406657: File crawler error: unknown protocol: smb
+- 3406378: SQLite supports only TRANSACTION_SERIALIZABLE
+- 3396778: Word 95 or older format are not indexed	
+- 3386593: LimitException when reading Robots.txt	
+- 3380949: NPE in Renderer
+- 3376106: The mapping of inlink and outlink is broken	
+- 3346206: NPE when Fragmenter is set through API.
+- 3323250: Invalid XML when the query includes an ampersand
+- 3316826: Optimize API don't return any feedback
+- 3316820: Action API returns a blank page
+- 3310825: WriteAbortedException in catalina.out when Tomcat restarts
+- 3310716: Index deletion and re-creation issue
+- 3305045: Malformed base tag causes crawling error
+
+OpenSearchServer 1.2.2
+
+New features:
+- 3307328: Update notification
+- 3300872: Scheduler task list extensible
+- 3287318: Upgrade to seleniumhq 2.x	
+- 3266524: Return terms from non stored fields	
+- 3266520: Cache management in Web UI
+- 3253614: Upgrade to PDFBox 1.5.x
+- 2973374: Upgrade to ZKoss 5.0.x
+- 3213190: Negative filtering
+- 3175074: Screenshot of a webpage
+- 3094822: SiteMap functionnality
+
+Bug fixes:
+- 3307873: Runtime/System panel not visible
+- 3290939: NPE when no default field is selected
+- 3278815: The language is not detected in PDF files
+- 3192429: Not the correct definition of the Russian language
+
+OpenSearchServer 1.2.1
+
+New features:
+- 3176150: time/date stamp
+- 3186042: Disable not being allowed (robots.txt)	
+- 3182953: Crawl URL from a database	
+- 3182950: Pattern and exclusion list deactivable
+- 3182097: Adding field boost support
+- 3175585: More like this feature
+- 3169421: Japanese and Korean support
+- 3159477: Identify identical web pages
+
+Bug fixes:
+- 3178432: Wrong cron values in the scheduler
+
+OpenSearchServer 1.2
+
+New features:
+- 3151757: Upgrade to PDFBox 1.4.x
+- 3141193: FTP/FTPS support in the file crawler
+- 3141192: SMB/CIFS support in file crawler
+- 3034238: Crawler able to log in protected web site
+- 3011773: Add Quartz as scheduler service
+- 3138603: Upgrade Tomcat to version 6.0.xx
+- 3103055: Convert HTML entities
+- 3087916: Upgrade to PDFBox 1.2
+- 3043692: Torrent Parser
+- 3042488: Audio parser
+- 2882260: Add a parser for text/plain
+- 3010010: RTF parser
+- 3038733: Add a shingle filter
+- 3036262: Log management
+- 3031800: Schema interface
+- 3031204: Adding NGram support
+- 3008440: Index replication
+- 3026212: API and interface for document deletion
+- 3023327: Sub domain extraction in Web Crawler
+- 2820289: Database crawler
+- 3019035: Neglight dynamic url while crawling 
+- 3017277: Allow wildcard query in the URL browser
+- 3016491: Url Exporter
+- 3016566: Monitoring API
+- 3015939: Cluster collapsing
+- 2830490: Size of the index
+- 3011847: Score explanation
+- 3008633: Possibility to turn off the highlighting
+- 2997836: In the returned fields having extra fields from Meta tags
+- 2997826: Possibility to index only the specified content
+- 2991252: Possibility to index binary file and to add it to a document
+- 2982545: Extracting term frequency informations
+- 2881385: API to retrieve the available indice
+- 2887376: Enhancement for the index page - dropping indexes
+- 2881388: API to list/create/modify fields in a specified schema
+- 2973374: Upgrade to ZKoss 5.0.5	
+- 2970747: Upgrade Tomcat to version 6.0.26
+- 2966139: Statistics lost when OSS restart
+- 2964704: Upgrade to Lucene 2.9.x
+- 2958015: Add source archive
+- 2958005: Upgrade Apache HttpClient library to 4.0.1	
+- 2956498: Provide a way to send statistics report by email
+- 2953803: Upgrade to PDFBox 1.0	
+- 2953802: Upgrade to POI 3.6
+- 2953575: Charset detection should look at meta http-equiv
+- 2953524: Specify default charset for parser
+- 2929332: Faceting post collapsing
+- 2900462: Upgrade POI to 3.5 for xlsx and docs support
+- 2900449: Upgrade PDFBox to 0.8
+
+Bug fixes:
+- 3104065: File crawler crashes with java.io.EOFException
+- 3090248: Statistics configuration lost when adding fields
+- 3051308: <base href= ""/> is not interpreted
+- 2881689: Requests.xml fails to rotate on some Windows platforms
+- 3019491: NullPointerException > at java.util.regex.Matcher
+- 3017481: The web crawler selects the host in alphabetical order
+- 3015838: Web crawler problem with UTF-8 BOM encoding
+- 2993103: NoClassDefFoundError BouncyCastleProvider
+- 2990960: keyword are not highlighted in snippets
+- 2982541: Phrase synonyms generate unwanted words
+- 2934214: Shifted highlighting on snippet
+
+OpenSearchServer 1.1.4
+
+New features:
+- 2995116: Replace Javamail library
+
+OpenSearchServer 1.1.3
+
+Bug fixes
+- 2989836: Statistics are not set up in template
+- 2988425: Crawler is not obeying disallow directives from robots.txt
+- 2988433: Crawler ignores query part of URL when evaluating robots.txt
+
+Changes:
+- 2989831: Update the documentation link (wiki)
+
+OpenSearchServer 1.1.2
+
+New features:
+- 2910029: Lucene read only support
+
+Bug fixes
+- 2885897: PHP API fail on some query with wrong xml chars
+- 2820286: Issue with statistics aggregation
+- 2911906: Sort functionnality seem to ignore sort order
+- 2908345: Performance issue with large field cache
+- 2905076: Issue with performance of web crawler
+- 2903935: Negative value on web crawler statistics
+- 2898343: Behaviour problem of wildcard function
+- 2899784: duplication of returned field in returned xml
+
+OpenSearchServer 1.1.1
+
+Bug fixes
+- 2886651: Default operator is not preserved when saving query
+- 2886645: Issue with lemmatisation using the web crawler
+- 2884347: Field seem to be lost if renamed
+- 2884344: Renaming a field then deleting: not removed from the bo
+- 2884275: Duplicated documents when using empty index template
+
+OpenSearchServer 1.1
+
+New features
+- 2882224: Stress test for insertion
+- 2881642: Set maximum number of segments for index optimization
+- 2865088: Add default parser for web and file crawler
+- 2864468: Indexation plugin within web crawler
+- 2855049: Add a description for parsers
+- 2854421: Added Romanian, Turkish and Danish support
+- 2848588: Robots.txt view on web crawler
+- 2847820: Add Russian and Chinese language support
+- 2846159: Replace textfield by a menu for langage selection
+- 2843516: Sort field list by alphabetic order
+- 2843182: Use the library apache commons.io
+- 2836913: Return the rows parameter in the search API result
+- 2833103: Remove XML/HTML tag on XML upload
+- 2826651: Synonyms support
+- 2828734: Add Spellchecker ability
+- 2812808: Management of several indices
+- 2818592: Unique field and default field set up
+- 2818075: OpenDocument Format support
+- 2816562: New data directory in package
+- 2816561: Upgrade documentation for 1.1
+- 2813996: Add schema tab panel to manager analyzer and fields
+
+Bug fixes
+- 2882223: Error when inserting with concurrent access
+- 2881248: Web crawler does not follow redirection for robots.txt
+- 2881227: Wrong encoding detection on web crawler
+- 2881141: Can add fields in the schema for any type of index
+- 2880577: Web crawler doesn't follow redirections correctly
+- 2873319: Facets pagination in the interface doesn't work
+- 2872576: Add a web pattern api
+- 2863639: Prefix query changes term to lowercase
+- 2859658: Tab Crawler / Web doesn't change when switching index
+- 2856869: NPE Exception when field query is empty
+- 2855999: Web page title parsing issue
+- 2849135: File attribute loss in synonym filter and stop filter
+- 2843033: Failure to create and use an index using the empty template
+- 2841058: XML Conf: Exception with query template field sorting
+- 2839468: XML Conf: Exception when using SizeFragmenter and restart
+- 2832683: Exception when loading synonyms
+- 2829664: Snippets and Facets not saved on the FS
+- 2826959: Unable to set the langage in update form
+- 2824320: Unable to update index after a field update
+- 2823857: Search API, collapse.mode=full creates NullPointerException
+- 2823851: setclasspath.bat: blocking problem with some checks
+- 2820276: Add button is inactive on update form
+
+OpenSearchServer 1.0 beta 2
+
+New features
+- 2812149: Updated Zkoss to version 3.6.2
+- 2811901: Added collapsing for all documents to be returned
+- 2808582: Added paging for query results
+- 2807080: Updated Apache Tomcat to version 6.0.20
+
+Bug fixes
+- 2811902: Content type is now provided in XML API responses
+- 2810881: Useless empty lines within XML results deleted
+- 2808554: Collapsing now returns as many rows as expected
+- 2805843: start.bat and stop.bat no longer require CATALINA_HOME
+
+
+Documentation updates
+- 2805848: Added JAVA_HOME documentation
