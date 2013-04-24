@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.jaeksoft.pojodbc.Transaction;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 
 public class DatabaseUtils {
@@ -59,6 +60,7 @@ public class DatabaseUtils {
 		String sql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, pk);
 		transaction.update(sql);
 		transaction.commit();
+		Logging.info("SQL UPDATE: " + sql);
 	}
 
 	final public static void update(Transaction transaction,
@@ -81,6 +83,7 @@ public class DatabaseUtils {
 					toIdList(pkList, true));
 			transaction.update(lastSql);
 		}
+		Logging.info("SQL UPDATE: " + lastSql);
 		transaction.commit();
 	}
 }

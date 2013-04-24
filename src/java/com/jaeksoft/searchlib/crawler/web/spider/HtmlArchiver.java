@@ -47,6 +47,7 @@ public class HtmlArchiver {
 
 	final File filesDir;
 	final File indexFile;
+	final File sourceFile;
 	final Map<String, Integer> fileCountMap;
 	final Map<String, String> urlFileMap;
 	final URL url;
@@ -55,6 +56,7 @@ public class HtmlArchiver {
 	public HtmlArchiver(File parentDir, HttpDownloader httpDownloader, URL url) {
 		filesDir = new File(parentDir, "files");
 		indexFile = new File(parentDir, "index.html");
+		sourceFile = new File(parentDir, "source.html");
 		this.url = url;
 		this.downloader = httpDownloader;
 		fileCountMap = new TreeMap<String, Integer>();
@@ -111,7 +113,7 @@ public class HtmlArchiver {
 		fileName = buildFileName(baseName, extension, fileCount);
 		downloadItem.writeToFile(new File(filesDir, fileName));
 		urlFileMap.put(urlString, fileName);
-		node.setAttribute(attributeName, "./" + filesDir.getName() + "/"
+		node.addAttribute(attributeName, "./" + filesDir.getName() + "/"
 				+ fileName);
 	}
 
@@ -144,6 +146,9 @@ public class HtmlArchiver {
 			rootTag.serialize(
 					new SimpleHtmlSerializer(htmlCleaner.getProperties()),
 					writer);
+			writer.close();
+			writer = new FileWriter(sourceFile);
+			IOUtils.write(pageSource, writer);
 		} finally {
 			if (writer != null)
 				IOUtils.closeQuietly(writer);
