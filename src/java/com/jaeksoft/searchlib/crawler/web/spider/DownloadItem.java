@@ -279,6 +279,12 @@ public class DownloadItem {
 		return statusCode;
 	}
 
+	public boolean checkNoError(int fromInclusive, int toExclusive) {
+		if (statusCode == null)
+			return false;
+		return statusCode >= fromInclusive && statusCode < toExclusive;
+	}
+
 	public void checkNoError(int... validCodes) throws SearchLibException {
 		if (statusCode == null)
 			throw new SearchLibException("No status code");

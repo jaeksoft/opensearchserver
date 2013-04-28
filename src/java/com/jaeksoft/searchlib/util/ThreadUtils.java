@@ -148,4 +148,50 @@ public class ThreadUtils {
 		return true;
 	}
 
+	public static class RecursiveTracker {
+
+		private int count;
+		private int max;
+		private final int limit;
+
+		public RecursiveTracker(int limit) {
+			this.count = 0;
+			this.max = 0;
+			this.limit = limit;
+		}
+
+		public int getCount() {
+			return count;
+		}
+
+		public RecursiveEntry enter() {
+			return count == limit ? null : new RecursiveEntry();
+		}
+
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append("limit: ");
+			sb.append(limit);
+			sb.append(" count: ");
+			sb.append(count);
+			sb.append(" max: ");
+			sb.append(max);
+			return sb.toString();
+		}
+
+		public class RecursiveEntry {
+
+			private RecursiveEntry() {
+				count++;
+				if (max < count)
+					max = count;
+			}
+
+			public void release() {
+				count--;
+			}
+		}
+
+	}
 }
