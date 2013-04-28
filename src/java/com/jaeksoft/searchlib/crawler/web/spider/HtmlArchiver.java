@@ -78,6 +78,10 @@ public class HtmlArchiver {
 
 	final private static String buildFileName(String baseName,
 			String extension, Integer fileCount) {
+		if (baseName.length() > 160)
+			baseName = baseName.substring(0, 160);
+		if (extension.length() > 32)
+			extension = extension.substring(0, 32);
 		StringBuffer sb = new StringBuffer(baseName);
 		if (fileCount != null && fileCount > 0) {
 			sb.append('_');
