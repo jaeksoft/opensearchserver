@@ -79,7 +79,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		DatabaseUtils.update(transaction, pkList,
+		DatabaseUtils.update(transaction, pkList, null,
 				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 		pkList.clear();
 		indexDocumentList.clear();
@@ -106,7 +106,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		DatabaseUtils.update(transaction, deleteDocumentList,
+		DatabaseUtils.update(transaction, deleteDocumentList, null,
 				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 
 		deleteDocumentList.clear();

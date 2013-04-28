@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
@@ -148,6 +149,7 @@ public class DatabaseScript implements Closeable {
 					|| sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST ? new ArrayList<String>(
 					0) : null;
 			CommandEnum commandFinder = null;
+			String lastScriptError = null;
 			while (resultSet.next()) {
 				String id = resultSet.getString(COLUMN_ID);
 				if (pkList != null)
@@ -173,6 +175,9 @@ public class DatabaseScript implements Closeable {
 				try {
 					commandAbstract.run(scriptCommandContext, id, parameters);
 				} catch (ScriptException e) {
+					Throwable t = ExceptionUtils.getRootCause(e);
+					lastScriptError = t != null ? t.getClass().getName() : e
+							.getClass().getName();
 					switch (scriptCommandContext.getOnError()) {
 					case FAILURE:
 						throw e;
@@ -187,11 +192,13 @@ public class DatabaseScript implements Closeable {
 					}
 				}
 				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
-					DatabaseUtils.update(transaction, id, sqlUpdateMode, sqlU);
+					DatabaseUtils.update(transaction, id, lastScriptError,
+							sqlUpdateMode, sqlU);
 			}
 			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
 					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)
-				DatabaseUtils.update(transaction, pkList, sqlUpdateMode, sqlU);
+				DatabaseUtils.update(transaction, pkList, lastScriptError,
+						sqlUpdateMode, sqlU);
 		} finally {
 			IOUtils.closeQuietly(this);
 		}

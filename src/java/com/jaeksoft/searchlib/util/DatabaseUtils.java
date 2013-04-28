@@ -35,6 +35,8 @@ public class DatabaseUtils {
 
 	public final static String PRIMARY_KEY_VARIABLE_NAME = "$PK";
 
+	public final static String ERROR_VARIABLE_NAME = "$ERR";
+
 	final private static String toIdList(List<String> pkList, boolean quote) {
 		StringBuffer sb = new StringBuffer();
 		boolean b = false;
@@ -53,34 +55,51 @@ public class DatabaseUtils {
 		return sb.toString();
 	}
 
+	final private static String escapeSqlChar(String error) {
+		if (error == null)
+			return "null";
+		StringBuffer sb = new StringBuffer();
+		sb.append('\'');
+		sb.append(error.replace("'", "\'"));
+		sb.append('\'');
+		return sb.toString();
+	}
+
 	final public static void update(Transaction transaction, String pk,
-			SqlUpdateMode sqlUpdateMode, String sqlUpdate) throws SQLException {
+			String error, SqlUpdateMode sqlUpdateMode, String sqlUpdate)
+			throws SQLException {
 		if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
 			return;
 		String sql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, pk);
+		error = escapeSqlChar(error);
+		sql = sql.replace(ERROR_VARIABLE_NAME, error);
 		transaction.update(sql);
 		transaction.commit();
 		Logging.info("SQL UPDATE: " + sql);
 	}
 
 	final public static void update(Transaction transaction,
-			List<String> pkList, SqlUpdateMode sqlUpdateMode, String sqlUpdate)
-			throws SQLException {
+			List<String> pkList, String error, SqlUpdateMode sqlUpdateMode,
+			String sqlUpdate) throws SQLException {
 		if (sqlUpdateMode == SqlUpdateMode.NO_CALL)
 			return;
 		String lastSql = null;
+		error = escapeSqlChar(error);
 		if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
 			for (String uk : pkList) {
 				lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, uk);
+				lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 				transaction.update(lastSql);
 			}
 		} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
 			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
 					toIdList(pkList, false));
+			lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 			transaction.update(lastSql);
 		} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
 			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
 					toIdList(pkList, true));
+			lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 			transaction.update(lastSql);
 		}
 		Logging.info("SQL UPDATE: " + lastSql);
