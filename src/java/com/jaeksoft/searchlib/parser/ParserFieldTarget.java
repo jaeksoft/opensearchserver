@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -36,6 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
@@ -46,7 +46,7 @@ public class ParserFieldTarget extends TargetField {
 
 	private boolean removeTag;
 
-	private Matcher captureRegexpMatcher;
+	private Pattern captureRegexpPattern;
 
 	public ParserFieldTarget(String name, String captureRegexp,
 			boolean removeTag) {
@@ -87,8 +87,8 @@ public class ParserFieldTarget extends TargetField {
 		if (captureRegexp != null)
 			if (captureRegexp.trim().length() == 0)
 				captureRegexp = null;
-		captureRegexpMatcher = captureRegexp == null ? null : Pattern.compile(
-				captureRegexp).matcher("");
+		captureRegexpPattern = captureRegexp == null ? null : Pattern
+				.compile(captureRegexp);
 	}
 
 	/**
@@ -109,17 +109,13 @@ public class ParserFieldTarget extends TargetField {
 	final public void addValue(IndexDocument targetDocument,
 			String targetField, FieldValueItem valueItem) {
 		List<String> values = new ArrayList<String>(0);
-		if (captureRegexpMatcher == null) {
+		if (captureRegexpPattern == null) {
 			values.add(valueItem.getValue());
 		} else {
-			synchronized (captureRegexpMatcher) {
-				captureRegexpMatcher.reset(valueItem.getValue());
-				while (captureRegexpMatcher.find()) {
-					int l = captureRegexpMatcher.groupCount();
-					for (int i = 1; i <= l; i++)
-						values.add(captureRegexpMatcher.group(i));
-
-				}
+			synchronized (captureRegexpPattern) {
+				for (String value : RegExpUtils.getGroups(captureRegexpPattern,
+						valueItem.getValue()))
+					values.add(value);
 			}
 		}
 		for (String value : values) {

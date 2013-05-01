@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,24 +27,25 @@ package com.jaeksoft.searchlib.analysis.filter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.TokenStream;
 
-public class RegularExpressionTokenFilter extends AbstractTermFilter {
+import com.jaeksoft.searchlib.util.RegExpUtils;
+
+public class RegularExpressionTokenFilter extends AbstractTermFilter implements
+		RegExpUtils.MatchGroupListener {
 
 	private List<String> termQueue = null;
 
 	private int currentPos = 0;
 
-	private Matcher matcher;
+	private final Pattern pattern;
 
 	protected RegularExpressionTokenFilter(Pattern pattern, TokenStream input) {
 		super(input);
-		this.matcher = pattern.matcher("");
 		termQueue = new ArrayList<String>(0);
-
+		this.pattern = pattern;
 	}
 
 	private final boolean popToken() {
@@ -60,13 +61,8 @@ public class RegularExpressionTokenFilter extends AbstractTermFilter {
 		termQueue.clear();
 		currentPos = 0;
 
-		synchronized (matcher) {
-			matcher.reset(termAtt.toString());
-			while (matcher.find()) {
-				int l = matcher.groupCount();
-				for (int i = 1; i <= l; i++)
-					termQueue.add(matcher.group(i));
-			}
+		synchronized (pattern) {
+			RegExpUtils.groupExtractor(pattern, termAtt.toString(), this);
 		}
 	}
 
@@ -80,5 +76,14 @@ public class RegularExpressionTokenFilter extends AbstractTermFilter {
 				return false;
 			createTokens();
 		}
+	}
+
+	@Override
+	public void match(int start, int end) {
+	}
+
+	@Override
+	public void group(int start, int end, String content) {
+		termQueue.add(content);
 	}
 }
