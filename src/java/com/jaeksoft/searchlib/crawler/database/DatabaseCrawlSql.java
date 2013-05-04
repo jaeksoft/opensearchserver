@@ -24,12 +24,22 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.cxf.helpers.DOMUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.pojodbc.Query;
+import com.jaeksoft.pojodbc.Transaction;
+import com.jaeksoft.pojodbc.connection.JDBCConnection;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -213,8 +223,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_UPDATE);
 		if (sqlNode != null) {
 			setSqlUpdate(xpp.getNodeString(sqlNode, true));
-			setSqlUpdateMode(SqlUpdateMode.find(DOMUtils.getAttribute(sqlNode,
-					DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
+			setSqlUpdateMode(SqlUpdateMode.find(DomUtils.getAttributeText(
+					sqlNode, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
 		}
 	}
 
@@ -274,4 +284,51 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		this.uniqueKeyDeleteField = uniqueKeyDeleteField;
 	}
 
+	public JDBCConnection getNewJdbcConnection() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		JDBCConnection jdbcCnx = new JDBCConnection();
+		jdbcCnx.setDriver(driverClass);
+		jdbcCnx.setUrl(getUrl());
+		jdbcCnx.setUsername(getUser());
+		jdbcCnx.setPassword(getPassword());
+		return jdbcCnx;
+	}
+
+	public Transaction getNewTransaction(JDBCConnection jdbcCnx)
+			throws SQLException {
+		return jdbcCnx.getNewTransaction(false, isolationLevel.value);
+	}
+
+	public String checkSqlSelect() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SQLException {
+		JDBCConnection jdbcCnx = getNewJdbcConnection();
+		Transaction transaction = null;
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		try {
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
+			transaction = getNewTransaction(jdbcCnx);
+			Query query = transaction.prepare(sqlSelect);
+			ResultSet resultSet = query.getResultSet();
+			ResultSetMetaData metaData = resultSet.getMetaData();
+			int columnCount = metaData.getColumnCount();
+			pw.print("Found ");
+			pw.print(columnCount);
+			pw.println(" column(s)");
+			for (int i = 1; i <= columnCount; i++) {
+				pw.print(i);
+				pw.print(": ");
+				pw.println(metaData.getColumnLabel(i));
+			}
+			return sw.toString();
+		} finally {
+			if (pw != null)
+				IOUtils.closeQuietly(pw);
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
+			if (transaction != null)
+				transaction.close();
+		}
+	}
 }

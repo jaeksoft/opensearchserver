@@ -104,8 +104,12 @@
 		</row>
 		<row>
 			<label value="SQL Select: " />
-			<textbox rows="10"
-				value="@bind(dbCrawlList.currentCrawl.sqlSelect)" width="95%" />
+			<vlayout>
+				<textbox rows="10"
+					value="@bind(dbCrawlList.currentCrawl.sqlSelect)" width="95%" />
+				<button label="Check"
+					onClick="@command('onCheckSqlSelect')" />
+			</vlayout>
 			<label value="Enter the SQL query to retrieve data" />
 		</row>
 		<row>

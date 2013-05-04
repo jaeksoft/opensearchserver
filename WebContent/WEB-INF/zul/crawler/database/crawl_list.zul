@@ -18,8 +18,6 @@
 	title="List of existing database crawl - click on an crawl name to edit it"
 	border="normal" visible="@load(dbCrawlList.notEditing)">
 	<toolbar>
-		<button label="Refresh" onClick="@command('onListRefresh')" />
-		<space />
 		<button label="New crawl..." onClick="@command('onNew')" />
 	</toolbar>
 	<panelchildren>

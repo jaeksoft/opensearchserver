@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.database;
 
+import java.sql.SQLException;
+
 import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.Command;
@@ -120,6 +122,19 @@ public class DatabaseCrawlListController
 	public void reload() throws SearchLibException {
 		dbCrawlList = null;
 		super.reload();
+	}
+
+	@Command
+	public void onCheckSqlSelect() throws SearchLibException,
+			InterruptedException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SQLException {
+		DatabaseCrawlAbstract crawl = getCurrentCrawl();
+		if (crawl == null)
+			throw new SearchLibException("No crawl selected");
+		if (!(crawl instanceof DatabaseCrawlSql))
+			throw new SearchLibException("Wrong crawl type (expecting DB SQL)");
+		DatabaseCrawlSql crawlSql = (DatabaseCrawlSql) crawl;
+		new AlertController(crawlSql.checkSqlSelect());
 	}
 
 	public DatabaseCrawlEnum[] getDatabaseCrawlTypes() {

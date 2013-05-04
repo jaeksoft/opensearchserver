@@ -198,19 +198,14 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 	@Override
 	public void runner() throws Exception {
 		setStatus(CrawlStatus.STARTING);
-		JDBCConnection connectionManager = new JDBCConnection();
-		connectionManager.setDriver(databaseCrawl.getDriverClass());
-		connectionManager.setUrl(databaseCrawl.getUrl());
-		connectionManager.setUsername(databaseCrawl.getUser());
-		connectionManager.setPassword(databaseCrawl.getPassword());
+		JDBCConnection connectionManager = databaseCrawl.getNewJdbcConnection();
 		String sqlUpdate = databaseCrawl.getSqlUpdate();
 		if (sqlUpdate != null && sqlUpdate.length() == 0)
 			sqlUpdate = null;
 
 		Transaction transaction = null;
 		try {
-			transaction = connectionManager.getNewTransaction(false,
-					databaseCrawl.getIsolationLevel().value);
+			transaction = databaseCrawl.getNewTransaction(connectionManager);
 			Query query = transaction.prepare(databaseCrawl.getSqlSelect());
 			ResultSet resultSet = query.getResultSet();
 
