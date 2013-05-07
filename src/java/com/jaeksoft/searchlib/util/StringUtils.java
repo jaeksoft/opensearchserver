@@ -105,7 +105,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			char c = source.charAt(i);
 			if (Character.isWhitespace(c)) {
 				if (!consecutiveSpace) {
-					target.append(replace);
+					if (replace != null)
+						target.append(replace);
 					consecutiveSpace = true;
 				}
 			} else {

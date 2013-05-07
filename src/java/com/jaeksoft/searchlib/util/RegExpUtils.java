@@ -35,9 +35,7 @@ import org.apache.commons.io.IOUtils;
 
 public class RegExpUtils {
 
-	private final static String[] REGEXPS = {
-			"(?s)(?:<div class=\"infos_divers\">.*?)?.<td>([^<]*)</td>",
-			"(?s)(?:<div class=\"infos_divers\">.*?)?.<th>([^<]*)</th>" };
+	private final static String[] REGEXPS = { "(?s)<div id=\"filAriane\">.*?<span itemprop=\"title\">.*?<span itemprop=\"title\">(.*?)</span>" };
 	private final static String FILE = "/Users/ekeller/Desktop/test.html";
 
 	public final static void main(String[] args) throws FileNotFoundException,

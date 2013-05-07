@@ -31,6 +31,7 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class NumberFormatFilter extends FilterFactory {
 
@@ -82,8 +83,9 @@ public class NumberFormatFilter extends FilterFactory {
 			if (!input.incrementToken())
 				return false;
 			try {
-				String term = numberFormat
-						.format(new Double(termAtt.toString()));
+				String t = StringUtils.replaceConsecutiveSpaces(
+						termAtt.toString(), null);
+				String term = numberFormat.format(new Double(t));
 				if (term != null)
 					createToken(term);
 			} catch (NumberFormatException e) {
