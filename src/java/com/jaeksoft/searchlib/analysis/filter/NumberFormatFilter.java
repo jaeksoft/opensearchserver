@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,27 +25,61 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class NumberFormatFilter extends FilterFactory {
 
-	private final String DEFAULT_FORMAT = "0000000000";
+	private final String OUTPUT_DEFAULT_FORMAT = "0000000000";
 
-	private String format = DEFAULT_FORMAT;
+	private final String INPUT_DEFAULT_FORMAT = "#,##0.00";
+
+	private final String DEFAULT_DECIMAL_SEP = ".";
+
+	private final String DEFAULT_GROUP_SEP = ",";
+
+	private String input_format = INPUT_DEFAULT_FORMAT;
+
+	private String output_format = OUTPUT_DEFAULT_FORMAT;
+
+	private Character input_decimal_sep = '.';
+
+	private Character output_decimal_sep = '.';
+
+	private Character input_group_sep = ',';
+
+	private Character output_group_sep = ',';
 
 	private String defaultValue = "0";
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.NUMBER_FORMAT, DEFAULT_FORMAT, null);
+		addProperty(ClassPropertyEnum.INPUT_NUMBER_FORMAT,
+				INPUT_DEFAULT_FORMAT, null);
+		addProperty(ClassPropertyEnum.INPUT_DECIMAL_SEPARATOR,
+				DEFAULT_DECIMAL_SEP, null);
+		addProperty(ClassPropertyEnum.INPUT_GROUP_SEPARATOR, DEFAULT_GROUP_SEP,
+				null);
+		addProperty(ClassPropertyEnum.OUTPUT_NUMBER_FORMAT,
+				OUTPUT_DEFAULT_FORMAT, null);
+		addProperty(ClassPropertyEnum.OUTPUT_DECIMAL_SEPARATOR,
+				DEFAULT_DECIMAL_SEP, null);
+		addProperty(ClassPropertyEnum.OUTPUT_GROUP_SEPARATOR,
+				DEFAULT_GROUP_SEP, null);
 		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null);
+	}
+
+	private static Character getSeparatorChar(String value) {
+		if (value == null || value.length() == 0)
+			return null;
+		return value.charAt(0);
 	}
 
 	@Override
@@ -53,9 +87,20 @@ public class NumberFormatFilter extends FilterFactory {
 			throws SearchLibException {
 		if (value == null || value.length() == 0)
 			return;
-		if (prop == ClassPropertyEnum.NUMBER_FORMAT) {
+		if (prop == ClassPropertyEnum.INPUT_NUMBER_FORMAT) {
 			new DecimalFormat(value);
-			format = value;
+			input_format = value;
+		} else if (prop == ClassPropertyEnum.INPUT_DECIMAL_SEPARATOR) {
+			input_decimal_sep = getSeparatorChar(value);
+		} else if (prop == ClassPropertyEnum.INPUT_GROUP_SEPARATOR) {
+			input_group_sep = getSeparatorChar(value);
+		} else if (prop == ClassPropertyEnum.OUTPUT_NUMBER_FORMAT) {
+			new DecimalFormat(value);
+			output_format = value;
+		} else if (prop == ClassPropertyEnum.OUTPUT_DECIMAL_SEPARATOR) {
+			output_decimal_sep = getSeparatorChar(value);
+		} else if (prop == ClassPropertyEnum.OUTPUT_GROUP_SEPARATOR) {
+			output_group_sep = getSeparatorChar(value);
 		} else if (prop == ClassPropertyEnum.DEFAULT_VALUE) {
 			defaultValue = value;
 			if (defaultValue != null && defaultValue.length() == 0)
@@ -65,16 +110,41 @@ public class NumberFormatFilter extends FilterFactory {
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new NumberFormatTermFilter(tokenStream, format);
+		return new NumberFormatTermFilter(tokenStream, input_format,
+				input_decimal_sep, input_group_sep, output_format,
+				output_decimal_sep, output_group_sep);
+	}
+
+	private static DecimalFormat newDecimalFormat(String formatPattern,
+			Character decimalSep, Character groupSel) {
+		DecimalFormat format = new DecimalFormat(formatPattern);
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+		if (decimalSep != null)
+			symbols.setDecimalSeparator(decimalSep);
+		else
+			format.setDecimalSeparatorAlwaysShown(false);
+		if (groupSel != null)
+			symbols.setGroupingSeparator(groupSel);
+		else
+			format.setGroupingUsed(false);
+		format.setDecimalFormatSymbols(symbols);
+		return format;
 	}
 
 	public class NumberFormatTermFilter extends AbstractTermFilter {
 
-		private final DecimalFormat numberFormat;
+		private final DecimalFormat inputNumberFormat;
+		private final DecimalFormat outputNumberFormat;
 
-		public NumberFormatTermFilter(TokenStream input, String format) {
+		public NumberFormatTermFilter(TokenStream input, String inputFormat,
+				Character inputDecimalSep, Character inputGroupSep,
+				String outputFormat, Character outputDecimalSep,
+				Character outputGroupSep) {
 			super(input);
-			numberFormat = new DecimalFormat(format);
+			inputNumberFormat = newDecimalFormat(inputFormat, inputDecimalSep,
+					inputGroupSep);
+			outputNumberFormat = newDecimalFormat(outputFormat,
+					outputDecimalSep, outputGroupSep);
 		}
 
 		@Override
@@ -83,12 +153,15 @@ public class NumberFormatFilter extends FilterFactory {
 			if (!input.incrementToken())
 				return false;
 			try {
-				String t = StringUtils.replaceConsecutiveSpaces(
-						termAtt.toString(), null);
-				String term = numberFormat.format(new Double(t));
+				Number number = inputNumberFormat.parse(termAtt.toString());
+				String term = outputNumberFormat.format(number.doubleValue());
 				if (term != null)
 					createToken(term);
 			} catch (NumberFormatException e) {
+				if (defaultValue == null)
+					return false;
+				createToken(defaultValue);
+			} catch (ParseException e) {
 				if (defaultValue == null)
 					return false;
 				createToken(defaultValue);

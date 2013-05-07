@@ -39,12 +39,15 @@ import com.jaeksoft.searchlib.index.FieldContent;
 
 public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 
+	private boolean superClosed;
+
 	private TokenizerFactory tokenizer;
 	private FilterFactory[] filters;
 
 	protected CompiledAnalyzer(TokenizerFactory sourceTokenizer,
 			List<FilterFactory> sourceFilters, FilterScope scopeTarget)
 			throws SearchLibException {
+		superClosed = false;
 		sourceTokenizer.checkProperties();
 		tokenizer = sourceTokenizer;
 		List<FilterFactory> ff = new ArrayList<FilterFactory>();
@@ -132,6 +135,14 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		ts = new FieldContentPopulateFilter(fieldContent, ts);
 		ts.incrementToken();
 		ts.close();
+	}
+
+	@Override
+	public void close() {
+		if (superClosed)
+			return;
+		super.close();
+		superClosed = true;
 	}
 
 }

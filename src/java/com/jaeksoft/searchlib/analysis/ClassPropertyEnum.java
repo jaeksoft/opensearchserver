@@ -108,11 +108,33 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "removeDuplicateLetters", "Duplicate letters",
 			"Detect and remove consecutive duplicate letters");
 
-	public static ClassPropertyEnum NUMBER_FORMAT = new ClassPropertyEnum(
+	public static ClassPropertyEnum INPUT_NUMBER_FORMAT = new ClassPropertyEnum(
+			true,
+			"inputNumberFormat",
+			"Input Number format",
+			"Format number using java decimal format, for example, \"#,##0.00;(#,##0.00)\".");
+
+	public static ClassPropertyEnum OUTPUT_NUMBER_FORMAT = new ClassPropertyEnum(
 			true,
 			"numberFormat",
-			"Number format",
+			"Output Number format",
 			"Format number using java decimal format, for example, \"#,##0.00;(#,##0.00)\".");
+
+	public static ClassPropertyEnum INPUT_DECIMAL_SEPARATOR = new ClassPropertyEnum(
+			true, "inputDecimalSeparator", "Input decimal separator",
+			"Character used as decimal separator");
+
+	public static ClassPropertyEnum OUTPUT_DECIMAL_SEPARATOR = new ClassPropertyEnum(
+			true, "outputDecimalSeparator", "Output decimal separator",
+			"Character used as decimal separator");
+
+	public static ClassPropertyEnum INPUT_GROUP_SEPARATOR = new ClassPropertyEnum(
+			true, "inputGroupSeparator", "Input grouping separator",
+			"Character used as grouping separator");
+
+	public static ClassPropertyEnum OUTPUT_GROUP_SEPARATOR = new ClassPropertyEnum(
+			true, "outputGroupSeparator", "Output grouping separator",
+			"Character used as grouping separator");
 
 	public static ClassPropertyEnum JSON_PATH = new ClassPropertyEnum(true,
 			"jsonPath", "Json Path",
