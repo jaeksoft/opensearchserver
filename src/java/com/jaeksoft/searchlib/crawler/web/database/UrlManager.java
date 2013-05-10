@@ -64,6 +64,7 @@ import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -292,8 +293,8 @@ public class UrlManager extends AbstractManager {
 				.getNewRequest("urlSearch");
 		try {
 			searchRequest.addFilter(
-					"host:\"" + SearchRequest.escapeQuery(host.getName())
-							+ "\"", false);
+					"host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"",
+					false);
 			searchRequest.setQueryString("*:*");
 			filterQueryToFetch(searchRequest, fetchStatus, before, after);
 		} catch (ParseException e) {
@@ -375,12 +376,11 @@ public class UrlManager extends AbstractManager {
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					like = SearchRequest.escapeQuery(like,
-							SearchRequest.CONTROL_CHARS);
-					like = SearchRequest.escapeQuery(like,
-							SearchRequest.RANGE_CHARS);
-					like = SearchRequest.escapeQuery(like,
-							SearchRequest.AND_OR_NOT_CHARS);
+					like = QueryUtils.escapeQuery(like,
+							QueryUtils.CONTROL_CHARS);
+					like = QueryUtils.escapeQuery(like, QueryUtils.RANGE_CHARS);
+					like = QueryUtils.escapeQuery(like,
+							QueryUtils.AND_OR_NOT_CHARS);
 					urlItemFieldEnum.url.addQuery(query, like, false);
 				}
 			}
@@ -389,29 +389,29 @@ public class UrlManager extends AbstractManager {
 				if (host.length() > 0)
 					if (includingSubDomain)
 						urlItemFieldEnum.subhost.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host), false, false);
+								QueryUtils.escapeQuery(host), false, false);
 					else
 						urlItemFieldEnum.host.addFilterQuery(searchRequest,
-								SearchRequest.escapeQuery(host), false, false);
+								QueryUtils.escapeQuery(host), false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
 					urlItemFieldEnum.lang.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang), false, false);
+							QueryUtils.escapeQuery(lang), false, false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
 					urlItemFieldEnum.langMethod.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(langMethod), true, false);
+							QueryUtils.escapeQuery(langMethod), true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
 					urlItemFieldEnum.contentBaseType.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentBaseType), true,
+							QueryUtils.escapeQuery(contentBaseType), true,
 							false);
 			}
 			if (contentTypeCharset != null) {
@@ -419,15 +419,15 @@ public class UrlManager extends AbstractManager {
 				if (contentTypeCharset.length() > 0)
 					urlItemFieldEnum.contentTypeCharset.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentTypeCharset),
-							false, false);
+							QueryUtils.escapeQuery(contentTypeCharset), false,
+							false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
 					urlItemFieldEnum.contentEncoding.addFilterQuery(
 							searchRequest,
-							SearchRequest.escapeQuery(contentEncoding), true,
+							QueryUtils.escapeQuery(contentEncoding), true,
 							false);
 			}
 

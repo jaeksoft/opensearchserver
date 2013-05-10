@@ -55,6 +55,7 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -65,7 +66,6 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -247,11 +247,11 @@ public class SearchRequest extends AbstractRequest implements
 				&& queryString != null) {
 			finalQuery = patternQuery;
 			if (finalQuery.contains("$$$$")) {
-				String escQuery = replaceControlChars(queryString);
+				String escQuery = QueryUtils.replaceControlChars(queryString);
 				finalQuery = finalQuery.replace("$$$$", escQuery);
 			}
 			if (patternQuery.contains("$$$")) {
-				String escQuery = escapeQuery(queryString);
+				String escQuery = QueryUtils.escapeQuery(queryString);
 				finalQuery = finalQuery.replace("$$$", escQuery);
 			}
 			finalQuery = finalQuery.replace("$$", queryString);
@@ -756,49 +756,6 @@ public class SearchRequest extends AbstractRequest implements
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
-
-	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
-
-	public final static String[] AND_OR_NOT_CHARS = { "+", "-", "&&", "||", "!" };
-
-	public final static String[] WILDCARD_CHARS = { "*", "?" };
-
-	final public static String escapeQuery(String query, String[] escapeChars) {
-		for (String s : escapeChars) {
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < s.length(); i++) {
-				sb.append('\\');
-				sb.append(s.charAt(i));
-			}
-			query = query.replace(s, sb.toString());
-		}
-		return query;
-	}
-
-	final public static String escapeQuery(String query) {
-		query = escapeQuery(query, CONTROL_CHARS);
-		query = escapeQuery(query, RANGE_CHARS);
-		query = escapeQuery(query, AND_OR_NOT_CHARS);
-		query = escapeQuery(query, WILDCARD_CHARS);
-		return query;
-	}
-
-	final public static String replaceControlChars(String query,
-			String[] controlChars, String replaceChars) {
-		for (String s : controlChars)
-			query = query.replace(s, replaceChars);
-		return query;
-	}
-
-	final public static String replaceControlChars(String query) {
-		query = replaceControlChars(query, CONTROL_CHARS, " ");
-		query = replaceControlChars(query, RANGE_CHARS, " ");
-		query = replaceControlChars(query, AND_OR_NOT_CHARS, " ");
-		query = replaceControlChars(query, WILDCARD_CHARS, " ");
-		return StringUtils.replaceConsecutiveSpaces(query, " ");
 	}
 
 	public boolean isFacet() {

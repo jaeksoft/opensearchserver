@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -55,6 +59,40 @@ public class FacetResult {
 		fieldName = field;
 		for (FacetItem facet : facetList.getByField(field.trim()))
 			terms.add(new FacetFieldItem(facet.getCount(), facet.getTerm()));
+	}
 
+	private FacetResult(JSONObject json) throws JSONException {
+		fieldName = json.getString("fieldName");
+		terms = new ArrayList<FacetFieldItem>(0);
+		addTerm(json.optJSONArray("terms"));
+		addTerm(json.optJSONObject("terms"));
+	}
+
+	private void addTerm(JSONArray array) throws JSONException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			addTerm(array.getJSONObject(i));
+	}
+
+	private void addTerm(JSONObject json) throws JSONException {
+		if (json == null)
+			return;
+		terms.add(new FacetFieldItem(json));
+	}
+
+	public static void add(JSONObject json, List<FacetResult> facets)
+			throws JSONException {
+		if (json == null)
+			return;
+		facets.add(new FacetResult(json));
+	}
+
+	public static void add(JSONArray array, List<FacetResult> facets)
+			throws JSONException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			add(array.getJSONObject(i), facets);
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,20 +26,27 @@ package com.jaeksoft.searchlib.webservice.select;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FacetFieldItem {
 
 	final public String term;
 
-	final public int count;
+	final public long count;
 
 	public FacetFieldItem() {
 		term = null;
 		count = 0;
 	}
 
-	public FacetFieldItem(int count, String term) {
+	public FacetFieldItem(long count, String term) {
 		this.term = term;
 		this.count = count;
+	}
+
+	public FacetFieldItem(JSONObject json) throws JSONException {
+		this(json.getLong("count"), json.getString("term"));
 	}
 }

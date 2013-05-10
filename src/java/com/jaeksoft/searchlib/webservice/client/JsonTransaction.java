@@ -46,7 +46,9 @@ public class JsonTransaction {
 	public JsonTransaction(RestJsonClient restJsonClient, String path,
 			String indexName) throws UnsupportedEncodingException {
 		firstParam = true;
-		sb = new StringBuffer(restJsonClient.oss_url);
+		sb = new StringBuffer();
+		if (restJsonClient.oss_url != null)
+			sb.append(restJsonClient.oss_url);
 		if (indexName != null)
 			path = path
 					.replace("{index}", LinkUtils.UTF8_URL_Encode(indexName));

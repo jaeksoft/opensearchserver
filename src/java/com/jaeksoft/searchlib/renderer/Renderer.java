@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -1119,7 +1120,7 @@ public class Renderer implements Comparable<Renderer> {
 				else
 					bOr = true;
 				sbPositiveFilter.append('"');
-				sbPositiveFilter.append(SearchRequest.escapeQuery(group));
+				sbPositiveFilter.append(QueryUtils.escapeQuery(group));
 				sbPositiveFilter.append('"');
 			}
 			sbPositiveFilter.append(')');
@@ -1148,7 +1149,7 @@ public class Renderer implements Comparable<Renderer> {
 				else
 					bOr = true;
 				sbNegativeFilter.append('"');
-				sbNegativeFilter.append(SearchRequest.escapeQuery(group));
+				sbNegativeFilter.append(QueryUtils.escapeQuery(group));
 				sbNegativeFilter.append('"');
 			}
 			sbNegativeFilter.append(')');

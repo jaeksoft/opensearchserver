@@ -34,6 +34,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.ws.WebServiceException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -84,6 +87,17 @@ public class SelectResult extends CommonResult {
 		time = 0;
 		collapsedDocCount = 0;
 		maxScore = 0;
+	}
+
+	public SelectResult(JSONObject json) throws JSONException {
+		JSONObject jsonResult = json.getJSONObject("result");
+		numFound = jsonResult.getInt("@numFound");
+		documents = new ArrayList<DocumentResult>(0);
+		facets = new ArrayList<FacetResult>(0);
+		DocumentResult.add(jsonResult.optJSONObject("document"), documents);
+		DocumentResult.add(jsonResult.optJSONArray("document"), documents);
+		FacetResult.add(jsonResult.optJSONObject("facet"), facets);
+		FacetResult.add(jsonResult.optJSONArray("facet"), facets);
 	}
 
 	public SelectResult(AbstractResultSearch result) {

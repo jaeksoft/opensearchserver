@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -65,10 +69,10 @@ public class DocumentResult {
 
 	public DocumentResult(ResultDocument resultDocument, int collapseDocCount,
 			int position, float docScore) {
-		fields = new ArrayList<FieldValueList>();
+		fields = new ArrayList<FieldValueList>(0);
 		for (FieldValue fiedValue : resultDocument.getReturnFields().values())
 			fields.add(new FieldValueList(fiedValue));
-		snippets = new ArrayList<SnippetValueList>();
+		snippets = new ArrayList<SnippetValueList>(0);
 		for (SnippetFieldValue snippetFiedValue : resultDocument
 				.getSnippetFields().values()) {
 			boolean highlighted = resultDocument.isHighlighted(snippetFiedValue
@@ -78,5 +82,59 @@ public class DocumentResult {
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;
+	}
+
+	public DocumentResult(JSONObject json) throws JSONException {
+		fields = new ArrayList<FieldValueList>(0);
+		setReturnedField(json.optJSONObject("field"));
+		setReturnedField(json.optJSONArray("field"));
+		snippets = new ArrayList<SnippetValueList>(0);
+		setSnippetField(json.optJSONObject("snippet"));
+		setSnippetField(json.optJSONArray("snippet"));
+	}
+
+	private void setReturnedField(JSONArray array) throws JSONException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			setReturnedField(array.getJSONObject(i));
+	}
+
+	private void setReturnedField(JSONObject json) throws JSONException {
+		if (json == null)
+			return;
+		if (fields == null)
+			fields = new ArrayList<FieldValueList>(1);
+		FieldValueList.add(json, fields);
+	}
+
+	private void setSnippetField(JSONArray array) throws JSONException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			setSnippetField(array.getJSONObject(i));
+	}
+
+	private void setSnippetField(JSONObject json) throws JSONException {
+		if (json == null)
+			return;
+		if (snippets == null)
+			snippets = new ArrayList<SnippetValueList>(1);
+		SnippetValueList.add(json, snippets);
+	}
+
+	public static void add(JSONObject json, List<DocumentResult> documents)
+			throws JSONException {
+		if (json == null)
+			return;
+		documents.add(new DocumentResult(json));
+	}
+
+	public static void add(JSONArray array, List<DocumentResult> documents)
+			throws JSONException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			DocumentResult.add(array.getJSONObject(i), documents);
 	}
 }

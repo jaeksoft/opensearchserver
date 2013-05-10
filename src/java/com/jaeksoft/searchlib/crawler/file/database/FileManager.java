@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -128,15 +129,13 @@ public class FileManager extends AbstractManager {
 				lang = lang.trim();
 				if (lang.length() > 0)
 					fileItemFieldEnum.lang.addFilterQuery(searchRequest,
-							SearchRequest.escapeQuery(lang), false, false);
+							QueryUtils.escapeQuery(lang), false, false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					fileItemFieldEnum.langMethod
-							.addFilterQuery(searchRequest,
-									SearchRequest.escapeQuery(langMethod),
-									false, false);
+					fileItemFieldEnum.langMethod.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(langMethod), false, false);
 			}
 
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -53,6 +56,25 @@ public class FieldValueList {
 		values = new ArrayList<String>();
 		for (FieldValueItem item : fieldValue.getValueArray())
 			values.add(item.getValue());
+	}
+
+	protected FieldValueList(String fieldName) {
+		this.fieldName = fieldName;
+		values = new ArrayList<String>(1);
+	}
+
+	public static final void add(JSONObject json, List<FieldValueList> list)
+			throws JSONException {
+		String fieldName = json.getString("name");
+		String value = json.getString("value");
+		for (FieldValueList fieldValueList : list)
+			if (fieldValueList.fieldName.equals(fieldName)) {
+				fieldValueList.values.add(value);
+				return;
+			}
+		FieldValueList fieldValueList = new FieldValueList(fieldName);
+		fieldValueList.values.add(value);
+		list.add(fieldValueList);
 	}
 
 }

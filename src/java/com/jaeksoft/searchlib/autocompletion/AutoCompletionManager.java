@@ -32,6 +32,7 @@ import java.util.Properties;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.InfoCallback;
@@ -208,7 +209,7 @@ public class AutoCompletionManager {
 				rows = propRows;
 			SearchRequest searchRequest = (SearchRequest) autoCompClient
 					.getNewRequest("search");
-			query = SearchRequest.replaceControlChars(query.replace("\"", ""));
+			query = QueryUtils.replaceControlChars(query.replace("\"", ""));
 			searchRequest.setQueryString(query);
 			searchRequest.setRows(rows);
 			return (AbstractResultSearch) autoCompClient.request(searchRequest);

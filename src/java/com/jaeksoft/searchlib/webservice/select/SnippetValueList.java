@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,9 +24,14 @@
 
 package com.jaeksoft.searchlib.webservice.select;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
@@ -45,6 +50,24 @@ public class SnippetValueList extends FieldValueList {
 			SnippetFieldValue snippetFiedValue) {
 		super(snippetFiedValue);
 		this.highlighted = highlighted;
+	}
+
+	protected SnippetValueList(String fieldName) {
+		super(fieldName);
+	}
+
+	public static final void add(JSONObject json, List<SnippetValueList> list)
+			throws JSONException {
+		String fieldName = json.getString("name");
+		String value = json.getString("value");
+		for (SnippetValueList snippetValueList : list)
+			if (snippetValueList.fieldName.equals(fieldName)) {
+				snippetValueList.values.add(value);
+				return;
+			}
+		SnippetValueList snippetValueList = new SnippetValueList(fieldName);
+		snippetValueList.values.add(value);
+		list.add(snippetValueList);
 	}
 
 }

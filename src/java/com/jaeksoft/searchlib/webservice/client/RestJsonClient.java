@@ -35,21 +35,32 @@ import org.json.JSONObject;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RestJsonClient {
 
 	public final String oss_url;
 	public final String oss_login;
 	public final String oss_key;
+	private final HttpDownloader downloader;
 
-	public RestJsonClient(String oss_url, String oss_login, String oss_key) {
+	public RestJsonClient(HttpDownloader downloader, String oss_url,
+			String oss_login, String oss_key) {
+		this.downloader = downloader == null ? new HttpDownloader(
+				"RestJsonOssClient", false, null) : downloader;
 		this.oss_url = oss_url;
 		this.oss_login = oss_login;
 		this.oss_key = oss_key;
 	}
 
-	public boolean checkIndexExists(HttpDownloader downloader, String indexName)
+	public RestJsonClient(String oss_url, String oss_login, String oss_key) {
+		this(null, oss_url, oss_login, oss_key);
+	}
+
+	public RestJsonClient(String oss_url) {
+		this(null, oss_url, null, null);
+	}
+
+	public boolean checkIndexExists(String indexName)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
 		JsonTransaction transaction = new JsonTransaction(this,
@@ -59,10 +70,10 @@ public class RestJsonClient {
 				.getBoolean("info");
 	}
 
-	public void createIndex(HttpDownloader downloader, String indexName,
-			String templateName) throws URISyntaxException,
-			ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, JSONException {
+	public void createIndex(String indexName, String templateName)
+			throws URISyntaxException, ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			JSONException {
 		JsonTransaction transaction = new JsonTransaction(this,
 				"/index/create/json", null);
 		transaction.addParam("name", indexName);
@@ -70,7 +81,7 @@ public class RestJsonClient {
 		transaction.post(downloader);
 	}
 
-	public void fileCrawlerRunOnce(HttpDownloader downloader, String indexName)
+	public void fileCrawlerRunOnce(String indexName)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
 		JsonTransaction transaction = new JsonTransaction(this,
@@ -78,12 +89,10 @@ public class RestJsonClient {
 		transaction.get(downloader);
 	}
 
-	public JSONObject search(HttpDownloader downloader, String indexName,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> filters)
+	public JSONObject search(String indexName, String template, String query,
+			Integer start, Integer rows, LanguageEnum lang, List<String> filters)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
-		query = SearchRequest.escapeQuery(query);
 		JsonTransaction transaction = new JsonTransaction(this,
 				"/select/search/{index}/json", indexName);
 		transaction.addParam("template", template);
@@ -100,11 +109,9 @@ public class RestJsonClient {
 		return transaction.get(downloader);
 	}
 
-	public JSONObject autocompletion_query(HttpDownloader downloader,
-			String indexName, String prefix, Long rows)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException, JSONException {
-		prefix = SearchRequest.escapeQuery(prefix);
+	public JSONObject autocompletion_query(String indexName, String prefix,
+			Long rows) throws ClientProtocolException, IllegalStateException,
+			IOException, SearchLibException, URISyntaxException, JSONException {
 		JsonTransaction transaction = new JsonTransaction(this,
 				"/autocompletion/query/{index}/json", indexName);
 		transaction.addParam("prefix", prefix);
