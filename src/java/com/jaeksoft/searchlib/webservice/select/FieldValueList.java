@@ -65,6 +65,8 @@ public class FieldValueList {
 
 	public static final void add(JSONObject json, List<FieldValueList> list)
 			throws JSONException {
+		if (!json.has("value"))
+			return;
 		String fieldName = json.getString("name");
 		String value = json.getString("value");
 		for (FieldValueList fieldValueList : list)
