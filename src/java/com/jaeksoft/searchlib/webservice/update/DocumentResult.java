@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -136,5 +137,30 @@ public class DocumentResult {
 			return;
 		for (int i = 0; i < array.length(); i++)
 			DocumentResult.add(array.getJSONObject(i), documents);
+	}
+
+	@XmlTransient
+	public List<FieldValueList> getReturnFields() {
+		return fields;
+	}
+
+	@XmlTransient
+	public List<SnippetValueList> getSnippetFields() {
+		return snippets;
+	}
+
+	@XmlTransient
+	public float getScore() {
+		return score;
+	}
+
+	@XmlTransient
+	public int getCollapseCount() {
+		return collapseCount;
+	}
+
+	@XmlTransient
+	public int getPos() {
+		return pos;
 	}
 }

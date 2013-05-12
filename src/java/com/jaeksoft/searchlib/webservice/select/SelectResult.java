@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.ws.WebServiceException;
 
 import org.json.JSONException;
@@ -138,4 +139,50 @@ public class SelectResult extends CommonResult {
 			throw new WebServiceException(e);
 		}
 	}
+
+	@XmlTransient
+	public int getNumFound() {
+		return numFound;
+	}
+
+	@XmlTransient
+	public List<DocumentResult> getDocuments() {
+		return documents;
+	}
+
+	@XmlTransient
+	public List<FacetResult> getFacets() {
+		return facets;
+	}
+
+	@XmlTransient
+	public String getQuery() {
+		return query;
+	}
+
+	@XmlTransient
+	public int getRows() {
+		return rows;
+	}
+
+	@XmlTransient
+	public int getStart() {
+		return start;
+	}
+
+	@XmlTransient
+	public long getTime() {
+		return time;
+	}
+
+	@XmlTransient
+	public long getCollapsedDocCount() {
+		return collapsedDocCount;
+	}
+
+	@XmlTransient
+	public float getMaxScore() {
+		return maxScore;
+	}
+
 }

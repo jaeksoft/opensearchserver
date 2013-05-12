@@ -30,6 +30,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,6 +78,16 @@ public class FieldValueList {
 		FieldValueList fieldValueList = new FieldValueList(fieldName);
 		fieldValueList.values.add(value);
 		list.add(fieldValueList);
+	}
+
+	@XmlTransient
+	public String getField() {
+		return fieldName;
+	}
+
+	@XmlTransient
+	public List<String> getValue() {
+		return values;
 	}
 
 }

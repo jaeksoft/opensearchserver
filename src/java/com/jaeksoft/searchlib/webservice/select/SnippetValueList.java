@@ -29,6 +29,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +71,11 @@ public class SnippetValueList extends FieldValueList {
 		SnippetValueList snippetValueList = new SnippetValueList(fieldName);
 		snippetValueList.values.add(value);
 		list.add(snippetValueList);
+	}
+
+	@XmlTransient
+	public boolean getHighlighted() {
+		return highlighted;
 	}
 
 }
