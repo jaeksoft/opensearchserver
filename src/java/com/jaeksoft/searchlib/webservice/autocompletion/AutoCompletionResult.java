@@ -23,12 +23,18 @@
  **/
 package com.jaeksoft.searchlib.webservice.autocompletion;
 
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -55,6 +61,34 @@ public class AutoCompletionResult extends CommonResult {
 		for (ResultDocument document : result)
 			terms.add(document.getValueContent(
 					AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
+	}
+
+	public AutoCompletionResult(JSONObject json) throws JSONException,
+			UnsupportedEncodingException, ParseException {
+		terms = new ArrayList<String>(0);
+		JSONObject jsonResult = json.getJSONObject("result");
+		JSONArray array = jsonResult.optJSONArray("terms");
+		if (array != null)
+			addTerms(array);
+		else
+			addTerms(jsonResult.optString("terms"));
+	}
+
+	private void addTerms(JSONArray array) throws JSONException,
+			ParseException, UnsupportedEncodingException {
+		if (array == null)
+			return;
+		for (int i = 0; i < array.length(); i++)
+			addTerms(array.getString(i));
+	}
+
+	private void addTerms(String term) throws JSONException, ParseException,
+			UnsupportedEncodingException {
+		if (term == null)
+			return;
+		if (term.length() == 0)
+			return;
+		terms.add(term);
 	}
 
 }

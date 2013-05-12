@@ -92,6 +92,9 @@ public class DocumentResult {
 		snippets = new ArrayList<SnippetValueList>(0);
 		setSnippetField(json.optJSONObject("snippet"));
 		setSnippetField(json.optJSONArray("snippet"));
+		pos = json.getInt("@pos");
+		collapseCount = json.getInt("@collapseCount");
+		score = (float) json.getDouble("@score");
 	}
 
 	private void setReturnedField(JSONArray array) throws JSONException {
@@ -144,9 +147,17 @@ public class DocumentResult {
 		return fields;
 	}
 
+	public FieldValueList getReturnField(String name) {
+		return FieldValueList.getField(fields, name);
+	}
+
 	@XmlTransient
 	public List<SnippetValueList> getSnippetFields() {
 		return snippets;
+	}
+
+	public FieldValueList getSnippetField(String name) {
+		return FieldValueList.getField(snippets, name);
 	}
 
 	@XmlTransient

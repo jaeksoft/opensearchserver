@@ -90,4 +90,21 @@ public class FieldValueList {
 		return values;
 	}
 
+	@XmlTransient
+	public String getValue(int pos) {
+		if (values == null)
+			return null;
+		if (pos >= values.size())
+			return null;
+		return values.get(pos);
+	}
+
+	public static final FieldValueList getField(
+			List<? extends FieldValueList> fields, String name) {
+		for (FieldValueList field : fields)
+			if (name.equals(field.fieldName))
+				return field;
+		return null;
+	}
+
 }

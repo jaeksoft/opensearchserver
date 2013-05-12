@@ -90,9 +90,10 @@ public class RestJsonClient {
 	}
 
 	public JSONObject search(String indexName, String template, String query,
-			Integer start, Integer rows, LanguageEnum lang, List<String> filters)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException, JSONException {
+			Integer start, Integer rows, LanguageEnum lang, List<String> sorts,
+			List<String> filters) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException, JSONException {
 		JsonTransaction transaction = new JsonTransaction(this,
 				"/select/search/{index}/json", indexName);
 		transaction.addParam("template", template);
@@ -103,6 +104,9 @@ public class RestJsonClient {
 			transaction.addParam("rows", rows.toString());
 		if (lang != null)
 			transaction.addParam("lang", lang.name());
+		if (sorts != null)
+			for (String sort : sorts)
+				transaction.addParam("sort", sort);
 		if (filters != null)
 			for (String filter : filters)
 				transaction.addParam("filter", filter);
