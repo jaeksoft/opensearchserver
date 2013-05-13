@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -76,8 +76,7 @@ public class SearchRequest extends AbstractRequest implements
 
 	private transient QueryParser queryParser;
 	private transient Query boostedComplexQuery;
-	private transient Query snippetComplexQuery;
-	private transient Query primitiveQuery;
+	private transient Query snippetSimpleQuery;
 
 	private transient Analyzer analyzer;
 
@@ -99,7 +98,8 @@ public class SearchRequest extends AbstractRequest implements
 	private int rows;
 	private LanguageEnum lang;
 	private String queryString;
-	private String patternQuery;
+	private String snippetPatternQuery;
+	private String searchPatternQuery;
 	private AdvancedScore advancedScore;
 	private String queryParsed;
 	private boolean withSortValues;
@@ -134,12 +134,12 @@ public class SearchRequest extends AbstractRequest implements
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
-		this.snippetComplexQuery = null;
+		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
-		this.primitiveQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
-		this.patternQuery = null;
+		this.snippetPatternQuery = null;
+		this.searchPatternQuery = null;
 		this.advancedScore = null;
 		this.withSortValues = false;
 		this.queryParsed = null;
@@ -175,12 +175,12 @@ public class SearchRequest extends AbstractRequest implements
 		this.start = searchRequest.start;
 		this.rows = searchRequest.rows;
 		this.lang = searchRequest.lang;
-		this.snippetComplexQuery = null;
+		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
-		this.primitiveQuery = null;
 		this.analyzer = null;
 		this.queryString = searchRequest.queryString;
-		this.patternQuery = searchRequest.patternQuery;
+		this.searchPatternQuery = searchRequest.searchPatternQuery;
+		this.snippetPatternQuery = searchRequest.snippetPatternQuery;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
 		this.queryParsed = null;
 	}
@@ -190,11 +190,13 @@ public class SearchRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			this.queryParsed = null;
-			this.snippetComplexQuery = null;
+			this.snippetSimpleQuery = null;
 			this.boostedComplexQuery = null;
-			this.primitiveQuery = null;
 			this.queryParser = null;
 			this.analyzer = null;
+			if (snippetFieldList != null)
+				for (SnippetField snippetField : snippetFieldList)
+					snippetField.reset();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -241,23 +243,21 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	private String getFinalQuery() {
-		String finalQuery;
-		if (patternQuery != null && patternQuery.length() > 0
-				&& queryString != null) {
-			finalQuery = patternQuery;
-			if (finalQuery.contains("$$$$")) {
-				String escQuery = QueryUtils.replaceControlChars(queryString);
-				finalQuery = finalQuery.replace("$$$$", escQuery);
-			}
-			if (patternQuery.contains("$$$")) {
-				String escQuery = QueryUtils.escapeQuery(queryString);
-				finalQuery = finalQuery.replace("$$$", escQuery);
-			}
-			finalQuery = finalQuery.replace("$$", queryString);
-		} else
-			finalQuery = queryString;
-
+	private final static String getFinalQuery(String patternQuery,
+			String queryString) {
+		if (patternQuery == null || patternQuery.length() == 0
+				|| queryString == null)
+			return queryString;
+		String finalQuery = patternQuery;
+		if (finalQuery.contains("$$$$")) {
+			String escQuery = QueryUtils.replaceControlChars(queryString);
+			finalQuery = finalQuery.replace("$$$$", escQuery);
+		}
+		if (patternQuery.contains("$$$")) {
+			String escQuery = QueryUtils.escapeQuery(queryString);
+			finalQuery = finalQuery.replace("$$$", escQuery);
+		}
+		finalQuery = finalQuery.replace("$$", queryString);
 		return finalQuery;
 	}
 
@@ -265,21 +265,37 @@ public class SearchRequest extends AbstractRequest implements
 			SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
-			if (primitiveQuery != null)
-				return primitiveQuery;
+			if (snippetSimpleQuery != null)
+				return snippetSimpleQuery;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			if (primitiveQuery != null)
-				return primitiveQuery;
-			getQuery();
-			primitiveQuery = config.getIndexAbstract().rewrite(
-					snippetComplexQuery);
-			return primitiveQuery;
+			if (snippetSimpleQuery != null)
+				return snippetSimpleQuery;
+			String q = snippetPatternQuery == null
+					|| snippetPatternQuery.length() == 0 ? searchPatternQuery
+					: snippetPatternQuery;
+			String fq = getFinalQuery(q, queryString);
+			if (fq == null)
+				return null;
+			queryParser = getQueryParser();
+			Query complexQuery = getParsedQuery(queryParser, fq);
+			snippetSimpleQuery = config.getIndexAbstract()
+					.rewrite(complexQuery);
+			return snippetSimpleQuery;
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	private final static Query getParsedQuery(QueryParser queryParser,
+			String finalQuery) throws ParseException {
+		try {
+			return queryParser.parse(finalQuery);
+		} catch (org.apache.lucene.queryParser.ParseException e) {
+			throw new ParseException(e);
 		}
 	}
 
@@ -297,17 +313,11 @@ public class SearchRequest extends AbstractRequest implements
 		try {
 			if (boostedComplexQuery != null)
 				return boostedComplexQuery;
-
-			queryParser = getQueryParser();
-			String fq = getFinalQuery();
+			String fq = getFinalQuery(searchPatternQuery, queryString);
 			if (fq == null)
 				return null;
-			try {
-				boostedComplexQuery = queryParser.parse(fq);
-			} catch (org.apache.lucene.queryParser.ParseException e) {
-				throw new ParseException(e);
-			}
-			snippetComplexQuery = boostedComplexQuery;
+			queryParser = getQueryParser();
+			boostedComplexQuery = getParsedQuery(queryParser, fq);
 			if (advancedScore != null && !advancedScore.isEmpty())
 				boostedComplexQuery = advancedScore
 						.getNewQuery(boostedComplexQuery);
@@ -360,7 +370,7 @@ public class SearchRequest extends AbstractRequest implements
 	public String getPatternQuery() {
 		rwl.r.lock();
 		try {
-			return patternQuery;
+			return searchPatternQuery;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -369,10 +379,27 @@ public class SearchRequest extends AbstractRequest implements
 	public void setPatternQuery(String value) {
 		rwl.w.lock();
 		try {
-			patternQuery = value;
+			searchPatternQuery = value;
 			boostedComplexQuery = null;
-			snippetComplexQuery = null;
-			primitiveQuery = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getSnippetPatternQuery() {
+		rwl.r.lock();
+		try {
+			return snippetPatternQuery;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setSnippetPatternQuery(String value) {
+		rwl.w.lock();
+		try {
+			snippetPatternQuery = value;
+			snippetSimpleQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -394,8 +421,7 @@ public class SearchRequest extends AbstractRequest implements
 		try {
 			queryString = q;
 			boostedComplexQuery = null;
-			snippetComplexQuery = null;
-			primitiveQuery = null;
+			snippetSimpleQuery = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -829,6 +855,8 @@ public class SearchRequest extends AbstractRequest implements
 			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 					requestNode, "lang")));
 			setPatternQuery(xpp.getNodeString(requestNode, "query"));
+			setSnippetPatternQuery(xpp.getNodeString(requestNode,
+					"snippetQuery"));
 
 			AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
 					requestNode);
@@ -917,9 +945,17 @@ public class SearchRequest extends AbstractRequest implements
 				xmlWriter.endElement();
 			}
 
-			if (patternQuery != null && patternQuery.trim().length() > 0) {
+			if (searchPatternQuery != null
+					&& searchPatternQuery.trim().length() > 0) {
 				xmlWriter.startElement("query");
-				xmlWriter.textNode(patternQuery);
+				xmlWriter.textNode(searchPatternQuery);
+				xmlWriter.endElement();
+			}
+
+			if (snippetPatternQuery != null
+					&& snippetPatternQuery.trim().length() > 0) {
+				xmlWriter.startElement("snippetQuery");
+				xmlWriter.textNode(snippetPatternQuery);
 				xmlWriter.endElement();
 			}
 
@@ -1121,7 +1157,7 @@ public class SearchRequest extends AbstractRequest implements
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			return patternQuery;
+			return searchPatternQuery;
 		} finally {
 			rwl.r.unlock();
 		}

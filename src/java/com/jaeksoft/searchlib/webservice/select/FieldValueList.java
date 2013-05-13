@@ -90,7 +90,6 @@ public class FieldValueList {
 		return values;
 	}
 
-	@XmlTransient
 	public String getValue(int pos) {
 		if (values == null)
 			return null;

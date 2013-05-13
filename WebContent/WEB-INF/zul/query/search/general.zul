@@ -23,9 +23,15 @@
 		</columns>
 		<rows>
 			<row>
-				<label>Pattern query:</label>
+				<label>Search pattern:</label>
 				<textbox value="@bind(general.request.patternQuery)"
 					multiline="true" width="90%" rows="5" />
+			</row>
+			<row>
+				<label>Snippet pattern:</label>
+				<textbox
+					value="@bind(general.request.snippetPatternQuery)" multiline="true"
+					width="90%" rows="3" />
 			</row>
 			<row>
 				<label>Enter the query:</label>

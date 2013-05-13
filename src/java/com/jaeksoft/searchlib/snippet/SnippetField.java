@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -67,9 +67,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private String separator;
 	private String unescapedSeparator;
 	private int maxSnippetSize;
-	private String[] searchTerms;
-	private Query query;
-	private Analyzer analyzer;
+	private transient String[] searchTerms;
+	private transient Query query;
+	private transient Analyzer analyzer;
 
 	private SnippetField(String fieldName, String tag, String separator,
 			int maxSnippetSize, FragmenterAbstract fragmenterTemplate) {
@@ -230,6 +230,12 @@ public class SnippetField extends AbstractField<SnippetField> {
 				finalMap.put(entry.getKey(), entry.getValue());
 
 		return finalMap.values().iterator();
+	}
+
+	public final void reset() {
+		searchTerms = null;
+		query = null;
+		analyzer = null;
 	}
 
 	public void initSearchTerms(SearchRequest searchRequest)

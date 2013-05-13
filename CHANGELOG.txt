@@ -10,6 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchServer 1.5
 
 New features:
+- 277: Separate query for snippets
 - 272: Automatically set cookies in the web crawler
 - 271: Disable nofollow directive
 - 270: Database based script
