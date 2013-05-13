@@ -103,7 +103,7 @@ public class Fragment {
 		inSnippet = true;
 		if (finalText != null)
 			return finalText;
-		if (highlightedText != null) {
+		if (highlightedText != null && score > 0) {
 			finalText = StringUtils.removeTag(highlightedText, allowedTags);
 		} else
 			finalText = originalText;
