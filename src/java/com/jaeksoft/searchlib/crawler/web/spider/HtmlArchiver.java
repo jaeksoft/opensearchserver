@@ -65,6 +65,7 @@ import com.jaeksoft.searchlib.util.ParserErrorHandler;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
+import com.steadystate.css.dom.DOMExceptionImpl;
 import com.steadystate.css.parser.CSSOMParser;
 
 public class HtmlArchiver {
@@ -220,8 +221,12 @@ public class HtmlArchiver {
 							String newSrc = downloadObject(objectUrl,
 									urls.get(0), null);
 							String newValue = RegExpUtils.replace(value,
-									cssUrlPattern, "url('" + newSrc + "')");
-							cssValue.setCssText(newValue);
+									cssUrlPattern, " url('" + newSrc + "')");
+							try {
+								cssValue.setCssText(newValue.trim());
+							} catch (DOMExceptionImpl e) {
+								Logging.warn("Wrong CSS value: " + newValue, e);
+							}
 						}
 					}
 					pw.println(rule.getCssText());
