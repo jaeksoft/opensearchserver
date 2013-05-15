@@ -51,7 +51,6 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.MimeUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class HtmlParser extends Parser {
@@ -329,10 +328,7 @@ public class HtmlParser extends Parser {
 		result.addField(ParserFieldEnum.htmlProvider, htmlProvider.getName());
 
 		// Check ContentType charset in meta http-equiv
-		String contentType = htmlProvider.getMetaHttpEquiv("content-type");
-		String metaCharset = null;
-		if (contentType != null)
-			metaCharset = MimeUtils.extractContentTypeCharset(contentType);
+		String metaCharset = htmlProvider.getMetaCharset();
 
 		String selectedCharset = selectCharset(headerCharset, detectedCharset,
 				metaCharset);

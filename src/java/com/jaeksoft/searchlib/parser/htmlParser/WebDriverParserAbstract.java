@@ -55,6 +55,12 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 	}
 
 	@Override
+	protected HtmlNodeAbstract<?> getDocument(String htmlSource)
+			throws IOException {
+		throw new IOException("Not allowed");
+	}
+
+	@Override
 	protected HtmlNodeAbstract<?> getDocument(String charset,
 			StreamLimiter streamLimiter) throws SAXException, IOException,
 			ParserConfigurationException, SearchLibException {
@@ -89,4 +95,5 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 				IOUtils.closeQuietly(newStreamLimiter);
 		}
 	}
+
 }

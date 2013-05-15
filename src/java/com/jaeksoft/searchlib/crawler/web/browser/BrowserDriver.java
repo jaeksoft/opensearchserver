@@ -137,9 +137,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		URL currentURL = new URL(driver.getCurrentUrl());
 		StringReader reader = null;
 		try {
-			// reader = new StringReader(driver.getPageSource());
-			// InputSource input = new InputSource(reader);
-			// Document doc = DomUtils.readXml(input, false);
 			HtmlArchiver archiver = new HtmlArchiver(parentDirectory,
 					httpDownloader, currentURL);
 			archiver.archive(driver.getPageSource());

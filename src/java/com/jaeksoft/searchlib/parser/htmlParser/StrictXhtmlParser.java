@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -46,6 +47,13 @@ public class StrictXhtmlParser extends HtmlDocumentProvider {
 		InputSource inputSource = new InputSource(inputStream);
 		inputSource.setEncoding(charset);
 		return new DomHtmlNode(DomUtils.readXml(inputSource, true));
+	}
+
+	@Override
+	protected HtmlNodeAbstract<?> getDocument(String htmlSource)
+			throws IOException, ParserConfigurationException, SAXException {
+		return new DomHtmlNode(DomUtils.readXml(new InputSource(
+				new StringReader(htmlSource)), true));
 	}
 
 }

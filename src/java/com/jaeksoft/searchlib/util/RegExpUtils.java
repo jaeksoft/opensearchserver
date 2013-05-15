@@ -57,7 +57,10 @@ public class RegExpUtils {
 
 	public static Matcher groupExtractor(Pattern pattern, String text,
 			MatchGroupListener matchGroupListener) {
-		Matcher matcher = pattern.matcher(text);
+		Matcher matcher;
+		synchronized (pattern) {
+			matcher = pattern.matcher(text);
+		}
 		while (matcher.find()) {
 			matchGroupListener.match(matcher.start(), matcher.end());
 			int l = matcher.groupCount();
@@ -91,5 +94,13 @@ public class RegExpUtils {
 		List<String> list = new ArrayList<String>(0);
 		groupExtractor(pattern, text, new ListMatcher(list));
 		return list;
+	}
+
+	public static String replace(String cssString, Pattern p, String replace) {
+		Matcher matcher;
+		synchronized (p) {
+			matcher = p.matcher(cssString);
+		}
+		return matcher.replaceAll(replace);
 	}
 }

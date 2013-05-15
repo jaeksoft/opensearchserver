@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,13 +27,16 @@ package com.jaeksoft.searchlib.util;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
 
+import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.CSSParseException;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.jaeksoft.searchlib.Logging;
 
-public class ParserErrorHandler implements ErrorHandler, ErrorListener {
+public class ParserErrorHandler implements ErrorHandler, ErrorListener,
+		org.w3c.css.sac.ErrorHandler {
 
 	private boolean silent;
 
@@ -54,22 +57,37 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener {
 	}
 
 	private final void handleError(SAXParseException e) throws SAXException {
-		if (silent)
-			return;
-		if (logOnly)
-			Logging.error(e.getMessage());
-		else
-			throw e;
+		synchronized (this) {
+			if (silent)
+				return;
+			if (logOnly)
+				Logging.error(e.getMessage());
+			else
+				throw e;
+		}
 	}
 
 	private final void handleError(TransformerException e)
 			throws TransformerException {
-		if (silent)
-			return;
-		if (logOnly)
-			Logging.error(e.getMessage());
-		else
-			throw e;
+		synchronized (this) {
+			if (silent)
+				return;
+			if (logOnly)
+				Logging.error(e.getMessage());
+			else
+				throw e;
+		}
+	}
+
+	private final void handleError(CSSParseException e) throws CSSException {
+		synchronized (this) {
+			if (silent)
+				return;
+			if (logOnly)
+				Logging.error(e.getMessage());
+			else
+				throw e;
+		}
 	}
 
 	@Override
@@ -99,6 +117,22 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener {
 
 	@Override
 	public void warning(TransformerException e) throws TransformerException {
+		handleError(e);
+	}
+
+	@Override
+	public void error(CSSParseException e) throws CSSException {
+		handleError(e);
+
+	}
+
+	@Override
+	public void fatalError(CSSParseException e) throws CSSException {
+		handleError(e);
+	}
+
+	@Override
+	public void warning(CSSParseException e) throws CSSException {
 		handleError(e);
 	}
 

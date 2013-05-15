@@ -24,34 +24,92 @@
 
 package com.jaeksoft.searchlib.parser.htmlParser;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class HtmlCleanerParser extends HtmlDocumentProvider {
+
+	private final HtmlCleaner cleaner;
+
+	private TagNode rootTagNode = null;
+
+	private String charsetCache = null;
 
 	public HtmlCleanerParser() {
 		super(HtmlParserEnum.HtmlCleanerParser);
+		cleaner = new HtmlCleaner();
+		CleanerProperties props = cleaner.getProperties();
+		props.setNamespacesAware(true);
 	}
 
 	@Override
 	protected HtmlNodeAbstract<?> getDocument(String charset,
 			InputStream inputStream) throws SAXException, IOException,
 			ParserConfigurationException {
-		HtmlCleaner cleaner = new HtmlCleaner();
-		CleanerProperties props = cleaner.getProperties();
-		props.setNamespacesAware(true);
-		TagNode node = cleaner.clean(inputStream, charset);
-		Document document = new DomSerializer(props, true).createDOM(node);
+		rootTagNode = cleaner.clean(inputStream, charset);
+		charsetCache = null;
+		return getDomHtmlNode();
+	}
+
+	@Override
+	protected HtmlNodeAbstract<?> getDocument(String pageSource)
+			throws IOException, ParserConfigurationException {
+		rootTagNode = cleaner.clean(new StringReader(pageSource));
+		charsetCache = null;
+		return getDomHtmlNode();
+	}
+
+	private DomHtmlNode getDomHtmlNode() throws ParserConfigurationException {
+		Document document = new DomSerializer(cleaner.getProperties(), true)
+				.createDOM(rootTagNode);
 		return new DomHtmlNode(document);
+	}
+
+	public String findCharset() {
+		if (charsetCache != null)
+			return charsetCache;
+		String charsetCache = getMetaCharset();
+		if (charsetCache == null)
+			return null;
+		try {
+			Charset.forName(charsetCache);
+			return charsetCache;
+		} catch (UnsupportedCharsetException e) {
+			Logging.warn(e);
+			charsetCache = null;
+			return null;
+		}
+	}
+
+	public void writeHtmlToFile(File htmlFile) throws IOException {
+		SimpleHtmlSerializer htmlSerializer = new SimpleHtmlSerializer(
+				cleaner.getProperties());
+		String charset = findCharset();
+		if (charset != null)
+			htmlSerializer.writeToFile(rootTagNode, htmlFile.getAbsolutePath(),
+					charset);
+		else
+			htmlSerializer.writeToFile(rootTagNode, htmlFile.getAbsolutePath());
+	}
+
+	public TagNode getTagNode() {
+		return rootTagNode;
 	}
 
 }

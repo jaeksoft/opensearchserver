@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser.htmlParser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -39,9 +40,8 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 		super(HtmlParserEnum.NekoHtmlParser);
 	}
 
-	@Override
-	protected DomHtmlNode getDocument(String charset, InputStream inputStream)
-			throws SAXException, IOException, ParserConfigurationException {
+	private DomHtmlNode getDomHtmlNode(InputSource inputSource)
+			throws SAXException, IOException {
 		DOMParser parser = new DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
 		parser.setFeature(
@@ -55,10 +55,22 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 				"lower");
 		parser.setProperty("http://cyberneko.org/html/properties/names/attrs",
 				"lower");
-		InputSource inputSource = new InputSource(inputStream);
-		inputSource.setEncoding(charset);
 		parser.parse(inputSource);
 		return new DomHtmlNode(parser.getDocument());
+	}
+
+	@Override
+	protected DomHtmlNode getDocument(String charset, InputStream inputStream)
+			throws SAXException, IOException, ParserConfigurationException {
+		InputSource inputSource = new InputSource(inputStream);
+		inputSource.setEncoding(charset);
+		return getDomHtmlNode(inputSource);
+	}
+
+	@Override
+	protected HtmlNodeAbstract<?> getDocument(String htmlSource)
+			throws IOException, ParserConfigurationException, SAXException {
+		return getDomHtmlNode(new InputSource(new StringReader(htmlSource)));
 	}
 
 }

@@ -46,4 +46,11 @@ public class JSoupParser extends HtmlDocumentProvider {
 		Node node = Jsoup.parse(IOUtils.toString(inputStream, charset));
 		return new JSoupHtmlNode(node);
 	}
+
+	@Override
+	protected HtmlNodeAbstract<?> getDocument(String htmlSource)
+			throws IOException, ParserConfigurationException {
+		Node node = Jsoup.parse(htmlSource);
+		return new JSoupHtmlNode(node);
+	}
 }

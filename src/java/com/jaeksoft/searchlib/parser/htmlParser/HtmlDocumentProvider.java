@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.MimeUtils;
 
 public abstract class HtmlDocumentProvider {
 
@@ -73,6 +74,11 @@ public abstract class HtmlDocumentProvider {
 		}
 	}
 
+	public void init(String htmlSource) throws IOException,
+			ParserConfigurationException, SAXException {
+		rootNode = getDocument(htmlSource);
+	}
+
 	public HtmlNodeAbstract<?> getRootNode() {
 		return rootNode;
 	}
@@ -90,6 +96,9 @@ public abstract class HtmlDocumentProvider {
 			ParserConfigurationException, SearchLibException {
 		return getDocument(charset, streamLimiter.getNewInputStream());
 	}
+
+	protected abstract HtmlNodeAbstract<?> getDocument(String htmlSource)
+			throws IOException, ParserConfigurationException, SAXException;
 
 	public void score() {
 		score = getTitle() != null ? 10000 : 0;
@@ -134,10 +143,10 @@ public abstract class HtmlDocumentProvider {
 	final public List<HtmlNodeAbstract<?>> getMetas() {
 		if (metasCache != null)
 			return metasCache;
-		String[] p1 = { "html", "head", "meta" };
-		String[] p2 = { "html", "meta" };
 		if (rootNode == null)
 			return null;
+		final String[] p1 = { "html", "head", "meta" };
+		final String[] p2 = { "html", "meta" };
 		metasCache = rootNode.getNewNodeList();
 		rootNode.getNodes(metasCache, p1);
 		rootNode.getNodes(metasCache, p2);
@@ -152,15 +161,22 @@ public abstract class HtmlDocumentProvider {
 	}
 
 	final public String getMetaHttpEquiv(String name) {
-		List<HtmlNodeAbstract<?>> metas = getMetas();
-		if (metas == null)
+		getMetas();
+		if (metasCache == null)
 			return null;
-		for (HtmlNodeAbstract<?> node : metas) {
+		for (HtmlNodeAbstract<?> node : metasCache) {
 			String attr_http_equiv = node.getAttributeText("http-equiv");
 			if (name.equalsIgnoreCase(attr_http_equiv))
 				return getMetaContent(node);
 		}
 		return null;
+	}
+
+	final public String getMetaCharset() {
+		String contentType = getMetaHttpEquiv("content-type");
+		if (contentType == null)
+			return null;
+		return MimeUtils.extractContentTypeCharset(contentType);
 	}
 
 	final public URL getBaseHref() {

@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
 public class RestJsonClient {
@@ -87,6 +88,31 @@ public class RestJsonClient {
 		JsonTransaction transaction = new JsonTransaction(this,
 				"/crawler/file/run/once/{index}/json", indexName);
 		transaction.get(downloader);
+	}
+
+	public void injectSwiftRepository(HttpDownloader downloader,
+			String indexName, String authURL, AuthType authType,
+			String username, String password, String tenant, String container,
+			String path, boolean ignoreHiddenFile, boolean includeSubDirectory,
+			boolean enabled, int delay) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this,
+				"/crawler/file/repository/inject/swift/{index}/json", indexName);
+		transaction.addParam("path", "");
+		transaction.addParam("ignoreHiddenFile",
+				Boolean.toString(ignoreHiddenFile));
+		transaction.addParam("includeSubDirectory",
+				Boolean.toString(includeSubDirectory));
+		transaction.addParam("enabled", Boolean.toString(enabled));
+		transaction.addParam("delay", Integer.toString(delay));
+		transaction.addParam("username", username);
+		transaction.addParam("password", password);
+		transaction.addParam("tenant", tenant);
+		transaction.addParam("container", container);
+		transaction.addParam("authUrl", authURL);
+		transaction.addParam("authType", authType.name());
+		transaction.put(downloader);
 	}
 
 	public JSONObject search(String indexName, String template, String query,

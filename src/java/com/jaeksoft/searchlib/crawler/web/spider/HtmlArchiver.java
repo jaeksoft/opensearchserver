@@ -25,33 +25,45 @@
 package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
-import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.ContentNode;
-import org.htmlcleaner.DoctypeToken;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
+import org.w3c.css.sac.InputSource;
+import org.w3c.dom.css.CSSImportRule;
+import org.w3c.dom.css.CSSRule;
+import org.w3c.dom.css.CSSRuleList;
+import org.w3c.dom.css.CSSStyleDeclaration;
+import org.w3c.dom.css.CSSStyleRule;
+import org.w3c.dom.css.CSSStyleSheet;
+import org.w3c.dom.css.CSSValue;
+import org.w3c.dom.stylesheets.MediaList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.ParserErrorHandler;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
+import com.steadystate.css.parser.CSSOMParser;
 
 public class HtmlArchiver {
 
@@ -159,27 +171,92 @@ public class HtmlArchiver {
 	}
 
 	final private Pattern cssUrlPattern = Pattern
-			.compile("(?s)[\\s:]+url\\([\"']?(.*?)[\"']?\\)");
+			.compile("(?s)[\\s]*url\\([\"']?(.*?)[\"']?\\)");
 
-	final private StringBuffer checkCSSContent(URL parentUrl, CharSequence css)
+	final private Pattern cssErronousCommentPattern = Pattern
+			.compile("(?m)^(\\/)$");
+
+	// .compile("(?s)^[\\s]*[/]{1}[\\s]*$");
+
+	final private StringBuffer checkCSSContent(URL parentUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
-		StringBuffer sb = new StringBuffer();
-		int pos = 0;
-		int len = css.length();
-		Matcher matcher = cssUrlPattern.matcher(css);
-		while (matcher.find()) {
-			int start = matcher.start(1);
-			sb.append(css.subSequence(pos, start));
-			String src = matcher.group(1);
-			String newSrc = downloadObject(parentUrl, src);
-			sb.append(newSrc != null ? newSrc : src);
-			pos = matcher.end(1);
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		css = RegExpUtils.replace(css, cssErronousCommentPattern, "");
+		try {
+			CSSOMParser parser = new CSSOMParser();
+			parser.setErrorHandler(ParserErrorHandler.LOGONLY_ERROR_HANDLER);
+			CSSStyleSheet stylesheet = parser.parseStyleSheet(new InputSource(
+					new StringReader(css)), null, null);
+			CSSRuleList ruleList = stylesheet.getCssRules();
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
+			for (int i = 0; i < ruleList.getLength(); i++) {
+				CSSRule rule = ruleList.item(i);
+				if (rule instanceof CSSStyleRule) {
+					CSSStyleRule styleRule = (CSSStyleRule) rule;
+					CSSStyleDeclaration styleDeclaration = styleRule.getStyle();
+					for (int j = 0; j < styleDeclaration.getLength(); j++) {
+						String property = styleDeclaration.item(j);
+						CSSValue cssValue = styleDeclaration
+								.getPropertyCSSValue(property);
+						String value = cssValue.getCssText();
+						List<String> urls = RegExpUtils.getGroups(
+								cssUrlPattern, value);
+						if (urls != null && urls.size() > 0) {
+							String newSrc = downloadObject(parentUrl,
+									urls.get(0));
+							String newValue = RegExpUtils.replace(value,
+									cssUrlPattern, "url('" + newSrc + "')");
+							cssValue.setCssText(newValue);
+						}
+					}
+					pw.println(rule.getCssText());
+				} else if (rule instanceof CSSImportRule) {
+					CSSImportRule importRule = (CSSImportRule) rule;
+					String newSrc = downloadObject(parentUrl,
+							importRule.getHref());
+					pw.print("@import url('");
+					pw.print(newSrc);
+					pw.print("')");
+					MediaList mediaList = importRule.getMedia();
+					boolean first = true;
+					for (int k = 0; k < mediaList.getLength(); k++) {
+						if (!first) {
+							pw.println(", ");
+							first = false;
+						} else
+							pw.print(' ');
+						pw.print(mediaList.item(k));
+					}
+					pw.println(";");
+				}
+			}
+			return sw.getBuffer();
+		} finally {
+			if (pw != null)
+				IOUtils.closeQuietly(pw);
+			if (sw != null)
+				IOUtils.closeQuietly(sw);
 		}
-		if (pos < len)
-			sb.append(css.subSequence(pos, len));
-		return sb;
 	}
+
+	final private Pattern cssRemoveStartingComment1 = Pattern
+			.compile("(?s)^[\\s]*<!--");
+
+	final private Pattern cssRemoveStartingComment2 = Pattern
+			.compile("(?s)^[\\s]*&lt;!--");
+
+	final private Pattern cssRemoveEndingComment1 = Pattern
+			.compile("(?s)--&gt;[\\s]*$");
+
+	final private Pattern cssRemoveEndingComment2 = Pattern
+			.compile("(?s)-->[\\s]*$");
+
+	final private Pattern[] cssCommentPatterns = { cssRemoveStartingComment1,
+			cssRemoveStartingComment2, cssRemoveEndingComment1,
+			cssRemoveEndingComment2 };
 
 	final private void checkStyleCSS(TagNode node)
 			throws ClientProtocolException, IllegalStateException, IOException,
@@ -196,9 +273,21 @@ public class HtmlArchiver {
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
 			return;
-		StringBuffer css = checkCSSContent(url, builder);
-		node.removeAllChildren();
-		node.addChild(new ContentNode(css.toString()));
+		String cssString = builder.toString();
+		for (Pattern p : cssCommentPatterns)
+			cssString = RegExpUtils.replace(cssString, p, "");
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		try {
+			pw.println("<!--");
+			pw.println(checkCSSContent(url, cssString));
+			pw.println("-->");
+			node.removeAllChildren();
+			node.addChild(new ContentNode(sw.toString()));
+		} finally {
+			IOUtils.closeQuietly(pw);
+			IOUtils.closeQuietly(sw);
+		}
 	}
 
 	final private void downloadObjectFromTag(TagNode node, String tagName,
@@ -216,11 +305,24 @@ public class HtmlArchiver {
 			node.addAttribute(attributeName, newSrc);
 	}
 
+	final private void removeTag(TagNode node, String... tagNames) {
+		if (tagNames == null)
+			return;
+		String nodeName = node.getName();
+		for (String tagName : tagNames) {
+			if (tagName.equalsIgnoreCase(nodeName)) {
+				node.removeFromTree();
+				return;
+			}
+		}
+	}
+
 	final private void recursiveArchive(TagNode node)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
 		if (node == null)
 			return;
+		removeTag(node, "base");
 		downloadObjectFromTag(node, null, "src");
 		downloadObjectFromTag(node, "link", "href");
 		checkStyleCSS(node);
@@ -235,33 +337,16 @@ public class HtmlArchiver {
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, ClassCastException,
 			ClassNotFoundException, InstantiationException,
-			IllegalAccessException {
-		HtmlCleaner htmlCleaner = new HtmlCleaner();
-		CleanerProperties cleanerProps = htmlCleaner.getProperties();
-		TagNode rootTag = htmlCleaner.clean(pageSource);
-		recursiveArchive(rootTag);
-		FileWriter fw = null;
-		PrintWriter pw = null;
-		StringReader reader = null;
-		try {
-			fw = new FileWriter(indexFile);
-			pw = new PrintWriter(fw);
-			DoctypeToken docType = rootTag.getDocType();
-			if (docType != null)
-				pw.println(docType.getContent());
-			rootTag.serialize(new SimpleHtmlSerializer(cleanerProps), pw);
-			pw.close();
-			pw = null;
-			fw.close();
-			fw = new FileWriter(sourceFile);
-			IOUtils.write(pageSource, fw);
-		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (fw != null)
-				IOUtils.closeQuietly(fw);
-			if (reader != null)
-				IOUtils.closeQuietly(reader);
-		}
+			IllegalAccessException, ParserConfigurationException, SAXException {
+
+		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
+		htmlCleanerParser.init(pageSource);
+		recursiveArchive(htmlCleanerParser.getTagNode());
+		htmlCleanerParser.writeHtmlToFile(indexFile);
+		String charset = htmlCleanerParser.findCharset();
+		if (charset == null)
+			FileUtils.write(sourceFile, pageSource);
+		else
+			FileUtils.write(sourceFile, pageSource, charset);
 	}
 }
