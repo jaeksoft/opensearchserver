@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -67,20 +69,22 @@ import com.steadystate.css.parser.CSSOMParser;
 
 public class HtmlArchiver {
 
-	final File filesDir;
-	final File indexFile;
-	final File sourceFile;
-	final Map<String, Integer> fileCountMap;
-	final Map<String, String> urlFileMap;
-	final URL url;
-	final HttpDownloader downloader;
-	final RecursiveTracker recursiveSecurity;
+	private final File filesDir;
+	private final File indexFile;
+	private final File sourceFile;
+	private final Map<String, Integer> fileCountMap;
+	private final Map<String, String> urlFileMap;
+	private final URL pageUrl;
+	private final HttpDownloader downloader;
+	private final RecursiveTracker recursiveSecurity;
+	private URL baseUrl;
 
 	public HtmlArchiver(File parentDir, HttpDownloader httpDownloader, URL url) {
 		filesDir = new File(parentDir, "files");
 		indexFile = new File(parentDir, "index.html");
 		sourceFile = new File(parentDir, "source.html");
-		this.url = url;
+		this.pageUrl = url;
+		this.baseUrl = url;
 		this.downloader = httpDownloader;
 		fileCountMap = new TreeMap<String, Integer>();
 		urlFileMap = new TreeMap<String, String>();
@@ -107,7 +111,7 @@ public class HtmlArchiver {
 	}
 
 	final private String getLocalPath(URL parentUrl, String fileName) {
-		if (!parentUrl.equals(url))
+		if (urlFileMap.get(parentUrl.toExternalForm()) != null)
 			return fileName;
 		StringBuffer sb = new StringBuffer("./");
 		sb.append(filesDir.getName());
@@ -116,9 +120,10 @@ public class HtmlArchiver {
 		return sb.toString();
 	}
 
-	final private String downloadObject(URL parentUrl, String src)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+	final private String downloadObject(URL parentUrl, String src,
+			String contentType) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException {
 		RecursiveEntry recursiveEntry = recursiveSecurity.enter();
 		if (recursiveEntry == null) {
 			Logging.warn("Max recursion reached - " + recursiveSecurity
@@ -129,6 +134,9 @@ public class HtmlArchiver {
 			URL objectURL = LinkUtils.getLink(parentUrl, src, null, false);
 			if (objectURL == null)
 				return src;
+			if (objectURL.equals(pageUrl)) {
+				return "index.html";
+			}
 			String urlString = objectURL.toExternalForm();
 			String fileName = urlFileMap.get(urlString);
 			if (fileName != null)
@@ -144,7 +152,8 @@ public class HtmlArchiver {
 			}
 			String baseName = FilenameUtils.getBaseName(fileName);
 			String extension = FilenameUtils.getExtension(fileName);
-			String contentType = downloadItem.getContentBaseType();
+			if (contentType == null)
+				contentType = downloadItem.getContentBaseType();
 			if ("text/html".equalsIgnoreCase(contentType))
 				extension = "html";
 			if ("text/javascript".equalsIgnoreCase(contentType))
@@ -156,6 +165,7 @@ public class HtmlArchiver {
 			fileCount = fileCount == null ? new Integer(0) : fileCount + 1;
 			fileCountMap.put(fileName, fileCount);
 			fileName = buildFileName(baseName, extension, fileCount);
+			urlFileMap.put(urlString, fileName);
 			File destFile = new File(filesDir, fileName);
 			if ("css".equals(extension)) {
 				StringBuffer sb = checkCSSContent(objectURL,
@@ -163,8 +173,10 @@ public class HtmlArchiver {
 				FileUtils.write(destFile, sb);
 			} else
 				downloadItem.writeToFile(destFile);
-			urlFileMap.put(urlString, fileName);
 			return getLocalPath(parentUrl, fileName);
+		} catch (UnknownHostException e) {
+			Logging.warn(e);
+			return src;
 		} finally {
 			recursiveEntry.release();
 		}
@@ -178,7 +190,7 @@ public class HtmlArchiver {
 
 	// .compile("(?s)^[\\s]*[/]{1}[\\s]*$");
 
-	final private StringBuffer checkCSSContent(URL parentUrl, String css)
+	final private StringBuffer checkCSSContent(URL objectUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
 		StringWriter sw = null;
@@ -205,8 +217,8 @@ public class HtmlArchiver {
 						List<String> urls = RegExpUtils.getGroups(
 								cssUrlPattern, value);
 						if (urls != null && urls.size() > 0) {
-							String newSrc = downloadObject(parentUrl,
-									urls.get(0));
+							String newSrc = downloadObject(objectUrl,
+									urls.get(0), null);
 							String newValue = RegExpUtils.replace(value,
 									cssUrlPattern, "url('" + newSrc + "')");
 							cssValue.setCssText(newValue);
@@ -215,8 +227,8 @@ public class HtmlArchiver {
 					pw.println(rule.getCssText());
 				} else if (rule instanceof CSSImportRule) {
 					CSSImportRule importRule = (CSSImportRule) rule;
-					String newSrc = downloadObject(parentUrl,
-							importRule.getHref());
+					String newSrc = downloadObject(objectUrl,
+							importRule.getHref(), "text/css");
 					pw.print("@import url('");
 					pw.print(newSrc);
 					pw.print("')");
@@ -280,7 +292,35 @@ public class HtmlArchiver {
 		PrintWriter pw = new PrintWriter(sw);
 		try {
 			pw.println("<!--");
-			pw.println(checkCSSContent(url, cssString));
+			pw.println(checkCSSContent(baseUrl, cssString));
+			pw.println("-->");
+			node.removeAllChildren();
+			node.addChild(new ContentNode(sw.toString()));
+		} finally {
+			IOUtils.closeQuietly(pw);
+			IOUtils.closeQuietly(sw);
+		}
+	}
+
+	final private void checkScriptContent(TagNode node) {
+		if (!("script".equalsIgnoreCase(node.getName())))
+			return;
+		StringBuilder builder = (StringBuilder) node.getText();
+		if (builder == null)
+			return;
+		String content = builder.toString();
+		if (content == null)
+			return;
+		content = content.trim();
+		if (content.length() == 0)
+			return;
+		for (Pattern p : cssCommentPatterns)
+			content = RegExpUtils.replace(content, p, "");
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		try {
+			pw.println("<!--");
+			pw.println(content);
 			pw.println("-->");
 			node.removeAllChildren();
 			node.addChild(new ContentNode(sw.toString()));
@@ -291,30 +331,37 @@ public class HtmlArchiver {
 	}
 
 	final private void downloadObjectFromTag(TagNode node, String tagName,
-			String attributeName) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException {
+			String srcAttrName, String typeAttrName)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException {
 		if (tagName != null)
 			if (!tagName.equalsIgnoreCase(node.getName()))
 				return;
-		String src = node.getAttributeByName(attributeName);
+		String src = node.getAttributeByName(srcAttrName);
 		if (src == null)
 			return;
-		String newSrc = downloadObject(url, src);
+		String type = typeAttrName != null ? node
+				.getAttributeByName(typeAttrName) : null;
+		String newSrc = downloadObject(baseUrl, src, type);
 		if (newSrc != null)
-			node.addAttribute(attributeName, newSrc);
+			node.addAttribute(srcAttrName, newSrc);
 	}
 
-	final private void removeTag(TagNode node, String... tagNames) {
-		if (tagNames == null)
+	final private void checkBaseHref(TagNode node) {
+		if (node == null)
 			return;
-		String nodeName = node.getName();
-		for (String tagName : tagNames) {
-			if (tagName.equalsIgnoreCase(nodeName)) {
-				node.removeFromTree();
+		if (!"base".equalsIgnoreCase(node.getName()))
+			return;
+		String href = node.getAttributeByName("href");
+		if (href != null) {
+			try {
+				baseUrl = new URL(href);
+			} catch (MalformedURLException e) {
+				Logging.warn(e);
 				return;
 			}
 		}
+		node.removeFromTree();
 	}
 
 	final private void recursiveArchive(TagNode node)
@@ -322,10 +369,12 @@ public class HtmlArchiver {
 			SearchLibException, URISyntaxException {
 		if (node == null)
 			return;
-		removeTag(node, "base");
-		downloadObjectFromTag(node, null, "src");
-		downloadObjectFromTag(node, "link", "href");
+		checkBaseHref(node);
+		downloadObjectFromTag(node, null, "src", null);
+		downloadObjectFromTag(node, "link", "href", "type");
 		checkStyleCSS(node);
+		// ** Must be checked
+		// checkScriptContent(node);
 		TagNode[] nodes = node.getChildTags();
 		if (nodes == null)
 			return;
