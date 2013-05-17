@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,9 +29,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +43,9 @@ import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess.Type;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public class FileItem extends FileInfo implements Serializable {
 
@@ -71,13 +72,11 @@ public class FileItem extends FileInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = -4043010587042224473L;
 
-	final static DecimalFormat getContentLengthFormat() {
-		return new DecimalFormat("00000000000000");
-	}
+	final static ThreadSafeDecimalFormat contentLengthFormat = new ThreadSafeDecimalFormat(
+			"00000000000000");
 
-	final static SimpleDateFormat getDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmssSSS");
-	}
+	final static ThreadSafeDateFormat dateFormat = new ThreadSafeSimpleDateFormat(
+			"yyyyMMddHHmmssSSS");
 
 	private String repository;
 	private String directory;
@@ -238,7 +237,7 @@ public class FileItem extends FileInfo implements Serializable {
 
 		if (crawlDate != null)
 			indexDocument.setString(fileItemFieldEnum.crawlDate.getName(),
-					FileItem.getDateFormat().format(crawlDate));
+					dateFormat.format(crawlDate));
 
 		if (lang != null)
 			indexDocument.setString(fileItemFieldEnum.lang.getName(), lang);
@@ -294,7 +293,7 @@ public class FileItem extends FileInfo implements Serializable {
 		if (d == null)
 			return;
 		try {
-			crawlDate = FileItem.getDateFormat().parse(d).getTime();
+			crawlDate = dateFormat.parse(d).getTime();
 		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 		}

@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -42,6 +41,8 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -50,7 +51,7 @@ public class LogReportManager {
 	final private File dirLog;
 	final private DailyLogger logger;
 
-	private SimpleDateFormat timeStampFormat = new SimpleDateFormat(
+	private final static ThreadSafeDateFormat timeStampFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	public LogReportManager(String indexName) throws IOException {

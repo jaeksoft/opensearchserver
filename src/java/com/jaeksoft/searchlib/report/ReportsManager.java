@@ -35,7 +35,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,6 +52,8 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public class ReportsManager {
 
@@ -159,13 +160,11 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private final static SimpleDateFormat changeDateFormat = new SimpleDateFormat(
+	private final static ThreadSafeDateFormat changeDateFormat = new ThreadSafeSimpleDateFormat(
 			"yyyyMMddhhmmss");
 
 	private final String modifyDate(Date date) throws java.text.ParseException {
-		synchronized (changeDateFormat) {
-			return changeDateFormat.format(date);
-		}
+		return changeDateFormat.format(date);
 	}
 
 	public Facet getSearchReport(String topKeywords, Date startDate,

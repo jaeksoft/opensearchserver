@@ -31,9 +31,6 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -69,6 +66,8 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -198,14 +197,14 @@ public class UrlManager extends AbstractManager {
 		if (before != null) {
 			StringBuffer query = new StringBuffer();
 			query.append("when:[00000000000000 TO ");
-			query.append(UrlItem.getWhenDateFormat().format(before));
+			query.append(UrlItem.whenDateFormat.format(before));
 			query.append("]");
 			request.addFilter(query.toString(), false);
 		}
 		if (after != null) {
 			StringBuffer query = new StringBuffer();
 			query.append("when:[");
-			query.append(UrlItem.getWhenDateFormat().format(after));
+			query.append(UrlItem.whenDateFormat.format(after));
 			query.append(" TO 99999999999999]");
 			request.addFilter(query.toString(), false);
 		}
@@ -450,45 +449,42 @@ public class UrlManager extends AbstractManager {
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
-				DecimalFormat df = UrlItem.getLongFormat();
 				if (minContentLength == null)
-					from = df.format(0);
+					from = UrlItem.longFormat.format(0);
 				else
-					from = df.format(minContentLength);
+					from = UrlItem.longFormat.format(minContentLength);
 				if (maxContentLength == null)
-					to = df.format(Integer.MAX_VALUE);
+					to = UrlItem.longFormat.format(Integer.MAX_VALUE);
 				else
-					to = df.format(maxContentLength);
+					to = UrlItem.longFormat.format(maxContentLength);
 				urlItemFieldEnum.contentLength.addQueryRange(query, from, to,
 						false);
 			}
 
 			if (startDate != null || endDate != null) {
 				String from, to;
-				SimpleDateFormat df = UrlItem.getWhenDateFormat();
 				if (startDate == null)
 					from = "00000000000000";
 				else
-					from = df.format(startDate);
+					from = UrlItem.whenDateFormat.format(startDate);
 				if (endDate == null)
 					to = "99999999999999";
 				else
-					to = df.format(endDate);
+					to = UrlItem.whenDateFormat.format(endDate);
 				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to,
 						false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
 				String from, to;
-				SimpleDateFormat df = UrlItem.getWhenDateFormat();
 				if (startModifiedDate == null)
 					from = "00000000000000";
 				else
-					from = df.format(startModifiedDate);
+					from = UrlItem.whenDateFormat.format(startModifiedDate);
 				if (endModifiedDate == null)
 					to = "99999999999999";
 				else
-					to = df.format(endModifiedDate);
+					to = UrlItem.whenDateFormat.format(endModifiedDate);
 				urlItemFieldEnum.lastModifiedDate.addFilterRange(searchRequest,
 						from, to, false, false);
 			}
@@ -702,7 +698,8 @@ public class UrlManager extends AbstractManager {
 		try {
 			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".xml");
 			pw = new PrintWriter(tempFile);
-			DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+			ThreadSafeDateFormat dateformat = new ThreadSafeSimpleDateFormat(
+					"yyyy-MM-dd");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("urlset", "xmlns",
 					"http://www.sitemaps.org/schemas/sitemap/0.9");

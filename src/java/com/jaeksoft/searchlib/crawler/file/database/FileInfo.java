@@ -123,7 +123,7 @@ public class FileInfo {
 			return;
 		}
 		try {
-			fileSystemDate = FileItem.getDateFormat().parse(d).getTime();
+			fileSystemDate = FileItem.dateFormat.parse(d).getTime();
 		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 			fileSystemDate = null;
@@ -276,7 +276,7 @@ public class FileInfo {
 			FileItemFieldEnum fileItemFieldEnum) {
 		if (fileSystemDate != null)
 			indexDocument.setString(fileItemFieldEnum.fileSystemDate.getName(),
-					FileItem.getDateFormat().format(fileSystemDate));
+					FileItem.dateFormat.format(fileSystemDate));
 		if (fileSize != null)
 			indexDocument.setString(fileItemFieldEnum.fileSize.getName(),
 					fileSize.toString());

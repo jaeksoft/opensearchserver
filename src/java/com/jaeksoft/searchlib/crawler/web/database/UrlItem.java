@@ -27,9 +27,7 @@ package com.jaeksoft.searchlib.crawler.web.database;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +41,8 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public class UrlItem {
 
@@ -294,7 +294,7 @@ public class UrlItem {
 		if (v.length() == 0)
 			return;
 		try {
-			contentLength = getLongFormat().parse(v).longValue();
+			contentLength = longFormat.parse(v).longValue();
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 		}
@@ -456,8 +456,7 @@ public class UrlItem {
 
 	protected void setLastModifiedDate(String d) {
 		try {
-			this.lastModifiedDate = d == null ? null : getWhenDateFormat()
-					.parse(d);
+			this.lastModifiedDate = d == null ? null : whenDateFormat.parse(d);
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 		}
@@ -467,13 +466,11 @@ public class UrlItem {
 		this.lastModifiedDate = d;
 	}
 
-	final static SimpleDateFormat getWhenDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmss");
-	}
+	final static ThreadSafeSimpleDateFormat whenDateFormat = new ThreadSafeSimpleDateFormat(
+			"yyyyMMddHHmmss");
 
-	final static DecimalFormat getLongFormat() {
-		return new DecimalFormat("00000000000000");
-	}
+	final static ThreadSafeDecimalFormat longFormat = new ThreadSafeDecimalFormat(
+			"00000000000000");
 
 	protected void setWhen(String d) {
 		if (d == null) {
@@ -481,7 +478,7 @@ public class UrlItem {
 			return;
 		}
 		try {
-			when = getWhenDateFormat().parse(d);
+			when = whenDateFormat.parse(d);
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 			setWhenNow();
@@ -516,10 +513,9 @@ public class UrlItem {
 	public void populate(IndexDocument indexDocument,
 			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException,
 			URISyntaxException {
-		SimpleDateFormat df = getWhenDateFormat();
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
 		indexDocument.setString(urlItemFieldEnum.when.getName(),
-				df.format(when));
+				whenDateFormat.format(when));
 		URL url = getURL();
 		if (url != null) {
 			indexDocument.setString(urlItemFieldEnum.host.getName(),
@@ -549,7 +545,7 @@ public class UrlItem {
 					contentTypeCharset);
 		if (contentLength != null)
 			indexDocument.setString(urlItemFieldEnum.contentLength.getName(),
-					getLongFormat().format(contentLength));
+					longFormat.format(contentLength));
 		if (contentEncoding != null)
 			indexDocument.setString(urlItemFieldEnum.contentEncoding.getName(),
 					contentEncoding);
@@ -572,7 +568,7 @@ public class UrlItem {
 		if (lastModifiedDate != null)
 			indexDocument.setString(
 					urlItemFieldEnum.lastModifiedDate.getName(),
-					df.format(lastModifiedDate));
+					whenDateFormat.format(lastModifiedDate));
 		if (parentUrl != null)
 			indexDocument.setString(urlItemFieldEnum.parentUrl.getName(),
 					parentUrl);
@@ -586,7 +582,7 @@ public class UrlItem {
 			indexDocument.setStringList(urlItemFieldEnum.headers.getName(),
 					headers);
 		indexDocument.setString(urlItemFieldEnum.backlinkCount.getName(),
-				getLongFormat().format(backlinkCount));
+				longFormat.format(backlinkCount));
 	}
 
 	public String getLang() {
@@ -660,7 +656,7 @@ public class UrlItem {
 		if (v.length() == 0)
 			return;
 		try {
-			backlinkCount = getLongFormat().parse(v).intValue();
+			backlinkCount = longFormat.parse(v).intValue();
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 		}

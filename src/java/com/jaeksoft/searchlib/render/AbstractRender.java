@@ -26,10 +26,10 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractRender<T1 extends AbstractRequest, T2 extends AbstractResult<T1>>
@@ -37,14 +37,17 @@ public abstract class AbstractRender<T1 extends AbstractRequest, T2 extends Abst
 
 	final protected T2 result;
 	final protected T1 request;
-	final private NumberFormat scoreFormat;
+	private static ThreadSafeDecimalFormat scoreFormat = null;
 	final protected Timer renderingTimer;
 
 	protected AbstractRender(T2 result) {
 		this.result = result;
 		this.request = result.getRequest();
-		scoreFormat = new DecimalFormat();
-		scoreFormat.setGroupingUsed(false);
+		if (scoreFormat == null) {
+			DecimalFormat df = new DecimalFormat();
+			df.setGroupingUsed(false);
+			scoreFormat = new ThreadSafeDecimalFormat(df);
+		}
 		renderingTimer = new Timer(result.getTimer(), "Rendering");
 
 	}

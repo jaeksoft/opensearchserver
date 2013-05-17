@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -42,6 +41,8 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public class TaskReportLoadLogFile extends TaskAbstract {
 
@@ -128,6 +129,9 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 		}
 	}
 
+	private final static ThreadSafeDateFormat dateFormatter = new ThreadSafeSimpleDateFormat(
+			"yyyy-MM-dd");
+
 	public void executeSchedulerTask(Calendar date, Client client,
 			boolean archive, boolean allfiles, TaskLog taskLog)
 			throws ParseException, SearchLibException, IOException {
@@ -135,7 +139,6 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 		ReportsManager reports = client.getReportsManager();
 		File[] fileLists = reports.getReportsList();
 		Calendar reportFileDate = Calendar.getInstance();
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		String replaceString = "report." + client.getIndexName() + ".";
 		for (File logfile : fileLists) {
 			String reportFileName = logfile.getName();

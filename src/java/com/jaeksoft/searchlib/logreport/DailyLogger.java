@@ -28,22 +28,23 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class DailyLogger {
 
 	final private SimpleLock lock = new SimpleLock();
 
-	final private SimpleDateFormat dailyFormat = new SimpleDateFormat(
+	final private static ThreadSafeDateFormat dailyFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd");
 
-	final private SimpleDateFormat timeStampFormat;
+	final private ThreadSafeDateFormat timeStampFormat;
 
 	final private File parentDir;
 
@@ -58,7 +59,7 @@ public class DailyLogger {
 	private FileWriter fileWriter = null;
 
 	public DailyLogger(File parentDir, String filePrefix,
-			SimpleDateFormat timeStampFormat) {
+			ThreadSafeDateFormat timeStampFormat) {
 		this.parentDir = parentDir;
 		this.filePrefix = filePrefix;
 		this.timeStampFormat = timeStampFormat;

@@ -46,12 +46,12 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
-import com.jaeksoft.searchlib.crawler.web.database.SiteMapItem;
-import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -218,8 +218,7 @@ public class WebCrawlMaster extends
 			UrlManager urlManager = getConfig().getUrlManager();
 			List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
 			for (SiteMapItem siteMap : siteMapList.getArray()) {
-				List<String> urls = siteMap
-						.getListOfUrls(getNewHttpDownloader());
+				List<String> urls = new ArrayList<String>(0); // siteMap.getListOfUrls(getNewHttpDownloader());
 				for (String uri : urls) {
 					if (!urlManager.exists(uri)) {
 						workInsertUrlList.add(urlManager

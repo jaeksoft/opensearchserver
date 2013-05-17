@@ -113,8 +113,8 @@ public class InjectUrlItem {
 	public void populate(IndexDocument indexDocument,
 			UrlItemFieldEnum urlItemFieldEnum) {
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
-		indexDocument.setString(urlItemFieldEnum.when.getName(), UrlItem
-				.getWhenDateFormat().format(new Date()));
+		indexDocument.setString(urlItemFieldEnum.when.getName(),
+				UrlItem.whenDateFormat.format(new Date()));
 		URL url = getURL();
 		if (url != null) {
 			String hostname = url.getHost();

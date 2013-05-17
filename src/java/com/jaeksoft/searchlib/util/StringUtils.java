@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +41,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
+
+	private final static ThreadSafeDecimalFormat unitFormat = new ThreadSafeDecimalFormat(
+			"0.0");
 
 	private enum SizeUnit {
 		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE(
@@ -63,7 +66,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 		String render(long size) {
 			float d = (float) size / div;
-			return new DecimalFormat("0.0").format(d) + ' ' + unit;
+			return unitFormat.format(d) + ' ' + unit;
 		}
 	}
 

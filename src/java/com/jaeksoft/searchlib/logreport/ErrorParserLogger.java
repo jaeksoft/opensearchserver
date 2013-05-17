@@ -26,16 +26,17 @@ package com.jaeksoft.searchlib.logreport;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public class ErrorParserLogger {
 
-	private final static SimpleDateFormat timeStampFormat = new SimpleDateFormat(
+	private final static ThreadSafeDateFormat timeStampFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
 	private static DailyLogger logger = null;

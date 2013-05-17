@@ -33,7 +33,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,6 +68,8 @@ import org.apache.http.util.EntityUtils;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public abstract class HttpAbstract {
 
@@ -252,13 +253,16 @@ public abstract class HttpAbstract {
 			"EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z",
 			"EEE MMM d HH:mm:ss yyyy" };
 
-	private final static SimpleDateFormat[] httpDatesFormats = {
-			new SimpleDateFormat(LastModifiedDateFormats[0]),
-			new SimpleDateFormat(LastModifiedDateFormats[0], Locale.ENGLISH),
-			new SimpleDateFormat(LastModifiedDateFormats[1]),
-			new SimpleDateFormat(LastModifiedDateFormats[1], Locale.ENGLISH),
-			new SimpleDateFormat(LastModifiedDateFormats[2]),
-			new SimpleDateFormat(LastModifiedDateFormats[2], Locale.ENGLISH) };
+	private final static ThreadSafeDateFormat[] httpDatesFormats = {
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[0]),
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[0],
+					Locale.ENGLISH),
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[1]),
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[1],
+					Locale.ENGLISH),
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[2]),
+			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[2],
+					Locale.ENGLISH) };
 
 	public Long getLastModified() {
 		synchronized (this) {
@@ -269,13 +273,11 @@ public abstract class HttpAbstract {
 			if (v == null)
 				return null;
 			ParseException parseException = null;
-			for (SimpleDateFormat dateFormat : httpDatesFormats) {
-				synchronized (dateFormat) {
-					try {
-						return dateFormat.parse(v).getTime();
-					} catch (ParseException e) {
-						parseException = e;
-					}
+			for (ThreadSafeDateFormat dateFormat : httpDatesFormats) {
+				try {
+					return dateFormat.parse(v).getTime();
+				} catch (ParseException e) {
+					parseException = e;
 				}
 			}
 			if (parseException != null)
@@ -285,14 +287,12 @@ public abstract class HttpAbstract {
 	}
 
 	public final static void main(String[] argv) {
-		for (SimpleDateFormat dateFormat : httpDatesFormats) {
-			synchronized (dateFormat) {
-				try {
-					System.out.println(dateFormat.parse(
-							"Thu, 21 Feb 2013 20:11:52 GMT").getTime());
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
+		for (ThreadSafeDateFormat dateFormat : httpDatesFormats) {
+			try {
+				System.out.println(dateFormat.parse(
+						"Thu, 21 Feb 2013 20:11:52 GMT").getTime());
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 		}
 	}

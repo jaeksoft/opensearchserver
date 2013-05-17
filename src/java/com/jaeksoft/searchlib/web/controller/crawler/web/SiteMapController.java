@@ -25,14 +25,23 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.xml.sax.SAXException;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.SiteMapItem;
-import com.jaeksoft.searchlib.crawler.web.database.SiteMapList;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -131,9 +140,21 @@ public class SiteMapController extends CrawlerController {
 	}
 
 	@Command
-	public void delete(@BindingParam("siteMapItem") SiteMapItem item)
+	public void onDelete(@BindingParam("siteMapItem") SiteMapItem item)
 			throws SearchLibException, InterruptedException {
 		new DeleteAlert(item);
 	}
 
+	@Command
+	public void onCheck(@BindingParam("siteMapItem") SiteMapItem item)
+			throws SearchLibException, ClientProtocolException,
+			IllegalStateException, URISyntaxException, IOException,
+			SAXException, ParserConfigurationException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		List<SiteMapUrl> list = item.getListOfUrls(client.getWebCrawlMaster()
+				.getNewHttpDownloader());
+		new AlertController(list.size() + " URL(s) found");
+	}
 }

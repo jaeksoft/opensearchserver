@@ -31,8 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -154,45 +152,42 @@ public class FileManager extends AbstractManager {
 
 			if (minSize != null || maxSize != null) {
 				String from, to;
-				DecimalFormat df = FileItem.getContentLengthFormat();
-				if (fileExtension == null)
-					from = df.format(0);
+				if (minSize == null)
+					from = FileItem.contentLengthFormat.format(0);
 				else
-					from = df.format(fileExtension);
+					from = FileItem.contentLengthFormat.format(minSize);
 				if (maxSize == null)
-					to = df.format(Integer.MAX_VALUE);
+					to = FileItem.contentLengthFormat.format(Integer.MAX_VALUE);
 				else
-					to = df.format(maxSize);
+					to = FileItem.contentLengthFormat.format(maxSize);
 				fileItemFieldEnum.fileSize.addFilterRange(searchRequest, from,
 						to, false, false);
 			}
 
 			if (startcrawlDate != null || endCrawlDate != null) {
 				String from, to;
-				SimpleDateFormat df = FileItem.getDateFormat();
 				if (startcrawlDate == null)
 					from = "00000000000000";
 				else
-					from = df.format(startcrawlDate);
+					from = FileItem.dateFormat.format(startcrawlDate);
 				if (endCrawlDate == null)
 					to = "99999999999999";
 				else
-					to = df.format(endCrawlDate);
+					to = FileItem.dateFormat.format(endCrawlDate);
 				fileItemFieldEnum.crawlDate.addFilterRange(searchRequest, from,
 						to, false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
 				String from, to;
-				SimpleDateFormat df = FileItem.getDateFormat();
 				if (startModifiedDate == null)
 					from = "00000000000000";
 				else
-					from = df.format(startModifiedDate);
+					from = FileItem.dateFormat.format(startModifiedDate);
 				if (endModifiedDate == null)
 					to = "99999999999999";
 				else
-					to = df.format(endModifiedDate);
+					to = FileItem.dateFormat.format(endModifiedDate);
 				fileItemFieldEnum.fileSystemDate.addFilterRange(searchRequest,
 						from, to, false, false);
 			}

@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +41,7 @@ import org.json.JSONObject;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class SwiftProtocol {
@@ -49,7 +49,7 @@ public class SwiftProtocol {
 	private final static String APPLICATION_DIRECTORY = "application/directory";
 
 	// 2013-02-23T10:53:26.184120
-	private final static SimpleDateFormat swiftDateFormat = new SimpleDateFormat(
+	private final static ThreadSafeSimpleDateFormat swiftDateFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
 	public static class ObjectMeta {

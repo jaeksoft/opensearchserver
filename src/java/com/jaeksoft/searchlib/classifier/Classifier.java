@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.classifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -49,6 +48,7 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -344,6 +344,9 @@ public class Classifier implements Comparable<Classifier> {
 			document.add(fieldName, defaultValue, 1.0F);
 	}
 
+	private final static ThreadSafeDecimalFormat scoreFormat = new ThreadSafeDecimalFormat(
+			"0.###########");
+
 	private void bestScoreClassification(Client client, IndexDocument document,
 			LanguageEnum lang, MemoryIndex index) throws ParseException,
 			SearchLibException, SyntaxError, IOException {
@@ -356,12 +359,11 @@ public class Classifier implements Comparable<Classifier> {
 				maxScore = score;
 			}
 		}
-		DecimalFormat df = new DecimalFormat("0.###########");
 		if (selectedItem != null) {
 			document.add(getFieldName(), selectedItem.getValue(),
 					selectedItem.getBoost());
 			if (scoreFieldName != null && scoreFieldName.length() > 0) {
-				document.addString(scoreFieldName, df.format(maxScore));
+				document.addString(scoreFieldName, scoreFormat.format(maxScore));
 			}
 		} else {
 			if (defaultValue != null && defaultValue.length() > 0)

@@ -24,7 +24,6 @@
 package com.jaeksoft.searchlib.report;
 
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
 
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -59,10 +58,6 @@ public class ReportItem {
 
 	public final String getReportId() {
 		return reportId;
-	}
-
-	final static SimpleDateFormat getDateFormat() {
-		return new SimpleDateFormat("yyyyMMddHHmmss");
 	}
 
 	public final void setReportId(String reportId) {

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -45,11 +45,19 @@
 		</auxhead>
 		<template name="model" var="siteMapItem">
 			<listitem>
-				<listcell label="@load(siteMapItem.uri)" />
 				<listcell>
+					<a href="@load(siteMapItem.uri)" target="_blank">
+						<label value="@load(siteMapItem.uri)" />
+					</a>
+				</listcell>
+				<listcell>
+					<button tooltiptext="Load the Site Map URL"
+						label="Check"
+						onClick="@command('onCheck', siteMapItem=siteMapItem)" />
+					<space />
 					<button tooltiptext="Delete the Site Map URL"
 						label="Delete"
-						onClick="@command('delete', siteMapItem=siteMapItem)" />
+						onClick="@command('onDelete', siteMapItem=siteMapItem)" />
 				</listcell>
 			</listitem>
 		</template>
