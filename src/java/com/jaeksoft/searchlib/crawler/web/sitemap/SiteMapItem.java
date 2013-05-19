@@ -28,8 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -48,17 +49,18 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SiteMapItem implements Comparable<SiteMapItem> {
 
-	private String uri;
+	private URI uri;
 
-	private SiteMapItem() {
+	public SiteMapItem() {
+		uri = null;
 	}
 
-	public SiteMapItem(String uri) {
+	public SiteMapItem(String uri) throws URISyntaxException {
 		this();
 		setUri(uri);
 	}
 
-	public SiteMapItem(Node node) {
+	public SiteMapItem(Node node) throws URISyntaxException {
 		this();
 		setUri(DomUtils.getAttributeText(node, "uri"));
 	}
@@ -71,19 +73,25 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 	 * @return the uri
 	 */
 	public String getUri() {
-		return uri;
+		return uri == null ? null : uri.toString();
 	}
 
 	/**
 	 * @param uri
 	 *            the uri to set
+	 * @throws URISyntaxException
 	 */
-	public void setUri(String uri) {
-		this.uri = uri;
+	public void setUri(String uri) throws URISyntaxException {
+		this.uri = new URI(uri);
+	}
+
+	public String getHostname() {
+		return uri == null ? null : uri.getHost();
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("siteMap", "uri", uri);
+		xmlWriter.startElement("siteMap", "uri", uri != null ? uri.toString()
+				: null);
 		xmlWriter.endElement();
 	}
 
@@ -92,27 +100,39 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		return this.uri.compareTo(o.uri);
 	}
 
-	public List<SiteMapUrl> getListOfUrls(HttpDownloader httpDownloader)
-			throws URISyntaxException, ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			SAXException, ParserConfigurationException {
-		List<SiteMapUrl> urls = new ArrayList<SiteMapUrl>(0);
+	public Set<SiteMapUrl> load(HttpDownloader httpDownloader,
+			Set<SiteMapUrl> siteMapUrlSet) throws SearchLibException {
+		if (siteMapUrlSet == null)
+			siteMapUrlSet = new TreeSet<SiteMapUrl>();
 		InputStream inputStream = null;
 		try {
-			DownloadItem downloadItem = httpDownloader.get(new URI(uri), null);
+			DownloadItem downloadItem = httpDownloader.get(uri, null);
 			inputStream = downloadItem.getContentInputStream();
 			Document doc = DomUtils.readXml(new InputSource(inputStream), true);
 			if (doc != null) {
 				List<Node> nodes = DomUtils.getAllNodes(doc, "url");
 				if (nodes != null)
 					for (Node node : nodes)
-						urls.add(new SiteMapUrl(node));
+						siteMapUrlSet.add(new SiteMapUrl(node));
 			}
+			return siteMapUrlSet;
+		} catch (ClientProtocolException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalStateException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
 		} finally {
 			if (inputStream != null)
 				IOUtils.closeQuietly(inputStream);
 			httpDownloader.release();
 		}
-		return urls;
 	}
+
 }

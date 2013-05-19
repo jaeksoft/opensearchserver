@@ -28,7 +28,10 @@ package com.jaeksoft.searchlib.crawler.web.sitemap;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.SortedSet;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,8 +41,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -48,15 +52,15 @@ public class SiteMapList {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private File configFile;
-	private TreeSet<SiteMapItem> filterSet;
-	private SiteMapItem[] array;
+	private final File configFile;
+	private final Map<String, Set<SiteMapItem>> sitemapMap;
+	private SiteMapItem[] sitemapArray;
 
 	public SiteMapList(File indexDir, String filename)
 			throws SearchLibException {
 		configFile = new File(indexDir, filename);
-		filterSet = new TreeSet<SiteMapItem>();
-		array = null;
+		sitemapMap = new TreeMap<String, Set<SiteMapItem>>();
+		sitemapArray = null;
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
@@ -77,18 +81,23 @@ public class SiteMapList {
 		XPathParser xpp = new XPathParser(configFile);
 		NodeList nodeList = xpp.getNodeList("/siteMaps/siteMap");
 		int l = nodeList.getLength();
-		TreeSet<SiteMapItem> set = new TreeSet<SiteMapItem>();
 		for (int i = 0; i < l; i++) {
-			SiteMapItem item = new SiteMapItem(nodeList.item(i));
-			set.add(item);
+			try {
+				addNoLock(new SiteMapItem(nodeList.item(i)));
+			} catch (URISyntaxException e) {
+				Logging.error(e);
+			}
 		}
-		rwl.w.lock();
-		try {
-			filterSet = set;
-			array = null;
-		} finally {
-			rwl.w.unlock();
+
+	}
+
+	private void addNoLock(SiteMapItem item) {
+		Set<SiteMapItem> set = sitemapMap.get(item.getHostname());
+		if (set == null) {
+			set = new TreeSet<SiteMapItem>();
+			sitemapMap.put(item.getHostname(), set);
 		}
+		set.add(item);
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws IOException,
@@ -96,8 +105,9 @@ public class SiteMapList {
 		rwl.w.lock();
 		try {
 			xmlWriter.startElement("siteMaps");
-			for (SiteMapItem item : filterSet)
-				item.writeXml(xmlWriter);
+			for (Set<SiteMapItem> set : sitemapMap.values())
+				for (SiteMapItem item : set)
+					item.writeXml(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
 		} finally {
@@ -108,21 +118,38 @@ public class SiteMapList {
 	public SiteMapItem[] getArray() {
 		rwl.r.lock();
 		try {
-			if (array != null)
-				return array;
-			array = new SiteMapItem[filterSet.size()];
-			filterSet.toArray(array);
-			return array;
+			if (sitemapArray != null)
+				return sitemapArray;
 		} finally {
 			rwl.r.unlock();
 		}
+		rwl.w.lock();
+		try {
+			if (sitemapArray != null)
+				return sitemapArray;
+			sitemapArray = new SiteMapItem[countSiteMapNoLock()];
+			int i = 0;
+			for (Set<SiteMapItem> set : sitemapMap.values())
+				for (SiteMapItem item : set)
+					sitemapArray[i++] = item;
+			return sitemapArray;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private int countSiteMapNoLock() {
+		int i = 0;
+		for (Set<SiteMapItem> set : sitemapMap.values())
+			i += set.size();
+		return i;
 	}
 
 	public void add(SiteMapItem item) {
 		rwl.w.lock();
 		try {
-			filterSet.add(item);
-			array = null;
+			addNoLock(item);
+			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -131,24 +158,30 @@ public class SiteMapList {
 	public void remove(SiteMapItem item) {
 		rwl.w.lock();
 		try {
-			filterSet.remove(item);
-			array = null;
+			Set<SiteMapItem> set = sitemapMap.get(item.getHostname());
+			if (set == null)
+				return;
+			set.remove(item);
+			if (set.isEmpty())
+				sitemapMap.remove(set);
+			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public SiteMapItem get(String uri) {
+	public Set<SiteMapUrl> load(String hostname, HttpDownloader downloader,
+			Set<SiteMapUrl> siteMapUrlSet) throws SearchLibException {
 		rwl.r.lock();
 		try {
-			SiteMapItem finder = new SiteMapItem(uri);
-			SortedSet<SiteMapItem> s = filterSet.subSet(finder, true, finder,
-					true);
-			if (s == null)
-				return null;
-			if (s.size() == 0)
-				return null;
-			return s.first();
+			if (siteMapUrlSet == null)
+				siteMapUrlSet = new TreeSet<SiteMapUrl>();
+			Set<SiteMapItem> set = sitemapMap.get(hostname);
+			if (set == null)
+				return siteMapUrlSet;
+			for (SiteMapItem item : set)
+				item.load(downloader, siteMapUrlSet);
+			return siteMapUrlSet;
 		} finally {
 			rwl.r.unlock();
 		}

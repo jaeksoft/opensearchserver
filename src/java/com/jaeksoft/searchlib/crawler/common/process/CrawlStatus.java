@@ -42,7 +42,7 @@ public enum CrawlStatus {
 
 	OPTIMIZATION("Optimizing database"),
 
-	EXTRACTING_URLS("Extracting urls"),
+	LOADING_SITEMAP("Reading Sitemap"),
 
 	WAITING("Waiting"),
 

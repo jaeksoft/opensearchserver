@@ -39,7 +39,7 @@
 	<property name="licenses" location="licenses" />
 	<property name="product" value="open-search-server" />
 	<property name="name" value="${product}" />
-	<property name="tomcat-name" value="apache-tomcat-7.0.37" />
+	<property name="tomcat-name" value="apache-tomcat-7.0.40" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="tomcat-bin" location="pkg/tomcat_bin" />

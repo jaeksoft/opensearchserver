@@ -23,26 +23,28 @@
 		pageSize="20">
 		<listhead>
 			<listheader label="Site Map URL" align="left"
-				tooltiptext="The Site Map url" />
-			<listheader label="Action" width="150px" align="center" />
+				tooltiptext="The Site Map url">
+				<vlayout>
+					<textbox
+						value="@bind(siteMapCtrl.currentSiteMap.uri)" width="95%" />
+				</vlayout>
+			</listheader>
+			<listheader label="Action" hflex="min" align="center">
+				<vlayout>
+					<hbox visible="@load(siteMapCtrl.selected)">
+						<button label="Cancel"
+							onClick="@command('onCancel')" />
+						<space width="10px" />
+						<button label="Save"
+							onClick="@command('onSave')" />
+					</hbox>
+					<hbox visible="@load(siteMapCtrl.notSelected)">
+						<button label="Create"
+							onClick="@command('onSave')" />
+					</hbox>
+				</vlayout>
+			</listheader>
 		</listhead>
-		<auxhead>
-			<auxheader align="center">
-				<textbox value="@bind(siteMapCtrl.currentSiteMap.uri)"
-					width="95%" />
-			</auxheader>
-			<auxheader align="center">
-				<hbox visible="@load(siteMapCtrl.selected)">
-					<button label="Cancel"
-						onClick="@command('onCancel')" />
-					<space width="10px" />
-					<button label="Save" onClick="@command('onSave')" />
-				</hbox>
-				<hbox visible="@load(siteMapCtrl.notSelected)">
-					<button label="Create" onClick="@command('onSave')" />
-				</hbox>
-			</auxheader>
-		</auxhead>
 		<template name="model" var="siteMapItem">
 			<listitem>
 				<listcell>

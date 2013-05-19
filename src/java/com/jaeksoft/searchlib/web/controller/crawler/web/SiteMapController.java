@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -78,7 +78,7 @@ public class SiteMapController extends CrawlerController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedSiteMap = null;
-		currentSiteMap = new SiteMapItem("");
+		currentSiteMap = new SiteMapItem();
 	}
 
 	public SiteMapList getSiteMapList() throws SearchLibException {
@@ -124,17 +124,19 @@ public class SiteMapController extends CrawlerController {
 
 	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
+		SiteMapList siteMapList = getSiteMapList();
+		if (siteMapList == null)
+			return;
 		if (selectedSiteMap != null)
-			currentSiteMap.copyTo(selectedSiteMap);
-		else
-			getClient().getSiteMapList().add(currentSiteMap);
+			siteMapList.remove(selectedSiteMap);
+		siteMapList.add(currentSiteMap);
 		getClient().saveSiteMapList();
 		onCancel();
 	}
 
 	@Command
 	public void onCancel() throws SearchLibException {
-		currentSiteMap = new SiteMapItem("");
+		currentSiteMap = new SiteMapItem();
 		selectedSiteMap = null;
 		reload();
 	}
@@ -153,8 +155,8 @@ public class SiteMapController extends CrawlerController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		List<SiteMapUrl> list = item.getListOfUrls(client.getWebCrawlMaster()
-				.getNewHttpDownloader());
-		new AlertController(list.size() + " URL(s) found");
+		Set<SiteMapUrl> set = item.load(client.getWebCrawlMaster()
+				.getNewHttpDownloader(), null);
+		new AlertController(set.size() + " URL(s) found");
 	}
 }

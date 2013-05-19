@@ -25,8 +25,8 @@
 package com.jaeksoft.searchlib.crawler.web.sitemap;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -38,13 +38,13 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
-public class SiteMapUrl {
+public class SiteMapUrl implements Comparable<SiteMapUrl> {
 
 	public enum ChangeFreq {
 		always, hourly, daily, weekly, monthly, yearly, never
 	};
 
-	private final URL loc;
+	private final URI loc;
 	private final Date lastMod;
 	private final ChangeFreq changeFreq;
 	private final Float priority;
@@ -55,7 +55,7 @@ public class SiteMapUrl {
 	public SiteMapUrl(Node urlNode) throws MalformedURLException,
 			URISyntaxException {
 		Node node = DomUtils.getFirstNode(urlNode, "loc");
-		loc = node == null ? null : LinkUtils.newEncodedURL(DomUtils
+		loc = node == null ? null : LinkUtils.newEncodedURI(DomUtils
 				.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "lastmod");
 		Date d = null;
@@ -76,7 +76,7 @@ public class SiteMapUrl {
 	/**
 	 * @return the loc
 	 */
-	public URL getLoc() {
+	public URI getLoc() {
 		return loc;
 	}
 
@@ -101,4 +101,8 @@ public class SiteMapUrl {
 		return priority;
 	}
 
+	@Override
+	public int compareTo(SiteMapUrl o) {
+		return loc.compareTo(o.loc);
+	}
 }
