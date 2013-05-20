@@ -77,7 +77,18 @@ public class HtmlParser extends Parser {
 
 	private UrlItemFieldEnum urlItemFieldEnum = null;
 
-	private Map<String, Float> boostTagMap;
+	private class BoostTag {
+		private final Float boost;
+		private String firstContent;
+
+		private BoostTag(ClassPropertyEnum classPropertyEnum) {
+			this.boost = getFloatProperty(classPropertyEnum);
+			this.firstContent = null;
+		}
+	}
+
+	private Map<String, BoostTag> boostTagMap;
+
 	private Float titleBoost;
 	private boolean ignoreMetaNoIndex;
 	private boolean ignoreMetaNoFollow;
@@ -230,7 +241,13 @@ public class HtmlParser extends Parser {
 
 	protected void addFieldBody(ParserResultItem result, String tag,
 			String value) {
-		Float boost = boostTagMap.get(tag);
+		BoostTag boostTag = boostTagMap.get(tag);
+		Float boost = null;
+		if (boostTag != null) {
+			boost = boostTag.boost;
+			if (boostTag.firstContent == null)
+				boostTag.firstContent = value;
+		}
 		if (boost == null)
 			boost = 1.0F;
 		result.addField(ParserFieldEnum.body, value, boost);
@@ -265,13 +282,13 @@ public class HtmlParser extends Parser {
 			LanguageEnum forcedLang) throws IOException, SearchLibException {
 
 		titleBoost = getFloatProperty(ClassPropertyEnum.TITLE_BOOST);
-		boostTagMap = new TreeMap<String, Float>();
-		boostTagMap.put("h1", getFloatProperty(ClassPropertyEnum.H1_BOOST));
-		boostTagMap.put("h2", getFloatProperty(ClassPropertyEnum.H2_BOOST));
-		boostTagMap.put("h3", getFloatProperty(ClassPropertyEnum.H3_BOOST));
-		boostTagMap.put("h4", getFloatProperty(ClassPropertyEnum.H4_BOOST));
-		boostTagMap.put("h5", getFloatProperty(ClassPropertyEnum.H5_BOOST));
-		boostTagMap.put("h6", getFloatProperty(ClassPropertyEnum.H6_BOOST));
+		boostTagMap = new TreeMap<String, BoostTag>();
+		boostTagMap.put("h1", new BoostTag(ClassPropertyEnum.H1_BOOST));
+		boostTagMap.put("h2", new BoostTag(ClassPropertyEnum.H2_BOOST));
+		boostTagMap.put("h3", new BoostTag(ClassPropertyEnum.H3_BOOST));
+		boostTagMap.put("h4", new BoostTag(ClassPropertyEnum.H4_BOOST));
+		boostTagMap.put("h5", new BoostTag(ClassPropertyEnum.H5_BOOST));
+		boostTagMap.put("h6", new BoostTag(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
 		ignoreMetaNoFollow = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW);
 		ignoreUntitledDocuments = getBooleanProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS);
@@ -514,22 +531,6 @@ public class HtmlParser extends Parser {
 			lang = result.langDetection(10000, ParserFieldEnum.body);
 
 		if (getFieldMap().isMapped(ParserFieldEnum.generated_title)) {
-			final String FIELD_TITLE = "contents";
-
-			MemoryIndex bodyMemoryIndex = new MemoryIndex();
-			Analyzer bodyAnalyzer = new WhitespaceAnalyzer(Version.LUCENE_36);
-			String bodyText = result.getMergedBodyText(100000, " ",
-					ParserFieldEnum.body);
-			bodyMemoryIndex.addField(FIELD_TITLE, bodyText, bodyAnalyzer);
-
-			IndexSearcher indexSearcher = bodyMemoryIndex.createSearcher();
-			IndexReader indexReader = indexSearcher.getIndexReader();
-			MoreLikeThis mlt = new MoreLikeThis(indexReader);
-			mlt.setAnalyzer(bodyAnalyzer);
-			mlt.setFieldNames(new String[] { FIELD_TITLE });
-			mlt.setMinWordLen(3);
-			mlt.setMinTermFreq(1);
-			mlt.setMinDocFreq(1);
 
 			StringBuffer sb = new StringBuffer();
 			try {
@@ -537,11 +538,52 @@ public class HtmlParser extends Parser {
 			} catch (URISyntaxException e) {
 				Logging.error(e);
 			}
-			String[] words = mlt.retrieveInterestingTerms(0);
-			if (words != null && words.length > 0) {
+
+			String generatedTitle = null;
+			for (Map.Entry<String, BoostTag> entry : boostTagMap.entrySet()) {
+				BoostTag boostTag = entry.getValue();
+				if (boostTag.firstContent != null) {
+					generatedTitle = boostTag.firstContent;
+					break;
+				}
+			}
+
+			if (generatedTitle == null) {
+				final String FIELD_TITLE = "contents";
+
+				MemoryIndex bodyMemoryIndex = new MemoryIndex();
+				Analyzer bodyAnalyzer = new WhitespaceAnalyzer(
+						Version.LUCENE_36);
+				String bodyText = result.getMergedBodyText(100000, " ",
+						ParserFieldEnum.body);
+				bodyMemoryIndex.addField(FIELD_TITLE, bodyText, bodyAnalyzer);
+
+				IndexSearcher indexSearcher = bodyMemoryIndex.createSearcher();
+				IndexReader indexReader = indexSearcher.getIndexReader();
+				MoreLikeThis mlt = new MoreLikeThis(indexReader);
+				mlt.setAnalyzer(bodyAnalyzer);
+				mlt.setFieldNames(new String[] { FIELD_TITLE });
+				mlt.setMinWordLen(3);
+				mlt.setMinTermFreq(1);
+				mlt.setMinDocFreq(1);
+
+				String[] words = mlt.retrieveInterestingTerms(0);
+				if (words != null && words.length > 0)
+					generatedTitle = words[0];
+			}
+
+			if (generatedTitle != null) {
 				if (sb.length() > 0)
 					sb.append(" - ");
-				sb.append(words[0]);
+				sb.append(generatedTitle);
+			}
+
+			if (sb.length() > 67) {
+				int pos = sb.indexOf(" ", 60);
+				if (pos == -1)
+					pos = 67;
+				sb.setLength(pos);
+				sb.append("...");
 			}
 			result.addField(ParserFieldEnum.generated_title, sb.toString());
 		}
