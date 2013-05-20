@@ -196,7 +196,7 @@ public class HtmlArchiver {
 			SearchLibException, URISyntaxException {
 		StringWriter sw = null;
 		PrintWriter pw = null;
-		css = RegExpUtils.replace(css, cssErronousCommentPattern, "");
+		css = RegExpUtils.replaceAll(css, cssErronousCommentPattern, "");
 		try {
 			CSSOMParser parser = new CSSOMParser();
 			parser.setErrorHandler(ParserErrorHandler.LOGONLY_ERROR_HANDLER);
@@ -220,7 +220,7 @@ public class HtmlArchiver {
 						if (urls != null && urls.size() > 0) {
 							String newSrc = downloadObject(objectUrl,
 									urls.get(0), null);
-							String newValue = RegExpUtils.replace(value,
+							String newValue = RegExpUtils.replaceAll(value,
 									cssUrlPattern, " url('" + newSrc + "')");
 							try {
 								cssValue.setCssText(newValue.trim());
@@ -292,7 +292,7 @@ public class HtmlArchiver {
 			return;
 		String cssString = builder.toString();
 		for (Pattern p : cssCommentPatterns)
-			cssString = RegExpUtils.replace(cssString, p, "");
+			cssString = RegExpUtils.replaceAll(cssString, p, "");
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		try {
@@ -320,7 +320,7 @@ public class HtmlArchiver {
 		if (content.length() == 0)
 			return;
 		for (Pattern p : cssCommentPatterns)
-			content = RegExpUtils.replace(content, p, "");
+			content = RegExpUtils.replaceAll(content, p, "");
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		try {

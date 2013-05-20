@@ -54,9 +54,14 @@ public class ViewerServlet extends AbstractServlet {
 			MalformedURLException, IOException, URISyntaxException {
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
 				.getNewHttpDownloader();
-		httpDownloader.head(new URI(uri), client.getWebCredentialManager()
-				.getCredential(uri));
-		return httpDownloader.getContentBaseType();
+		try {
+			httpDownloader.head(new URI(uri), client.getWebCredentialManager()
+					.getCredential(uri));
+			return httpDownloader.getContentBaseType();
+		} finally {
+			if (httpDownloader != null)
+				httpDownloader.release();
+		}
 	}
 
 	@Override

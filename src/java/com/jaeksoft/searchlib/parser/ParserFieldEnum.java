@@ -32,6 +32,8 @@ public enum ParserFieldEnum {
 
 	title,
 
+	generated_title,
+
 	body,
 
 	meta_keywords,

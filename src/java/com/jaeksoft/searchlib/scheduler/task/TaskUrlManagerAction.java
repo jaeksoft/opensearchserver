@@ -36,26 +36,45 @@ import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskUrlManagerAction extends TaskAbstract {
 
+	final private TaskPropertyDef propCommand = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Command", "Command",
+			"Select the command to execute", 30);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand };
+
+	final private static String CommandDoNothing = "Do nothing";
+	final private static String CommandDeleteAll = "Delete all";
+	final private static String CommandLoadSitemap = "Load Sitemap(s)";
+	final private static String CommandOptimize = "Optimize";
+
+	final private static String[] CommandList = { CommandDoNothing,
+			CommandDeleteAll, CommandLoadSitemap, CommandOptimize };
+
 	@Override
 	public String getName() {
-		return "Web crawler - Action on selected URLs";
+		return "Web crawler - URL database";
 	}
 
 	@Override
 	public TaskPropertyDef[] getPropertyList() {
-		return null;
+		return taskPropertyDefs;
 	}
 
 	@Override
 	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propCommand)
+			return CommandList;
 		return null;
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propCommand)
+			return CommandList[0];
 		return null;
 	}
 
@@ -73,12 +92,16 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	private SearchRequest selectionRequest = null;
 
+	private boolean doSiteMaps;
+
 	private boolean deleteSelection;
 
 	private FetchStatus setToFetchStatus;
 
-	public void setSelection(SearchRequest selectionRequest,
-			boolean deleteSelection, FetchStatus setToFetchStatus) {
+	public void setSelection(boolean doSiteMaps,
+			SearchRequest selectionRequest, boolean deleteSelection,
+			FetchStatus setToFetchStatus) {
+		this.doSiteMaps = doSiteMaps;
 		this.selectionRequest = selectionRequest;
 		this.setToFetchStatus = setToFetchStatus;
 		this.deleteSelection = deleteSelection;
@@ -89,6 +112,9 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			TaskLog taskLog) throws SearchLibException, IOException {
 		UrlManager urlManager = client.getUrlManager();
 		taskLog.setInfo("URL manager Action started");
+
+		String command = properties.getValue(propCommand);
+
 		if (selectionRequest != null) {
 			if (setToFetchStatus != null) {
 				taskLog.setInfo("URL manager: set selection to: "
@@ -100,14 +126,17 @@ public class TaskUrlManagerAction extends TaskAbstract {
 				urlManager.deleteUrls(selectionRequest, taskLog);
 			}
 		}
-		if (deleteAll) {
+		if (doSiteMaps || CommandLoadSitemap.equals(command)) {
+			taskLog.setInfo("URL manager: Handle SiteMaps");
+			urlManager.updateSiteMap(taskLog);
+		}
+		if (deleteAll || CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("URL manager: Delete All");
 			urlManager.deleteAll(taskLog);
 		}
-		if (optimize) {
+		if (optimize || CommandOptimize.equals(command)) {
 			taskLog.setInfo("URL manager: optimize");
 			urlManager.reload(true, taskLog);
 		}
-		taskLog.setInfo("URL manager Action done");
 	}
 }

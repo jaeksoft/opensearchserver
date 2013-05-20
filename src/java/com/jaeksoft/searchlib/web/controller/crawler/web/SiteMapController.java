@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
@@ -155,8 +156,15 @@ public class SiteMapController extends CrawlerController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		Set<SiteMapUrl> set = item.load(client.getWebCrawlMaster()
-				.getNewHttpDownloader(), null);
-		new AlertController(set.size() + " URL(s) found");
+		HttpDownloader httpDownloader = client.getWebCrawlMaster()
+				.getNewHttpDownloader();
+		try {
+			Set<SiteMapUrl> set = item.load(client.getWebCrawlMaster()
+					.getNewHttpDownloader(), null);
+			new AlertController(set.size() + " URL(s) found");
+		} finally {
+			if (httpDownloader != null)
+				httpDownloader.release();
+		}
 	}
 }

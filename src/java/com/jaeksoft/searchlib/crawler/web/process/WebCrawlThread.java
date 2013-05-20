@@ -226,8 +226,10 @@ public class WebCrawlThread extends
 
 	@Override
 	public void release() {
-		httpDownloader.release();
-		httpDownloaderRobotsTxt.release();
+		if (httpDownloader != null)
+			httpDownloader.release();
+		if (httpDownloader != null)
+			httpDownloaderRobotsTxt.release();
 		super.release();
 	}
 

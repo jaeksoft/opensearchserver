@@ -131,7 +131,6 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		} finally {
 			if (inputStream != null)
 				IOUtils.closeQuietly(inputStream);
-			httpDownloader.release();
 		}
 	}
 

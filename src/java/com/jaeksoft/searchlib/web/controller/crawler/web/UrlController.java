@@ -68,6 +68,8 @@ public class UrlController extends CommonController {
 
 		SET_TO_FETCH_FIRST("Set selected URLs to fetch first"),
 
+		LOAD_SITEMAP("Load Sitemap(s)"),
+
 		DELETE_URL("Delete selected URLs"),
 
 		OPTIMIZE("Optimize URL database"),
@@ -593,7 +595,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(searchRequest, false,
+			taskUrlManagerAction.setSelection(false, searchRequest, false,
 					FetchStatus.UN_FETCHED);
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
@@ -605,7 +607,17 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(searchRequest, false,
+			taskUrlManagerAction.setSelection(false, searchRequest, false,
+					FetchStatus.FETCH_FIRST);
+			taskUrlManagerAction.setOptimize();
+			onTask(taskUrlManagerAction);
+		}
+	}
+
+	public void onLoadSitemap() throws SearchLibException, InterruptedException {
+		synchronized (this) {
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setSelection(true, null, false,
 					FetchStatus.FETCH_FIRST);
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
@@ -616,7 +628,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(searchRequest, true, null);
+			taskUrlManagerAction.setSelection(false, searchRequest, true, null);
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -687,6 +699,9 @@ public class UrlController extends CommonController {
 				break;
 			case DELETE_ALL:
 				onDeleteAll();
+				break;
+			case LOAD_SITEMAP:
+				onLoadSitemap();
 				break;
 			}
 			batchCommand = BatchCommandEnum.NOTHING;

@@ -36,8 +36,15 @@ import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 
 public class TaskFileManagerAction extends TaskAbstract {
+
+	final private TaskPropertyDef propCommand = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Command", "Command",
+			"Select the command to execute", 30);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand };
 
 	@Override
 	public String getName() {
@@ -46,7 +53,7 @@ public class TaskFileManagerAction extends TaskAbstract {
 
 	@Override
 	public TaskPropertyDef[] getPropertyList() {
-		return null;
+		return taskPropertyDefs;
 	}
 
 	@Override

@@ -96,11 +96,21 @@ public class RegExpUtils {
 		return list;
 	}
 
-	public static String replace(String cssString, Pattern p, String replace) {
+	public static String replaceAll(String source, Pattern pattern,
+			String replace) {
 		Matcher matcher;
-		synchronized (p) {
-			matcher = p.matcher(cssString);
+		synchronized (pattern) {
+			matcher = pattern.matcher(source);
 		}
 		return matcher.replaceAll(replace);
+	}
+
+	public static String replaceFirst(String source, Pattern pattern,
+			String replace) {
+		Matcher matcher;
+		synchronized (pattern) {
+			matcher = pattern.matcher(source);
+		}
+		return matcher.replaceFirst(replace);
 	}
 }

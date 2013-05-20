@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -36,6 +37,13 @@ import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.WhitespaceAnalyzer;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.memory.MemoryIndex;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.similar.MoreLikeThis;
+import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -58,9 +66,10 @@ public class HtmlParser extends Parser {
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.title, ParserFieldEnum.body,
-			ParserFieldEnum.meta_keywords, ParserFieldEnum.meta_description,
-			ParserFieldEnum.meta_robots, ParserFieldEnum.internal_link,
+			ParserFieldEnum.title, ParserFieldEnum.generated_title,
+			ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
+			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
+			ParserFieldEnum.internal_link,
 			ParserFieldEnum.internal_link_nofollow,
 			ParserFieldEnum.external_link,
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
@@ -503,6 +512,39 @@ public class HtmlParser extends Parser {
 			result.addField(ParserFieldEnum.lang_method, langMethod);
 		} else if (!metaRobotsNoIndex)
 			lang = result.langDetection(10000, ParserFieldEnum.body);
+
+		if (getFieldMap().isMapped(ParserFieldEnum.generated_title)) {
+			final String FIELD_TITLE = "contents";
+
+			MemoryIndex bodyMemoryIndex = new MemoryIndex();
+			Analyzer bodyAnalyzer = new WhitespaceAnalyzer(Version.LUCENE_36);
+			String bodyText = result.getMergedBodyText(100000, " ",
+					ParserFieldEnum.body);
+			bodyMemoryIndex.addField(FIELD_TITLE, bodyText, bodyAnalyzer);
+
+			IndexSearcher indexSearcher = bodyMemoryIndex.createSearcher();
+			IndexReader indexReader = indexSearcher.getIndexReader();
+			MoreLikeThis mlt = new MoreLikeThis(indexReader);
+			mlt.setAnalyzer(bodyAnalyzer);
+			mlt.setFieldNames(new String[] { FIELD_TITLE });
+			mlt.setMinWordLen(3);
+			mlt.setMinTermFreq(1);
+			mlt.setMinDocFreq(1);
+
+			StringBuffer sb = new StringBuffer();
+			try {
+				sb.append(new URI(streamLimiter.getOriginURL()).getHost());
+			} catch (URISyntaxException e) {
+				Logging.error(e);
+			}
+			String[] words = mlt.retrieveInterestingTerms(0);
+			if (words != null && words.length > 0) {
+				if (sb.length() > 0)
+					sb.append(" - ");
+				sb.append(words[0]);
+			}
+			result.addField(ParserFieldEnum.generated_title, sb.toString());
+		}
 
 	}
 

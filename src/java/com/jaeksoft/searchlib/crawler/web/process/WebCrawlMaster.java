@@ -215,25 +215,32 @@ public class WebCrawlMaster extends
 	}
 
 	private void extractSiteMapList() throws SearchLibException {
-		SiteMapList siteMapList = getConfig().getSiteMapList();
-		if (siteMapList != null && siteMapList.getArray() != null) {
-			setStatus(CrawlStatus.LOADING_SITEMAP);
-			UrlManager urlManager = getConfig().getUrlManager();
-			List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
-			for (SiteMapItem siteMap : siteMapList.getArray()) {
-				Set<SiteMapUrl> siteMapUrlSet = siteMap.load(
-						getNewHttpDownloader(), null);
-				for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
-					String sUri = siteMapUrl.getLoc().toString();
-					if (!urlManager.exists(sUri)) {
-						workInsertUrlList.add(urlManager
-								.getNewUrlItem(new LinkItem(sUri,
-										LinkItem.Origin.sitemap, null)));
+		HttpDownloader httpDownloader = null;
+		try {
+			httpDownloader = getNewHttpDownloader();
+			SiteMapList siteMapList = getConfig().getSiteMapList();
+			if (siteMapList != null && siteMapList.getArray() != null) {
+				setStatus(CrawlStatus.LOADING_SITEMAP);
+				UrlManager urlManager = getConfig().getUrlManager();
+				List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
+				for (SiteMapItem siteMap : siteMapList.getArray()) {
+					Set<SiteMapUrl> siteMapUrlSet = siteMap.load(
+							getNewHttpDownloader(), null);
+					for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
+						String sUri = siteMapUrl.getLoc().toString();
+						if (!urlManager.exists(sUri)) {
+							workInsertUrlList.add(urlManager
+									.getNewUrlItem(new LinkItem(sUri,
+											LinkItem.Origin.sitemap, null)));
+						}
 					}
 				}
+				if (workInsertUrlList.size() > 0)
+					urlManager.updateUrlItems(workInsertUrlList);
 			}
-			if (workInsertUrlList.size() > 0)
-				urlManager.updateUrlItems(workInsertUrlList);
+		} finally {
+			if (httpDownloader != null)
+				httpDownloader.release();
 		}
 	}
 

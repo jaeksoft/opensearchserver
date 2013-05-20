@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 
@@ -37,11 +38,45 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class SiteMapUrl implements Comparable<SiteMapUrl> {
 
 	public enum ChangeFreq {
-		always, hourly, daily, weekly, monthly, yearly, never
+		always(0),
+
+		hourly(60 * 60),
+
+		daily(60 * 60 * 24),
+
+		weekly(60 * 60 * 24 * 7),
+
+		monthly(60 * 60 * 24 * 30),
+
+		yearly(60 * 60 * 24 * 365),
+
+		never(Long.MAX_VALUE),
+
+		unknown(Long.MAX_VALUE);
+
+		private final long maxDistanceMs;
+
+		private ChangeFreq(long sec) {
+			this.maxDistanceMs = sec * 1000;
+		}
+
+		public boolean needUpdate(long timeDistanceMs) {
+			return timeDistanceMs > maxDistanceMs;
+		}
+
+		public static ChangeFreq find(String text) {
+			if (text == null)
+				return unknown;
+			for (ChangeFreq changeFreq : values())
+				if (text.equalsIgnoreCase(changeFreq.name()))
+					return changeFreq;
+			return unknown;
+		}
 	};
 
 	private final URI loc;
@@ -52,6 +87,9 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 	private final static ThreadSafeDateFormat w3cdateFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
+	private final static Pattern w3cTimeZonePattern = Pattern
+			.compile(":(?=[0-9]{2}$)");
+
 	public SiteMapUrl(Node urlNode) throws MalformedURLException,
 			URISyntaxException {
 		Node node = DomUtils.getFirstNode(urlNode, "loc");
@@ -60,15 +98,18 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 		node = DomUtils.getFirstNode(urlNode, "lastmod");
 		Date d = null;
 		try {
-			d = node == null ? null : w3cdateFormat.parse(DomUtils
-					.getText(node));
+			if (node != null) {
+				String t = RegExpUtils.replaceFirst(DomUtils.getText(node),
+						w3cTimeZonePattern, "");
+				if (t != null)
+					d = w3cdateFormat.parse(t);
+			}
 		} catch (ParseException e) {
 			Logging.warn(e);
 		}
 		lastMod = d;
 		node = DomUtils.getFirstNode(urlNode, "changefreq");
-		changeFreq = node == null ? null : ChangeFreq.valueOf(DomUtils
-				.getText(node));
+		changeFreq = ChangeFreq.find(DomUtils.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "priority");
 		priority = node == null ? null : new Float(DomUtils.getText(node));
 	}
@@ -105,4 +146,5 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 	public int compareTo(SiteMapUrl o) {
 		return loc.compareTo(o.loc);
 	}
+
 }

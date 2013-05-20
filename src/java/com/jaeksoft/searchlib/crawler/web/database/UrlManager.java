@@ -34,8 +34,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -52,7 +54,11 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
@@ -136,40 +142,38 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public void inject(List<InjectUrlItem> list) throws SearchLibException {
-		synchronized (this) {
-			try {
-				List<IndexDocument> injectList = new ArrayList<IndexDocument>();
-				for (InjectUrlItem item : list) {
-					if (exists(item.getUrl()))
-						item.setStatus(InjectUrlItem.Status.ALREADY);
-					else
-						injectList.add(item.getIndexDocument(urlItemFieldEnum));
-				}
-				if (injectList.size() == 0)
-					return;
-				urlDbClient.updateDocuments(injectList);
-				int injected = 0;
-				for (InjectUrlItem item : list) {
-					if (item.getStatus() == Status.UNDEFINED) {
-						item.setStatus(Status.INJECTED);
-						injected++;
-					}
-				}
-				if (injected > 0)
-					urlDbClient.reload();
-			} catch (NoSuchAlgorithmException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
-				throw new SearchLibException(e);
-			} catch (URISyntaxException e) {
-				throw new SearchLibException(e);
-			} catch (InstantiationException e) {
-				throw new SearchLibException(e);
-			} catch (IllegalAccessException e) {
-				throw new SearchLibException(e);
-			} catch (ClassNotFoundException e) {
-				throw new SearchLibException(e);
+		try {
+			List<IndexDocument> injectList = new ArrayList<IndexDocument>(0);
+			for (InjectUrlItem item : list) {
+				if (exists(item.getUrl()))
+					item.setStatus(InjectUrlItem.Status.ALREADY);
+				else
+					injectList.add(item.getIndexDocument(urlItemFieldEnum));
 			}
+			if (injectList.size() == 0)
+				return;
+			urlDbClient.updateDocuments(injectList);
+			int injected = 0;
+			for (InjectUrlItem item : list) {
+				if (item.getStatus() == Status.UNDEFINED) {
+					item.setStatus(Status.INJECTED);
+					injected++;
+				}
+			}
+			if (injected > 0)
+				urlDbClient.reload();
+		} catch (NoSuchAlgorithmException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -282,6 +286,13 @@ public class UrlManager extends AbstractManager {
 	final protected UrlItem getNewUrlItem(ResultDocument item) {
 		UrlItem ui = getNewUrlItem();
 		ui.init(item, urlItemFieldEnum);
+		return ui;
+	}
+
+	final protected UrlItem getNewUrlItem(SiteMapUrl siteMapUrl) {
+		UrlItem ui = getNewUrlItem();
+		ui.setUrl(siteMapUrl.getLoc().toString());
+		ui.setOrigin(Origin.sitemap);
 		return ui;
 	}
 
@@ -494,6 +505,27 @@ public class UrlManager extends AbstractManager {
 			searchRequest.setQueryString(query.toString().trim());
 			return searchRequest;
 		} catch (ParseException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	public UrlItem getUrl(SearchRequest request, String sUrl)
+			throws SearchLibException {
+		if (request == null)
+			request = (SearchRequest) urlDbClient
+					.getNewRequest(SearchTemplate.urlSearch.name());
+		else
+			request.reset();
+		request.setQueryString("url:\"" + sUrl + '"');
+		request.setStart(0);
+		request.setRows(1);
+		try {
+			AbstractResultSearch result = (AbstractResultSearch) urlDbClient
+					.request(request);
+			for (ResultDocument doc : result)
+				return getNewUrlItem(doc);
+			return null;
+		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -818,6 +850,72 @@ public class UrlManager extends AbstractManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} finally {
+			resetCurrentTaskLog();
+		}
+	}
+
+	public long updateSiteMap(TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		HttpDownloader httpDownloader = null;
+		try {
+			SearchRequest request = (SearchRequest) urlDbClient
+					.getNewRequest(SearchTemplate.urlSearch.name());
+			long inserted = 0;
+			long existing = 0;
+			long setToFetchFirst = 0;
+			int everyTen = 0;
+			targetClient.getSiteMapList();
+			httpDownloader = targetClient.getWebCrawlMaster()
+					.getNewHttpDownloader();
+			Set<SiteMapUrl> siteMapUrlSet = new HashSet<SiteMapUrl>(0);
+			List<UrlItem> urlItemList = new ArrayList<UrlItem>(0);
+			long now = System.currentTimeMillis();
+			for (SiteMapItem siteMapItem : targetClient.getSiteMapList()
+					.getArray()) {
+				taskLog.setInfo("Loading " + siteMapItem.getUri());
+				siteMapUrlSet.clear();
+				urlItemList.clear();
+				siteMapItem.load(httpDownloader, siteMapUrlSet);
+				for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
+					UrlItem urlItem = getUrl(request, siteMapUrl.getLoc()
+							.toString());
+					if (urlItem == null) {
+						urlItemList.add(getNewUrlItem(siteMapUrl));
+						inserted++;
+					} else {
+						existing++;
+						long timeDistanceMs = now - urlItem.getWhen().getTime();
+						FetchStatus fetchStatus = urlItem.getFetchStatus();
+						if (fetchStatus == FetchStatus.UN_FETCHED
+								|| (fetchStatus == FetchStatus.FETCHED && siteMapUrl
+										.getChangeFreq().needUpdate(
+												timeDistanceMs))) {
+							if (fetchStatus != FetchStatus.FETCH_FIRST) {
+								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
+								urlItemList.add(urlItem);
+								setToFetchFirst++;
+							}
+						}
+					}
+					if (everyTen == 10) {
+						if (taskLog.isAbortRequested())
+							throw new SearchLibException.AbortException();
+						everyTen = 0;
+						taskLog.setInfo(inserted + "/" + existing
+								+ " URL(s) inserted/existing");
+					} else
+						everyTen++;
+				}
+				if (urlItemList.size() > 0)
+					updateUrlItems(urlItemList);
+			}
+			taskLog.setInfo(inserted + "/" + existing + "/" + setToFetchFirst
+					+ " URL(s) inserted/existing/fetchFirst");
+			Logging.info(taskLog.getInfo());
+			return inserted + existing;
+		} finally {
+			if (httpDownloader != null)
+				httpDownloader.release();
 			resetCurrentTaskLog();
 		}
 	}
