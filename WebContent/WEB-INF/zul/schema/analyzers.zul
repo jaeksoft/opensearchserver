@@ -1,6 +1,6 @@
 <!--   License Agreement for OpenSearchServer -->
 <!--   -->
-<!--   Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!--   Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
 <!--   -->
 <!--   This file is part of OpenSearchServer. -->
 <!--   http://www.open-search-server.com -->
@@ -117,21 +117,26 @@
 			</row>
 			<row>
 				<label value="Filter list: " />
-				<listbox model="@load(anlzr.currentAnalyzer.filters)">
+				<listbox model="@load(anlzr.currentAnalyzer.filters)"
+					selectedItem="@bind(anlzr.selectedFilter)">
 					<auxhead>
 						<auxheader label="Filter" />
 						<auxheader label="Scope" />
 						<auxheader label="Properties" />
 						<auxheader align="center" label="action" />
 					</auxhead>
-					<listhead>
+					<listhead sizable="true">
 						<listheader hflex="min">
-							<listbox model="@load(anlzr.filterEnum)"
-								mold="select" selectedItem="@bind(anlzr.selectedFilter)">
+							<listbox
+								visible="@load(!anlzr.filterSelected)"
+								model="@load(anlzr.filterEnum)" mold="select"
+								selectedItem="@bind(anlzr.choosenFilter)">
 								<template name="model" var="filter">
 									<listitem label="@load(filter)" />
 								</template>
 							</listbox>
+							<label visible="@load(anlzr.filterSelected)"
+								value="@load(anlzr.selectedFilter.className)" />
 						</listheader>
 						<listheader hflex="min">
 							<listbox
@@ -148,7 +153,7 @@
 								visible="@load(anlzr.currentFilter.property)"
 								model="@load(anlzr.currentFilter.userProperties)">
 								<columns>
-									<column width="150px" align="right" />
+									<column hflex="min" align="right" />
 									<column />
 								</columns>
 								<rows>
@@ -179,9 +184,20 @@
 							</grid>
 						</listheader>
 						<listheader align="center" hflex="min">
-							<button tooltiptext="Add a filter"
-								image="/images/action_add.png"
-								onClick="@command('onFilterAdd')" />
+							<vlayout>
+								<button
+									visible="@load(!anlzr.filterSelected)"
+									tooltiptext="Add a filter" image="/images/action_add.png"
+									onClick="@command('onFilterAdd')" />
+								<button
+									visible="@load(anlzr.filterSelected)"
+									tooltiptext="Save a filter" image="/images/action_check.png"
+									onClick="@command('onFilterAdd')" />
+								<button
+									visible="@load(anlzr.filterSelected)"
+									tooltiptext="Cancel edition" image="/images/action_cancel.png"
+									onClick="@command('onFilterCancel')" />
+							</vlayout>
 						</listheader>
 					</listhead>
 					<template name="model" var="filterItem">

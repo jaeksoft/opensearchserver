@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -75,18 +76,15 @@ public class ParserFieldMap extends
 		return list.size() > 0;
 	}
 
-	public void mapIndexDocument(IndexDocument source, IndexDocument target) {
+	public void mapIndexDocument(IndexDocument source, IndexDocument target)
+			throws IOException {
 		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
 			FieldContent fc = link.getSource().getUniqueString(source);
 			ParserFieldTarget fieldTarget = link.getTarget();
-			String targetField = fieldTarget.getName();
 			if (fc != null) {
 				FieldValueItem[] values = fc.getValues();
-				if (values != null)
-					for (FieldValueItem valueItem : values)
-						fieldTarget.addValue(target, targetField, valueItem);
+				fieldTarget.add(values, target);
 			}
 		}
 	}
-
 }

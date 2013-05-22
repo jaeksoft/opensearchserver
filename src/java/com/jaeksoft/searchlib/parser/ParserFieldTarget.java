@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,15 +50,15 @@ public class ParserFieldTarget extends TargetField {
 	private Pattern captureRegexpPattern;
 
 	public ParserFieldTarget(String name, String captureRegexp,
-			boolean removeTag) {
-		super(name);
+			String analyzer, boolean removeTag) {
+		super(name, analyzer);
 		this.captureRegexp = captureRegexp;
 		this.removeTag = removeTag;
 		checkRegexpPattern();
 	}
 
 	public ParserFieldTarget(String name, Node node) {
-		super(name);
+		super(name, node);
 		List<Node> nl = DomUtils.getNodes(node, "captureRegexp");
 		if (nl.size() > 0)
 			captureRegexp = StringEscapeUtils.unescapeXml(nl.get(0)
@@ -106,23 +107,30 @@ public class ParserFieldTarget extends TargetField {
 		this.captureRegexp = captureRegexp;
 	}
 
-	final public void addValue(IndexDocument targetDocument,
-			String targetField, FieldValueItem valueItem) {
+	@Override
+	final public void add(FieldValueItem[] fieldValueItems,
+			IndexDocument targetDocument) throws IOException {
+		if (fieldValueItems == null)
+			return;
 		List<String> values = new ArrayList<String>(0);
 		if (captureRegexpPattern == null) {
-			values.add(valueItem.getValue());
+			for (FieldValueItem fieldValueItem : fieldValueItems)
+				values.add(fieldValueItem.getValue());
 		} else {
 			synchronized (captureRegexpPattern) {
-				for (String value : RegExpUtils.getGroups(captureRegexpPattern,
-						valueItem.getValue()))
-					values.add(value);
+				for (FieldValueItem fieldValueItem : fieldValueItems)
+					for (String value : RegExpUtils.getGroups(
+							captureRegexpPattern, fieldValueItem.getValue()))
+						values.add(value);
 			}
 		}
-		for (String value : values) {
-			if (removeTag)
-				value = StringUtils.removeTag(value);
-			targetDocument.add(targetField, value, valueItem.getBoost());
+
+		if (removeTag) {
+			int pos = 0;
+			for (String value : values)
+				values.set(pos++, StringUtils.removeTag(value));
 		}
+		add(values, targetDocument);
 	}
 
 	/**

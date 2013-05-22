@@ -207,8 +207,8 @@ public abstract class CommonController implements EventInterface {
 			return null;
 		List<String> analyzerNameList = new ArrayList<String>(0);
 		analyzerNameList.add("");
-		for (String n : client.getSchema().getAnalyzerList().getNameSet())
-			analyzerNameList.add(n);
+		client.getSchema().getAnalyzerList()
+				.populateNameCollection(analyzerNameList);
 		return analyzerNameList;
 	}
 

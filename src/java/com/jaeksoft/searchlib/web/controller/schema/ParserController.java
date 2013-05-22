@@ -77,6 +77,8 @@ public class ParserController extends CommonController {
 
 	private transient String captureRegexp;
 
+	private transient String analyzer;
+
 	private transient boolean removeTag;
 
 	private class DeleteAlert extends AlertController {
@@ -111,6 +113,8 @@ public class ParserController extends CommonController {
 		selectedIndexField = null;
 		selectedParserField = null;
 		captureRegexp = null;
+		analyzer = null;
+		removeTag = false;
 		selectedFieldMapItem = null;
 	}
 
@@ -339,7 +343,7 @@ public class ParserController extends CommonController {
 			fieldMap.remove(selectedFieldMapItem);
 		fieldMap.add(new SourceField(selectedParserField.name()),
 				new ParserFieldTarget(selectedIndexField.getName(),
-						captureRegexp, removeTag));
+						captureRegexp, analyzer, removeTag));
 		onCancelFieldMapItem();
 	}
 
@@ -573,4 +577,20 @@ public class ParserController extends CommonController {
 	public boolean isFieldMapItemNotSelected() {
 		return !isFieldMapItemSelected();
 	}
+
+	/**
+	 * @return the analyzer
+	 */
+	public String getAnalyzer() {
+		return analyzer;
+	}
+
+	/**
+	 * @param analyzer
+	 *            the analyzer to set
+	 */
+	public void setAnalyzer(String analyzer) {
+		this.analyzer = analyzer;
+	}
+
 }

@@ -121,7 +121,8 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		for (GenericLink<S, T> link : getList()) {
 			xmlWriter.startElement("link", "source", link.getSource()
 					.toXmlAttribute(), "target", link.getTarget()
-					.toXmlAttribute());
+					.toXmlAttribute(), "analyzer", link.getTarget()
+					.getAnalyzer());
 			writeTarget(xmlWriter, link.getTarget());
 			xmlWriter.endElement();
 		}

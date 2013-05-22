@@ -25,16 +25,21 @@
 package com.jaeksoft.searchlib.util.map;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.util.DomUtils;
 
 public class TargetField implements Comparable<TargetField> {
 
@@ -51,7 +56,11 @@ public class TargetField implements Comparable<TargetField> {
 	}
 
 	public TargetField(String name) {
-		this(name, null);
+		this(name, (String) null);
+	}
+
+	public TargetField(String name, Node node) {
+		this(name, DomUtils.getAttributeText(node, "analyzer"));
 	}
 
 	/**
@@ -122,12 +131,42 @@ public class TargetField implements Comparable<TargetField> {
 		cachedAnalyzer = a.getIndexAnalyzer();
 	}
 
-	final public void add(FieldValueItem fvi, IndexDocument document)
+	public void add(FieldValueItem[] fieldValueItems, IndexDocument document)
 			throws IOException {
-		if (cachedAnalyzer == null)
-			document.add(name, fvi);
-		else
-			cachedAnalyzer.populate(fvi.getValue(),
-					document.getFieldContent(name));
+		if (fieldValueItems == null)
+			return;
+		FieldContent fc = document.getFieldContent(name);
+		if (cachedAnalyzer == null) {
+			for (FieldValueItem fvi : fieldValueItems)
+				fc.add(fvi);
+		} else {
+			for (FieldValueItem fvi : fieldValueItems)
+				cachedAnalyzer.populate(fvi.getValue(), fc);
+		}
 	}
+
+	public void add(String value, IndexDocument document) throws IOException {
+		if (value == null)
+			return;
+		FieldContent fc = document.getFieldContent(name);
+		if (cachedAnalyzer == null)
+			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
+		else
+			cachedAnalyzer.populate(value, fc);
+	}
+
+	public void add(List<String> values, IndexDocument document)
+			throws IOException {
+		if (values == null)
+			return;
+		FieldContent fc = document.getFieldContent(name);
+		if (cachedAnalyzer == null) {
+			for (String value : values)
+				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
+		} else {
+			for (String value : values)
+				cachedAnalyzer.populate(value, fc);
+		}
+	}
+
 }

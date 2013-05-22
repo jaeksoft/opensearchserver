@@ -42,6 +42,14 @@
 				<checkbox label="remove tags"
 					checked="@bind(parser.removeTag)" />
 				<space />
+				<label>Analyzer:</label>
+				<listbox model="@load(parser.analyzerNameList)"
+					mold="select" selectedItem="@bind(parser.analyzer)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<space />
 				<button label="Add"
 					onClick="@command('onSaveFieldMapItem')"
 					visible="@load(parser.fieldMapItemNotSelected)" />
@@ -59,6 +67,7 @@
 		<listheader label="Parser field" hflex="min" />
 		<listheader label="Index field" hflex="min" />
 		<listheader label="Capture Reg.Exp." />
+		<listheader label="Analyzer" hflex="min" />
 		<listheader label="Remove tags" hflex="min" />
 		<listheader label="Action" hflex="min" />
 	</listhead>
@@ -67,6 +76,7 @@
 			<listcell label="@load(fieldmapitem.source.uniqueName)" />
 			<listcell label="@load(fieldmapitem.target.name)" />
 			<listcell label="@load(fieldmapitem.target.captureRegexp)" />
+			<listcell label="@load(fieldmapitem.target.analyzer)" />
 			<listcell label="@load(fieldmapitem.target.removeTag)" />
 			<listcell>
 				<image src="/images/action_delete.png"

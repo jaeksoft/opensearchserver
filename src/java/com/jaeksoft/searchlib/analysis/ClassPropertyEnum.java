@@ -108,6 +108,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "removeDuplicateLetters", "Duplicate letters",
 			"Detect and remove consecutive duplicate letters");
 
+	public static ClassPropertyEnum ALLOWED_TAGS = new ClassPropertyEnum(true,
+			"allowedTags", "Allowed tags", "Allowed tags separated by spaces");
+
 	public static ClassPropertyEnum INPUT_NUMBER_FORMAT = new ClassPropertyEnum(
 			true,
 			"inputNumberFormat",

@@ -234,6 +234,29 @@ public class Analyzer {
 	}
 
 	/**
+	 * Replace the old filter by the new one
+	 * 
+	 * @param oldFilter
+	 * @param newFilter
+	 */
+	public void replace(FilterFactory oldFilter, FilterFactory newFilter) {
+		rwl.w.lock();
+		try {
+			int pos = 0;
+			for (FilterFactory filter : filters)
+				if (filter == oldFilter) {
+					filters.set(pos, newFilter);
+					queryAnalyzer = null;
+					indexAnalyzer = null;
+					return;
+				} else
+					pos++;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
 	 * 
 	 * @param config
 	 * @param xpp

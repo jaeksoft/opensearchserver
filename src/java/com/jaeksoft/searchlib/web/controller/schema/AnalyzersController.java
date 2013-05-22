@@ -25,8 +25,8 @@
 package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -61,7 +61,9 @@ public class AnalyzersController extends CommonController {
 
 	private transient FilterFactory currentFilter;
 
-	private transient FilterEnum selectedFilter;
+	private transient FilterFactory selectedFilter;
+
+	private transient FilterEnum choosenFilter;
 
 	private transient String testText;
 
@@ -102,9 +104,10 @@ public class AnalyzersController extends CommonController {
 		editAnalyzer = null;
 		selectedName = null;
 		selectedAnalyzer = null;
-		selectedFilter = FilterEnum.StandardFilter;
+		choosenFilter = FilterEnum.StandardFilter;
 		currentAnalyzer = null;
 		currentFilter = null;
+		selectedFilter = null;
 		Client client = getClient();
 		if (client != null) {
 			currentFilter = FilterFactory.getDefaultFilter(client);
@@ -151,9 +154,9 @@ public class AnalyzersController extends CommonController {
 		AnalyzerList alist = getList();
 		if (alist == null)
 			return null;
-		Set<String> set = alist.getNameSet();
-		if (set != null && set.size() > 0)
-			selectedName = set.iterator().next();
+		Collection<String> col = alist.populateNameCollection(null);
+		if (col != null && col.size() > 0)
+			selectedName = col.iterator().next();
 		return selectedName;
 	}
 
@@ -180,6 +183,10 @@ public class AnalyzersController extends CommonController {
 
 	public boolean isSelectedAnalyzer() throws SearchLibException {
 		return getSelectedLang() != null;
+	}
+
+	public boolean isFilterSelected() {
+		return selectedFilter != null;
 	}
 
 	public boolean isEdit() throws SearchLibException {
@@ -284,25 +291,38 @@ public class AnalyzersController extends CommonController {
 	 * @throws SearchLibException
 	 */
 	@NotifyChange({ "filterScopeEnum", "currentFilter" })
-	public void setSelectedFilter(FilterEnum selectedFilter)
+	public void setChoosenFilter(FilterEnum choosenFilter)
 			throws SearchLibException {
-		this.selectedFilter = selectedFilter;
+		this.choosenFilter = choosenFilter;
 		this.currentFilter = FilterFactory.create(getClient(),
-				selectedFilter.name());
+				choosenFilter.name());
 		reload();
 	}
 
 	/**
-	 * @return the selectedFilter
+	 * @return the choosenFilter
 	 */
-	public FilterEnum getSelectedFilter() {
-		return selectedFilter;
+	public FilterEnum getChoosenFilter() {
+		return choosenFilter;
 	}
 
 	@Command
-	@NotifyChange("currentAnalyzer")
+	@NotifyChange({ "currentAnalyzer", "filterSelected", "choosenFilter",
+			"selectedFilter", "currentFilter" })
 	public void onFilterAdd() throws SearchLibException {
-		currentAnalyzer.add(FilterFactory.create(currentFilter));
+		if (selectedFilter != null)
+			currentAnalyzer.replace(selectedFilter, currentFilter);
+		else
+			currentAnalyzer.add(selectedFilter);
+		onFilterCancel();
+	}
+
+	@Command
+	@NotifyChange({ "currentAnalyzer", "filterSelected", "choosenFilter",
+			"selectedFilter", "currentFilter" })
+	public void onFilterCancel() throws SearchLibException {
+		selectedFilter = null;
+		currentFilter = FilterFactory.create(getClient(), choosenFilter.name());
 	}
 
 	@Command
@@ -371,4 +391,23 @@ public class AnalyzersController extends CommonController {
 		return testList;
 	}
 
+	/**
+	 * @return the selectedFilter
+	 */
+	public FilterFactory getSelectedFilter() {
+		return selectedFilter;
+	}
+
+	/**
+	 * @param selectedFilter
+	 *            the selectedFilter to set
+	 * @throws SearchLibException
+	 */
+	@NotifyChange({ "filterSelected", "choosenFilter", "selectedFilter",
+			"currentFilter" })
+	public void setSelectedFilter(FilterFactory selectedFilter)
+			throws SearchLibException {
+		this.selectedFilter = selectedFilter;
+		currentFilter = FilterFactory.create(selectedFilter);
+	}
 }

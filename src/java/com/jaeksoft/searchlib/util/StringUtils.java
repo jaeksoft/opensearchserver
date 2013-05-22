@@ -181,6 +181,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			String group = matcher.group();
 			if (allowedTags != null) {
 				for (String tag : allowedTags) {
+					System.out.println("COMPARE " + tag + group);
 					if (tag.equals(group)) {
 						allowed = true;
 						break;

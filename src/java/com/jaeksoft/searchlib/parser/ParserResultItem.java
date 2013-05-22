@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,7 +51,7 @@ public class ParserResultItem {
 		addField(ParserFieldEnum.parser_name, parser.getParserName());
 	}
 
-	public void populate(IndexDocument indexDocument) {
+	public void populate(IndexDocument indexDocument) throws IOException {
 		parser.getFieldMap().mapIndexDocument(parserDocument, indexDocument);
 		if (directDocument != null)
 			indexDocument.add(directDocument);

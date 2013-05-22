@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,6 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -112,10 +111,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			IndexDocument target) throws IOException {
 		if (fc == null)
 			return;
-		FieldValueItem[] values = fc.getValues();
-		if (values != null)
-			for (FieldValueItem valueItem : values)
-				targetField.add(valueItem, target);
+		targetField.add(fc.getValues(), target);
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target)
@@ -129,10 +125,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				addFieldContent(fc, link.getTarget(), target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				if (value != null)
-					link.getTarget().add(
-							new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
-									value), target);
+				link.getTarget().add(value, target);
 			}
 		}
 	}
@@ -143,15 +136,10 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			SourceField sourceField = link.getSource();
 			if (sourceField.isUnique()) {
 				FieldValueItem[] fvi = sourceField.getUniqueString(source);
-				if (fvi != null)
-					for (FieldValueItem valueItem : fvi)
-						link.getTarget().add(valueItem, target);
+				link.getTarget().add(fvi, target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				if (value != null)
-					link.getTarget().add(
-							new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
-									value), target);
+				link.getTarget().add(value, target);
 			}
 		}
 	}

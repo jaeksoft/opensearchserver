@@ -85,7 +85,8 @@ public abstract class Parser extends ParserFactory {
 		detectedLinks.add(link);
 	}
 
-	public boolean popupateResult(int resultPos, IndexDocument indexDocument) {
+	public boolean popupateResult(int resultPos, IndexDocument indexDocument)
+			throws IOException {
 		if (resultItems == null)
 			return false;
 		if (resultPos >= resultItems.size())

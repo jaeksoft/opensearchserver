@@ -25,9 +25,9 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -111,10 +111,17 @@ public class AnalyzerList {
 		}
 	}
 
-	public Set<String> getNameSet() {
+	public List<String> getNameSet() {
+		return (List<String>) populateNameCollection(null);
+	}
+
+	public Collection<String> populateNameCollection(Collection<String> nameSet) {
 		rwl.r.lock();
 		try {
-			return nameListMap.keySet();
+			if (nameSet == null)
+				nameSet = new ArrayList<String>();
+			nameSet.addAll(nameListMap.keySet());
+			return nameSet;
 		} finally {
 			rwl.r.unlock();
 		}
