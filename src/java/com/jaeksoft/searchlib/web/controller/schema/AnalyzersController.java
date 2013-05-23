@@ -313,7 +313,7 @@ public class AnalyzersController extends CommonController {
 		if (selectedFilter != null)
 			currentAnalyzer.replace(selectedFilter, currentFilter);
 		else
-			currentAnalyzer.add(selectedFilter);
+			currentAnalyzer.add(currentFilter);
 		onFilterCancel();
 	}
 
