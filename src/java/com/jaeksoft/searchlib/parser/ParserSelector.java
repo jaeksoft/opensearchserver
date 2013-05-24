@@ -59,6 +59,8 @@ public class ParserSelector {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
+	private final Config config;
+
 	private String fileCrawlerDefaultParserName;
 	private String webCrawlerDefaultParserName;
 	private ParserFactory fileCrawlerDefaultParserFactory;
@@ -69,7 +71,8 @@ public class ParserSelector {
 	private Map<String, ParserFactory> extensionParserMap;
 	private ParserTypeEnum parserTypeEnum;
 
-	public ParserSelector() {
+	public ParserSelector(Config config) {
+		this.config = config;
 		fileCrawlerDefaultParserName = null;
 		webCrawlerDefaultParserName = null;
 		fileCrawlerDefaultParserFactory = null;
@@ -87,9 +90,11 @@ public class ParserSelector {
 	 * file parser.
 	 * 
 	 * @param parserFactory
+	 * @throws SearchLibException
 	 */
-	public ParserSelector(ParserFactory parserFactory) {
-		this();
+	public ParserSelector(Config config, ParserFactory parserFactory)
+			throws SearchLibException {
+		this(config);
 		String parserName = parserFactory.getParserName();
 		parserFactoryMap.put(parserName, parserFactory);
 		setFileCrawlerDefaultParserName(parserName);
@@ -100,11 +105,12 @@ public class ParserSelector {
 	public ParserSelector(Config config, XPathParser xpp, Node parentNode)
 			throws XPathExpressionException, DOMException, IOException,
 			SearchLibException {
-		this();
+		this(config);
 		fromXmlConfig(config, xpp, parentNode);
 	}
 
-	public void setFileCrawlerDefaultParserName(String parserName) {
+	public void setFileCrawlerDefaultParserName(String parserName)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
 			fileCrawlerDefaultParserName = parserName;
@@ -135,7 +141,8 @@ public class ParserSelector {
 		}
 	}
 
-	public void setWebCrawlerDefaultParserName(String parserName) {
+	public void setWebCrawlerDefaultParserName(String parserName)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
 			webCrawlerDefaultParserName = parserName;
@@ -167,10 +174,13 @@ public class ParserSelector {
 		}
 	}
 
-	private void rebuildParserMap() {
+	private void rebuildParserMap() throws SearchLibException {
 		extensionParserMap.clear();
 		mimeTypeParserMap.clear();
 		for (ParserFactory parserFactory : parserFactoryMap.values()) {
+			if (config != null)
+				parserFactory.getFieldMap().compileAnalyzer(
+						config.getSchema().getAnalyzerList());
 			Set<String> extensionSet = parserFactory.getExtensionSet();
 			if (extensionSet != null)
 				for (String extension : extensionSet)

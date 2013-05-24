@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -85,6 +88,14 @@ public class ParserFieldMap extends
 				FieldValueItem[] values = fc.getValues();
 				fieldTarget.add(values, target);
 			}
+		}
+	}
+
+	public void compileAnalyzer(AnalyzerList analyzerList)
+			throws SearchLibException {
+		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
+			link.getTarget().setCachedAnalyzer(analyzerList,
+					LanguageEnum.UNDEFINED);
 		}
 	}
 }
