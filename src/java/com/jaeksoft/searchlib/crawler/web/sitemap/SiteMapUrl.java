@@ -109,7 +109,8 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 		}
 		lastMod = d;
 		node = DomUtils.getFirstNode(urlNode, "changefreq");
-		changeFreq = ChangeFreq.find(DomUtils.getText(node));
+		changeFreq = ChangeFreq.find(node == null ? null : DomUtils
+				.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "priority");
 		priority = node == null ? null : new Float(DomUtils.getText(node));
 	}
