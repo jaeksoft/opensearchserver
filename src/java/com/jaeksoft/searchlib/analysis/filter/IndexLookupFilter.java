@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Client;
@@ -74,15 +72,11 @@ public class IndexLookupFilter extends FilterFactory {
 	@Override
 	public TokenStream create(TokenStream tokenStream)
 			throws SearchLibException {
-		try {
-			Client indexClient = ClientCatalog.getClient(indexName);
-			SearchRequest searchRequest = (SearchRequest) indexClient
-					.getNewRequest(requestName);
-			return new IndexLookupTokenFilter(tokenStream, indexClient,
-					searchRequest, returnField);
-		} catch (NamingException e) {
-			throw new SearchLibException(e);
-		}
+		Client indexClient = ClientCatalog.getClient(indexName);
+		SearchRequest searchRequest = (SearchRequest) indexClient
+				.getNewRequest(requestName);
+		return new IndexLookupTokenFilter(tokenStream, indexClient,
+				searchRequest, returnField);
 	}
 
 	public class IndexLookupTokenFilter extends AbstractTermFilter {

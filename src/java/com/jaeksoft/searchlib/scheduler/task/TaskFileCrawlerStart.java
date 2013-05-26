@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 public class TaskFileCrawlerStart extends TaskAbstract {
 
 	final private TaskPropertyDef propRunOnce = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Run once", "Run once",
+			TaskPropertyType.listBox, "Run once", "Run once",
 			"Choose if the crawler will run once or indefinitely", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propRunOnce };
@@ -54,7 +54,8 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef) {
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propRunOnce)
 			return ClassPropertyEnum.BOOLEAN_LIST;
 		return null;

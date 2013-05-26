@@ -54,7 +54,8 @@ public class TaskWebCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef) {
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propRunOnce)
 			return ClassPropertyEnum.BOOLEAN_LIST;
 		return null;

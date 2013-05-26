@@ -86,7 +86,8 @@ public class TaskUploadMonitor extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		return null;
 	}

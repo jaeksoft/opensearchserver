@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.scheduler;
 
 public enum TaskPropertyType {
 
-	textBox, password, comboBox, multilineTextBox;
+	textBox, password, comboBox, multilineTextBox, listBox;
 
 	public boolean isCtrlTextBox() {
 		return textBox == this;
@@ -48,4 +48,7 @@ public enum TaskPropertyType {
 		return comboBox == this;
 	}
 
+	public boolean isCtrlListBox() {
+		return listBox == this;
+	}
 }

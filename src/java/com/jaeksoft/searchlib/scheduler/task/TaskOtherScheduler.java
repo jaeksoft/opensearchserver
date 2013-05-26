@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.SearchLibException.AbortException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -36,25 +38,30 @@ import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class TaskOtherScheduler extends TaskAbstract {
+
+	final protected TaskPropertyDef propIndexName = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Index", "Index", "Select the index", 50);
 
 	final private TaskPropertyDef propSchedulerName = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Scheduler name", "Scheduler name",
 			"The name of the scheduler", 50);
 
 	final private TaskPropertyDef propAction = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Which action", "Which action",
+			TaskPropertyType.listBox, "Which action", "Which action",
 			"Select a behavior", 50);
 
 	final private TaskPropertyDef propTimeOut = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Time out", "Time out", null, 20);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propSchedulerName,
-			propAction, propTimeOut };
+	final private TaskPropertyDef[] taskPropertyDefs = { propIndexName,
+			propSchedulerName, propAction, propTimeOut };
 
 	@Override
 	public String getName() {
@@ -67,25 +74,32 @@ public class TaskOtherScheduler extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties properties)
 			throws SearchLibException {
-		if (propertyDef == propSchedulerName) {
-			JobList jobList = config.getJobList();
-			List<String> nameList = new ArrayList<String>(jobList.getCount());
-			jobList.populateNameList(nameList);
-			if (nameList.size() == 0)
+		List<String> nameList = new ArrayList<String>(0);
+		if (propertyDef == propIndexName) {
+			for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null))
+				nameList.add(item.getIndexName());
+		} else if (propertyDef == propSchedulerName) {
+			String indexName = properties.getValue(propIndexName);
+			Client indexClient = ClientCatalog.getClient(indexName);
+			if (indexClient == null)
 				return null;
-			String[] values = new String[nameList.size()];
-			nameList.toArray(values);
-			return values;
+			JobList jobList = indexClient.getJobList();
+			jobList.populateNameList(nameList);
 		} else if (propertyDef == propAction) {
 			return ClassPropertyEnum.SCHEDULER_ACTION_LIST;
 		}
-		return null;
+		if (nameList.size() == 0)
+			return null;
+		return StringUtils.toStringArray(nameList, false);
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propIndexName)
+			return config.getIndexName();
 		if (propertyDef == propAction)
 			return ClassPropertyEnum.SCHEDULER_ACTION_LIST[0];
 		if (propertyDef == propTimeOut)
@@ -96,8 +110,12 @@ public class TaskOtherScheduler extends TaskAbstract {
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException, InterruptedException {
+		String indexName = properties.getValue(propIndexName);
+		Client indexClient = ClientCatalog.getClient(indexName);
+		if (indexClient == null)
+			throw new SearchLibException("Index " + indexName + " not found");
 		String jobName = properties.getValue(propSchedulerName);
-		JobItem job = client.getJobList().get(jobName);
+		JobItem job = indexClient.getJobList().get(jobName);
 		if (job == null)
 			throw new SearchLibException("Job " + jobName + " not found");
 		String action = properties.getValue(propAction);
@@ -105,9 +123,13 @@ public class TaskOtherScheduler extends TaskAbstract {
 		int timeOut = p == null ? 60 : Integer.parseInt(p);
 
 		if (ClassPropertyEnum.SCHEDULER_ACTION_LIST[0].equals(action))
-			waitForCompletion(client, job, timeOut, taskLog);
+			waitForCompletion(indexClient, job, timeOut, taskLog);
 		else if (ClassPropertyEnum.SCHEDULER_ACTION_LIST[1].equals(action))
-			exitIfRunning(client, job, taskLog);
+			exitIfRunning(indexClient, job, taskLog);
+		else if (ClassPropertyEnum.SCHEDULER_ACTION_LIST[2].equals(action))
+			start(indexClient, job, taskLog);
+		if (ClassPropertyEnum.SCHEDULER_ACTION_LIST[3].equals(action))
+			startAndWaitForCompletion(indexClient, job, taskLog, timeOut);
 	}
 
 	private void exitIfRunning(Client client, JobItem job, TaskLog taskLog)
@@ -130,5 +152,21 @@ public class TaskOtherScheduler extends TaskAbstract {
 		}
 		taskLog.setInfo("Time out reached - Aborting");
 		throw new SearchLibException.AbortException();
+	}
+
+	private void start(Client client, JobItem job, TaskLog taskLog)
+			throws InterruptedException, AbortException {
+		taskLog.setInfo("Starting...");
+		TaskManager.getInstance().executeJob(client, job);
+		taskLog.setInfo("Started");
+	}
+
+	private void startAndWaitForCompletion(Client client, JobItem job,
+			TaskLog taskLog, int secTimeOut) throws AbortException,
+			InterruptedException {
+		start(client, job, taskLog);
+		taskLog.setInfo("Wait for completion");
+		waitForCompletion(client, job, secTimeOut, taskLog);
+
 	}
 }

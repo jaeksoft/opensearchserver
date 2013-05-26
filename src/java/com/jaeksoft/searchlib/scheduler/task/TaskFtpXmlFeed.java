@@ -85,12 +85,11 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			"An option XSL stylesheet", 100, 30);
 
 	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Delete after load",
-			"Delete after load",
+			TaskPropertyType.listBox, "Delete after load", "Delete after load",
 			"Decide if the document will be deleted after being loaded", 10);
 
 	final private TaskPropertyDef propTruncateIndexWhenFilesFound = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Truncate index when files are found",
+			TaskPropertyType.listBox, "Truncate index when files are found",
 			"Truncate index when files are found",
 			"Decide to truncate the index before loading the XML file", 10);
 
@@ -117,7 +116,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		if (propertyDef == propDeleteAfterLoad)
 			return ClassPropertyEnum.BOOLEAN_LIST;

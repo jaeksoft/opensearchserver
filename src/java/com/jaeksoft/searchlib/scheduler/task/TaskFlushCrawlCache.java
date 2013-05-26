@@ -48,7 +48,8 @@ public class TaskFlushCrawlCache extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef) {
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		return null;
 	}
 

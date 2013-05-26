@@ -58,10 +58,12 @@ public abstract class TaskAbstract {
 	 * 
 	 * @param client
 	 * @param property
+	 * @param properties
 	 * @return an array with the possible value name
 	 */
 	public abstract String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef) throws SearchLibException;
+			TaskPropertyDef propertyDef, TaskProperties properties)
+			throws SearchLibException;
 
 	/**
 	 * Implements the task execution

@@ -78,7 +78,7 @@ public class ClientCatalog {
 	private static final ThreadGroup threadGroup = new ThreadGroup("Catalog");
 
 	private static final Client getClient(File indexDirectory)
-			throws SearchLibException, NamingException {
+			throws SearchLibException {
 
 		rwl.r.lock();
 		try {
@@ -112,8 +112,6 @@ public class ClientCatalog {
 				getClient(catalogItem.getIndexName());
 			}
 		} catch (SearchLibException e) {
-			e.printStackTrace();
-		} catch (NamingException e) {
 			e.printStackTrace();
 		} finally {
 			rwl.w.unlock();
@@ -187,7 +185,7 @@ public class ClientCatalog {
 	}
 
 	public static final Client getClient(String indexName)
-			throws SearchLibException, NamingException {
+			throws SearchLibException {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");

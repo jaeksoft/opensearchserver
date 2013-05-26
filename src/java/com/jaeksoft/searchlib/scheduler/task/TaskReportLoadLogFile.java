@@ -51,7 +51,7 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 			"Log file selection", null, 60);
 
 	final private TaskPropertyDef propArchive = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Archive", "Archive", null, 10);
+			TaskPropertyType.listBox, "Archive", "Archive", null, 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propLogFile,
 			propArchive };
@@ -72,8 +72,8 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef property)
-			throws SearchLibException {
+	public String[] getPropertyValues(Config config, TaskPropertyDef property,
+			TaskProperties taskProperties) throws SearchLibException {
 		if (propLogFile == property) {
 			return logSelectionValues;
 		} else if (propArchive == property)

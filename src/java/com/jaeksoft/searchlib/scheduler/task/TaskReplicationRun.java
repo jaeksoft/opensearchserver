@@ -47,7 +47,7 @@ public class TaskReplicationRun extends TaskAbstract {
 			"The name of the replication item", 50);
 
 	final private TaskPropertyDef propReplicationIfUpdated = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Only if the index has been updated",
+			TaskPropertyType.listBox, "Only if the index has been updated",
 			"Only if the index has been updated", null, 50);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propReplicationName,
@@ -64,7 +64,8 @@ public class TaskReplicationRun extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		if (propertyDef == propReplicationName) {
 			ReplicationList replicationList = config.getReplicationList();

@@ -189,6 +189,11 @@ public class SchedulerEditController extends SchedulerController {
 		reload();
 	}
 
+	@Command
+	@NotifyChange("currentTask")
+	public void onRefreshProperties() {
+	}
+
 	/**
 	 * Move the task down
 	 * 

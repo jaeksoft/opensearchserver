@@ -185,7 +185,8 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			Boolean.FALSE.toString() };
 
 	public final static String[] SCHEDULER_ACTION_LIST = {
-			"Wait for completion", "Exit if running" };
+			"Wait for completion", "Exit if running", "Start",
+			"Start and wait for completion" };
 
 	public final static ClassPropertyEnum OCR_PDF_METHOD = new ClassPropertyEnum(
 			true, "ocr_pdf_method", "OCR method for PDF",

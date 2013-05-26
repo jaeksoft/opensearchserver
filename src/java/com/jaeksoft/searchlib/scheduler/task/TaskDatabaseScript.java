@@ -61,7 +61,7 @@ public class TaskDatabaseScript extends TaskAbstract {
 			"Database password", null, 20);
 
 	final private TaskPropertyDef propIsolationLevel = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Isolation Level", "Isolation Level",
+			TaskPropertyType.listBox, "Isolation Level", "Isolation Level",
 			"Select the right isolation level", 20);
 
 	final private TaskPropertyDef propSelectSQLVariables = new TaskPropertyDef(
@@ -112,7 +112,8 @@ public class TaskDatabaseScript extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		if (propertyDef == propDatabaseDriver) {
 			return DatabaseDriverNames.getAvailableList();

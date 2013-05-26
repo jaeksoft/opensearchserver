@@ -83,6 +83,17 @@ public class TaskItem extends ExecutionAbstract {
 		return userProperties;
 	}
 
+	/**
+	 * 
+	 * @param propertyDef
+	 * @return the possible value for this property
+	 * @throws SearchLibException
+	 */
+	public String[] getValueList(TaskPropertyDef propertyDef)
+			throws SearchLibException {
+		return task.getPropertyValues(config, propertyDef, userProperties);
+	}
+
 	public void run(Client client, TaskLog taskLog) throws SearchLibException,
 			IOException {
 		setRunningNow();

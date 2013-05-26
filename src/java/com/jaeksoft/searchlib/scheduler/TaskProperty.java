@@ -34,7 +34,6 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -128,15 +127,6 @@ public class TaskProperty {
 	 */
 	public String getName() {
 		return propertyDef.name;
-	}
-
-	/**
-	 * 
-	 * @return the possible value for this property
-	 * @throws SearchLibException
-	 */
-	public String[] getValueList() throws SearchLibException {
-		return task.getPropertyValues(config, propertyDef);
 	}
 
 	/**

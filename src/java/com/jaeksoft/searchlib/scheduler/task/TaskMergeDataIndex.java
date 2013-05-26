@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
@@ -80,7 +78,8 @@ public class TaskMergeDataIndex extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		List<String> values = new ArrayList<String>(0);
 		if (propertyDef == propSourceIndex)
@@ -108,27 +107,21 @@ public class TaskMergeDataIndex extends TaskAbstract {
 	public void execute(Client client, TaskProperties properties,
 			TaskLog taskLog) throws SearchLibException {
 
-		try {
+		String index = properties.getValue(propSourceIndex);
+		String login = properties.getValue(propLogin);
+		String apiKey = properties.getValue(propApiKey);
 
-			String index = properties.getValue(propSourceIndex);
-			String login = properties.getValue(propLogin);
-			String apiKey = properties.getValue(propApiKey);
-
-			if (!ClientCatalog.getUserList().isEmpty()) {
-				User user = ClientCatalog.authenticateKey(login, apiKey);
-				if (user == null)
-					throw new SearchLibException("Authentication failed");
-				if (!user.hasAnyRole(index, Role.GROUP_INDEX))
-					throw new SearchLibException("Not enough right");
-			}
-			Client sourceClient = ClientCatalog.getClient(index);
-			if (sourceClient == null)
-				throw new SearchLibException("Client not found: " + index);
-
-			client.mergeData(sourceClient);
-
-		} catch (NamingException e) {
-			throw new SearchLibException(e);
+		if (!ClientCatalog.getUserList().isEmpty()) {
+			User user = ClientCatalog.authenticateKey(login, apiKey);
+			if (user == null)
+				throw new SearchLibException("Authentication failed");
+			if (!user.hasAnyRole(index, Role.GROUP_INDEX))
+				throw new SearchLibException("Not enough right");
 		}
+		Client sourceClient = ClientCatalog.getClient(index);
+		if (sourceClient == null)
+			throw new SearchLibException("Client not found: " + index);
+
+		client.mergeData(sourceClient);
 	}
 }

@@ -98,7 +98,8 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef)
+	public String[] getPropertyValues(Config config,
+			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		List<String> values = new ArrayList<String>(0);
 		if (propertyDef == propSourceIndex) {

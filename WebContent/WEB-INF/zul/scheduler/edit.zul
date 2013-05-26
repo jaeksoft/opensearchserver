@@ -134,15 +134,27 @@
 															<combobox
 																visible="@load(property.type.ctrlComboBox)"
 																cols="@load(property.def.cols)"
-																model="@load(property.valueList)"
+																model="@load(scheduleredit.currentTask.getValueList(property.def))"
 																value="@bind(property.value)"
-																selectedItem="@bind(property.value)">
+																selectedItem="@bind(property.value)"
+																onChange="@command('onRefreshProperties')">
 																<template
 																	name="model">
 																	<comboitem
 																		label="@load(each)" />
 																</template>
 															</combobox>
+															<listbox
+																mold="select" visible="@load(property.type.ctrlListBox)"
+																model="@load(scheduleredit.currentTask.getValueList(property.def))"
+																selectedItem="@bind(property.value)"
+																onChange="@command('onRefreshProperties')">
+																<template
+																	name="model">
+																	<listitem
+																		label="@load(each)" />
+																</template>
+															</listbox>
 															<textbox
 																cols="@load(property.def.cols)"
 																visible="@load(property.type.ctrlTextBox)"

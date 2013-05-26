@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.join;
 import java.io.IOException;
 import java.util.List;
 
-import javax.naming.NamingException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -340,8 +339,6 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 					t, returnScores);
 			t.getDuration();
 			return joinDocs;
-		} catch (NamingException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
