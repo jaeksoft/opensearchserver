@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchRequest;
@@ -58,8 +59,8 @@ public class JoinController extends AbstractQueryController {
 		currentItem = new JoinItem();
 	}
 
-	public String[] getFilterTypeList() {
-		return FilterAbstract.FILTER_TYPES;
+	public FilterType[] getFilterTypeList() {
+		return FilterAbstract.FilterType.values();
 	}
 
 	@NotifyChange("*")

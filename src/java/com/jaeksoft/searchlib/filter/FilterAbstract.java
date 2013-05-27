@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,16 +45,65 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	private String paramPosition;
 
+	private final FilterType filterType;
+
 	public static enum Source {
 		CONFIGXML, REQUEST
 	}
 
-	public static final String QUERY_FILTER = "Query filter";
-	public static final String GEO_FILTER = "Geo filter";
-	public static final String[] FILTER_TYPES = { QUERY_FILTER, GEO_FILTER };
+	public enum FilterType {
 
-	protected FilterAbstract(Source source, boolean negative,
-			String paramPosition) {
+		QUERY_FILTER("Query filter", QueryFilter.class,
+				"/WEB-INF/zul/query/search/filterQuery.zul"),
+
+		GEO_FILTER("Geo filter", GeoFilter.class,
+				"/WEB-INF/zul/query/search/filterGeo.zul"),
+
+		RELATIVE_DATE_FILTER("Relative date filter", RelativeDateFilter.class,
+				"/WEB-INF/zul/query/search/filterRelativeDate.zul");
+
+		private final String label;
+
+		private final Class<? extends FilterAbstract<?>> filterClass;
+
+		private final String templatePath;
+
+		private FilterType(String label,
+				Class<? extends FilterAbstract<?>> filterClass,
+				String templatePath) {
+			this.label = label;
+			this.filterClass = filterClass;
+			this.templatePath = templatePath;
+		}
+
+		/**
+		 * @return the label
+		 */
+		public String getLabel() {
+			return label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
+		public FilterAbstract<?> newInstance() throws InstantiationException,
+				IllegalAccessException {
+			return filterClass.newInstance();
+		}
+
+		/**
+		 * @return the templatePath
+		 */
+		public String getTemplatePath() {
+			return templatePath;
+		}
+	}
+
+	protected FilterAbstract(FilterType filterType, Source source,
+			boolean negative, String paramPosition) {
+		this.filterType = filterType;
 		this.source = source;
 		this.negative = negative;
 		this.paramPosition = paramPosition;
@@ -104,6 +153,10 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		return this instanceof GeoFilter;
 	}
 
+	public boolean isRelativeDateFilter() {
+		return this instanceof RelativeDateFilter;
+	}
+
 	public void copyTo(FilterAbstract<?> selectedItem) {
 		selectedItem.paramPosition = paramPosition;
 		selectedItem.negative = negative;
@@ -113,5 +166,9 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	public abstract void setFromServlet(ServletTransaction transaction);
 
 	public abstract void setParam(String param) throws SearchLibException;
+
+	public FilterType getFilterType() {
+		return filterType;
+	}
 
 }

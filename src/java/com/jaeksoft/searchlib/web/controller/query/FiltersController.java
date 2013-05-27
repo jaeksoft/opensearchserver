@@ -33,7 +33,9 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
@@ -49,12 +51,12 @@ public class FiltersController extends AbstractQueryController {
 
 	private FilterAbstract<?> selectedItem;
 
-	private String filterType;
+	private FilterType filterType;
 
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedItem = null;
-		filterType = FilterAbstract.QUERY_FILTER;
+		filterType = FilterAbstract.FilterType.QUERY_FILTER;
 		currentItem = new QueryFilter();
 	}
 
@@ -64,8 +66,8 @@ public class FiltersController extends AbstractQueryController {
 		reset();
 	}
 
-	public String[] getFilterTypeList() {
-		return FilterAbstract.FILTER_TYPES;
+	public FilterAbstract.FilterType[] getFilterTypeList() {
+		return FilterAbstract.FilterType.values();
 	}
 
 	public FilterAbstract<?> getCurrent() {
@@ -87,6 +89,7 @@ public class FiltersController extends AbstractQueryController {
 	@NotifyChange("*")
 	public void setSelected(FilterAbstract<?> item) {
 		this.selectedItem = item;
+		this.filterType = item.getFilterType();
 		this.currentItem = item.duplicate();
 	}
 
@@ -123,29 +126,28 @@ public class FiltersController extends AbstractQueryController {
 	/**
 	 * @return the filterType
 	 */
-	public String getFilterType() {
+	public FilterAbstract.FilterType getFilterType() {
 		return filterType;
 	}
 
 	/**
 	 * @param filterType
 	 *            the filterType to set
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	@NotifyChange("currentTemplate")
-	public void setFilterType(String filterType) {
+	public void setFilterType(FilterAbstract.FilterType filterType)
+			throws InstantiationException, IllegalAccessException {
 		this.filterType = filterType;
-		if (FilterAbstract.QUERY_FILTER.equals(filterType))
-			currentItem = new QueryFilter();
-		else if (FilterAbstract.GEO_FILTER.equals(filterType))
-			currentItem = new GeoFilter();
+		if (filterType != null)
+			currentItem = filterType.newInstance();
 	}
 
 	public String getCurrentTemplate() {
-		if (FilterAbstract.QUERY_FILTER.equals(filterType))
-			return "/WEB-INF/zul/query/search/filterQuery.zul";
-		else if (FilterAbstract.GEO_FILTER.equals(filterType))
-			return "/WEB-INF/zul/query/search/filterGeo.zul";
-		return null;
+		if (filterType == null)
+			return null;
+		return filterType.getTemplatePath();
 	}
 
 	public Type[] getGeoTypes() {
@@ -158,6 +160,10 @@ public class FiltersController extends AbstractQueryController {
 
 	public CoordUnit[] getGeoCoordUnits() {
 		return GeoFilter.CoordUnit.values();
+	}
+
+	public TimeInterval.IntervalUnit[] getIntervalUnits() {
+		return TimeInterval.IntervalUnit.values();
 	}
 
 	public List<String> getIndexedFieldList() throws SearchLibException {

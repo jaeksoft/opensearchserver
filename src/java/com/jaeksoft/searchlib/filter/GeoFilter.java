@@ -159,7 +159,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 			Unit unit, Type type, double distance, String latitudeField,
 			String longitudeField, double latitude, double longitude,
 			CoordUnit coordUnit) {
-		super(source, negative, paramPosition);
+		super(FilterType.GEO_FILTER, source, negative, paramPosition);
 		query = null;
 		this.unit = unit;
 		this.type = type;
@@ -172,8 +172,8 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	public GeoFilter(XPathParser xpp, Node node) {
-		super(Source.CONFIGXML, "yes".equals(XPathParser.getAttributeString(
-				node, "negative")), null);
+		super(FilterType.GEO_FILTER, Source.CONFIGXML, "yes".equals(XPathParser
+				.getAttributeString(node, "negative")), null);
 		this.unit = Unit.find(XPathParser.getAttributeString(node, "unit"));
 		this.type = Type.find(XPathParser.getAttributeString(node, "type"));
 		this.distance = XPathParser.getAttributeDouble(node, "distance");

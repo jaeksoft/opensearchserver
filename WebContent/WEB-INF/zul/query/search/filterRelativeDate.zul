@@ -1,0 +1,30 @@
+<grid visible="@load(filters.current.relativeDateFilter)">
+	<columns>
+		<column label="Field" hflex="min" />
+		<column label="Date format" hflex="min" />
+		<column label="From interval" hflex="min" />
+		<column label="From unit" hflex="min" />
+		<column label="To interval" hflex="min" />
+		<column label="To unit" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<textbox value="@bind(filters.current.field)" />
+			<textbox value="@bind(filters.current.dateFormat)" />
+			<intbox value="@bind(filters.current.from.interval)" />
+			<listbox mold="select" model="@load(filters.intervalUnits)"
+				selectedItem="@bind(filters.current.from.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<intbox value="@bind(filters.current.to.interval)" />
+			<listbox mold="select" model="@load(filters.intervalUnits)"
+				selectedItem="@bind(filters.current.to.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</row>
+	</rows>
+</grid>

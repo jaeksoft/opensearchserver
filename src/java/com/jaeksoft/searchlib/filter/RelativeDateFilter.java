@@ -66,12 +66,13 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 	public RelativeDateFilter(TimeInterval from, TimeInterval to, String field,
 			String dateFormat, boolean negative, Source src,
 			String paramPosition) {
-		super(src, negative, paramPosition);
+		super(FilterType.RELATIVE_DATE_FILTER, src, negative, paramPosition);
 		query = null;
 		this.from = from == null ? new TimeInterval() : from;
 		this.to = to == null ? new TimeInterval() : to;
 		this.field = field;
 		this.dateFormat = dateFormat;
+		simpleDateFormat = null;
 	}
 
 	public RelativeDateFilter() {
@@ -83,7 +84,7 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 		this(new TimeInterval(DomUtils.getAttributeText(node, "from")),
 				new TimeInterval(DomUtils.getAttributeText(node, "to")),
 				DomUtils.getAttributeText(node, "field"), DomUtils
-						.getAttributeText(node, "timeFormat"), "yes"
+						.getAttributeText(node, "dateFormat"), "yes"
 						.equals(XPathParser
 								.getAttributeString(node, "negative")),
 				Source.CONFIGXML, null);
@@ -96,6 +97,11 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 			sb.append(field);
 			sb.append(':');
 		}
+		if (simpleDateFormat == null)
+			if (dateFormat != null && dateFormat.length() > 0)
+				simpleDateFormat = new SimpleDateFormat(dateFormat);
+		if (simpleDateFormat == null)
+			return sb.toString();
 		sb.append('[');
 		synchronized (simpleDateFormat) {
 			sb.append(simpleDateFormat.format(from.getPastDate(l)));
@@ -180,6 +186,50 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 
 	@Override
 	public void setParam(String param) throws SearchLibException {
+	}
+
+	/**
+	 * @return the field
+	 */
+	public String getField() {
+		return field;
+	}
+
+	/**
+	 * @param field
+	 *            the field to set
+	 */
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	/**
+	 * @return the dateFormat
+	 */
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	/**
+	 * @param dateFormat
+	 *            the dateFormat to set
+	 */
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	/**
+	 * @return the from
+	 */
+	public TimeInterval getFrom() {
+		return from;
+	}
+
+	/**
+	 * @return the to
+	 */
+	public TimeInterval getTo() {
+		return to;
 	}
 
 }

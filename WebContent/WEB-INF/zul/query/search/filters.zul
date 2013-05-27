@@ -32,7 +32,7 @@
 						model="@load(filters.filterTypeList)"
 						selectedItem="@bind(filters.filterType)">
 						<template name="model">
-							<listitem label="@load(each)" />
+							<listitem label="@load(each.label)" />
 						</template>
 					</listbox>
 					<include src="@load(filters.currentTemplate)" />
