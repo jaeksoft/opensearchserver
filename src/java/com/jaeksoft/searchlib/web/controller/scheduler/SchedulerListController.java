@@ -94,7 +94,7 @@ public class SchedulerListController extends SchedulerController {
 	@Command
 	@NotifyChange("*")
 	public void onNewJob() throws SearchLibException {
-		setJobItemEdit(new JobItem("New job"));
+		setJobItemEdit(null);
 		setJobItemSelected(null);
 	}
 
