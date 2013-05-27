@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
+import com.jaeksoft.searchlib.filter.RelativeDateFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
@@ -904,6 +905,8 @@ public class SearchRequest extends AbstractRequest implements
 					filterList.add(new QueryFilter(xpp, node));
 				else if ("geofilter".equals(nodeName))
 					filterList.add(new GeoFilter(xpp, node));
+				else if ("relativeDateFilter".equals(nodeName))
+					filterList.add(new RelativeDateFilter(xpp, node));
 			}
 
 			nodes = xpp.getNodeList(requestNode, "joins/join");

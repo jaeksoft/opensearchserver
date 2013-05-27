@@ -131,15 +131,8 @@ public abstract class AbstractManager {
 	}
 
 	public static Date getPastDate(long fetchInterval, String intervalUnit) {
-		long l;
-		if ("hours".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 3600;
-		else if ("minutes".equalsIgnoreCase(intervalUnit))
-			l = fetchInterval * 1000 * 60;
-		else
-			// Default is days
-			l = fetchInterval * 1000 * 86400;
-		return new Date(System.currentTimeMillis() - l);
+		return new TimeInterval(intervalUnit, fetchInterval).getPastDate(System
+				.currentTimeMillis());
 	}
 
 }
