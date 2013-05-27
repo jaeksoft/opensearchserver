@@ -79,7 +79,7 @@ public class SchedulerEditController extends SchedulerController {
 	@Override
 	protected void reset() throws SearchLibException {
 		super.reset();
-		currentJob = null;
+		currentJob = getJobItemEdit();
 		currentTask = null;
 		selectedTask = null;
 		selectedJobTask = null;
@@ -91,8 +91,7 @@ public class SchedulerEditController extends SchedulerController {
 	@Command
 	@Override
 	public void reload() throws SearchLibException {
-		JobItem jobItem = getJobItemEdit();
-		currentJob = jobItem;
+		currentJob = getJobItemEdit();
 		super.reload();
 	}
 
