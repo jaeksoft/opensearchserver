@@ -45,8 +45,6 @@ public class SchedulerController extends CommonController {
 	}
 
 	protected void setJobItemEdit(JobItem jobItem) {
-		if (jobItem == null)
-			jobItem = new JobItem("New job");
 		setAttribute(ScopeAttribute.JOBITEM_EDIT, jobItem);
 		PushEvent.eventEditScheduler.publish(jobItem);
 	}
@@ -88,8 +86,6 @@ public class SchedulerController extends CommonController {
 
 	@Override
 	protected void reset() throws SearchLibException {
-		setJobItemEdit(null);
-		setJobItemSelected(null);
 	}
 
 }
