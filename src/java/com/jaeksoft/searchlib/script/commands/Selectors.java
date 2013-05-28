@@ -34,7 +34,7 @@ import com.jaeksoft.searchlib.script.ScriptException;
 public class Selectors {
 
 	public enum Type {
-		CSS_SELECTOR, XPATH_SELECTOR;
+		CSS_SELECTOR, XPATH_SELECTOR, ID_SELECTOR;
 	}
 
 	public static class Selector implements Comparable<Selector> {
@@ -53,6 +53,8 @@ public class Selectors {
 				return new By.ByCssSelector(query);
 			case XPATH_SELECTOR:
 				return new By.ByXPath(query);
+			case ID_SELECTOR:
+				return new By.ById(query);
 			}
 			return null;
 		}
@@ -123,6 +125,35 @@ public class Selectors {
 			context.resetSelector(Type.XPATH_SELECTOR);
 		}
 
+	}
+
+	public static class ID_Add extends CommandAbstract {
+
+		public ID_Add() {
+			super(CommandEnum.ID_SELECTOR_ADD);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			context.addSelector(new Selector(Type.ID_SELECTOR,
+					getParameterString(0)));
+		}
+
+	}
+
+	public static class ID_Reset extends CommandAbstract {
+
+		public ID_Reset() {
+			super(CommandEnum.ID_SELECTOR_RESET);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			context.resetSelector(Type.ID_SELECTOR);
+		}
 	}
 
 	public static class ALL_Reset extends CommandAbstract {

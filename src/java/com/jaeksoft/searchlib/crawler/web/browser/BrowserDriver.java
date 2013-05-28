@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.lucene.util.IOUtils;
 import org.openqa.selenium.Dimension;
@@ -146,4 +147,13 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		}
 	}
 
+	final public void getFrameSource(WebElement frameWebelement,
+			File captureDirectory) throws IOException {
+		if (!captureDirectory.exists())
+			captureDirectory.mkdir();
+		driver.switchTo().frame(frameWebelement);
+		File sourceFile = new File(captureDirectory, "source.html");
+		FileUtils.write(sourceFile, driver.getPageSource());
+		driver.switchTo().defaultContent();
+	}
 }

@@ -176,6 +176,9 @@ public class WebDriverCommands {
 			if (browserDriver == null)
 				throwError("No browser open");
 			try {
+				File captureFile = new File(destFile, "capture");
+				if (!captureFile.exists())
+					captureFile.mkdir();
 				BufferedImage image = browserDriver.getScreenshot();
 				File pngFile = new File(destFile, "screenshot.png");
 				File htmlFile = new File(destFile, "screenshot.html");
@@ -196,6 +199,10 @@ public class WebDriverCommands {
 							elementSet.size());
 					int i = 1;
 					for (WebElement element : elementSet) {
+						if ("iframe".equals(element.getTagName()))
+							browserDriver.getFrameSource(element, new File(
+									captureFile, Integer.toString(i)));
+
 						Rectangle box = new Rectangle(element.getLocation().x,
 								element.getLocation().y,
 								element.getSize().width,

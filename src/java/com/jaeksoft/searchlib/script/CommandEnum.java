@@ -38,6 +38,10 @@ public enum CommandEnum {
 
 	XPATH_SELECTOR_RESET(Selectors.XPATH_Reset.class),
 
+	ID_SELECTOR_ADD(Selectors.ID_Add.class),
+
+	ID_SELECTOR_RESET(Selectors.ID_Reset.class),
+
 	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
 	SLEEP(ExecutionCommands.SleepCommand.class),

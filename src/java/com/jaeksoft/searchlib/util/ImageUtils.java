@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -143,12 +144,14 @@ public class ImageUtils {
 		if (boxes.size() == 0)
 			return;
 		Graphics2D g2d = (Graphics2D) image.getGraphics();
-		g2d.setColor(Color.YELLOW);
+		g2d.setPaint(Color.YELLOW);
+		Composite originalComposite = g2d.getComposite();
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				0.4f);
+				0.3f);
 		g2d.setComposite(ac);
 		for (Rectangle box : boxes)
 			g2d.fill(box);
+		g2d.setComposite(originalComposite);
 	}
 
 	public static final String rectToCoordString(Rectangle box, char separator) {

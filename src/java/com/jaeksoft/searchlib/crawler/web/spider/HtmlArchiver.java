@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
@@ -132,6 +133,7 @@ public class HtmlArchiver {
 			return src;
 		}
 		try {
+			src = StringEscapeUtils.unescapeXml(src);
 			URL objectURL = LinkUtils.getLink(parentUrl, src, null, false);
 			if (objectURL == null)
 				return src;
