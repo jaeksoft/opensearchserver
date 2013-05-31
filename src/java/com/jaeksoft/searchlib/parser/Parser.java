@@ -103,6 +103,7 @@ public abstract class Parser extends ParserFactory {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
 		try {
+			this.streamLimiter = streamLimiter;
 			parseContent(streamLimiter, lang);
 		} catch (IllegalArgumentException e) {
 			this.error = e;

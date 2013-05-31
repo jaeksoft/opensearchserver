@@ -52,8 +52,6 @@ public class RemoveTagFilter extends FilterFactory {
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
-				for (String sep : allowedTagArray)
-					System.out.println(sep);
 				createToken(StringUtils.removeTag(termAtt.toString(),
 						allowedTagArray));
 				return true;
