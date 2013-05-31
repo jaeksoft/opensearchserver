@@ -772,8 +772,8 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public long deleteUrls(SearchRequest searchRequest, TaskLog taskLog)
-			throws SearchLibException {
+	public long deleteUrls(SearchRequest searchRequest, int bufferSize,
+			TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
 			long total = 0;
@@ -781,7 +781,7 @@ public class UrlManager extends AbstractManager {
 			long last = 0;
 			for (;;) {
 				urlItemList.clear();
-				long len = getUrlList(searchRequest, 0, 1000, urlItemList);
+				long len = getUrlList(searchRequest, 0, bufferSize, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
 				if (len == last) {
@@ -817,7 +817,7 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public long updateFetchStatus(SearchRequest searchRequest,
-			FetchStatus fetchStatus, TaskLog taskLog)
+			FetchStatus fetchStatus, int bufferSize, TaskLog taskLog)
 			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
@@ -828,7 +828,7 @@ public class UrlManager extends AbstractManager {
 			long last = 0;
 			for (;;) {
 				urlItemList.clear();
-				long len = getUrlList(searchRequest, 0, 1000, urlItemList);
+				long len = getUrlList(searchRequest, 0, bufferSize, urlItemList);
 				if (urlItemList.size() == 0)
 					break;
 				if (len == last) {

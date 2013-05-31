@@ -99,13 +99,16 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	private FetchStatus setToFetchStatus;
 
+	private int bufferSize = 10000;
+
 	public void setSelection(boolean doSiteMaps,
 			SearchRequest selectionRequest, boolean deleteSelection,
-			FetchStatus setToFetchStatus) {
+			FetchStatus setToFetchStatus, int bufferSize) {
 		this.doSiteMaps = doSiteMaps;
 		this.selectionRequest = selectionRequest;
 		this.setToFetchStatus = setToFetchStatus;
 		this.deleteSelection = deleteSelection;
+		this.bufferSize = bufferSize;
 	}
 
 	@Override
@@ -121,10 +124,10 @@ public class TaskUrlManagerAction extends TaskAbstract {
 				taskLog.setInfo("URL manager: set selection to: "
 						+ setToFetchStatus.getName());
 				urlManager.updateFetchStatus(selectionRequest,
-						setToFetchStatus, taskLog);
+						setToFetchStatus, bufferSize, taskLog);
 			} else if (deleteSelection) {
 				taskLog.setInfo("URL manager: delete selection");
-				urlManager.deleteUrls(selectionRequest, taskLog);
+				urlManager.deleteUrls(selectionRequest, bufferSize, taskLog);
 			}
 		}
 		if (doSiteMaps || CommandLoadSitemap.equals(command)) {

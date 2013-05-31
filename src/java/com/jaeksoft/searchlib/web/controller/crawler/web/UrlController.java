@@ -233,6 +233,19 @@ public class UrlController extends CommonController {
 		}
 	}
 
+	public void setBufferSize(int v) {
+		synchronized (this) {
+			setAttribute(ScopeAttribute.SEARCH_URL_BUFFER_SIZE, new Integer(v));
+		}
+	}
+
+	public int getBufferSize() {
+		synchronized (this) {
+			Integer v = (Integer) getAttribute(ScopeAttribute.SEARCH_URL_BUFFER_SIZE);
+			return v == null ? 10000 : v;
+		}
+	}
+
 	public boolean isWithSubDomain() {
 		synchronized (this) {
 			Boolean b = (Boolean) getAttribute(ScopeAttribute.SEARCH_URL_SUBHOST);
@@ -596,7 +609,7 @@ public class UrlController extends CommonController {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.UN_FETCHED);
+					FetchStatus.UN_FETCHED, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -608,7 +621,7 @@ public class UrlController extends CommonController {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.FETCH_FIRST);
+					FetchStatus.FETCH_FIRST, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -618,7 +631,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(true, null, false,
-					FetchStatus.FETCH_FIRST);
+					FetchStatus.FETCH_FIRST, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -628,7 +641,8 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(false, searchRequest, true, null);
+			taskUrlManagerAction.setSelection(false, searchRequest, true, null,
+					getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}

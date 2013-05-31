@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -69,6 +69,9 @@
 					</template>
 				</listbox>
 				<button label="Go" onClick="@command('onGo')"
+					visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />
+				<label value="Buffer size" />
+				<intbox value="@bind(searchUrl.bufferSize)"
 					visible="@load(searchUrl.urlManager.noCurrentTaskLogExists)" />
 				<image src="/images/ajax-loader.gif"
 					visible="@load(searchUrl.urlManager.currentTaskLogExists)" />
