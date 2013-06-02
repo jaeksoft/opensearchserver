@@ -126,7 +126,8 @@ public class HtmlArchiver {
 	}
 
 	final private String getLocalPath(URL parentUrl, String fileName) {
-		if (urlFileMap.get(parentUrl.toExternalForm()) != null)
+		if (parentUrl == null
+				|| urlFileMap.get(parentUrl.toExternalForm()) != null)
 			return fileName;
 		StringBuffer sb = new StringBuffer("./");
 		sb.append(filesDir.getName());
@@ -397,7 +398,8 @@ public class HtmlArchiver {
 	}
 
 	final private String downloadIframe(URL parentUrl, TagNode node)
-			throws IOException {
+			throws IOException, ParserConfigurationException, SAXException,
+			IllegalStateException, SearchLibException, URISyntaxException {
 		Set<WebElement> set = new HashSet<WebElement>();
 		Selector selector = findSelector(node);
 		browserDriver.locateBy(selector, set);
@@ -406,18 +408,25 @@ public class HtmlArchiver {
 					+ selector.query + " - found: " + set.size());
 			return null;
 		}
+		String src = node.getAttributeByName("src");
 		File destFile = getAndRegisterDestFile(selector.query, "iframe", "html");
 		String frameSource = browserDriver
 				.getFrameSource(set.iterator().next());
-		FileUtils.write(destFile, frameSource);
-		// TODO Archive iframe
+		URL oldBaseUrl = baseUrl;
+		baseUrl = LinkUtils.getLink(parentUrl, src, null, false);
+		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
+		htmlCleanerParser.init(frameSource);
+		recursiveArchive(htmlCleanerParser.getTagNode());
+		htmlCleanerParser.writeHtmlToFile(destFile);
+		baseUrl = oldBaseUrl;
 		return getLocalPath(parentUrl, destFile.getName());
 	}
 
 	final private void downloadObjectFromTag(TagNode node, String tagName,
 			String srcAttrName, String typeAttrName)
 			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			SearchLibException, URISyntaxException,
+			ParserConfigurationException, SAXException {
 		if (tagName != null)
 			if (!tagName.equalsIgnoreCase(node.getName()))
 				return;
@@ -455,7 +464,8 @@ public class HtmlArchiver {
 
 	final private void recursiveArchive(TagNode node)
 			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			SearchLibException, URISyntaxException,
+			ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
