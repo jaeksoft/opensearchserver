@@ -135,6 +135,17 @@ public class HtmlArchiver {
 		return sb.toString();
 	}
 
+	final private File getAndRegisterDestFile(String urlString,
+			String baseName, String extension) {
+		String fileName = buildFileName(baseName, extension, null);
+		Integer fileCount = fileCountMap.get(fileName);
+		fileCount = fileCount == null ? new Integer(0) : fileCount + 1;
+		fileCountMap.put(fileName, fileCount);
+		fileName = buildFileName(baseName, extension, fileCount);
+		urlFileMap.put(urlString, fileName);
+		return new File(filesDir, fileName);
+	}
+
 	final private String downloadObject(URL parentUrl, String src,
 			String contentType) throws ClientProtocolException,
 			IllegalStateException, IOException, SearchLibException,
@@ -176,20 +187,15 @@ public class HtmlArchiver {
 				extension = "js";
 			if ("text/css".equalsIgnoreCase(contentType))
 				extension = "css";
-			fileName = buildFileName(baseName, extension, null);
-			Integer fileCount = fileCountMap.get(fileName);
-			fileCount = fileCount == null ? new Integer(0) : fileCount + 1;
-			fileCountMap.put(fileName, fileCount);
-			fileName = buildFileName(baseName, extension, fileCount);
-			urlFileMap.put(urlString, fileName);
-			File destFile = new File(filesDir, fileName);
+			File destFile = getAndRegisterDestFile(urlString, baseName,
+					extension);
 			if ("css".equals(extension)) {
 				StringBuffer sb = checkCSSContent(objectURL,
 						downloadItem.getContentAsString());
 				FileUtils.write(destFile, sb);
 			} else
 				downloadItem.writeToFile(destFile);
-			return getLocalPath(parentUrl, fileName);
+			return getLocalPath(parentUrl, destFile.getName());
 		} catch (UnknownHostException e) {
 			Logging.warn(e);
 			return src;
@@ -390,7 +396,8 @@ public class HtmlArchiver {
 				'/' + StringUtils.join(pathList, '/'));
 	}
 
-	final private String downloadIframe(TagNode node) {
+	final private String downloadIframe(URL parentUrl, TagNode node)
+			throws IOException {
 		Set<WebElement> set = new HashSet<WebElement>();
 		Selector selector = findSelector(node);
 		browserDriver.locateBy(selector, set);
@@ -399,10 +406,12 @@ public class HtmlArchiver {
 					+ selector.query + " - found: " + set.size());
 			return null;
 		}
+		File destFile = getAndRegisterDestFile(selector.query, "iframe", "html");
+		String frameSource = browserDriver
+				.getFrameSource(set.iterator().next());
+		FileUtils.write(destFile, frameSource);
 		// TODO Archive iframe
-		System.out
-				.println("IFRAME: " + selector.query + " FOUND " + set.size());
-		return null;
+		return getLocalPath(parentUrl, destFile.getName());
 	}
 
 	final private void downloadObjectFromTag(TagNode node, String tagName,
@@ -417,7 +426,7 @@ public class HtmlArchiver {
 			return;
 		String newSrc = null;
 		if ("iframe".equalsIgnoreCase(node.getName()))
-			newSrc = downloadIframe(node);
+			newSrc = downloadIframe(baseUrl, node);
 		else {
 			String type = typeAttrName != null ? node
 					.getAttributeByName(typeAttrName) : null;
