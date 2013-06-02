@@ -112,11 +112,11 @@ public abstract class HtmlDocumentProvider {
 		if (rootNode == null)
 			return null;
 		String[] p1 = { "html", "head", "title" };
-		String title = rootNode.getTextNode(p1);
+		String title = rootNode.getFirstTextNode(p1);
 		if (title != null)
 			return title;
 		String[] p2 = { "html", "title" };
-		titleCache = rootNode.getTextNode(p2);
+		titleCache = rootNode.getFirstTextNode(p2);
 		return titleCache;
 	}
 

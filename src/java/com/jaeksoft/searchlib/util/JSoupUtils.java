@@ -62,7 +62,7 @@ public class JSoupUtils {
 		getNodes(parent, 0, path, nodes);
 	}
 
-	final public static String getTextNode(Node parent, String... path) {
+	final public static String getFirstTextNode(Node parent, String... path) {
 		List<Node> nodes = JSoupUtils.getNodes(parent, path);
 		if (nodes == null)
 			return null;

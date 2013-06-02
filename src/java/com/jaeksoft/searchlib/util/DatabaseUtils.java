@@ -75,7 +75,7 @@ public class DatabaseUtils {
 		sql = sql.replace(ERROR_VARIABLE_NAME, error);
 		transaction.update(sql);
 		transaction.commit();
-		Logging.info("SQL UPDATE: " + sql);
+		// Logging.info("SQL UPDATE: " + sql);
 	}
 
 	final public static void update(Transaction transaction,

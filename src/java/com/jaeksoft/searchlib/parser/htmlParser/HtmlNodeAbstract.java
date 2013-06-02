@@ -37,7 +37,7 @@ public abstract class HtmlNodeAbstract<T> {
 
 	public abstract int countElements();
 
-	public abstract String getTextNode(String... path);
+	public abstract String getFirstTextNode(String... path);
 
 	public abstract String getText();
 

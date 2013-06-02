@@ -33,8 +33,12 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -47,6 +51,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
+import org.openqa.selenium.WebElement;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.css.CSSImportRule;
 import org.w3c.dom.css.CSSRule;
@@ -60,10 +65,15 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
+import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
+import com.jaeksoft.searchlib.script.commands.Selectors.Type;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ParserErrorHandler;
 import com.jaeksoft.searchlib.util.RegExpUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
 import com.steadystate.css.dom.DOMExceptionImpl;
@@ -71,6 +81,7 @@ import com.steadystate.css.parser.CSSOMParser;
 
 public class HtmlArchiver {
 
+	private final BrowserDriver<?> browserDriver;
 	private final File filesDir;
 	private final File indexFile;
 	private final File sourceFile;
@@ -81,7 +92,9 @@ public class HtmlArchiver {
 	private final RecursiveTracker recursiveSecurity;
 	private URL baseUrl;
 
-	public HtmlArchiver(File parentDir, HttpDownloader httpDownloader, URL url) {
+	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir,
+			HttpDownloader httpDownloader, URL url) {
+		this.browserDriver = browserDriver;
 		filesDir = new File(parentDir, "files");
 		indexFile = new File(parentDir, "index.html");
 		sourceFile = new File(parentDir, "source.html");
@@ -337,6 +350,61 @@ public class HtmlArchiver {
 		}
 	}
 
+	final private Selector findSelector(TagNode node) {
+		// Check ID selector
+		String iframe_id = node.getAttributeByName("id");
+		if (iframe_id != null)
+			return new Selectors.Selector(Type.ID_SELECTOR, iframe_id);
+		// Build XPATH selector
+		List<String> pathList = new ArrayList<String>(0);
+		while (node != null) {
+			String tag = node.getName();
+			int pos = 0;
+			String id = node.getAttributeByName("id");
+			TagNode parent = node.getParent();
+			if (id == null) {
+				if (parent != null) {
+					for (TagNode n : node.getChildTagList())
+						if (n == node)
+							break;
+						else if (n.getName().equals(tag))
+							pos++;
+				}
+			}
+			node = parent;
+			StringBuffer sb = new StringBuffer(tag);
+			if (id != null) {
+				sb.append("[@id='");
+				sb.append(id);
+				sb.append("']");
+			} else {
+				// POS did not work on Selenium By.XPATH selector
+				/*
+				 * sb.append('['); sb.append(pos); sb.append(']');
+				 */
+			}
+			pathList.add(sb.toString());
+		}
+		Collections.reverse(pathList);
+		return new Selectors.Selector(Type.XPATH_SELECTOR,
+				'/' + StringUtils.join(pathList, '/'));
+	}
+
+	final private String downloadIframe(TagNode node) {
+		Set<WebElement> set = new HashSet<WebElement>();
+		Selector selector = findSelector(node);
+		browserDriver.locateBy(selector, set);
+		if (set.size() != 1) {
+			Logging.warn("Issue when finding IFRAME using selector: "
+					+ selector.query + " - found: " + set.size());
+			return null;
+		}
+		// TODO Archive iframe
+		System.out
+				.println("IFRAME: " + selector.query + " FOUND " + set.size());
+		return null;
+	}
+
 	final private void downloadObjectFromTag(TagNode node, String tagName,
 			String srcAttrName, String typeAttrName)
 			throws ClientProtocolException, IllegalStateException, IOException,
@@ -347,9 +415,14 @@ public class HtmlArchiver {
 		String src = node.getAttributeByName(srcAttrName);
 		if (src == null)
 			return;
-		String type = typeAttrName != null ? node
-				.getAttributeByName(typeAttrName) : null;
-		String newSrc = downloadObject(baseUrl, src, type);
+		String newSrc = null;
+		if ("iframe".equalsIgnoreCase(node.getName()))
+			newSrc = downloadIframe(node);
+		else {
+			String type = typeAttrName != null ? node
+					.getAttributeByName(typeAttrName) : null;
+			newSrc = downloadObject(baseUrl, src, type);
+		}
 		if (newSrc != null)
 			node.addAttribute(srcAttrName, newSrc);
 	}
@@ -389,12 +462,10 @@ public class HtmlArchiver {
 			recursiveArchive(n);
 	}
 
-	final public void archive(String pageSource)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException, ClassCastException,
-			ClassNotFoundException, InstantiationException,
-			IllegalAccessException, ParserConfigurationException, SAXException {
-
+	final public void archive(BrowserDriver<?> browserDriver)
+			throws IOException, ParserConfigurationException, SAXException,
+			IllegalStateException, SearchLibException, URISyntaxException {
+		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
 		recursiveArchive(htmlCleanerParser.getTagNode());
@@ -404,5 +475,7 @@ public class HtmlArchiver {
 			FileUtils.write(sourceFile, pageSource);
 		else
 			FileUtils.write(sourceFile, pageSource, charset);
+
 	}
+
 }

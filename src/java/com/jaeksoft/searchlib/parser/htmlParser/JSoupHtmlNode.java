@@ -43,8 +43,8 @@ public class JSoupHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
-	public String getTextNode(String... path) {
-		return JSoupUtils.getTextNode(node, path);
+	public String getFirstTextNode(String... path) {
+		return JSoupUtils.getFirstTextNode(node, path);
 	}
 
 	@Override
@@ -109,4 +109,5 @@ public class JSoupHtmlNode extends HtmlNodeAbstract<Node> {
 			nodes.add(new JSoupHtmlNode(node));
 		return nodes;
 	}
+
 }
