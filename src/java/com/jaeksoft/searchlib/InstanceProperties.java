@@ -237,8 +237,13 @@ public class InstanceProperties {
 		if (!requestperMonthFile.exists())
 			return;
 		String s = FileUtils.readFileToString(requestperMonthFile);
-		if (s != null)
-			requestPerMonthCount = Integer.parseInt(s);
+		if (s == null)
+			return;
+		try {
+			requestPerMonthCount = Integer.parseInt(s.trim());
+		} catch (NumberFormatException e) {
+			Logging.warn(e);
+		}
 	}
 
 	private final void storeRequestPerMonthCount(long t) throws IOException {
