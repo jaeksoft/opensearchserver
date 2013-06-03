@@ -49,6 +49,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.HttpHostConnectException;
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 import org.openqa.selenium.WebElement;
@@ -197,6 +198,9 @@ public class HtmlArchiver {
 			} else
 				downloadItem.writeToFile(destFile);
 			return getLocalPath(parentUrl, destFile.getName());
+		} catch (HttpHostConnectException e) {
+			Logging.warn(e);
+			return src;
 		} catch (UnknownHostException e) {
 			Logging.warn(e);
 			return src;
@@ -408,12 +412,18 @@ public class HtmlArchiver {
 					+ selector.query + " - found: " + set.size());
 			return null;
 		}
+		URL oldBaseUrl = baseUrl;
 		String src = node.getAttributeByName("src");
-		File destFile = getAndRegisterDestFile(selector.query, "iframe", "html");
+		baseUrl = LinkUtils.getLink(parentUrl, src, null, false);
+		String urlFileMapKey = null;
+		if (baseUrl != null
+				&& !urlFileMap.containsKey(baseUrl.toExternalForm()))
+			urlFileMapKey = baseUrl.toExternalForm();
+		else
+			urlFileMapKey = selector.query;
+		File destFile = getAndRegisterDestFile(urlFileMapKey, "iframe", "html");
 		String frameSource = browserDriver
 				.getFrameSource(set.iterator().next());
-		URL oldBaseUrl = baseUrl;
-		baseUrl = LinkUtils.getLink(parentUrl, src, null, false);
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
 		recursiveArchive(htmlCleanerParser.getTagNode());
