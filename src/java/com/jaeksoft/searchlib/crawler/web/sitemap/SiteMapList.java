@@ -163,7 +163,7 @@ public class SiteMapList {
 				return;
 			set.remove(item);
 			if (set.isEmpty())
-				sitemapMap.remove(set);
+				sitemapMap.remove(item.getHostname());
 			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
