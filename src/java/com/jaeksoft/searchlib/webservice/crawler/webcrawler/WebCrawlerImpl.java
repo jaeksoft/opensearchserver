@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.xml.ws.WebServiceException;
 
@@ -266,10 +267,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	@Override
 	public byte[] captureScreenshotAPI(String login, String key, URL url,
 			Integer browserWidth, Integer browserHeight,
-			Integer reductionPercent, Boolean visiblePartOnly, Integer wait) {
+			Integer reductionPercent, Boolean visiblePartOnly, Integer wait,
+			HttpServletRequest request) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi(key,
-					ApiIdentifier.capt00);
+					ApiIdentifier.capt00, request.getRemoteAddr());
 			if (browserWidth == null)
 				browserWidth = 1280;
 			if (browserHeight == null)

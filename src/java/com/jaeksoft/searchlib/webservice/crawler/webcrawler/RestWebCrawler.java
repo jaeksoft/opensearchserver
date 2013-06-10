@@ -26,12 +26,14 @@ package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 import java.net.URL;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -132,7 +134,8 @@ public interface RestWebCrawler {
 			@QueryParam("height") Integer browserHeight,
 			@QueryParam("reduction") Integer reductionPercent,
 			@QueryParam("visible") Boolean visiblePartOnly,
-			@QueryParam("wait") Integer wait);
+			@QueryParam("wait") Integer wait,
+			@Context HttpServletRequest request);
 
 	@POST
 	@Produces(MediaType.APPLICATION_XML)

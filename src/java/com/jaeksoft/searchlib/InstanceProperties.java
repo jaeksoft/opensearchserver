@@ -34,12 +34,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import redis.clients.jedis.Jedis;
 
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -350,8 +352,8 @@ public class InstanceProperties {
 		storeRequestPerMonthCount(t);
 	}
 
-	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId)
-			throws WebApplicationException {
+	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId,
+			String remoteIpAddress) throws WebApplicationException {
 		if (redisApiServerHostname == null)
 			return;
 		if (apiKey == null || apiKey.length() == 0)
@@ -369,12 +371,16 @@ public class InstanceProperties {
 			sbKey.append('.');
 			sbKey.append(apiId);
 			String v = jedis.hget(sbKey.toString(), apiKey);
-			System.out.println("checking " + sbKey.toString() + " = " + v);
 			if (v == null)
 				throw new WebApplicationException(Status.FORBIDDEN);
 			if ("0".equals(v))
 				return;
-			// TODO check IPs
+			for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(v))
+				if (subnetInfo.isInRange(remoteIpAddress))
+					return;
+			throw new WebApplicationException(Status.FORBIDDEN);
+		} catch (IOException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
 		} finally {
 			if (jedis != null)
 				if (jedis.isConnected())
@@ -387,10 +393,11 @@ public class InstanceProperties {
 		checkApiRequestPerMonth();
 	}
 
-	public final void checkApi(String apiKey, ApiIdentifier apiId)
-			throws WebApplicationException, InterruptedException {
+	public final void checkApi(String apiKey, ApiIdentifier apiId,
+			String remoteAddr) throws WebApplicationException,
+			InterruptedException {
 		checkApiRate();
-		checkRedisApi(apiKey, apiId);
+		checkRedisApi(apiKey, apiId, remoteAddr);
 	}
 
 	public final float getApiWaitRate() {
