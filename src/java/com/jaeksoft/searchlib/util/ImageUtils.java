@@ -31,6 +31,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -165,4 +167,57 @@ public class ImageUtils {
 		sb.append(Integer.toString(box.y + box.height));
 		return sb.toString();
 	}
+
+	public final static BufferedImage reduceImage(BufferedImage image,
+			int width, int height) {
+		int type = (image.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB
+				: BufferedImage.TYPE_INT_ARGB;
+		BufferedImage ret = (BufferedImage) image;
+		int w = image.getWidth();
+		int h = image.getHeight();
+
+		while (w != width || h != height) {
+			if (w > width) {
+				w /= 2;
+				if (w < width)
+					w = width;
+			}
+
+			if (h > height) {
+				h /= 2;
+				if (h < height)
+					h = height;
+			}
+
+			BufferedImage tmp = new BufferedImage(w, h, type);
+
+			Graphics2D g2 = tmp.createGraphics();
+			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g2.drawImage(ret, 0, 0, w, h, null);
+			g2.dispose();
+			ret = tmp;
+		}
+		return ret;
+	}
+
+	public final static BufferedImage reduceImage(BufferedImage image,
+			int percent) {
+		if (percent >= 100)
+			return image;
+		float fPercent = (float) percent / 100;
+		float newWidth = (float) (image.getWidth()) * fPercent;
+		float newHeight = (float) (image.getHeight()) * fPercent;
+		return reduceImage(image, (int) newWidth, (int) newHeight);
+	}
+
+	public static BufferedImage getSubimage(BufferedImage image, int x, int y,
+			int width, int height) {
+		if (width > image.getWidth() - x)
+			width = image.getWidth() - x;
+		if (height > image.getHeight() - y)
+			height = image.getHeight() - y;
+		return image.getSubimage(x, y, width, height);
+	}
+
 }

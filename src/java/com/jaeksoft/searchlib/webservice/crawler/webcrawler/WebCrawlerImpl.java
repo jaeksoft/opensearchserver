@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,13 +34,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.ws.rs.WebApplicationException;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
@@ -50,12 +55,14 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
+import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
+import com.jaeksoft.searchlib.webservice.ApiIdentifier;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
@@ -257,6 +264,48 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
+	public byte[] captureScreenshotAPI(String login, String key, URL url,
+			Integer browserWidth, Integer browserHeight,
+			Integer reductionPercent, Boolean visiblePartOnly, Integer wait) {
+		try {
+			ClientFactory.INSTANCE.properties.checkApi(key,
+					ApiIdentifier.capt00);
+			if (browserWidth == null)
+				browserWidth = 1280;
+			if (browserHeight == null)
+				browserHeight = 768;
+			if (browserWidth > 1600)
+				browserWidth = 1600;
+			if (browserHeight > 1200)
+				browserHeight = 1200;
+			if (reductionPercent == null)
+				reductionPercent = 100;
+			if (visiblePartOnly == null)
+				visiblePartOnly = false;
+			if (wait == null)
+				wait = 0;
+			if (wait > 20)
+				wait = 20;
+			ScreenshotThread screenshotThread = new ScreenshotThread(
+					new Dimension(browserWidth, browserHeight),
+					reductionPercent, visiblePartOnly, url, wait,
+					BrowserDriverEnum.FIREFOX);
+			screenshotThread.runner();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(screenshotThread.getImage(), "png", baos);
+			return baos.toByteArray();
+		} catch (WebApplicationException e) {
+			throw e;
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException();
+		} catch (Exception e) {
+			throw new WebServiceException(e);
+		}
+	}
+
+	@Override
 	public CommonResult checkScreenshot(String use, String login, String key,
 			URL url) {
 		try {
@@ -386,4 +435,5 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return RestApplication.getRestURL("/crawler/web/crawl/{index}/json",
 				user, client, "url", url);
 	}
+
 }

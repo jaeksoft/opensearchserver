@@ -86,11 +86,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return ImageIO.read(new ByteArrayInputStream(data));
 	}
 
-	final public BufferedImage getScreenshot(String sUrl) throws IOException {
-		get(sUrl);
-		return getScreenshot();
-	}
-
 	final public String getSourceCode() {
 		return driver.getPageSource();
 	}

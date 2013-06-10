@@ -123,6 +123,17 @@ public interface RestWebCrawler {
 			@QueryParam("deleteall") Boolean deleteAll,
 			@QueryParam("inject") List<String> injectList);
 
+	@GET
+	@Produces("image/png")
+	@Path("/screenshot")
+	public byte[] captureScreenshotAPI(@QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("url") URL url,
+			@QueryParam("width") Integer browserWidth,
+			@QueryParam("height") Integer browserHeight,
+			@QueryParam("reduction") Integer reductionPercent,
+			@QueryParam("visible") Boolean visiblePartOnly,
+			@QueryParam("wait") Integer wait);
+
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/screenshot/capture/{index}/xml")

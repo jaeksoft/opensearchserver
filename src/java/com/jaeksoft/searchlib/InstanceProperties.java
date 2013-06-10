@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -35,11 +37,14 @@ import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import redis.clients.jedis.Jedis;
+
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.webservice.ApiIdentifier;
 
 public class InstanceProperties {
 
@@ -69,6 +74,12 @@ public class InstanceProperties {
 
 	private int countApiWait;
 
+	private final String redisApiServerHostname;
+
+	private final int redisApiServerPort;
+
+	private final String redisApiAuth;
+
 	private final boolean chroot;
 
 	private final static String LIMIT_NODEPATH = "/instanceProperties/limit";
@@ -86,6 +97,14 @@ public class InstanceProperties {
 	private final static String LIMIT_MAX_API_RATE = "maxApiRate";
 
 	private final static String LIMIT_REQUEST_PER_MONTH = "requestPerMonth";
+
+	private final static String REDIS_API_NODE = "/instanceProperties/redisApi";
+
+	private final static String REDIS_API_HOSTNAME_ATTR = "hostname";
+
+	private final static String REDIS_API_PORT_ATTR = "port";
+
+	private final static String REDIS_API_AUTH_ATTR = "auth";
 
 	public InstanceProperties(File xmlFile)
 			throws ParserConfigurationException, SAXException, IOException,
@@ -117,18 +136,43 @@ public class InstanceProperties {
 				requestPerMonth = XPathParser.getAttributeValue(node,
 						LIMIT_REQUEST_PER_MONTH);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
-				return;
+			} else {
+				maxDocumentLimit = 0;
+				chroot = false;
+				minCrawlerDelay = 0;
+				maxIndexNumber = 0;
+				maxStorage = 0;
+				maxApiRate = 0;
+				requestPerMonth = 0;
+				minApiDelay = 0;
 			}
-		} else
+			node = xpp.getNode(REDIS_API_NODE);
+			if (node != null) {
+				redisApiServerHostname = XPathParser.getAttributeString(node,
+						REDIS_API_HOSTNAME_ATTR);
+				redisApiServerPort = XPathParser.getAttributeValue(node,
+						REDIS_API_PORT_ATTR);
+				redisApiAuth = XPathParser.getAttributeString(node,
+						REDIS_API_AUTH_ATTR);
+			} else {
+				redisApiServerHostname = null;
+				redisApiServerPort = 0;
+				redisApiAuth = null;
+			}
+		} else {
 			requestperMonthFile = null;
-		maxDocumentLimit = 0;
-		chroot = false;
-		minCrawlerDelay = 0;
-		maxIndexNumber = 0;
-		maxStorage = 0;
-		maxApiRate = 0;
-		minApiDelay = 0;
-		requestPerMonth = 0;
+			maxDocumentLimit = 0;
+			chroot = false;
+			minCrawlerDelay = 0;
+			maxIndexNumber = 0;
+			maxStorage = 0;
+			maxApiRate = 0;
+			requestPerMonth = 0;
+			minApiDelay = 0;
+			redisApiServerHostname = null;
+			redisApiServerPort = 0;
+			redisApiAuth = null;
+		}
 	}
 
 	/**
@@ -306,9 +350,47 @@ public class InstanceProperties {
 		storeRequestPerMonthCount(t);
 	}
 
+	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId)
+			throws WebApplicationException {
+		if (redisApiServerHostname == null)
+			return;
+		if (apiKey == null || apiKey.length() == 0)
+			throw new WebApplicationException(Status.FORBIDDEN);
+		Jedis jedis = new Jedis(redisApiServerHostname, redisApiServerPort,
+				10000);
+		try {
+			if (redisApiAuth != null && redisApiAuth.length() > 0)
+				jedis.auth(redisApiAuth);
+			String[] parts = StringUtils.split(apiKey, '_');
+			if (parts.length < 2)
+				throw new WebApplicationException(Status.FORBIDDEN);
+			StringBuffer sbKey = new StringBuffer("apiAccountService.");
+			sbKey.append(parts[1]);
+			sbKey.append('.');
+			sbKey.append(apiId);
+			String v = jedis.hget(sbKey.toString(), apiKey);
+			System.out.println("checking " + sbKey.toString() + " = " + v);
+			if (v == null)
+				throw new WebApplicationException(Status.FORBIDDEN);
+			if ("0".equals(v))
+				return;
+			// TODO check IPs
+		} finally {
+			if (jedis != null)
+				if (jedis.isConnected())
+					jedis.disconnect();
+		}
+	}
+
 	public final void checkApi() throws InterruptedException, IOException {
 		checkApiRate();
 		checkApiRequestPerMonth();
+	}
+
+	public final void checkApi(String apiKey, ApiIdentifier apiId)
+			throws WebApplicationException, InterruptedException {
+		checkApiRate();
+		checkRedisApi(apiKey, apiId);
 	}
 
 	public final float getApiWaitRate() {
@@ -335,6 +417,20 @@ public class InstanceProperties {
 		sb.append(" - chroot: ");
 		sb.append(chroot);
 		return sb.toString();
+	}
+
+	/**
+	 * @return the redisApiServerHostname
+	 */
+	public String getRedisApiServerHostname() {
+		return redisApiServerHostname;
+	}
+
+	/**
+	 * @return the redisApiServerPort
+	 */
+	public int getRedisApiServerPort() {
+		return redisApiServerPort;
 	}
 
 }

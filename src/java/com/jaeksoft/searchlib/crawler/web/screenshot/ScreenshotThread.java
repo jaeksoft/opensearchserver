@@ -25,9 +25,6 @@
 package com.jaeksoft.searchlib.crawler.web.screenshot;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
@@ -40,18 +37,22 @@ import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 
-	private volatile URL url;
-	private volatile Dimension capture;
-	private volatile Dimension resize;
-	private volatile BrowserDriverEnum browserDriverEnum;
+	private final URL url;
+	private final Dimension capture;
+	private final Dimension resize;
+	private final int reductionPercent;
+	private final BrowserDriverEnum browserDriverEnum;
+	private final ScreenshotManager screenshotManager;
+	private final boolean visiblePartOnly;
 	private volatile BrowserDriver<?> browserDriver;
-	private volatile ScreenshotManager screenshotManager;
 	private volatile BufferedImage finalImage;
-	private volatile CredentialItem credentialItem;
+	private final CredentialItem credentialItem;
+	private final int waitSec;
 
 	private final SimpleLock lock = new SimpleLock();
 
@@ -60,19 +61,40 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 			BrowserDriverEnum browserDriverEnum) {
 		super(config, null, null);
 		this.browserDriverEnum = browserDriverEnum;
-		browserDriver = null;
 		this.url = url;
-		finalImage = null;
 		this.screenshotManager = screenshotManager;
 		this.capture = screenshotManager.getCaptureDimension();
 		this.resize = screenshotManager.getResizeDimension();
 		this.credentialItem = credentialItem;
+		this.waitSec = 0;
+		this.reductionPercent = 100;
+		this.visiblePartOnly = true;
+	}
+
+	public ScreenshotThread(Dimension capture, int reduction,
+			boolean visiblePartOnly, URL url, int waitSec,
+			BrowserDriverEnum browserDriverEnum) {
+		super(null, null, null);
+		this.browserDriverEnum = browserDriverEnum;
+		this.url = url;
+		this.screenshotManager = null;
+		this.credentialItem = null;
+		this.capture = capture;
+		this.resize = null;
+		this.waitSec = waitSec;
+		this.reductionPercent = reduction;
+		this.visiblePartOnly = visiblePartOnly;
+		browserDriver = null;
+		finalImage = null;
+
 	}
 
 	private final void initDriver() throws SearchLibException {
 		lock.rl.lock();
 		try {
 			browserDriver = browserDriverEnum.getNewInstance();
+			browserDriver.setTimeouts(60, 60);
+			browserDriver.setSize(capture.width, capture.height);
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
@@ -81,66 +103,6 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 			lock.rl.unlock();
 		}
 
-	}
-
-	private final BufferedImage scaleWidth(BufferedImage image) {
-		BufferedImage scaledImage = new BufferedImage(capture.width,
-				image.getHeight(), image.getType());
-		Graphics2D graphics2D = scaledImage.createGraphics();
-		graphics2D.drawImage(image, (capture.width - image.getWidth()) / 2, 0,
-				image.getWidth(), image.getHeight(), null);
-		graphics2D.dispose();
-		return scaledImage;
-	}
-
-	private final BufferedImage scaleHeight(BufferedImage image) {
-		BufferedImage scaledImage = new BufferedImage(image.getWidth(),
-				capture.height, image.getType());
-		Graphics2D graphics2D = scaledImage.createGraphics();
-		graphics2D.drawImage(image, 0,
-				(capture.height - image.getHeight()) / 2, image.getWidth(),
-				image.getHeight(), null);
-		graphics2D.dispose();
-		return scaledImage;
-	}
-
-	private final BufferedImage extractSubImage(BufferedImage image) {
-		int left = (image.getWidth() - capture.width) / 2;
-		return image.getSubimage(left, 0, capture.width, capture.height);
-	}
-
-	private final BufferedImage resizeImage(BufferedImage image) {
-		int type = (image.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB
-				: BufferedImage.TYPE_INT_ARGB;
-		BufferedImage ret = (BufferedImage) image;
-		int w = image.getWidth();
-		int h = image.getHeight();
-
-		while (w != resize.width || h != resize.height) {
-			if (w > resize.width) {
-				w /= 2;
-				if (w < resize.width)
-					w = resize.width;
-			}
-
-			if (h > resize.height) {
-				h /= 2;
-				if (h < resize.height)
-					h = resize.height;
-			}
-
-			BufferedImage tmp = new BufferedImage(w, h, type);
-
-			Graphics2D g2 = tmp.createGraphics();
-			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-			g2.drawImage(ret, 0, 0, w, h, null);
-			g2.dispose();
-
-			ret = tmp;
-		}
-
-		return ret;
 	}
 
 	@Override
@@ -155,16 +117,21 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 						url.getRef()).toString();
 			} else
 				sUrl = url.toExternalForm();
-			BufferedImage image = browserDriver.getScreenshot(sUrl);
-			if (image.getWidth() < capture.width)
-				image = scaleWidth(image);
-			if (image.getHeight() < capture.height)
-				image = scaleHeight(image);
-			image = extractSubImage(image);
-			if (resize.width != capture.width
-					&& resize.height != capture.height)
-				image = resizeImage(image);
-			screenshotManager.store(url, image);
+			browserDriver.get(sUrl);
+			if (waitSec > 0)
+				sleepSec(waitSec);
+			BufferedImage image = browserDriver.getScreenshot();
+			if (visiblePartOnly)
+				image = ImageUtils.getSubimage(image, 0, 0, capture.width,
+						capture.height);
+
+			if (resize != null)
+				image = ImageUtils.reduceImage(image, resize.width,
+						resize.height);
+			if (reductionPercent < 100)
+				image = ImageUtils.reduceImage(image, reductionPercent);
+			if (screenshotManager != null)
+				screenshotManager.store(url, image);
 			finalImage = image;
 		} finally {
 			release();
