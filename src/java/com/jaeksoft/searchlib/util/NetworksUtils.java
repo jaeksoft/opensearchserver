@@ -45,11 +45,21 @@ public class NetworksUtils {
 				return null;
 			SubnetInfo[] subnetArray = new SubnetInfo[lines.size()];
 			int i = 0;
-			for (String line : lines)
-				subnetArray[i++] = new SubnetUtils(line).getInfo();
+			for (String line : lines) {
+				SubnetUtils subnetUtils = new SubnetUtils(line);
+				subnetUtils.setInclusiveHostCount(true);
+				subnetArray[i++] = subnetUtils.getInfo();
+			}
 			return subnetArray;
 		} finally {
 			IOUtils.closeQuietly(sr);
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		for (SubnetInfo subnetInfo : getSubnetArray("78.235.189.98/32")) {
+			System.out.println(subnetInfo.getAddressCount());
+			System.out.println(subnetInfo.isInRange("78.235.189.98"));
 		}
 	}
 }
