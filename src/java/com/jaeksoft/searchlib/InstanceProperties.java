@@ -373,8 +373,9 @@ public class InstanceProperties {
 			String v = jedis.hget(sbKey.toString(), apiKey);
 			if (v == null)
 				throw new WebApplicationException(Status.FORBIDDEN);
-			if ("0".equals(v))
+			if ("0".equals(v) || v.length() == 0)
 				return;
+			System.out.println("VALUE: " + v);
 			for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(v))
 				if (subnetInfo.isInRange(remoteIpAddress))
 					return;
