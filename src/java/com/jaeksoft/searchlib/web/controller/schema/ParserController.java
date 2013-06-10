@@ -35,9 +35,11 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
@@ -55,6 +57,7 @@ import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class ParserController extends CommonController {
 
 	private transient ParserFactory selectedParser;
@@ -568,6 +571,7 @@ public class ParserController extends CommonController {
 		captureRegexp = selectedFieldMapItem.getTarget().getCaptureRegexp();
 		removeTag = selectedFieldMapItem.getTarget().isRemoveTag();
 		reload();
+		Clients.resize(component);
 	}
 
 	public boolean isFieldMapItemSelected() {

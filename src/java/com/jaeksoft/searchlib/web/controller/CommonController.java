@@ -32,8 +32,11 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.zkoss.bind.BindUtils;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
@@ -59,9 +62,18 @@ import com.jaeksoft.searchlib.web.Version;
 
 public abstract class CommonController implements EventInterface {
 
+	protected transient Component component;
+
 	public CommonController() throws SearchLibException {
 		super();
 		reset();
+	}
+
+	@AfterCompose
+	public void afterCompose(
+			@ContextParam(ContextType.COMPONENT) Component component,
+			@ContextParam(ContextType.VIEW) Component view) {
+		this.component = component;
 	}
 
 	final protected String getExecutionParameter(String name) {
