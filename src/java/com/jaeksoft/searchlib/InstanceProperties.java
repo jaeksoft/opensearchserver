@@ -379,6 +379,8 @@ public class InstanceProperties {
 			for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(v))
 				if (subnetInfo.isInRange(remoteIpAddress))
 					return;
+			Logging.warn("Authentication failure: " + apiKey + " "
+					+ remoteIpAddress);
 			throw new WebApplicationException(Status.FORBIDDEN);
 		} catch (IOException e) {
 			throw new WebApplicationException(Status.FORBIDDEN);
