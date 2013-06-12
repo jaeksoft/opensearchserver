@@ -92,6 +92,7 @@ public class HtmlArchiver {
 	private final HttpDownloader downloader;
 	private final RecursiveTracker recursiveSecurity;
 	private URL baseUrl;
+	private CSSOMParser cssParser;
 
 	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir,
 			HttpDownloader httpDownloader, URL url) {
@@ -106,6 +107,8 @@ public class HtmlArchiver {
 		urlFileMap = new TreeMap<String, String>();
 		filesDir.mkdir();
 		recursiveSecurity = new RecursiveTracker(20);
+		cssParser = new CSSOMParser();
+		cssParser.setErrorHandler(ParserErrorHandler.LOGONLY_ERROR_HANDLER);
 	}
 
 	final private static String buildFileName(String baseName,
@@ -212,10 +215,49 @@ public class HtmlArchiver {
 	final private Pattern cssUrlPattern = Pattern
 			.compile("(?s)[\\s]*url\\([\"']?(.*?)[\"']?\\)");
 
+	// .compile("(?s)^[\\s]*[/]{1}[\\s]*$");
+
+	final private boolean handleCssProperty(URL objectUrl, CSSValue cssValue)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException {
+		if (cssValue == null)
+			return false;
+		String oldValue = cssValue.getCssText();
+		List<String> urls = RegExpUtils.getGroups(cssUrlPattern, oldValue);
+		if (urls == null || urls.size() == 0)
+			return false;
+		String newSrc = downloadObject(objectUrl, urls.get(0), null);
+		String newValue = RegExpUtils.replaceAll(oldValue, cssUrlPattern,
+				" url('" + newSrc + "')");
+		if (newValue == null)
+			return false;
+		try {
+			cssValue.setCssText(newValue.trim());
+			return true;
+		} catch (DOMExceptionImpl e) {
+			Logging.warn("Wrong CSS value: " + newValue, e);
+		}
+		return false;
+	}
+
+	final private boolean handleCssStyle(URL objectUrl,
+			CSSStyleDeclaration styleDeclaration)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException {
+		if (styleDeclaration == null)
+			return false;
+		boolean change = false;
+		for (int j = 0; j < styleDeclaration.getLength(); j++) {
+			String property = styleDeclaration.item(j);
+			if (handleCssProperty(objectUrl,
+					styleDeclaration.getPropertyCSSValue(property)))
+				change = true;
+		}
+		return change;
+	}
+
 	final private Pattern cssErronousCommentPattern = Pattern
 			.compile("(?m)^(\\/)$");
-
-	// .compile("(?s)^[\\s]*[/]{1}[\\s]*$");
 
 	final private StringBuffer checkCSSContent(URL objectUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
@@ -224,10 +266,11 @@ public class HtmlArchiver {
 		PrintWriter pw = null;
 		css = RegExpUtils.replaceAll(css, cssErronousCommentPattern, "");
 		try {
-			CSSOMParser parser = new CSSOMParser();
-			parser.setErrorHandler(ParserErrorHandler.LOGONLY_ERROR_HANDLER);
-			CSSStyleSheet stylesheet = parser.parseStyleSheet(new InputSource(
-					new StringReader(css)), null, null);
+			CSSStyleSheet stylesheet = null;
+			synchronized (cssParser) {
+				stylesheet = cssParser.parseStyleSheet(new InputSource(
+						new StringReader(css)), null, null);
+			}
 			CSSRuleList ruleList = stylesheet.getCssRules();
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
@@ -235,26 +278,7 @@ public class HtmlArchiver {
 				CSSRule rule = ruleList.item(i);
 				if (rule instanceof CSSStyleRule) {
 					CSSStyleRule styleRule = (CSSStyleRule) rule;
-					CSSStyleDeclaration styleDeclaration = styleRule.getStyle();
-					for (int j = 0; j < styleDeclaration.getLength(); j++) {
-						String property = styleDeclaration.item(j);
-						CSSValue cssValue = styleDeclaration
-								.getPropertyCSSValue(property);
-						String value = cssValue.getCssText();
-						List<String> urls = RegExpUtils.getGroups(
-								cssUrlPattern, value);
-						if (urls != null && urls.size() > 0) {
-							String newSrc = downloadObject(objectUrl,
-									urls.get(0), null);
-							String newValue = RegExpUtils.replaceAll(value,
-									cssUrlPattern, " url('" + newSrc + "')");
-							try {
-								cssValue.setCssText(newValue.trim());
-							} catch (DOMExceptionImpl e) {
-								Logging.warn("Wrong CSS value: " + newValue, e);
-							}
-						}
-					}
+					handleCssStyle(objectUrl, styleRule.getStyle());
 					pw.println(rule.getCssText());
 				} else if (rule instanceof CSSImportRule) {
 					CSSImportRule importRule = (CSSImportRule) rule;
@@ -285,22 +309,6 @@ public class HtmlArchiver {
 		}
 	}
 
-	final private Pattern cssRemoveStartingComment1 = Pattern
-			.compile("(?s)^[\\s]*<!--");
-
-	final private Pattern cssRemoveStartingComment2 = Pattern
-			.compile("(?s)^[\\s]*&lt;!--");
-
-	final private Pattern cssRemoveEndingComment1 = Pattern
-			.compile("(?s)--&gt;[\\s]*$");
-
-	final private Pattern cssRemoveEndingComment2 = Pattern
-			.compile("(?s)-->[\\s]*$");
-
-	final private Pattern[] cssCommentPatterns = { cssRemoveStartingComment1,
-			cssRemoveStartingComment2, cssRemoveEndingComment1,
-			cssRemoveEndingComment2 };
-
 	final private void checkStyleCSS(TagNode node)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
@@ -316,21 +324,31 @@ public class HtmlArchiver {
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
 			return;
-		String cssString = builder.toString();
-		for (Pattern p : cssCommentPatterns)
-			cssString = RegExpUtils.replaceAll(cssString, p, "");
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		try {
-			pw.println("<!--");
-			pw.println(checkCSSContent(baseUrl, cssString));
-			pw.println("-->");
-			node.removeAllChildren();
-			node.addChild(new ContentNode(sw.toString()));
-		} finally {
-			IOUtils.closeQuietly(pw);
-			IOUtils.closeQuietly(sw);
+		String content = builder.toString();
+		String newContent = StringEscapeUtils.unescapeXml(content);
+		if (newContent.equals(content))
+			return;
+		node.removeAllChildren();
+		node.addChild(new ContentNode(newContent));
+	}
+
+	final private void checkStyleAttribute(TagNode node)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException {
+		String style = node.getAttributeByName("style");
+		if (style == null)
+			return;
+		if (style.length() == 0)
+			return;
+
+		CSSStyleDeclaration cssStyle = null;
+		synchronized (cssParser) {
+			cssStyle = cssParser.parseStyleDeclaration(new InputSource(
+					new StringReader(style)));
 		}
+		if (!handleCssStyle(baseUrl, cssStyle))
+			return;
+		node.addAttribute("style", cssStyle.getCssText());
 	}
 
 	final private void checkScriptContent(TagNode node) {
@@ -342,23 +360,11 @@ public class HtmlArchiver {
 		String content = builder.toString();
 		if (content == null)
 			return;
-		content = content.trim();
-		if (content.length() == 0)
+		String newContent = StringEscapeUtils.unescapeXml(content);
+		if (newContent.equals(content))
 			return;
-		for (Pattern p : cssCommentPatterns)
-			content = RegExpUtils.replaceAll(content, p, "");
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		try {
-			pw.println("<!--");
-			pw.println(content);
-			pw.println("-->");
-			node.removeAllChildren();
-			node.addChild(new ContentNode(sw.toString()));
-		} finally {
-			IOUtils.closeQuietly(pw);
-			IOUtils.closeQuietly(sw);
-		}
+		node.removeAllChildren();
+		node.addChild(new ContentNode(newContent));
 	}
 
 	final private Selector findSelector(TagNode node) {
@@ -482,8 +488,8 @@ public class HtmlArchiver {
 		downloadObjectFromTag(node, null, "src", null);
 		downloadObjectFromTag(node, "link", "href", "type");
 		checkStyleCSS(node);
-		// ** Must be checked
-		// checkScriptContent(node);
+		checkScriptContent(node);
+		checkStyleAttribute(node);
 		TagNode[] nodes = node.getChildTags();
 		if (nodes == null)
 			return;
