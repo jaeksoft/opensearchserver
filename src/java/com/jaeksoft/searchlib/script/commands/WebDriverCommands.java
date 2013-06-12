@@ -225,7 +225,7 @@ public class WebDriverCommands {
 				writer = null;
 
 				httpDownloader = context.getConfig().getWebCrawlMaster()
-						.getNewHttpDownloader();
+						.getNewHttpDownloader(true, null);
 				browserDriver.saveArchive(httpDownloader, destFile);
 
 			} catch (IOException e) {

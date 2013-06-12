@@ -217,7 +217,7 @@ public class WebCrawlMaster extends
 	private void extractSiteMapList() throws SearchLibException {
 		HttpDownloader httpDownloader = null;
 		try {
-			httpDownloader = getNewHttpDownloader();
+			httpDownloader = getNewHttpDownloader(true);
 			SiteMapList siteMapList = getConfig().getSiteMapList();
 			if (siteMapList != null && siteMapList.getArray() != null) {
 				setStatus(CrawlStatus.LOADING_SITEMAP);
@@ -225,7 +225,7 @@ public class WebCrawlMaster extends
 				List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
 				for (SiteMapItem siteMap : siteMapList.getArray()) {
 					Set<SiteMapUrl> siteMapUrlSet = siteMap.load(
-							getNewHttpDownloader(), null);
+							getNewHttpDownloader(true), null);
 					for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
 						String sUri = siteMapUrl.getLoc().toString();
 						if (!urlManager.exists(sUri)) {
@@ -244,11 +244,20 @@ public class WebCrawlMaster extends
 		}
 	}
 
-	public HttpDownloader getNewHttpDownloader() throws SearchLibException {
+	public HttpDownloader getNewHttpDownloader(boolean followRedirect,
+			String userAgent) throws SearchLibException {
 		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		return new HttpDownloader(propertyManager.getUserAgent().getValue(),
-				false, propertyManager.getProxyHandler());
+		return new HttpDownloader(userAgent, followRedirect,
+				propertyManager.getProxyHandler());
+	}
+
+	public HttpDownloader getNewHttpDownloader(boolean followRedirect)
+			throws SearchLibException {
+		Config config = getConfig();
+		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		return getNewHttpDownloader(followRedirect, propertyManager
+				.getUserAgent().getValue());
 	}
 
 	private NamedItem getNextHost() {

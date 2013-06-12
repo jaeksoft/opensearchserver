@@ -162,7 +162,8 @@ public class RestCrawlThread extends
 		try {
 			URI uri = new URI(restCrawlItem.getUrl());
 			CredentialItem credentialItem = restCrawlItem.getCredential();
-			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader();
+			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader(
+					true);
 			setStatus(CrawlStatus.CRAWL);
 			DownloadItem dlItem = downloader.get(uri, credentialItem);
 			JsonPath path = JsonPath.compile(restCrawlItem.getPathDocument());

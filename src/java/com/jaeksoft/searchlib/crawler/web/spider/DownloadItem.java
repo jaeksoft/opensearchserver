@@ -391,4 +391,5 @@ public class DownloadItem {
 				IOUtils.closeQuietly(fos);
 		}
 	}
+
 }

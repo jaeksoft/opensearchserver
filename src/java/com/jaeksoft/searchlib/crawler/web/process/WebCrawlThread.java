@@ -75,7 +75,7 @@ public class WebCrawlThread extends
 				.getValue();
 		nextTimeTarget = 0;
 		this.hostUrlList = hostUrlList;
-		httpDownloader = crawlMaster.getNewHttpDownloader();
+		httpDownloader = crawlMaster.getNewHttpDownloader(false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
 				.getUserAgent().getValue(), true,
 				propertyManager.getProxyHandler());

@@ -866,7 +866,7 @@ public class UrlManager extends AbstractManager {
 			int everyTen = 0;
 			targetClient.getSiteMapList();
 			httpDownloader = targetClient.getWebCrawlMaster()
-					.getNewHttpDownloader();
+					.getNewHttpDownloader(true);
 			Set<SiteMapUrl> siteMapUrlSet = new HashSet<SiteMapUrl>(0);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>(0);
 			long now = System.currentTimeMillis();

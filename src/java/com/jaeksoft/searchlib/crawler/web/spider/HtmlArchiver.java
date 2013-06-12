@@ -200,6 +200,7 @@ public class HtmlArchiver {
 				FileUtils.write(destFile, sb);
 			} else
 				downloadItem.writeToFile(destFile);
+
 			return getLocalPath(parentUrl, destFile.getName());
 		} catch (HttpHostConnectException e) {
 			Logging.warn(e);
@@ -315,17 +316,20 @@ public class HtmlArchiver {
 		if (!("style".equalsIgnoreCase(node.getName())))
 			return;
 		String attr = node.getAttributeByName("type");
-		if (!"text/css".equalsIgnoreCase(attr))
+		if (attr != null && attr.length() > 0
+				&& !"text/css".equalsIgnoreCase(attr))
 			return;
 		attr = node.getAttributeByName("media");
-		if (attr != null)
-			if (!"screen".equals(attr))
-				return;
+		if (attr != null && attr.length() > 0 && !"screen".equals(attr))
+			return;
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
 			return;
 		String content = builder.toString();
 		String newContent = StringEscapeUtils.unescapeXml(content);
+		StringBuffer sb = checkCSSContent(baseUrl, newContent);
+		if (sb != null)
+			newContent = sb.toString();
 		if (newContent.equals(content))
 			return;
 		node.removeAllChildren();
@@ -455,6 +459,10 @@ public class HtmlArchiver {
 		else {
 			String type = typeAttrName != null ? node
 					.getAttributeByName(typeAttrName) : null;
+
+			if (type == null && node.getName().equalsIgnoreCase("script"))
+				type = "text/javascript";
+
 			newSrc = downloadObject(baseUrl, src, type);
 		}
 		if (newSrc != null)

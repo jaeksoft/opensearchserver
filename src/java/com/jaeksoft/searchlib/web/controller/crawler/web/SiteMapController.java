@@ -157,10 +157,10 @@ public class SiteMapController extends CrawlerController {
 		if (client == null)
 			return;
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader();
+				.getNewHttpDownloader(true);
 		try {
 			Set<SiteMapUrl> set = item.load(client.getWebCrawlMaster()
-					.getNewHttpDownloader(), null);
+					.getNewHttpDownloader(true), null);
 			new AlertController(set.size() + " URL(s) found");
 		} finally {
 			if (httpDownloader != null)

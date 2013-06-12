@@ -51,15 +51,16 @@ public class HttpDownloadThread extends ThreadAbstract<HttpDownloadThread> {
 	private long contentTransfered;
 	private boolean downloadSuccess;
 
-	public HttpDownloadThread(Config config, URI uri, File destFile)
-			throws SearchLibException, MalformedURLException,
-			URISyntaxException {
+	public HttpDownloadThread(Config config, URI uri, File destFile,
+			boolean followRedirection) throws SearchLibException,
+			MalformedURLException, URISyntaxException {
 		super(config, null, null);
 		this.uri = uri;
 		contentSize = 0;
 		contentTransfered = 0;
 		this.destFile = destFile;
-		httpDownloader = config.getWebCrawlMaster().getNewHttpDownloader();
+		httpDownloader = config.getWebCrawlMaster().getNewHttpDownloader(
+				followRedirection);
 		credentialItem = config.getWebCredentialManager().getCredential(
 				uri.toString());
 		downloadSuccess = false;

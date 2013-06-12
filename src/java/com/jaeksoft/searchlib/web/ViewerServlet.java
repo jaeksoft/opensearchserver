@@ -53,7 +53,7 @@ public class ViewerServlet extends AbstractServlet {
 			throws SearchLibException, ClientProtocolException,
 			MalformedURLException, IOException, URISyntaxException {
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader();
+				.getNewHttpDownloader(false);
 		try {
 			httpDownloader.head(new URI(uri), client.getWebCredentialManager()
 					.getCredential(uri));
