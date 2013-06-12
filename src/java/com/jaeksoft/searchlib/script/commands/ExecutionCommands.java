@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
@@ -66,8 +69,14 @@ public class ExecutionCommands {
 				break;
 			case NEXT_COMMAND:
 				checkParameters(2, parameters);
-				context.setOnError(onError,
-						CommandEnum.find(getParameterString(1)));
+				List<CommandEnum> commands = new ArrayList<CommandEnum>(0);
+				for (int i = 1; i < parameters.length; i++) {
+					String p = parameters[i];
+					if (p == null)
+						continue;
+					commands.add(CommandEnum.find(p));
+				}
+				context.setOnError(onError, commands);
 				break;
 			}
 		}

@@ -284,6 +284,27 @@ public class WebDriverCommands {
 		}
 	}
 
+	public static class Javascript extends CommandAbstract {
+
+		public Javascript() {
+			super(CommandEnum.WEBDRIVER_JAVASCRIPT);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			try {
+				browserDriver.javascript(getParameterString(0));
+			} catch (IOException e) {
+				throw new ScriptException(e);
+			}
+		}
+	}
+
 	// <link rel="stylesheet" id="responsive-style-css"
 	// href="./OpenSearchServer   Search Engine API_files/style.css"
 	// type="text/css" media="all">

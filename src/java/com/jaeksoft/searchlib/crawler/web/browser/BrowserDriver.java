@@ -43,6 +43,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.lucene.util.IOUtils;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -75,6 +76,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public void get(String sUrl) {
 		driver.get(sUrl);
+	}
+
+	public void javascript(String javascript) throws IOException {
+		if (!(driver instanceof JavascriptExecutor))
+			throw new IOException(
+					"The Web driver don't support javascript execution");
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript(javascript);
 	}
 
 	final public BufferedImage getScreenshot() throws IOException {
@@ -156,4 +165,5 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		File sourceFile = new File(captureDirectory, "source.html");
 		FileUtils.write(sourceFile, getFrameSource(frameWebelement));
 	}
+
 }

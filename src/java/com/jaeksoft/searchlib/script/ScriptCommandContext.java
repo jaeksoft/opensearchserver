@@ -28,6 +28,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -51,7 +52,7 @@ public class ScriptCommandContext implements Closeable {
 
 	private OnError onError;
 
-	private CommandEnum onErrorNextCommand;
+	private CommandEnum[] onErrorNextCommands;
 
 	public static enum OnError {
 		FAILURE, RESUME, NEXT_COMMAND;
@@ -63,7 +64,7 @@ public class ScriptCommandContext implements Closeable {
 		currentWebDriver = null;
 		selectors = null;
 		onError = OnError.FAILURE;
-		onErrorNextCommand = null;
+		onErrorNextCommands = null;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -145,17 +146,23 @@ public class ScriptCommandContext implements Closeable {
 		}
 	}
 
-	public void setOnError(OnError onError, CommandEnum onErrorNextCommand) {
+	public void setOnError(OnError onError, List<CommandEnum> commandList) {
 		this.onError = onError;
-		this.onErrorNextCommand = onErrorNextCommand;
+		this.onErrorNextCommands = null;
+		if (commandList == null)
+			return;
+		if (commandList.size() == 0)
+			return;
+		onErrorNextCommands = commandList.toArray(new CommandEnum[commandList
+				.size()]);
 	}
 
 	public OnError getOnError() {
 		return onError;
 	}
 
-	public CommandEnum getOnErrorNextCommand() {
-		return onErrorNextCommand;
+	public CommandEnum[] getOnErrorNextCommands() {
+		return onErrorNextCommands;
 	}
 
 }

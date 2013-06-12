@@ -58,7 +58,9 @@ public enum CommandEnum {
 
 	WEBDRIVER_SET_TIMEOUTS(WebDriverCommands.SetTimeOuts.class),
 
-	WEBDRIVER_CLOSE(WebDriverCommands.Close.class);
+	WEBDRIVER_CLOSE(WebDriverCommands.Close.class),
+
+	WEBDRIVER_JAVASCRIPT(WebDriverCommands.Javascript.class);
 
 	private final Class<? extends CommandAbstract> commandClass;
 
@@ -79,6 +81,8 @@ public enum CommandEnum {
 	}
 
 	public static final CommandEnum find(String command) throws ScriptException {
+		if (command == null)
+			throw new ScriptException("No command: ");
 		try {
 			return valueOf(command);
 		} catch (IllegalArgumentException e) {

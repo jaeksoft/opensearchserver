@@ -148,9 +148,10 @@ public class DatabaseScript implements Closeable {
 			List<String> pkList = sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST
 					|| sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST ? new ArrayList<String>(
 					0) : null;
-			CommandEnum commandFinder = null;
+			CommandEnum[] commandFinder = null;
 			String lastScriptError = null;
 			while (resultSet.next()) {
+				String currentScriptError = null;
 				String id = resultSet.getString(COLUMN_ID);
 				if (pkList != null)
 					pkList.add(id);
@@ -167,32 +168,42 @@ public class DatabaseScript implements Closeable {
 				}
 				CommandEnum commandEnum = CommandEnum.find(command);
 				if (commandFinder != null) {
-					if (commandFinder != commandEnum)
+					// On error next_command is active, looking for next
+					// statement
+					boolean bFind = false;
+					for (CommandEnum cmd : commandFinder) {
+						if (cmd == commandEnum) {
+							bFind = true;
+							break;
+						}
+					}
+					if (!bFind)
 						continue;
 					commandFinder = null;
 				}
 				CommandAbstract commandAbstract = commandEnum.getNewInstance();
 				try {
 					commandAbstract.run(scriptCommandContext, id, parameters);
-				} catch (ScriptException e) {
+				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);
-					lastScriptError = t != null ? t.getClass().getName() : e
+					currentScriptError = t != null ? t.getClass().getName() : e
 							.getClass().getName();
+					lastScriptError = currentScriptError;
 					switch (scriptCommandContext.getOnError()) {
 					case FAILURE:
-						throw e;
+						throw new ScriptException(e);
 					case RESUME:
 						Logging.warn(e);
 						break;
 					case NEXT_COMMAND:
 						Logging.warn(e);
 						commandFinder = scriptCommandContext
-								.getOnErrorNextCommand();
+								.getOnErrorNextCommands();
 						break;
 					}
 				}
 				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
-					DatabaseUtils.update(transaction, id, lastScriptError,
+					DatabaseUtils.update(transaction, id, currentScriptError,
 							sqlUpdateMode, sqlU);
 			}
 			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
