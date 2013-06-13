@@ -46,6 +46,11 @@ public class NetworksUtils {
 			SubnetInfo[] subnetArray = new SubnetInfo[lines.size()];
 			int i = 0;
 			for (String line : lines) {
+				line = line.trim();
+				if (line.isEmpty())
+					continue;
+				if (line.indexOf('/') == -1)
+					line = line + "/32";
 				SubnetUtils subnetUtils = new SubnetUtils(line);
 				subnetUtils.setInclusiveHostCount(true);
 				subnetArray[i++] = subnetUtils.getInfo();
