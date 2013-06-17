@@ -330,11 +330,27 @@ public class HtmlParser extends Parser {
 		if (htmlProvider == null)
 			return;
 
-		String canonicalLink = htmlProvider.getCanonicalLink();
-		if (canonicalLink != null) {
-			addDetectedLink(canonicalLink);
+		URL currentURL = htmlProvider.getBaseHref();
+		IndexDocument srcDoc = getSourceDocument();
+		try {
+			if (currentURL == null)
+				currentURL = LinkUtils.newEncodedURL(streamLimiter
+						.getOriginURL());
+			if (currentURL == null && urlItemFieldEnum != null) {
+				FieldValueItem fvi = srcDoc.getFieldValue(
+						urlItemFieldEnum.url.getName(), 0);
+				if (fvi != null)
+					currentURL = LinkUtils.newEncodedURL(fvi.getValue());
+			}
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		}
+
+		URL canonicalURL = htmlProvider.getCanonicalLink(currentURL);
+		if (canonicalURL != null) {
+			addDetectedLink(canonicalURL.toExternalForm());
 			if (ignoreNonCanonical) {
-				if (!canonicalLink.equals(streamLimiter.getOriginURL())) {
+				if (!canonicalURL.equals(currentURL)) {
 					isCanonical = false;
 					return;
 				}
@@ -436,22 +452,7 @@ public class HtmlParser extends Parser {
 
 		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame",
 				"img");
-		IndexDocument srcDoc = getSourceDocument();
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
-			URL currentURL = htmlProvider.getBaseHref();
-			try {
-				if (currentURL == null)
-					currentURL = LinkUtils.newEncodedURL(streamLimiter
-							.getOriginURL());
-				if (currentURL == null && urlItemFieldEnum != null) {
-					FieldValueItem fvi = srcDoc.getFieldValue(
-							urlItemFieldEnum.url.getName(), 0);
-					if (fvi != null)
-						currentURL = LinkUtils.newEncodedURL(fvi.getValue());
-				}
-			} catch (URISyntaxException e) {
-				throw new IOException(e);
-			}
 			for (HtmlNodeAbstract<?> node : nodes) {
 				String href = null;
 				String rel = null;

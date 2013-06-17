@@ -120,7 +120,7 @@ public abstract class HtmlDocumentProvider {
 		return titleCache;
 	}
 
-	final public String getCanonicalLink() {
+	final public URL getCanonicalLink(URL currentUrl) {
 		if (rootNode == null)
 			return null;
 		String[] p1 = { "html", "head", "link" };
@@ -134,8 +134,9 @@ public abstract class HtmlDocumentProvider {
 			if (!"canonical".equalsIgnoreCase(rel))
 				continue;
 			String href = node.getAttribute("href");
-			if (href != null)
-				return href;
+			if (href == null)
+				return null;
+			return LinkUtils.getLink(currentUrl, href, null, false);
 		}
 		return null;
 	}
