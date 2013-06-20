@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
@@ -133,10 +135,11 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	final public void saveArchive(HttpDownloader httpDownloader,
-			File parentDirectory) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException, SAXException, ParserConfigurationException,
-			ClassCastException, ClassNotFoundException, InstantiationException,
+			File parentDirectory, Collection<Selector> selectors)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException, SAXException,
+			ParserConfigurationException, ClassCastException,
+			ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 
 		URL currentURL = new URL(driver.getCurrentUrl());
@@ -144,7 +147,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		try {
 			HtmlArchiver archiver = new HtmlArchiver(this, parentDirectory,
 					httpDownloader, currentURL);
-			archiver.archive(this);
+			archiver.archive(this, selectors);
 		} finally {
 			if (reader != null)
 				IOUtils.close(reader);

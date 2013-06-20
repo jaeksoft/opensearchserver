@@ -49,6 +49,10 @@ public abstract class CommandAbstract {
 				throwError("The parameter is empty: " + (i + 1));
 	}
 
+	protected int getParameterCount() {
+		return parameters.length;
+	}
+
 	protected String getParameterString(int pos) {
 		if (pos >= parameters.length)
 			return null;

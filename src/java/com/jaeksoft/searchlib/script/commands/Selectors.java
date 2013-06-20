@@ -40,11 +40,20 @@ public class Selectors {
 	public static class Selector implements Comparable<Selector> {
 		public final Type type;
 		public final String query;
+		public final boolean disableScript;
+		public final boolean screenshotHighlight;
 
-		public Selector(Type type, String query) {
+		public Selector(Type type, String query, boolean disableScript,
+				boolean screenshotHighlight) {
 			this.type = type;
 			// Avoid null value in query part (for comparison)
 			this.query = query == null ? "" : query;
+			this.disableScript = disableScript;
+			this.screenshotHighlight = screenshotHighlight;
+		}
+
+		public Selector(Type type, String query) {
+			this(type, query, false, false);
 		}
 
 		public final By getBy() {
@@ -66,9 +75,29 @@ public class Selectors {
 				return c;
 			return query.compareTo(o.query);
 		}
+
+		public boolean isDisableScript() {
+			return disableScript;
+		}
+
 	}
 
-	public static class CSS_Add extends CommandAbstract {
+	public static abstract class SelectorCommandAbstract extends
+			CommandAbstract {
+
+		protected SelectorCommandAbstract(CommandEnum commandEnum) {
+			super(commandEnum);
+		}
+
+		public boolean isCommandParam(String commandName, int from) {
+			for (int i = from; i < getParameterCount(); i++)
+				if (commandName.equalsIgnoreCase(getParameterString(i)))
+					return true;
+			return false;
+		}
+	}
+
+	public static class CSS_Add extends SelectorCommandAbstract {
 
 		public CSS_Add() {
 			super(CommandEnum.CSS_SELECTOR_ADD);
@@ -79,9 +108,9 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			context.addSelector(new Selector(Type.CSS_SELECTOR,
-					getParameterString(0)));
+					getParameterString(0), isCommandParam("disable_script", 1),
+					isCommandParam("screenshot_highlight", 1)));
 		}
-
 	}
 
 	public static class CSS_Reset extends CommandAbstract {
@@ -98,7 +127,7 @@ public class Selectors {
 
 	}
 
-	public static class XPATH_Add extends CommandAbstract {
+	public static class XPATH_Add extends SelectorCommandAbstract {
 
 		public XPATH_Add() {
 			super(CommandEnum.XPATH_SELECTOR_ADD);
@@ -109,7 +138,8 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			context.addSelector(new Selector(Type.XPATH_SELECTOR,
-					getParameterString(0)));
+					getParameterString(0), isCommandParam("disable_script", 1),
+					isCommandParam("screenshot_highlight", 1)));
 		}
 	}
 
@@ -127,7 +157,7 @@ public class Selectors {
 
 	}
 
-	public static class ID_Add extends CommandAbstract {
+	public static class ID_Add extends SelectorCommandAbstract {
 
 		public ID_Add() {
 			super(CommandEnum.ID_SELECTOR_ADD);
@@ -138,7 +168,8 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
 			context.addSelector(new Selector(Type.ID_SELECTOR,
-					getParameterString(0)));
+					getParameterString(0), isCommandParam("disable_script", 1),
+					isCommandParam("screenshot_highlight", 1)));
 		}
 
 	}
@@ -169,4 +200,5 @@ public class Selectors {
 		}
 
 	}
+
 }

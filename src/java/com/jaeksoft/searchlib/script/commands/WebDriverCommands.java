@@ -194,7 +194,8 @@ public class WebDriverCommands {
 				if (selectors != null) {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
-						browserDriver.locateBy(selector, elementSet);
+						if (selector.screenshotHighlight)
+							browserDriver.locateBy(selector, elementSet);
 					List<Rectangle> boxes = new ArrayList<Rectangle>(
 							elementSet.size());
 					int i = 1;
@@ -226,7 +227,8 @@ public class WebDriverCommands {
 
 				httpDownloader = context.getConfig().getWebCrawlMaster()
 						.getNewHttpDownloader(true, null);
-				browserDriver.saveArchive(httpDownloader, destFile);
+				browserDriver.saveArchive(httpDownloader, destFile,
+						context.getSelectors());
 
 			} catch (IOException e) {
 				throw new ScriptException(e);
@@ -255,6 +257,7 @@ public class WebDriverCommands {
 					httpDownloader.release();
 			}
 		}
+
 	}
 
 	public static class SetTimeOuts extends CommandAbstract {

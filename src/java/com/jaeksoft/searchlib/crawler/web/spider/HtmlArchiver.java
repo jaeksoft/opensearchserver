@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -355,9 +356,26 @@ public class HtmlArchiver {
 		node.addAttribute("style", cssStyle.getCssText());
 	}
 
-	final private void checkScriptContent(TagNode node) {
+	final boolean hasAncestorId(String id, TagNode node) {
+		if (node == null)
+			return false;
+		if (id.equalsIgnoreCase(node.getAttributeByName("id")))
+			return true;
+		return hasAncestorId(id, node.getParent());
+	}
+
+	final private void checkScriptContent(TagNode node,
+			Collection<Selector> selectors) {
 		if (!("script".equalsIgnoreCase(node.getName())))
 			return;
+		if (selectors != null)
+			for (Selector selector : selectors)
+				if (selector.type == Type.ID_SELECTOR)
+					if (selector.disableScript)
+						if (hasAncestorId(selector.query, node)) {
+							node.removeFromTree();
+							return;
+						}
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
 			return;
@@ -436,7 +454,7 @@ public class HtmlArchiver {
 				.getFrameSource(set.iterator().next());
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
-		recursiveArchive(htmlCleanerParser.getTagNode());
+		recursiveArchive(htmlCleanerParser.getTagNode(), null);
 		htmlCleanerParser.writeHtmlToFile(destFile);
 		baseUrl = oldBaseUrl;
 		return getLocalPath(parentUrl, destFile.getName());
@@ -486,32 +504,33 @@ public class HtmlArchiver {
 		node.removeFromTree();
 	}
 
-	final private void recursiveArchive(TagNode node)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException,
-			ParserConfigurationException, SAXException {
+	final private void recursiveArchive(TagNode node,
+			Collection<Selector> selectors) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException, ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
 		downloadObjectFromTag(node, null, "src", null);
 		downloadObjectFromTag(node, "link", "href", "type");
 		checkStyleCSS(node);
-		checkScriptContent(node);
+		checkScriptContent(node, selectors);
 		checkStyleAttribute(node);
 		TagNode[] nodes = node.getChildTags();
 		if (nodes == null)
 			return;
 		for (TagNode n : nodes)
-			recursiveArchive(n);
+			recursiveArchive(n, selectors);
 	}
 
-	final public void archive(BrowserDriver<?> browserDriver)
-			throws IOException, ParserConfigurationException, SAXException,
-			IllegalStateException, SearchLibException, URISyntaxException {
+	final public void archive(BrowserDriver<?> browserDriver,
+			Collection<Selector> selectors) throws IOException,
+			ParserConfigurationException, SAXException, IllegalStateException,
+			SearchLibException, URISyntaxException {
 		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
-		recursiveArchive(htmlCleanerParser.getTagNode());
+		recursiveArchive(htmlCleanerParser.getTagNode(), selectors);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)
@@ -520,5 +539,4 @@ public class HtmlArchiver {
 			FileUtils.write(sourceFile, pageSource, charset);
 
 	}
-
 }
