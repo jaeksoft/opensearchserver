@@ -53,6 +53,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.css.CSSImportRule;
@@ -268,7 +269,7 @@ public class HtmlArchiver {
 			.compile("(?m)^(\\/)$");
 
 	final private Pattern cssUnwantedDirective = Pattern
-			.compile("(?m)[\\s*]+\\s*(@[^;]*);");
+			.compile("(?m)[\\s*]+\\s*(@charset[^;]*);");
 
 	final private StringBuffer checkCSSContent(URL objectUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
@@ -375,18 +376,32 @@ public class HtmlArchiver {
 		return hasAncestorId(id, node.getParent());
 	}
 
+	final boolean hasAncestorXPath(Set<TagNode> xpathSelectorSet, TagNode node) {
+		if (node == null)
+			return false;
+		if (xpathSelectorSet.contains(node))
+			return true;
+		return hasAncestorXPath(xpathSelectorSet, node.getParent());
+	}
+
 	final private void checkScriptContent(TagNode node,
-			Collection<Selector> selectors) {
+			Collection<Selector> selectors, Set<TagNode> xpathSelectorSet) {
 		if (!("script".equalsIgnoreCase(node.getName())))
 			return;
+		boolean removeScript = false;
+		if (xpathSelectorSet != null)
+			if (hasAncestorXPath(xpathSelectorSet, node))
+				removeScript = true;
 		if (selectors != null)
 			for (Selector selector : selectors)
 				if (selector.type == Type.ID_SELECTOR)
 					if (selector.disableScript)
-						if (hasAncestorId(selector.query, node)) {
-							node.removeFromTree();
-							return;
-						}
+						if (hasAncestorId(selector.query, node))
+							removeScript = true;
+		if (removeScript) {
+			node.removeFromTree();
+			return;
+		}
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
 			return;
@@ -465,7 +480,7 @@ public class HtmlArchiver {
 				.getFrameSource(set.iterator().next());
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
-		recursiveArchive(htmlCleanerParser.getTagNode(), null);
+		recursiveArchive(htmlCleanerParser.getTagNode(), null, null);
 		htmlCleanerParser.writeHtmlToFile(destFile);
 		baseUrl = oldBaseUrl;
 		return getLocalPath(parentUrl, destFile.getName());
@@ -516,32 +531,43 @@ public class HtmlArchiver {
 	}
 
 	final private void recursiveArchive(TagNode node,
-			Collection<Selector> selectors) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException, ParserConfigurationException, SAXException {
+			Collection<Selector> selectors, Set<TagNode> xpathSelectorSet)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException,
+			ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
 		downloadObjectFromTag(node, null, "src", null);
 		downloadObjectFromTag(node, "link", "href", "type");
 		checkStyleCSS(node);
-		checkScriptContent(node, selectors);
+		checkScriptContent(node, selectors, xpathSelectorSet);
 		checkStyleAttribute(node);
 		TagNode[] nodes = node.getChildTags();
 		if (nodes == null)
 			return;
 		for (TagNode n : nodes)
-			recursiveArchive(n, selectors);
+			recursiveArchive(n, selectors, xpathSelectorSet);
 	}
 
 	final public void archive(BrowserDriver<?> browserDriver,
 			Collection<Selector> selectors) throws IOException,
 			ParserConfigurationException, SAXException, IllegalStateException,
-			SearchLibException, URISyntaxException {
+			SearchLibException, URISyntaxException, XPatherException {
 		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
-		recursiveArchive(htmlCleanerParser.getTagNode(), selectors);
+		Set<TagNode> xpathSelectorSet = null;
+		if (selectors != null) {
+			xpathSelectorSet = new HashSet<TagNode>();
+			for (Selector selector : selectors)
+				if (selector.type == Type.XPATH_SELECTOR)
+					if (selector.disableScript)
+						htmlCleanerParser.xpath(selector.query,
+								xpathSelectorSet);
+		}
+		recursiveArchive(htmlCleanerParser.getTagNode(), selectors,
+				xpathSelectorSet);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)

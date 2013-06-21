@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -38,6 +39,7 @@ import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -112,4 +114,12 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 		return rootTagNode;
 	}
 
+	public void xpath(String xPathExpression, Set<TagNode> set)
+			throws XPatherException {
+		Object[] objects = rootTagNode.evaluateXPath(xPathExpression);
+		if (objects == null)
+			return;
+		for (Object object : objects)
+			set.add((TagNode) object);
+	}
 }

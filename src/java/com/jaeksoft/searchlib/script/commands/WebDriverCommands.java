@@ -39,6 +39,7 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
@@ -249,6 +250,8 @@ public class WebDriverCommands {
 			} catch (InstantiationException e) {
 				throw new ScriptException(e);
 			} catch (IllegalAccessException e) {
+				throw new ScriptException(e);
+			} catch (XPatherException e) {
 				throw new ScriptException(e);
 			} finally {
 				if (writer != null)

@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.lucene.util.IOUtils;
+import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -140,7 +141,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			SearchLibException, URISyntaxException, SAXException,
 			ParserConfigurationException, ClassCastException,
 			ClassNotFoundException, InstantiationException,
-			IllegalAccessException {
+			IllegalAccessException, XPatherException {
 
 		URL currentURL = new URL(driver.getCurrentUrl());
 		StringReader reader = null;
