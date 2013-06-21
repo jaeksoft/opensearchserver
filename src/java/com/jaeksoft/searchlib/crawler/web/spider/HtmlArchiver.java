@@ -368,12 +368,15 @@ public class HtmlArchiver {
 		node.addAttribute("style", cssStyle.getCssText());
 	}
 
-	final boolean hasAncestorId(String id, TagNode node) {
+	final boolean hasAncestorId(String[] ids, TagNode node) {
 		if (node == null)
 			return false;
-		if (id.equalsIgnoreCase(node.getAttributeByName("id")))
-			return true;
-		return hasAncestorId(id, node.getParent());
+		String nodeId = node.getAttributeByName("id");
+		if (nodeId != null)
+			for (String id : ids)
+				if (id.equalsIgnoreCase(nodeId))
+					return true;
+		return hasAncestorId(ids, node.getParent());
 	}
 
 	final boolean hasAncestorXPath(Set<TagNode> xpathSelectorSet, TagNode node) {
@@ -396,7 +399,8 @@ public class HtmlArchiver {
 			for (Selector selector : selectors)
 				if (selector.type == Type.ID_SELECTOR)
 					if (selector.disableScript)
-						if (hasAncestorId(selector.query, node))
+						if (hasAncestorId(StringUtils.split(selector.query),
+								node))
 							removeScript = true;
 		if (removeScript) {
 			node.removeFromTree();

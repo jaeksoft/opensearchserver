@@ -24,7 +24,9 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.support.pagefactory.ByAll;
 
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
@@ -63,7 +65,14 @@ public class Selectors {
 			case XPATH_SELECTOR:
 				return new By.ByXPath(query);
 			case ID_SELECTOR:
-				return new By.ById(query);
+				String[] ids = StringUtils.split(query);
+				if (ids.length == 1)
+					return new By.ById(query);
+				By.ById[] byIds = new By.ById[ids.length];
+				int i = 0;
+				for (String id : ids)
+					byIds[i++] = new By.ById(id);
+				return new ByAll(byIds);
 			}
 			return null;
 		}
