@@ -174,7 +174,13 @@ public class HtmlArchiver {
 			String fileName = urlFileMap.get(urlString);
 			if (fileName != null)
 				return getLocalPath(parentUrl, fileName);
-			DownloadItem downloadItem = downloader.get(objectURL.toURI(), null);
+			DownloadItem downloadItem = null;
+			try {
+				downloadItem = downloader.get(objectURL.toURI(), null);
+			} catch (IOException e) {
+				Logging.warn("IO Exception on " + objectURL.toURI(), e);
+				return src;
+			}
 			fileName = downloadItem.getFileName();
 			if (fileName == null || fileName.length() == 0)
 				return src;
