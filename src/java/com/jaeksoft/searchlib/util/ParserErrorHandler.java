@@ -84,7 +84,8 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 			if (silent)
 				return;
 			if (logOnly)
-				Logging.error(e.getMessage());
+				Logging.error(e.getURI() + " - LineNumber: "
+						+ e.getLineNumber() + " - " + e.getMessage());
 			else
 				throw e;
 		}
