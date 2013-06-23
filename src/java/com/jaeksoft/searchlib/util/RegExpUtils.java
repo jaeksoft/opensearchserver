@@ -23,9 +23,11 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -113,4 +115,40 @@ public class RegExpUtils {
 		}
 		return matcher.replaceFirst(replace);
 	}
+
+	public static Matcher[] wildcardMatcherArray(String patternsText)
+			throws IOException {
+		if (patternsText == null)
+			return null;
+		if (patternsText.length() == 0)
+			return null;
+		StringReader sr = null;
+		BufferedReader br = null;
+		List<Matcher> matcherList = new ArrayList<Matcher>(0);
+		try {
+			sr = new StringReader(patternsText);
+			br = new BufferedReader(sr);
+			String line;
+			while ((line = br.readLine()) != null)
+				matcherList.add(StringUtils.wildcardPattern(line).matcher(""));
+			return matcherList.toArray(new Matcher[matcherList.size()]);
+		} finally {
+			if (br != null)
+				IOUtils.closeQuietly(br);
+			if (sr != null)
+				IOUtils.closeQuietly(sr);
+		}
+	}
+
+	public static boolean find(CharSequence input, Matcher[] matcherArray) {
+		for (Matcher matcher : matcherArray) {
+			synchronized (matcher) {
+				matcher.reset(input);
+				if (matcher.find())
+					return true;
+			}
+		}
+		return false;
+	}
+
 }

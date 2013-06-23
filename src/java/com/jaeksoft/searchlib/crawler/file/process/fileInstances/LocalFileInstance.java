@@ -31,20 +31,24 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class LocalFileInstance extends FileInstanceAbstract {
 
 	private class LocalFileFilter implements FileFilter {
 
+		private final Matcher[] exclusionMatchers;
 		private final boolean ignoreHiddenFiles;
 		private final boolean fileOnly;
 
 		private LocalFileFilter(boolean fileOnly) {
+			this.exclusionMatchers = filePathItem.getExclusionMatchers();
 			this.ignoreHiddenFiles = filePathItem.isIgnoreHiddenFiles();
 			this.fileOnly = fileOnly;
 		}
@@ -56,6 +60,9 @@ public class LocalFileInstance extends FileInstanceAbstract {
 					return false;
 			if (ignoreHiddenFiles)
 				if (f.isHidden())
+					return false;
+			if (exclusionMatchers != null)
+				if (RegExpUtils.find(file.getAbsolutePath(), exclusionMatchers))
 					return false;
 			return true;
 		}

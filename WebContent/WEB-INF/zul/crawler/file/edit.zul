@@ -176,6 +176,11 @@
 							checked="@bind(filepathedit.currentFilePath.ignoreHiddenFiles)" />
 					</row>
 					<row>
+						<label value="Exclusion patterns" />
+						<textbox multiline="true" cols="150" rows="5"
+							value="@bind(filepathedit.currentFilePath.exclusionPatterns)" />
+					</row>
+					<row>
 						<label value="Delay between each access (ms): " />
 						<intbox
 							value="@bind(filepathedit.currentFilePath.delay)" />

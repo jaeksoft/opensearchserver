@@ -184,8 +184,9 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			// FTP Connection
 			ftp = new FTPClient();
 			checkConnect(ftp, server, login, password);
-			FTPFile[] files = ftp.listFiles(path,
-					new FtpFileInstance.FtpInstanceFileFilter(true, false));
+			FTPFile[] files = ftp
+					.listFiles(path, new FtpFileInstance.FtpInstanceFileFilter(
+							true, false, null));
 			if (files == null)
 				return;
 			// Sort by ascendant filename

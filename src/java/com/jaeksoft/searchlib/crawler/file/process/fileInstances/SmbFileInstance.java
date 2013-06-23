@@ -33,10 +33,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import jcifs.smb.ACE;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
+import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileFilter;
@@ -49,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.SecurityInterface;
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class SmbFileInstance extends FileInstanceAbstract implements
 		SecurityInterface {
@@ -151,6 +154,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			SmbFile[] files = smbFile
 					.listFiles(new SmbInstanceFileFilter(false));
 			return buildFileInstanceArray(files);
+		} catch (SmbAuthException e) {
+			Logging.warn(e);
+			return null;
 		} catch (SmbException e) {
 			throw new SearchLibException(e);
 		} catch (MalformedURLException e) {
@@ -160,11 +166,13 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	private class SmbInstanceFileFilter implements SmbFileFilter {
 
+		private final Matcher[] exclusionMatcher;
 		private final boolean ignoreHiddenFiles;
 		private final boolean fileOnly;
 
 		private SmbInstanceFileFilter(boolean fileOnly) {
 			this.ignoreHiddenFiles = filePathItem.isIgnoreHiddenFiles();
+			this.exclusionMatcher = filePathItem.getExclusionMatchers();
 			this.fileOnly = fileOnly;
 		}
 
@@ -176,9 +184,11 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			if (ignoreHiddenFiles)
 				if (f.isHidden())
 					return false;
+			if (exclusionMatcher != null)
+				if (RegExpUtils.find(f.getPath(), exclusionMatcher))
+					return false;
 			return true;
 		}
-
 	}
 
 	@Override

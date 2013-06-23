@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -45,6 +46,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class FtpFileInstance extends FileInstanceAbstract implements
 		FileInstanceAbstract.SecurityInterface {
@@ -126,10 +128,13 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 
 	public static class FtpInstanceFileFilter implements FTPFileFilter {
 
+		private final Matcher[] exclusionMatchers;
 		private final boolean ignoreHiddenFiles;
 		private final boolean fileOnly;
 
-		public FtpInstanceFileFilter(boolean ignoreHiddenFiles, boolean fileOnly) {
+		public FtpInstanceFileFilter(boolean ignoreHiddenFiles,
+				boolean fileOnly, Matcher[] exclusionMatchers) {
+			this.exclusionMatchers = exclusionMatchers;
 			this.ignoreHiddenFiles = ignoreHiddenFiles;
 			this.fileOnly = fileOnly;
 		}
@@ -145,6 +150,9 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			if (fileOnly)
 				if (ff.getType() != FTPFile.FILE_TYPE)
 					return false;
+			if (exclusionMatchers != null)
+				if (RegExpUtils.find(ff.getLink(), exclusionMatchers))
+					return false;
 			return true;
 		}
 	}
@@ -154,8 +162,11 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(
-					filePathItem.isIgnoreHiddenFiles(), true));
+			FTPFile[] files = f.listFiles(
+					getPath(),
+					new FtpInstanceFileFilter(filePathItem
+							.isIgnoreHiddenFiles(), true, filePathItem
+							.getExclusionMatchers()));
 			return buildFileInstanceArray(files);
 		} catch (SocketException e) {
 			throw new SearchLibException(e);
@@ -176,8 +187,11 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(
-					filePathItem.isIgnoreHiddenFiles(), false));
+			FTPFile[] files = f.listFiles(
+					getPath(),
+					new FtpInstanceFileFilter(filePathItem
+							.isIgnoreHiddenFiles(), false, filePathItem
+							.getExclusionMatchers()));
 			return buildFileInstanceArray(files);
 		} catch (SocketException e) {
 			throw new SearchLibException(e);

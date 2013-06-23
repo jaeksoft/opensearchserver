@@ -100,7 +100,8 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 			authentication(downloader);
 			List<ObjectMeta> objectList = SwiftProtocol.listObjects(downloader,
 					token, filePathItem.getSwiftContainer(), getPath(),
-					withDirectory, filePathItem.isIgnoreHiddenFiles());
+					withDirectory, filePathItem.isIgnoreHiddenFiles(),
+					filePathItem.getExclusionMatchers());
 			if (objectList == null)
 				return null;
 

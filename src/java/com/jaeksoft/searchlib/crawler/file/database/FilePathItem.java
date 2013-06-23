@@ -24,8 +24,10 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -36,6 +38,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -64,6 +67,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 
 	private boolean withSub;
 	private boolean ignoreHiddenFiles;
+	private String exclusionPatterns;
+	private transient Matcher[] exclusionMatchers;
 	private boolean enabled;
 	private int delay;
 
@@ -82,11 +87,15 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		swiftTenant = null;
 		swiftAuthURL = null;
 		swiftContainer = null;
+		exclusionPatterns = null;
+		exclusionMatchers = null;
 	}
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
 		destFilePath.withSub = withSub;
 		destFilePath.ignoreHiddenFiles = ignoreHiddenFiles;
+		destFilePath.exclusionPatterns = exclusionPatterns;
+		destFilePath.exclusionMatchers = exclusionMatchers;
 		destFilePath.type = type;
 		destFilePath.host = host;
 		destFilePath.path = path;
@@ -239,11 +248,15 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * @param node
 	 * @return
 	 * @throws SearchLibException
+	 * @throws IOException
 	 */
 	public static FilePathItem fromXml(Config config, Node node)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		FilePathItem filePathItem = new FilePathItem(config);
-		filePathItem.setPath(DomUtils.getText(node));
+		String path = DomUtils.getFirstTextNode(node, "fpath");
+		if (path == null)
+			path = DomUtils.getText(node);
+		filePathItem.setPath(path);
 		String type = DomUtils.getAttributeText(node, "type");
 		if (type != null)
 			filePathItem.setType(FileInstanceType.findByName(type));
@@ -272,6 +285,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				"swiftAuthURL"));
 		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node,
 				"swiftContainer"));
+		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node,
+				"exclusionPatterns"));
 		return filePathItem;
 	}
 
@@ -295,8 +310,16 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				swiftAuthType != null ? swiftAuthType.name() : null,
 				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL,
 				"swiftContainer", swiftContainer);
-		if (path != null)
+		if (path != null) {
+			xmlWriter.startElement("fpath");
 			xmlWriter.textNode(path);
+			xmlWriter.endElement();
+		}
+		if (exclusionPatterns != null) {
+			xmlWriter.startElement("exclusionPatterns");
+			xmlWriter.textNode(exclusionPatterns);
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
 	}
 
@@ -447,5 +470,27 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	public void setSwiftContainer(String swiftContainer) {
 		this.swiftContainer = swiftContainer;
+	}
+
+	/**
+	 * @return the exclusionPattern
+	 */
+	public String getExclusionPatterns() {
+		return exclusionPatterns;
+	}
+
+	/**
+	 * @param exclusionPattern
+	 *            the exclusionPattern to set
+	 * @throws IOException
+	 */
+	public void setExclusionPatterns(String exclusionPatterns)
+			throws IOException {
+		this.exclusionPatterns = exclusionPatterns;
+		exclusionMatchers = RegExpUtils.wildcardMatcherArray(exclusionPatterns);
+	}
+
+	public Matcher[] getExclusionMatchers() {
+		return exclusionMatchers;
 	}
 }

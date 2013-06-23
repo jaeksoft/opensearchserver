@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class SwiftProtocol {
 
@@ -100,9 +102,10 @@ public class SwiftProtocol {
 
 	public static List<ObjectMeta> listObjects(HttpDownloader httpDownloader,
 			SwiftToken swiftToken, String container, String path,
-			boolean withDirectory, boolean ignoreHiddenFiles)
-			throws URISyntaxException, ClientProtocolException, IOException,
-			SearchLibException, JSONException, ParseException {
+			boolean withDirectory, boolean ignoreHiddenFiles,
+			Matcher[] exclusionMatchers) throws URISyntaxException,
+			ClientProtocolException, IOException, SearchLibException,
+			JSONException, ParseException {
 
 		List<Header> headerList = new ArrayList<Header>(0);
 		swiftToken.putAuthTokenHeader(headerList);
@@ -123,6 +126,9 @@ public class SwiftProtocol {
 				continue;
 			if (path.equals(objectMeta.pathName))
 				continue;
+			if (exclusionMatchers != null)
+				if (RegExpUtils.find(objectMeta.pathName, exclusionMatchers))
+					continue;
 			objectMetaList.add(objectMeta);
 		}
 		return objectMetaList;
