@@ -155,7 +155,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 					.listFiles(new SmbInstanceFileFilter(false));
 			return buildFileInstanceArray(files);
 		} catch (SmbAuthException e) {
-			Logging.warn(e);
+			Logging.warn(e.getMessage() + " - " + getPath(), e);
 			return null;
 		} catch (SmbException e) {
 			throw new SearchLibException(e);
@@ -235,6 +235,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	public final static ACE[] getSecurity(SmbFile smbFile) throws IOException {
 		try {
 			return smbFile.getSecurity();
+		} catch (SmbAuthException e) {
+			Logging.warn(e.getMessage() + " - " + smbFile.getPath(), e);
+			return null;
 		} catch (SmbException e) {
 			if (e.getNtStatus() == 0xC00000BB)
 				return null;

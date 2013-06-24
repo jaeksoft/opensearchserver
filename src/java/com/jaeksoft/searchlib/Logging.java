@@ -113,7 +113,7 @@ public class Logging {
 		props.put("log4j.appender.R.DatePattern", "'.'yyyy-MM-dd");
 		props.put("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
 		props.put("log4j.appender.R.layout.ConversionPattern",
-				"%d{HH:mm:ss,SSS} %c - %m%n");
+				"%d{HH:mm:ss,SSS} %p: %c - %m%n");
 		return props;
 	}
 
