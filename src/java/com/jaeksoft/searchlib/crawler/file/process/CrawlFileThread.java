@@ -181,8 +181,10 @@ public class CrawlFileThread extends
 					smartDelete(crawlQueue, fileInfo);
 
 		// Remove existing files from the map
-		for (FileInstanceAbstract file : itemDirectory.getFiles())
-			indexFileMap.remove(file.getURI().toASCIIString());
+		FileInstanceAbstract[] files = itemDirectory.getFiles();
+		if (files != null)
+			for (FileInstanceAbstract file : files)
+				indexFileMap.remove(file.getURI().toASCIIString());
 
 		// The file that remain in the map can be removed
 		if (indexFileMap.size() > 0)
