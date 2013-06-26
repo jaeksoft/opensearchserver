@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -352,6 +354,9 @@ public class InstanceProperties {
 		storeRequestPerMonthCount(t);
 	}
 
+	private final static SimpleDateFormat REDIS_STATS_DAYFORMAT = new SimpleDateFormat(
+			"yyyyMMdd");
+
 	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId,
 			String remoteIpAddress) throws WebApplicationException {
 		if (redisApiServerHostname == null)
@@ -370,18 +375,27 @@ public class InstanceProperties {
 			sbKey.append(parts[1]);
 			sbKey.append('.');
 			sbKey.append(apiId);
-			String v = jedis.hget(sbKey.toString(), apiKey);
+			String skey = sbKey.toString();
+			String v = jedis.hget(skey, apiKey);
 			if (v == null)
 				throw new WebApplicationException(Status.FORBIDDEN);
-			if ("0".equals(v) || v.length() == 0)
-				return;
-			System.out.println("VALUE: " + v);
-			for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(v))
-				if (subnetInfo.isInRange(remoteIpAddress))
-					return;
-			Logging.warn("Authentication failure: " + apiKey + " "
-					+ remoteIpAddress);
-			throw new WebApplicationException(Status.FORBIDDEN);
+			if (remoteIpAddress.equals("0:0:0:0:0:0:0:1"))
+				remoteIpAddress = "127.0.0.1";
+			boolean bAllowed = "0".equals(v) || v.length() == 0;
+			if (!bAllowed)
+				for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(v))
+					if (subnetInfo.isInRange(remoteIpAddress))
+						bAllowed = true;
+			if (!bAllowed) {
+				Logging.warn("Authentication failure: " + apiKey + " "
+						+ remoteIpAddress);
+				throw new WebApplicationException(Status.FORBIDDEN);
+			}
+			String statKey;
+			synchronized (REDIS_STATS_DAYFORMAT) {
+				statKey = REDIS_STATS_DAYFORMAT.format(new Date());
+			}
+			jedis.hincrBy(skey + ".stats", statKey, 1);
 		} catch (IOException e) {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		} finally {
