@@ -268,8 +268,11 @@ public class HtmlArchiver {
 	final private Pattern cssErronousCommentPattern = Pattern
 			.compile("(?m)^(\\/)$");
 
-	final private Pattern cssUnwantedDirective = Pattern
+	final private Pattern cssUnwantedDirective1 = Pattern
 			.compile("(?m)[\\s*]+\\s*(@charset[^;]*);");
+
+	final private Pattern cssUnwantedDirective2 = Pattern
+			.compile("(?m);.*(@charset[^;]*);?");
 
 	final private StringBuffer checkCSSContent(URL objectUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
@@ -277,7 +280,8 @@ public class HtmlArchiver {
 		StringWriter sw = null;
 		PrintWriter pw = null;
 		css = RegExpUtils.replaceAll(css, cssErronousCommentPattern, "");
-		css = RegExpUtils.replaceAll(css, cssUnwantedDirective, "");
+		css = RegExpUtils.replaceAll(css, cssUnwantedDirective1, "");
+		css = RegExpUtils.replaceAll(css, cssUnwantedDirective2, "");
 		try {
 			CSSStyleSheet stylesheet = null;
 			synchronized (cssParser) {
