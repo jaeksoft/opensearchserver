@@ -178,4 +178,14 @@ public class Fragment {
 		return null;
 	}
 
+	/**
+	 * Remove the Fragment from the chained list (updating previous and next)
+	 */
+	public void removeFromList() {
+		if (previousFragment != null)
+			previousFragment.nextFragment = nextFragment;
+		if (nextFragment != null)
+			nextFragment.previousFragment = previousFragment;
+	}
+
 }

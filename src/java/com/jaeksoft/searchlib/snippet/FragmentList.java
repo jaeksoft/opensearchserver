@@ -24,156 +24,61 @@
 
 package com.jaeksoft.searchlib.snippet;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class FragmentList {
 
-	private List<Fragment> fragments;
+	private Fragment firstFragment;
 
-	private Fragment lastAddedFragment;
+	private Fragment lastFragment;
 
 	private int totalSize;
 
+	private int size;
+
 	protected FragmentList() {
-		fragments = new ArrayList<Fragment>();
-		lastAddedFragment = null;
+		firstFragment = null;
+		lastFragment = null;
 		totalSize = 0;
+		size = 0;
 	}
 
 	protected Fragment addOriginalText(String originalText, int vectorOffset,
 			boolean newValue) {
 		totalSize += originalText.length();
-		Fragment fragment = new Fragment(lastAddedFragment, originalText,
-				vectorOffset, newValue);
-		fragments.add(fragment);
-		lastAddedFragment = fragment;
-		return fragment;
+		lastFragment = new Fragment(lastFragment, originalText, vectorOffset,
+				newValue);
+		if (firstFragment == null)
+			firstFragment = lastFragment;
+		size++;
+		return lastFragment;
 	}
 
 	protected int getTotalSize() {
 		return totalSize;
 	}
 
-	final private static String lastRight(String text, int max) {
-		int len = text.length();
-		if (max >= len)
-			return text;
-		int pos = len - max;
-		while (pos < len)
-			if (Character.isWhitespace(text.charAt(pos)))
-				break;
-			else
-				pos++;
-		if (pos == len)
-			pos = len - max;
-		return text.substring(pos);
-	}
-
-	final private static String firstLeft(String text, int max) {
-		if (max >= text.length())
-			return text;
-		int pos = max;
-		while (pos > 0)
-			if (Character.isWhitespace(text.charAt(pos)))
-				break;
-			else
-				pos--;
-		if (pos == 0)
-			return null;
-		return text.substring(0, pos);
-	}
-
-	/**
-	 * Append the next fragment. Return TRUE is the snippet is not at the
-	 * required size. Return FALSE is the snippet is large enough.
-	 * 
-	 * @param fragment
-	 * @param maxLength
-	 * @param snippet
-	 * @param separator
-	 * @return
-	 */
-	final private static boolean leftAppend(Fragment fragment, int maxLength,
-			StringBuffer snippet, String separator, String[] tags) {
-		int maxLeft = maxLength - snippet.length();
-		if (maxLeft < 0)
-			return false; // The snippet is complete
-		String text = fragment.getFinalText(tags);
-		String appendText = firstLeft(text, maxLeft);
-		if (appendText == null)
-			return true; // Nothing to append
-		if (snippet.length() > 0)
-			if (fragment.isEdge())
-				snippet.append(separator);
-		snippet.append(appendText);
-		if (appendText.length() == text.length())
-			return true; // We have added all the fragment
-		// The fragment has been truncated to fit, the snippet is large enough
-		snippet.append(separator);
-		return false;
-	}
-
-	final private static boolean rightAppend(Fragment fragment, int maxLength,
-			StringBuffer snippet, String separator, String[] tags) {
-		int maxLeft = maxLength - snippet.length();
-		if (maxLeft < 0)
-			return false;
-		String text = fragment.getFinalText(tags);
-		String appendText = lastRight(text, maxLeft);
-		if (appendText == null)
-			return true;
-		if (snippet.length() > 0)
-			if (fragment.isEdge())
-				snippet.insert(0, separator);
-		snippet.insert(0, appendText);
-		if (appendText.length() == text.length())
-			return true;
-		snippet.insert(0, separator);
-		return false;
-	}
-
-	/**
-	 * Build a snippet starting from originalFragment (highlighted or not)
-	 * 
-	 * @param maxLength
-	 * @param separator
-	 * @param iterator
-	 * @param originalFragment
-	 * @return
-	 */
-	final protected StringBuffer getSnippet(int maxLength, String separator,
-			String[] tags, Fragment originalFragment) {
-
-		StringBuffer snippet = new StringBuffer();
-		if (!leftAppend(originalFragment, maxLength, snippet, separator, tags))
-			return snippet;
-		// First add next fragment (highlighted or not)
-		Fragment fragment = originalFragment.next();
-		while (fragment != null) {
-			if (!leftAppend(fragment, maxLength, snippet, separator, tags))
-				return snippet;
-			fragment = fragment.next();
-		}
-		// Then previous fragment (highlighted or not)
-		fragment = originalFragment.previous();
-		while (fragment != null) {
-			if (!rightAppend(fragment, maxLength, snippet, separator, tags))
-				return snippet;
-			fragment = fragment.previous();
-		}
-		return snippet;
-
-	}
-
 	public int size() {
-		return fragments.size();
+		return size;
 	}
 
 	public Fragment first() {
-		if (fragments.size() == 0)
-			return null;
-		return fragments.get(0);
+		return firstFragment;
+	}
+
+	private void remove(Fragment fragment) {
+		if (fragment == firstFragment) {
+			firstFragment = fragment.next();
+			return;
+		}
+		if (fragment == lastFragment)
+			lastFragment = fragment.previous();
+		fragment.removeFromList();
+	}
+
+	public void remove(Collection<Fragment> fragments) {
+		for (Fragment fragment : fragments)
+			remove(fragment);
 	}
 
 }

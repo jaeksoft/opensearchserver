@@ -67,28 +67,31 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private String separator;
 	private String unescapedSeparator;
 	private int maxSnippetSize;
+	private int maxSnippetNumber;
 	private transient String[] searchTerms;
 	private transient Query query;
 	private transient Analyzer analyzer;
 
 	private SnippetField(String fieldName, String tag, String separator,
-			int maxSnippetSize, FragmenterAbstract fragmenterTemplate) {
+			int maxSnippetSize, int maxSnippetNumber,
+			FragmenterAbstract fragmenterTemplate) {
 		super(fieldName);
 		this.searchTerms = null;
 		setTag(tag);
 		setSeparator(separator);
 		this.maxSnippetSize = maxSnippetSize;
+		this.maxSnippetNumber = maxSnippetNumber;
 		this.fragmenterTemplate = fragmenterTemplate;
 	}
 
 	public SnippetField(String fieldName) {
-		this(fieldName, "em", "...", 200, FragmenterAbstract.NOFRAGMENTER);
+		this(fieldName, "em", "...", 200, 1, FragmenterAbstract.NOFRAGMENTER);
 	}
 
 	@Override
 	public SnippetField duplicate() {
 		return new SnippetField(name, tag, separator, maxSnippetSize,
-				fragmenterTemplate);
+				maxSnippetNumber, fragmenterTemplate);
 	}
 
 	public String getFragmenter() {
@@ -154,6 +157,21 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
+	 * @return the maxSnippetNumber
+	 */
+	public int getMaxSnippetNumber() {
+		return maxSnippetNumber;
+	}
+
+	/**
+	 * @param maxSnippetNumber
+	 *            the maxSnippetNumber to set
+	 */
+	public void setMaxSnippetNumber(int maxSnippetNumber) {
+		this.maxSnippetNumber = maxSnippetNumber;
+	}
+
+	/**
 	 * Retourne la liste des champs "snippet".
 	 * 
 	 * @param xPath
@@ -188,7 +206,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		if (schemaField == null)
 			return;
 		SnippetField field = new SnippetField(schemaField.getName(), tag,
-				separator, maxSnippetSize, fragmenter);
+				separator, maxSnippetSize, maxSnippetNumber, fragmenter);
 		target.put(field);
 	}
 
@@ -346,38 +364,50 @@ public class SnippetField extends AbstractField<SnippetField> {
 			fragment = fragment.next();
 		}
 
-		Fragment bestScoreFragment = null;
-		fragment = Fragment.findNextHighlightedFragment(fragments.first());
-		while (fragment != null) {
-			fragment.score(name, analyzer, query, maxSnippetSize);
-			bestScoreFragment = Fragment.bestScore(bestScoreFragment, fragment);
-			fragment = Fragment.findNextHighlightedFragment(fragment.next());
-		}
+		boolean result = false;
+		int snippetCounter = maxSnippetNumber;
+		while (snippetCounter-- != 0) {
+			Fragment bestScoreFragment = null;
+			fragment = Fragment.findNextHighlightedFragment(fragments.first());
+			while (fragment != null) {
+				fragment.score(name, analyzer, query, maxSnippetSize);
+				bestScoreFragment = Fragment.bestScore(bestScoreFragment,
+						fragment);
+				fragment = Fragment
+						.findNextHighlightedFragment(fragment.next());
+			}
 
-		if (bestScoreFragment != null) {
-			StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-					unescapedSeparator, tags, bestScoreFragment);
-			if (snippet != null)
-				if (snippet.length() > 0)
+			if (bestScoreFragment != null) {
+				SnippetBuilder snippetBuilder = new SnippetBuilder(
+						maxSnippetSize, unescapedSeparator, tags,
+						bestScoreFragment);
+				if (snippetBuilder.length() > 0)
 					snippets.add(new FieldValueItem(
-							FieldValueOriginEnum.SNIPPET, snippet.toString()));
-			if (snippets.size() > 0)
-				return true;
-		}
+							FieldValueOriginEnum.SNIPPET, snippetBuilder
+									.toString()));
+				fragments.remove(snippetBuilder.getFragments());
+				result = true;
+				continue;
+			}
 
-		StringBuffer snippet = fragments.getSnippet(maxSnippetSize,
-				unescapedSeparator, tags, fragments.first());
-		if (snippet != null)
-			if (snippet.length() > 0)
+			if (fragments.first() == null)
+				break;
+			SnippetBuilder snippetBuilder = new SnippetBuilder(maxSnippetSize,
+					unescapedSeparator, tags, fragments.first());
+			if (snippetBuilder.length() > 0) {
 				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET,
-						snippet.toString()));
-		return false;
+						snippetBuilder.toString()));
+				fragments.remove(snippetBuilder.getFragments());
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name, "tag", tag, "separator",
 				separator, "maxSnippetSize", Integer.toString(maxSnippetSize),
+				"maxSnippetNumber", Integer.toString(maxSnippetNumber),
 				"fragmenterClass",
 				fragmenterTemplate != null ? fragmenterTemplate.getClass()
 						.getSimpleName() : null);
@@ -397,6 +427,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		if ((c = separator.compareTo(f.separator)) != 0)
 			return c;
 		if ((c = maxSnippetSize - f.maxSnippetSize) != 0)
+			return c;
+		if ((c = maxSnippetNumber - f.maxSnippetNumber) != 0)
 			return c;
 		return 0;
 	}

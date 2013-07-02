@@ -23,6 +23,7 @@
 			<column label="Tag" />
 			<column label="Separator" />
 			<column label="Max snippet size" />
+			<column label="Max snippet number" />
 			<column label="Action" />
 		</columns>
 		<rows>
@@ -38,15 +39,17 @@
 					</listbox>
 					<textbox cols="5" value="@bind(field.tag)" />
 					<textbox cols="5" value="@bind(field.separator)" />
-					<textbox cols="5"
+					<intbox cols="5"
 						value="@bind(field.maxSnippetSize)" />
+					<intbox cols="5"
+						value="@bind(field.maxSnippetNumber)" />
 					<button label="Remove"
 						onClick="@command('onSnippetRemove', field=field)" />
 				</row>
 			</template>
 		</rows>
 		<foot visible="@load(snippet.fieldLeft)">
-			<footer span="4">
+			<footer span="7">
 				<listbox mold="select"
 					selectedItem="@bind(snippet.selectedSnippet)"
 					model="@load(snippet.snippetFieldLeft)">
