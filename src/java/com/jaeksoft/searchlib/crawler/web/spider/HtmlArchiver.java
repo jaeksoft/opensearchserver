@@ -196,10 +196,21 @@ public class HtmlArchiver {
 				contentType = downloadItem.getContentBaseType();
 			if ("text/html".equalsIgnoreCase(contentType))
 				extension = "html";
-			if ("text/javascript".equalsIgnoreCase(contentType))
+			else if ("text/javascript".equalsIgnoreCase(contentType))
 				extension = "js";
-			if ("text/css".equalsIgnoreCase(contentType))
+			else if ("text/css".equalsIgnoreCase(contentType))
 				extension = "css";
+			else if ("application/x-shockwave-flash"
+					.equalsIgnoreCase(contentType))
+				extension = "swf";
+			else if ("image/png".equalsIgnoreCase(contentType))
+				extension = "png";
+			else if ("image/gif".equalsIgnoreCase(contentType))
+				extension = "gif";
+			else if ("image/jpeg".equalsIgnoreCase(contentType))
+				extension = "jpg";
+			else if ("image/jpg".equalsIgnoreCase(contentType))
+				extension = "jpg";
 			File destFile = getAndRegisterDestFile(urlString, baseName,
 					extension);
 			if ("css".equals(extension)) {
