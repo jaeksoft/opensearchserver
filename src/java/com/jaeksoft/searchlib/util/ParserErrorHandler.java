@@ -61,7 +61,7 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 			if (silent)
 				return;
 			if (logOnly)
-				Logging.error(e.getMessage());
+				Logging.error(e);
 			else
 				throw e;
 		}
@@ -73,7 +73,7 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 			if (silent)
 				return;
 			if (logOnly)
-				Logging.error(e.getMessage());
+				Logging.error(e);
 			else
 				throw e;
 		}
@@ -84,8 +84,8 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 			if (silent)
 				return;
 			if (logOnly)
-				Logging.error(e.getURI() + " - LineNumber: "
-						+ e.getLineNumber() + " - " + e.getMessage());
+				Logging.error(
+						e.getURI() + " - LineNumber: " + e.getLineNumber(), e);
 			else
 				throw e;
 		}

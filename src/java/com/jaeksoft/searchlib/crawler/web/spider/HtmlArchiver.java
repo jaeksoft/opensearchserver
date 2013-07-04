@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -41,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -55,32 +54,23 @@ import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
-import org.w3c.css.sac.InputSource;
-import org.w3c.dom.css.CSSImportRule;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
-import org.w3c.dom.css.CSSStyleDeclaration;
-import org.w3c.dom.css.CSSStyleRule;
-import org.w3c.dom.css.CSSStyleSheet;
-import org.w3c.dom.css.CSSValue;
-import org.w3c.dom.stylesheets.MediaList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSImportRule;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSProperty;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 import com.jaeksoft.searchlib.script.commands.Selectors.Type;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.ParserErrorHandler;
-import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
-import com.steadystate.css.dom.DOMExceptionImpl;
-import com.steadystate.css.parser.CSSOMParser;
 
 public class HtmlArchiver {
 
@@ -94,7 +84,6 @@ public class HtmlArchiver {
 	private final HttpDownloader downloader;
 	private final RecursiveTracker recursiveSecurity;
 	private URL baseUrl;
-	private CSSOMParser cssParser;
 
 	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir,
 			HttpDownloader httpDownloader, URL url) {
@@ -109,8 +98,6 @@ public class HtmlArchiver {
 		urlFileMap = new TreeMap<String, String>();
 		filesDir.mkdir();
 		recursiveSecurity = new RecursiveTracker(20);
-		cssParser = new CSSOMParser();
-		cssParser.setErrorHandler(ParserErrorHandler.LOGONLY_ERROR_HANDLER);
 	}
 
 	final private static String buildFileName(String baseName,
@@ -214,9 +201,11 @@ public class HtmlArchiver {
 			File destFile = getAndRegisterDestFile(urlString, baseName,
 					extension);
 			if ("css".equals(extension)) {
-				StringBuffer sb = checkCSSContent(objectURL,
-						downloadItem.getContentAsString());
-				FileUtils.write(destFile, sb);
+				String cssContent = downloadItem.getContentAsString();
+				StringBuffer sb = checkCSSContent(objectURL, cssContent);
+				if (sb != null && sb.length() > 0)
+					cssContent = sb.toString();
+				FileUtils.write(destFile, cssContent);
 			} else
 				downloadItem.writeToFile(destFile);
 
@@ -232,104 +221,68 @@ public class HtmlArchiver {
 		}
 	}
 
-	final private Pattern cssUrlPattern = Pattern
-			.compile("(?s)[\\s]*url\\([\"']?(.*?)[\"']?\\)");
-
-	// .compile("(?s)^[\\s]*[/]{1}[\\s]*$");
-
-	final private boolean handleCssProperty(URL objectUrl, CSSValue cssValue)
+	final private boolean handleCssProperty(URL objectUrl, CSSProperty property)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
-		if (cssValue == null)
+		if (property == null)
 			return false;
-		String oldValue = cssValue.getCssText();
-		List<String> urls = RegExpUtils.getGroups(cssUrlPattern, oldValue);
-		if (urls == null || urls.size() == 0)
+		String oldValue = property.getValue();
+		if (oldValue == null)
 			return false;
-		String newSrc = downloadObject(objectUrl, urls.get(0), null);
-		String newValue = RegExpUtils.replaceAll(oldValue, cssUrlPattern,
-				" url('" + newSrc + "')");
-		if (newValue == null)
+		Matcher matcher = NaiveCSSParser.findUrl(oldValue);
+		if (!matcher.find())
 			return false;
-		try {
-			cssValue.setCssText(newValue.trim());
-			return true;
-		} catch (DOMExceptionImpl e) {
-			Logging.warn("Wrong CSS value: " + newValue, e);
-		}
-		return false;
+		String url = matcher.group(1);
+		if (url == null || url.length() == 0)
+			return false;
+		String newSrc = downloadObject(objectUrl, url, null);
+		if (newSrc == null)
+			return false;
+		property.setValue(matcher.replaceFirst(NaiveCSSParser.buildUrl(newSrc)));
+		return true;
 	}
 
-	final private boolean handleCssStyle(URL objectUrl,
-			CSSStyleDeclaration styleDeclaration)
+	final private boolean handleCssStyle(URL objectUrl, CSSStyleRule rule)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
-		if (styleDeclaration == null)
-			return false;
 		boolean change = false;
-		for (int j = 0; j < styleDeclaration.getLength(); j++) {
-			String property = styleDeclaration.item(j);
-			if (handleCssProperty(objectUrl,
-					styleDeclaration.getPropertyCSSValue(property)))
+		for (CSSProperty property : rule.getProperties()) {
+			if (handleCssProperty(objectUrl, property))
 				change = true;
 		}
 		return change;
 	}
-
-	final private Pattern cssErronousCommentPattern = Pattern
-			.compile("(?m)^(\\/)$");
-
-	final private Pattern cssUnwantedDirective1 = Pattern
-			.compile("(?m)[\\s*]+\\s*(@charset[^;]*);");
-
-	final private Pattern cssUnwantedDirective2 = Pattern
-			.compile("(?m);.*(@charset[^;]*);?");
 
 	final private StringBuffer checkCSSContent(URL objectUrl, String css)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException {
 		StringWriter sw = null;
 		PrintWriter pw = null;
-		css = RegExpUtils.replaceAll(css, cssErronousCommentPattern, "");
-		css = RegExpUtils.replaceAll(css, cssUnwantedDirective1, "");
-		css = RegExpUtils.replaceAll(css, cssUnwantedDirective2, "");
+
 		try {
-			CSSStyleSheet stylesheet = null;
-			synchronized (cssParser) {
-				stylesheet = cssParser.parseStyleSheet(new InputSource(
-						new StringReader(css)), null, objectUrl
-						.toExternalForm());
-			}
-			CSSRuleList ruleList = stylesheet.getCssRules();
+			NaiveCSSParser cssParser = new NaiveCSSParser();
+			Collection<CSSRule> rules = cssParser.parseStyleSheet(css);
+			if (rules == null)
+				return null;
+			if (rules.size() == 0)
+				return null;
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
-			for (int i = 0; i < ruleList.getLength(); i++) {
-				CSSRule rule = ruleList.item(i);
+			for (CSSRule rule : rules) {
 				if (rule instanceof CSSStyleRule) {
-					CSSStyleRule styleRule = (CSSStyleRule) rule;
-					handleCssStyle(objectUrl, styleRule.getStyle());
-					pw.println(rule.getCssText());
+					handleCssStyle(objectUrl, (CSSStyleRule) rule);
 				} else if (rule instanceof CSSImportRule) {
 					CSSImportRule importRule = (CSSImportRule) rule;
 					String newSrc = downloadObject(objectUrl,
 							importRule.getHref(), "text/css");
-					pw.print("@import url('");
-					pw.print(newSrc);
-					pw.print("')");
-					MediaList mediaList = importRule.getMedia();
-					boolean first = true;
-					for (int k = 0; k < mediaList.getLength(); k++) {
-						if (!first) {
-							pw.println(", ");
-							first = false;
-						} else
-							pw.print(' ');
-						pw.print(mediaList.item(k));
-					}
-					pw.println(";");
+					importRule.setHref(newSrc);
 				}
 			}
+			cssParser.write(pw);
 			return sw.getBuffer();
+		} catch (IOException e) {
+			Logging.warn("CSS ISSUE", e);
+			return null;
 		} finally {
 			if (pw != null)
 				IOUtils.closeQuietly(pw);
@@ -373,14 +326,11 @@ public class HtmlArchiver {
 		if (style.length() == 0)
 			return;
 
-		CSSStyleDeclaration cssStyle = null;
-		synchronized (cssParser) {
-			cssStyle = cssParser.parseStyleDeclaration(new InputSource(
-					new StringReader(style)));
-		}
+		NaiveCSSParser cssParser = new NaiveCSSParser();
+		CSSStyleRule cssStyle = cssParser.parseStyleAttribute(style);
 		if (!handleCssStyle(baseUrl, cssStyle))
 			return;
-		node.addAttribute("style", cssStyle.getCssText());
+		node.addAttribute("style", cssStyle.getPropertyString());
 	}
 
 	final boolean hasAncestorId(String[] ids, TagNode node) {
