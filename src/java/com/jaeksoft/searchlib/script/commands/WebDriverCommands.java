@@ -139,31 +139,15 @@ public class WebDriverCommands {
 
 	public static class Capture extends CommandAbstract {
 
-		private final static String SUBST_WIDTH = "{width}";
-		private final static String SUBST_HEIGHT = "{height}";
-		private final static String SUBST_COORD = "{coord}";
-		private final static String SUBST_ALT = "{alt}";
-
-		private final static String HTML_START = "<html><body>"
-				+ "<img src=\"screenshot.png\" width=\"" + SUBST_WIDTH
-				+ "\" height=\"" + SUBST_HEIGHT
-				+ "\" usemap=\"#capturemap\"/><map name=\"capturemap\"/>";
-
-		private final static String HTML_AREA = "<area shape=\"rect\" coords=\""
-				+ SUBST_COORD + "\" href=\"#\" alt=\"" + SUBST_ALT + "\"/>";
-
-		private final static String HTML_END = "</map></body></html>";
-
 		public Capture() {
 			super(CommandEnum.WEBDRIVER_CAPTURE);
 		}
 
-		@Override
-		public void run(ScriptCommandContext context, String id,
-				String... parameters) throws ScriptException {
-			FileWriter writer = null;
-			HttpDownloader httpDownloader = null;
-			checkParameters(1, parameters);
+		protected Capture(CommandEnum command) {
+			super(command);
+		}
+
+		protected File checkDestFile() throws ScriptException {
 			String dest = getParameterString(0);
 			if (dest == null)
 				throwError("No destination path given");
@@ -172,60 +156,43 @@ public class WebDriverCommands {
 				throw new ScriptException("The destination " + dest
 						+ " is not a directory");
 			destFile.mkdirs();
+			return destFile;
+		}
 
+		protected BrowserDriver<?> checkBrowserDriver(
+				ScriptCommandContext context) throws ScriptException {
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();
 			if (browserDriver == null)
 				throwError("No browser open");
+			return browserDriver;
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			HttpDownloader httpDownloader = null;
+			checkParameters(1, parameters);
+			BrowserDriver<?> browserDriver = checkBrowserDriver(context);
+			File destFile = checkDestFile();
 			try {
 				File captureFile = new File(destFile, "capture");
 				if (!captureFile.exists())
 					captureFile.mkdir();
-				BufferedImage image = browserDriver.getScreenshot();
-				File pngFile = new File(destFile, "screenshot.png");
-				File htmlFile = new File(destFile, "screenshot.html");
-				String html = HTML_START;
-				html = html.replace(SUBST_WIDTH,
-						Integer.toString(image.getWidth()));
-				html = html.replace(SUBST_HEIGHT,
-						Integer.toString(image.getHeight()));
-				StringBuffer sbHtml = new StringBuffer(html);
 
 				Collection<Selectors.Selector> selectors = context
 						.getSelectors();
 				if (selectors != null) {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
-						if (selector.screenshotHighlight)
-							browserDriver.locateBy(selector, elementSet);
-					List<Rectangle> boxes = new ArrayList<Rectangle>(
-							elementSet.size());
+						browserDriver.locateBy(selector, elementSet);
 					int i = 1;
 					for (WebElement element : elementSet) {
 						if ("iframe".equals(element.getTagName()))
 							browserDriver.getFrameSource(element, new File(
 									captureFile, Integer.toString(i)));
 
-						Rectangle box = new Rectangle(element.getLocation().x,
-								element.getLocation().y,
-								element.getSize().width,
-								element.getSize().height);
-						boxes.add(box);
-						ImageUtils.yellowHighlight(image, boxes);
-						String area = HTML_AREA.replace(SUBST_COORD,
-								ImageUtils.rectToCoordString(box, ','))
-								.replace(SUBST_ALT, "#" + (i++));
-						sbHtml.append(area);
 					}
 				}
-				sbHtml.append(HTML_END);
-				if (!pngFile.getParentFile().exists())
-					pngFile.getParentFile().mkdirs();
-				ImageIO.write(image, "png", pngFile);
-				writer = new FileWriter(htmlFile);
-				IOUtils.write(sbHtml.toString(), writer);
-				writer.close();
-				writer = null;
-
 				httpDownloader = context.getConfig().getWebCrawlMaster()
 						.getNewHttpDownloader(true, null);
 				browserDriver.saveArchive(httpDownloader, destFile,
@@ -254,13 +221,92 @@ public class WebDriverCommands {
 			} catch (XPatherException e) {
 				throw new ScriptException(e);
 			} finally {
-				if (writer != null)
-					IOUtils.closeQuietly(writer);
 				if (httpDownloader != null)
 					httpDownloader.release();
 			}
 		}
 
+	}
+
+	public static class Screenshot extends Capture {
+
+		private final static String SUBST_WIDTH = "{width}";
+		private final static String SUBST_HEIGHT = "{height}";
+		private final static String SUBST_COORD = "{coord}";
+		private final static String SUBST_ALT = "{alt}";
+
+		private final static String HTML_START = "<html><body>"
+				+ "<img src=\"screenshot.png\" width=\"" + SUBST_WIDTH
+				+ "\" height=\"" + SUBST_HEIGHT
+				+ "\" usemap=\"#capturemap\"/><map name=\"capturemap\"/>";
+
+		private final static String HTML_AREA = "<area shape=\"rect\" coords=\""
+				+ SUBST_COORD + "\" href=\"#\" alt=\"" + SUBST_ALT + "\"/>";
+
+		private final static String HTML_END = "</map></body></html>";
+
+		public Screenshot() {
+			super(CommandEnum.WEBDRIVER_SCREENSHOT);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			BrowserDriver<?> browserDriver = checkBrowserDriver(context);
+			File destFile = checkDestFile();
+			FileWriter writer = null;
+			Integer count = getParameterInt(1);
+			String destname = count == null ? "screenshot" : "screenshot"
+					+ count;
+			try {
+				BufferedImage image = browserDriver.getScreenshot();
+				File pngFile = new File(destFile, destname + ".png");
+				File htmlFile = new File(destFile, destname + ".html");
+				String html = HTML_START;
+				html = html.replace(SUBST_WIDTH,
+						Integer.toString(image.getWidth()));
+				html = html.replace(SUBST_HEIGHT,
+						Integer.toString(image.getHeight()));
+				StringBuffer sbHtml = new StringBuffer(html);
+				Collection<Selectors.Selector> selectors = context
+						.getSelectors();
+				if (selectors != null) {
+					HashSet<WebElement> elementSet = new HashSet<WebElement>();
+					for (Selectors.Selector selector : selectors)
+						if (selector.screenshotHighlight)
+							browserDriver.locateBy(selector, elementSet);
+					List<Rectangle> boxes = new ArrayList<Rectangle>(
+							elementSet.size());
+					int i = 1;
+					for (WebElement element : elementSet) {
+						Rectangle box = new Rectangle(element.getLocation().x,
+								element.getLocation().y,
+								element.getSize().width,
+								element.getSize().height);
+						boxes.add(box);
+						ImageUtils.yellowHighlight(image, boxes);
+						String area = HTML_AREA.replace(SUBST_COORD,
+								ImageUtils.rectToCoordString(box, ','))
+								.replace(SUBST_ALT, "#" + (i++));
+						sbHtml.append(area);
+					}
+				}
+				sbHtml.append(HTML_END);
+				if (!pngFile.getParentFile().exists())
+					pngFile.getParentFile().mkdirs();
+				ImageIO.write(image, "png", pngFile);
+				writer = new FileWriter(htmlFile);
+				IOUtils.write(sbHtml.toString(), writer);
+				writer.close();
+				writer = null;
+			} catch (IOException e) {
+				throw new ScriptException(e);
+			} finally {
+				if (writer != null)
+					IOUtils.closeQuietly(writer);
+			}
+		}
 	}
 
 	public static class SetTimeOuts extends CommandAbstract {

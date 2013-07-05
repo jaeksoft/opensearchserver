@@ -56,7 +56,8 @@ public enum CommandEnum {
 
 	WEBDRIVER_CAPTURE(WebDriverCommands.Capture.class),
 
-	WEBDRIVER_SET_TIMEOUTS(WebDriverCommands.SetTimeOuts.class),
+	WEBDRIVER_SCREENSHOT(WebDriverCommands.Screenshot.class), WEBDRIVER_SET_TIMEOUTS(
+			WebDriverCommands.SetTimeOuts.class),
 
 	WEBDRIVER_CLOSE(WebDriverCommands.Close.class),
 

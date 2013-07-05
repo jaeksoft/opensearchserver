@@ -76,7 +76,7 @@ public class NaiveCSSParser {
 	}
 
 	private static Pattern ruleLocator = Pattern
-			.compile("(?m)\\s*([a-zA-Z0-9,\\-_\\.@#\\s\"=\\[\\]]*)\\s*\\{(.*?)\\}");
+			.compile("(?m)\\s*([a-zA-Z0-9,\\*\\-_\\.@#\\s\"=\\[\\]]*)\\s*\\{(.*?)\\}");
 
 	private class RuleParser extends AbstractParser {
 
