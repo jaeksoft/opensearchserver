@@ -249,6 +249,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	final public void run() {
 		rwl.w.lock();
 		try {
+			exception = null;
 			startTime = System.currentTimeMillis();
 			idleTime = startTime;
 			abort = false;

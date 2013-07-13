@@ -16,6 +16,9 @@ New features:
 - 270: Database based script
 - 269: Upgrade ZK library (6.5.2)
 
+Bug fixes:
+- 189 Do not display error of previous crawl process in "current status"
+
 OpenSearchserver 1.4
 
 New features:
