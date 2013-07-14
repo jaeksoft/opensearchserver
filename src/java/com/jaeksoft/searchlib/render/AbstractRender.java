@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -44,7 +45,10 @@ public abstract class AbstractRender<T1 extends AbstractRequest, T2 extends Abst
 		this.result = result;
 		this.request = result.getRequest();
 		if (scoreFormat == null) {
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+			dfs.setNaN("0");
 			DecimalFormat df = new DecimalFormat();
+			df.setDecimalFormatSymbols(dfs);
 			df.setGroupingUsed(false);
 			scoreFormat = new ThreadSafeDecimalFormat(df);
 		}
@@ -52,8 +56,7 @@ public abstract class AbstractRender<T1 extends AbstractRequest, T2 extends Abst
 
 	}
 
-	final protected void writeScore(PrintWriter writer, double score) {
+	final protected void writeScore(PrintWriter writer, float score) {
 		writer.print(scoreFormat.format(score));
 	}
-
 }
