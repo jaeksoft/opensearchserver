@@ -53,6 +53,9 @@ public enum FilterEnum {
 
 	GroupAllTokensFilter("This filter group all tokens to one"),
 
+	HunspellStemFilter(
+			"This filter apply lemmatisation using an Hunspell dictionary"),
+
 	IndexLookupFilter("This filter extracts terms found in a search request"),
 
 	ISOLatin1AccentFilter(
