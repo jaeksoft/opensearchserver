@@ -167,6 +167,5 @@ public class TaskOtherScheduler extends TaskAbstract {
 		start(client, job, taskLog);
 		taskLog.setInfo("Wait for completion");
 		waitForCompletion(client, job, secTimeOut, taskLog);
-
 	}
 }

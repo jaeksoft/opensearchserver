@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
@@ -217,6 +218,13 @@ public class SchedulerEditController extends SchedulerController {
 			throws SearchLibException {
 		currentJob.taskRemove(taskItem);
 		reload();
+	}
+
+	@Override
+	@GlobalCommand
+	@NotifyChange("*")
+	public void eventClientChange() throws SearchLibException {
+		onCancel();
 	}
 
 	@Command

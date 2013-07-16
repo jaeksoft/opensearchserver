@@ -18,6 +18,7 @@ New features:
 - 269: Upgrade ZK library (6.5.2)
 
 Bug fixes:
+- 190 Cancel "Edit job" page in scheduler when changing selected index
 - 189 Do not display error of previous crawl process in "current status"
 
 OpenSearchserver 1.4
