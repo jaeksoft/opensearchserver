@@ -10,6 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchServer 1.5
 
 New features:
+- 286: Automatically create a unique reference for each document
 - 285: Hunspell integration
 - 277: Separate query for snippets
 - 272: Automatically set cookies in the web crawler

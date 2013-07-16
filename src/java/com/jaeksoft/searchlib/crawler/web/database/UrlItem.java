@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -73,6 +75,7 @@ public class UrlItem {
 	private LinkItem.Origin origin;
 	private List<String> headers;
 	private int backlinkCount;
+	private String instanceId;
 
 	protected UrlItem() {
 		urlString = null;
@@ -102,6 +105,7 @@ public class UrlItem {
 		origin = null;
 		headers = null;
 		backlinkCount = 0;
+		instanceId = null;
 	}
 
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
@@ -146,6 +150,8 @@ public class UrlItem {
 		addHeaders(doc.getValueArray(urlItemFieldEnum.headers.getName()));
 		setBacklinkCount(doc.getValueContent(
 				urlItemFieldEnum.backlinkCount.getName(), 0));
+		instanceId = doc.getValueContent(urlItemFieldEnum.instanceId.getName(),
+				0);
 	}
 
 	private void addHeaders(FieldValueItem[] headersList) {
@@ -511,8 +517,8 @@ public class UrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument,
-			UrlItemFieldEnum urlItemFieldEnum) throws MalformedURLException,
-			URISyntaxException {
+			UrlItemFieldEnum urlItemFieldEnum) throws URISyntaxException,
+			IOException {
 		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
 		indexDocument.setString(urlItemFieldEnum.when.getName(),
 				whenDateFormat.format(when));
@@ -583,6 +589,9 @@ public class UrlItem {
 					headers);
 		indexDocument.setString(urlItemFieldEnum.backlinkCount.getName(),
 				longFormat.format(backlinkCount));
+		checkInstanceId();
+		indexDocument.setString(urlItemFieldEnum.instanceId.getName(),
+				instanceId);
 	}
 
 	public String getLang() {
@@ -668,5 +677,15 @@ public class UrlItem {
 	 */
 	public void setBacklinkCount(int backLinkCount) {
 		this.backlinkCount = backLinkCount;
+	}
+
+	public String getInstanceId() {
+		return instanceId;
+	}
+
+	private void checkInstanceId() throws IOException {
+		if (instanceId != null)
+			return;
+		instanceId = ClientFactory.INSTANCE.getGlobalSequence().next();
 	}
 }

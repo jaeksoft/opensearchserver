@@ -320,19 +320,7 @@ public class UrlManager extends AbstractManager {
 	public UrlItem getUrlToFetch(URL url) throws SearchLibException {
 		SearchRequest searchRequest = (SearchRequest) urlDbClient
 				.getNewRequest("urlSearch");
-		try {
-			searchRequest.addFilter("url:\"" + url.toExternalForm() + "\"",
-					false);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		}
-		searchRequest.setQueryString("*:*");
-		AbstractResultSearch result = (AbstractResultSearch) urlDbClient
-				.request(searchRequest);
-		if (result.getDocumentCount() <= 0)
-			return null;
-		return getNewUrlItem(result.getDocument(0));
-
+		return getUrl(searchRequest, url.toExternalForm());
 	}
 
 	public long getSize() throws SearchLibException {
@@ -509,14 +497,14 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public UrlItem getUrl(SearchRequest request, String sUrl)
+	private UrlItem getUrl(SearchRequest request, String sUrl)
 			throws SearchLibException {
 		if (request == null)
 			request = (SearchRequest) urlDbClient
 					.getNewRequest(SearchTemplate.urlSearch.name());
 		else
 			request.reset();
-		request.setQueryString("url:\"" + sUrl + '"');
+		request.setQueryString("url:\"" + QueryUtils.escapeQuery(sUrl) + '"');
 		request.setStart(0);
 		request.setRows(1);
 		try {

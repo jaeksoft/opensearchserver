@@ -83,7 +83,7 @@ public class Crawl {
 
 	private List<IndexDocument> targetIndexDocuments;
 	private HostUrlList hostUrlList;
-	private UrlItem urlItem;
+	private final UrlItem urlItem;
 	private CredentialManager credentialManager;
 	private CookieManager cookieManager;
 	private CredentialItem credentialItem;

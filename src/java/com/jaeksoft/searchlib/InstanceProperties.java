@@ -45,7 +45,6 @@ import redis.clients.jedis.Jedis;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.Sequence;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -72,8 +71,6 @@ public class InstanceProperties {
 	private long lastTimeRequestPerMonthStore;
 
 	private final File requestperMonthFile;
-
-	private final Sequence globalSequence;
 
 	private long nextApiTime;
 
@@ -121,8 +118,6 @@ public class InstanceProperties {
 		countApiWait = 0;
 		lastTimeRequestPerMonthStore = 0;
 		requestPerMonthCount = 0;
-		globalSequence = new Sequence(new File(xmlFile.getParent(),
-				"globalSequence.txt"), 36);
 		if (xmlFile.exists()) {
 			requestperMonthFile = new File(xmlFile.getParent(),
 					"requestPerMonth.txt");

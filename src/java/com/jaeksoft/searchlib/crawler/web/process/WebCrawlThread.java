@@ -218,12 +218,6 @@ public class WebCrawlThread extends
 		}
 	}
 
-	public void setCurrentUrlItem(UrlItem urlItem) {
-		synchronized (this) {
-			currentUrlItem = urlItem;
-		}
-	}
-
 	@Override
 	public void release() {
 		if (httpDownloader != null)

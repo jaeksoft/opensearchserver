@@ -88,4 +88,6 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField backlinkCount = new ItemField(this, "backlinkCount");
 
+	final public ItemField instanceId = new ItemField(this, "instanceId");
+
 }
