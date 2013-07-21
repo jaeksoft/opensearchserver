@@ -1,0 +1,73 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel title="@load(learning.currentEditMode)" border="normal">
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" width="200px" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Learner name: " />
+					<textbox value="@bind(learner.currentLearner.name)"
+						readonly="@load(learner.selected)" cols="50" />
+				</row>
+				<row>
+					<label value="Class name: " />
+					<textbox
+						value="@bind(learner.currentLearner.className)"
+						readonly="@load(learner.selected)" cols="80" />
+				</row>
+				<row>
+					<label value="Parameters:" />
+					<textbox multiline="true" rows="10"
+						value="@bind(learner.currentLearner.parameters)"
+						readonly="@load(learner.selected)" cols="80" />
+				</row>
+				<row>
+					<label value="Active: " />
+					<checkbox label="enabled"
+						checked="@bind(classifier.currentLearner.active)" />
+				</row>
+			</rows>
+			<foot>
+				<footer span="2">
+					<vbox width="100%" align="center">
+						<hbox visible="@load(learning.selected)">
+							<button label="Cancel"
+								onClick="@command('onCancel')" />
+							<space width="10px" />
+							<button label="Save"
+								onClick="@command('onSave')" />
+							<space width="30px" />
+							<button label="Delete"
+								onClick="@command('onDelete')" />
+						</hbox>
+						<hbox visible="@load(learning.notSelected)">
+							<button label="Cancel"
+								onClick="@command('onCancel')" />
+							<space width="10px" />
+							<button label="Create"
+								onClick="@command('onSave')" />
+						</hbox>
+					</vbox>
+				</footer>
+			</foot>
+		</grid>
+	</panelchildren>
+</panel>

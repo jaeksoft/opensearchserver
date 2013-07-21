@@ -1,0 +1,35 @@
+<!--
+	License Agreement for Jaeksoft OpenSearchServer Enterprise
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	
+	This file is part of Jaeksoft OpenSearchServer Enterprise.
+	See the License for more details. You should have received a
+	copy of the License along with Jaeksoft OpenSearchServer.
+	If not, see http://www.open-search-server.com
+-->
+<panel title="List of existing learning machine" border="normal">
+	<panelchildren>
+		<listbox model="@load(learning.learners)" mold="paging"
+			selectedItem="@bind(classifier.selectedLearner)" pageSize="10">
+			<auxhead>
+				<auxheader colspan="5">
+					<button label="New learner..."
+						onClick="@command('onNewLearner')" />
+				</auxheader>
+			</auxhead>
+			<listhead>
+				<listheader label="Name" />
+				<listheader tooltiptext="Active" label="A" width="50px" />
+			</listhead>
+			<template name="model" var="item">
+				<listitem>
+					<listcell label="@load(item.name)" />
+					<listcell>
+						<image src="images/action_check.png"
+							visible="@load(item.active)" />
+					</listcell>
+				</listitem>
+			</template>
+		</listbox>
+	</panelchildren>
+</panel>

@@ -83,6 +83,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.IndexSingle;
+import com.jaeksoft.searchlib.learning.Learner;
+import com.jaeksoft.searchlib.learning.LearnerManager;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginTemplateList;
@@ -200,6 +202,8 @@ public abstract class Config implements ThreadFactory {
 	private TaskEnum taskEnum = null;
 
 	private ClassifierManager classifierManager = null;
+
+	private LearnerManager learnerManager = null;
 
 	private ReportsManager reportsManager = null;
 
@@ -520,6 +524,43 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
+	private File getLearnerDirectory() {
+		File directory = new File(this.getDirectory(), "learners");
+		if (!directory.exists())
+			directory.mkdir();
+		return directory;
+	}
+
+	public LearnerManager getLearnerManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (learnerManager != null)
+				return learnerManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (learnerManager != null)
+				return learnerManager;
+			learnerManager = new LearnerManager((Client) this,
+					getLearnerDirectory());
+			return learnerManager;
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} catch (SearchLibException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	private File getReportsDirectory() {
 		File directory = new File(this.getDirectory(), "report");
 		if (!directory.exists())
@@ -580,6 +621,55 @@ public abstract class Config implements ThreadFactory {
 			throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				cfr.delete();
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.rl.unlock();
+			cfr.abort();
+		}
+	}
+
+	public void saveLearner(Learner learner) throws SearchLibException,
+			UnsupportedEncodingException {
+		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
+				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
+		if (!longTermLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				learner.writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} catch (TransformerConfigurationException e) {
+				throw new SearchLibException(e);
+			} catch (SAXException e) {
+				throw new SearchLibException(e);
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			} finally {
+				rwl.w.unlock();
+			}
+		} finally {
+			longTermLock.rl.unlock();
+			cfr.abort();
+		}
+
+	}
+
+	public void deleteLearner(Learner learner) throws SearchLibException,
+			IOException {
+		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
+				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
