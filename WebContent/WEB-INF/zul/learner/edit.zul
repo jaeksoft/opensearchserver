@@ -24,25 +24,27 @@
 			<rows>
 				<row>
 					<label value="Learner name: " />
-					<textbox value="@bind(learner.currentLearner.name)"
-						readonly="@load(learner.selected)" cols="50" />
+					<textbox value="@bind(learning.currentLearner.name)"
+						readonly="@load(learning.selected)" cols="50" />
 				</row>
 				<row>
 					<label value="Class name: " />
-					<textbox
-						value="@bind(learner.currentLearner.className)"
-						readonly="@load(learner.selected)" cols="80" />
+					<cell>
+						<textbox
+							value="@bind(learning.currentLearner.className)" cols="80" />
+						<button label="Check"
+							onClick="@command('onCheck')" />
+					</cell>
 				</row>
 				<row>
 					<label value="Parameters:" />
 					<textbox multiline="true" rows="10"
-						value="@bind(learner.currentLearner.parameters)"
-						readonly="@load(learner.selected)" cols="80" />
+						value="@bind(learning.currentLearner.parameters)" cols="80" />
 				</row>
 				<row>
 					<label value="Active: " />
 					<checkbox label="enabled"
-						checked="@bind(classifier.currentLearner.active)" />
+						checked="@bind(learning.currentLearner.active)" />
 				</row>
 			</rows>
 			<foot>

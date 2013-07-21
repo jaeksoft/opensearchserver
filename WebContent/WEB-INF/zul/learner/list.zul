@@ -10,20 +10,22 @@
 <panel title="List of existing learning machine" border="normal">
 	<panelchildren>
 		<listbox model="@load(learning.learners)" mold="paging"
-			selectedItem="@bind(classifier.selectedLearner)" pageSize="10">
+			selectedItem="@bind(learning.selectedLearner)" pageSize="10">
 			<auxhead>
-				<auxheader colspan="5">
+				<auxheader colspan="3">
 					<button label="New learner..."
 						onClick="@command('onNewLearner')" />
 				</auxheader>
 			</auxhead>
 			<listhead>
 				<listheader label="Name" />
-				<listheader tooltiptext="Active" label="A" width="50px" />
+				<listheader label="Class" hflex="min" />
+				<listheader tooltiptext="Active" label="A" hflex="min" />
 			</listhead>
 			<template name="model" var="item">
 				<listitem>
 					<listcell label="@load(item.name)" />
+					<listcell label="@load(item.className)" />
 					<listcell>
 						<image src="images/action_check.png"
 							visible="@load(item.active)" />

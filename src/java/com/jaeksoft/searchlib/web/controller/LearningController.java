@@ -124,6 +124,18 @@ public class LearningController extends CommonController {
 		onCancel();
 	}
 
+	@Command
+	@NotifyChange("*")
+	public void onCheck() throws SearchLibException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		if (currentLearner == null)
+			return;
+		currentLearner.checkInstance(client);
+		new AlertController("Learner successfully checked");
+	}
+
 	public Learner getCurrentLearner() {
 		return currentLearner;
 	}

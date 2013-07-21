@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -61,11 +62,14 @@ public class Learner implements Comparable<Learner> {
 
 	private boolean active;
 
+	private LearnerInterface learnerInstance;
+
 	public Learner() {
 		name = null;
 		active = false;
 		className = null;
 		parameters = null;
+		learnerInstance = null;
 	}
 
 	public Learner(Learner source) {
@@ -82,6 +86,7 @@ public class Learner implements Comparable<Learner> {
 				target.active = active;
 				target.className = className;
 				target.parameters = parameters;
+				target.learnerInstance = learnerInstance;
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -127,7 +132,7 @@ public class Learner implements Comparable<Learner> {
 	 * @return the name
 	 */
 	public String getName() {
-		rwl.w.lock();
+		rwl.r.lock();
 		try {
 			return name;
 		} finally {
@@ -142,6 +147,8 @@ public class Learner implements Comparable<Learner> {
 	public void setClassName(String className) {
 		rwl.w.lock();
 		try {
+			if (!StringUtils.equals(className, this.className))
+				learnerInstance = null;
 			this.className = className;
 		} finally {
 			rwl.w.unlock();
@@ -228,10 +235,41 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public void learn(Client client, IndexDocument document)
+	private LearnerInterface getInstance(Client client)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-
+		rwl.r.lock();
+		try {
+			if (learnerInstance != null)
+				return learnerInstance;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (learnerInstance != null)
+				return learnerInstance;
+			learnerInstance = (LearnerInterface) Class.forName(className)
+					.newInstance();
+			learnerInstance.init(client, parameters);
+			return learnerInstance;
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
+	public void checkInstance(Client client) throws SearchLibException {
+		getInstance(client);
+	}
+
+	public void learn(Client client, IndexDocument document)
+			throws SearchLibException {
+		LearnerInterface instance = getInstance(client);
+		instance.learn(client, document);
+	}
 }
