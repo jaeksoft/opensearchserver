@@ -156,4 +156,12 @@ public class LearnerManager implements BeforeUpdateInterface {
 			learner.learn(client, document);
 	}
 
+	@Override
+	public void flush() throws SearchLibException {
+		if (learnerArray == null)
+			return;
+		for (Learner learner : activeLearnerArray)
+			learner.flush();
+
+	}
 }

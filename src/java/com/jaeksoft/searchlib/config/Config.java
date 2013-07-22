@@ -246,7 +246,9 @@ public abstract class Config implements ThreadFactory {
 			getFileCrawlMaster();
 			getWebCrawlMaster();
 			getJobList();
-			getIndexAbstract().addBeforeUpdate(getClassifierManager());
+			IndexAbstract indexAbstract = getIndexAbstract();
+			indexAbstract.addBeforeUpdate(getClassifierManager());
+			indexAbstract.addBeforeUpdate(getLearnerManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -524,7 +526,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	private File getLearnerDirectory() {
+	public File getLearnerDirectory() {
 		File directory = new File(this.getDirectory(), "learners");
 		if (!directory.exists())
 			directory.mkdir();

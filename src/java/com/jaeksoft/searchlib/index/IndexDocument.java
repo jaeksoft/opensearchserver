@@ -413,6 +413,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 		return fc.getValue(pos);
 	}
 
+	public String getFieldValueString(String fieldName, int pos) {
+		FieldValueItem fvi = getFieldValue(fieldName, pos);
+		if (fvi == null)
+			return null;
+		return fvi.getValue();
+	}
+
 	public FieldContent[] getFieldContentArray() {
 		if (fieldContentArray != null)
 			return fieldContentArray;

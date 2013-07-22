@@ -29,7 +29,9 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 
 public interface LearnerInterface {
 
-	void init(Client client, String parameters);
+	void init(Client client, Learner learner);
+
+	void flush();
 
 	public void learn(Client client, IndexDocument document);
 }

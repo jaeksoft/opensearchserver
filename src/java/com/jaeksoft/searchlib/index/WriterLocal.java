@@ -173,6 +173,9 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = close(indexWriter);
 			if (updated)
 				indexSingle.reload();
+			if (beforeUpdateList != null)
+				for (BeforeUpdateInterface beforeUpdate : beforeUpdateList)
+					beforeUpdate.flush();
 			return updated;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -212,6 +215,9 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = close(indexWriter);
 			if (count > 0)
 				indexSingle.reload();
+			if (beforeUpdateList != null)
+				for (BeforeUpdateInterface beforeUpdate : beforeUpdateList)
+					beforeUpdate.flush();
 			return count;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

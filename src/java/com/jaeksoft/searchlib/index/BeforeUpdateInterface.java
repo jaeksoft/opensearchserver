@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,4 +31,6 @@ public interface BeforeUpdateInterface {
 
 	public void update(Schema schema, IndexDocument document)
 			throws SearchLibException;
+
+	public void flush() throws SearchLibException;
 }

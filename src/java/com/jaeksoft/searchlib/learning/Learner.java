@@ -248,9 +248,11 @@ public class Learner implements Comparable<Learner> {
 		try {
 			if (learnerInstance != null)
 				return learnerInstance;
+			if (client == null)
+				return null;
 			learnerInstance = (LearnerInterface) Class.forName(className)
 					.newInstance();
-			learnerInstance.init(client, parameters);
+			learnerInstance.init(client, this);
 			return learnerInstance;
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
@@ -271,5 +273,10 @@ public class Learner implements Comparable<Learner> {
 			throws SearchLibException {
 		LearnerInterface instance = getInstance(client);
 		instance.learn(client, document);
+	}
+
+	public void flush() throws SearchLibException {
+		LearnerInterface instance = getInstance(null);
+		instance.flush();
 	}
 }
