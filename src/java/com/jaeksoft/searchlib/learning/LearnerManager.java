@@ -28,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -48,7 +48,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
-	private TreeSet<Learner> learnerSet;
+	private TreeMap<String, Learner> learnerMap;
 
 	private Learner[] learnerArray;
 
@@ -62,7 +62,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 		this.client = client;
 		learnerArray = null;
 		activeLearnerArray = null;
-		learnerSet = new TreeSet<Learner>();
+		learnerMap = new TreeMap<String, Learner>();
 		for (File f : directory.listFiles())
 			if (f.isFile()) {
 				String fname = f.getName();
@@ -77,8 +77,8 @@ public class LearnerManager implements BeforeUpdateInterface {
 	}
 
 	private void buildLearnerArray() {
-		learnerArray = new Learner[learnerSet.size()];
-		learnerSet.toArray(learnerArray);
+		learnerArray = new Learner[learnerMap.size()];
+		learnerMap.values().toArray(learnerArray);
 		List<Learner> activeList = new ArrayList<Learner>(0);
 		for (Learner learner : learnerArray)
 			if (learner.isActive())
@@ -99,9 +99,9 @@ public class LearnerManager implements BeforeUpdateInterface {
 	public void add(Learner item) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			if (learnerSet.contains(item))
+			if (learnerMap.containsKey(item.getName()))
 				throw new SearchLibException("This item already exists");
-			learnerSet.add(item);
+			learnerMap.put(item.getName(), item);
 			buildLearnerArray();
 		} finally {
 			rwl.w.unlock();
@@ -111,8 +111,8 @@ public class LearnerManager implements BeforeUpdateInterface {
 	public void replace(Learner oldItem, Learner newItem) {
 		rwl.w.lock();
 		try {
-			learnerSet.remove(oldItem);
-			learnerSet.add(newItem);
+			learnerMap.remove(oldItem.getName());
+			learnerMap.put(newItem.getName(), newItem);
 			buildLearnerArray();
 		} finally {
 			rwl.w.unlock();
@@ -122,7 +122,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 	public void remove(Learner item) {
 		rwl.w.lock();
 		try {
-			learnerSet.remove(item);
+			learnerMap.remove(item.getName());
 			buildLearnerArray();
 		} finally {
 			rwl.w.unlock();
@@ -139,7 +139,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement("learner");
-			for (Learner learner : learnerSet)
+			for (Learner learner : learnerMap.values())
 				learner.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
@@ -154,6 +154,15 @@ public class LearnerManager implements BeforeUpdateInterface {
 			return;
 		for (Learner learner : activeLearnerArray)
 			learner.classify(client, document);
+	}
+
+	public Learner get(String name) {
+		rwl.r.lock();
+		try {
+			return learnerMap.get(name);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }
