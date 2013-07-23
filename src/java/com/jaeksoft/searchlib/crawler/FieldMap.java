@@ -44,7 +44,6 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -87,8 +86,8 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		concatSeparator = '|';
 	}
 
-	public FieldMap(XPathParser xpp, Node node) throws XPathExpressionException {
-		super(xpp, node);
+	public FieldMap(Node node) throws XPathExpressionException {
+		super(node);
 		concatSeparator = '|';
 	}
 

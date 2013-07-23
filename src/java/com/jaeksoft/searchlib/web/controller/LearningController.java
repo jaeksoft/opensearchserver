@@ -26,19 +26,38 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.learning.Learner;
 import com.jaeksoft.searchlib.learning.LearnerManager;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.map.GenericLink;
+import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class LearningController extends CommonController {
 
 	private Learner selectedLearner;
 	private Learner currentLearner;
+
+	private transient SchemaField selectedSourceIndexField;
+	private transient String selectedSourceLearnerField;
+	private transient SchemaField selectedTargetIndexField;
+	private transient String selectedTargetLearnerField;
 
 	private transient int totalSize;
 	private transient int activePage;
@@ -52,6 +71,10 @@ public class LearningController extends CommonController {
 	protected void reset() throws SearchLibException {
 		currentLearner = null;
 		selectedLearner = null;
+		selectedSourceIndexField = null;
+		selectedSourceLearnerField = null;
+		selectedTargetIndexField = null;
+		selectedTargetLearnerField = null;
 		totalSize = 0;
 		activePage = 0;
 	}
@@ -61,6 +84,47 @@ public class LearningController extends CommonController {
 		if (client == null)
 			return null;
 		return client.getLearnerManager().getArray();
+	}
+
+	public List<SchemaField> getIndexFieldList() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<SchemaField> list = client.getSchema().getFieldList()
+					.getList();
+			if (list.size() > 0) {
+				if (selectedSourceIndexField == null)
+					selectedSourceIndexField = list.get(0);
+				if (selectedTargetIndexField == null)
+					selectedTargetIndexField = selectedSourceIndexField;
+			}
+			return list;
+		}
+	}
+
+	public void setSelectedSourceIndexField(SchemaField field) {
+		synchronized (this) {
+			selectedSourceIndexField = field;
+		}
+	}
+
+	public SchemaField getSelectedSourceIndexField() {
+		synchronized (this) {
+			return selectedSourceIndexField;
+		}
+	}
+
+	public void setSelectedTargetIndexField(SchemaField field) {
+		synchronized (this) {
+			selectedTargetIndexField = field;
+		}
+	}
+
+	public SchemaField getSelectedTargetIndexField() {
+		synchronized (this) {
+			return selectedTargetIndexField;
+		}
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
@@ -82,6 +146,16 @@ public class LearningController extends CommonController {
 
 	public boolean isNotSelected() {
 		return !isSelected();
+	}
+
+	public List<String> getRequestList() throws SearchLibException {
+		List<String> requestList = new ArrayList<String>(0);
+		Client client = getClient();
+		if (client == null)
+			return requestList;
+		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
+				requestList);
+		return requestList;
 	}
 
 	@Command
@@ -169,6 +243,110 @@ public class LearningController extends CommonController {
 
 	public int getTotalSize() {
 		return totalSize;
+	}
+
+	/**
+	 * @return the selectedLearnerField
+	 */
+	public String getSelectedSourceLearnerField() {
+		return selectedSourceLearnerField;
+	}
+
+	/**
+	 * @param selectedLearnerField
+	 *            the selectedLearnerField to set
+	 */
+	public void setSelectedSourceLearnerField(String selectedLearnerField) {
+		this.selectedSourceLearnerField = selectedLearnerField;
+	}
+
+	/**
+	 * @return the selectedLearnerField
+	 */
+	public String getSelectedTargetLearnerField() {
+		return selectedTargetLearnerField;
+	}
+
+	/**
+	 * @param selectedLearnerField
+	 *            the selectedLearnerField to set
+	 */
+	public void setSelectedTargetLearnerField(String selectedLearnerField) {
+		this.selectedTargetLearnerField = selectedLearnerField;
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onReset() throws SearchLibException {
+		if (currentLearner == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		currentLearner.reset(client);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onLearn() throws SearchLibException {
+		if (currentLearner == null)
+			return;
+		Client client = getClient();
+		if (client == null)
+			return;
+		currentLearner.learn(client, null);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onSourceLinkAdd() throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
+		if (selectedSourceLearnerField == null
+				|| selectedSourceIndexField == null || currentLearner == null)
+			return;
+		FieldMap fieldMap = currentLearner.getSourceFieldMap();
+		fieldMap.add(new SourceField(selectedSourceIndexField.getName()),
+				new TargetField(selectedSourceLearnerField));
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onSourceLinkRemove(
+			@BindingParam("link") GenericLink<SourceField, TargetField> link)
+			throws SearchLibException, TransformerConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			ParserConfigurationException {
+		if (currentLearner == null)
+			return;
+		FieldMap fieldMap = currentLearner.getSourceFieldMap();
+		fieldMap.remove(link);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onTargetLinkAdd() throws SearchLibException,
+			TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
+		if (selectedTargetLearnerField == null
+				|| selectedTargetIndexField == null || currentLearner == null)
+			return;
+		FieldMap fieldMap = currentLearner.getTargetFieldMap();
+		fieldMap.add(new SourceField(selectedTargetLearnerField),
+				new TargetField(selectedTargetIndexField.getName()));
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onTargetLinkRemove(
+			@BindingParam("link") GenericLink<SourceField, TargetField> link)
+			throws SearchLibException, TransformerConfigurationException,
+			SAXException, IOException, XPathExpressionException,
+			ParserConfigurationException {
+		if (currentLearner == null)
+			return;
+		FieldMap fieldMap = currentLearner.getTargetFieldMap();
+		fieldMap.remove(link);
 	}
 
 }

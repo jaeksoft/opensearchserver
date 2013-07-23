@@ -168,7 +168,7 @@ public class RestCrawlItem extends
 				REST_CRAWL_ATTR_BUFFER_SIZE));
 		Node mapNode = xpp.getNode(item, REST_CRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
-			getFieldMap().load(xpp, mapNode);
+			getFieldMap().load(mapNode);
 		Node pathNode = xpp.getNode(item, REST_CRAWL_NODE_DOC_PATH);
 		if (pathNode != null)
 			setPathDocument(StringEscapeUtils.unescapeXml(pathNode

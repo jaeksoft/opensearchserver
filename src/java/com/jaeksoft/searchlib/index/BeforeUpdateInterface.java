@@ -31,6 +31,4 @@ public interface BeforeUpdateInterface {
 
 	public void update(Schema schema, IndexDocument document)
 			throws SearchLibException;
-
-	public void flush() throws SearchLibException;
 }

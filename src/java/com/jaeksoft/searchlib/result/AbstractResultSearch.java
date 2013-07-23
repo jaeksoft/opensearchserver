@@ -125,7 +125,10 @@ public abstract class AbstractResultSearch extends
 		int len = getDocLength();
 		if (end > len)
 			end = len;
-		return end - request.getStart();
+		int start = request.getStart();
+		if (start > end)
+			return 0;
+		return end - start;
 	}
 
 	public JoinResult[] getJoinResult() {

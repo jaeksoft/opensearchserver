@@ -167,8 +167,4 @@ public class ClassifierManager implements BeforeUpdateInterface {
 
 	}
 
-	@Override
-	public void flush() throws SearchLibException {
-	}
-
 }

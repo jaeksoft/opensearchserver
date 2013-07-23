@@ -190,7 +190,7 @@ public abstract class DatabaseCrawlAbstract
 				DBCRAWL_ATTR_BUFFER_SIZE));
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
-			getFieldMap().load(xpp, mapNode);
+			getFieldMap().load(mapNode);
 	}
 
 	public abstract void writeXml(XmlWriter xmlWriter) throws SAXException;

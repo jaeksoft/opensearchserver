@@ -24,14 +24,57 @@
 
 package com.jaeksoft.searchlib.learning;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public interface LearnerInterface {
 
+	/**
+	 * Load the learner (reading any data on file)
+	 * 
+	 * @param client
+	 * @param learner
+	 */
 	void init(Client client, Learner learner);
 
-	void flush();
+	/**
+	 * Remove any data in the learner
+	 * */
+	public void reset();
 
-	public void learn(Client client, IndexDocument document);
+	/**
+	 * Classify the document passed in parameter
+	 * 
+	 * @param client
+	 * @param indexDocument
+	 * @throws IOException
+	 */
+	public void classify(IndexDocument indexDocument) throws IOException;
+
+	/**
+	 * Learn by reading the document returned by the search query
+	 * 
+	 * @param taskLog
+	 * @throws SearchLibException
+	 * @throws IOException
+	 */
+	public void learn(TaskLog taskLog) throws SearchLibException, IOException;
+
+	/**
+	 * Return the list of field required by the learner when learning
+	 * 
+	 * @return
+	 */
+	public String[] getSourceFieldList();
+
+	/**
+	 * Return the list of field provided by the classifier
+	 * 
+	 * @return
+	 */
+	public String[] getTargetFieldList();
 }

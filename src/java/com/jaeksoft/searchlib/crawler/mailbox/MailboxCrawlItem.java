@@ -153,7 +153,7 @@ public class MailboxCrawlItem
 				item, MBCRAWL_ATTR_LANG)));
 		Node mapNode = xpp.getNode(item, MBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
-			crawl.getFieldMap().load(xpp, mapNode);
+			crawl.getFieldMap().load(mapNode);
 		return crawl;
 	}
 

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -35,7 +36,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -72,10 +72,9 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		mapFile = null;
 	}
 
-	protected FieldMapGeneric(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException {
+	protected FieldMapGeneric(Node parentNode) throws XPathExpressionException {
 		mapFile = null;
-		load(xpp, parentNode);
+		load(parentNode);
 	}
 
 	protected FieldMapGeneric(File mapFile, String rootXPath)
@@ -85,22 +84,19 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (!mapFile.exists())
 			return;
 		XPathParser xpp = new XPathParser(mapFile);
-		load(xpp, xpp.getNode(rootXPath));
+		load(xpp.getNode(rootXPath));
 	}
 
 	protected abstract T loadTarget(String targetName, Node node);
 
 	protected abstract S loadSource(String source);
 
-	public void load(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException {
+	public void load(Node parentNode) throws XPathExpressionException {
 		synchronized (this) {
 			if (parentNode == null)
 				return;
-			NodeList nodeList = xpp.getNodeList(parentNode, "link");
-			int l = nodeList.getLength();
-			for (int i = 0; i < l; i++) {
-				Node node = nodeList.item(i);
+			List<Node> nodeList = DomUtils.getNodes(parentNode, "link");
+			for (Node node : nodeList) {
 				String sourceName = DomUtils.getAttributeText(node, "source");
 				S source = loadSource(sourceName);
 				if (source == null)

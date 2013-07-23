@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -192,8 +192,8 @@ public class ParserFactory extends ClassFactory implements
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(
 				config, PARSER_PACKAGE, parserNode);
 
-		parserFactory.fieldMap = new ParserFieldMap(xpp, xpp.getNode(
-				parserNode, "map"));
+		parserFactory.fieldMap = new ParserFieldMap(xpp.getNode(parserNode,
+				"map"));
 
 		NodeList mimeNodes = xpp.getNodeList(parserNode, "contentType");
 		for (int j = 0; j < mimeNodes.getLength(); j++) {

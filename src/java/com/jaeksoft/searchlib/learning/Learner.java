@@ -38,7 +38,9 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -51,6 +53,9 @@ public class Learner implements Comparable<Learner> {
 	private final static String LEARNER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String LEARNER_ITEM_ROOT_ATTR_ACTIVE = "active";
 	private final static String LEARNER_ITEM_ROOT_ATTR_CLASS = "class";
+	private final static String LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST = "searchRequest";
+	private final static String LEARNER_ITEM_MAP_SRC_NODE_NAME = "sourceFields";
+	private final static String LEARNER_ITEM_MAP_TGT_NODE_NAME = "targetFields";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -58,7 +63,11 @@ public class Learner implements Comparable<Learner> {
 
 	private String className;
 
-	private String parameters;
+	private String searchRequest;
+
+	private final FieldMap sourceFieldMap;
+
+	private final FieldMap targetFieldMap;
 
 	private boolean active;
 
@@ -68,8 +77,10 @@ public class Learner implements Comparable<Learner> {
 		name = null;
 		active = false;
 		className = null;
-		parameters = null;
 		learnerInstance = null;
+		searchRequest = null;
+		sourceFieldMap = new FieldMap();
+		targetFieldMap = new FieldMap();
 	}
 
 	public Learner(Learner source) {
@@ -85,8 +96,10 @@ public class Learner implements Comparable<Learner> {
 				target.name = name;
 				target.active = active;
 				target.className = className;
-				target.parameters = parameters;
+				target.searchRequest = searchRequest;
 				target.learnerInstance = learnerInstance;
+				sourceFieldMap.copyTo(target.sourceFieldMap);
+				targetFieldMap.copyTo(target.targetFieldMap);
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -112,7 +125,34 @@ public class Learner implements Comparable<Learner> {
 				rootNode, LEARNER_ITEM_ROOT_ATTR_ACTIVE)));
 		setClassName(XPathParser.getAttributeString(rootNode,
 				LEARNER_ITEM_ROOT_ATTR_CLASS));
-		setParameters(rootNode.getTextContent());
+		setSearchRequest(XPathParser.getAttributeString(rootNode,
+				LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
+		sourceFieldMap.load(DomUtils.getFirstNode(rootNode,
+				LEARNER_ITEM_MAP_SRC_NODE_NAME));
+		targetFieldMap.load(DomUtils.getFirstNode(rootNode,
+				LEARNER_ITEM_MAP_TGT_NODE_NAME));
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public FieldMap getSourceFieldMap() {
+		rwl.r.lock();
+		try {
+			return sourceFieldMap;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldMap getTargetFieldMap() {
+		rwl.r.lock();
+		try {
+			return targetFieldMap;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -192,24 +232,6 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public String getParameters() {
-		rwl.r.lock();
-		try {
-			return parameters;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setParameters(String parameters) {
-		rwl.w.lock();
-		try {
-			this.parameters = parameters;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	@Override
 	public int compareTo(Learner o) {
 		rwl.r.lock();
@@ -226,12 +248,35 @@ public class Learner implements Comparable<Learner> {
 			xmlWriter.startElement(LEARNER_ITEM_ROOT_NODE_NAME,
 					LEARNER_ITEM_ROOT_ATTR_NAME, name,
 					LEARNER_ITEM_ROOT_ATTR_CLASS, className,
+					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest,
 					LEARNER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no");
-			if (parameters != null && parameters.length() > 0)
-				xmlWriter.textNode(parameters);
+			xmlWriter.startElement(LEARNER_ITEM_MAP_SRC_NODE_NAME);
+			sourceFieldMap.store(xmlWriter);
+			xmlWriter.endElement();
+			xmlWriter.startElement(LEARNER_ITEM_MAP_TGT_NODE_NAME);
+			targetFieldMap.store(xmlWriter);
+			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public String getSearchRequest() {
+		rwl.r.lock();
+		try {
+			return searchRequest;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setSearchRequest(String searchRequest) {
+		rwl.w.lock();
+		try {
+			this.searchRequest = searchRequest;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -265,18 +310,37 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
+	public LearnerInterface getInstance() throws SearchLibException {
+		return getInstance(null);
+	}
+
 	public void checkInstance(Client client) throws SearchLibException {
 		getInstance(client);
 	}
 
-	public void learn(Client client, IndexDocument document)
+	public void classify(Client client, IndexDocument document)
 			throws SearchLibException {
-		LearnerInterface instance = getInstance(client);
-		instance.learn(client, document);
+		try {
+			LearnerInterface instance = getInstance(client);
+			instance.classify(document);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
-	public void flush() throws SearchLibException {
-		LearnerInterface instance = getInstance(null);
-		instance.flush();
+	public void learn(Client client, TaskLog taskLog) throws SearchLibException {
+		try {
+			LearnerInterface instance = getInstance(client);
+			instance.learn(taskLog);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
+
+	public void reset(Client client) throws SearchLibException {
+		LearnerInterface instance = getInstance(client);
+		instance.reset();
+
+	}
+
 }
