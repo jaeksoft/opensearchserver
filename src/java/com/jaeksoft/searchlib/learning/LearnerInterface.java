@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.learning;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -54,6 +55,14 @@ public interface LearnerInterface {
 	 * @throws IOException
 	 */
 	public void classify(IndexDocument indexDocument) throws IOException;
+
+	/**
+	 * Classify a block of text passed in parameter
+	 * 
+	 * @param data
+	 * @throws IOException
+	 */
+	public Map<Double, String> classify(String data) throws IOException;
 
 	/**
 	 * Learn by reading the document returned by the search query

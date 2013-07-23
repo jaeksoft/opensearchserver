@@ -151,6 +151,40 @@
 						<label value="Info" />
 					</cell>
 				</row>
+				<row>
+					<label value="Max rank: " />
+					<intbox
+						value="@bind(learning.currentLearner.maxRank)" />
+				</row>
+				<row>
+					<label value="Min score: " />
+					<doublebox
+						value="@bind(learning.currentLearner.minScore)" />
+				</row>
+				<row>
+					<label value="Classify" />
+					<vlayout>
+						<textbox width="95%" rows="5"
+							value="@bind(learning.testText)" />
+						<button label="Test"
+							onClick="@command('onClassify')" />
+					</vlayout>
+				</row>
+				<row>
+					<label value="Test result" />
+					<listbox model="@load(learning.classifyMap)">
+						<listhead>
+							<listheader label="Label" />
+							<listheader label="Score" hflex="min" />
+						</listhead>
+						<template name="model">
+							<listitem>
+								<listcell label="@load(each.value)" />
+								<listcell label="@load(each.key)" />
+							</listitem>
+						</template>
+					</listbox>
+				</row>
 			</rows>
 			<foot>
 				<footer span="2">

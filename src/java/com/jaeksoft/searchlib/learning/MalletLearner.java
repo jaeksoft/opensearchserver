@@ -27,6 +27,9 @@ package com.jaeksoft.searchlib.learning;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import cc.mallet.classify.Classification;
@@ -41,6 +44,7 @@ import cc.mallet.pipe.TokenSequence2FeatureSequence;
 import cc.mallet.pipe.TokenSequenceLowercase;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
+import cc.mallet.types.Labeling;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -162,7 +166,6 @@ public class MalletLearner implements LearnerInterface {
 				start += rows;
 			}
 			instances.save(instancesFile);
-			instances.getAlphabet().dump(System.out);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -183,7 +186,7 @@ public class MalletLearner implements LearnerInterface {
 		return MALLET_SOURCE_FIELDS;
 	}
 
-	private final String[] MALLET_TARGET_FIELDS = { "label" };
+	private final String[] MALLET_TARGET_FIELDS = { "label", "score" };
 
 	@Override
 	public String[] getTargetFieldList() {
@@ -204,7 +207,6 @@ public class MalletLearner implements LearnerInterface {
 				return classifier;
 			NaiveBayesTrainer trainer = new NaiveBayesTrainer();
 			classifier = trainer.train(instances);
-			instances.getTargetAlphabet().dump(System.out);
 			return classifier;
 		} finally {
 			rwl.w.unlock();
@@ -222,8 +224,45 @@ public class MalletLearner implements LearnerInterface {
 			return;
 		IndexDocument source2 = new IndexDocument();
 		Classification cf = classifier.classify(data);
-		source2.add("label", cf.getLabeling().getBestLabel().toString(), 1.0F);
+		Labeling labeling = cf.getLabeling();
+		int maxRank = learner.getMaxRank();
+		double minScore = learner.getMinScore();
+		if (maxRank == 0 || maxRank > labeling.getLabelAlphabet().size())
+			maxRank = labeling.getLabelAlphabet().size();
+		for (int i = 0; i < maxRank; i++) {
+			double score = labeling.getValueAtRank(i);
+			if (score < minScore)
+				break;
+			source2.add("label", Double.toString(score), 1.0F);
+			source2.add("score", labeling.getLabelAtRank(i).toString(), 1.0F);
+		}
 		learner.getTargetFieldMap().mapIndexDocument(source2, source);
 	}
 
+	private final static Comparator<Double> REVERSE_DOUBLE_COMPARATOR = new Comparator<Double>() {
+		@Override
+		public int compare(Double o1, Double o2) {
+			return o2.compareTo(o1);
+		}
+	};
+
+	@Override
+	public Map<Double, String> classify(String data) throws IOException {
+		classifier = checkClassifier();
+		Classification cf = classifier.classify(data);
+		Labeling labeling = cf.getLabeling();
+		int maxRank = learner.getMaxRank();
+		double minScore = learner.getMinScore();
+		if (maxRank == 0 || maxRank > labeling.getLabelAlphabet().size())
+			maxRank = labeling.getLabelAlphabet().size();
+		Map<Double, String> map = new TreeMap<Double, String>(
+				REVERSE_DOUBLE_COMPARATOR);
+		for (int i = 0; i < maxRank; i++) {
+			double score = labeling.getValueAtRank(i);
+			if (score < minScore)
+				break;
+			map.put(score, labeling.getLabelAtRank(i).toString());
+		}
+		return map;
+	}
 }

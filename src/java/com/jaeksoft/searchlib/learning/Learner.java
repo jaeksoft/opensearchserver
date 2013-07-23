@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.learning;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
@@ -53,6 +54,8 @@ public class Learner implements Comparable<Learner> {
 	private final static String LEARNER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String LEARNER_ITEM_ROOT_ATTR_ACTIVE = "active";
 	private final static String LEARNER_ITEM_ROOT_ATTR_CLASS = "class";
+	private final static String LEARNER_ITEM_ROOT_ATTR_MAX_RANK = "maxRank";
+	private final static String LEARNER_ITEM_ROOT_ATTR_MIN_SCORE = "minScore";
 	private final static String LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST = "searchRequest";
 	private final static String LEARNER_ITEM_MAP_SRC_NODE_NAME = "sourceFields";
 	private final static String LEARNER_ITEM_MAP_TGT_NODE_NAME = "targetFields";
@@ -71,6 +74,10 @@ public class Learner implements Comparable<Learner> {
 
 	private boolean active;
 
+	private int maxRank;
+
+	private double minScore;
+
 	private LearnerInterface learnerInstance;
 
 	public Learner() {
@@ -81,6 +88,8 @@ public class Learner implements Comparable<Learner> {
 		searchRequest = null;
 		sourceFieldMap = new FieldMap();
 		targetFieldMap = new FieldMap();
+		maxRank = 1;
+		minScore = 0;
 	}
 
 	public Learner(Learner source) {
@@ -100,6 +109,8 @@ public class Learner implements Comparable<Learner> {
 				target.learnerInstance = learnerInstance;
 				sourceFieldMap.copyTo(target.sourceFieldMap);
 				targetFieldMap.copyTo(target.targetFieldMap);
+				target.maxRank = maxRank;
+				target.minScore = minScore;
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -127,6 +138,10 @@ public class Learner implements Comparable<Learner> {
 				LEARNER_ITEM_ROOT_ATTR_CLASS));
 		setSearchRequest(XPathParser.getAttributeString(rootNode,
 				LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
+		setMinScore(XPathParser.getAttributeDouble(rootNode,
+				LEARNER_ITEM_ROOT_ATTR_MIN_SCORE));
+		setMaxRank(XPathParser.getAttributeValue(rootNode,
+				LEARNER_ITEM_ROOT_ATTR_MAX_RANK));
 		sourceFieldMap.load(DomUtils.getFirstNode(rootNode,
 				LEARNER_ITEM_MAP_SRC_NODE_NAME));
 		targetFieldMap.load(DomUtils.getFirstNode(rootNode,
@@ -245,11 +260,17 @@ public class Learner implements Comparable<Learner> {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(LEARNER_ITEM_ROOT_NODE_NAME,
-					LEARNER_ITEM_ROOT_ATTR_NAME, name,
-					LEARNER_ITEM_ROOT_ATTR_CLASS, className,
-					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest,
-					LEARNER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no");
+			xmlWriter
+					.startElement(LEARNER_ITEM_ROOT_NODE_NAME,
+							LEARNER_ITEM_ROOT_ATTR_NAME, name,
+							LEARNER_ITEM_ROOT_ATTR_CLASS, className,
+							LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST,
+							searchRequest, LEARNER_ITEM_ROOT_ATTR_ACTIVE,
+							active ? "yes" : "no",
+							LEARNER_ITEM_ROOT_ATTR_MAX_RANK,
+							Integer.toString(maxRank),
+							LEARNER_ITEM_ROOT_ATTR_MIN_SCORE,
+							Double.toString(minScore));
 			xmlWriter.startElement(LEARNER_ITEM_MAP_SRC_NODE_NAME);
 			sourceFieldMap.store(xmlWriter);
 			xmlWriter.endElement();
@@ -328,6 +349,16 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
+	public Map<Double, String> classify(Client client, String text)
+			throws SearchLibException {
+		try {
+			LearnerInterface instance = getInstance(client);
+			return instance.classify(text);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 	public void learn(Client client, TaskLog taskLog) throws SearchLibException {
 		try {
 			LearnerInterface instance = getInstance(client);
@@ -341,6 +372,56 @@ public class Learner implements Comparable<Learner> {
 		LearnerInterface instance = getInstance(client);
 		instance.reset();
 
+	}
+
+	/**
+	 * @return the maxRank
+	 */
+	public int getMaxRank() {
+		rwl.r.lock();
+		try {
+			return maxRank;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param maxRank
+	 *            the maxRank to set
+	 */
+	public void setMaxRank(int maxRank) {
+		rwl.w.lock();
+		try {
+			this.maxRank = maxRank;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the minScore
+	 */
+	public double getMinScore() {
+		rwl.r.lock();
+		try {
+			return minScore;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param minScore
+	 *            the minScore to set
+	 */
+	public void setMinScore(double minScore) {
+		rwl.w.lock();
+		try {
+			this.minScore = minScore;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

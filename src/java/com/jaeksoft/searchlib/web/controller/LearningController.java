@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -62,6 +63,9 @@ public class LearningController extends CommonController {
 	private transient int totalSize;
 	private transient int activePage;
 
+	private transient String testText;
+	private transient Map<Double, String> classifyMap;
+
 	public LearningController() throws SearchLibException {
 		super();
 		reset();
@@ -77,6 +81,8 @@ public class LearningController extends CommonController {
 		selectedTargetLearnerField = null;
 		totalSize = 0;
 		activePage = 0;
+		testText = null;
+		classifyMap = null;
 	}
 
 	public Learner[] getLearners() throws SearchLibException {
@@ -208,6 +214,21 @@ public class LearningController extends CommonController {
 			return;
 		currentLearner.checkInstance(client);
 		new AlertController("Learner successfully checked");
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onClassify() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		if (currentLearner == null)
+			return;
+		classifyMap = currentLearner.classify(client, testText);
+	}
+
+	public Map<Double, String> getClassifyMap() {
+		return classifyMap;
 	}
 
 	public Learner getCurrentLearner() {
@@ -347,6 +368,21 @@ public class LearningController extends CommonController {
 			return;
 		FieldMap fieldMap = currentLearner.getTargetFieldMap();
 		fieldMap.remove(link);
+	}
+
+	/**
+	 * @return the testText
+	 */
+	public String getTestText() {
+		return testText;
+	}
+
+	/**
+	 * @param testText
+	 *            the testText to set
+	 */
+	public void setTestText(String testText) {
+		this.testText = testText;
 	}
 
 }
