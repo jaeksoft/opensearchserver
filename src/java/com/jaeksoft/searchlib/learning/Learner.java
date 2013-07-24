@@ -80,8 +80,8 @@ public class Learner implements Comparable<Learner> {
 
 	private LearnerInterface learnerInstance;
 
-	public Learner() {
-		name = null;
+	public Learner(String name) {
+		this.name = name;
 		active = false;
 		className = null;
 		learnerInstance = null;
@@ -90,6 +90,10 @@ public class Learner implements Comparable<Learner> {
 		targetFieldMap = new FieldMap();
 		maxRank = 1;
 		minScore = 0;
+	}
+
+	public Learner() {
+		this((String) null);
 	}
 
 	public Learner(Learner source) {
