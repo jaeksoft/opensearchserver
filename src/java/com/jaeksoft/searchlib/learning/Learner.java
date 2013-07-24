@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -322,7 +323,9 @@ public class Learner implements Comparable<Learner> {
 				return null;
 			learnerInstance = (LearnerInterface) Class.forName(className)
 					.newInstance();
-			learnerInstance.init(client, this);
+			File instancesFile = new File(client.getLearnerDirectory(), name
+					+ ".data");
+			learnerInstance.init(instancesFile);
 			return learnerInstance;
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
@@ -345,30 +348,42 @@ public class Learner implements Comparable<Learner> {
 
 	public void classify(Client client, IndexDocument document)
 			throws SearchLibException {
+		rwl.r.lock();
 		try {
 			LearnerInterface instance = getInstance(client);
-			instance.classify(document);
+			instance.classify(document, sourceFieldMap, targetFieldMap,
+					maxRank, minScore);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public Map<Double, String> classify(Client client, String text)
 			throws SearchLibException {
+		LearnerInterface instance = getInstance(client);
+		rwl.r.lock();
 		try {
-			LearnerInterface instance = getInstance(client);
-			return instance.classify(text);
+			return instance.classify(text, maxRank, minScore);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
 	public void learn(Client client, TaskLog taskLog) throws SearchLibException {
+		LearnerInterface instance = getInstance(client);
+		rwl.r.lock();
 		try {
-			LearnerInterface instance = getInstance(client);
-			instance.learn(taskLog);
+			SearchRequest request = (SearchRequest) client
+					.getNewRequest(searchRequest);
+			instance.learn(request, sourceFieldMap, taskLog);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

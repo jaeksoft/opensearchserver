@@ -24,12 +24,14 @@
 
 package com.jaeksoft.searchlib.learning;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public interface LearnerInterface {
@@ -37,41 +39,52 @@ public interface LearnerInterface {
 	/**
 	 * Load the learner (reading any data on file)
 	 * 
-	 * @param client
-	 * @param learner
 	 */
-	void init(Client client, Learner learner);
+	void init(File instancesFile);
 
 	/**
 	 * Remove any data in the learner
-	 * */
+	 * 
+	 */
 	public void reset();
 
 	/**
 	 * Classify the document passed in parameter
 	 * 
-	 * @param client
-	 * @param indexDocument
+	 * @param source
+	 * @param sourceFieldMap
+	 * @param targetFieldMap
+	 * @param maxRank
+	 * @param minScore
 	 * @throws IOException
 	 */
-	public void classify(IndexDocument indexDocument) throws IOException;
+	public void classify(IndexDocument source, FieldMap sourceFieldMap,
+			FieldMap targetFieldMap, int maxRank, double minScore)
+			throws IOException;
 
 	/**
 	 * Classify a block of text passed in parameter
 	 * 
 	 * @param data
+	 * @param maxRank
+	 * @param minScore
+	 * @return
 	 * @throws IOException
 	 */
-	public Map<Double, String> classify(String data) throws IOException;
+	public Map<Double, String> classify(String data, int maxRank,
+			double minScore) throws IOException;
 
 	/**
 	 * Learn by reading the document returned by the search query
 	 * 
+	 * @param request
+	 * @param sourceFieldMap
 	 * @param taskLog
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */
-	public void learn(TaskLog taskLog) throws SearchLibException, IOException;
+	public void learn(SearchRequest request, FieldMap sourceFieldMap,
+			TaskLog taskLog) throws SearchLibException, IOException;
 
 	/**
 	 * Return the list of field required by the learner when learning

@@ -61,8 +61,6 @@ public class MalletLearner implements LearnerInterface {
 
 	private Client client;
 
-	private Learner learner;
-
 	private InstanceList instances;
 
 	private Classifier classifier;
@@ -70,14 +68,11 @@ public class MalletLearner implements LearnerInterface {
 	private File instancesFile;
 
 	@Override
-	public void init(Client client, Learner learner) {
+	public void init(File instancesFile) {
 		rwl.w.lock();
 		try {
-			this.client = client;
-			this.learner = learner;
 			classifier = null;
-			instancesFile = new File(client.getLearnerDirectory(),
-					learner.getName() + ".data");
+			this.instancesFile = instancesFile;
 			if (instancesFile.exists()) {
 				instances = InstanceList.load(instancesFile);
 			} else
@@ -141,16 +136,14 @@ public class MalletLearner implements LearnerInterface {
 	}
 
 	@Override
-	public void learn(TaskLog taskLog) throws SearchLibException, IOException {
+	public void learn(SearchRequest request, FieldMap sourceFieldMap,
+			TaskLog taskLog) throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
-			SearchRequest request = (SearchRequest) client
-					.getNewRequest(learner.getSearchRequest());
 			int start = 0;
 			final int rows = 50;
 			request.setRows(rows);
 			request.setQueryString("*:*");
-			FieldMap fieldMap = learner.getSourceFieldMap();
 			for (;;) {
 				request.setStart(start);
 				AbstractResultSearch result = (AbstractResultSearch) client
@@ -159,7 +152,8 @@ public class MalletLearner implements LearnerInterface {
 					break;
 				for (int i = 0; i < result.getDocumentCount(); i++) {
 					IndexDocument target = new IndexDocument();
-					fieldMap.mapIndexDocument(result.getDocument(i), target);
+					sourceFieldMap.mapIndexDocument(result.getDocument(i),
+							target);
 					learn(target);
 				}
 				request.reset();
@@ -175,7 +169,7 @@ public class MalletLearner implements LearnerInterface {
 	public void reset() {
 		if (instancesFile.exists())
 			instancesFile.delete();
-		init(client, learner);
+		init(instancesFile);
 	}
 
 	private final String[] MALLET_SOURCE_FIELDS = { "data", "target", "name",
@@ -215,18 +209,18 @@ public class MalletLearner implements LearnerInterface {
 	}
 
 	@Override
-	public void classify(IndexDocument source) throws IOException {
+	public void classify(IndexDocument source, FieldMap sourceFieldMap,
+			FieldMap targetFieldMap, int maxRank, double minScore)
+			throws IOException {
 		classifier = checkClassifier();
 		IndexDocument target = new IndexDocument();
-		learner.getSourceFieldMap().mapIndexDocument(source, target);
+		sourceFieldMap.mapIndexDocument(source, target);
 		String data = target.getFieldValueString("data", 0);
 		if (data == null)
 			return;
 		IndexDocument source2 = new IndexDocument();
 		Classification cf = classifier.classify(data);
 		Labeling labeling = cf.getLabeling();
-		int maxRank = learner.getMaxRank();
-		double minScore = learner.getMinScore();
 		if (maxRank == 0 || maxRank > labeling.getLabelAlphabet().size())
 			maxRank = labeling.getLabelAlphabet().size();
 		for (int i = 0; i < maxRank; i++) {
@@ -236,7 +230,7 @@ public class MalletLearner implements LearnerInterface {
 			source2.add("label", Double.toString(score), 1.0F);
 			source2.add("score", labeling.getLabelAtRank(i).toString(), 1.0F);
 		}
-		learner.getTargetFieldMap().mapIndexDocument(source2, source);
+		targetFieldMap.mapIndexDocument(source2, source);
 	}
 
 	private final static Comparator<Double> REVERSE_DOUBLE_COMPARATOR = new Comparator<Double>() {
@@ -247,12 +241,11 @@ public class MalletLearner implements LearnerInterface {
 	};
 
 	@Override
-	public Map<Double, String> classify(String data) throws IOException {
+	public Map<Double, String> classify(String data, int maxRank,
+			double minScore) throws IOException {
 		classifier = checkClassifier();
 		Classification cf = classifier.classify(data);
 		Labeling labeling = cf.getLabeling();
-		int maxRank = learner.getMaxRank();
-		double minScore = learner.getMinScore();
 		if (maxRank == 0 || maxRank > labeling.getLabelAlphabet().size())
 			maxRank = labeling.getLabelAlphabet().size();
 		Map<Double, String> map = new TreeMap<Double, String>(
