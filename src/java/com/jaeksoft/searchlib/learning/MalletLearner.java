@@ -155,8 +155,8 @@ public class MalletLearner implements LearnerInterface {
 					break;
 				for (int i = 0; i < result.getDocumentCount(); i++) {
 					IndexDocument target = new IndexDocument();
-					sourceFieldMap.mapIndexDocument(result.getDocument(i),
-							target);
+					sourceFieldMap.mapIndexDocument(
+							result.getDocument(start + i), target);
 					learn(target);
 				}
 				request.reset();
