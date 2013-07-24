@@ -28,10 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 
 public interface LearnerInterface {
@@ -77,14 +77,16 @@ public interface LearnerInterface {
 	/**
 	 * Learn by reading the document returned by the search query
 	 * 
-	 * @param request
+	 * @param client
+	 * @param requestName
 	 * @param sourceFieldMap
 	 * @param taskLog
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */
-	public void learn(SearchRequest request, FieldMap sourceFieldMap,
-			TaskLog taskLog) throws SearchLibException, IOException;
+	public void learn(Client client, String requestName,
+			FieldMap sourceFieldMap, TaskLog taskLog)
+			throws SearchLibException, IOException;
 
 	/**
 	 * Return the list of field required by the learner when learning

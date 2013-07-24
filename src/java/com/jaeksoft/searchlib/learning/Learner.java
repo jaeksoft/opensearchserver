@@ -41,7 +41,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -377,9 +376,7 @@ public class Learner implements Comparable<Learner> {
 		LearnerInterface instance = getInstance(client);
 		rwl.r.lock();
 		try {
-			SearchRequest request = (SearchRequest) client
-					.getNewRequest(searchRequest);
-			instance.learn(request, sourceFieldMap, taskLog);
+			instance.learn(client, searchRequest, sourceFieldMap, taskLog);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

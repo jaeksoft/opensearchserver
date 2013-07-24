@@ -59,8 +59,6 @@ public class MalletLearner implements LearnerInterface {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private Client client;
-
 	private InstanceList instances;
 
 	private Classifier classifier;
@@ -136,14 +134,19 @@ public class MalletLearner implements LearnerInterface {
 	}
 
 	@Override
-	public void learn(SearchRequest request, FieldMap sourceFieldMap,
-			TaskLog taskLog) throws SearchLibException, IOException {
+	public void learn(Client client, String requestName,
+			FieldMap sourceFieldMap, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
+			SearchRequest request = (SearchRequest) client
+					.getNewRequest(requestName);
 			int start = 0;
 			final int rows = 50;
 			request.setRows(rows);
-			request.setQueryString("*:*");
+			if (request.getQueryString() == null
+					|| request.getQueryString().length() == 0)
+				request.setQueryString("*:*");
 			for (;;) {
 				request.setStart(start);
 				AbstractResultSearch result = (AbstractResultSearch) client
