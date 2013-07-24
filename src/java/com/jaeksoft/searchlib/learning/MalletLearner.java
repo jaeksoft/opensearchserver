@@ -49,6 +49,7 @@ import cc.mallet.types.Labeling;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -122,7 +123,10 @@ public class MalletLearner implements LearnerInterface {
 	}
 
 	private void learn(IndexDocument document) {
-		String data = document.getFieldValueString("data", 0);
+		FieldContent fieldContent = document.getFieldContent("data");
+		if (fieldContent == null)
+			return;
+		String data = fieldContent.getMergedValues(". ");
 		String target = document.getFieldValueString("target", 0);
 		String name = document.getFieldValueString("name", 0);
 		String source = document.getFieldValueString("source", 0);
