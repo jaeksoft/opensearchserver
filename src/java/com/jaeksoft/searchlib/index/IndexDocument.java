@@ -53,6 +53,8 @@ import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -381,6 +383,11 @@ public class IndexDocument implements Iterable<FieldContent> {
 		addFieldValueArray(field, values);
 	}
 
+	public void setSameValueItems(String field, FieldValueItem[] values) {
+		FieldContent fc = getFieldContent(field);
+		fc.setValueItems(values);
+	}
+
 	public void setObjectList(String field, List<Object> values) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
@@ -445,4 +452,24 @@ public class IndexDocument implements Iterable<FieldContent> {
 		return result.toString();
 	}
 
+	/**
+	 * Populate the copyOf field with a reference to the fieldcontent of the
+	 * source field
+	 * 
+	 * @param schema
+	 */
+	public void prepareCopyOf(Schema schema) {
+		for (SchemaField schemaField : schema.getFieldList()) {
+			String fname = schemaField.getName();
+			String copyOf = schemaField.getCopyOf();
+			if (copyOf == null || copyOf.length() == 0)
+				continue;
+			FieldContent fieldContent = fields.get(copyOf);
+			if (fieldContent == null)
+				fields.remove(fname);
+			else
+				setSameValueItems(fname, fieldContent.getValues());
+		}
+
+	}
 }

@@ -156,7 +156,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			mlt.setMinTermFreq(minTermFreq);
 			mlt.setMaxNumTokensParsed(maxNumTokensParsed);
 			mlt.setMaxQueryTerms(maxQueryTerms);
-			mlt.setFieldNames(fieldList.toArrayName());
+			mlt.setFieldNames(fieldList.getArrayName());
 			mlt.setBoost(boost);
 
 			if (analyzerName != null) {

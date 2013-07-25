@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,8 @@ public class SchemaField extends AbstractField<SchemaField> {
 
 	private String indexAnalyzer;
 
+	private String copyOf;
+
 	private Stored stored;
 
 	private Indexed indexed;
@@ -59,6 +61,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 		stored = Stored.NO;
 		indexed = Indexed.YES;
 		termVector = TermVector.NO;
+		copyOf = null;
 	}
 
 	public SchemaField(SchemaField field) {
@@ -74,15 +77,17 @@ public class SchemaField extends AbstractField<SchemaField> {
 		this.indexed = sc.indexed;
 		this.termVector = sc.termVector;
 		this.indexAnalyzer = sc.indexAnalyzer;
+		this.copyOf = sc.copyOf;
 	}
 
 	private SchemaField(String name, String stored, String indexed,
-			String termVector, String indexAnalyzer) {
+			String termVector, String indexAnalyzer, String copyOf) {
 		super(name);
 		this.indexAnalyzer = indexAnalyzer;
 		this.stored = Stored.fromValue(stored);
 		this.indexed = Indexed.fromValue(indexed);
 		this.termVector = TermVector.fromValue(termVector);
+		this.copyOf = copyOf;
 	}
 
 	final public org.apache.lucene.document.Field getLuceneField(String value,
@@ -187,14 +192,32 @@ public class SchemaField extends AbstractField<SchemaField> {
 			String indexed = XPathParser.getAttributeString(node, "indexed");
 			String termVector = XPathParser.getAttributeString(node,
 					"termVector");
+			String copyOf = XPathParser.getAttributeString(node, "copyOf");
 			fieldList.put(new SchemaField(name, stored, indexed, termVector,
-					indexAnalyzer));
+					indexAnalyzer, copyOf));
 		}
 		fieldList.setDefaultField(XPathParser.getAttributeString(parentNode,
 				"default"));
 		fieldList.setUniqueField(XPathParser.getAttributeString(parentNode,
 				"unique"));
 		return fieldList;
+	}
+
+	/**
+	 * @return the copyOf
+	 */
+	public String getCopyOf() {
+		return copyOf;
+	}
+
+	/**
+	 * @param copyOf
+	 *            the copyOf to set
+	 */
+	public void setCopyOf(String copyOf) {
+		this.copyOf = copyOf;
+		if (copyOf != null && copyOf.length() > 0)
+			setStored(Stored.NO);
 	}
 
 	public static SchemaField fromHttpRequest(ServletTransaction transaction)
@@ -206,14 +229,17 @@ public class SchemaField extends AbstractField<SchemaField> {
 		String stored = transaction.getParameterString("field.stored");
 		String indexed = transaction.getParameterString("field.indexed");
 		String termVector = transaction.getParameterString("field.termVector");
-		return new SchemaField(name, stored, indexed, termVector, indexAnalyzer);
+		String copyOf = transaction.getParameterString("field.copyOf");
+		return new SchemaField(name, stored, indexed, termVector,
+				indexAnalyzer, copyOf);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("field", "name", name, "analyzer", indexAnalyzer,
 				"indexed", getIndexed().getValue(), "stored", getStored()
-						.getValue(), "termVector", getTermVector().getValue());
+						.getValue(), "termVector", getTermVector().getValue(),
+				"copyOf", copyOf);
 		writer.endElement();
 	}
 

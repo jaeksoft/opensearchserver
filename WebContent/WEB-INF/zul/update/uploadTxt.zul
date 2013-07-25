@@ -24,7 +24,49 @@
 		<rows>
 			<row>
 				<label value="Regular expression" />
-				<textbox value="@bind(upload.pattern)" width="95%" />
+				<cell>
+					<textbox value="@bind(upload.pattern)" width="95%" />
+					<button label="check"
+						onClick="@command('onCheckPattern')" />
+				</cell>
+			</row>
+			<row>
+				<label value="Capture map" />
+				<listbox model="@load(upload.fieldList)">
+					<listhead>
+						<listheader>
+							<listbox selectedItem="@bind(upload.field)"
+								model="@load(upload.client.schema.fieldList.arrayName)"
+								mold="select">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
+							<button label="Add"
+								onClick="@command('onAddField')" />
+						</listheader>
+						<listheader hflex="min" label="Remove" />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell>
+								<label value="@load(each)" />
+							</listcell>
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onRemoveField', field=each)" />
+							</listcell>
+						</listitem>
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label value="Lang capture number:" />
+				<intbox value="@bind(upload.langPosition)" cols="3" />
+			</row>
+			<row>
+				<label value="Buffer size:" />
+				<intbox value="@bind(upload.bufferSize)" cols="5" />
 			</row>
 			<row>
 				<label value="Upload file" />

@@ -75,6 +75,10 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		values = FieldValueItem.emptyArray;
 	}
 
+	public void setValueItems(FieldValueItem[] values) {
+		this.values = values;
+	}
+
 	public FieldValueItem getValue(int pos) {
 		if (values == null)
 			return null;
@@ -167,4 +171,5 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		sb.append(')');
 		return sb.toString();
 	}
+
 }

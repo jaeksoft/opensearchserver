@@ -24,19 +24,27 @@
 
 package com.jaeksoft.searchlib;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.index.TermEnum;
 import org.w3c.dom.Node;
 
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
@@ -45,6 +53,8 @@ import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
@@ -73,7 +83,9 @@ public class Client extends Config {
 		try {
 			checkMaxStorageLimit();
 			checkMaxDocumentLimit();
-			return getIndexAbstract().updateDocument(getSchema(), document);
+			Schema schema = getSchema();
+			document.prepareCopyOf(schema);
+			return getIndexAbstract().updateDocument(schema, document);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}
@@ -87,7 +99,10 @@ public class Client extends Config {
 		try {
 			checkMaxStorageLimit();
 			checkMaxDocumentLimit();
-			return getIndexAbstract().updateDocuments(getSchema(), documents);
+			Schema schema = getSchema();
+			for (IndexDocument document : documents)
+				document.prepareCopyOf(schema);
+			return getIndexAbstract().updateDocuments(schema, documents);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}
@@ -103,9 +118,11 @@ public class Client extends Config {
 		docCount += updateDocuments(docList);
 		StringBuffer sb = new StringBuffer();
 		sb.append(docCount);
-		sb.append(" / ");
-		sb.append(totalCount);
-		sb.append(" XML document(s) updated.");
+		if (totalCount > 0) {
+			sb.append(" / ");
+			sb.append(totalCount);
+		}
+		sb.append(" document(s) updated.");
 		if (infoCallBack != null)
 			infoCallBack.setInfo(sb.toString());
 		else
@@ -136,6 +153,80 @@ public class Client extends Config {
 			docCount = updateDocList(totalCount, docCount, docList,
 					infoCallBack);
 		return docCount;
+	}
+
+	public int updateTextDocuments(StreamSource streamSource, int bufferSize,
+			String capturePattern, int langPosition, List<String> fieldList,
+			InfoCallback infoCallBack) throws SearchLibException, IOException,
+			NoSuchAlgorithmException, URISyntaxException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (capturePattern == null)
+			throw new SearchLibException("No capture pattern");
+		if (fieldList == null || fieldList.size() == 0)
+			throw new SearchLibException("empty field list");
+		String[] fields = fieldList.toArray(new String[fieldList.size()]);
+		Matcher matcher = Pattern.compile(capturePattern).matcher("");
+		BufferedReader br = null;
+		Reader reader = null;
+		SchemaField uniqueSchemaField = getSchema().getFieldList()
+				.getUniqueField();
+		String uniqueField = uniqueSchemaField != null ? uniqueSchemaField
+				.getName() : null;
+		try {
+			Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
+					bufferSize);
+			reader = streamSource.getReader();
+			if (reader == null)
+				reader = new InputStreamReader(streamSource.getInputStream());
+			br = reader instanceof BufferedReader ? (BufferedReader) reader
+					: new BufferedReader(reader);
+			String line;
+			int docCount = 0;
+			IndexDocument lastDocument = null;
+			String lastUniqueValue = null;
+			while ((line = br.readLine()) != null) {
+				matcher.reset(line);
+				if (!matcher.matches())
+					continue;
+				LanguageEnum lang = LanguageEnum.UNDEFINED;
+				int matcherGroupCount = matcher.groupCount();
+				if (langPosition != 0 && matcherGroupCount >= langPosition)
+					lang = LanguageEnum.findByNameOrCode(matcher
+							.group(langPosition));
+				IndexDocument document = new IndexDocument(lang);
+				int i = matcherGroupCount < fields.length ? matcherGroupCount
+						: fields.length;
+				String uniqueValue = null;
+				while (i > 0) {
+					String value = matcher.group(i--);
+					String f = fields[i];
+					document.add(f, value, 1.0F);
+					if (f.equals(uniqueField))
+						uniqueValue = value;
+				}
+				// Consecutive documents with same uniqueKey value are merged
+				// (multivalued)
+				if (uniqueField != null && lastDocument != null
+						&& uniqueValue != null
+						&& uniqueValue.equals(lastUniqueValue)) {
+					document.addIfNotAlreadyHere(lastDocument);
+					docList.remove(docList.size() - 1);
+				}
+				docList.add(document);
+				if (docList.size() == bufferSize)
+					docCount = updateDocList(0, docCount, docList, infoCallBack);
+				lastUniqueValue = uniqueValue;
+				lastDocument = document;
+			}
+			if (docList.size() > 0)
+				docCount = updateDocList(0, docCount, docList, infoCallBack);
+			return docCount;
+		} finally {
+			if (br != null)
+				if (br != reader)
+					IOUtils.closeQuietly(br);
+		}
 	}
 
 	private final int deleteUniqueKeyList(int totalCount, int docCount,

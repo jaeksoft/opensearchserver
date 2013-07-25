@@ -140,7 +140,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		}
 	}
 
-	public String[] toArrayName() {
+	public String[] getArrayName() {
 		rwl.r.lock();
 		try {
 			Set<String> set = fieldMap.keySet();

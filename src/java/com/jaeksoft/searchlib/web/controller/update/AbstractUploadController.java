@@ -115,7 +115,7 @@ public abstract class AbstractUploadController extends CommonController {
 		synchronized (this) {
 			synchronized (updateScopeAttribute) {
 				@SuppressWarnings("unchecked")
-				Map<Client, List<AbstractUpdateThread>> map = (Map<Client, List<AbstractUpdateThread>>) getAttribute(ScopeAttribute.UPDATE_XML_MAP);
+				Map<Client, List<AbstractUpdateThread>> map = (Map<Client, List<AbstractUpdateThread>>) getAttribute(updateScopeAttribute);
 				if (map == null) {
 					map = new HashMap<Client, List<AbstractUpdateThread>>();
 					setAttribute(updateScopeAttribute, map);

@@ -133,6 +133,19 @@ public class FieldsController extends CommonController {
 		return TermVector.values();
 	}
 
+	public List<String> getOtherSchemaFields() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> nameList = new ArrayList<String>(1);
+		nameList.add("");
+		client.getSchema().getFieldList().toNameList(nameList);
+		String fname = field != null ? field.getName() : null;
+		if (fname != null && fname.length() > 0)
+			nameList.remove(fname);
+		return nameList;
+	}
+
 	public List<SchemaField> getList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();

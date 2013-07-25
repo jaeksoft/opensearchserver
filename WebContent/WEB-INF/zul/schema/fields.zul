@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -50,8 +50,8 @@
 			<panelchildren>
 				<grid>
 					<columns sizable="false">
-						<column align="right" width="100px" />
-						<column align="left" width="200px" />
+						<column align="right" hflex="min" />
+						<column align="left" hflex="min" />
 						<column align="left" />
 					</columns>
 					<rows>
@@ -112,6 +112,16 @@
 							<label
 								value="Choose the analyzer you need for that field." />
 						</row>
+						<row>
+							<label value="Copy of: " />
+							<listbox mold="select"
+								selectedItem="@bind(fields.field.copyOf)"
+								model="@load(fields.otherSchemaFields)">
+								<listitem label="@load(each)" />
+							</listbox>
+							<label
+								value="Choose the field from which values are copied during indexation." />
+						</row>
 						<row spans="3">
 							<hbox>
 								<hbox
@@ -144,14 +154,15 @@
 			<panelchildren>
 				<listbox model="@load(fields.list)"
 					selectedItem="@bind(fields.selectedField)">
-					<listhead>
+					<listhead sizable="true">
 						<listheader label="Name" />
-						<listheader width="140px"
-							label="Indexation of content" />
-						<listheader width="140px"
-							label="Storage for queries" />
-						<listheader width="140px" label="TermVector" />
-						<listheader width="240px" label="Analyser" />
+						<listheader hflex="min" label="Indexed"
+							tooltiptext="Indexation of content" />
+						<listheader hflex="min" label="Stored"
+							tooltiptext="Storage for queries" />
+						<listheader hflex="min" label="TermVector" />
+						<listheader hflex="min" label="Analyser" />
+						<listheader hflex="min" label="Copy Of" />
 					</listhead>
 					<template name="model" var="field">
 						<listitem>
@@ -163,6 +174,7 @@
 								label="@load(field.termVector.value)" />
 							<listcell
 								label="@load(field.indexAnalyzer)" />
+							<listcell label="@load(field.copyOf)" />
 						</listitem>
 					</template>
 				</listbox>
