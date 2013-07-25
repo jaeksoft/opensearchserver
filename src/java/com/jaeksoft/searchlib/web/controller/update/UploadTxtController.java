@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.update;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,20 +55,23 @@ public class UploadTxtController extends AbstractUploadController {
 
 		private final int bufferSize;
 
+		private final String charset;
+
 		private UpdateTxtThread(Client client, StreamSource streamSource,
-				String capturePattern, List<String> fields, int langPosition,
-				int bufferSize, String mediaName) {
+				String charset, String capturePattern, List<String> fields,
+				int langPosition, int bufferSize, String mediaName) {
 			super(client, streamSource, mediaName);
 			this.fields = new ArrayList<String>(fields);
 			this.langPosition = langPosition;
 			this.capturePattern = capturePattern;
 			this.bufferSize = bufferSize;
+			this.charset = charset;
 		}
 
 		@Override
 		public int doUpdate() throws SearchLibException, IOException {
 			try {
-				return client.updateTextDocuments(streamSource,
+				return client.updateTextDocuments(streamSource, this.charset,
 						this.bufferSize, this.capturePattern,
 						this.langPosition, this.fields, this);
 			} catch (NoSuchAlgorithmException e) {
@@ -94,6 +98,8 @@ public class UploadTxtController extends AbstractUploadController {
 
 	private int bufferSize;
 
+	private String charset;
+
 	public UploadTxtController() throws SearchLibException {
 		super(ScopeAttribute.UPDATE_TXT_MAP);
 	}
@@ -106,13 +112,14 @@ public class UploadTxtController extends AbstractUploadController {
 		langPosition = 0;
 		field = null;
 		bufferSize = 100;
+		charset = Charset.defaultCharset().name();
 	}
 
 	@Override
 	protected AbstractUpdateThread newUpdateThread(Client client,
 			StreamSource streamSource, String mediaName) {
-		return new UpdateTxtThread(client, streamSource, pattern, fieldList,
-				langPosition, bufferSize, mediaName);
+		return new UpdateTxtThread(client, streamSource, charset, pattern,
+				fieldList, langPosition, bufferSize, mediaName);
 	}
 
 	/**
@@ -191,5 +198,20 @@ public class UploadTxtController extends AbstractUploadController {
 	 */
 	public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	/**
+	 * @return the charset
+	 */
+	public String getCharset() {
+		return charset;
+	}
+
+	/**
+	 * @param charset
+	 *            the charset to set
+	 */
+	public void setCharset(String charset) {
+		this.charset = charset;
 	}
 }

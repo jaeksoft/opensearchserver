@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.webservice;
 
+import com.jaeksoft.searchlib.webservice.analyzer.AnalyzerImpl;
 import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionImpl;
 import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
@@ -39,6 +40,8 @@ import com.jaeksoft.searchlib.webservice.select.SelectImpl;
 import com.jaeksoft.searchlib.webservice.update.UpdateImpl;
 
 public enum WebServiceEnum {
+
+	Analyzer(AnalyzerImpl.class, "/analyzer"),
 
 	AutoCompletion(AutoCompletionImpl.class, "/autocompletion"),
 

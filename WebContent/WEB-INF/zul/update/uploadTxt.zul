@@ -69,6 +69,10 @@
 				<intbox value="@bind(upload.bufferSize)" cols="5" />
 			</row>
 			<row>
+				<label value="Charset:" />
+				<textbox value="@bind(upload.charset)" cols="8" />
+			</row>
+			<row>
 				<label value="Upload file" />
 				<button label="Upload" upload="true,maxsize=-1"
 					onUpload="@command('onUpload')" />

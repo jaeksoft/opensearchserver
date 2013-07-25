@@ -155,11 +155,11 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	public int updateTextDocuments(StreamSource streamSource, int bufferSize,
-			String capturePattern, int langPosition, List<String> fieldList,
-			InfoCallback infoCallBack) throws SearchLibException, IOException,
-			NoSuchAlgorithmException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
+	public int updateTextDocuments(StreamSource streamSource, String charset,
+			int bufferSize, String capturePattern, int langPosition,
+			List<String> fieldList, InfoCallback infoCallBack)
+			throws SearchLibException, IOException, NoSuchAlgorithmException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		if (capturePattern == null)
 			throw new SearchLibException("No capture pattern");
@@ -178,7 +178,8 @@ public class Client extends Config {
 					bufferSize);
 			reader = streamSource.getReader();
 			if (reader == null)
-				reader = new InputStreamReader(streamSource.getInputStream());
+				reader = new InputStreamReader(streamSource.getInputStream(),
+						charset);
 			br = reader instanceof BufferedReader ? (BufferedReader) reader
 					: new BufferedReader(reader);
 			String line;

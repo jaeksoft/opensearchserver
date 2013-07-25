@@ -10,7 +10,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/
 OpenSearchServer 1.5
 
 New features:
-- 288 Copy content of a field to another one in the schema
+- 288: Copy content of a field to another one in the schema
 - 287: Indexation using text file
 - 286: Automatically create a unique reference for each document
 - 285: Hunspell integration
