@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,90 +24,72 @@
 
 package com.jaeksoft.searchlib.web.controller.update;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import org.zkoss.bind.BindContext;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.ContextParam;
-import org.zkoss.bind.annotation.ContextType;
-import org.zkoss.util.media.Media;
-import org.zkoss.zk.ui.event.UploadEvent;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
-import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
-public class UploadXmlController extends CommonController {
+public class UploadXmlController extends AbstractUploadController {
 
-	public class UpdateThread extends ThreadAbstract<UpdateThread> {
+	public class UpdateXmlThread extends AbstractUpdateThread {
 
-		private volatile String mediaName;
+		private final String xsl;
 
-		private volatile Client client;
-
-		private volatile String xsl;
-
-		private volatile File xmlTempResult;
-
-		private volatile StreamSource streamSource;
-
-		private UpdateThread(Client client, StreamSource streamSource,
+		private UpdateXmlThread(Client client, StreamSource streamSource,
 				String xsl, String mediaName) {
-			super(client, null, null);
-			this.client = client;
+			super(client, streamSource, mediaName);
 			this.xsl = xsl;
-			this.mediaName = mediaName;
-			xmlTempResult = null;
-			this.streamSource = streamSource;
-			setInfo("Starting...");
 		}
 
 		@Override
-		public void runner() throws Exception {
-			setInfo("Running...");
-			ProxyHandler proxyHandler = client.getWebPropertyManager()
-					.getProxyHandler();
-			Node xmlDoc;
-			if (xsl != null && xsl.length() > 0) {
-				xmlTempResult = File.createTempFile("ossupload", ".xml");
-				DomUtils.xslt(streamSource, xsl, xmlTempResult);
-				xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
-						false);
-			} else {
-				xmlDoc = DomUtils.readXml(streamSource, false);
+		public int doUpdate() throws SearchLibException, IOException {
+			try {
+				ProxyHandler proxyHandler = client.getWebPropertyManager()
+						.getProxyHandler();
+				Node xmlDoc;
+				if (xsl != null && xsl.length() > 0) {
+					tempResult = File.createTempFile("ossupload", ".xml");
+					DomUtils.xslt(streamSource, xsl, tempResult);
+					xmlDoc = DomUtils.readXml(new StreamSource(tempResult),
+							false);
+				} else {
+					xmlDoc = DomUtils.readXml(streamSource, false);
+				}
+				return client.updateXmlDocuments(xmlDoc, 50, null,
+						proxyHandler, this);
+			} catch (TransformerException e) {
+				throw new SearchLibException(e);
+			} catch (SAXException e) {
+				throw new SearchLibException(e);
+			} catch (ParserConfigurationException e) {
+				throw new SearchLibException(e);
+			} catch (XPathExpressionException e) {
+				throw new SearchLibException(e);
+			} catch (NoSuchAlgorithmException e) {
+				throw new SearchLibException(e);
+			} catch (URISyntaxException e) {
+				throw new SearchLibException(e);
+			} catch (InstantiationException e) {
+				throw new SearchLibException(e);
+			} catch (IllegalAccessException e) {
+				throw new SearchLibException(e);
+			} catch (ClassNotFoundException e) {
+				throw new SearchLibException(e);
 			}
-			int updatedCount = client.updateXmlDocuments(xmlDoc, 50, null,
-					proxyHandler, this);
-			setInfo("Done: " + updatedCount + " document(s)");
-		}
-
-		public String getMediaName() {
-			return mediaName;
-		}
-
-		@Override
-		public void release() {
-			if (xmlTempResult != null)
-				xmlTempResult.delete();
 		}
 
 	}
@@ -117,7 +99,7 @@ public class UploadXmlController extends CommonController {
 	private String xslContent;
 
 	public UploadXmlController() throws SearchLibException {
-		super();
+		super(ScopeAttribute.UPDATE_XML_MAP);
 	}
 
 	@Override
@@ -126,146 +108,10 @@ public class UploadXmlController extends CommonController {
 		xslContent = null;
 	}
 
-	/**
-	 * Return the map of current threads. The map is stored in users session
-	 * 
-	 * @return
-	 */
-	private Map<Client, List<UpdateThread>> getUpdateMap() {
-		synchronized (this) {
-			synchronized (ScopeAttribute.UPDATE_XML_MAP) {
-				@SuppressWarnings("unchecked")
-				Map<Client, List<UpdateThread>> map = (Map<Client, List<UpdateThread>>) getAttribute(ScopeAttribute.UPDATE_XML_MAP);
-				if (map == null) {
-					map = new HashMap<Client, List<UpdateThread>>();
-					setAttribute(ScopeAttribute.UPDATE_XML_MAP, map);
-				}
-				return map;
-			}
-		}
-	}
-
-	private List<UpdateThread> getUpdateList(Client client) {
-		Map<Client, List<UpdateThread>> map = getUpdateMap();
-		if (map == null)
-			return null;
-		synchronized (map) {
-			List<UpdateThread> list = map.get(client);
-			if (list == null) {
-				list = new ArrayList<UpdateThread>(0);
-				map.put(client, list);
-			}
-			return list;
-		}
-	}
-
-	public List<UpdateThread> getUpdateList() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			return getUpdateList(client);
-		}
-	}
-
-	public boolean isUpdateListNotEmpty() throws SearchLibException {
-		synchronized (this) {
-			List<UpdateThread> list = getUpdateList();
-			if (list == null)
-				return false;
-			return getUpdateList().size() > 0;
-		}
-	}
-
-	public boolean isRefresh() throws SearchLibException {
-		synchronized (this) {
-			List<UpdateThread> list = getUpdateList();
-			if (list == null)
-				return false;
-			for (UpdateThread thread : list)
-				if (thread.isRunning())
-					return true;
-		}
-		return false;
-	}
-
-	@Command
-	public void onTimerRefresh() throws SearchLibException {
-		reload();
-	}
-
-	@Command
-	public void onPurge() throws SearchLibException {
-		synchronized (this) {
-			List<UpdateThread> list = getUpdateList();
-			synchronized (list) {
-				Iterator<UpdateThread> it = list.iterator();
-				while (it.hasNext()) {
-					UpdateThread thread = it.next();
-					if (!thread.isRunning())
-						it.remove();
-				}
-			}
-			reload();
-		}
-	}
-
-	private void doMedia(Media media) throws XPathExpressionException,
-			NoSuchAlgorithmException, SAXException, IOException,
-			ParserConfigurationException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		synchronized (this) {
-			Client client = getClient();
-			StreamSource streamSource;
-			if (media.inMemory()) {
-				if (media.isBinary()) {
-					// Memory + Binary
-					streamSource = new StreamSource(new ByteArrayInputStream(
-							media.getByteData()));
-				} else {
-					// Memory + Texte
-					streamSource = new StreamSource(media.getReaderData());
-				}
-			} else {
-				if (media.isBinary()) // File + Binary
-					streamSource = new StreamSource(media.getStreamData());
-				else
-					// File + Text
-					streamSource = new StreamSource(media.getReaderData());
-			}
-			UpdateThread thread = new UpdateThread(client, streamSource,
-					xslContent, media.getName());
-			List<UpdateThread> list = getUpdateList(client);
-			synchronized (list) {
-				list.add(thread);
-			}
-			thread.execute();
-			thread.waitForStart(20);
-		}
-	}
-
-	@Command
-	public void onUpload(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx)
-			throws InterruptedException, XPathExpressionException,
-			NoSuchAlgorithmException, ParserConfigurationException,
-			SAXException, IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		if (!isUpdateRights())
-			throw new SearchLibException("Not allowed");
-		UploadEvent uploadEvent = (UploadEvent) ctx.getTriggerEvent();
-		Media[] medias = uploadEvent.getMedias();
-		if (medias != null) {
-			for (Media media : medias)
-				doMedia(media);
-		} else {
-			Media media = uploadEvent.getMedia();
-			if (media == null)
-				return;
-			doMedia(media);
-		}
-		reload();
+	@Override
+	protected AbstractUpdateThread newUpdateThread(Client client,
+			StreamSource streamSource, String mediaName) {
+		return new UpdateXmlThread(client, streamSource, xslContent, mediaName);
 	}
 
 	/**

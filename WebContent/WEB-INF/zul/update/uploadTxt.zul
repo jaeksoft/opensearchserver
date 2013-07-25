@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('upload') @init('com.jaeksoft.searchlib.web.controller.update.UploadXmlController')">
+	viewModel="@id('upload') @init('com.jaeksoft.searchlib.web.controller.update.UploadTxtController')">
 	<grid>
 		<columns>
 			<column align="right" hflex="min" />
@@ -23,21 +23,13 @@
 		</columns>
 		<rows>
 			<row>
-				<checkbox label="XSL Transformation"
-					checked="@bind(upload.xslEnabled)" />
-				<textbox visible="@load(upload.xslEnabled)"
-					value="@bind(upload.xslContent)" width="95%" multiline="true"
-					height="300px" />
+				<label value="Regular expression" />
+				<textbox value="@bind(upload.pattern)" width="95%" />
 			</row>
 			<row>
-				<label value="Upload XML file" />
-				<cell>
-					<button label="Upload" upload="true,maxsize=-1"
-						onUpload="@command('onUpload')" />
-					<space />
-					<button label="Show XML example " target="_blank"
-						href="updateSample.xml" />
-				</cell>
+				<label value="Upload file" />
+				<button label="Upload" upload="true,maxsize=-1"
+					onUpload="@command('onUpload')" />
 			</row>
 		</rows>
 	</grid>

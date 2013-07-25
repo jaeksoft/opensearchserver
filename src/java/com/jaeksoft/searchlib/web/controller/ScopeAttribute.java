@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,8 @@ public enum ScopeAttribute {
 	UPDATE_FORM_INDEX_DOCUMENT(),
 
 	UPDATE_XML_MAP(),
+
+	UPDATE_TXT_MAP(),
 
 	CURRENT_CLIENT(),
 
