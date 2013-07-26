@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.learning;
+package com.jaeksoft.searchlib.learning.mallet;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import cc.mallet.classify.Classification;
 import cc.mallet.classify.Classifier;
-import cc.mallet.classify.NaiveBayesTrainer;
+import cc.mallet.classify.ClassifierTrainer;
 import cc.mallet.pipe.CharSequence2TokenSequence;
 import cc.mallet.pipe.FeatureSequence2FeatureVector;
 import cc.mallet.pipe.Pipe;
@@ -51,12 +51,13 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.learning.LearnerInterface;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class MalletLearner implements LearnerInterface {
+public abstract class AbstractMalletLearner implements LearnerInterface {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -194,6 +195,8 @@ public class MalletLearner implements LearnerInterface {
 		return MALLET_TARGET_FIELDS;
 	}
 
+	protected abstract ClassifierTrainer<?> getNewTrainer();
+
 	private Classifier checkClassifier() {
 		rwl.r.lock();
 		try {
@@ -206,8 +209,7 @@ public class MalletLearner implements LearnerInterface {
 		try {
 			if (classifier != null)
 				return classifier;
-			NaiveBayesTrainer trainer = new NaiveBayesTrainer();
-			classifier = trainer.train(instances);
+			classifier = getNewTrainer().train(instances);
 			return classifier;
 		} finally {
 			rwl.w.unlock();
