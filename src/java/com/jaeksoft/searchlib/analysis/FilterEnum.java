@@ -36,6 +36,8 @@ public enum FilterEnum {
 
 	DecodeHtmlEntitiesFilter("This filter decode the HTML entities"),
 
+	DeduplicateTokenFilter("This filter remove any duplicates token"),
+
 	DegreesRadiansFilter(
 			"This filter convert radians to degrees or degrees to radians, or check degrees or radians values. Required by geospatial features."),
 
