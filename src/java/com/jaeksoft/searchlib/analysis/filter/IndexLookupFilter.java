@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,9 +37,11 @@ import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class IndexLookupFilter extends FilterFactory {
@@ -79,11 +82,11 @@ public class IndexLookupFilter extends FilterFactory {
 				searchRequest, returnField);
 	}
 
-	public class IndexLookupTokenFilter extends AbstractTermFilter {
+	public static class IndexLookupTokenFilter extends AbstractTermFilter {
 
 		private Client indexClient;
 		private SearchRequest searchRequest;
-		private String returnField;
+		private String[] returnFields;
 
 		private List<String> tokenQueue;
 		private int currentQueuePos;
@@ -94,7 +97,7 @@ public class IndexLookupFilter extends FilterFactory {
 			tokenQueue = null;
 			this.indexClient = indexClient;
 			this.searchRequest = searchRequest;
-			this.returnField = returnField;
+			this.returnFields = StringUtils.split(returnField, '|');
 		}
 
 		private final boolean popToken() {
@@ -104,6 +107,17 @@ public class IndexLookupFilter extends FilterFactory {
 				return false;
 			createToken(tokenQueue.get(currentQueuePos++));
 			return true;
+		}
+
+		private final void extractTokens(ResultDocument resultDoc) {
+			for (String returnField : returnFields) {
+				FieldValueItem[] fieldValueItems = resultDoc
+						.getValueArray(returnField);
+				if (fieldValueItems == null)
+					continue;
+				for (FieldValueItem fieldValueItem : fieldValueItems)
+					tokenQueue.add(fieldValueItem.getValue());
+			}
 		}
 
 		@Override
@@ -128,12 +142,15 @@ public class IndexLookupFilter extends FilterFactory {
 					currentQueuePos = 0;
 					for (int i = 0; i < max; i++) {
 						ResultDocument resultDoc = result.getDocument(i);
-						FieldValueItem[] fieldValueItems = resultDoc
-								.getValueArray(returnField);
-						if (fieldValueItems == null)
-							continue;
-						for (FieldValueItem fieldValueItem : fieldValueItems)
-							tokenQueue.add(fieldValueItem.getValue());
+						extractTokens(resultDoc);
+						JoinResult[] joinResults = result.getJoinResult();
+						if (joinResults != null)
+							for (JoinResult joinResult : joinResults) {
+								extractTokens(joinResult.getDocument(
+										(JoinDocInterface) result.getDocs(), i,
+										null));
+
+							}
 					}
 				}
 			} catch (SearchLibException e) {
