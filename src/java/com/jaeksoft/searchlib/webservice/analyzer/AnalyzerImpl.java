@@ -92,9 +92,20 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 	}
 
 	@Override
+	public AnalyzerResult testFormXML(String index, String login, String key,
+			String name, LanguageEnum lang, FilterScope scope, String text) {
+		return test(index, login, key, name, lang, scope, text);
+	}
+
+	@Override
 	public AnalyzerResult testJSON(String index, String login, String key,
 			String name, LanguageEnum lang, FilterScope scope, String text) {
 		return test(index, login, key, name, lang, scope, text);
 	}
 
+	@Override
+	public AnalyzerResult testFormJSON(String index, String login, String key,
+			String name, LanguageEnum lang, FilterScope scope, String text) {
+		return test(index, login, key, name, lang, scope, text);
+	}
 }
