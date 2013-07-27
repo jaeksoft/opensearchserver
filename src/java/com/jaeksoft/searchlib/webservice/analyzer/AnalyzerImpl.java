@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.ws.WebServiceException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -62,19 +60,19 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 				compiledAnalyzer = analyzer.getQueryAnalyzer();
 				break;
 			default:
-				throw new WebServiceException("Scope must be INDEX or QUERY");
+				throw new CommonServiceException("Scope must be INDEX or QUERY");
 			}
 			if (compiledAnalyzer == null)
-				throw new WebServiceException("No compiled analyzer");
+				throw new CommonServiceException("No compiled analyzer");
 			List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>(0);
 			compiledAnalyzer.populate(text, tokenTerms);
 			return new AnalyzerResult(tokenTerms);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -83,7 +81,7 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 		Analyzer analyzer = client.getSchema().getAnalyzerList()
 				.get(name, lang);
 		if (analyzer == null)
-			throw new WebServiceException("Analyzer " + name + " not found");
+			throw new CommonServiceException("Analyzer " + name + " not found");
 		return analyzer;
 	}
 

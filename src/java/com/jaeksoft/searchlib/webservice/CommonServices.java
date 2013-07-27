@@ -24,7 +24,9 @@
 package com.jaeksoft.searchlib.webservice;
 
 import javax.naming.NamingException;
-import javax.xml.ws.WebServiceException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -37,55 +39,55 @@ public class CommonServices {
 	private Client client = null;
 	private User user = null;
 
-	private void checkClientAndUser(String use, String login, String key)
+	private final void checkClientAndUser(String use, String login, String key)
 			throws SearchLibException, NamingException {
 		if (!ClientCatalog.getUserList().isEmpty()) {
 			user = ClientCatalog.authenticateKey(login, key);
 			if (user == null)
-				throw new WebServiceException("Authentication failed");
+				throw new CommonServiceException("Authentication failed");
 		}
 		client = ClientCatalog.getClient(use);
 		if (client == null)
-			throw new WebServiceException("Index not found");
+			throw new CommonServiceException("Index not found");
 	}
 
-	protected User getLoggedUser(String login, String key)
+	protected final User getLoggedUser(String login, String key)
 			throws SearchLibException {
 		if (ClientCatalog.getUserList().isEmpty())
 			return null;
 		user = ClientCatalog.authenticateKey(login, key);
 		if (user == null)
-			throw new WebServiceException("Authentication failed");
+			throw new CommonServiceException("Authentication failed");
 		return user;
 	}
 
-	protected User getLoggedAdmin(String login, String key)
+	protected final User getLoggedAdmin(String login, String key)
 			throws SearchLibException {
 		User user = getLoggedUser(login, key);
 		if (user == null)
 			return null;
 		if (!user.isAdmin())
-			throw new WebServiceException("Not allowed");
+			throw new CommonServiceException("Not allowed");
 		return user;
 	}
 
-	protected Client getLoggedClient(String use, String login, String key,
-			Role role) {
+	protected final Client getLoggedClient(String use, String login,
+			String key, Role role) {
 		try {
 			checkClientAndUser(use, login, key);
 			if (user == null)
 				return client;
 			if (user.hasRole(client.getIndexName(), role))
 				return client;
-			throw new WebServiceException("Not allowed");
+			throw new CommonServiceException("Not allowed");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (NamingException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
-	protected Client getLoggedClientAnyRole(String use, String login,
+	protected final Client getLoggedClientAnyRole(String use, String login,
 			String key, Role... roles) {
 		try {
 			checkClientAndUser(use, login, key);
@@ -93,15 +95,15 @@ public class CommonServices {
 				return client;
 			if (user.hasAnyRole(client.getIndexName(), roles))
 				return client;
-			throw new WebServiceException("Not allowed");
+			throw new CommonServiceException("Not allowed");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (NamingException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
-	protected Client getLoggedClientAllRoles(String use, String login,
+	protected final Client getLoggedClientAllRoles(String use, String login,
 			String key, Role... roles) {
 		try {
 			checkClientAndUser(use, login, key);
@@ -109,11 +111,36 @@ public class CommonServices {
 				return client;
 			if (user.hasAllRole(client.getIndexName(), roles))
 				return client;
-			throw new WebServiceException("Not allowed");
+			throw new CommonServiceException("Not allowed");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (NamingException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
+		}
+	}
+
+	protected class CommonServiceException extends WebApplicationException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4426477879345381067L;
+
+		public CommonServiceException(Response.Status status, String message) {
+			super(Response.status(status).entity(message)
+					.type(MediaType.TEXT_PLAIN).build());
+		}
+
+		public CommonServiceException(Response.Status status, Exception e) {
+			this(status, e.getMessage());
+		}
+
+		public CommonServiceException(String message) {
+			this(Response.Status.BAD_REQUEST, message);
+		}
+
+		public CommonServiceException(Exception e) {
+			this(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 }

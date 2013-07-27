@@ -213,8 +213,12 @@ public abstract class Config implements ThreadFactory {
 
 		try {
 			indexDir = indexDirectory;
+			if (!indexDir.exists())
+				throw new SearchLibException("Index \"" + indexDir.getName()
+						+ "\" not found. The index directory does not exist");
 			if (!indexDir.isDirectory())
-				throw new SearchLibException("Expected to get a directory path");
+				throw new SearchLibException(
+						"Indx not found. The index path is not a directory.");
 
 			File configFile = new File(indexDirectory, "config.xml");
 
