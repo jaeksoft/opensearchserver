@@ -30,14 +30,22 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.TokenTerm;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.join.JoinResult;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -49,6 +57,10 @@ public class IndexLookupFilter extends FilterFactory {
 	private String indexName = null;
 	private String requestName = null;
 	private String returnField = null;
+	private String requestedField = null;
+
+	private final int maxTokenSearch = ClientFactory.INSTANCE
+			.getBooleanQueryMaxClauseCount().getValue();
 
 	@Override
 	public void initProperties() throws SearchLibException {
@@ -58,6 +70,7 @@ public class IndexLookupFilter extends FilterFactory {
 			values.add(item.getIndexName());
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray());
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null);
+		addProperty(ClassPropertyEnum.REQUESTED_FIELD, "", null);
 		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null);
 	}
 
@@ -68,6 +81,8 @@ public class IndexLookupFilter extends FilterFactory {
 			indexName = value;
 		else if (prop == ClassPropertyEnum.SEARCH_REQUEST)
 			requestName = value;
+		else if (prop == ClassPropertyEnum.REQUESTED_FIELD)
+			requestedField = value;
 		else if (prop == ClassPropertyEnum.RETURN_FIELD)
 			returnField = value;
 	}
@@ -78,30 +93,40 @@ public class IndexLookupFilter extends FilterFactory {
 		Client indexClient = ClientCatalog.getClient(indexName);
 		SearchRequest searchRequest = (SearchRequest) indexClient
 				.getNewRequest(requestName);
+		searchRequest.setDefaultOperator("OR");
 		return new IndexLookupTokenFilter(tokenStream, indexClient,
-				searchRequest, returnField);
+				searchRequest, requestedField, returnField, maxTokenSearch);
 	}
 
 	public static class IndexLookupTokenFilter extends AbstractTermFilter {
 
-		private Client indexClient;
-		private SearchRequest searchRequest;
-		private String[] returnFields;
+		private final Client indexClient;
+		private final SearchRequest searchRequest;
+		private final String[] returnFields;
+		private final String requestedField;
 
-		private List<String> tokenQueue;
+		private final int batchBuffer;
+		private final List<TokenTerm> collectedTokenBuffer;
+		private final List<TokenTerm> tokenQueue;
 		private int currentQueuePos;
 
 		public IndexLookupTokenFilter(TokenStream input, Client indexClient,
-				SearchRequest searchRequest, String returnField) {
+				SearchRequest searchRequest, String requestedField,
+				String returnField, int batchBuffer) {
 			super(input);
-			tokenQueue = null;
+			tokenQueue = new ArrayList<TokenTerm>(0);
+			this.batchBuffer = batchBuffer;
+			collectedTokenBuffer = new ArrayList<TokenTerm>(batchBuffer);
 			this.indexClient = indexClient;
 			this.searchRequest = searchRequest;
 			this.returnFields = StringUtils.split(returnField, '|');
+			this.requestedField = requestedField != null
+					&& requestedField.length() > 0 ? requestedField
+					: returnFields[0];
 		}
 
 		private final boolean popToken() {
-			if (tokenQueue == null)
+			if (tokenQueue.size() == 0)
 				return false;
 			if (currentQueuePos == tokenQueue.size())
 				return false;
@@ -109,14 +134,49 @@ public class IndexLookupFilter extends FilterFactory {
 			return true;
 		}
 
-		private final void extractTokens(ResultDocument resultDoc) {
+		private final void extractTokens(TokenTerm tokenTerm,
+				ResultDocument resultDoc) {
 			for (String returnField : returnFields) {
 				FieldValueItem[] fieldValueItems = resultDoc
 						.getValueArray(returnField);
 				if (fieldValueItems == null)
 					continue;
 				for (FieldValueItem fieldValueItem : fieldValueItems)
-					tokenQueue.add(fieldValueItem.getValue());
+					tokenQueue.add(new TokenTerm(fieldValueItem.getValue(),
+							tokenTerm));
+			}
+		}
+
+		private final void searchTokens() throws SearchLibException,
+				ParseException, SyntaxError, IOException {
+			TokenTerm mergedTokenTerm = new TokenTerm(collectedTokenBuffer);
+			searchRequest.reset();
+			BooleanQuery bq = new BooleanQuery();
+			for (TokenTerm tokenTerm : collectedTokenBuffer)
+				bq.add(new TermQuery(new Term(requestedField, tokenTerm.term)),
+						Occur.SHOULD);
+			searchRequest.setBoostedComplexQuery(bq);
+			searchRequest.setRows(collectedTokenBuffer.size());
+			AbstractResultSearch result = (AbstractResultSearch) indexClient
+					.request(searchRequest);
+			collectedTokenBuffer.clear();
+			if (result.getNumFound() == 0)
+				return;
+			int max = searchRequest.getEnd();
+			if (max > result.getNumFound())
+				max = result.getNumFound();
+			tokenQueue.clear();
+			currentQueuePos = 0;
+			for (int i = 0; i < max; i++) {
+				ResultDocument resultDoc = result.getDocument(i);
+				extractTokens(mergedTokenTerm, resultDoc);
+				JoinResult[] joinResults = result.getJoinResult();
+				if (joinResults != null)
+					for (JoinResult joinResult : joinResults) {
+						extractTokens(mergedTokenTerm, joinResult.getDocument(
+								(JoinDocInterface) result.getDocs(), i, null));
+
+					}
 			}
 		}
 
@@ -127,33 +187,23 @@ public class IndexLookupFilter extends FilterFactory {
 				for (;;) {
 					if (popToken())
 						return true;
-					if (!input.incrementToken())
-						return false;
-					searchRequest.reset();
-					searchRequest.setQueryString(termAtt.toString());
-					AbstractResultSearch result = (AbstractResultSearch) indexClient
-							.request(searchRequest);
-					if (result.getNumFound() == 0)
+					if (!input.incrementToken()) {
+						if (collectedTokenBuffer.size() == 0)
+							return false;
+						searchTokens();
 						continue;
-					int max = searchRequest.getEnd();
-					if (max > result.getNumFound())
-						max = result.getNumFound();
-					tokenQueue = new ArrayList<String>(0);
-					currentQueuePos = 0;
-					for (int i = 0; i < max; i++) {
-						ResultDocument resultDoc = result.getDocument(i);
-						extractTokens(resultDoc);
-						JoinResult[] joinResults = result.getJoinResult();
-						if (joinResults != null)
-							for (JoinResult joinResult : joinResults) {
-								extractTokens(joinResult.getDocument(
-										(JoinDocInterface) result.getDocs(), i,
-										null));
-
-							}
 					}
+					collectedTokenBuffer.add(new TokenTerm(termAtt.toString(),
+							offsetAtt.startOffset(), offsetAtt.endOffset(),
+							posIncrAtt.getPositionIncrement()));
+					if (collectedTokenBuffer.size() >= batchBuffer)
+						searchTokens();
 				}
 			} catch (SearchLibException e) {
+				throw new IOException(e);
+			} catch (ParseException e) {
+				throw new IOException(e);
+			} catch (SyntaxError e) {
 				throw new IOException(e);
 			}
 		}

@@ -211,9 +211,13 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum SEARCH_REQUEST = new ClassPropertyEnum(
 			true, "request", "Search Request", "The search request");
 
+	public final static ClassPropertyEnum REQUESTED_FIELD = new ClassPropertyEnum(
+			true, "requestedField", "Requested field",
+			"The field which contains the searched term");
+
 	public final static ClassPropertyEnum RETURN_FIELD = new ClassPropertyEnum(
 			true, "returnField", "Return field",
-			"The field which contains the term");
+			"The field(s) which contains the returned values");
 
 	public static ClassPropertyEnum VIMEO_DATA = new ClassPropertyEnum(true,
 			"vimeo_data", "Vimeo Field", "The vimeo API data");

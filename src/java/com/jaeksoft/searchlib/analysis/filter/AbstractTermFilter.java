@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,8 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
+
+import com.jaeksoft.searchlib.analysis.TokenTerm;
 
 public abstract class AbstractTermFilter extends TokenFilter {
 
@@ -66,4 +68,9 @@ public abstract class AbstractTermFilter extends TokenFilter {
 				offsetAtt.startOffset(), offsetAtt.endOffset());
 	}
 
+	protected final boolean createToken(TokenTerm tokenTerm) {
+		return createToken(tokenTerm.term, tokenTerm.increment,
+				tokenTerm.start, tokenTerm.end);
+
+	}
 }
