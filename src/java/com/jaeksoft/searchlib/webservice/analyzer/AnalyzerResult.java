@@ -23,22 +23,20 @@
  **/
 package com.jaeksoft.searchlib.webservice.analyzer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.index.FieldContent;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class AnalyzerResult extends CommonResult {
 
-	public List<String> terms = null;
+	public List<TokenTerm> token = null;
 
 	public AnalyzerResult() {
 	}
@@ -47,12 +45,7 @@ public class AnalyzerResult extends CommonResult {
 		super(successful, info);
 	}
 
-	public AnalyzerResult(FieldContent fieldContent) {
-		FieldValueItem[] fvis = fieldContent.getValues();
-		if (fvis == null)
-			return;
-		terms = new ArrayList<String>(fvis.length);
-		for (FieldValueItem fvi : fvis)
-			terms.add(fvi.getValue());
+	public AnalyzerResult(List<TokenTerm> tokenTerms) {
+		this.token = tokenTerms;
 	}
 }

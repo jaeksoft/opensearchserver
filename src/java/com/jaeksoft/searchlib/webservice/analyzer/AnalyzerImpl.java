@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.webservice.analyzer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
@@ -35,7 +37,7 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -64,9 +66,9 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 			}
 			if (compiledAnalyzer == null)
 				throw new WebServiceException("No compiled analyzer");
-			FieldContent fieldContent = new FieldContent();
-			compiledAnalyzer.populate(text, fieldContent);
-			return new AnalyzerResult(fieldContent);
+			List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>(0);
+			compiledAnalyzer.populate(text, tokenTerms);
+			return new AnalyzerResult(tokenTerms);
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
@@ -86,26 +88,9 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 	}
 
 	@Override
-	public AnalyzerResult testXML(String index, String login, String key,
+	public AnalyzerResult testPost(String index, String login, String key,
 			String name, LanguageEnum lang, FilterScope scope, String text) {
 		return test(index, login, key, name, lang, scope, text);
 	}
 
-	@Override
-	public AnalyzerResult testFormXML(String index, String login, String key,
-			String name, LanguageEnum lang, FilterScope scope, String text) {
-		return test(index, login, key, name, lang, scope, text);
-	}
-
-	@Override
-	public AnalyzerResult testJSON(String index, String login, String key,
-			String name, LanguageEnum lang, FilterScope scope, String text) {
-		return test(index, login, key, name, lang, scope, text);
-	}
-
-	@Override
-	public AnalyzerResult testFormJSON(String index, String login, String key,
-			String name, LanguageEnum lang, FilterScope scope, String text) {
-		return test(index, login, key, name, lang, scope, text);
-	}
 }

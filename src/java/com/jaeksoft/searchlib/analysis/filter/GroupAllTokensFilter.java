@@ -60,11 +60,12 @@ public class GroupAllTokensFilter extends FilterFactory {
 				if (tokenSeparator != null)
 					buffer.append(tokenSeparator);
 				endOffset = offsetAtt.endOffset();
+
 			}
 			String term = buffer.toString().trim();
 			if (term.length() == 0)
 				return false;
-			createToken(term, 1, startOffset, endOffset);
+			createToken(term, 1, startOffset, endOffset, null);
 			buffer = null;
 			return true;
 		}

@@ -32,6 +32,8 @@ public class ShingleQueue {
 
 	private String tokenSeparator;
 
+	public static final String TYPE = "Shingle";
+
 	public ShingleQueue(String tokenSeparator, int size) {
 		this.tokenSeparator = tokenSeparator;
 		tokens = new ShingleToken[size];
@@ -88,4 +90,5 @@ public class ShingleQueue {
 			tokens[i] = tokens[i + 1];
 		tokens[currentSize] = null;
 	}
+
 }

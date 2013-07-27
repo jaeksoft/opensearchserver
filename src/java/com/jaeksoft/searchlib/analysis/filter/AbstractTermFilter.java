@@ -28,6 +28,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.util.AttributeSource;
 
 import com.jaeksoft.searchlib.analysis.TokenTerm;
@@ -42,15 +43,18 @@ public abstract class AbstractTermFilter extends TokenFilter {
 
 	protected CharTermAttribute termAtt = null;
 
+	protected TypeAttribute typeAtt = null;
+
 	protected AbstractTermFilter(TokenStream input) {
 		super(input);
 		termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 		posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
 		offsetAtt = (OffsetAttribute) addAttribute(OffsetAttribute.class);
+		typeAtt = (TypeAttribute) addAttribute(TypeAttribute.class);
 	}
 
 	protected final boolean createToken(String term, int posInc, int startOff,
-			int endOff) {
+			int endOff, String type) {
 		if (term == null)
 			return false;
 		if (term.length() == 0)
@@ -60,17 +64,18 @@ public abstract class AbstractTermFilter extends TokenFilter {
 		termAtt.append(term);
 		posIncrAtt.setPositionIncrement(posInc);
 		offsetAtt.setOffset(startOff, endOff);
+		typeAtt.setType(type);
 		return true;
 	}
 
 	protected final boolean createToken(String term) {
 		return createToken(term, posIncrAtt.getPositionIncrement(),
-				offsetAtt.startOffset(), offsetAtt.endOffset());
+				offsetAtt.startOffset(), offsetAtt.endOffset(), typeAtt.type());
 	}
 
 	protected final boolean createToken(TokenTerm tokenTerm) {
 		return createToken(tokenTerm.term, tokenTerm.increment,
-				tokenTerm.start, tokenTerm.end);
+				tokenTerm.start, tokenTerm.end, tokenTerm.type);
 
 	}
 }

@@ -53,7 +53,8 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 		if (shingle.getTerm() == null)
 			return false;
 		createToken(shingle.getTerm(), shingle.getPositionIncrement(),
-				shingle.getStartOffset(), shingle.getEndOffset());
+				shingle.getStartOffset(), shingle.getEndOffset(),
+				ShingleQueue.TYPE);
 		shingle.pop();
 		return true;
 	}

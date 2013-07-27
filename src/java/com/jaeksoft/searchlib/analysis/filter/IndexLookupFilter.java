@@ -143,7 +143,7 @@ public class IndexLookupFilter extends FilterFactory {
 					continue;
 				for (FieldValueItem fieldValueItem : fieldValueItems)
 					tokenQueue.add(new TokenTerm(fieldValueItem.getValue(),
-							tokenTerm));
+							tokenTerm, returnField));
 			}
 		}
 
@@ -195,7 +195,7 @@ public class IndexLookupFilter extends FilterFactory {
 					}
 					collectedTokenBuffer.add(new TokenTerm(termAtt.toString(),
 							offsetAtt.startOffset(), offsetAtt.endOffset(),
-							posIncrAtt.getPositionIncrement()));
+							posIncrAtt.getPositionIncrement(), null));
 					if (collectedTokenBuffer.size() >= batchBuffer)
 						searchTokens();
 				}

@@ -26,25 +26,33 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.util.Collection;
 
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
+
 public class TokenTerm {
 
 	public final String term;
 	public final int start;
 	public final int end;
 	public final int increment;
+	public final String type;
 
-	public TokenTerm(String term, int start, int end, int increment) {
+	public TokenTerm(String term, int start, int end, int increment, String type) {
 		this.term = term;
 		this.start = start;
 		this.end = end;
 		this.increment = increment;
+		this.type = type;
 	}
 
-	public TokenTerm(String term, TokenTerm tt) {
+	public TokenTerm(String term, TokenTerm tt, String type) {
 		this.term = term;
 		this.start = tt.start;
 		this.end = tt.end;
 		this.increment = tt.increment;
+		this.type = type;
 	}
 
 	/**
@@ -53,7 +61,7 @@ public class TokenTerm {
 	 * @param tokenTerms
 	 */
 	public TokenTerm(Collection<TokenTerm> tokenTerms) {
-		int start = 0;
+		int start = Integer.MAX_VALUE;
 		int end = 0;
 		int increment = 0;
 		for (TokenTerm tokenTerm : tokenTerms) {
@@ -64,9 +72,20 @@ public class TokenTerm {
 				end = tokenTerm.end;
 		}
 		this.term = null;
+		this.type = null;
 		this.start = start;
 		this.end = end;
 		this.increment = increment;
 	}
 
+	public TokenTerm(CharTermAttribute termAtt,
+			PositionIncrementAttribute posIncrAtt, OffsetAttribute offsetAtt,
+			TypeAttribute typeAtt) {
+		this.term = termAtt != null ? termAtt.toString() : null;
+		this.start = offsetAtt != null ? offsetAtt.startOffset() : 0;
+		this.end = offsetAtt != null ? offsetAtt.endOffset() : 0;
+		this.increment = posIncrAtt != null ? posIncrAtt.getPositionIncrement()
+				: 0;
+		this.type = typeAtt != null ? typeAtt.type() : null;
+	}
 }

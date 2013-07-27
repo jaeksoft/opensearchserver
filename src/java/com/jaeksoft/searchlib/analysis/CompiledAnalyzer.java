@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -125,7 +126,7 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TermSetTokenFilter(termSet, ts);
 		ts.incrementToken();
-		ts.close();
+		IOUtils.closeQuietly(ts);
 	}
 
 	public void populate(String text, FieldContent fieldContent)
@@ -134,7 +135,16 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		TokenStream ts = tokenStream(null, reader);
 		ts = new FieldContentPopulateFilter(fieldContent, ts);
 		ts.incrementToken();
-		ts.close();
+		IOUtils.closeQuietly(ts);
+	}
+
+	public void populate(String text, List<TokenTerm> tokenTerms)
+			throws IOException {
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenStream(null, reader);
+		ts = new TokenTermPopulateFilter(tokenTerms, ts);
+		ts.incrementToken();
+		IOUtils.closeQuietly(ts);
 	}
 
 	@Override

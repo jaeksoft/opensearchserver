@@ -40,44 +40,24 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 public interface RestAnalyzer {
 
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/test/{index}/xml")
-	public AnalyzerResult testXML(@PathParam("index") String use,
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/test/{index}/{name}")
+	public AnalyzerResult test(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name,
-			@QueryParam("lang") LanguageEnum language,
-			@QueryParam("scope") FilterScope scope,
-			@QueryParam("text") String text);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/test/{index}/json")
-	public AnalyzerResult testJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name,
+			@PathParam("name") String name,
 			@QueryParam("lang") LanguageEnum language,
 			@QueryParam("scope") FilterScope scope,
 			@QueryParam("text") String text);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/test/{index}/xml")
-	public AnalyzerResult testFormXML(@PathParam("index") String use,
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/test/{index}/{name}")
+	public AnalyzerResult testPost(@PathParam("index") String use,
 			@FormParam("login") String login, @FormParam("key") String key,
-			@FormParam("name") String name,
+			@PathParam("name") String name,
 			@FormParam("lang") LanguageEnum language,
 			@FormParam("scope") FilterScope scope,
 			@FormParam("text") String text);
 
-	@POST
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/test/{index}/json")
-	public AnalyzerResult testFormJSON(@PathParam("index") String use,
-			@FormParam("login") String login, @FormParam("key") String key,
-			@FormParam("name") String name,
-			@FormParam("lang") LanguageEnum language,
-			@FormParam("scope") FilterScope scope,
-			@FormParam("text") String text);
 }
