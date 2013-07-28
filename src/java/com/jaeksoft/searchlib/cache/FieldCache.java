@@ -60,8 +60,8 @@ public class FieldCache extends
 			ParseException, SyntaxError {
 		Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
 		Set<String> storeField = new TreeSet<String>();
-		Set<String> indexedField = new TreeSet<String>();
 		Set<String> vectorField = new TreeSet<String>();
+		Set<String> indexedField = new TreeSet<String>();
 		Set<String> missingField = new TreeSet<String>();
 
 		// Getting available fields in the cache
@@ -86,6 +86,19 @@ public class FieldCache extends
 							.buildArray(fieldables);
 					put(documentFields, fieldName, docId, valueItems);
 				} else
+					vectorField.add(fieldName);
+			}
+		}
+
+		// Check missing fields from vector
+		if (vectorField.size() > 0) {
+			for (String fieldName : vectorField) {
+				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
+				if (tfv != null) {
+					FieldValueItem[] valueItems = FieldValueItem.buildArray(
+							FieldValueOriginEnum.TERM_VECTOR, tfv.getTerms());
+					put(documentFields, fieldName, docId, valueItems);
+				} else
 					indexedField.add(fieldName);
 			}
 		}
@@ -104,20 +117,7 @@ public class FieldCache extends
 						continue;
 					}
 				}
-				vectorField.add(fieldName);
-			}
-		}
-
-		// Check missing fields from vector
-		if (vectorField.size() > 0) {
-			for (String fieldName : vectorField) {
-				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
-				if (tfv != null) {
-					FieldValueItem[] valueItems = FieldValueItem.buildArray(
-							FieldValueOriginEnum.TERM_VECTOR, tfv.getTerms());
-					put(documentFields, fieldName, docId, valueItems);
-				} else
-					missingField.add(fieldName);
+				missingField.add(fieldName);
 			}
 		}
 
