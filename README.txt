@@ -69,5 +69,8 @@ your application. You will never face a black box.
 The Web site:
 http://www.open-search-server.com
 
+Download binaries:
+http://www.open-search-server.com/download
+
 The documentation (Wiki):
 http://www.open-search-server.com/documentation
