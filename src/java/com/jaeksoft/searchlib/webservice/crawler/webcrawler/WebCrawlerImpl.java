@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
 import java.awt.Dimension;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,7 +41,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
