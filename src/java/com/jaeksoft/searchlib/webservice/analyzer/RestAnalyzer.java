@@ -36,15 +36,14 @@ import javax.ws.rs.core.MediaType;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-@Path("/analyzer")
+@Path("/index/{index_name}/analyzer/{analyzer_name}")
 public interface RestAnalyzer {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/test/{index}/{name}")
-	public AnalyzerResult test(@PathParam("index") String use,
+	public AnalyzerResult test(@PathParam("index_name") String index_name,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("name") String name,
+			@PathParam("analyzer_name") String analyzer_name,
 			@QueryParam("lang") LanguageEnum language,
 			@QueryParam("scope") FilterScope scope,
 			@QueryParam("text") String text);
@@ -52,10 +51,9 @@ public interface RestAnalyzer {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/test/{index}/{name}")
-	public AnalyzerResult testPost(@PathParam("index") String use,
+	public AnalyzerResult testPost(@PathParam("index_name") String index_name,
 			@FormParam("login") String login, @FormParam("key") String key,
-			@PathParam("name") String name,
+			@PathParam("analyzer_name") String analyzer_name,
 			@FormParam("lang") LanguageEnum language,
 			@FormParam("scope") FilterScope scope,
 			@FormParam("text") String text);

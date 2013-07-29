@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
-import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
@@ -50,13 +49,13 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 			ClientCatalog.eraseIndex(user, indexName);
 			return new CommonResult(true, "Index deleted: " + indexName);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (NamingException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -79,18 +78,23 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 			User user = getLoggedAdmin(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (user != null && !user.isAdmin())
-				throw new WebServiceException("Not allowed");
+				throw new CommonServiceException("Not allowed");
 			TemplateAbstract template = TemplateList
 					.findTemplate(indexTemplateName.name());
 			ClientCatalog.createIndex(user, indexName, template);
 			return new CommonResult(true, "Created Index " + indexName);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult createIndex(String login, String key, String indexName) {
+		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX);
 	}
 
 	@Override
@@ -116,11 +120,11 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 				indexList.add(catalogItem.getIndexName());
 			return new ResultIndexList(true, indexList);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -142,11 +146,11 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 			return new CommonResult(true, Boolean.toString(ClientCatalog
 					.exists(user, name)));
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 

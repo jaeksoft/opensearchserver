@@ -25,8 +25,10 @@ package com.jaeksoft.searchlib.webservice.index;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -51,6 +53,19 @@ public interface RestIndex {
 			@QueryParam("key") String key, @QueryParam("name") String name,
 			@QueryParam("template") TemplateList template);
 
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{name}/{template}")
+	public CommonResult createIndex(@QueryParam("login") String login,
+			@QueryParam("key") String key, @PathParam("name") String name,
+			@PathParam("template") TemplateList template);
+
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{name}")
+	public CommonResult createIndex(@QueryParam("login") String login,
+			@QueryParam("key") String key, @PathParam("name") String name);
+
 	@DELETE
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/delete/xml")
@@ -62,6 +77,12 @@ public interface RestIndex {
 	@Path("/delete/json")
 	public CommonResult deleteIndexJSON(@QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("name") String name);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{name}")
+	public CommonResult deleteIndex(@QueryParam("login") String login,
+			@QueryParam("key") String key, @PathParam("name") String name);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
@@ -76,6 +97,12 @@ public interface RestIndex {
 			@QueryParam("key") String key);
 
 	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public ResultIndexList indexList(@QueryParam("login") String login,
+			@QueryParam("key") String key);
+
+	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/exists/xml")
 	public CommonResult indexExistsXML(@QueryParam("login") String login,
@@ -86,5 +113,11 @@ public interface RestIndex {
 	@Path("/exists/json")
 	public CommonResult indexExistsJSON(@QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("name") String name);
+
+	@HEAD
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{name}")
+	public CommonResult indexExists(@QueryParam("login") String login,
+			@QueryParam("key") String key, @PathParam("name") String name);
 
 }
