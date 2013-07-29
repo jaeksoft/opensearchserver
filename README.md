@@ -1,15 +1,21 @@
 OpenSearchServer
+================
 http://www.open-search-server.com
 
 Copyright Emmanuel Keller / Jaeksoft (2008-2013)
 This software is licensed under the GPL v3.
 
-An open source search engine and crawler based on best open source
-technologies. A stable, high-performance piece of software. It is a
-modern search engine and a suite of high-powered full text search
-algorithms.
+An open source search engine and crawler based on best open source technologies. A stable, high-performance piece of software. It is a modern search engine and a suite of high-powered full text search algorithms.
 
-Search functions
+Useful links
+------------
++ Download binaries: http://www.open-search-server.com/download
++ The documentation: http://www.open-search-server.com/documentation
++ Issues (bug, enhancement): https://github.com/jaeksoft/opensearchserver/issues
+
+Features
+--------
+### Search functions
 - Advanced full-text search features
 - Phonetic search
 - Advanced boolean search with query language
@@ -20,7 +26,7 @@ Search functions
 - Relevance customization
 - Search suggestion facility (auto-completion)
 
-Indexation
+### Indexation
 - Supports 17 languages
 - Fields schema with analyzers in each language
 - Several filters: n-gram, lemmatization, shingle, stripping diacritic from words,…
@@ -30,7 +36,7 @@ Indexation
 - Export indexed terms with frequencies
 - Automatic classification
 
-Document supported
+### Document supported
 - HTML / XHTML
 - MS Office documents (Word, Excel, Powerpoint, Visio, Publisher)
 - OpenOffice documents
@@ -40,7 +46,7 @@ Document supported
 - Torrent files
 - OCR over images
 
-Crawlers
+### Crawlers
 - The web crawler for internet, extranet and intranet
 - The file systems crawler for local and remote files (NFS, SMB/CIFS, FTP, FTPS, SWIFT)
 - The database crawler for all JDBC databases (MySQL, PostgreSQL, Oracle, SQL Server, …)
@@ -50,7 +56,7 @@ Crawlers
 - Screenshot capture
 - Sitemap import
 
-General
+### General
 - REST API (XML and JSON)
 - SOAP Web Service
 - Monitoring module
@@ -58,19 +64,4 @@ General
 - Scheduler for management of periodic tasks
 - WordPress plugin and Drupal module
 
-OpenSearchServer was developed in such a way that you can do all of
-these things as simply as possible. You will have full access to all
-of the components of our search engine. This is the most important
-feature that we wanted to offer you. It means that, instead of having
-to accept fixed parameters and options set by us, you will have total
-freedom to customize any parameters to perfectly match the needs of
-your application. You will never face a black box.
-
-The Web site:
-http://www.open-search-server.com
-
-Download binaries:
-http://www.open-search-server.com/download
-
-The documentation (Wiki):
-http://www.open-search-server.com/documentation
+OpenSearchServer was developed in such a way that you can do all of these things as simply as possible. You will have full access to all of the components of our search engine. This is the most important feature that we wanted to offer you. It means that, instead of having to accept fixed parameters and options set by us, you will have total freedom to customize any parameters to perfectly match the needs of your application. You will never face a black box.
