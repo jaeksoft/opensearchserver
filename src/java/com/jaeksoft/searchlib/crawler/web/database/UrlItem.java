@@ -76,6 +76,7 @@ public class UrlItem {
 	private List<String> headers;
 	private int backlinkCount;
 	private String instanceId;
+	private String urlWhen;
 
 	protected UrlItem() {
 		urlString = null;
@@ -106,6 +107,7 @@ public class UrlItem {
 		headers = null;
 		backlinkCount = 0;
 		instanceId = null;
+		urlWhen = null;
 	}
 
 	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
@@ -152,6 +154,7 @@ public class UrlItem {
 				urlItemFieldEnum.backlinkCount.getName(), 0));
 		instanceId = doc.getValueContent(urlItemFieldEnum.instanceId.getName(),
 				0);
+		urlWhen = doc.getValueContent(urlItemFieldEnum.urlWhen.getName(), 0);
 	}
 
 	private void addHeaders(FieldValueItem[] headersList) {
@@ -411,6 +414,7 @@ public class UrlItem {
 	public void setUrl(String url) {
 		synchronized (this) {
 			this.urlString = url;
+			checkUrlWhen();
 			cachedUrl = null;
 		}
 	}
@@ -485,6 +489,7 @@ public class UrlItem {
 		}
 		try {
 			when = whenDateFormat.parse(d);
+			checkUrlWhen();
 		} catch (ParseException e) {
 			Logging.error(e.getMessage(), e);
 			setWhenNow();
@@ -494,7 +499,7 @@ public class UrlItem {
 
 	public void setWhenNow() {
 		setWhen(new Date(System.currentTimeMillis()));
-
+		checkUrlWhen();
 	}
 
 	public String getCount() {
@@ -592,6 +597,7 @@ public class UrlItem {
 		checkInstanceId();
 		indexDocument.setString(urlItemFieldEnum.instanceId.getName(),
 				instanceId);
+		indexDocument.setString(urlItemFieldEnum.urlWhen.getName(), urlWhen);
 	}
 
 	public String getLang() {
@@ -688,4 +694,14 @@ public class UrlItem {
 			return;
 		instanceId = ClientFactory.INSTANCE.getGlobalSequence().next();
 	}
+
+	public void checkUrlWhen() {
+		StringBuffer sb = new StringBuffer();
+		if (when != null)
+			sb.append(whenDateFormat.format(when));
+		if (urlString != null)
+			sb.append(urlString);
+		urlWhen = sb.length() == 0 ? null : sb.toString();
+	}
+
 }

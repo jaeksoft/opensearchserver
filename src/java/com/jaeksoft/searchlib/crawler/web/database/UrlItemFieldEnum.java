@@ -90,4 +90,6 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField instanceId = new ItemField(this, "instanceId");
 
+	final public ItemField urlWhen = new ItemField(this, "urlWhen");
+
 }

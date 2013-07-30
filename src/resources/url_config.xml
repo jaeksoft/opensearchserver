@@ -54,6 +54,7 @@
 			<field name="backlinkCount" indexed="yes" stored="no"
 				termVector="no" />
 			<field name="instanceId" indexed="yes" stored="no" termVector="no" />
+			<field name="urlWhen" indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
 	<requests>

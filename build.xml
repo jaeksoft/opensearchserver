@@ -75,7 +75,7 @@
 		<mkdir dir="${junit-report}" />
 		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
-		<echo file="${temp-version}" append="true" message="REVISION = ${env.SVN_REVISION}${line.separator}" />
+		<echo file="${temp-version}" append="true" message="REVISION = ${env.GIT_COMMIT}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="BUILD = ${env.BUILD_NUMBER}${line.separator}" />
 	</target>
 
@@ -213,7 +213,7 @@
 		<delete dir="${temp}" />
 		<delete dir="${junit-report}" />
 	</target>
-	
+
 	<!-- Undeploy the test existing instance. -->
 	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
 		<classpath refid="project.class.path" />
