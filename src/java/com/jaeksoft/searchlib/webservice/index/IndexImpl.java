@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
+import javax.ws.rs.core.Response.Status;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
@@ -143,8 +144,10 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 		try {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
-			return new CommonResult(true, Boolean.toString(ClientCatalog
-					.exists(user, name)));
+			if (!ClientCatalog.exists(user, name))
+				throw new CommonServiceException(Status.NOT_FOUND, "The index "
+						+ name + " has not been found");
+			return new CommonResult(true, Boolean.toString(true));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
