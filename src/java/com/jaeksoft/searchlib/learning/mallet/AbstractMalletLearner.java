@@ -192,6 +192,7 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 				start += rows;
 			}
 			instances.save(instancesFile);
+			classifier = null;
 		} finally {
 			rwl.w.unlock();
 		}
