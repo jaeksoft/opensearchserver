@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.webservice.learner;
 
-import javax.ws.rs.DELETE;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,48 +37,34 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/learner")
+@Path("/index/{index_name}/learner/{learner_name}")
 public interface RestLearner {
 
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/classify/{index}/xml")
-	public LearnerResult classifyXML(@PathParam("index") String index,
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public LearnerResult classify(@PathParam("index_name") String index_name,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name, @QueryParam("text") String text);
+			@PathParam("learner_name") String learner_name,
+			@QueryParam("max_rank") int max_rank,
+			@QueryParam("min_score") double min_score,
+			@QueryParam("text") String text);
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/classify/{index}/json")
-	public LearnerResult classifyJSON(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name, @QueryParam("text") String text);
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public LearnerResult classifyPost(
+			@PathParam("index_name") String index_name,
+			@FormParam("login") String login, @FormParam("key") String key,
+			@PathParam("learner_name") String learner_name,
+			@FormParam("max_rank") int max_rank,
+			@FormParam("min_score") double min_score,
+			@FormParam("text") String text);
 
-	@DELETE
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/reset/{index}/xml")
-	public CommonResult resetXML(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name);
-
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/reset/{index}/json")
-	public CommonResult resetJSON(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/learn/{index}/xml")
-	public CommonResult learnXML(@PathParam("index") String index,
+	public CommonResult learn(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("name") String name);
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/learn/{index}/json")
-	public CommonResult learnJSON(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name);
 }

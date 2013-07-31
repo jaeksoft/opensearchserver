@@ -40,23 +40,6 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class LearnerImpl extends CommonServices implements SoapLearner,
 		RestLearner {
 
-	@Override
-	public LearnerResult classify(String index, String login, String key,
-			String name, String text) {
-		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
-			ClientFactory.INSTANCE.properties.checkApi();
-			Learner learner = getLearner(client, name);
-			return new LearnerResult(learner.classify(client, text));
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		}
-	}
-
 	private Learner getLearner(Client client, String name)
 			throws SearchLibException {
 		LearnerManager manager = client.getLearnerManager();
@@ -67,56 +50,40 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 	}
 
 	@Override
-	public LearnerResult classifyXML(String index, String login, String key,
-			String name, String text) {
-		return classify(index, login, key, name, text);
-	}
-
-	@Override
-	public LearnerResult classifyJSON(String index, String login, String key,
-			String name, String text) {
-		return classify(index, login, key, name, text);
-	}
-
-	@Override
-	public CommonResult reset(String index, String login, String key,
-			String name) {
+	public LearnerResult classify(String index_name, String login, String key,
+			String learner_name, int max_rank, double min_score, String text) {
 		try {
-			Client client = getLoggedClient(index, login, key,
-					Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index_name, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Learner learner = getLearner(client, name);
-			learner.reset(client);
-			return new CommonResult(true, null);
-		} catch (InterruptedException e) {
+			Learner learner = getLearner(client, learner_name);
+			return new LearnerResult(learner.classify(client, text, max_rank,
+					min_score));
+		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
 			throw new WebServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
 	@Override
-	public CommonResult resetXML(String index, String login, String key,
-			String name) {
-		return reset(index, login, key, name);
-	}
-
-	@Override
-	public CommonResult resetJSON(String index, String login, String key,
-			String name) {
-		return reset(index, login, key, name);
+	public LearnerResult classifyPost(String index_name, String login,
+			String key, String learner_name, int max_rank, double min_score,
+			String text) {
+		return classify(index_name, login, key, learner_name, max_rank,
+				min_score, text);
 	}
 
 	@Override
 	public CommonResult learn(String index, String login, String key,
-			String name) {
+			String learner_name) {
 		try {
 			Client client = getLoggedClient(index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			Learner learner = getLearner(client, name);
+			Learner learner = getLearner(client, learner_name);
 			learner.learn(client, null);
 			return new CommonResult(true, null);
 		} catch (SearchLibException e) {
@@ -126,18 +93,6 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
-	}
-
-	@Override
-	public CommonResult learnXML(String index, String login, String key,
-			String name) {
-		return learn(index, login, key, name);
-	}
-
-	@Override
-	public CommonResult learnJSON(String index, String login, String key,
-			String name) {
-		return learn(index, login, key, name);
 	}
 
 }

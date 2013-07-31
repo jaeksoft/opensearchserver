@@ -224,7 +224,7 @@ public class LearningController extends CommonController {
 			return;
 		if (currentLearner == null)
 			return;
-		classifyMap = currentLearner.classify(client, testText);
+		classifyMap = currentLearner.classify(client, testText, null, null);
 	}
 
 	public Map<Double, String> getClassifyMap() {

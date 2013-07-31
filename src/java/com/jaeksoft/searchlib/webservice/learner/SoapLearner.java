@@ -32,16 +32,13 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "Learner")
 public interface SoapLearner {
 
-	public LearnerResult classify(@WebParam(name = "index") String index,
+	public LearnerResult classify(@WebParam(name = "index_name") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "name") String name,
+			@WebParam(name = "learner_name") String name,
+			@WebParam(name = "max_rank") int max_rank,
+			@WebParam(name = "min_score") double min_score,
 			@WebParam(name = "text") String text);
-
-	public CommonResult reset(@WebParam(name = "index") String index,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "name") String name);
 
 	public CommonResult learn(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,

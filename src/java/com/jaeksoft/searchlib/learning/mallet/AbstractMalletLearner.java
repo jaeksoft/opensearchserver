@@ -141,8 +141,6 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 		String source = document.getFieldValueString("source", 0);
 		if (name == null || name.length() == 0)
 			return;
-		if (source == null || source.length() == 0)
-			return;
 		for (FieldValueItem fvi : fvis) {
 			String target = fvi.getValue();
 			if (target == null || target.length() == 0)

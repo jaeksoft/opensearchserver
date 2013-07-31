@@ -359,12 +359,16 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public Map<Double, String> classify(Client client, String text)
-			throws SearchLibException {
+	public Map<Double, String> classify(Client client, String text,
+			Integer max_rank, Double min_score) throws SearchLibException {
 		LearnerInterface instance = getInstance(client);
 		rwl.r.lock();
 		try {
-			return instance.classify(text, maxRank, minScore);
+			if (max_rank == null)
+				max_rank = maxRank;
+			if (min_score == null)
+				min_score = minScore;
+			return instance.classify(text, max_rank, min_score);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
