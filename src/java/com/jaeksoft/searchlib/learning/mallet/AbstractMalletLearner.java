@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class AbstractMalletLearner implements LearnerInterface {
@@ -130,14 +131,24 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 		if (fieldContent == null)
 			return;
 		String data = fieldContent.getMergedValues(". ");
-		String target = document.getFieldValueString("target", 0);
+		fieldContent = document.getFieldContent("target");
+		if (fieldContent == null)
+			return;
+		FieldValueItem[] fvis = fieldContent.getValues();
+		if (fvis == null)
+			return;
 		String name = document.getFieldValueString("name", 0);
 		String source = document.getFieldValueString("source", 0);
-		if (data == null || target == null || name == null)
+		if (name == null || name.length() == 0)
 			return;
-		if (target.length() == 0 || name.length() == 0 || data.length() == 0)
+		if (source == null || source.length() == 0)
 			return;
-		instances.addThruPipe(new Instance(data, target, name, source));
+		for (FieldValueItem fvi : fvis) {
+			String target = fvi.getValue();
+			if (target == null || target.length() == 0)
+				continue;
+			instances.addThruPipe(new Instance(data, target, name, source));
+		}
 	}
 
 	@Override
