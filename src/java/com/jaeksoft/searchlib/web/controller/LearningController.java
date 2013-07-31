@@ -55,7 +55,7 @@ public class LearningController extends CommonController {
 	private Learner selectedLearner;
 	private Learner currentLearner;
 
-	private transient SchemaField selectedSourceIndexField;
+	private transient String selectedSourceIndexField;
 	private transient String selectedSourceLearnerField;
 	private transient SchemaField selectedTargetIndexField;
 	private transient String selectedTargetLearnerField;
@@ -101,21 +101,21 @@ public class LearningController extends CommonController {
 					.getList();
 			if (list.size() > 0) {
 				if (selectedSourceIndexField == null)
-					selectedSourceIndexField = list.get(0);
+					selectedSourceIndexField = list.get(0).getName();
 				if (selectedTargetIndexField == null)
-					selectedTargetIndexField = selectedSourceIndexField;
+					selectedTargetIndexField = list.get(0);
 			}
 			return list;
 		}
 	}
 
-	public void setSelectedSourceIndexField(SchemaField field) {
+	public void setSelectedSourceIndexField(String fieldName) {
 		synchronized (this) {
-			selectedSourceIndexField = field;
+			selectedSourceIndexField = fieldName;
 		}
 	}
 
-	public SchemaField getSelectedSourceIndexField() {
+	public String getSelectedSourceIndexField() {
 		synchronized (this) {
 			return selectedSourceIndexField;
 		}
@@ -327,7 +327,7 @@ public class LearningController extends CommonController {
 				|| selectedSourceIndexField == null || currentLearner == null)
 			return;
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
-		fieldMap.add(new SourceField(selectedSourceIndexField.getName()),
+		fieldMap.add(new SourceField(selectedSourceIndexField),
 				new TargetField(selectedSourceLearnerField));
 	}
 

@@ -51,9 +51,11 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.learning.LearnerInterface;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -159,9 +161,19 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 				if (result.getDocumentCount() == 0)
 					break;
 				for (int i = 0; i < result.getDocumentCount(); i++) {
+					int pos = start + i;
 					IndexDocument target = new IndexDocument();
-					sourceFieldMap.mapIndexDocument(
-							result.getDocument(start + i), target);
+					sourceFieldMap.mapIndexDocument(result.getDocument(pos),
+							target);
+					JoinResult[] joinResults = result.getJoinResult();
+					if (joinResults != null)
+						for (JoinResult joinResult : joinResults)
+							sourceFieldMap
+									.mapIndexDocument(
+											joinResult.getDocument(
+													(JoinDocInterface) result
+															.getDocs(), pos,
+													null), target);
 					learn(target);
 				}
 				request.reset();

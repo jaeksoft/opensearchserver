@@ -50,13 +50,13 @@
 					<label value="Source Field map" />
 					<cell>
 						<hbox align="center">
-							<listbox mold="select"
+							<combobox cols="30"
 								model="@load(learning.indexFieldList)"
-								selectedItem="@bind(learning.selectedSourceIndexField)">
+								value="@bind(learning.selectedSourceIndexField)">
 								<template name="model">
-									<listitem label="@load(each.name)" />
+									<comboitem label="@load(each.name)" />
 								</template>
-							</listbox>
+							</combobox>
 							<label value="linked in" />
 							<listbox mold="select"
 								model="@load(learning.currentLearner.instance.sourceFieldList)"
