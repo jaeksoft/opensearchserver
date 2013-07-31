@@ -84,6 +84,7 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			Learner learner = getLearner(client, learner_name);
+			learner.reset(client);
 			learner.learn(client, null);
 			return new CommonResult(true, null);
 		} catch (SearchLibException e) {
