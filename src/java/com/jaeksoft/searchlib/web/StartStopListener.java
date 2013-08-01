@@ -53,10 +53,12 @@ public class StartStopListener implements ServletContextListener {
 		String multi_data = System.getenv("OPENSEARCHSERVER_MULTIDATA");
 		if (multi_data == null)
 			multi_data = System.getenv("OPENSHIFT_DATA_DIR");
-		if (multi_data != null)
-			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data),
-					servletContext.getContextPath());
-		else if (single_data != null)
+		if (multi_data != null) {
+			String p = servletContext.getContextPath();
+			if ("".equals(p) || "/".equals(p))
+				p = "ROOT";
+			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data), p);
+		} else if (single_data != null)
 			OPENSEARCHSERVER_DATA_FILE = new File(single_data);
 		if (!OPENSEARCHSERVER_DATA_FILE.exists())
 			OPENSEARCHSERVER_DATA_FILE.mkdir();

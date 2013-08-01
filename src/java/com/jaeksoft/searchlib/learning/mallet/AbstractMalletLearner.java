@@ -148,7 +148,8 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 			StringBuffer ref = new StringBuffer(target);
 			ref.append('|');
 			ref.append(name);
-			instances.addThruPipe(new Instance(data, target, ref, source));
+			String na = ref.toString();
+			instances.addThruPipe(new Instance(data, target, na, source));
 		}
 	}
 

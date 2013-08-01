@@ -62,9 +62,8 @@ public interface RestLearner {
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/learn/{index}/xml")
-	public CommonResult learn(@PathParam("index") String index,
+	public CommonResult learn(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("name") String name);
+			@PathParam("learner_name") String name);
 
 }
