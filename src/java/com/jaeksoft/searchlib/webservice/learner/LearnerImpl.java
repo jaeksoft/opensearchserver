@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.webservice.learner;
 
 import java.io.IOException;
 
-import javax.xml.ws.WebServiceException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -45,7 +43,7 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 		LearnerManager manager = client.getLearnerManager();
 		Learner learner = manager.get(name);
 		if (learner == null)
-			throw new WebServiceException("Learner " + name + " not found");
+			throw new CommonServiceException("Learner " + name + " not found");
 		return learner;
 	}
 
@@ -60,11 +58,11 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 			return new LearnerResult(learner.classify(client, text, max_rank,
 					min_score));
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -88,11 +86,11 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 			learner.learn(client, null);
 			return new CommonResult(true, null);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 

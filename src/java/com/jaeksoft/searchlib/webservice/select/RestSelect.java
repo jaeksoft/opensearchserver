@@ -40,8 +40,9 @@ import com.jaeksoft.searchlib.collapse.CollapseParameters;
 public interface RestSelect {
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_XML)
-	@Path("/search/{index}/xml")
+	@Path("/select/search/{index}/xml")
 	public SelectResult searchXML(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("template") String template,
@@ -53,6 +54,7 @@ public interface RestSelect {
 			@QueryParam("filter") List<String> filter);
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/search/{index}/json")
 	public SelectResult searchJSON(@PathParam("index") String index,
@@ -66,6 +68,7 @@ public interface RestSelect {
 			@QueryParam("filter") List<String> filter);
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/searchlog/{index}/xml")
 	public SelectResult searchAndLogXML(@PathParam("index") String index,
@@ -81,6 +84,7 @@ public interface RestSelect {
 			@QueryParam("customLog") List<String> customLog);
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/searchlog/{index}/json")
 	public SelectResult searchAndLogJSON(@PathParam("index") String index,
@@ -96,6 +100,7 @@ public interface RestSelect {
 			@QueryParam("customLog") List<String> customLog);
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/fullsearch/{index}/xml")
 	public SelectResult fullSearchXML(@PathParam("index") String index,
@@ -125,6 +130,7 @@ public interface RestSelect {
 			@QueryParam("customLog") List<String> customLog);
 
 	@GET
+	@Deprecated
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/fullsearch/{index}/json")
 	public SelectResult fullSearchJSON(@PathParam("index") String index,
@@ -152,4 +158,5 @@ public interface RestSelect {
 			@QueryParam("joinParam") List<String> joinParams,
 			@QueryParam("enableLog") Boolean enableLog,
 			@QueryParam("customLog") List<String> customLog);
+
 }

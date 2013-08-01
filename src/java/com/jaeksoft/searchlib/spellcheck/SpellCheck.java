@@ -67,9 +67,13 @@ public class SpellCheck implements Iterable<SpellCheckItem> {
 			for (String word : wordSet) {
 				String[] suggestions = spellchecker.suggestSimilar(word,
 						suggestionNumber);
-				if (suggestions != null && suggestions.length > 0) {
-					SuggestionItem[] suggestionItems = new SuggestionItem[suggestions.length];
-					int i = 0;
+				int s = 1;
+				if (suggestions != null)
+					s += suggestions.length;
+				SuggestionItem[] suggestionItems = new SuggestionItem[s];
+				int i = 0;
+				suggestionItems[i++] = new SuggestionItem(word);
+				if (suggestions != null) {
 					for (String suggestion : suggestions)
 						suggestionItems[i++] = new SuggestionItem(suggestion);
 					spellCheckItems.add(new SpellCheckItem(word,

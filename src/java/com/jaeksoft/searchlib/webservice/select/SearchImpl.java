@@ -39,10 +39,10 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 
-public class SelectImpl extends CommonSelect implements SoapSelect, RestSelect {
+public class SearchImpl extends CommonSelect implements RestSearch, SoapSearch {
 
 	@Override
-	public SelectResult fullSearch(String index, String login, String key,
+	public SelectResult search(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
 			LanguageEnum lang, OperatorEnum operator, String collapseField,
 			Integer collapseMax, CollapseParameters.Mode collapseMode,
@@ -86,7 +86,7 @@ public class SelectImpl extends CommonSelect implements SoapSelect, RestSelect {
 	}
 
 	@Override
-	public SelectResult fullSearchXML(String index, String login, String key,
+	public SelectResult searchPost(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
 			LanguageEnum lang, OperatorEnum operator, String collapseField,
 			Integer collapseMax, CollapseParameters.Mode collapseMode,
@@ -97,84 +97,12 @@ public class SelectImpl extends CommonSelect implements SoapSelect, RestSelect {
 			List<String> facetMulti, List<String> facetMultiCollapse,
 			List<String> filterParams, List<String> joinParams,
 			Boolean enableLog, List<String> customLog) {
-		return fullSearch(index, login, key, template, query, start, rows,
-				lang, operator, collapseField, collapseMax, collapseMode,
+		return search(index, login, key, template, query, start, rows, lang,
+				operator, collapseField, collapseMax, collapseMode,
 				collapseType, filter, negativeFilter, sort, returnedField,
 				snippetField, facet, facetCollapse, facetMulti,
 				facetMultiCollapse, filterParams, joinParams, enableLog,
 				customLog);
-	}
 
-	@Override
-	public SelectResult fullSearchJSON(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, OperatorEnum operator, String collapseField,
-			Integer collapseMax, CollapseParameters.Mode collapseMode,
-			CollapseParameters.Type collapseType, List<String> filter,
-			List<String> negativeFilter, List<String> sort,
-			List<String> returnedField, List<String> snippetField,
-			List<String> facet, List<String> facetCollapse,
-			List<String> facetMulti, List<String> facetMultiCollapse,
-			List<String> filterParams, List<String> joinParams,
-			Boolean enableLog, List<String> customLog) {
-		return fullSearch(index, login, key, template, query, start, rows,
-				lang, operator, collapseField, collapseMax, collapseMode,
-				collapseType, filter, negativeFilter, sort, returnedField,
-				snippetField, facet, facetCollapse, facetMulti,
-				facetMultiCollapse, filterParams, joinParams, enableLog,
-				customLog);
-	}
-
-	@Override
-	public SelectResult search(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> sort, List<String> filter) {
-		return fullSearch(index, login, key, template, query, start, rows,
-				lang, null, null, null, null, null, filter, null, sort, null,
-				null, null, null, null, null, null, null, null, null);
-	}
-
-	@Override
-	public SelectResult searchXML(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> sort, List<String> filter) {
-		return search(index, login, key, template, query, start, rows, lang,
-				sort, filter);
-	}
-
-	@Override
-	public SelectResult searchJSON(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> sort, List<String> filter) {
-		return search(index, login, key, template, query, start, rows, lang,
-				sort, filter);
-	}
-
-	@Override
-	public SelectResult searchAndLog(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> sort, List<String> filter,
-			Boolean enableLog, List<String> customLog) {
-		return fullSearch(index, login, key, template, query, start, rows,
-				lang, null, null, null, null, null, filter, null, sort, null,
-				null, null, null, null, null, null, null, enableLog, customLog);
-	}
-
-	@Override
-	public SelectResult searchAndLogXML(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, List<String> sort, List<String> filter,
-			Boolean enableLog, List<String> customLog) {
-		return searchAndLog(index, login, key, template, query, start, rows,
-				lang, sort, filter, enableLog, customLog);
-	}
-
-	@Override
-	public SelectResult searchAndLogJSON(String index, String login,
-			String key, String template, String query, Integer start,
-			Integer rows, LanguageEnum lang, List<String> sort,
-			List<String> filter, Boolean enableLog, List<String> customLog) {
-		return searchAndLog(index, login, key, template, query, start, rows,
-				lang, sort, filter, enableLog, customLog);
 	}
 }

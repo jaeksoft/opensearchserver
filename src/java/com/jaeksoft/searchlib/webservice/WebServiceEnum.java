@@ -36,7 +36,9 @@ import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
 import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
+import com.jaeksoft.searchlib.webservice.select.SearchImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
+import com.jaeksoft.searchlib.webservice.select.SpellcheckImpl;
 import com.jaeksoft.searchlib.webservice.update.UpdateImpl;
 
 public enum WebServiceEnum {
@@ -63,7 +65,11 @@ public enum WebServiceEnum {
 
 	Select(SelectImpl.class, "/select"),
 
+	Search(SearchImpl.class, "/search"),
+
 	Shema(SchemaImpl.class, "/schema"),
+
+	Spellcheck(SpellcheckImpl.class, "/spellcheck"),
 
 	Update(UpdateImpl.class, "/update"),
 

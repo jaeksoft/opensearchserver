@@ -56,9 +56,10 @@ public interface RestIndex {
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{name}/{template}")
+	@Path("/{index_name}/{template}")
 	public CommonResult createIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key, @PathParam("name") String name,
+			@QueryParam("key") String key,
+			@PathParam("index_name") String name,
 			@PathParam("template") TemplateList template);
 
 	@POST
