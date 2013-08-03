@@ -35,16 +35,19 @@ public interface SoapAutoCompletion {
 	public CommonResult set(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
+			@WebParam(name = "name") String name,
 			@WebParam(name = "field") String field,
 			@WebParam(name = "rows") Integer rows);
 
 	public CommonResult build(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+			@WebParam(name = "key") String key,
+			@WebParam(name = "name") String name);
 
 	public AutoCompletionResult query(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
+			@WebParam(name = "name") String name,
 			@WebParam(name = "prefix") String prefix,
 			@WebParam(name = "rows") Integer rows);
 }

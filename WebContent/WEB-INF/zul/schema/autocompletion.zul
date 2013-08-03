@@ -26,11 +26,17 @@
 				</columns>
 				<rows>
 					<row>
+						<label value="Name" />
+						<textbox value="@bind(auto.name)" cols="30"
+							readonly="@load(not empty auto.selectedItem)" />
+						<label value="Enter the name of this item" />
+					</row>
+					<row>
 						<label value="Field source" />
 						<listbox model="@load(auto.fieldList)"
 							mold="select" selectedItem="@bind(auto.field)">
-							<template name="model" var="field">
-								<listitem label="@load(field.name)" />
+							<template name="model">
+								<listitem label="@load(each.name)" />
 							</template>
 						</listbox>
 						<label
@@ -43,19 +49,6 @@
 							value="Set how many suggestions will be submitted" />
 					</row>
 					<row>
-						<label value="Build status" />
-						<label
-							value="@load(auto.autoCompletionManager.buildThread.status)" />
-						<label value="The status of the build process" />
-					</row>
-					<row>
-						<label value="Number of terms" />
-						<label
-							value="@load(auto.autoCompletionManager.buildThread.indexNumDocs)" />
-						<label
-							value="The number of terms in the auto-completion index" />
-					</row>
-					<row>
 						<label value="Testing" />
 						<combobox cols="50" autodrop="true"
 							model="@load(auto.comboList)" onChanging="@command('onChanging')"
@@ -65,21 +58,44 @@
 					</row>
 				</rows>
 				<foot>
-					<footer span="3">
-						<hbox align="center" width="100%">
+					<footer span="3" align="center">
+						<hbox align="center" width="100%"
+							visible="@load(not empty auto.selectedItem)">
 							<button label="Save"
 								onClick="@command('onSave')" />
 							<space />
 							<button label="Build"
 								onClick="@command('onBuild')"
-								disabled="@load(auto.autoCompletionManager.buildThread.running)" />
+								disabled="@load(auto.selectedItem.buildThread.running)" />
+						</hbox>
+						<hbox align="center" width="100%"
+							visible="@load(empty auto.selectedItem)">
+							<button label="Create"
+								onClick="@command('onSave')" />
 						</hbox>
 					</footer>
 				</foot>
 			</grid>
+			<separator />
+			<listbox model="@load(auto.autoCompletionItems)"
+				selectedItem="@bind(auto.selectedItem)">
+				<listhead>
+					<listheader label="Name" />
+					<listheader label="Status" />
+					<listheader label="Terms" />
+				</listhead>
+				<template name="model">
+					<listitem>
+						<listcell label="@load(each.name)" />
+						<listcell label="@load(each.buildThread.statu)" />
+						<listcell
+							label="@load(each.buildThread.indexNumDocs)" />
+					</listitem>
+				</template>
+			</listbox>
 		</panelchildren>
 	</panel>
 	<timer id="timer" delay="5000" repeats="true"
-		running="@load(auto.autoCompletionManager.buildThread.running)"
+		running="@load(auto.selectedItem.buildThread.running)"
 		onTimer="@command('reload')" />
 </window>

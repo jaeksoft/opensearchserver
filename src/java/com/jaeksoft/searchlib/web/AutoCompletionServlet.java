@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.user.Role;
@@ -42,47 +42,56 @@ public class AutoCompletionServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 1432959171606102988L;
 
-	private void query(ServletTransaction transaction, Client client, User user)
-			throws SearchLibException, IOException {
+	private void query(ServletTransaction transaction, Client client,
+			User user, String name) throws SearchLibException, IOException {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 			throw new SearchLibException("Not permitted");
 		Integer rows = transaction.getParameterInteger("rows", 10);
 		String query = transaction.getParameterString("query");
-		AutoCompletionManager manager = client.getAutoCompletionManager();
+		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()
+				.getItem(name);
 		transaction.setResponseContentType("text/plain");
 		PrintWriter pw = transaction.getWriter("UTF-8");
-		AbstractResultSearch result = manager.search(query, rows);
+		AbstractResultSearch result = autoCompItem.search(query, rows);
 		if (result == null)
 			return;
 		if (result.getDocumentCount() <= 0)
 			return;
 		for (ResultDocument document : result)
 			pw.println(document.getValueContent(
-					AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
+					AutoCompletionItem.autoCompletionSchemaFieldTerm, 0));
 	}
 
-	private void set(ServletTransaction transaction, Client client, User user)
-			throws SearchLibException {
+	private void set(ServletTransaction transaction, Client client, User user,
+			String name) throws SearchLibException {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
 		String field = transaction.getParameterString("field");
-		AutoCompletionManager autoComp = client.getAutoCompletionManager();
+		AutoCompletionItem autoComp = client.getAutoCompletionManager()
+				.getItem(name);
+		if (autoComp == null)
+			throw new SearchLibException("Autocompletion item not found "
+					+ name);
 		autoComp.setField(field);
 		autoComp.save();
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Field", field);
 	}
 
-	private void build(ServletTransaction transaction, Client client, User user)
-			throws SearchLibException, IOException {
+	private void build(ServletTransaction transaction, Client client,
+			User user, String name) throws SearchLibException, IOException {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_UPDATE))
 			throw new SearchLibException("Not permitted");
 		int bufferSize = transaction.getParameterInteger("bufferSize", 1000);
-		int result = client.getAutoCompletionManager().build(14400, bufferSize,
-				null);
+		AutoCompletionItem autoComp = client.getAutoCompletionManager()
+				.getItem(name);
+		if (autoComp == null)
+			throw new SearchLibException("Autocompletion item not found "
+					+ name);
+		int result = autoComp.build(14400, bufferSize, null);
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Count", Integer.toString(result));
 
@@ -95,12 +104,13 @@ public class AutoCompletionServlet extends AbstractServlet {
 			User user = transaction.getLoggedUser();
 			Client client = transaction.getClient();
 			String cmd = transaction.getParameterString("cmd");
+			String name = transaction.getParameterString("name");
 			if ("build".equalsIgnoreCase(cmd))
-				build(transaction, client, user);
+				build(transaction, client, user, name);
 			else if ("set".equalsIgnoreCase(cmd))
-				set(transaction, client, user);
+				set(transaction, client, user, name);
 			else
-				query(transaction, client, user);
+				query(transaction, client, user, name);
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

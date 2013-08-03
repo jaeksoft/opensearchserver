@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 import org.zkoss.bind.annotation.Command;
@@ -36,6 +39,7 @@ import org.zkoss.zul.ListModelArray;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -44,9 +48,13 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AutoCompletionComposer extends CommonController {
 
-	private SchemaField field = null;
+	private AutoCompletionItem selectedItem;
 
-	private int rows = 10;
+	private String name;
+
+	private int rows;
+
+	private String field;
 
 	private ListModel<String> comboList;
 
@@ -63,62 +71,57 @@ public class AutoCompletionComposer extends CommonController {
 		}
 	}
 
-	public AutoCompletionManager getAutoCompletionManager()
+	public Collection<AutoCompletionItem> getAutoCompletionItems()
 			throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getAutoCompletionManager();
-	}
-
-	/**
-	 * @return the field
-	 * @throws SearchLibException
-	 */
-	public SchemaField getField() throws SearchLibException {
-		Client client = getClient();
-		AutoCompletionManager manager = getAutoCompletionManager();
-		if (field == null && manager != null && client != null) {
-			String f = manager.getField();
-			if (f != null && f.length() > 0)
-				field = client.getSchema().getFieldList().get(f);
-		}
-		return field;
-	}
-
-	/**
-	 * @param field
-	 *            the field to set
-	 */
-	public void setField(SchemaField field) {
-		this.field = field;
+		return client.getAutoCompletionManager().getItems();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
-		field = null;
 		comboList = null;
+		selectedItem = null;
+		name = null;
+		rows = 10;
+		field = null;
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onBuild() throws SearchLibException {
-		AutoCompletionManager manager = getAutoCompletionManager();
-		if (manager == null)
+	public void onBuild() throws SearchLibException,
+			InvalidPropertiesFormatException, IOException {
+		if (selectedItem == null)
 			return;
 		onSave();
-		manager.build(null, 1000, null);
+		selectedItem.build(null, 1000, null);
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onSave() throws SearchLibException {
-		AutoCompletionManager manager = getAutoCompletionManager();
-		if (manager == null || field == null)
+	public void onSave() throws SearchLibException,
+			InvalidPropertiesFormatException, IOException {
+		Client client = getClient();
+		if (client == null)
 			return;
-		manager.setField(field.getName());
-		manager.setRows(rows);
-		manager.save();
+		AutoCompletionManager manager = client.getAutoCompletionManager();
+		if (selectedItem == null)
+			selectedItem = new AutoCompletionItem(client, name);
+		selectedItem.setField(field);
+		selectedItem.setRows(rows);
+		if (selectedItem != null)
+			manager.add(selectedItem);
+		else
+			selectedItem.save();
+		onCancel();
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onCancel() throws SearchLibException,
+			InvalidPropertiesFormatException, IOException {
+		selectedItem = null;
 	}
 
 	@Command
@@ -126,11 +129,11 @@ public class AutoCompletionComposer extends CommonController {
 	public void onChanging(
 			@ContextParam(ContextType.TRIGGER_EVENT) InputEvent event)
 			throws SearchLibException {
-		AutoCompletionManager manager = getAutoCompletionManager();
-		if (manager == null)
+		if (selectedItem == null)
 			return;
 		String[] resultArray = new String[0];
-		AbstractResultSearch result = manager.search(event.getValue(), rows);
+		AbstractResultSearch result = selectedItem.search(event.getValue(),
+				selectedItem.getRows());
 		if (result != null) {
 			if (result.getDocumentCount() > 0) {
 				resultArray = new String[result.getDocumentCount()];
@@ -138,7 +141,7 @@ public class AutoCompletionComposer extends CommonController {
 				for (ResultDocument resDoc : result) {
 					resultArray[i++] = resDoc
 							.getValueContent(
-									AutoCompletionManager.autoCompletionSchemaFieldTerm,
+									AutoCompletionItem.autoCompletionSchemaFieldTerm,
 									0);
 				}
 			}
@@ -148,6 +151,36 @@ public class AutoCompletionComposer extends CommonController {
 
 	public ListModel<String> getComboList() {
 		return comboList;
+	}
+
+	/**
+	 * @return the selectedItem
+	 */
+	public AutoCompletionItem getSelectedItem() {
+		return selectedItem;
+	}
+
+	/**
+	 * @param selectedItem
+	 *            the selectedItem to set
+	 */
+	public void setSelectedItem(AutoCompletionItem selectedItem) {
+		this.selectedItem = selectedItem;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -163,6 +196,21 @@ public class AutoCompletionComposer extends CommonController {
 	 */
 	public void setRows(int rows) {
 		this.rows = rows;
+	}
+
+	/**
+	 * @return the field
+	 */
+	public String getField() {
+		return field;
+	}
+
+	/**
+	 * @param field
+	 *            the field to set
+	 */
+	public void setField(String field) {
+		this.field = field;
 	}
 
 }

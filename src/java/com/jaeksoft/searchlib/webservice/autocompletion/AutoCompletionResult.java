@@ -36,7 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -60,7 +60,7 @@ public class AutoCompletionResult extends CommonResult {
 		terms = new ArrayList<String>();
 		for (ResultDocument document : result)
 			terms.add(document.getValueContent(
-					AutoCompletionManager.autoCompletionSchemaFieldTerm, 0));
+					AutoCompletionItem.autoCompletionSchemaFieldTerm, 0));
 	}
 
 	public AutoCompletionResult(JSONObject json) throws JSONException,

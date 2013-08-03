@@ -24,7 +24,10 @@
 
 package com.jaeksoft.searchlib.webservice.autocompletion;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,48 +36,72 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/autocompletion")
 public interface RestAutoCompletion {
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	@Path("/set/{index}/xml")
+	@Path("/autocompletion/set/{index}/xml")
 	public CommonResult setXML(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("field") String field, @QueryParam("rows") Integer rows);
+			@QueryParam("name") String name, @QueryParam("field") String field,
+			@QueryParam("rows") Integer rows);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/set/{index}/json")
+	@Path("/autocompletion/set/{index}/json")
 	public CommonResult setJSON(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("field") String field, @QueryParam("rows") Integer rows);
+			@QueryParam("name") String name, @QueryParam("field") String field,
+			@QueryParam("rows") Integer rows);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	@Path("/build/{index}/xml")
+	@Path("/autocompletion/build/{index}/xml")
 	public CommonResult buildXML(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("name") String name);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/build/{index}/json")
+	@Path("/autocompletion/build/{index}/json")
 	public CommonResult buildJSON(@PathParam("index") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("name") String name);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	@Path("/query/{index}/xml")
+	@Path("/autocompletion/query/{index}/xml")
 	public AutoCompletionResult queryXML(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("name") String name,
 			@QueryParam("prefix") String prefix,
 			@QueryParam("rows") Integer rows);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/query/{index}/json")
+	@Path("/autocompletion/query/{index}/json")
 	public AutoCompletionResult queryJSON(@PathParam("index") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("name") String name,
 			@QueryParam("prefix") String prefix,
 			@QueryParam("rows") Integer rows);
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/index/{index_name}/autocompletion/{autocomp_name}")
+	public AutoCompletionResult query(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("autocomp_name") String name,
+			@QueryParam("prefix") String prefix,
+			@QueryParam("rows") Integer rows);
+
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/index/{index_name}/autocompletion/{autocomp_name}")
+	public AutoCompletionResult queryPost(
+			@PathParam("index_name") String index,
+			@FormParam("login") String login, @FormParam("key") String key,
+			@PathParam("autocomp_name") String name,
+			@FormParam("prefix") String prefix, @FormParam("rows") Integer rows);
 }

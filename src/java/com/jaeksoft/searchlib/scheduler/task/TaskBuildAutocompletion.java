@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
@@ -38,6 +38,9 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
+
+	final private TaskPropertyDef propItemName = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Item name", "Item name", null, 20);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize };
 
@@ -74,7 +77,9 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 			bufferSize = Integer.parseInt(p);
 		if (bufferSize <= 0)
 			bufferSize = 1000;
-		AutoCompletionManager manager = client.getAutoCompletionManager();
-		manager.build(14400, bufferSize, taskLog);
+		String name = properties.getValue(propItemName);
+		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()
+				.getItem(name);
+		autoCompItem.build(14400, bufferSize, taskLog);
 	}
 }

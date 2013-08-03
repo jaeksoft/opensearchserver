@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,197 +24,100 @@
 
 package com.jaeksoft.searchlib.autocompletion;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Properties;
+import java.util.TreeSet;
 
-import com.jaeksoft.searchlib.Client;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.query.QueryUtils;
-import com.jaeksoft.searchlib.request.SearchRequest;
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class AutoCompletionManager {
+public class AutoCompletionManager implements Closeable {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private Client autoCompClient;
+	private final Config config;
 
-	private AutoCompletionBuildThread buildThread;
+	private TreeSet<AutoCompletionItem> autoCompItems;
 
-	private File propFile;
-
-	private int propRows;
-
-	private String propField;
-
-	private final static String autoCompletionProperties = "autocompletion-properties.xml";
 	private final static String autoCompletionSubDirectory = "autocompletion";
-	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
-	private final static String autoCompletionPropertyField = "field";
-	private final static String autoCompletionPropertyRows = "rows";
-	private final static String autoCompletionPropertyRowsDefault = "10";
-	public final static String autoCompletionSchemaFieldTerm = "term";
-	public final static String autoCompletionSchemaFieldFreq = "freq";
 
-	public final static String getPropertyField(Properties props) {
-		return props.getProperty(autoCompletionPropertyField);
-	}
+	private final File autoCompletionDirectory;
 
 	public AutoCompletionManager(Config config) throws SearchLibException,
 			InvalidPropertiesFormatException, IOException {
-		File subDir = new File(config.getDirectory(),
+		this.config = config;
+		autoCompletionDirectory = new File(config.getDirectory(),
 				autoCompletionSubDirectory);
-		if (!subDir.exists())
-			subDir.mkdir();
-		this.autoCompClient = new Client(subDir, autoCompletionConfigPath, true);
-		propFile = new File(config.getDirectory(), autoCompletionProperties);
-		Properties properties = PropertiesUtils.loadFromXml(propFile);
-		propField = properties.getProperty(autoCompletionPropertyField);
-		propRows = Integer.parseInt(properties.getProperty(
-				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
-		buildThread = new AutoCompletionBuildThread((Client) config,
-				autoCompClient);
-	}
-
-	private void saveProperties() throws IOException {
-		Properties properties = new Properties();
-		if (propField != null)
-			properties.setProperty(autoCompletionPropertyField, propField);
-		properties.setProperty(autoCompletionPropertyRows,
-				Integer.toString(propRows));
-		PropertiesUtils.storeToXml(properties, propFile);
-	}
-
-	public Client getAutoCompletionClient() {
-		rwl.r.lock();
-		try {
-			return autoCompClient;
-		} finally {
-			rwl.r.unlock();
+		if (!autoCompletionDirectory.exists())
+			autoCompletionDirectory.mkdir();
+		autoCompItems = new TreeSet<AutoCompletionItem>();
+		String[] autoCompDirs = autoCompletionDirectory
+				.list(DirectoryFileFilter.INSTANCE);
+		if (autoCompDirs == null)
+			return;
+		for (String autoCompDir : autoCompDirs) {
+			System.out.println(autoCompDir);
 		}
 	}
 
-	public String getField() {
-		rwl.r.lock();
-		try {
-			return propField;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setField(String field) {
-		rwl.w.lock();
-		try {
-			this.propField = field;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public int getRows() {
-		rwl.r.lock();
-		try {
-			return propRows;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setRows(int rows) {
-		rwl.w.lock();
-		try {
-			propRows = rows;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void save() throws SearchLibException {
-		rwl.w.lock();
-		try {
-			saveProperties();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
+	@Override
 	public void close() {
 		rwl.w.lock();
 		try {
-			this.autoCompClient.close();
+			if (autoCompItems == null)
+				return;
+			for (AutoCompletionItem item : autoCompItems)
+				IOUtils.closeQuietly(item);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public AutoCompletionBuildThread getBuildThread() {
+	public Collection<AutoCompletionItem> getItems() {
 		rwl.r.lock();
 		try {
-			return buildThread;
+			return autoCompItems;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	private void checkIfRunning() throws SearchLibException {
-		if (buildThread.isRunning())
-			throw new SearchLibException("The build is already running");
+	private AutoCompletionItem find(AutoCompletionItem searchItem) {
+		AutoCompletionItem foundItem = autoCompItems.ceiling(searchItem);
+		if (foundItem == null)
+			return null;
+		return searchItem.equals(foundItem) ? foundItem : null;
 	}
 
-	private int builder(Integer endTimeOut, int bufferSize,
-			InfoCallback infoCallBack) throws SearchLibException, IOException {
-		checkIfRunning();
-		buildThread.init(propField, bufferSize, infoCallBack);
-		buildThread.execute();
-		buildThread.waitForStart(300);
-		if (endTimeOut != null)
-			buildThread.waitForEnd(endTimeOut);
-		return buildThread.getIndexNumDocs();
-	}
-
-	public int build(Integer waitForEndTimeOut, int bufferSize,
-			InfoCallback infoCallBack) throws SearchLibException {
+	public AutoCompletionItem getItem(String name) throws SearchLibException {
 		rwl.r.lock();
 		try {
-			checkIfRunning();
+			return find(new AutoCompletionItem(config, name));
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public void add(AutoCompletionItem currentItem) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			return builder(waitForEndTimeOut, bufferSize, infoCallBack);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			if (find(currentItem) != null)
+				throw new SearchLibException(
+						"This name is already taken by another item");
+			currentItem.save();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public AbstractResultSearch search(String query, Integer rows)
-			throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (query == null || query.length() == 0)
-				return null;
-			if (rows == null)
-				rows = propRows;
-			SearchRequest searchRequest = (SearchRequest) autoCompClient
-					.getNewRequest("search");
-			query = QueryUtils.replaceControlChars(query.replace("\"", ""));
-			searchRequest.setQueryString(query);
-			searchRequest.setRows(rows);
-			return (AbstractResultSearch) autoCompClient.request(searchRequest);
-		} finally {
-			rwl.r.unlock();
-		}
+	public File getDirectory() {
+		return autoCompletionDirectory;
 	}
 }
