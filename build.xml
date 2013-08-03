@@ -25,9 +25,9 @@
 <project name="OpenSearchServer" default="dist" basedir=".">
 
 	<property environment="env" />
-	<property name="src" location="src/java" />
-	<property name="resources" location="src/resources" />
-	<property name="web" location="WebContent" />
+	<property name="src" location="src/main/java" />
+	<property name="resources" location="src/main/resources" />
+	<property name="web" location="src/main/webapp" />
 	<property name="lib" location="lib" />
 	<property name="lib-apache-cxf" location="${lib}/apache-cxf" />
 	<property name="wlib" location="${web}/WEB-INF/lib" />
