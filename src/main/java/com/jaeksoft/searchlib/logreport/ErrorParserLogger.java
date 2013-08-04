@@ -84,6 +84,47 @@ public class ErrorParserLogger {
 		}
 	}
 
+	public static class ErrorInfo {
+
+		public final String errorMessage;
+		public final String causeMessage;
+		public final String codeLocation;
+
+		public ErrorInfo(Throwable throwable) {
+			this.errorMessage = throwable.getMessage();
+			String causeMessage = null;
+			String codeLocation = null;
+			while (throwable != null) {
+				causeMessage = throwable.getMessage();
+				String cl = getLocation(throwable.getStackTrace());
+				if (cl != null)
+					codeLocation = cl;
+				throwable = throwable.getCause();
+			}
+			this.causeMessage = causeMessage;
+			this.codeLocation = codeLocation;
+		}
+
+		public String toString(CharSequence separator) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(errorMessage);
+			if (causeMessage != null && !causeMessage.equals(errorMessage)) {
+				sb.append(separator);
+				sb.append(causeMessage);
+			}
+			if (codeLocation != null) {
+				sb.append(separator);
+				sb.append(codeLocation);
+			}
+			return sb.toString();
+		}
+
+		@Override
+		public String toString() {
+			return toString(" - ");
+		}
+	}
+
 	public final static void log(String url, String filename, String filePath,
 			Throwable t) throws SearchLibException {
 		StringBuffer sb = new StringBuffer('\t');
@@ -94,24 +135,7 @@ public class ErrorParserLogger {
 		else if (filename != null)
 			sb.append(filename);
 		sb.append('\t');
-		sb.append(t.getMessage());
-		String codeLocation = null;
-		String causeMessage = null;
-		while (t != null) {
-			causeMessage = t.getMessage();
-			String cl = getLocation(t.getStackTrace());
-			if (cl != null)
-				codeLocation = cl;
-			t = t.getCause();
-		}
-		if (causeMessage != null) {
-			sb.append('\t');
-			sb.append(causeMessage);
-		}
-		if (codeLocation != null) {
-			sb.append('\t');
-			sb.append(codeLocation);
-		}
+		sb.append(new ErrorInfo(t).toString("\t"));
 		logger.log(sb.toString());
 	}
 }

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.test.rest;
 
 import java.io.IOException;
 
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -62,8 +61,7 @@ public class RestIndexTestCase extends TestCase {
 				.getNewWebClient("/index/create/xml");
 		webClient.query("name", CommonRestTestCase.INDEX_NAME);
 		webClient.query("template", TemplateList.WEB_CRAWLER.name());
-		Response response = commonRestTestCase.doPostRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.post(null, CommonResult.class);
 		assertEquals("Created Index oss", commonResult.info);
 
 	}
@@ -75,8 +73,8 @@ public class RestIndexTestCase extends TestCase {
 		WebClient webClient = commonRestTestCase
 				.getNewWebClient("/index/delete/xml");
 		webClient.query("name", CommonRestTestCase.INDEX_NAME);
-		Response response = commonRestTestCase.doDeleteRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.invoke("DELETE", null,
+				CommonResult.class);
 		assertEquals("Index deleted: oss", commonResult.info);
 
 	}
@@ -89,8 +87,7 @@ public class RestIndexTestCase extends TestCase {
 				.getNewWebClient("/index/create/json");
 		webClient.query("name", CommonRestTestCase.INDEX_NAME);
 		webClient.query("template", TemplateList.WEB_CRAWLER.name());
-		Response response = commonRestTestCase.doPostRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.post(null, CommonResult.class);
 		assertEquals("Created Index oss", commonResult.info);
 
 	}
@@ -101,8 +98,7 @@ public class RestIndexTestCase extends TestCase {
 			ParserConfigurationException {
 		WebClient webClient = commonRestTestCase
 				.getNewWebClient("/index/list/xml");
-		Response response = commonRestTestCase.doGetRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.get(CommonResult.class);
 		assertEquals("1 index(es)", commonResult.info);
 
 	}
@@ -113,8 +109,7 @@ public class RestIndexTestCase extends TestCase {
 			ParserConfigurationException {
 		WebClient webClient = commonRestTestCase
 				.getNewWebClient("/index/list/json");
-		Response response = commonRestTestCase.doGetRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.get(CommonResult.class);
 		assertEquals("1 index(es)", commonResult.info);
 
 	}

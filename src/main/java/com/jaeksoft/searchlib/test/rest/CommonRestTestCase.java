@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -39,6 +37,7 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 public class CommonRestTestCase {
+
 	public static String INDEX_NAME = "oss";
 	public static String SERVER_URL = "http://localhost:8080";
 	public static String REST_PATH = "/jenkins-oss-1.5-testing/services/rest";
@@ -47,14 +46,6 @@ public class CommonRestTestCase {
 		String restPath = REST_PATH + path;
 		WebClient webClient = WebClient.create(SERVER_URL).path(restPath);
 		return webClient;
-	}
-
-	public Response doPostRequest(WebClient webClient) {
-		return webClient.post(null);
-	}
-
-	public Response doDeleteRequest(WebClient webClient) {
-		return webClient.delete();
 	}
 
 	public URIBuilder getURIBuilder(String apiPath) {
@@ -70,10 +61,6 @@ public class CommonRestTestCase {
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpResponse httpResponse = httpClient.execute(httpGet);
 		return httpResponse.getEntity().getContent();
-	}
-
-	public Response doGetRequest(WebClient webClient) {
-		return webClient.get();
 	}
 
 	public int restAPIPostFile(File file, String contentType, String api)

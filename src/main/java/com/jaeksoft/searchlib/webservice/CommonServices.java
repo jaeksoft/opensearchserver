@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -119,7 +120,8 @@ public class CommonServices {
 		}
 	}
 
-	protected class CommonServiceException extends WebApplicationException {
+	protected static class CommonServiceException extends
+			WebApplicationException {
 
 		/**
 		 * 
@@ -132,7 +134,7 @@ public class CommonServices {
 		}
 
 		public CommonServiceException(Response.Status status, Exception e) {
-			this(status, e.getMessage());
+			this(status, new ErrorParserLogger.ErrorInfo(e).toString());
 		}
 
 		public CommonServiceException(String message) {
@@ -140,7 +142,7 @@ public class CommonServices {
 		}
 
 		public CommonServiceException(Exception e) {
-			this(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+			this(Response.Status.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 }

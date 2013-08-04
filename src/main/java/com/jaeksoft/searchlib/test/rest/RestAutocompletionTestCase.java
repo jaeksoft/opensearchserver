@@ -3,7 +3,6 @@ package com.jaeksoft.searchlib.test.rest;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -36,8 +35,7 @@ public class RestAutocompletionTestCase extends TestCase {
 						+ CommonRestTestCase.INDEX_NAME + "/xml");
 		webClient.query("field", "title");
 		webClient.query("rows", 10);
-		Response response = commonRestTestCase.doGetRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.get(CommonResult.class);
 		assertTrue(commonResult.successful);
 	}
 
@@ -48,8 +46,7 @@ public class RestAutocompletionTestCase extends TestCase {
 		WebClient webClient = commonRestTestCase
 				.getNewWebClient("/autocompletion/build/"
 						+ CommonRestTestCase.INDEX_NAME + "/xml");
-		Response response = commonRestTestCase.doGetRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.get(CommonResult.class);
 		assertTrue(commonResult.successful);
 		assertEquals("170 term(s) indexed", commonResult.info);
 	}
@@ -63,7 +60,6 @@ public class RestAutocompletionTestCase extends TestCase {
 						+ CommonRestTestCase.INDEX_NAME + "/xml");
 		webClient.query("prefix", "Open");
 		webClient.query("rows", 10);
-		commonRestTestCase.doGetRequest(webClient);
 		Collection<? extends AutoCompletionResult> autoCompletionResult = webClient
 				.getCollection(AutoCompletionResult.class);
 		assertEquals(2, autoCompletionResult.size());

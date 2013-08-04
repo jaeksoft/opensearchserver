@@ -33,6 +33,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -46,6 +47,7 @@ public class RestApplication extends Application {
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
+		classes.add(JacksonJsonProvider.class);
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			classes.add(webServiceEnum.getServiceClass());
 		return classes;

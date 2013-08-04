@@ -256,13 +256,17 @@
 	</welcome-file-list>
 	<!-- Begin CXF -->
 	<servlet>
-		<description>Apache CXF SOAP</description>
-		<display-name>CXF SOAP</display-name>
+		<description>Apache CXF</description>
+		<display-name>CXF WS</display-name>
 		<servlet-name>cxf ws</servlet-name>
 		<servlet-class>com.jaeksoft.searchlib.web.ServicesServlet</servlet-class>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
 			<param-value>com.jaeksoft.searchlib.webservice.RestApplication</param-value>
+		</init-param>
+		<init-param>
+			<param-name>jaxrs.providers</param-name>
+			<param-value>org.codehaus.jackson.jaxrs.JacksonJsonProvider</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

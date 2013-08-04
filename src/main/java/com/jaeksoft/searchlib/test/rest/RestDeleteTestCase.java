@@ -2,7 +2,6 @@ package com.jaeksoft.searchlib.test.rest;
 
 import java.io.IOException;
 
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -29,8 +28,8 @@ public class RestDeleteTestCase extends TestCase {
 		WebClient webClient = commonRestTestCase
 				.getNewWebClient("/index/delete/json");
 		webClient.query("name", CommonRestTestCase.INDEX_NAME);
-		Response response = commonRestTestCase.doDeleteRequest(webClient);
-		CommonResult commonResult = response.readEntity(CommonResult.class);
+		CommonResult commonResult = webClient.invoke("DELETE", null,
+				CommonResult.class);
 		assertEquals("Index deleted: oss", commonResult.info);
 
 	}

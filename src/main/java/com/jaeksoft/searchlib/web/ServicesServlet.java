@@ -47,8 +47,10 @@ public class ServicesServlet extends CXFNonSpringJaxrsServlet {
 
 		Bus bus = getBus();
 		BusFactory.setDefaultBus(bus);
+
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			try {
+				Logging.info("Publishing WebService : " + webServiceEnum.name());
 				Endpoint.publish(webServiceEnum.getDefaultPath(),
 						webServiceEnum.getNewInstance());
 			} catch (InstantiationException e) {
