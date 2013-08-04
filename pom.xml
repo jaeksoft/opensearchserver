@@ -242,6 +242,12 @@
 			<artifactId>simple-odf</artifactId>
 			<version>0.7-incubating</version>
 			<classifier>jar-with-dependencies</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>sun.com</groupId>
+					<artifactId>tools</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>batik</groupId>
