@@ -231,12 +231,6 @@
 			<artifactId>simple-odf</artifactId>
 			<version>0.7-incubating</version>
 			<classifier>jar-with-dependencies</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun</groupId>
-					<artifactId>tools</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>batik</groupId>
@@ -382,6 +376,11 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
 			</plugin>
 		</plugins>
 	</build>

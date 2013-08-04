@@ -146,10 +146,6 @@
 		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
 	</target>
 
-	<target name="javadoc">
-		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" classpathref="project.class.path" />
-	</target>
-
 	<target name="clean" description="clean up">
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
