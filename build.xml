@@ -25,12 +25,7 @@
 <project name="OpenSearchServer" default="dist" basedir=".">
 
 	<property environment="env" />
-	<property name="src" location="src/main/java" />
-	<property name="resources" location="src/main/resources" />
-	<property name="web" location="src/main/webapp" />
 	<property name="lib" location="lib" />
-	<property name="lib-apache-cxf" location="${lib}/apache-cxf" />
-	<property name="wlib" location="${web}/WEB-INF/lib" />
 	<property name="build" location="ant-build" />
 	<property name="build-doc" location="${build}/doc" />
 	<property name="dist" location="dist" />
@@ -46,61 +41,22 @@
 	<property name="tomcat-lib" location="pkg/tomcat_lib" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
-	<property name="junit-report" location="${build}/testreport" />
+	<property name="war" location="target/opensearchserver-1.5-DEV.war" />
 	<property name="tomcat-context-path" value="/jenkins-oss-1.5-testing" />
 	<property name="tomcat-test-url" value="http://localhost:8080/manager/text" />
 	<property name="tomcat-username" value="testing" />
 	<loadproperties srcfile="version" />
 
-	<path id="project.class.path">
-		<fileset dir="${lib}">
-			<include name="**.jar" />
-		</fileset>
-		<fileset dir="${lib-apache-cxf}">
-			<include name="**.jar" />
-		</fileset>
-		<fileset dir="${tomcat-lib}">
-			<include name="**.jar" />
-		</fileset>
-		<fileset dir="${wlib}">
-			<include name="**.jar" />
-		</fileset>
-		<pathelement location="${build}" />
-		<pathelement location="${resources}" />
-	</path>
-
 	<target name="init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${temp}" />
-		<mkdir dir="${junit-report}" />
 		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="REVISION = ${env.GIT_COMMIT}${line.separator}" />
 		<echo file="${temp-version}" append="true" message="BUILD = ${env.BUILD_NUMBER}${line.separator}" />
 	</target>
 
-	<target name="compile" depends="init" description="compile the source ">
-		<javac debug="on" debuglevel="lines,vars,source" compiler="modern" optimize="true" target="1.5" srcdir="${src}" destdir="${build}" classpathref="project.class.path" includeantruntime="false" />
-	</target>
-
-	<target name="dist-jar" depends="compile">
-		<mkdir dir="${dist}" />
-		<jar jarfile="${dist}/${name}.jar">
-			<fileset dir="${build}" />
-			<fileset dir="${resources}" />
-		</jar>
-	</target>
-
-	<target name="dist-war" depends="dist-jar">
-		<mkdir dir="${dist}" />
-		<war destfile="${dist}/${name}.war" basedir="${web}" keepcompression="true" webxml="${web}/WEB-INF/web.xml">
-			<lib file="${dist}/${name}.jar" />
-			<lib dir="${lib-apache-cxf}" />
-			<fileset file="${temp-version}" />
-		</war>
-	</target>
-
-	<target name="dist" depends="dist-war">
+	<target name="dist" depends="init">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
@@ -110,7 +66,8 @@
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/examples" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/docs" />
-		<copy file="${dist}/${product}.war" tofile="${dist}/${product}/${tomcat-name}/webapps/ROOT.war" />
+		<copy file="${war}" tofile="${dist}/${product}/${tomcat-name}/webapps/ROOT.war" />
+		<copy file="${war}" tofile="${dist}/${product}.war" />
 		<copy todir="${dist}/${product}/LICENSES">
 			<fileset dir="${licenses}" />
 		</copy>
@@ -189,20 +146,6 @@
 		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
 	</target>
 
-	<!-- Build the junit test cases -->
-	<target name="junit-test" depends="compile">
-		<junit printsummary="on" fork="true" haltonfailure="yes">
-			<classpath refid="project.class.path" />
-			<formatter type="brief" />
-			<batchtest todir="${junit-report}">
-				<fileset dir="${src}">
-					<include name="**/*AllTests*.java" />
-					<include name="**/*AllRestAPITests*.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
-
 	<target name="javadoc">
 		<javadoc sourcepath="${src}" destdir="${build-doc}/javadoc" classpathref="project.class.path" />
 	</target>
@@ -211,17 +154,6 @@
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
 		<delete dir="${temp}" />
-		<delete dir="${junit-report}" />
 	</target>
-
-	<!-- Undeploy the test existing instance. -->
-	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
-		<classpath refid="project.class.path" />
-	</taskdef>
-
-	<target name="undeploy">
-		<undeploy url="${tomcat-test-url}" username="${tomcat-username}" password="${tomcat-password}" path="${tomcat-context-path}" />
-	</target>
-
 
 </project>
