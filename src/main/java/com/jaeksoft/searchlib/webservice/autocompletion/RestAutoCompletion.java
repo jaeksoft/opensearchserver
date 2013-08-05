@@ -38,12 +38,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/index/{index_name}/autocompletion/{autocomp_name}")
+@Path("/index/{index_name}/autocompletion/")
 public interface RestAutoCompletion {
 
 	@GET
+	@Path("/")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public CommonListResult list(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public AutoCompletionResult query(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -52,6 +60,7 @@ public interface RestAutoCompletion {
 			@QueryParam("rows") Integer rows);
 
 	@POST
+	@Path("/{autocomp_name}")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public AutoCompletionResult queryPost(
@@ -61,6 +70,7 @@ public interface RestAutoCompletion {
 			@FormParam("prefix") String prefix, @FormParam("rows") Integer rows);
 
 	@PUT
+	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public CommonResult set(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -69,6 +79,7 @@ public interface RestAutoCompletion {
 			@QueryParam("rows") Integer rows);
 
 	@DELETE
+	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public CommonResult delete(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,

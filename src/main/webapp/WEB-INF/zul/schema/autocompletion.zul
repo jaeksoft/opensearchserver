@@ -71,7 +71,7 @@
 						<label
 							value="Set how many suggestions will be submitted" />
 					</row>
-					<row>
+					<row visible="@load(not empty auto.selectedItem)">
 						<label value="Testing" />
 						<combobox cols="50" autodrop="true"
 							model="@load(auto.comboList)" onChanging="@command('onChanging')"
@@ -89,11 +89,6 @@
 							<space />
 							<button label="Save"
 								onClick="@command('onSave')" />
-							<space />
-							<button label="Build"
-								onClick="@command('onBuild')"
-								disabled="@load(auto.selectedItem.buildThread.running)" />
-							<space />
 							<space />
 							<button label="Delete"
 								onClick="@command('onDelete')" />
@@ -113,6 +108,7 @@
 					<listheader label="Name" />
 					<listheader label="Status" />
 					<listheader label="Terms" />
+					<listheader label="Command" />
 				</listhead>
 				<template name="model">
 					<listitem>
@@ -121,12 +117,15 @@
 							label="@load(each.buildThread.status)" />
 						<listcell
 							label="@load(each.buildThread.indexNumDocs)" />
+						<listcell>
+							<button label="Build"
+								onClick="@command('onBuild', item=each)" />
+						</listcell>
 					</listitem>
 				</template>
 			</listbox>
 		</panelchildren>
 	</panel>
 	<timer id="timer" delay="5000" repeats="true"
-		running="@load(auto.selectedItem.buildThread.running)"
-		onTimer="@command('reload')" />
+		running="@load(auto.running)" onTimer="@command('reload')" />
 </window>

@@ -34,6 +34,10 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "AutoCompletion")
 public interface SoapAutoCompletion {
 
+	public CommonResult list(@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
 	public CommonResult set(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,

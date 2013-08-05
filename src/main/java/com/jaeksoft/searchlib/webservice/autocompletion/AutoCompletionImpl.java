@@ -26,10 +26,16 @@ package com.jaeksoft.searchlib.webservice.autocompletion;
 
 import java.util.List;
 
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class AutoCompletionImpl extends AutoCompletionCommon implements
 		SoapAutoCompletion, RestAutoCompletion {
+
+	@Override
+	public CommonListResult list(String index, String login, String key) {
+		return super.list(index, login, key);
+	}
 
 	@Override
 	public AutoCompletionResult query(String index, String login, String key,
@@ -41,6 +47,12 @@ public class AutoCompletionImpl extends AutoCompletionCommon implements
 	public AutoCompletionResult queryPost(String index, String login,
 			String key, String name, String prefix, Integer rows) {
 		return super.query(index, login, key, name, prefix, rows);
+	}
+
+	@Override
+	public CommonResult build(String index, String login, String key,
+			String name) {
+		return super.build(index, login, key, name);
 	}
 
 	@Override
@@ -57,4 +69,5 @@ public class AutoCompletionImpl extends AutoCompletionCommon implements
 			String name) {
 		return super.delete(index, login, key, name);
 	}
+
 }

@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -49,7 +50,7 @@ public class AutoCompletionCommon extends CommonServices {
 		return autoCompItem;
 	}
 
-	public CommonResult set(String index, String login, String key,
+	protected CommonResult set(String index, String login, String key,
 			String name, List<String> fields, Integer rows) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
@@ -80,7 +81,7 @@ public class AutoCompletionCommon extends CommonServices {
 		}
 	}
 
-	public CommonResult build(String index, String login, String key,
+	protected CommonResult build(String index, String login, String key,
 			String name) {
 		try {
 			Client client = getLoggedClient(index, login, key,
@@ -100,8 +101,8 @@ public class AutoCompletionCommon extends CommonServices {
 		}
 	}
 
-	public AutoCompletionResult query(String index, String login, String key,
-			String name, String prefix, Integer rows) {
+	protected AutoCompletionResult query(String index, String login,
+			String key, String name, String prefix, Integer rows) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -117,7 +118,7 @@ public class AutoCompletionCommon extends CommonServices {
 		}
 	}
 
-	public CommonResult delete(String index, String login, String key,
+	protected CommonResult delete(String index, String login, String key,
 			String name) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
@@ -132,6 +133,21 @@ public class AutoCompletionCommon extends CommonServices {
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	protected CommonListResult list(String index, String login, String key) {
+		try {
+			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			ClientFactory.INSTANCE.properties.checkApi();
+			AutoCompletionManager manager = client.getAutoCompletionManager();
+			return new CommonListResult(manager.getItems());
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}

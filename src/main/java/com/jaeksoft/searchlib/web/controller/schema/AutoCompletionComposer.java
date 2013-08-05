@@ -44,6 +44,7 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.autocompletion.AutoCompletionBuildThread;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -89,6 +90,21 @@ public class AutoCompletionComposer extends CommonController {
 		return client.getAutoCompletionManager().getItems();
 	}
 
+	public boolean isRunning() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return false;
+		for (AutoCompletionItem item : client.getAutoCompletionManager()
+				.getItems()) {
+			AutoCompletionBuildThread thread = item.getBuildThread();
+			if (thread == null)
+				continue;
+			if (thread.isRunning())
+				return true;
+		}
+		return false;
+	}
+
 	@Override
 	protected void reset() throws SearchLibException {
 		comboList = null;
@@ -100,11 +116,10 @@ public class AutoCompletionComposer extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onBuild() throws SearchLibException,
-			InvalidPropertiesFormatException, IOException {
-		if (selectedItem == null)
-			return;
-		selectedItem.build(null, 1000, null);
+	public void onBuild(@BindingParam("item") AutoCompletionItem item)
+			throws SearchLibException, InvalidPropertiesFormatException,
+			IOException {
+		item.build(null, 1000, null);
 	}
 
 	@Command
