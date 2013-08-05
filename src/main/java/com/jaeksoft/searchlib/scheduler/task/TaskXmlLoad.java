@@ -110,7 +110,7 @@ public class TaskXmlLoad extends TaskAbstract {
 			bufferSize = Integer.parseInt(p);
 		ProxyHandler proxyHandler = client.getWebPropertyManager()
 				.getProxyHandler();
-		HttpDownloader httpDownloader = new HttpDownloader(null, false,
+		HttpDownloader httpDownloader = new HttpDownloader(null, true,
 				proxyHandler);
 		try {
 			CredentialItem credentialItem = null;
@@ -120,6 +120,7 @@ public class TaskXmlLoad extends TaskAbstract {
 						null, null);
 			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
 					credentialItem);
+			downloadItem.checkNoError(200);
 			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");

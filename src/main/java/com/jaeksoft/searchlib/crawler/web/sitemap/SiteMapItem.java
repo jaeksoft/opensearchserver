@@ -107,6 +107,7 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		InputStream inputStream = null;
 		try {
 			DownloadItem downloadItem = httpDownloader.get(uri, null);
+			downloadItem.checkNoError(200);
 			inputStream = downloadItem.getContentInputStream();
 			Document doc = DomUtils.readXml(new InputSource(inputStream), true);
 			if (doc != null) {

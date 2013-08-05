@@ -223,11 +223,12 @@ public class IndexDocument implements Iterable<FieldContent> {
 	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
 			CredentialItem credentialItem, ProxyHandler proxyHandler)
 			throws SearchLibException {
-		HttpDownloader httpDownloader = new HttpDownloader(null, false,
+		HttpDownloader httpDownloader = new HttpDownloader(null, true,
 				proxyHandler);
 		try {
 			DownloadItem downloadItem = httpDownloader.get(new URI(url),
 					credentialItem);
+			downloadItem.checkNoError(200);
 			return parserSelector.parseStream(null, downloadItem.getFileName(),
 					downloadItem.getContentBaseType(), url,
 					downloadItem.getContentInputStream(), lang, null);
