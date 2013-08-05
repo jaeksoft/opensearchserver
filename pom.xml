@@ -386,7 +386,9 @@
 	</build>
 	<version>1.5-DEV</version>
 	<scm>
-		<url>https://github.com/jaeksoft/opensearchserver</url>
+		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
+		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
+		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
 	</scm>
 	<issueManagement>
 		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
