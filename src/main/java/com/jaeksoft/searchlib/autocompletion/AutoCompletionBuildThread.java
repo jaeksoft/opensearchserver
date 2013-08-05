@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.lang.Thread.State;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
@@ -46,7 +47,7 @@ public class AutoCompletionBuildThread extends
 
 	private volatile Client sourceClient;
 	private volatile Client autoCompClient;
-	private volatile String fieldName;
+	private volatile String[] fieldNames;
 	private volatile TermEnum termEnum;
 	private volatile InfoCallback infoCallBack;
 	private volatile int bufferSize;
@@ -56,7 +57,7 @@ public class AutoCompletionBuildThread extends
 		super(sourceClient, null, null);
 		this.sourceClient = sourceClient;
 		this.autoCompClient = autoCompClient;
-		this.fieldName = null;
+		this.fieldNames = null;
 		this.termEnum = null;
 		this.bufferSize = 50;
 	}
@@ -90,28 +91,30 @@ public class AutoCompletionBuildThread extends
 	@Override
 	public void runner() throws Exception {
 		autoCompClient.deleteAll();
-		if (fieldName == null)
+		if (fieldNames == null)
 			return;
-		termEnum = sourceClient.getTermEnum(fieldName, "");
-		Term term = null;
-		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
-		int docCount = 0;
-		while ((term = termEnum.term()) != null) {
-			if (!fieldName.equals(term.field()))
-				break;
-			IndexDocument indexDocument = new IndexDocument();
-			String t = term.text();
-			indexDocument.addString("term", t);
-			indexDocument.addString("cluster", t);
-			indexDocument.addString("freq",
-					Integer.toString(termEnum.docFreq()));
-			buffer.add(indexDocument);
-			if (buffer.size() == bufferSize)
-				docCount = indexBuffer(docCount, buffer);
-			if (!termEnum.next())
-				break;
+		for (String fieldName : fieldNames) {
+			termEnum = sourceClient.getTermEnum(fieldName, "");
+			Term term = null;
+			List<IndexDocument> buffer = new ArrayList<IndexDocument>();
+			int docCount = 0;
+			while ((term = termEnum.term()) != null) {
+				if (!fieldName.equals(term.field()))
+					break;
+				IndexDocument indexDocument = new IndexDocument();
+				String t = term.text();
+				indexDocument.addString("term", t);
+				indexDocument.addString("cluster", t);
+				indexDocument.addString("freq",
+						Integer.toString(termEnum.docFreq()));
+				buffer.add(indexDocument);
+				if (buffer.size() == bufferSize)
+					docCount = indexBuffer(docCount, buffer);
+				if (!termEnum.next())
+					break;
+			}
+			docCount = indexBuffer(docCount, buffer);
 		}
-		docCount = indexBuffer(docCount, buffer);
 		autoCompClient.optimize();
 	}
 
@@ -127,8 +130,9 @@ public class AutoCompletionBuildThread extends
 		}
 	}
 
-	public void init(String fieldName, int bufferSize, InfoCallback infoCallBack) {
-		this.fieldName = fieldName;
+	public void init(Collection<String> fieldNames, int bufferSize,
+			InfoCallback infoCallBack) {
+		this.fieldNames = fieldNames.toArray(new String[fieldNames.size()]);
 		this.infoCallBack = infoCallBack;
 		this.bufferSize = bufferSize;
 	}

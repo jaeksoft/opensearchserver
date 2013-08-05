@@ -26,14 +26,16 @@ package com.jaeksoft.searchlib.autocompletion;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.InvalidPropertiesFormatException;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -51,19 +53,23 @@ public class AutoCompletionManager implements Closeable {
 	private final File autoCompletionDirectory;
 
 	public AutoCompletionManager(Config config) throws SearchLibException,
-			InvalidPropertiesFormatException, IOException {
+			IOException {
 		this.config = config;
 		autoCompletionDirectory = new File(config.getDirectory(),
 				autoCompletionSubDirectory);
 		if (!autoCompletionDirectory.exists())
 			autoCompletionDirectory.mkdir();
 		autoCompItems = new TreeSet<AutoCompletionItem>();
-		String[] autoCompDirs = autoCompletionDirectory
-				.list(DirectoryFileFilter.INSTANCE);
-		if (autoCompDirs == null)
+		File[] autoCompFiles = autoCompletionDirectory
+				.listFiles((FileFilter) new SuffixFileFilter(".xml"));
+		if (autoCompFiles == null)
 			return;
-		for (String autoCompDir : autoCompDirs) {
-			System.out.println(autoCompDir);
+		for (File autoCompFile : autoCompFiles) {
+			try {
+				add(new AutoCompletionItem(config, autoCompFile));
+			} catch (InvalidPropertiesFormatException e) {
+				Logging.error(e);
+			}
 		}
 	}
 
@@ -93,7 +99,7 @@ public class AutoCompletionManager implements Closeable {
 		AutoCompletionItem foundItem = autoCompItems.ceiling(searchItem);
 		if (foundItem == null)
 			return null;
-		return searchItem.equals(foundItem) ? foundItem : null;
+		return searchItem.compareTo(foundItem) == 0 ? foundItem : null;
 	}
 
 	public AutoCompletionItem getItem(String name) throws SearchLibException {
@@ -111,6 +117,7 @@ public class AutoCompletionManager implements Closeable {
 			if (find(currentItem) != null)
 				throw new SearchLibException(
 						"This name is already taken by another item");
+			autoCompItems.add(currentItem);
 			currentItem.save();
 		} finally {
 			rwl.w.unlock();
@@ -119,5 +126,15 @@ public class AutoCompletionManager implements Closeable {
 
 	public File getDirectory() {
 		return autoCompletionDirectory;
+	}
+
+	public void delete(AutoCompletionItem selectedItem) throws IOException {
+		rwl.w.lock();
+		try {
+			selectedItem.delete();
+			autoCompItems.remove(selectedItem);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 }

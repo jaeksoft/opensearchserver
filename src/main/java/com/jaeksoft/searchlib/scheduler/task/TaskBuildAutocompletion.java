@@ -24,7 +24,12 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.config.Config;
@@ -40,9 +45,10 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
 	final private TaskPropertyDef propItemName = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Item name", "Item name", null, 20);
+			TaskPropertyType.comboBox, "Item name", "Item name", null, 20);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize,
+			propItemName };
 
 	@Override
 	public String getName() {
@@ -58,13 +64,29 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 	public String[] getPropertyValues(Config config,
 			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
-		return null;
+		List<String> values = new ArrayList<String>(0);
+		if (propertyDef == propItemName)
+			for (AutoCompletionItem item : config.getAutoCompletionManager()
+					.getItems())
+				values.add(item.getName());
+		return values.size() == 0 ? null : values.toArray(new String[values
+				.size()]);
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propBuffersize)
 			return "1000";
+		if (propertyDef == propItemName) {
+			try {
+				Iterator<AutoCompletionItem> iterator = config
+						.getAutoCompletionManager().getItems().iterator();
+				if (iterator.hasNext())
+					return iterator.next().getName();
+			} catch (SearchLibException e) {
+				Logging.error(e);
+			}
+		}
 		return null;
 	}
 
@@ -80,6 +102,9 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 		String name = properties.getValue(propItemName);
 		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()
 				.getItem(name);
+		if (autoCompItem == null)
+			throw new SearchLibException("Autocompetion item not found: "
+					+ name);
 		autoCompItem.build(14400, bufferSize, taskLog);
 	}
 }

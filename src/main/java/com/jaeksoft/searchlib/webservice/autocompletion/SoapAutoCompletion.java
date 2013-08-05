@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.webservice.autocompletion;
 
+import java.util.List;
+
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
@@ -36,7 +38,7 @@ public interface SoapAutoCompletion {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name,
-			@WebParam(name = "field") String field,
+			@WebParam(name = "fields") List<String> fields,
 			@WebParam(name = "rows") Integer rows);
 
 	public CommonResult build(@WebParam(name = "index") String index,

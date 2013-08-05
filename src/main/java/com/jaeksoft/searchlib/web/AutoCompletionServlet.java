@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.web;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
@@ -68,16 +70,16 @@ public class AutoCompletionServlet extends AbstractServlet {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
-		String field = transaction.getParameterString("field");
+		String[] fields = transaction.getParameterValues("field");
 		AutoCompletionItem autoComp = client.getAutoCompletionManager()
 				.getItem(name);
 		if (autoComp == null)
 			throw new SearchLibException("Autocompletion item not found "
 					+ name);
-		autoComp.setField(field);
+		autoComp.setField(fields);
 		autoComp.save();
 		transaction.addXmlResponse("Status", "OK");
-		transaction.addXmlResponse("Field", field);
+		transaction.addXmlResponse("Field", ArrayUtils.toString(fields, ""));
 	}
 
 	private void build(ServletTransaction transaction, Client client,

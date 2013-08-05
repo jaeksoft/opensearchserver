@@ -50,9 +50,9 @@ public class ServicesServlet extends CXFNonSpringJaxrsServlet {
 
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			try {
-				Logging.info("Publishing WebService : " + webServiceEnum.name());
-				Endpoint.publish(webServiceEnum.getDefaultPath(),
-						webServiceEnum.getNewInstance());
+				if (webServiceEnum.defaultPath != null)
+					Endpoint.publish(webServiceEnum.defaultPath,
+							webServiceEnum.getNewInstance());
 			} catch (InstantiationException e) {
 				Logging.error(e);
 			} catch (IllegalAccessException e) {

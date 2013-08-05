@@ -25,10 +25,14 @@
 package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
@@ -36,6 +40,7 @@ import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zul.ListModel;
 import org.zkoss.zul.ListModelArray;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -43,7 +48,7 @@ import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class AutoCompletionComposer extends CommonController {
@@ -54,20 +59,25 @@ public class AutoCompletionComposer extends CommonController {
 
 	private int rows;
 
-	private String field;
+	private String selectedField;
+
+	private final Set<String> fields;
 
 	private ListModel<String> comboList;
 
 	public AutoCompletionComposer() throws SearchLibException {
 		super();
+		fields = new TreeSet<String>();
 	}
 
-	public List<SchemaField> getFieldList() throws SearchLibException {
+	public List<String> getFieldList() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			return client.getSchema().getFieldList().getList();
+			List<String> fieldList = new ArrayList<String>();
+			client.getSchema().getFieldList().toNameList(fieldList);
+			return fieldList;
 		}
 	}
 
@@ -85,7 +95,7 @@ public class AutoCompletionComposer extends CommonController {
 		selectedItem = null;
 		name = null;
 		rows = 10;
-		field = null;
+		selectedField = null;
 	}
 
 	@Command
@@ -94,7 +104,6 @@ public class AutoCompletionComposer extends CommonController {
 			InvalidPropertiesFormatException, IOException {
 		if (selectedItem == null)
 			return;
-		onSave();
 		selectedItem.build(null, 1000, null);
 	}
 
@@ -106,22 +115,70 @@ public class AutoCompletionComposer extends CommonController {
 		if (client == null)
 			return;
 		AutoCompletionManager manager = client.getAutoCompletionManager();
+		AutoCompletionItem autoCompItem = selectedItem != null ? selectedItem
+				: new AutoCompletionItem(client, name);
+		autoCompItem.setFields(fields);
+		autoCompItem.setRows(rows);
 		if (selectedItem == null)
-			selectedItem = new AutoCompletionItem(client, name);
-		selectedItem.setField(field);
-		selectedItem.setRows(rows);
-		if (selectedItem != null)
-			manager.add(selectedItem);
+			manager.add(autoCompItem);
 		else
-			selectedItem.save();
+			autoCompItem.save();
 		onCancel();
+	}
+
+	private class DeleteAlert extends AlertController {
+
+		protected DeleteAlert() throws InterruptedException {
+			super(
+					"Please, confirm that you want to delete the autocompletion: "
+							+ selectedItem.getName(), Messagebox.YES
+							| Messagebox.NO, Messagebox.QUESTION);
+		}
+
+		@Override
+		protected void onYes() throws SearchLibException {
+			Client client = getClient();
+			if (client == null)
+				return;
+			try {
+				AutoCompletionManager manager = client
+						.getAutoCompletionManager();
+				if (selectedItem != null)
+					manager.delete(selectedItem);
+				reload();
+				onCancel();
+			} catch (IOException e) {
+				throw new SearchLibException(e);
+			}
+		}
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onCancel() throws SearchLibException,
-			InvalidPropertiesFormatException, IOException {
+	public void onDelete() throws InterruptedException {
+		new DeleteAlert();
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onCancel() {
 		selectedItem = null;
+		selectedField = null;
+		name = null;
+		rows = 10;
+		fields.clear();
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onFieldAdd() {
+		fields.add(selectedField);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onFieldRemove(@BindingParam("field") String field) {
+		fields.remove(field);
 	}
 
 	@Command
@@ -164,8 +221,13 @@ public class AutoCompletionComposer extends CommonController {
 	 * @param selectedItem
 	 *            the selectedItem to set
 	 */
+	@NotifyChange("*")
 	public void setSelectedItem(AutoCompletionItem selectedItem) {
 		this.selectedItem = selectedItem;
+		fields.clear();
+		fields.addAll(selectedItem.getFields());
+		this.rows = selectedItem.getRows();
+		this.name = selectedItem.getName();
 	}
 
 	/**
@@ -178,9 +240,13 @@ public class AutoCompletionComposer extends CommonController {
 	/**
 	 * @param name
 	 *            the name to set
+	 * @throws SearchLibException
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String name) throws SearchLibException {
+		if (selectedItem != null)
+			throw new SearchLibException("Changing name is not allowed");
+		else
+			this.name = name;
 	}
 
 	/**
@@ -199,18 +265,22 @@ public class AutoCompletionComposer extends CommonController {
 	}
 
 	/**
-	 * @return the field
+	 * @return the selectedField
 	 */
-	public String getField() {
-		return field;
+	public String getSelectedField() {
+		return selectedField;
 	}
 
 	/**
-	 * @param field
-	 *            the field to set
+	 * @param selectedField
+	 *            the selectedField to set
 	 */
-	public void setField(String field) {
-		this.field = field;
+	public void setSelectedField(String selectedField) {
+		this.selectedField = selectedField;
+	}
+
+	public Collection<String> getFields() {
+		return fields;
 	}
 
 }

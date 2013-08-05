@@ -27,8 +27,11 @@ package com.jaeksoft.searchlib.autocompletion;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -57,7 +60,7 @@ public class AutoCompletionItem implements Closeable,
 
 	private int propRows;
 
-	private String propField;
+	private final Set<String> propFields;
 
 	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
@@ -77,25 +80,49 @@ public class AutoCompletionItem implements Closeable,
 		this.propFile = new File(manager.getDirectory(), name + ".xml");
 		this.autoCompClientDir = new File(manager.getDirectory(), name);
 		this.propRows = 10;
-		this.propField = null;
+		this.propFields = new TreeSet<String>();
 	}
 
-	public AutoCompletionItem(Config config, File autoCompPropFile,
-			File autoCompClientDir) throws SearchLibException,
-			InvalidPropertiesFormatException, IOException {
+	private final static File getAutoCompClientDir(File autoCompPropFile)
+			throws InvalidPropertiesFormatException {
+		String name = autoCompPropFile.getName();
+		if (name.length() <= 4 || !name.endsWith(".xml"))
+			throw new InvalidPropertiesFormatException(
+					"File is not an XML file: "
+							+ autoCompPropFile.getAbsolutePath());
+		return new File(autoCompPropFile.getParent(), name.substring(0,
+				name.length() - 4));
+	}
+
+	public AutoCompletionItem(Config config, File autoCompPropFile)
+			throws SearchLibException, InvalidPropertiesFormatException,
+			IOException {
 		this.config = config;
+		this.propFields = new TreeSet<String>();
 		this.propFile = autoCompPropFile;
-		this.autoCompClientDir = autoCompClientDir;
+		this.autoCompClientDir = getAutoCompClientDir(autoCompPropFile);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
-		propField = properties.getProperty(autoCompletionPropertyField);
+		int i = 1;
+		for (;;) {
+			String propField = properties
+					.getProperty(autoCompletionPropertyField + i);
+			if (propField == null)
+				break;
+			propFields.add(propField);
+			i++;
+		}
 		propRows = Integer.parseInt(properties.getProperty(
 				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
+		checkIndexAndThread();
 	}
 
 	private void checkIndexAndThread() throws SearchLibException {
-		if (autoCompClient == null)
+		if (autoCompClient == null) {
+			if (!autoCompClientDir.exists())
+				autoCompClientDir.mkdir();
 			autoCompClient = new Client(autoCompClientDir,
 					autoCompletionConfigPath, true);
+		}
 		if (buildThread == null)
 			buildThread = new AutoCompletionBuildThread((Client) config,
 					autoCompClient);
@@ -110,21 +137,61 @@ public class AutoCompletionItem implements Closeable,
 		}
 	}
 
-	public String getField() {
+	public Collection<String> getFields() {
 		rwl.r.lock();
 		try {
-			return propField;
+			return propFields;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public void setField(String field) {
+	public void addField(String field) {
 		rwl.w.lock();
 		try {
-			this.propField = field;
+			propFields.add(field);
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public void setFields(Collection<String> fields) {
+		rwl.w.lock();
+		try {
+			propFields.clear();
+			for (String field : fields)
+				propFields.add(field);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void setField(String[] fields) {
+		rwl.w.lock();
+		try {
+			propFields.clear();
+			for (String field : fields)
+				propFields.add(field);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeField(String field) {
+		rwl.w.lock();
+		try {
+			propFields.remove(field);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getName() {
+		rwl.r.lock();
+		try {
+			return autoCompClientDir.getName();
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -150,8 +217,22 @@ public class AutoCompletionItem implements Closeable,
 		rwl.w.lock();
 		try {
 			saveProperties();
+			checkIndexAndThread();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void delete() throws IOException {
+		rwl.w.lock();
+		try {
+			if (autoCompClient != null) {
+				autoCompClient.close();
+				autoCompClient.delete();
+			}
+			propFile.delete();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -187,8 +268,10 @@ public class AutoCompletionItem implements Closeable,
 
 	private int builder(Integer endTimeOut, int bufferSize,
 			InfoCallback infoCallBack) throws SearchLibException, IOException {
+		if (infoCallBack != null)
+			infoCallBack.setInfo("Build starts");
 		checkIfRunning();
-		buildThread.init(propField, bufferSize, infoCallBack);
+		buildThread.init(propFields, bufferSize, infoCallBack);
 		buildThread.execute();
 		buildThread.waitForStart(300);
 		if (endTimeOut != null)
@@ -236,8 +319,11 @@ public class AutoCompletionItem implements Closeable,
 
 	private void saveProperties() throws IOException {
 		Properties properties = new Properties();
-		if (propField != null)
-			properties.setProperty(autoCompletionPropertyField, propField);
+		int i = 1;
+		for (String fieldName : propFields) {
+			properties.setProperty(autoCompletionPropertyField + i, fieldName);
+			i++;
+		}
 		properties.setProperty(autoCompletionPropertyRows,
 				Integer.toString(propRows));
 		PropertiesUtils.storeToXml(properties, propFile);

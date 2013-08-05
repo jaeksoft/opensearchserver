@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice;
 
 import com.jaeksoft.searchlib.webservice.analyzer.AnalyzerImpl;
 import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionImpl;
+import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionOldImpl;
 import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
@@ -46,6 +47,8 @@ public enum WebServiceEnum {
 	Analyzer(AnalyzerImpl.class, "/analyzer"),
 
 	AutoCompletion(AutoCompletionImpl.class, "/autocompletion"),
+
+	AutoCompletionOld(AutoCompletionOldImpl.class, null),
 
 	Command(CommandImpl.class, "/command"),
 
@@ -75,9 +78,9 @@ public enum WebServiceEnum {
 
 	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
 
-	final private Class<?> serviceClass;
+	final public Class<?> serviceClass;
 
-	final private String defaultPath;
+	final public String defaultPath;
 
 	private WebServiceEnum(Class<?> serviceClass, String defaultPath) {
 		this.serviceClass = serviceClass;

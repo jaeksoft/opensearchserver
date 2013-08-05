@@ -28,33 +28,42 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class AutoCompletionImpl extends AutoCompletionCommon implements
-		SoapAutoCompletion, RestAutoCompletion {
+public class AutoCompletionOldImpl extends AutoCompletionCommon implements
+		RestAutoCompletionOld {
 
 	@Override
-	public AutoCompletionResult query(String index, String login, String key,
-			String name, String prefix, Integer rows) {
-		return super.query(index, login, key, name, prefix, rows);
-	}
-
-	@Override
-	public AutoCompletionResult queryPost(String index, String login,
-			String key, String name, String prefix, Integer rows) {
-		return super.query(index, login, key, name, prefix, rows);
-	}
-
-	@Override
-	public CommonResult set(String index, String login, String key,
+	public CommonResult setXML(String index, String login, String key,
 			String name, List<String> fields, Integer rows) {
-		if ((fields == null || fields.size() == 0) && rows == null)
-			return super.build(index, login, key, name);
-		else
-			return super.set(index, login, key, name, fields, rows);
+		return set(index, login, key, name, fields, rows);
 	}
 
 	@Override
-	public CommonResult delete(String index, String login, String key,
+	public CommonResult setJSON(String index, String login, String key,
+			String name, List<String> fields, Integer rows) {
+		return set(index, login, key, name, fields, rows);
+	}
+
+	@Override
+	public CommonResult buildXML(String index, String login, String key,
 			String name) {
-		return super.delete(index, login, key, name);
+		return build(index, login, key, name);
+	}
+
+	@Override
+	public CommonResult buildJSON(String index, String login, String key,
+			String name) {
+		return build(index, login, key, name);
+	}
+
+	@Override
+	public AutoCompletionResult queryXML(String index, String login,
+			String key, String name, String prefix, Integer rows) {
+		return query(index, login, key, name, prefix, rows);
+	}
+
+	@Override
+	public AutoCompletionResult queryJSON(String index, String login,
+			String key, String name, String prefix, Integer rows) {
+		return query(index, login, key, name, prefix, rows);
 	}
 }
