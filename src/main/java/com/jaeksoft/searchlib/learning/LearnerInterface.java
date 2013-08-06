@@ -26,27 +26,31 @@ package com.jaeksoft.searchlib.learning;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Collection;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
 
 public interface LearnerInterface {
 
 	/**
 	 * Load the learner (reading any data on file)
 	 * 
+	 * @throws SearchLibException
+	 * 
 	 */
-	void init(File instancesFile);
+	void init(File instancesFile) throws SearchLibException;
 
 	/**
 	 * Remove any data in the learner
 	 * 
+	 * @throws SearchLibException
+	 * 
 	 */
-	public void reset();
+	public void reset() throws SearchLibException;
 
 	/**
 	 * Classify the document passed in parameter
@@ -68,24 +72,29 @@ public interface LearnerInterface {
 	 * @param data
 	 * @param maxRank
 	 * @param minScore
+	 * @param collector
 	 * @return
 	 * @throws IOException
+	 * @throws SearchLibException
 	 */
-	public Map<Double, String> classify(String data, int maxRank,
-			double minScore) throws IOException;
+	public void classify(String data, int maxRank, double minScore,
+			Collection<LearnerResultItem> collector) throws IOException,
+			SearchLibException;
 
 	/**
-	 * Learn by reading the document returned by the search query
+	 * SearchLibException Learn by reading the document returned by the search
+	 * query
 	 * 
 	 * @param client
 	 * @param requestName
 	 * @param sourceFieldMap
+	 * @param buffer
 	 * @param taskLog
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */
 	public void learn(Client client, String requestName,
-			FieldMap sourceFieldMap, TaskLog taskLog)
+			FieldMap sourceFieldMap, int buffer, InfoCallback infoCallback)
 			throws SearchLibException, IOException;
 
 	/**

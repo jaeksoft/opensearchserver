@@ -23,19 +23,18 @@
  **/
 package com.jaeksoft.searchlib.webservice.learner;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.jaeksoft.searchlib.learning.LearnerResultItem;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class LearnerResult extends CommonResult {
 
-	public Map<Double, String> labels;
+	public final LearnerResultItem[] labels;
 
 	public LearnerResult() {
 		labels = null;
@@ -43,9 +42,10 @@ public class LearnerResult extends CommonResult {
 
 	public LearnerResult(boolean successful, String info) {
 		super(successful, info);
+		labels = null;
 	}
 
-	public LearnerResult(Map<Double, String> labels) {
+	public LearnerResult(LearnerResultItem[] labels) {
 		super(true, null);
 		this.labels = labels;
 	}

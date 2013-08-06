@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -44,16 +43,21 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.learning.Learner;
 import com.jaeksoft.searchlib.learning.LearnerManager;
+import com.jaeksoft.searchlib.learning.LearnerResultItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class LearningController extends CommonController {
+public class LearningController extends CommonController implements
+		InfoCallback {
 
 	private Learner selectedLearner;
 	private Learner currentLearner;
+
+	private String info;
 
 	private transient String selectedSourceIndexField;
 	private transient String selectedSourceLearnerField;
@@ -64,7 +68,7 @@ public class LearningController extends CommonController {
 	private transient int activePage;
 
 	private transient String testText;
-	private transient Map<Double, String> classifyMap;
+	private transient LearnerResultItem[] learnerResultItems;
 
 	public LearningController() throws SearchLibException {
 		super();
@@ -82,7 +86,7 @@ public class LearningController extends CommonController {
 		totalSize = 0;
 		activePage = 0;
 		testText = null;
-		classifyMap = null;
+		learnerResultItems = null;
 	}
 
 	public Learner[] getLearners() throws SearchLibException {
@@ -224,11 +228,12 @@ public class LearningController extends CommonController {
 			return;
 		if (currentLearner == null)
 			return;
-		classifyMap = currentLearner.classify(client, testText, null, null);
+		learnerResultItems = currentLearner.classify(client, testText, null,
+				null);
 	}
 
-	public Map<Double, String> getClassifyMap() {
-		return classifyMap;
+	public LearnerResultItem[] getLearnerResultItems() {
+		return learnerResultItems;
 	}
 
 	public Learner getCurrentLearner() {
@@ -315,7 +320,7 @@ public class LearningController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		currentLearner.learn(client, null);
+		currentLearner.learn(client, this);
 	}
 
 	@Command
@@ -383,6 +388,15 @@ public class LearningController extends CommonController {
 	 */
 	public void setTestText(String testText) {
 		this.testText = testText;
+	}
+
+	@Override
+	public void setInfo(String info) {
+		this.info = info;
+	}
+
+	public String getInfo() {
+		return info;
 	}
 
 }

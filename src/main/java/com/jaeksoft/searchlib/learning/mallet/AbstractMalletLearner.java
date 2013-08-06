@@ -27,9 +27,7 @@ package com.jaeksoft.searchlib.learning.mallet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import cc.mallet.classify.Classification;
@@ -44,6 +42,7 @@ import cc.mallet.pipe.TokenSequence2FeatureSequence;
 import cc.mallet.pipe.TokenSequenceLowercase;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
+import cc.mallet.types.Label;
 import cc.mallet.types.Labeling;
 
 import com.jaeksoft.searchlib.Client;
@@ -53,11 +52,12 @@ import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.learning.LearnerInterface;
+import com.jaeksoft.searchlib.learning.LearnerResultItem;
 import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class AbstractMalletLearner implements LearnerInterface {
@@ -155,15 +155,14 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 
 	@Override
 	public void learn(Client client, String requestName,
-			FieldMap sourceFieldMap, TaskLog taskLog)
+			FieldMap sourceFieldMap, final int buffer, InfoCallback infoCallback)
 			throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
 			SearchRequest request = (SearchRequest) client
 					.getNewRequest(requestName);
 			int start = 0;
-			final int rows = 50;
-			request.setRows(rows);
+			request.setRows(buffer);
 			if (request.getQueryString() == null
 					|| request.getQueryString().length() == 0)
 				request.setQueryString("*:*");
@@ -190,7 +189,7 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 					learn(target);
 				}
 				request.reset();
-				start += rows;
+				start += buffer;
 			}
 			instances.save(instancesFile);
 			classifier = null;
@@ -268,29 +267,20 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 		targetFieldMap.mapIndexDocument(source2, source);
 	}
 
-	private final static Comparator<Double> REVERSE_DOUBLE_COMPARATOR = new Comparator<Double>() {
-		@Override
-		public int compare(Double o1, Double o2) {
-			return o2.compareTo(o1);
-		}
-	};
-
 	@Override
-	public Map<Double, String> classify(String data, int maxRank,
-			double minScore) throws IOException {
+	public void classify(String data, int maxRank, double minScore,
+			Collection<LearnerResultItem> collector) throws IOException {
 		classifier = checkClassifier();
 		Classification cf = classifier.classify(data);
 		Labeling labeling = cf.getLabeling();
 		if (maxRank == 0 || maxRank > labeling.getLabelAlphabet().size())
 			maxRank = labeling.getLabelAlphabet().size();
-		Map<Double, String> map = new TreeMap<Double, String>(
-				REVERSE_DOUBLE_COMPARATOR);
 		for (int i = 0; i < maxRank; i++) {
 			double score = labeling.getValueAtRank(i);
 			if (score < minScore)
 				break;
-			map.put(score, labeling.getLabelAtRank(i).toString());
+			Label label = labeling.getLabelAtRank(i);
+			collector.add(new LearnerResultItem(score, i, label.toString()));
 		}
-		return map;
 	}
 }

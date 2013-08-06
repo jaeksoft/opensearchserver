@@ -148,7 +148,8 @@
 							onClick="@command('onReset')" />
 						<button label="Learn"
 							onClick="@command('onLearn')" />
-						<label value="Info" />
+						<space />
+						<label value="@load(learning.info)" />
 					</cell>
 				</row>
 				<row>
@@ -162,6 +163,11 @@
 						value="@bind(learning.currentLearner.minScore)" />
 				</row>
 				<row>
+					<label value="Buffer: " />
+					<intbox
+						value="@bind(learning.currentLearner.buffer)" />
+				</row>
+				<row>
 					<label value="Classify" />
 					<vlayout>
 						<textbox width="95%" rows="5"
@@ -172,15 +178,18 @@
 				</row>
 				<row>
 					<label value="Test result" />
-					<listbox model="@load(learning.classifyMap)">
+					<listbox
+						model="@load(learning.learnerResultItems)">
 						<listhead>
 							<listheader label="Label" />
+							<listheader label="Rank" hflex="min" />
 							<listheader label="Score" hflex="min" />
 						</listhead>
 						<template name="model">
 							<listitem>
-								<listcell label="@load(each.value)" />
-								<listcell label="@load(each.key)" />
+								<listcell label="@load(each.target)" />
+								<listcell label="@load(each.rank)" />
+								<listcell label="@load(each.score)" />
 							</listitem>
 						</template>
 					</listbox>

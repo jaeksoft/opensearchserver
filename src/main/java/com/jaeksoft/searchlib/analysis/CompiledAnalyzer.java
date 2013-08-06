@@ -33,6 +33,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
@@ -153,6 +154,18 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		ts = new TokenTermPopulateFilter(tokenTerms, ts);
 		ts.incrementToken();
 		IOUtils.closeQuietly(ts);
+	}
+
+	public List<TermQuery> toTermQuery(String field, String text)
+			throws IOException {
+		if (text == null)
+			return null;
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenStream(null, reader);
+		TokenTermQueryFilter ttqf = new TokenTermQueryFilter(field, ts);
+		ttqf.incrementToken();
+		IOUtils.closeQuietly(ttqf);
+		return ttqf.queryList;
 	}
 
 	@Override
