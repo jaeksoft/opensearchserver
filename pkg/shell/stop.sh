@@ -2,7 +2,7 @@
 
 #	License Agreement for OpenSearchServer
 #	
-#	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+#	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 #	
 #	http://www.open-search-server.com
 #	
@@ -24,7 +24,7 @@
 
 cd `dirname "$0"`
 
-EXECUTABLE=apache-tomcat-7.0.40/bin/shutdown.sh
+EXECUTABLE=apache-tomcat-7.0.42/bin/shutdown.sh
 
 if [ ! -x "$EXECUTABLE" ]; then
     echo "Cannot find $EXECUTABLE"

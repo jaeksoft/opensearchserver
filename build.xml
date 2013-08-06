@@ -34,7 +34,7 @@
 	<property name="licenses" location="licenses" />
 	<property name="product" value="open-search-server" />
 	<property name="name" value="${product}" />
-	<property name="tomcat-name" value="apache-tomcat-7.0.40" />
+	<property name="tomcat-name" value="apache-tomcat-7.0.42" />
 	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
 	<property name="tomcat-config" location="pkg/tomcat_config" />
 	<property name="tomcat-bin" location="pkg/tomcat_bin" />
@@ -66,6 +66,12 @@
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/examples" />
 		<delete dir="${dist}/${product}/${tomcat-name}/webapps/docs" />
+
+		<!-- Put version file to WAR -->
+		<zip destfile="${war}" update="true">
+			<zipfileset file="${temp-version}" prefix="/" />
+		</zip>
+
 		<copy file="${war}" tofile="${dist}/${product}/${tomcat-name}/webapps/ROOT.war" />
 		<copy file="${war}" tofile="${dist}/${product}.war" />
 		<copy todir="${dist}/${product}/LICENSES">
@@ -143,7 +149,7 @@
 	<!-- The tarball -->
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**" />
+		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**" />
 	</target>
 
 	<target name="clean" description="clean up">
