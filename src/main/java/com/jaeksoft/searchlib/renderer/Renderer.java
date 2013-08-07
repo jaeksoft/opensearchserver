@@ -190,6 +190,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
 		setHocrField(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
+		setAutocompletionName(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME));
 
 		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
 		if (authNode != null) {

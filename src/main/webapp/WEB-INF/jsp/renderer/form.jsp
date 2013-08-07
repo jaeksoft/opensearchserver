@@ -22,7 +22,7 @@
 		%>
 		<input class="osscmnrdr ossinputrdr" size="60" type="text"
 			id="osssearchbox" name="query" value="<%=query%>"
-			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&rows=10&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
+			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
 			autocomplete="off" /> <input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
 	</form>
