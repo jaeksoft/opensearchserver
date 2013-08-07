@@ -31,7 +31,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -128,7 +127,7 @@ public class StandardLearner implements LearnerInterface {
 			for (TermQuery termQuery : termList)
 				booleanQuery.add(termQuery, Occur.SHOULD);
 			termList.clear();
-			TreeMap<String, Double> targetMap = new TreeMap<String, Double>();
+			TreeMap<String, LearnerResultItem> targetMap = new TreeMap<String, LearnerResultItem>();
 			int start = 0;
 			final int rows = 1000;
 			searchRequest.setRows(rows);
@@ -151,21 +150,24 @@ public class StandardLearner implements LearnerInterface {
 						String value = fvi.getValue();
 						if (value == null)
 							continue;
-						Double score = targetMap.get(value);
-						if (score == null)
-							score = 0D;
-						score += docScore;
-						targetMap.put(value, docScore);
+						LearnerResultItem learnerResultItem = targetMap
+								.get(value);
+						if (learnerResultItem == null) {
+							learnerResultItem = new LearnerResultItem(0, -1,
+									value, 0);
+							targetMap.put(value, learnerResultItem);
+						}
+						learnerResultItem.addScoreInstance(docScore, 1);
 					}
 				}
 				searchRequest.reset();
 				start += rows;
 			}
-			for (Map.Entry<String, Double> entry : targetMap.entrySet()) {
-				Double score = entry.getValue();
-				if (score > minScore)
-					collector.add(new LearnerResultItem(score, -1, entry
-							.getKey()));
+			for (LearnerResultItem learnerResultItem : targetMap.values()) {
+				learnerResultItem.score = learnerResultItem.score
+						/ learnerResultItem.count;
+				if (learnerResultItem.score > minScore)
+					collector.add(learnerResultItem);
 			}
 		} finally {
 			rwl.r.unlock();

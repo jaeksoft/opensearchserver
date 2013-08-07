@@ -33,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -314,6 +315,10 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
+	private final File getInstancesDataFile(Client client) {
+		return new File(client.getLearnerDirectory(), name + ".data");
+	}
+
 	private LearnerInterface getInstance(Client client)
 			throws SearchLibException {
 		rwl.r.lock();
@@ -331,9 +336,7 @@ public class Learner implements Comparable<Learner> {
 				return null;
 			learnerInstance = (LearnerInterface) Class.forName(className)
 					.newInstance();
-			File instancesFile = new File(client.getLearnerDirectory(), name
-					+ ".data");
-			learnerInstance.init(instancesFile);
+			learnerInstance.init(getInstancesDataFile(client));
 			return learnerInstance;
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
@@ -402,10 +405,15 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public void reset(Client client) throws SearchLibException {
+	public void reset(Client client) throws SearchLibException, IOException {
 		LearnerInterface instance = getInstance(client);
 		instance.reset();
-
+		File f = getInstancesDataFile(client);
+		if (f.exists())
+			if (f.isFile())
+				f.delete();
+			else if (f.isDirectory())
+				FileUtils.deleteDirectory(f);
 	}
 
 	/**

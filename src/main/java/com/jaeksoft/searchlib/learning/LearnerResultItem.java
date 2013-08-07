@@ -30,14 +30,16 @@ import java.util.List;
 
 public class LearnerResultItem {
 
-	public final double score;
+	public double score;
 	public int rank;
 	public final String target;
+	public int count;
 
-	public LearnerResultItem(double score, int rank, String target) {
+	public LearnerResultItem(double score, int rank, String target, int count) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
+		this.count = count;
 	}
 
 	public double getScore() {
@@ -52,17 +54,21 @@ public class LearnerResultItem {
 		return rank;
 	}
 
+	public int getCount() {
+		return count;
+	}
+
 	public final static LearnerResultItem[] sortArray(
 			List<LearnerResultItem> list) {
 		if (list == null)
 			return null;
 		LearnerResultItem[] array = list.toArray(new LearnerResultItem[list
 				.size()]);
-		Arrays.sort(array, new ScoreDesc());
+		Arrays.sort(array, new ScoreDescComparator());
 		return array;
 	}
 
-	public final static class ScoreDesc implements
+	public final static class ScoreDescComparator implements
 			Comparator<LearnerResultItem> {
 
 		@Override
@@ -92,7 +98,6 @@ public class LearnerResultItem {
 				break;
 			else
 				pos++;
-		System.out.println("POS " + pos);
 		if (pos == result.length)
 			return result;
 		return Arrays.copyOf(result, pos);
@@ -109,5 +114,10 @@ public class LearnerResultItem {
 		if (maxRank != 0)
 			result = limitMaxRank(result, maxRank);
 		return result;
+	}
+
+	public final void addScoreInstance(double score, int count) {
+		this.score += score;
+		this.count += count;
 	}
 }

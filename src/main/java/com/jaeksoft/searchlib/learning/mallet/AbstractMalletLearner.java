@@ -280,7 +280,7 @@ public abstract class AbstractMalletLearner implements LearnerInterface {
 			if (score < minScore)
 				break;
 			Label label = labeling.getLabelAtRank(i);
-			collector.add(new LearnerResultItem(score, i, label.toString()));
+			collector.add(new LearnerResultItem(score, i, label.toString(), 0));
 		}
 	}
 }

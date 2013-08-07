@@ -303,7 +303,7 @@ public class LearningController extends CommonController implements
 
 	@Command
 	@NotifyChange("*")
-	public void onReset() throws SearchLibException {
+	public void onReset() throws SearchLibException, IOException {
 		if (currentLearner == null)
 			return;
 		Client client = getClient();
