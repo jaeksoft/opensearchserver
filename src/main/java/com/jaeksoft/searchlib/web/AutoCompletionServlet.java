@@ -49,6 +49,8 @@ public class AutoCompletionServlet extends AbstractServlet {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 			throw new SearchLibException("Not permitted");
+		if (name == null || name.length() == 0)
+			return;
 		Integer rows = transaction.getParameterInteger("rows", 10);
 		String query = transaction.getParameterString("query");
 		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()

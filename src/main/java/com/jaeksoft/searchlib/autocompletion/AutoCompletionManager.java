@@ -30,6 +30,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -135,6 +136,16 @@ public class AutoCompletionManager implements Closeable {
 			autoCompItems.remove(selectedItem);
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public void toNameList(List<String> nameList) {
+		rwl.r.lock();
+		try {
+			for (AutoCompletionItem item : autoCompItems)
+				nameList.add(item.getName());
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 }

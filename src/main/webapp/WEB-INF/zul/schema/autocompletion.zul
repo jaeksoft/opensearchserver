@@ -33,7 +33,7 @@
 					</row>
 					<row>
 						<label value="Field source" />
-						<grid model="@load(auto.fields)">
+						<grid model="@load(auto.fields)" hflex="min">
 							<columns>
 								<column>
 									<listbox
@@ -45,7 +45,7 @@
 										</template>
 									</listbox>
 								</column>
-								<column hflex="min">
+								<column>
 									<button
 										image="images/action_add.png"
 										onClick="@command('onFieldAdd')" />

@@ -136,6 +136,11 @@ public class RendererServlet extends AbstractServlet {
 					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
 			if (user != null)
 				user.appendApiCallParameters(autocompUrl);
+			String name = renderer.getAutocompletionName();
+			if (name != null) {
+				autocompUrl.append("&name=");
+				autocompUrl.append(URLEncoder.encode(name, "UTF-8"));
+			}
 			transaction.setRequestAttribute("autocompUrl",
 					autocompUrl.toString());
 			transaction.forward("/WEB-INF/jsp/renderer.jsp");

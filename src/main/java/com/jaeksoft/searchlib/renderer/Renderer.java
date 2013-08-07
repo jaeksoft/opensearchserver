@@ -57,6 +57,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String RENDERER_ITEM_ROOT_ATTR_REQUEST = "request";
+	private final static String RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME = "autoCompletionName";
 	private final static String RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL = "searchButtonLabel";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT = "noResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT = "oneResultFoundText";
@@ -87,6 +88,8 @@ public class Renderer implements Comparable<Renderer> {
 	private String name;
 
 	private String requestName;
+
+	private String autocompletionName;
 
 	private String searchButtonLabel;
 
@@ -137,6 +140,7 @@ public class Renderer implements Comparable<Renderer> {
 	public Renderer() {
 		name = null;
 		requestName = null;
+		autocompletionName = null;
 		searchButtonLabel = "Search";
 		oneResultFoundText = "1 result found";
 		resultsFoundText = "results found";
@@ -391,6 +395,7 @@ public class Renderer implements Comparable<Renderer> {
 			try {
 				target.name = name;
 				target.requestName = requestName;
+				target.autocompletionName = autocompletionName;
 				target.searchButtonLabel = searchButtonLabel;
 				target.noResultFoundText = noResultFoundText;
 				target.oneResultFoundText = oneResultFoundText;
@@ -595,7 +600,8 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE,
 					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
 					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
-					hocrField);
+					hocrField, RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME,
+					autocompletionName);
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -1171,5 +1177,20 @@ public class Renderer implements Comparable<Renderer> {
 	 */
 	public void setAuthPluginClass(String authPluginClass) {
 		this.authPluginClass = authPluginClass;
+	}
+
+	/**
+	 * @return the autocompletionName
+	 */
+	public String getAutocompletionName() {
+		return autocompletionName;
+	}
+
+	/**
+	 * @param autocompletionName
+	 *            the autocompletionName to set
+	 */
+	public void setAutocompletionName(String autocompletionName) {
+		this.autocompletionName = autocompletionName;
 	}
 }

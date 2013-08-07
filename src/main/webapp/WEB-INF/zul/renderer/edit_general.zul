@@ -59,10 +59,17 @@
 						cols="50" />
 				</row>
 				<row>
-					<label value="Facet width  " />
+					<label value="Facet width: " />
 					<textbox
 						value="@bind(renderer.currentRenderer.facetWidth)" />
-					<cell colspan="2" />
+					<label value="Autocompletion: " />
+					<combobox model="@load(renderer.autocompletionList)"
+						width="200px"
+						value="@bind(renderer.currentRenderer.autocompletionName)">
+						<template name="model">
+							<comboitem label="@load(each)" />
+						</template>
+					</combobox>
 				</row>
 				<row>
 					<label value="Header (HTML)" />

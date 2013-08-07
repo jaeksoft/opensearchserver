@@ -394,6 +394,16 @@ public class RendererController extends CommonController {
 		return customLogs;
 	}
 
+	public List<String> getAutocompletionList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> nameList = new ArrayList<String>();
+		nameList.add(null);
+		client.getAutoCompletionManager().toNameList(nameList);
+		return nameList;
+	}
+
 	public RendererLogParameterEnum[] getLogParameterList() {
 		return RendererLogParameterEnum.values();
 	}
