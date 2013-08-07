@@ -34,7 +34,7 @@ public class NaiveCSSParser {
 		protected void parseOuter() throws IOException, SearchLibException {
 			int pos = 0;
 			while (matcher.find()) {
-				parse(pos + offset, css.substring(pos, matcher.start() - 1));
+				parse(pos + offset, css.substring(pos, matcher.start()));
 				pos = matcher.end();
 			}
 			parse(pos + offset, css.substring(pos, css.length()));
@@ -57,7 +57,7 @@ public class NaiveCSSParser {
 		}
 	}
 
-	private static Pattern commentLocator = Pattern.compile("(?m)/\\*.*?\\*/");
+	private static Pattern commentLocator = Pattern.compile("(?s)/\\*.*?\\*/");
 
 	private class CommentExtractParser extends AbstractParser {
 
@@ -76,7 +76,7 @@ public class NaiveCSSParser {
 	}
 
 	private static Pattern ruleLocator = Pattern
-			.compile("(?m)\\s*([a-zA-Z0-9,\\*\\-_\\.@#\\s\"=\\[\\]]*)\\s*\\{(.*?)\\}");
+			.compile("(?s)\\s*([a-zA-Z0-9,\\*\\-\\+_\\.@#:\\s\"=\\[\\]<>]*)\\s*\\{(.*?)\\}");
 
 	private class RuleParser extends AbstractParser {
 
@@ -93,7 +93,7 @@ public class NaiveCSSParser {
 	}
 
 	private static Pattern atRuleLocator = Pattern
-			.compile("\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#]*)\\s+([^;]*);");
+			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#]*)\\s+([^;]*);");
 
 	private class AtRuleParser extends AbstractParser {
 
@@ -239,10 +239,11 @@ public class NaiveCSSParser {
 		}
 	}
 
-	public final static String buildUrl(String url) {
-		StringBuffer sb = new StringBuffer("url('");
+	public final static String replaceUrl(String value, Matcher matcher,
+			String url) {
+		StringBuffer sb = new StringBuffer(value.substring(0, matcher.start(1)));
 		sb.append(url);
-		sb.append("')");
+		sb.append(value.substring(matcher.end(1)));
 		return sb.toString();
 	}
 
@@ -310,31 +311,51 @@ public class NaiveCSSParser {
 			rule.write(pw);
 	}
 
-	private final static String test = "@charset UTF-8; \n"
-			+ "@import url(\"import1.css\");"
-			+ "html { color: #00000f } \n"
-			+ "body { background: rgb(255, 255, 255) }input[type=\"submit\"]{cursor:pointer} "
-			+ "@charset UTF-8; \n"
-			+ ".test {background-image:url(\"http://cache.20minutes.fr/images/homepage/skins/play.png\"),-webkit-linear-gradient(top,rgba(255,255,255,0.1)}\n"
-			+ "/* test comment */"
-			+ "html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, input, button, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0 } "
-			+ "table { border-collapse: collapse; border-spacing: 0 }/*test2 comment*/\n"
-			+ "article, aside, footer, header, hgroup, nav, section, figure, figcaption, embed, video, audio, details { display: block }";
+	private final static String[] tests = {
+			"@charset UTF-8; \n"
+					+ "@import url(\"import1.css\");"
+					+ "html { color: #00000f } \n"
+					+ "body { background: rgb(255, 255, 255) }input[type=\"submit\"]{cursor:pointer} "
+					+ "@charset UTF-8; \n"
+					+ ".test {background-image:url(\"http://cache.20minutes.fr/images/homepage/skins/play.png\"),-webkit-linear-gradient(top,rgba(255,255,255,0.1)}\n"
+					+ "/* test comment */"
+					+ "html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, input, button, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0 } "
+					+ "table { border-collapse: collapse; border-spacing: 0 }/*test2 comment*/\n"
+					+ "article, aside, footer, header, hgroup, nav, section, figure, figcaption, embed, video, audio, details { display: block }",
+			".social .scoopit{margin-right:-26px;z-index:999;}#divgauche .barre-sociale .social .pinterest .at_PinItButton{display:block;width:30px;height:26px; line-height:26px;padding:0;margin:0;background-image:url(/Images/Commun/pictos/picto_pinterest.gif);background-repeat:no-repeat;background-position:0 0;font:11px Arial,Helvetica,sans-serif;text-indent:-9999em;font-size:.01em;color:#CD1F1F;}"
+					+ "#divgauche .barre-sociale .social .pinterest .at_PinItButton:hover{background-position:-30 0;}#divgauche .footer .addthis_toolbox.addthis_default_style span{line-height:15px;}#divgauche .footer .social li{display:inline;float:left;}"
+					+ "#divgauche .dossier.sommaire .contenu>h3{text-transform:uppercase;color:#EB834F;font-size:20px;display:inline-block;margin-bottom:10px;font-weight:normal;background:none;padding:0;}#divgauche .dossier.sommaire .contenu>ul li{clear:both;}#divgauche .dossier.sommaire .chapo,#divgauche .dossier.sommaire .chapo+p{line-height:20px;}",
+			".gfk:hover {text-decoration	:	underline; color		:	#e95e0f;background	:	transparent;}\n"
+					+ "body\n{\n\nmargin: 0;\n}"
 
-	public static void main(String[] args) throws IOException,
+	};
+
+	public static void test(String cssContent) throws IOException,
 			SearchLibException {
+		System.out.println("CHECKING");
+		System.out.println(cssContent);
 		NaiveCSSParser parser = new NaiveCSSParser();
-		parser.parseStyleSheet(test);
+		parser.parseStyleSheet(cssContent);
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		parser.write(pw);
+		System.out.println("PARSED");
 		System.out.println(sw);
+	}
+
+	public static void main(String[] args) throws IOException,
+			SearchLibException {
+		for (String test : tests)
+			test(test);
+
+		NaiveCSSParser parser = new NaiveCSSParser();
 		CSSStyleRule rule = parser
-				.parseStyleAttribute("background-image:url(\"http://cache.20minutes.fr/images/homepage/skins/play.png\")}");
+				.parseStyleAttribute("background-image:transparent url(\"http://cache.20minutes.fr/images/homepage/skins/play.png\")}");
 		for (CSSProperty property : rule.getProperties()) {
-			Matcher matcher = NaiveCSSParser.findUrl(property.getValue());
+			String value = property.getValue();
+			Matcher matcher = NaiveCSSParser.findUrl(value);
 			if (matcher.find())
-				property.setValue(matcher.replaceFirst(buildUrl("newurl.png")));
+				property.setValue(replaceUrl(value, matcher, "newurl.png"));
 		}
 		System.out.println(rule.getPropertyString());
 	}

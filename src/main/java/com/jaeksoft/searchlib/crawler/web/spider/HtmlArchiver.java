@@ -238,7 +238,7 @@ public class HtmlArchiver {
 		String newSrc = downloadObject(objectUrl, url, null);
 		if (newSrc == null)
 			return false;
-		property.setValue(matcher.replaceFirst(NaiveCSSParser.buildUrl(newSrc)));
+		property.setValue(NaiveCSSParser.replaceUrl(oldValue, matcher, newSrc));
 		return true;
 	}
 
