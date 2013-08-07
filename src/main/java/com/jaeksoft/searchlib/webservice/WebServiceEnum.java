@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
+import com.jaeksoft.searchlib.webservice.scheduler.SchedulerOldImpl;
 import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
 import com.jaeksoft.searchlib.webservice.select.SearchImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
@@ -65,6 +66,8 @@ public enum WebServiceEnum {
 	Monitor(MonitorImpl.class, "/monitor"),
 
 	Scheduler(SchedulerImpl.class, "/scheduler"),
+
+	SchedulerOld(SchedulerOldImpl.class, null),
 
 	Select(SelectImpl.class, "/select"),
 

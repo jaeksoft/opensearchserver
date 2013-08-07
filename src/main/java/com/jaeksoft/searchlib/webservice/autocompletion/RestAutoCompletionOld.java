@@ -36,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @Path("/autocompletion")
+@Deprecated
 public interface RestAutoCompletionOld {
 
 	@GET

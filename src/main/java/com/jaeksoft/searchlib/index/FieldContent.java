@@ -51,15 +51,16 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		values = ArrayUtils.add(values, value);
 	}
 
-	public boolean checkIfAlreadyHere(FieldContent fc2) {
-		int fc2size = fc2.values.length;
-		if (values.length < fc2size)
-			return false;
-		int i = values.length - fc2size;
+	public final void addIfNotAlreadyHere(FieldValueItem value) {
+		for (FieldValueItem v : values)
+			if (value.equals(v))
+				return;
+		add(value);
+	}
+
+	public void addIfNotAlreadyHere(FieldContent fc2) {
 		for (FieldValueItem v : fc2.values)
-			if (!v.equals(values[i++]))
-				return false;
-		return true;
+			addIfNotAlreadyHere(v);
 	}
 
 	public void add(FieldContent fc2) {

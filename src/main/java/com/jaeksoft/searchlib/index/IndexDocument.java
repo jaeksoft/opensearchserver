@@ -343,9 +343,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		if (fieldContent == null)
 			return;
 		FieldContent fc = getFieldContent(fieldContent.getField());
-		if (fc.checkIfAlreadyHere(fieldContent))
-			return;
-		fc.add(fieldContent);
+		fc.addIfNotAlreadyHere(fieldContent);
 	}
 
 	public void addIfNotAlreadyHere(IndexDocument source) {

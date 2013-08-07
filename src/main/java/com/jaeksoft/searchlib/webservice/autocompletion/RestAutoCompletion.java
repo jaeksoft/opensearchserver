@@ -85,4 +85,11 @@ public interface RestAutoCompletion {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("autocomp_name") String name);
 
+	@PUT
+	@Path("/{autocomp_name}/build")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public CommonResult build(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("autocomp_name") String name);
+
 }
