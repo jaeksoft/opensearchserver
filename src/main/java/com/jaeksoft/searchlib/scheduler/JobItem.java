@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -208,7 +209,7 @@ public class JobItem extends ExecutionAbstract {
 		}
 	}
 
-	public void run(Client client) {
+	public void run(Client client, Map<String, String> variables) {
 		if (!runningRequest()) {
 			Logging.warn("The job " + name + "  is already running");
 			return;
@@ -225,7 +226,7 @@ public class JobItem extends ExecutionAbstract {
 				currentTask = task.getTask();
 				setCurrentTaskLog(new TaskLog(task, indexHasChanged, isAbort()));
 				addTaskLog(currentTaskLog);
-				task.run(client, currentTaskLog);
+				task.run(client, variables, currentTaskLog);
 				currentTaskLog.end();
 				if (task.isAbort()) {
 					abort();

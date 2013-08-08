@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -92,7 +93,8 @@ public class TaskReportLoadLogFile extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 
 		Calendar currentDate = Calendar.getInstance();
 

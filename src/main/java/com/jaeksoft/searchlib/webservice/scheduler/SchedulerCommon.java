@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.scheduler;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.xml.ws.WebServiceException;
 
@@ -63,12 +64,13 @@ public class SchedulerCommon extends CommonServices {
 
 	}
 
-	protected CommonResult run(String use, String login, String key, String name) {
+	protected CommonResult run(String use, String login, String key,
+			String name, Map<String, String> variables) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.SCHEDULER_RUN);
 			ClientFactory.INSTANCE.properties.checkApi();
 			JobItem jobItem = getJobItem(client, name);
-			TaskManager.getInstance().executeJob(client, jobItem);
+			TaskManager.getInstance().executeJob(client, jobItem, variables);
 			return new SchedulerResult(jobItem);
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);

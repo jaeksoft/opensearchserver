@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -60,7 +61,8 @@ public class TaskFlushCrawlCache extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		try {
 			taskLog.setInfo("Crawl cache flush starts");
 			ClientCatalog.getCrawlCacheManager().flushCache(true);

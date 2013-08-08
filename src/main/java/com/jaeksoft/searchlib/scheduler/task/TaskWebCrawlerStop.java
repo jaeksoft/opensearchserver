@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -58,7 +60,8 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		WebCrawlMaster crawlMaster = client.getWebCrawlMaster();
 		if (!crawlMaster.isRunning()) {
 			taskLog.setInfo("Was not running");

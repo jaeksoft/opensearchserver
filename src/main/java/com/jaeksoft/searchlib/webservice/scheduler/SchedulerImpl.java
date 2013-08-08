@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice.scheduler;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class SchedulerImpl extends SchedulerCommon implements SoapScheduler,
@@ -34,8 +36,16 @@ public class SchedulerImpl extends SchedulerCommon implements SoapScheduler,
 	}
 
 	@Override
-	public CommonResult run(String use, String login, String key, String name) {
-		return super.run(use, login, key, name);
+	public CommonResult run(String use, String login, String key, String name,
+			Map<String, String> variables) {
+		return super.run(use, login, key, name, variables);
 	}
+
+	/*
+	 * @Override public CommonResult run(String use, String login, String key,
+	 * String name, JSONParam variables) { Map<String, String> vars = variables
+	 * == null ? null : variables .getVariables(); return super.run(use, login,
+	 * key, name, vars); }
+	 */
 
 }

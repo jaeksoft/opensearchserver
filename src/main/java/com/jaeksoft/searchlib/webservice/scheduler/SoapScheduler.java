@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice.scheduler;
 
+import java.util.Map;
+
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
@@ -39,6 +41,7 @@ public interface SoapScheduler {
 	public CommonResult run(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "name") String name);
+			@WebParam(name = "name") String name,
+			@WebParam(name = "variables") Map<String, String> variables);
 
 }

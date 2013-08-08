@@ -80,7 +80,8 @@ public class DatabaseScript implements Closeable {
 			String username, String password,
 			IsolationLevelEnum isolationLevel, String sqlVariable,
 			String varColumnName, String varColumnValue, String sqlSelect,
-			String sqlUpdate, SqlUpdateMode sqlUpdateMode, TaskLog taskLog)
+			String sqlUpdate, SqlUpdateMode sqlUpdateMode,
+			Map<String, String> variables, TaskLog taskLog)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		connectionManager = new JDBCConnection();
@@ -98,6 +99,26 @@ public class DatabaseScript implements Closeable {
 		scriptCommandContext = new ScriptCommandContext(config, taskLog);
 		transaction = null;
 		variablesMap = null;
+		populateVariableMap(variables);
+	}
+
+	private final void putVariable(String name, String value) {
+		if (variablesMap == null)
+			variablesMap = new HashMap<String, String>();
+		if (name == null || value == null)
+			return;
+		StringBuffer sb = new StringBuffer();
+		sb.append('{');
+		sb.append(name);
+		sb.append('}');
+		variablesMap.put(sb.toString(), value);
+	}
+
+	private final void populateVariableMap(Map<String, String> variables) {
+		if (variables == null)
+			return;
+		for (Map.Entry<String, String> entry : variables.entrySet())
+			putVariable(entry.getKey(), entry.getValue());
 	}
 
 	private final String doVariableReplacement(String text) {
@@ -115,20 +136,11 @@ public class DatabaseScript implements Closeable {
 
 			// Load variables
 			if (sqlVariable != null && sqlVariable.length() > 0) {
-				variablesMap = new HashMap<String, String>();
 				Query query = transaction.prepare(sqlVariable);
 				ResultSet resultSet = query.getResultSet();
-				while (resultSet.next()) {
-					String name = resultSet.getString(varColumnName);
-					String value = resultSet.getString(varColumnValue);
-					if (name == null || value == null)
-						continue;
-					StringBuffer sb = new StringBuffer();
-					sb.append('{');
-					sb.append(name);
-					sb.append('}');
-					variablesMap.put(sb.toString(), value);
-				}
+				while (resultSet.next())
+					putVariable(resultSet.getString(varColumnName),
+							resultSet.getString(varColumnValue));
 			}
 
 			String sqlU = doVariableReplacement(sqlUpdate);

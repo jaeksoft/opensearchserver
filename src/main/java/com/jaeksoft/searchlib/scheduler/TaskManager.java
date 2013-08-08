@@ -31,6 +31,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -190,7 +191,7 @@ public class TaskManager {
 		JobItem jobItem = jobList.get(jobName);
 		if (jobItem == null)
 			throw new SearchLibException("Job not found: " + jobName);
-		jobItem.run(client);
+		jobItem.run(client, null);
 	}
 
 	/**
@@ -201,9 +202,10 @@ public class TaskManager {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public ImmediateExecution executeJob(Client client, JobItem jobItem)
-			throws InterruptedException {
-		ImmediateExecution execution = new ImmediateExecution(client, jobItem);
+	public ImmediateExecution executeJob(Client client, JobItem jobItem,
+			Map<String, String> variables) throws InterruptedException {
+		ImmediateExecution execution = new ImmediateExecution(client, jobItem,
+				variables);
 		client.getThreadPool().execute(execution);
 		jobItem.waitForStart(600);
 		return execution;

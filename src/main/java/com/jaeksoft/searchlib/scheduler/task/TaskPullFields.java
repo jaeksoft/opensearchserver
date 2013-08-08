@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -82,7 +83,8 @@ public class TaskPullFields extends TaskPullAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		String sourceQuery = properties.getValue(propSourceQuery);
 		String sourceMappedFields = properties.getValue(propSourceMappedFields);
 

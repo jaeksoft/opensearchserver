@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -70,7 +72,8 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
 		if (crawlMaster.isRunning()) {
 			taskLog.setInfo("Already running");

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -66,7 +68,8 @@ public class TaskDeleteQuery extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		String query = properties.getValue(propQuery);
 		SearchRequest request = new SearchRequest(client);
 		request.setQueryString(query);

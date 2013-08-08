@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
@@ -33,16 +35,20 @@ public class ImmediateExecution extends ThreadAbstract<HttpDownloadThread> {
 	private Client client;
 	private JobItem jobItem;
 	private TaskItem taskItem;
+	private Map<String, String> variables;
 	private TaskLog taskLog;
 
 	private ImmediateExecution(Client client) {
 		super(client, null, null);
 		this.client = client;
+		this.variables = null;
 	}
 
-	public ImmediateExecution(Client client, JobItem jobItem) {
+	public ImmediateExecution(Client client, JobItem jobItem,
+			Map<String, String> variables) {
 		this(client);
 		this.jobItem = jobItem;
+		this.variables = variables;
 		this.taskItem = null;
 	}
 
@@ -56,9 +62,9 @@ public class ImmediateExecution extends ThreadAbstract<HttpDownloadThread> {
 	@Override
 	public void runner() throws Exception {
 		if (jobItem != null)
-			jobItem.run(client);
+			jobItem.run(client, variables);
 		if (taskItem != null)
-			taskItem.run(client, taskLog);
+			taskItem.run(client, variables, taskLog);
 	}
 
 	@Override

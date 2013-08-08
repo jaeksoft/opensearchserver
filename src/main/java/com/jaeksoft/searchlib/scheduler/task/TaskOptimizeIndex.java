@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.Map;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -57,7 +59,8 @@ public class TaskOptimizeIndex extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		taskLog.setInfo("Optimize starts");
 		client.optimize();
 		taskLog.setInfo("Optimize done");

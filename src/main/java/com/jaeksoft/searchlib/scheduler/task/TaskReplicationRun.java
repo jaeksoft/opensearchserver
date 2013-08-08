@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -91,7 +92,8 @@ public class TaskReplicationRun extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
 		String replicationName = properties.getValue(propReplicationName);

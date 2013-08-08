@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -109,7 +110,8 @@ public class TaskOtherScheduler extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException, InterruptedException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException, InterruptedException {
 		String indexName = properties.getValue(propIndexName);
 		Client indexClient = ClientCatalog.getClient(indexName);
 		if (indexClient == null)
@@ -157,7 +159,7 @@ public class TaskOtherScheduler extends TaskAbstract {
 	private void start(Client client, JobItem job, TaskLog taskLog)
 			throws InterruptedException, AbortException {
 		taskLog.setInfo("Starting...");
-		TaskManager.getInstance().executeJob(client, job);
+		TaskManager.getInstance().executeJob(client, job, null);
 		taskLog.setInfo("Started");
 	}
 

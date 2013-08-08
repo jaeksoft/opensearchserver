@@ -74,7 +74,7 @@ public class SchedulerListController extends SchedulerController {
 		if (job.isRunning())
 			throw new SearchLibException("The job " + job.getName()
 					+ " is already running.");
-		TaskManager.getInstance().executeJob(client, job);
+		TaskManager.getInstance().executeJob(client, job, null);
 		reload();
 	}
 

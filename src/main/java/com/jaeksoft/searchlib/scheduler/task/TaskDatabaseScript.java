@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -136,7 +137,8 @@ public class TaskDatabaseScript extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException {
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException {
 		String dbDriver = properties.getValue(propDatabaseDriver);
 		String dbURL = properties.getValue(propDatabaseURL);
 		String dbUsername = properties.getValue(propDatabaseUsername);
@@ -155,7 +157,7 @@ public class TaskDatabaseScript extends TaskAbstract {
 			dbScript = new DatabaseScript(client, dbDriver, dbURL, dbUsername,
 					dbPassword, isolationLevelEnum, sqlSelectVar,
 					sqlVariableName, sqlVariableValue, sqlSelect, sqlUpdate,
-					sqlUpdateMode, taskLog);
+					sqlUpdateMode, variables, taskLog);
 			dbScript.run();
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);

@@ -23,6 +23,9 @@
  **/
 package com.jaeksoft.searchlib.webservice.scheduler;
 
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -44,10 +47,12 @@ public interface RestScheduler {
 			@PathParam("scheduler_name") String name);
 
 	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{scheduler_name}/run")
 	public CommonResult run(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("scheduler_name") String name);
+			@PathParam("scheduler_name") String name,
+			Map<String, String> variables);
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.scheduler;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -94,11 +95,11 @@ public class TaskItem extends ExecutionAbstract {
 		return task.getPropertyValues(config, propertyDef, userProperties);
 	}
 
-	public void run(Client client, TaskLog taskLog) throws SearchLibException,
-			IOException {
+	public void run(Client client, Map<String, String> variables,
+			TaskLog taskLog) throws SearchLibException, IOException {
 		setRunningNow();
 		try {
-			task.execute(client, userProperties, taskLog);
+			task.execute(client, userProperties, variables, taskLog);
 		} catch (AbortException abort) {
 			abort();
 		} catch (InterruptedException e) {

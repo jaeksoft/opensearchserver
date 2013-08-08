@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -68,16 +69,17 @@ public abstract class TaskAbstract {
 	/**
 	 * Implements the task execution
 	 * 
-	 * 
 	 * @param client
 	 * @param properties
+	 * @param variables
+	 * @param taskLog
 	 * @throws SearchLibException
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	public abstract void execute(Client client, TaskProperties properties,
-			TaskLog taskLog) throws SearchLibException, IOException,
-			InterruptedException;
+			Map<String, String> variables, TaskLog taskLog)
+			throws SearchLibException, IOException, InterruptedException;
 
 	/**
 	 * Returns the default value of the property

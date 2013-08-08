@@ -43,12 +43,12 @@ public class SchedulerOldImpl extends SchedulerCommon implements
 
 	@Override
 	public CommonResult runXML(String use, String login, String key, String name) {
-		return run(use, login, key, name);
+		return run(use, login, key, name, null);
 	}
 
 	@Override
 	public CommonResult runJSON(String use, String login, String key,
 			String name) {
-		return run(use, login, key, name);
+		return run(use, login, key, name, null);
 	}
 }
