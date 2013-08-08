@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.schema;
+package com.jaeksoft.searchlib.webservice.fields;
 
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -29,35 +29,35 @@ import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "Schema")
-public interface SoapSchema {
+@WebService(name = "Field")
+public interface SoapField {
 
 	@WebResult(name = "setField")
-	public CommonResult setField(@WebParam(name = "use") String use,
+	public CommonResult setField(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "schemaField") SchemaFieldRecord schemaFieldRecord);
 
-	@WebResult(name = "deletefield")
-	public CommonResult deletefield(@WebParam(name = "use") String use,
+	@WebResult(name = "deleteField")
+	public CommonResult deleteField(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "deleteField") String deleteField);
 
 	@WebResult(name = "defaultField")
-	public CommonResult setDefaultField(@WebParam(name = "use") String use,
+	public CommonResult setDefaultField(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "defaultField") String defaultField);
 
 	@WebResult(name = "uniqueField")
-	public CommonResult setUniqueField(@WebParam(name = "use") String use,
+	public CommonResult setUniqueField(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "uniqueField") String uniqueField);
 
 	@WebResult(name = "fieldList")
-	public ResultFieldList getFieldList(@WebParam(name = "use") String use,
+	public ResultFieldList getFieldList(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 }

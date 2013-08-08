@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.update;
+package com.jaeksoft.searchlib.webservice.select;
 
 import java.util.ArrayList;
 import java.util.List;

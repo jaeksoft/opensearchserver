@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,21 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.update;
+package com.jaeksoft.searchlib.webservice.fields;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "update")
-public interface SoapUpdate {
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlRootElement(name = "result")
+public class ResultField extends CommonResult {
 
-	@WebMethod(operationName = "update")
-	public CommonResult update(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "documents") Documents updateDocuments);
+	final public SchemaFieldRecord field;
 
+	public ResultField() {
+		field = null;
+	}
+
+	public ResultField(Boolean successful, SchemaField field) {
+		super(successful, "Field " + field.getName());
+		this.field = new SchemaFieldRecord(field);
+	}
 }

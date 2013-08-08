@@ -21,10 +21,13 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.update;
+package com.jaeksoft.searchlib.webservice.document;
+
+import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,22 +36,29 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/update")
-public interface RestUpdate {
+@Path("/index/{index_name}/document")
+public interface RestDocument {
 
-	@POST
-	@Consumes(MediaType.APPLICATION_XML)
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/{index}/xml")
-	public CommonResult updateXML(@PathParam("index") String use,
+	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public CommonResult update(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			Documents documents);
+			List<DocumentUpdate> documents);
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{index}/json")
-	public CommonResult updateJSON(@PathParam("index") String use,
+	@DELETE
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public CommonResult deleteByValue(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			Documents documents);
+			String field, List<String> values);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public CommonResult deleteByQuery(@PathParam("index") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("query") String query);
 }

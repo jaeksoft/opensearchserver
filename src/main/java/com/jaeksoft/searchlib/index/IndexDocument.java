@@ -460,14 +460,16 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void prepareCopyOf(Schema schema) {
 		for (SchemaField schemaField : schema.getFieldList()) {
 			String fname = schemaField.getName();
-			String copyOf = schemaField.getCopyOf();
-			if (copyOf == null || copyOf.length() == 0)
+			List<String> copyOfList = schemaField.getCopyOf();
+			if (copyOfList == null)
 				continue;
-			FieldContent fieldContent = fields.get(copyOf);
-			if (fieldContent == null)
-				fields.remove(fname);
-			else
-				setSameValueItems(fname, fieldContent.getValues());
+			for (String copyOf : copyOfList) {
+				if (copyOf == null || copyOf.length() == 0)
+					continue;
+				FieldContent fieldContent = fields.get(copyOf);
+				if (fieldContent != null)
+					setSameValueItems(fname, fieldContent.getValues());
+			}
 		}
 
 	}

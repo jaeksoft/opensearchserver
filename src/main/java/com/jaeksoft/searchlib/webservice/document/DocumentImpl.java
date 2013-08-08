@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.update;
+package com.jaeksoft.searchlib.webservice.document;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,37 +29,72 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.ws.WebServiceException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class UpdateImpl extends CommonServices implements SoapUpdate,
-		RestUpdate {
+public class DocumentImpl extends CommonServices implements SoapDocument,
+		RestDocument {
 
-	private int updateDocument(Client client, Documents documents)
+	@Override
+	public CommonResult deleteByQuery(String use, String login, String key,
+			String query) {
+		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			SearchRequest request = new SearchRequest(client);
+			request.setQueryString(query);
+			int count = client.deleteDocuments(request);
+			return new CommonResult(true, count + " document(s) deleted");
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult deleteByValue(String use, String login, String key,
+			String field, List<String> values) {
+		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			int count = client.deleteDocuments(field, values);
+			return new CommonResult(true, count + " document(s) deleted");
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	private int updateDocument(Client client, List<DocumentUpdate> documents)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
+		if (documents == null || documents.size() == 0)
+			throw new CommonServiceException("No documents");
 		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(0);
-		if (documents == null || documents.documents == null)
-			throw new WebServiceException("No documents");
-		for (Documents.Document document : documents.documents) {
+		for (DocumentUpdate document : documents) {
 			IndexDocument indexDoc = new IndexDocument(document.lang);
 			if (document.values != null)
-				for (Documents.Values values : document.values)
+				for (DocumentUpdate.Values values : document.values)
 					if (values.value != null)
-						for (Documents.Value value : values.value)
+						for (DocumentUpdate.Value value : values.value)
 							indexDoc.add(values.field, value.content,
 									value.boost != null ? value.boost
 											: values.boost);
 			if (document.value != null)
-				for (Documents.Value value : document.value)
+				for (DocumentUpdate.Value value : document.value)
 					indexDoc.add(value.field, value.content, value.boost);
 			indexDocuments.add(indexDoc);
 		}
@@ -68,41 +103,29 @@ public class UpdateImpl extends CommonServices implements SoapUpdate,
 
 	@Override
 	public CommonResult update(String use, String login, String key,
-			Documents documents) {
+			List<DocumentUpdate> documents) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			int count = updateDocument(client, documents);
 			return new CommonResult(true, count + " document(s) updated");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (NoSuchAlgorithmException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (URISyntaxException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InstantiationException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IllegalAccessException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (ClassNotFoundException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
-	}
-
-	@Override
-	public CommonResult updateJSON(String use, String login, String key,
-			Documents documents) {
-		return update(use, login, key, documents);
-	}
-
-	@Override
-	public CommonResult updateXML(String use, String login, String key,
-			Documents documents) {
-		return update(use, login, key, documents);
 	}
 
 }

@@ -46,7 +46,6 @@ import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.update.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)

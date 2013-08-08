@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.schema;
+package com.jaeksoft.searchlib.webservice.fields;
 
 import java.util.List;
 

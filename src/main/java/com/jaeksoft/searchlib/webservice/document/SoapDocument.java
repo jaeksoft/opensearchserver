@@ -21,18 +21,24 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
-package com.jaeksoft.searchlib.webservice.delete;
+package com.jaeksoft.searchlib.webservice.document;
 
 import java.util.List;
 
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "Delete")
-public interface SoapDelete {
+@WebService(name = "document")
+public interface SoapDocument {
+
+	@WebMethod(operationName = "update")
+	public CommonResult update(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "documents") List<DocumentUpdate> documents);
 
 	public CommonResult deleteByValue(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
@@ -44,4 +50,5 @@ public interface SoapDelete {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "query") String query);
+
 }

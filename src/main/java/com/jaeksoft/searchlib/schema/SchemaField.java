@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.schema;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -34,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -47,7 +51,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 
 	private String indexAnalyzer;
 
-	private String copyOf;
+	private List<String> copyOf;
 
 	private Stored stored;
 
@@ -77,17 +81,31 @@ public class SchemaField extends AbstractField<SchemaField> {
 		this.indexed = sc.indexed;
 		this.termVector = sc.termVector;
 		this.indexAnalyzer = sc.indexAnalyzer;
-		this.copyOf = sc.copyOf;
+		this.copyOf = sc.copyOf == null ? null : new ArrayList<String>(
+				sc.copyOf);
 	}
 
 	private SchemaField(String name, String stored, String indexed,
-			String termVector, String indexAnalyzer, String copyOf) {
+			String termVector, String indexAnalyzer) {
 		super(name);
 		this.indexAnalyzer = indexAnalyzer;
 		this.stored = Stored.fromValue(stored);
 		this.indexed = Indexed.fromValue(indexed);
 		this.termVector = TermVector.fromValue(termVector);
-		this.copyOf = copyOf;
+	}
+
+	private SchemaField(String name, String stored, String indexed,
+			String termVector, String indexAnalyzer, String[] copyOf) {
+		this(name, stored, indexed, termVector, indexAnalyzer);
+		this.copyOf = copyOf != null && copyOf.length > 0 ? Arrays
+				.asList(copyOf) : null;
+	}
+
+	private SchemaField(String name, String stored, String indexed,
+			String termVector, String indexAnalyzer, List<String> copyOf) {
+		this(name, stored, indexed, termVector, indexAnalyzer);
+		this.copyOf = copyOf != null && copyOf.size() > 0 ? new ArrayList<String>(
+				copyOf) : null;
 	}
 
 	final public org.apache.lucene.document.Field getLuceneField(String value,
@@ -192,9 +210,15 @@ public class SchemaField extends AbstractField<SchemaField> {
 			String indexed = XPathParser.getAttributeString(node, "indexed");
 			String termVector = XPathParser.getAttributeString(node,
 					"termVector");
-			String copyOf = XPathParser.getAttributeString(node, "copyOf");
+			List<String> copyOfList = null;
+			List<Node> nodeList = DomUtils.getNodes(node, "copyOf");
+			if (nodeList != null) {
+				copyOfList = new ArrayList<String>(nodeList.size());
+				for (Node no : nodeList)
+					copyOfList.add(DomUtils.getAttributeText(no, "field"));
+			}
 			fieldList.put(new SchemaField(name, stored, indexed, termVector,
-					indexAnalyzer, copyOf));
+					indexAnalyzer, copyOfList));
 		}
 		fieldList.setDefaultField(XPathParser.getAttributeString(parentNode,
 				"default"));
@@ -206,7 +230,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 	/**
 	 * @return the copyOf
 	 */
-	public String getCopyOf() {
+	public List<String> getCopyOf() {
 		return copyOf;
 	}
 
@@ -214,9 +238,9 @@ public class SchemaField extends AbstractField<SchemaField> {
 	 * @param copyOf
 	 *            the copyOf to set
 	 */
-	public void setCopyOf(String copyOf) {
-		this.copyOf = copyOf;
-		if (copyOf != null && copyOf.length() > 0)
+	public void setCopyOf(List<String> copyOf) {
+		this.copyOf = new ArrayList<String>(copyOf);
+		if (copyOf != null && copyOf.size() > 0)
 			setStored(Stored.NO);
 	}
 
@@ -229,7 +253,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 		String stored = transaction.getParameterString("field.stored");
 		String indexed = transaction.getParameterString("field.indexed");
 		String termVector = transaction.getParameterString("field.termVector");
-		String copyOf = transaction.getParameterString("field.copyOf");
+		String[] copyOf = transaction.getParameterValues("field.copyOf");
 		return new SchemaField(name, stored, indexed, termVector,
 				indexAnalyzer, copyOf);
 	}
@@ -238,8 +262,13 @@ public class SchemaField extends AbstractField<SchemaField> {
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("field", "name", name, "analyzer", indexAnalyzer,
 				"indexed", getIndexed().getValue(), "stored", getStored()
-						.getValue(), "termVector", getTermVector().getValue(),
-				"copyOf", copyOf);
+						.getValue(), "termVector", getTermVector().getValue());
+		if (copyOf != null) {
+			for (String f : copyOf) {
+				writer.startElement("copyOf", "field", f);
+				writer.endElement();
+			}
+		}
 		writer.endElement();
 	}
 

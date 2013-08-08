@@ -30,16 +30,15 @@ import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
-import com.jaeksoft.searchlib.webservice.delete.DeleteImpl;
+import com.jaeksoft.searchlib.webservice.document.DocumentImpl;
+import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
 import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
-import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
 import com.jaeksoft.searchlib.webservice.select.SearchImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
 import com.jaeksoft.searchlib.webservice.select.SpellcheckImpl;
-import com.jaeksoft.searchlib.webservice.update.UpdateImpl;
 
 public enum WebServiceEnum {
 
@@ -51,7 +50,9 @@ public enum WebServiceEnum {
 
 	Database(DatabaseImpl.class, "/crawler/database"),
 
-	Delete(DeleteImpl.class, "/delete"),
+	Document(DocumentImpl.class, "/document"),
+
+	Field(FieldImpl.class, "/field"),
 
 	FileCrawler(FileCrawlerImpl.class, "/crawler/file"),
 
@@ -67,11 +68,7 @@ public enum WebServiceEnum {
 
 	Search(SearchImpl.class, "/search"),
 
-	Shema(SchemaImpl.class, "/schema"),
-
 	Spellcheck(SpellcheckImpl.class, "/spellcheck"),
-
-	Update(UpdateImpl.class, "/update"),
 
 	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
 

@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.update;
+package com.jaeksoft.searchlib.webservice.document;
 
 import java.util.List;
 
@@ -36,24 +36,16 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class Documents {
+public class DocumentUpdate {
 
-	@XmlElement(name = "document")
-	public List<Document> documents;
+	@XmlAttribute(required = true)
+	public LanguageEnum lang;
 
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	public static class Document {
+	@XmlElement(name = "value")
+	public List<Value> value;
 
-		@XmlAttribute(required = true)
-		public LanguageEnum lang;
-
-		@XmlElement(name = "value")
-		public List<Value> value;
-
-		@XmlElement(name = "values")
-		public List<Values> values;
-
-	}
+	@XmlElement(name = "values")
+	public List<Values> values;
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class Value {
