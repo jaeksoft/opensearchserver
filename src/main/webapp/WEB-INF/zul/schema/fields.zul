@@ -114,11 +114,36 @@
 						</row>
 						<row>
 							<label value="Copy of: " />
-							<listbox mold="select"
-								selectedItem="@bind(fields.field.copyOf)"
-								model="@load(fields.otherSchemaFields)">
-								<listitem label="@load(each)" />
-							</listbox>
+							<grid model="@load(fields.field.copyOf)"
+								hflex="min">
+								<columns>
+									<column>
+										<listbox
+											model="@load(fields.copyOfFieldList)" mold="select"
+											selectedItem="@bind(fields.selectedCopyOf)">
+											<template name="model">
+												<listitem
+													label="@load(each)" />
+											</template>
+										</listbox>
+									</column>
+									<column>
+										<button
+											image="images/action_add.png"
+											onClick="@command('onCopyOfAdd')" />
+									</column>
+								</columns>
+								<rows>
+									<template name="model">
+										<row>
+											<label value="@load(each)" />
+											<button
+												image="images/action_delete.png"
+												onClick="@command('onCopyOfRemove', field=each)" />
+										</row>
+									</template>
+								</rows>
+							</grid>
 							<label
 								value="Choose the field from which values are copied during indexation." />
 						</row>

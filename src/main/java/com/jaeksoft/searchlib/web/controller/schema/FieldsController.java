@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,6 +49,8 @@ public class FieldsController extends CommonController {
 
 	private transient SchemaField selectedField;
 
+	private transient String selectedCopyOf;
+
 	public FieldsController() throws SearchLibException {
 		super();
 	}
@@ -57,6 +59,7 @@ public class FieldsController extends CommonController {
 	protected void reset() {
 		field = new SchemaField();
 		selectedField = null;
+		selectedCopyOf = null;
 	}
 
 	public SchemaField getField() {
@@ -71,6 +74,7 @@ public class FieldsController extends CommonController {
 	public void onCancel() throws SearchLibException {
 		field = new SchemaField();
 		selectedField = null;
+		selectedCopyOf = null;
 		reload();
 	}
 
@@ -131,6 +135,17 @@ public class FieldsController extends CommonController {
 
 	public TermVector[] getTermVectorList() {
 		return TermVector.values();
+	}
+
+	public List<String> getCopyOfFieldList() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return null;
+			List<String> fieldList = new ArrayList<String>();
+			client.getSchema().getFieldList().toNameList(fieldList);
+			return fieldList;
+		}
 	}
 
 	public List<String> getOtherSchemaFields() throws SearchLibException {
@@ -214,6 +229,21 @@ public class FieldsController extends CommonController {
 	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
+	}
+
+	/**
+	 * @return the selectedCopyOf
+	 */
+	public String getSelectedCopyOf() {
+		return selectedCopyOf;
+	}
+
+	/**
+	 * @param selectedCopyOf
+	 *            the selectedCopyOf to set
+	 */
+	public void setSelectedCopyOf(String selectedCopyOf) {
+		this.selectedCopyOf = selectedCopyOf;
 	}
 
 }
