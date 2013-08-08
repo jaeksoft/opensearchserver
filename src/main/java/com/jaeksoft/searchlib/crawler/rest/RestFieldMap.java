@@ -80,11 +80,11 @@ public class RestFieldMap extends
 			InstantiationException, IllegalAccessException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			String jsonPath = link.getSource().getUniqueName();
-			String content = JsonPath.read(jsonObject, jsonPath);
+			Object content = JsonPath.read(jsonObject, jsonPath);
 			if (content == null)
 				continue;
 			this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
-					link.getTarget(), content, target);
+					link.getTarget(), content.toString(), target);
 		}
 
 	}
