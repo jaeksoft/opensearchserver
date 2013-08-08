@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -146,6 +147,18 @@ public class FieldsController extends CommonController {
 			client.getSchema().getFieldList().toNameList(fieldList);
 			return fieldList;
 		}
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onCopyOfAdd() {
+		this.field.addCopyOf(selectedCopyOf);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onCopyOfRemove(@BindingParam("field") String field) {
+		this.field.removeCopyOf(field);
 	}
 
 	public List<String> getOtherSchemaFields() throws SearchLibException {

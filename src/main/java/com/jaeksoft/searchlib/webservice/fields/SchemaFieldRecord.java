@@ -64,6 +64,7 @@ public class SchemaFieldRecord {
 		this.indexed = schemaField.getIndexed();
 		this.stored = schemaField.getStored();
 		this.termVector = schemaField.getTermVector();
-		this.copyOf = new ArrayList<String>(schemaField.getCopyOf());
+		this.copyOf = schemaField.getCopyOf() == null ? null
+				: new ArrayList<String>(schemaField.getCopyOf());
 	}
 }

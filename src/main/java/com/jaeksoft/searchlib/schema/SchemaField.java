@@ -234,6 +234,18 @@ public class SchemaField extends AbstractField<SchemaField> {
 		return copyOf;
 	}
 
+	public void addCopyOf(String field) {
+		if (copyOf == null)
+			copyOf = new ArrayList<String>(1);
+		copyOf.add(field);
+	}
+
+	public void removeCopyOf(String field) {
+		if (copyOf == null)
+			return;
+		copyOf.remove(field);
+	}
+
 	/**
 	 * @param copyOf
 	 *            the copyOf to set
