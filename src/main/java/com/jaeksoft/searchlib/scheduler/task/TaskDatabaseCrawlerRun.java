@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.util.Map;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -37,6 +35,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskDatabaseCrawlerRun extends TaskAbstract {
 
@@ -78,8 +77,7 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
 		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
 		String crawlName = properties.getValue(propCrawlName);
@@ -93,7 +91,7 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 			return;
 		}
 		try {
-			crawlMaster.execute(client, crawl, true, taskLog);
+			crawlMaster.execute(client, crawl, true, variables, taskLog);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}

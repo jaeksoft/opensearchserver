@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
@@ -52,7 +53,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private volatile double sendSize;
 
-	private volatile TaskLog taskLog;
+	private volatile InfoCallback infoCallback;
 
 	private volatile List<File> filesNotPushed;
 
@@ -62,7 +63,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
-			ReplicationItem replicationItem, TaskLog taskLog)
+			ReplicationItem replicationItem, InfoCallback infoCallback)
 			throws SearchLibException {
 		super(client, replicationMaster, replicationItem);
 		this.sourceDirectory = replicationItem.getDirectory(client);
@@ -71,7 +72,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		sendSize = 0;
 		filesNotPushed = null;
 		dirsNotPushed = null;
-		this.taskLog = taskLog;
+		this.infoCallback = infoCallback;
 	}
 
 	public int getProgress() {
@@ -175,10 +176,11 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 					PushServlet.call_directory(client, replicationItem, file);
 			}
 			addSendSize(file);
-			if (taskLog != null) {
-				taskLog.setInfo(getProgress() + "% transfered");
-				if (taskLog.isAbortRequested())
-					throw new SearchLibException.AbortException();
+			if (infoCallback != null) {
+				infoCallback.setInfo(getProgress() + "% transfered");
+				if (infoCallback instanceof TaskLog)
+					if (((TaskLog) infoCallback).isAbortRequested())
+						throw new SearchLibException.AbortException();
 			}
 		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);

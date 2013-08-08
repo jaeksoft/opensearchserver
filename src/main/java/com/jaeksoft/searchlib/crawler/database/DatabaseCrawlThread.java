@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class DatabaseCrawlThread extends
@@ -46,10 +46,10 @@ public abstract class DatabaseCrawlThread extends
 
 	protected long updatedDeleteDocumentCount;
 
-	protected final TaskLog taskLog;
+	protected final InfoCallback infoCallback;
 
 	public DatabaseCrawlThread(Client client, DatabaseCrawlMaster crawlMaster,
-			DatabaseCrawlAbstract databaseCrawl, TaskLog taskLog) {
+			DatabaseCrawlAbstract databaseCrawl, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl);
 		this.databaseCrawl = databaseCrawl;
 		this.client = client;
@@ -57,7 +57,7 @@ public abstract class DatabaseCrawlThread extends
 		updatedIndexDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
-		this.taskLog = taskLog;
+		this.infoCallback = infoCallback;
 	}
 
 	public String getCountInfo() {

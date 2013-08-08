@@ -33,12 +33,12 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "Scheduler")
 public interface SoapScheduler {
 
-	public CommonResult status(@WebParam(name = "use") String use,
+	public CommonResult status(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name);
 
-	public CommonResult run(@WebParam(name = "use") String use,
+	public CommonResult run(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name,

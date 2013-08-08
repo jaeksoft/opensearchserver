@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.util.Map;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -35,6 +33,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskSleep extends TaskAbstract {
 
@@ -69,8 +68,8 @@ public class TaskSleep extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException, InterruptedException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			InterruptedException {
 		String p = properties.getValue(propSeconds);
 		int seconds = p == null ? 60 : Integer.parseInt(p);
 		ThreadUtils.waitUntil(seconds, taskLog);

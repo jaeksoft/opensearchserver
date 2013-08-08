@@ -61,7 +61,7 @@ public class DatabaseServlet extends AbstractServlet {
 						+ name + ")");
 			DatabaseCrawlThread databaseCrawlThread = client
 					.getDatabaseCrawlMaster().execute(client, databaseCrawl,
-							true, null);
+							true, null, null);
 			if (databaseCrawlThread.getStatus() == CrawlStatus.ERROR)
 				transaction.addXmlResponse("status", "error");
 			else

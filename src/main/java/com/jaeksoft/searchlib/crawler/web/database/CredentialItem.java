@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class CredentialItem {
 
@@ -143,6 +144,16 @@ public class CredentialItem {
 		credential.domain = this.domain;
 		credential.workstation = this.workstation;
 		credential.type = this.type;
+	}
+
+	public void apply(Variables variables) {
+		if (variables == null)
+			return;
+		pattern = variables.replace(pattern);
+		username = variables.replace(username);
+		password = variables.replace(password);
+		domain = variables.replace(domain);
+		workstation = variables.replace(workstation);
 	}
 
 	/**
@@ -293,4 +304,5 @@ public class CredentialItem {
 			throw new SearchLibException("Not yet implemented");
 		}
 	}
+
 }

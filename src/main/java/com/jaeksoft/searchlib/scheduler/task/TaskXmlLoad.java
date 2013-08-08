@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -54,6 +53,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskXmlLoad extends TaskAbstract {
 
@@ -99,8 +99,7 @@ public class TaskXmlLoad extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		String uri = properties.getValue(propUri);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);

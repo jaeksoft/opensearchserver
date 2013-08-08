@@ -32,16 +32,20 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
-import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class CommonListResult extends CommonResult {
 
-	public List<String> items;
+	public final List<String> items;
 
 	public CommonListResult() {
 		items = null;
+	}
+
+	public CommonListResult(List<String> items) {
+		super(true, items.size() + " item(s) found");
+		this.items = items;
 	}
 
 	public CommonListResult(Collection<AutoCompletionItem> items) {

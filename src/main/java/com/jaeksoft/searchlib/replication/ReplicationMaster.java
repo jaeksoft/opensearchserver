@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class ReplicationMaster extends
 		ThreadMasterAbstract<ReplicationMaster, ReplicationThread> {
@@ -40,10 +41,11 @@ public class ReplicationMaster extends
 
 	@Override
 	protected ReplicationThread getNewThread(Client client,
-			ThreadItem<?, ReplicationThread> replicationItem, TaskLog taskLog)
+			ThreadItem<?, ReplicationThread> replicationItem,
+			Variables variables, InfoCallback infoCallback)
 			throws SearchLibException {
 		return new ReplicationThread(client, this,
-				(ReplicationItem) replicationItem, taskLog);
+				(ReplicationItem) replicationItem, infoCallback);
 	}
 
 	@Override

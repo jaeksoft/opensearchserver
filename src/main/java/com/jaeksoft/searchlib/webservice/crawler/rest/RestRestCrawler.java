@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.database;
+package com.jaeksoft.searchlib.webservice.crawler.rest;
 
 import java.util.Map;
 
@@ -37,8 +37,8 @@ import javax.ws.rs.core.MediaType;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/index/{index_name}/crawler/database")
-public interface RestDatabase {
+@Path("/index/{index_name}/crawler/rest")
+public interface RestRestCrawler {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -50,8 +50,9 @@ public interface RestDatabase {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{crawl_name}/run")
-	public CommonResult run(@PathParam("index") String index,
+	public CommonResult run(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("crawl_name") String name, Map<String, String> variables);
+			@PathParam("crawl_name") String crawlName,
+			Map<String, String> variables);
 
 }

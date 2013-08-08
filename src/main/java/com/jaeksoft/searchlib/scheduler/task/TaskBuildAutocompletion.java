@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -39,6 +38,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskBuildAutocompletion extends TaskAbstract {
 
@@ -93,8 +93,7 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		String p = properties.getValue(propBuffersize);
 		int bufferSize = 1000;
 		if (p != null && p.length() > 0)

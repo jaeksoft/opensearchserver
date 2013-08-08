@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.IOException;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -38,6 +37,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskFileManagerAction extends TaskAbstract {
 
@@ -95,8 +95,8 @@ public class TaskFileManagerAction extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException, IOException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		FileManager fileManager = client.getFileManager();
 		taskLog.setInfo("File manager Action started");
 		if (selectionRequest != null) {

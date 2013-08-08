@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -59,6 +58,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskFtpXmlFeed extends TaskAbstract {
 
@@ -157,8 +157,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		String server = properties.getValue(propServer);
 		String path = properties.getValue(propPath);
 		String login = properties.getValue(propLogin);

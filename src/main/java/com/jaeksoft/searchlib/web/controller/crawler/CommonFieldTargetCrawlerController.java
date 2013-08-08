@@ -209,7 +209,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		Client client = getClient();
 		if (client == null)
 			return;
-		getCrawlMaster().execute(client, item, false, null);
+		getCrawlMaster().execute(client, item, false, null, null);
 		reload();
 	}
 

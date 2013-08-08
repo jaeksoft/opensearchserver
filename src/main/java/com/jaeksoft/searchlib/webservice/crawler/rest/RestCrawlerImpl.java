@@ -21,41 +21,40 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.crawler.database;
+package com.jaeksoft.searchlib.webservice.crawler.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlThread;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.utils.Variables;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class DatabaseImpl extends CommonServices implements SoapDatabase,
-		RestDatabase {
+public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
+		RestRestCrawler {
 
 	@Override
 	public CommonListResult list(String index, String login, String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_DATABASE_CRAWLER);
+					Role.GROUP_REST_CRAWLER);
 			List<String> nameList = new ArrayList<String>(0);
-			DatabaseCrawlAbstract[] items = client.getDatabaseCrawlList()
-					.getArray();
+			RestCrawlItem[] items = client.getRestCrawlList().getArray();
 			if (items != null)
-				for (DatabaseCrawlAbstract item : items)
+				for (RestCrawlItem item : items)
 					nameList.add(item.getName());
 			return new CommonListResult(nameList);
 		} catch (SearchLibException e) {
@@ -69,28 +68,27 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 
 	@Override
 	public CommonResult run(String index, String login, String key,
-			String databaseName, Map<String, String> variables) {
+			String crawl_name, Map<String, String> variables) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(index, login, key,
-					Role.DATABASE_CRAWLER_START_STOP);
-			DatabaseCrawlAbstract databaseCrawl = client.getDatabaseCrawlList()
-					.get(databaseName);
-			if (databaseCrawl == null)
-				throw new CommonServiceException(Response.Status.NOT_FOUND,
-						"Database crawl name not found: " + databaseName);
+					Role.REST_CRAWLER_EXECUTE);
+			RestCrawlItem restCrawlItem = client.getRestCrawlList().get(
+					crawl_name);
+			if (restCrawlItem == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Crawl item not found: " + crawl_name);
 			CommonResult result = new CommonResult(true, null);
-			DatabaseCrawlThread databaseCrawlThread = client
-					.getDatabaseCrawlMaster()
+			RestCrawlThread restCrawlThread = client
+					.getRestCrawlMaster()
 					.execute(
 							client,
-							databaseCrawl,
+							restCrawlItem,
 							true,
 							variables == null ? null : new Variables(variables),
 							result);
-			if (databaseCrawlThread.getStatus() == CrawlStatus.ERROR)
-				throw new CommonServiceException(
-						databaseCrawlThread.getException());
+			if (restCrawlThread.getStatus() == CrawlStatus.ERROR)
+				throw new CommonServiceException(restCrawlThread.getException());
 			return result;
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);

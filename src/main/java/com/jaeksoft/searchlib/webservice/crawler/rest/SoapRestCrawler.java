@@ -21,34 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.document;
+package com.jaeksoft.searchlib.webservice.crawler.rest;
 
-import java.util.List;
+import java.util.Map;
 
-import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@WebService(name = "Document")
-public interface SoapDocument {
+@WebService(name = "RestCrawler")
+public interface SoapRestCrawler {
 
-	@WebMethod(operationName = "update")
-	public CommonResult update(@WebParam(name = "use") String use,
+	public CommonListResult list(@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult run(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "documents") List<DocumentUpdate> documents);
-
-	public CommonResult deleteByValue(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "field") String field,
-			@WebParam(name = "values") List<String> values);
-
-	public CommonResult deleteByQuery(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "query") String query);
+			@WebParam(name = "crawl_name") String name,
+			@WebParam(name = "variables") Map<String, String> variables);
 
 }

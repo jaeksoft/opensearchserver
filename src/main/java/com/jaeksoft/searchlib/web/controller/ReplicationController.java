@@ -152,7 +152,7 @@ public class ReplicationController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		getReplicationMaster().execute(client, item, false, null);
+		getReplicationMaster().execute(client, item, false, null, null);
 	}
 
 	public ReplicationType[] getTypeValues() {

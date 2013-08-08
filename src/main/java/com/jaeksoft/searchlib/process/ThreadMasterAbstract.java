@@ -33,9 +33,10 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>, T extends ThreadAbstract<T>>
 		extends ThreadAbstract<M> {
@@ -192,8 +193,9 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 	}
 
 	public T execute(Client client, ThreadItem<?, T> threadItem,
-			boolean bWaitForCompletion, TaskLog taskLog)
-			throws InterruptedException, SearchLibException {
+			boolean bWaitForCompletion, Variables variables,
+			InfoCallback infoCallback) throws InterruptedException,
+			SearchLibException {
 		T crawlThread = null;
 		rwl.w.lock();
 		try {
@@ -203,7 +205,8 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 							+ threadItem.toString() + " is already running");
 				}
 			}
-			crawlThread = getNewThread(client, threadItem, taskLog);
+			crawlThread = getNewThread(client, threadItem, variables,
+					infoCallback);
 			if (threadItem != null) {
 				threadMap.put(threadItem, crawlThread);
 				threadItem.setLastThread(crawlThread);
@@ -221,7 +224,8 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 	}
 
 	protected T getNewThread(Client client, ThreadItem<?, T> threadItem,
-			TaskLog taskLog) throws SearchLibException {
+			Variables variables, InfoCallback infoCallback)
+			throws SearchLibException {
 		throw new SearchLibException("Not implemented");
 	}
 

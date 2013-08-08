@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -46,6 +45,7 @@ import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class JobItem extends ExecutionAbstract {
 
@@ -209,7 +209,7 @@ public class JobItem extends ExecutionAbstract {
 		}
 	}
 
-	public void run(Client client, Map<String, String> variables) {
+	public void run(Client client, Variables variables) {
 		if (!runningRequest()) {
 			Logging.warn("The job " + name + "  is already running");
 			return;

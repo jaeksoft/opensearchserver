@@ -42,6 +42,7 @@ import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
@@ -87,6 +88,11 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		sqlUpdateMode = SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY;
 		primaryKey = null;
 		uniqueKeyDeleteField = null;
+	}
+
+	public void applyVariables(Variables variables) {
+		sqlSelect = variables.replace(sqlSelect);
+		sqlUpdate = variables.replace(sqlUpdate);
 	}
 
 	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster) {
@@ -331,4 +337,5 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 				transaction.close();
 		}
 	}
+
 }

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -41,6 +40,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskItem extends ExecutionAbstract {
 
@@ -95,8 +95,8 @@ public class TaskItem extends ExecutionAbstract {
 		return task.getPropertyValues(config, propertyDef, userProperties);
 	}
 
-	public void run(Client client, Map<String, String> variables,
-			TaskLog taskLog) throws SearchLibException, IOException {
+	public void run(Client client, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		setRunningNow();
 		try {
 			task.execute(client, userProperties, variables, taskLog);

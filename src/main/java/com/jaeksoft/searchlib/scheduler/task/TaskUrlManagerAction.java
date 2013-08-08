@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.IOException;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -38,6 +37,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskUrlManagerAction extends TaskAbstract {
 
@@ -114,8 +114,8 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException, IOException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		UrlManager urlManager = client.getUrlManager();
 		taskLog.setInfo("URL manager Action started");
 

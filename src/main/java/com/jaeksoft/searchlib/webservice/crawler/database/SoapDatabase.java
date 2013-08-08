@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.database;
 
+import java.util.Map;
+
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
@@ -31,9 +33,14 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "DatabaseCrawler")
 public interface SoapDatabase {
 
-	public CommonResult crawl(@WebParam(name = "use") String use,
+	public CommonResult list(@WebParam(name = "index") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public CommonResult run(@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "name") String databaseName);
+			@WebParam(name = "name") String databaseName,
+			Map<String, String> variables);
 
 }

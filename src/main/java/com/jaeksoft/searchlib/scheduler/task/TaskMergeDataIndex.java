@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -41,6 +40,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskMergeDataIndex extends TaskAbstract {
 
@@ -106,8 +106,7 @@ public class TaskMergeDataIndex extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 
 		String index = properties.getValue(propSourceIndex);
 		String login = properties.getValue(propLogin);

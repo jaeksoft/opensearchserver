@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.util.Map;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -36,6 +34,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskWebCrawlerStart extends TaskAbstract {
 
@@ -72,8 +71,7 @@ public class TaskWebCrawlerStart extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		WebCrawlMaster crawlMaster = client.getWebCrawlMaster();
 		if (crawlMaster.isRunning()) {
 			taskLog.setInfo("Already running");

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -44,6 +43,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskOtherScheduler extends TaskAbstract {
 
@@ -110,8 +110,8 @@ public class TaskOtherScheduler extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException, InterruptedException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			InterruptedException {
 		String indexName = properties.getValue(propIndexName);
 		Client indexClient = ClientCatalog.getClient(indexName);
 		if (indexClient == null)

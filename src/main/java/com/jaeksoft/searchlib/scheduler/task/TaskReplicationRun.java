@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,6 +39,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskReplicationRun extends TaskAbstract {
 
@@ -92,8 +92,7 @@ public class TaskReplicationRun extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		ReplicationMaster replicationMaster = client.getReplicationMaster();
 		ReplicationList replicationList = client.getReplicationList();
 		String replicationName = properties.getValue(propReplicationName);
@@ -115,7 +114,8 @@ public class TaskReplicationRun extends TaskAbstract {
 			}
 		}
 		try {
-			replicationMaster.execute(client, replicationItem, true, taskLog);
+			replicationMaster.execute(client, replicationItem, true, variables,
+					taskLog);
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}

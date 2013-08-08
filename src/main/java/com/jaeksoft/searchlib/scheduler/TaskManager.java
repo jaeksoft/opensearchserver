@@ -31,7 +31,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -53,6 +52,7 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.utils.Variables;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class TaskManager {
@@ -203,7 +203,7 @@ public class TaskManager {
 	 * @throws InterruptedException
 	 */
 	public ImmediateExecution executeJob(Client client, JobItem jobItem,
-			Map<String, String> variables) throws InterruptedException {
+			Variables variables) throws InterruptedException {
 		ImmediateExecution execution = new ImmediateExecution(client, jobItem,
 				variables);
 		client.getThreadPool().execute(execution);

@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import javax.naming.NamingException;
 
@@ -43,6 +42,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskPullTerms extends TaskPullAbstract {
 
@@ -78,8 +78,7 @@ public class TaskPullTerms extends TaskPullAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Map<String, String> variables, TaskLog taskLog)
-			throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException {
 		int freqMin = Integer.parseInt(properties.getValue(propFreqMin));
 		String[] targetFreqFields = null;
 		String freqField = properties.getValue(propFreqField);

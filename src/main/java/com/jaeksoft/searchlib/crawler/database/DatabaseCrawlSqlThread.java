@@ -44,21 +44,23 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private DatabaseCrawlSql databaseCrawl;
+	private final DatabaseCrawlSql databaseCrawl;
 
 	public DatabaseCrawlSqlThread(Client client,
 			DatabaseCrawlMaster crawlMaster, DatabaseCrawlSql databaseCrawl,
-			TaskLog taskLog) {
-		super(client, crawlMaster, databaseCrawl, taskLog);
-		this.databaseCrawl = databaseCrawl;
+			Variables variables, InfoCallback infoCallback) {
+		super(client, crawlMaster, databaseCrawl, infoCallback);
+		this.databaseCrawl = (DatabaseCrawlSql) databaseCrawl.duplicate();
+		this.databaseCrawl.applyVariables(variables);
 	}
 
 	private boolean index(Transaction transaction,
@@ -83,8 +85,9 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 		pkList.clear();
 		indexDocumentList.clear();
-		if (taskLog != null)
-			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		if (infoCallback != null)
+			infoCallback.setInfo(updatedIndexDocumentCount
+					+ " document(s) indexed");
 		return true;
 	}
 
@@ -110,8 +113,9 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 
 		deleteDocumentList.clear();
-		if (taskLog != null)
-			taskLog.setInfo(updatedDeleteDocumentCount + " document(s) deleted");
+		if (infoCallback != null)
+			infoCallback.setInfo(updatedDeleteDocumentCount
+					+ " document(s) deleted");
 		return true;
 	}
 

@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionImpl;
 import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
+import com.jaeksoft.searchlib.webservice.crawler.rest.RestCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
 import com.jaeksoft.searchlib.webservice.document.DocumentImpl;
 import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
@@ -61,6 +62,8 @@ public enum WebServiceEnum {
 	Learner(LearnerImpl.class, "/learner"),
 
 	Monitor(MonitorImpl.class, "/monitor"),
+
+	RestCrawler(RestCrawlerImpl.class, "/crawler/rest"),
 
 	Scheduler(SchedulerImpl.class, "/scheduler"),
 

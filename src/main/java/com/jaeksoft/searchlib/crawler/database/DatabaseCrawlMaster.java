@@ -28,7 +28,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.process.ThreadItem;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseCrawlMaster extends
 		CrawlMasterAbstract<DatabaseCrawlMaster, DatabaseCrawlThread> {
@@ -39,10 +40,11 @@ public class DatabaseCrawlMaster extends
 
 	@Override
 	public DatabaseCrawlThread getNewThread(Client client,
-			ThreadItem<?, DatabaseCrawlThread> databaseCrawl, TaskLog taskLog) {
+			ThreadItem<?, DatabaseCrawlThread> databaseCrawl,
+			Variables variables, InfoCallback infoCallback) {
 		if (databaseCrawl instanceof DatabaseCrawlSql)
 			return new DatabaseCrawlSqlThread(client, this,
-					(DatabaseCrawlSql) databaseCrawl, taskLog);
+					(DatabaseCrawlSql) databaseCrawl, variables, infoCallback);
 		return null;
 	}
 

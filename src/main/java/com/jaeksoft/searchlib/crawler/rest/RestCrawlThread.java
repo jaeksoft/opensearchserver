@@ -40,8 +40,9 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.utils.Variables;
 import com.jayway.jsonpath.JsonPath;
 
 public class RestCrawlThread extends
@@ -61,18 +62,20 @@ public class RestCrawlThread extends
 
 	protected long updatedDeleteDocumentCount;
 
-	protected final TaskLog taskLog;
+	protected final InfoCallback infoCallback;
 
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
-			RestCrawlItem restCrawlItem, TaskLog taskLog) {
+			RestCrawlItem restCrawlItem, Variables variables,
+			InfoCallback infoCallback) {
 		super(client, crawlMaster, restCrawlItem);
-		this.restCrawlItem = restCrawlItem;
+		this.restCrawlItem = restCrawlItem.duplicate();
+		this.restCrawlItem.apply(variables);
 		this.client = client;
 		pendingIndexDocumentCount = 0;
 		updatedIndexDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
-		this.taskLog = taskLog;
+		this.infoCallback = infoCallback;
 	}
 
 	public String getCountInfo() {
@@ -150,8 +153,9 @@ public class RestCrawlThread extends
 			rwl.w.unlock();
 		}
 		indexDocumentList.clear();
-		if (taskLog != null)
-			taskLog.setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		if (infoCallback != null)
+			infoCallback.setInfo(updatedIndexDocumentCount
+					+ " document(s) indexed");
 		return true;
 	}
 

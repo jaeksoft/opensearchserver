@@ -30,9 +30,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -47,6 +45,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseScript implements Closeable {
 
@@ -74,16 +73,15 @@ public class DatabaseScript implements Closeable {
 
 	private Transaction transaction;
 
-	private HashMap<String, String> variablesMap;
+	private Variables variables;
 
 	public DatabaseScript(Config config, String driverClass, String jdbcURL,
 			String username, String password,
 			IsolationLevelEnum isolationLevel, String sqlVariable,
 			String varColumnName, String varColumnValue, String sqlSelect,
-			String sqlUpdate, SqlUpdateMode sqlUpdateMode,
-			Map<String, String> variables, TaskLog taskLog)
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			String sqlUpdate, SqlUpdateMode sqlUpdateMode, Variables variables,
+			TaskLog taskLog) throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		connectionManager = new JDBCConnection();
 		connectionManager.setDriver(driverClass);
 		connectionManager.setUrl(jdbcURL);
@@ -98,35 +96,7 @@ public class DatabaseScript implements Closeable {
 		this.sqlUpdateMode = sqlUpdateMode;
 		scriptCommandContext = new ScriptCommandContext(config, taskLog);
 		transaction = null;
-		variablesMap = null;
-		populateVariableMap(variables);
-	}
-
-	private final void putVariable(String name, String value) {
-		if (variablesMap == null)
-			variablesMap = new HashMap<String, String>();
-		if (name == null || value == null)
-			return;
-		StringBuffer sb = new StringBuffer();
-		sb.append('{');
-		sb.append(name);
-		sb.append('}');
-		variablesMap.put(sb.toString(), value);
-	}
-
-	private final void populateVariableMap(Map<String, String> variables) {
-		if (variables == null)
-			return;
-		for (Map.Entry<String, String> entry : variables.entrySet())
-			putVariable(entry.getKey(), entry.getValue());
-	}
-
-	private final String doVariableReplacement(String text) {
-		if (variablesMap == null || text == null)
-			return text;
-		for (Map.Entry<String, String> entry : variablesMap.entrySet())
-			text = text.replace(entry.getKey(), entry.getValue());
-		return text;
+		this.variables = variables != null ? variables : new Variables();
 	}
 
 	public void run() throws SQLException, ScriptException {
@@ -139,12 +109,12 @@ public class DatabaseScript implements Closeable {
 				Query query = transaction.prepare(sqlVariable);
 				ResultSet resultSet = query.getResultSet();
 				while (resultSet.next())
-					putVariable(resultSet.getString(varColumnName),
+					variables.put(resultSet.getString(varColumnName),
 							resultSet.getString(varColumnValue));
 			}
 
-			String sqlU = doVariableReplacement(sqlUpdate);
-			String sqlS = doVariableReplacement(sqlSelect);
+			String sqlU = variables.replace(sqlUpdate);
+			String sqlS = variables.replace(sqlSelect);
 			Query query = transaction.prepare(sqlS);
 			ResultSet resultSet = query.getResultSet();
 
@@ -175,7 +145,7 @@ public class DatabaseScript implements Closeable {
 						Object o = resultSet.getObject(COLUMN_PARAM + (i + 1));
 						if (o == null)
 							continue;
-						parameters[i] = doVariableReplacement(o.toString());
+						parameters[i] = variables.replace(o.toString());
 					}
 				}
 				CommandEnum commandEnum = CommandEnum.find(command);

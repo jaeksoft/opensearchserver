@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class RestCrawlItem extends
 		FieldMapCrawlItem<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {
@@ -75,6 +76,14 @@ public class RestCrawlItem extends
 
 	public RestCrawlItem duplicate() {
 		return new RestCrawlItem(this);
+	}
+
+	public void apply(Variables variables) {
+		if (variables == null)
+			return;
+		url = variables.replace(url);
+		pathDocument = variables.replace(pathDocument);
+		credential.apply(variables);
 	}
 
 	@Override
