@@ -39,24 +39,8 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 public interface RestIndex {
 
 	@POST
-	@Deprecated
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/create/xml")
-	public CommonResult createIndexXML(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name,
-			@QueryParam("template") TemplateList template);
-
-	@POST
-	@Deprecated
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/create/json")
-	public CommonResult createIndexJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name,
-			@QueryParam("template") TemplateList template);
-
-	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{index_name}/{template}")
+	@Path("/{index_name}/template/{template}")
 	public CommonResult createIndex(@QueryParam("login") String login,
 			@QueryParam("key") String key,
 			@PathParam("index_name") String name,
@@ -69,58 +53,16 @@ public interface RestIndex {
 			@QueryParam("key") String key, @PathParam("index_name") String name);
 
 	@DELETE
-	@Deprecated
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/delete/xml")
-	public CommonResult deleteIndexXML(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name);
-
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	@Deprecated
-	@Path("/delete/json")
-	public CommonResult deleteIndexJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name);
-
-	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
 	public CommonResult deleteIndex(@QueryParam("login") String login,
 			@QueryParam("key") String key, @PathParam("index_name") String name);
 
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/list/xml")
-	@Deprecated
-	public ResultIndexList indexListXML(@QueryParam("login") String login,
-			@QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/list/json")
-	@Deprecated
-	public ResultIndexList indexListJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key);
-
-	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public ResultIndexList indexList(@QueryParam("login") String login,
 			@QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/exists/xml")
-	@Deprecated
-	public CommonResult indexExistsXML(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/exists/json")
-	@Deprecated
-	public CommonResult indexExistsJSON(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("name") String name);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

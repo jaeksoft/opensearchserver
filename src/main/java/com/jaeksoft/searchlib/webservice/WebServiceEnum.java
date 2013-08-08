@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.webservice;
 
 import com.jaeksoft.searchlib.webservice.analyzer.AnalyzerImpl;
 import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionImpl;
-import com.jaeksoft.searchlib.webservice.autocompletion.AutoCompletionOldImpl;
 import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 import com.jaeksoft.searchlib.webservice.crawler.database.DatabaseImpl;
 import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FileCrawlerImpl;
@@ -36,7 +35,6 @@ import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
-import com.jaeksoft.searchlib.webservice.scheduler.SchedulerOldImpl;
 import com.jaeksoft.searchlib.webservice.schema.SchemaImpl;
 import com.jaeksoft.searchlib.webservice.select.SearchImpl;
 import com.jaeksoft.searchlib.webservice.select.SelectImpl;
@@ -48,8 +46,6 @@ public enum WebServiceEnum {
 	Analyzer(AnalyzerImpl.class, "/analyzer"),
 
 	AutoCompletion(AutoCompletionImpl.class, "/autocompletion"),
-
-	AutoCompletionOld(AutoCompletionOldImpl.class, null),
 
 	Command(CommandImpl.class, "/command"),
 
@@ -66,8 +62,6 @@ public enum WebServiceEnum {
 	Monitor(MonitorImpl.class, "/monitor"),
 
 	Scheduler(SchedulerImpl.class, "/scheduler"),
-
-	SchedulerOld(SchedulerOldImpl.class, null),
 
 	Select(SelectImpl.class, "/select"),
 

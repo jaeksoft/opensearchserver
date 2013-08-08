@@ -61,18 +61,6 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult deleteIndexXML(String login, String key,
-			String indexName) {
-		return deleteIndex(login, key, indexName);
-	}
-
-	@Override
-	public CommonResult deleteIndexJSON(String login, String key,
-			String indexName) {
-		return deleteIndex(login, key, indexName);
-	}
-
-	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
 			TemplateList indexTemplateName) {
 		try {
@@ -99,18 +87,6 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult createIndexXML(String login, String key,
-			String indexName, TemplateList indexTemplateName) {
-		return createIndex(login, key, indexName, indexTemplateName);
-	}
-
-	@Override
-	public CommonResult createIndexJSON(String login, String key,
-			String indexName, TemplateList indexTemplateName) {
-		return createIndex(login, key, indexName, indexTemplateName);
-	}
-
-	@Override
 	public ResultIndexList indexList(String login, String key) {
 		try {
 			User user = getLoggedUser(login, key);
@@ -127,16 +103,6 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
-	}
-
-	@Override
-	public ResultIndexList indexListXML(String login, String key) {
-		return indexList(login, key);
-	}
-
-	@Override
-	public ResultIndexList indexListJSON(String login, String key) {
-		return indexList(login, key);
 	}
 
 	@Override
@@ -157,13 +123,4 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 		}
 	}
 
-	@Override
-	public CommonResult indexExistsXML(String login, String key, String name) {
-		return indexExists(login, key, name);
-	}
-
-	@Override
-	public CommonResult indexExistsJSON(String login, String key, String name) {
-		return indexExists(login, key, name);
-	}
 }
