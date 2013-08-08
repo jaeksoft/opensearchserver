@@ -16,102 +16,20 @@ import com.jaeksoft.searchlib.SearchLibException;
 
 public class NaiveCSSParser {
 
-	private abstract class AbstractParser {
-
-		private final Matcher matcher;
-		private final String css;
-		private final int offset;
-
-		protected AbstractParser(int offset, final Pattern pattern,
-				final String css) throws IOException, SearchLibException {
-			this.css = css;
-			this.offset = offset;
-			synchronized (pattern) {
-				matcher = pattern.matcher(css);
-			}
-		}
-
-		protected void parseOuter() throws IOException, SearchLibException {
-			int pos = 0;
-			while (matcher.find()) {
-				parse(pos + offset, css.substring(pos, matcher.start()));
-				pos = matcher.end();
-			}
-			parse(pos + offset, css.substring(pos, css.length()));
-
-		}
-
-		protected void parseInner() throws IOException, SearchLibException {
-			while (matcher.find()) {
-				parse(offset + matcher.start(), matcher);
-			}
-		}
-
-		protected void parse(int pos, String css) throws IOException,
-				SearchLibException {
-
-		}
-
-		protected void parse(int pos, Matcher matcher) throws IOException,
-				SearchLibException {
-		}
-	}
-
 	private static Pattern commentLocator = Pattern.compile("(?s)/\\*.*?\\*/");
 
-	private class CommentExtractParser extends AbstractParser {
+	private static String removeComments(String css) {
+		Matcher matcher = commentLocator.matcher(css);
 
-		protected CommentExtractParser(int offset, String css)
-				throws IOException, SearchLibException {
-			super(offset, commentLocator, css);
-			parseOuter();
+		StringBuffer sb = new StringBuffer();
+		int pos = 0;
+		while (matcher.find()) {
+			sb.append(css.substring(pos, matcher.start()));
+			pos = matcher.end();
 		}
-
-		@Override
-		protected void parse(int offset, String css) throws IOException,
-				SearchLibException {
-			new RuleParser(offset, css);
-			new AtRuleParser(offset, css);
-		}
-	}
-
-	private static Pattern ruleLocator = Pattern
-			.compile("(?s)\\s*([a-zA-Z0-9,\\*\\-\\+_\\.@#:\\s\"=\\[\\]<>]*)\\s*\\{(.*?)\\}");
-
-	private class RuleParser extends AbstractParser {
-
-		protected RuleParser(int offset, String css) throws IOException,
-				SearchLibException {
-			super(offset, ruleLocator, css);
-			parseInner();
-		}
-
-		@Override
-		protected void parse(int pos, Matcher matcher) {
-			new CSSStyleRule(pos, matcher.group(1), matcher.group(2));
-		}
-	}
-
-	private static Pattern atRuleLocator = Pattern
-			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#]*)\\s+([^;]*);");
-
-	private class AtRuleParser extends AbstractParser {
-
-		protected AtRuleParser(int offset, String css) throws IOException,
-				SearchLibException {
-			super(offset, atRuleLocator, css);
-			parseInner();
-		}
-
-		@Override
-		protected void parse(int offset, Matcher matcher) {
-			String atRule = matcher.group(1);
-			String atProperty = matcher.group(2);
-			if ("@import".equalsIgnoreCase(atRule))
-				new CSSImportRule(offset, atRule, atProperty);
-			else
-				new CSSAtRule(offset, atRule, atProperty);
-		}
+		if (pos < css.length())
+			sb.append(css.substring(pos, css.length()));
+		return sb.toString();
 	}
 
 	public abstract class CSSRule {
@@ -214,8 +132,12 @@ public class NaiveCSSParser {
 
 		private final String atProperty;
 
-		protected CSSAtRule(int pos, String atRule, String atProperty) {
+		private final boolean withSemiColon;
+
+		protected CSSAtRule(int pos, String atRule, String atProperty,
+				boolean withSemiColon) {
 			super(pos);
+			this.withSemiColon = withSemiColon;
 			this.atRule = atRule;
 			this.atProperty = atProperty;
 		}
@@ -225,7 +147,9 @@ public class NaiveCSSParser {
 			pw.print(atRule);
 			pw.print(' ');
 			pw.print(atProperty);
-			pw.println(';');
+			if (withSemiColon)
+				pw.print(';');
+			pw.println();
 		}
 
 	}
@@ -290,6 +214,148 @@ public class NaiveCSSParser {
 		}
 	}
 
+	// Find At Rule with ;
+	private static Pattern atRuleLocator = Pattern
+			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*);");
+
+	// Find At Rule followed by block
+	private static Pattern atRuleBlockLocator = Pattern
+			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*)[^;]*$");
+
+	// Find Styled Rule followed by block
+	private static Pattern ruleLocator = Pattern
+			.compile("(?s)\\s*([a-zA-Z0-9,\\*\\-\\+_\\.#:\\(\\)\\s\"=\\[\\]<>]*)\\s*$");
+
+	private class Block {
+
+		public final String css;
+		public final int prev;
+		public final int start;
+		public int end;
+		public final int depth;
+		public Block next;
+
+		private Block(String css, int prev, int start, int depth,
+				Block previousBlock) {
+			this.css = css;
+			this.prev = prev;
+			this.start = start;
+			this.depth = depth;
+			this.next = null;
+			if (previousBlock != null)
+				previousBlock.next = this;
+		}
+
+		public void findEnd() {
+			Block block = next;
+			if (block == null) {
+				end = css.length();
+				return;
+			}
+			while (block != null) {
+				if (block.depth == depth) {
+					end = block.prev;
+					break;
+				}
+				block = block.next;
+			}
+		}
+
+		@Override
+		public String toString() {
+			return depth + " : " + prev + " - " + start + " - " + end;
+		}
+
+		public String toPrev() {
+			return css.substring(prev, start).trim();
+		}
+
+		public String toBlock(boolean in) {
+			try {
+				return css.substring(start + (in ? 1 : 0), end - (in ? 1 : 0))
+						.trim();
+			} catch (java.lang.StringIndexOutOfBoundsException e) {
+				System.out.println(this);
+				return "";
+			}
+		}
+
+		public Block nextSameDepth() {
+			Block block = next;
+			while (block != null)
+				if (block.depth == depth)
+					break;
+				else
+					block = block.next;
+			return block;
+		}
+
+		public Block analyze() {
+			String prevText = toPrev();
+			Matcher matcher;
+			synchronized (atRuleLocator) {
+				matcher = atRuleLocator.matcher(prevText);
+			}
+			while (matcher.find()) {
+				int offset = prev + matcher.start();
+				String atRule = matcher.group(1);
+				String atProperty = matcher.group(2);
+				if ("@import".equalsIgnoreCase(atRule))
+					new CSSImportRule(offset, atRule, atProperty);
+				else
+					new CSSAtRule(offset, atRule, atProperty, true);
+			}
+			synchronized (atRuleBlockLocator) {
+				matcher = atRuleBlockLocator.matcher(prevText);
+			}
+			if (matcher.find()) {
+				new CSSAtRule(prev + matcher.start(), matcher.group(),
+						toBlock(false), false);
+				return nextSameDepth();
+			}
+			synchronized (ruleLocator) {
+				matcher = ruleLocator.matcher(prevText);
+			}
+			if (matcher.find())
+				new CSSStyleRule(prev + matcher.start(), matcher.group(),
+						toBlock(true));
+			return next;
+		}
+	}
+
+	public Block parseBlocks(String css) {
+		int depth = 0;
+		int pos = 0;
+		int prev = 0;
+		Block rootBlock = null;
+		Block previousBlock = null;
+		for (char c : css.toCharArray()) {
+			switch (c) {
+			case '{':
+				previousBlock = new Block(css, prev, pos, ++depth,
+						previousBlock);
+				prev = pos + 1;
+				if (rootBlock == null)
+					rootBlock = previousBlock;
+				break;
+			case '}':
+				prev = pos + 1;
+				if (depth > 0)
+					depth--;
+				break;
+			}
+			pos++;
+		}
+		if (rootBlock == null)
+			rootBlock = new Block(css, 0, css.length(), 0, null);
+		Block block = rootBlock;
+		while (block != null) {
+			block.findEnd();
+			block = block.next;
+		}
+		return rootBlock;
+	}
+
 	private final TreeMap<Integer, CSSRule> rules;
 
 	public NaiveCSSParser() {
@@ -298,7 +364,11 @@ public class NaiveCSSParser {
 
 	public Collection<CSSRule> parseStyleSheet(String css) throws IOException,
 			SearchLibException {
-		new CommentExtractParser(0, css);
+		css = removeComments(css);
+		Block rootBlock = parseBlocks(css);
+		Block block = rootBlock;
+		while (block != null)
+			block = block.analyze();
 		return rules.values();
 	}
 
@@ -319,7 +389,11 @@ public class NaiveCSSParser {
 					+ "@charset UTF-8; \n"
 					+ ".test {background-image:url(\"http://cache.20minutes.fr/images/homepage/skins/play.png\"),-webkit-linear-gradient(top,rgba(255,255,255,0.1)}\n"
 					+ "/* test comment */"
-					+ "html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, input, button, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0 } "
+					+ "html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, input, button, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0 }\n "
+					+ "@media all and (orientation:portrait) {}\n"
+					+ "@media all and (orientation:landscape) {}\n"
+					+ "@media print {* {background:transparent !important;color:black !important;text-shadow:none !important;filter:none !important;-ms-filter:none !important}\n"
+					+ "tr,img {page-break-inside:avoid}}\n"
 					+ "table { border-collapse: collapse; border-spacing: 0 }/*test2 comment*/\n"
 					+ "article, aside, footer, header, hgroup, nav, section, figure, figcaption, embed, video, audio, details { display: block }",
 			".social .scoopit{margin-right:-26px;z-index:999;}#divgauche .barre-sociale .social .pinterest .at_PinItButton{display:block;width:30px;height:26px; line-height:26px;padding:0;margin:0;background-image:url(/Images/Commun/pictos/picto_pinterest.gif);background-repeat:no-repeat;background-position:0 0;font:11px Arial,Helvetica,sans-serif;text-indent:-9999em;font-size:.01em;color:#CD1F1F;}"
