@@ -26,35 +26,21 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
 
-import javax.net.ssl.SSLException;
-
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.entity.DeflateDecompressingEntity;
-import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.params.HttpClientParams;
@@ -67,7 +53,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
@@ -102,83 +87,23 @@ public abstract class HttpAbstract {
 		// paramsBean.setVersion(HttpVersion.HTTP_1_1);
 		// paramsBean.setContentCharset("UTF-8");
 
-		if (userAgent != null && userAgent.trim().length() > 0)
-			paramsBean.setUserAgent(userAgent.trim());
+		if (userAgent != null) {
+			userAgent = userAgent.trim();
+			if (userAgent.length() > 0)
+				paramsBean.setUserAgent(userAgent);
+			else
+				userAgent = null;
+		}
 		HttpClientParams.setRedirecting(params, bFollowRedirect);
 		HttpClientParams.setCookiePolicy(params,
 				CookiePolicy.BROWSER_COMPATIBILITY);
 		httpClient = new DefaultHttpClient(params);
-
-		// Support of GZIP and deflate and chech headers
-		httpClient.addRequestInterceptor(new HttpRequestInterceptor() {
-
-			@Override
-			public void process(final HttpRequest request,
-					final HttpContext context) throws HttpException,
-					IOException {
-				if (!request.containsHeader("Accept"))
-					request.addHeader("Accept", "*/*");
-				if (!request.containsHeader("Accept-Encoding"))
-					request.addHeader("Accept-Encoding", "gzip, deflate");
-			}
-
-		});
-
-		httpClient.addResponseInterceptor(new HttpResponseInterceptor() {
-
-			@Override
-			public void process(final HttpResponse response,
-					final HttpContext context) throws HttpException,
-					IOException {
-				HttpEntity entity = response.getEntity();
-				if (entity != null) {
-					Header ceheader = entity.getContentEncoding();
-					if (ceheader != null) {
-						HeaderElement[] codecs = ceheader.getElements();
-						for (HeaderElement codec : codecs) {
-							String codecName = codec.getName();
-							if ("gzip".equalsIgnoreCase(codecName)) {
-								response.setEntity(new GzipDecompressingEntity(
-										response.getEntity()));
-								return;
-							} else if ("deflate".equalsIgnoreCase(codecName)) {
-								response.setEntity(new DeflateDecompressingEntity(
-										response.getEntity()));
-								return;
-							}
-						}
-					}
-				}
-			}
-
-		});
+		// Support of GZIP and deflate and check headers
+		httpClient.addRequestInterceptor(HttpRequestFilter.INSTANCE);
+		httpClient.addResponseInterceptor(HttpResponseFilter.INSTANCE);
 
 		this.proxyHandler = proxyHandler;
-		HttpRequestRetryHandler myRetryHandler = new HttpRequestRetryHandler() {
-			@Override
-			public boolean retryRequest(IOException exception,
-					int executionCount, HttpContext context) {
-				if (executionCount >= 1)
-					return false;
-				if (exception instanceof InterruptedIOException)
-					return false; // TimeOut
-				if (exception instanceof UnknownHostException)
-					return false;// Unknown host
-				if (exception instanceof ConnectException)
-					return false;// Connection refused
-				if (exception instanceof SSLException)
-					return false;// SSL handshake exception
-				HttpRequest request = (HttpRequest) context
-						.getAttribute(ExecutionContext.HTTP_REQUEST);
-				boolean idempotent = !(request instanceof HttpEntityEnclosingRequest);
-				if (idempotent) {
-					return true; // Retry if the request is considered
-									// idempotent
-				}
-				return false;
-			}
-		};
-		httpClient.setHttpRequestRetryHandler(myRetryHandler);
+		httpClient.setHttpRequestRetryHandler(HttpRetryHandler.INSTANCE);
 	}
 
 	protected void reset() {
@@ -219,6 +144,7 @@ public abstract class HttpAbstract {
 		else
 			credentialItem.setUpCredentials(httpClient.getParams(),
 					httpClient.getAuthSchemes(), credentialProvider);
+
 		httpContext = new BasicHttpContext();
 
 		httpResponse = httpClient.execute(httpUriRequest, httpContext);

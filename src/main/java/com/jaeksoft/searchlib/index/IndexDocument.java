@@ -47,7 +47,6 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
@@ -123,7 +122,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	 */
 	public IndexDocument(Client client, ParserSelector parserSelector,
 			Node documentNode, CredentialItem urlDefaultCredential,
-			ProxyHandler proxyHandler) throws XPathExpressionException,
+			HttpDownloader httpDownloader) throws XPathExpressionException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
 		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
@@ -172,7 +171,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			String url = XPathParser.getAttributeString(node, "url");
 			Parser parser = doBinary(url, content, filePath, filename, client,
 					parserSelector, contentType, urlDefaultCredential,
-					proxyHandler, bFaultTolerant);
+					httpDownloader, bFaultTolerant);
 			if (parser != null)
 				parser.popupateResult(0, this);
 		}
@@ -181,14 +180,14 @@ public class IndexDocument implements Iterable<FieldContent> {
 	private Parser doBinary(String url, String content, String filePath,
 			String filename, Client client, ParserSelector parserSelector,
 			String contentType, CredentialItem urlDefaultCredential,
-			ProxyHandler proxyHandler, boolean bFaultTolerant)
+			HttpDownloader httpDownloader, boolean bFaultTolerant)
 			throws IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		try {
 			Parser parser = null;
 			if (url != null)
 				parser = binaryFromUrl(parserSelector, url,
-						urlDefaultCredential, proxyHandler);
+						urlDefaultCredential, httpDownloader);
 			else if (content != null && content.length() > 0)
 				parser = binaryFromBase64(parserSelector, filename,
 						contentType, content);
@@ -221,10 +220,8 @@ public class IndexDocument implements Iterable<FieldContent> {
 	}
 
 	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
-			CredentialItem credentialItem, ProxyHandler proxyHandler)
+			CredentialItem credentialItem, HttpDownloader httpDownloader)
 			throws SearchLibException {
-		HttpDownloader httpDownloader = new HttpDownloader(null, true,
-				proxyHandler);
 		try {
 			DownloadItem downloadItem = httpDownloader.get(new URI(url),
 					credentialItem);

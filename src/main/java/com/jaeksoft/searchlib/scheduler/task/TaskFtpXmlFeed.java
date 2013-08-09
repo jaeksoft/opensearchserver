@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.FtpFileInstance;
-import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -177,8 +177,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
-		ProxyHandler proxyHandler = client.getWebPropertyManager()
-				.getProxyHandler();
+		HttpDownloader httpDownloader = client.getWebCrawlMaster()
+				.getNewHttpDownloader(true);
 		FTPClient ftp = null;
 		InputStream inputStream = null;
 		try {
@@ -223,7 +223,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 					xmlDoc = DomUtils.readXml(new StreamSource(inputStream),
 							false);
 				client.updateXmlDocuments(xmlDoc, bufferSize, null,
-						proxyHandler, taskLog);
+						httpDownloader, taskLog);
 				client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 				inputStream.close();
 				inputStream = null;
@@ -271,6 +271,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 			} catch (IOException e) {
 				Logging.warn(e);
 			}
+			if (httpDownloader != null)
+				httpDownloader.release();
 		}
 	}
 }

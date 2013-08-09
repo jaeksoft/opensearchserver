@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.DomUtils;
@@ -52,6 +53,7 @@ public class IndexServlet extends AbstractServlet {
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
+		HttpDownloader httpDownloader = null;
 		try {
 
 			String indexName = transaction.getIndexName();
@@ -65,12 +67,13 @@ public class IndexServlet extends AbstractServlet {
 			int bufferSize = transaction.getParameterInteger("bufferSize", 50);
 			int updatedCount = 0;
 			int deletedCount = 0;
+			httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(
+					true);
 			if (ct != null && ct.toLowerCase().contains("xml")) {
 				Node xmlDoc = DomUtils.readXml(
 						new StreamSource(transaction.getInputStream()), false);
 				updatedCount = client.updateXmlDocuments(xmlDoc, bufferSize,
-						null, client.getWebPropertyManager().getProxyHandler(),
-						null);
+						null, httpDownloader, null);
 				deletedCount = client.deleteXmlDocuments(xmlDoc, bufferSize,
 						null);
 			}
@@ -102,6 +105,9 @@ public class IndexServlet extends AbstractServlet {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {
 			throw new ServletException(e);
+		} finally {
+			if (httpDownloader != null)
+				httpDownloader.release();
 		}
 	}
 

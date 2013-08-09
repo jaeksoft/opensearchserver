@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
@@ -57,9 +57,10 @@ public class UploadXmlController extends AbstractUploadController {
 
 		@Override
 		public int doUpdate() throws SearchLibException, IOException {
+			HttpDownloader httpDownloader = null;
 			try {
-				ProxyHandler proxyHandler = client.getWebPropertyManager()
-						.getProxyHandler();
+				httpDownloader = client.getWebCrawlMaster()
+						.getNewHttpDownloader(true);
 				Node xmlDoc;
 				if (xsl != null && xsl.length() > 0) {
 					tempResult = File.createTempFile("ossupload", ".xml");
@@ -70,7 +71,7 @@ public class UploadXmlController extends AbstractUploadController {
 					xmlDoc = DomUtils.readXml(streamSource, false);
 				}
 				return client.updateXmlDocuments(xmlDoc, 50, null,
-						proxyHandler, this);
+						httpDownloader, this);
 			} catch (TransformerException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -89,6 +90,9 @@ public class UploadXmlController extends AbstractUploadController {
 				throw new SearchLibException(e);
 			} catch (ClassNotFoundException e) {
 				throw new SearchLibException(e);
+			} finally {
+				if (httpDownloader != null)
+					httpDownloader.release();
 			}
 		}
 

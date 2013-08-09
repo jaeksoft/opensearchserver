@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
-import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -132,7 +132,7 @@ public class Client extends Config {
 	}
 
 	public int updateXmlDocuments(Node document, int bufferSize,
-			CredentialItem urlDefaultCredential, ProxyHandler proxyHandler,
+			CredentialItem urlDefaultCredential, HttpDownloader httpDownloader,
 			InfoCallback infoCallBack) throws XPathExpressionException,
 			NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
@@ -144,7 +144,7 @@ public class Client extends Config {
 		final int totalCount = nodeList.size();
 		for (Node node : nodeList) {
 			docList.add(new IndexDocument(this, getParserSelector(), node,
-					urlDefaultCredential, proxyHandler));
+					urlDefaultCredential, httpDownloader));
 			if (docList.size() == bufferSize)
 				docCount = updateDocList(totalCount, docCount, docList,
 						infoCallBack);

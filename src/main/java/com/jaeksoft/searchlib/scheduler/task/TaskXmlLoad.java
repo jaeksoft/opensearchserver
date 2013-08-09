@@ -40,13 +40,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -66,6 +66,9 @@ public class TaskXmlLoad extends TaskAbstract {
 	final private TaskPropertyDef propPassword = new TaskPropertyDef(
 			TaskPropertyType.password, "Password", "Password", null, 20);
 
+	final private TaskPropertyDef propUserAgent = new TaskPropertyDef(
+			TaskPropertyType.textBox, "User agent", "UserAgent", null, 20);
+
 	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
@@ -73,7 +76,7 @@ public class TaskXmlLoad extends TaskAbstract {
 			TaskPropertyType.multilineTextBox, "XSL", "XSL", null, 100, 30);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
-			propPassword, propBuffersize, propXsl };
+			propPassword, propUserAgent, propBuffersize, propXsl };
 
 	@Override
 	public String getName() {
@@ -94,6 +97,14 @@ public class TaskXmlLoad extends TaskAbstract {
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propBuffersize)
+			return "50";
+		else if (propertyDef == propUserAgent)
+			try {
+				return config.getWebPropertyManager().getUserAgent().getValue();
+			} catch (SearchLibException e) {
+				Logging.error(e);
+			}
 		return null;
 	}
 
@@ -105,14 +116,13 @@ public class TaskXmlLoad extends TaskAbstract {
 		String password = properties.getValue(propPassword);
 		String p = properties.getValue(propBuffersize);
 		String xsl = properties.getValue(propXsl);
+		String userAgent = properties.getValue(propUserAgent);
 		File xmlTempResult = null;
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
-		ProxyHandler proxyHandler = client.getWebPropertyManager()
-				.getProxyHandler();
-		HttpDownloader httpDownloader = new HttpDownloader(null, true,
-				proxyHandler);
+		HttpDownloader httpDownloader = client.getWebCrawlMaster()
+				.getNewHttpDownloader(true, userAgent);
 		try {
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
@@ -136,7 +146,7 @@ public class TaskXmlLoad extends TaskAbstract {
 						false);
 
 			client.updateXmlDocuments(xmlDoc, bufferSize, credentialItem,
-					proxyHandler, taskLog);
+					httpDownloader, taskLog);
 			client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
