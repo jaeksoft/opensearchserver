@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,9 +46,10 @@ public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 	@Override
 	public final boolean incrementToken() throws IOException {
 		current = captureState();
-		while (input.incrementToken())
-			termSet.add(termAtt.toString());
-		return false;
+		if (!input.incrementToken())
+			return false;
+		termSet.add(termAtt.toString());
+		return true;
 	}
 
 }

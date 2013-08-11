@@ -68,7 +68,7 @@ import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -402,8 +402,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public DocSetHits searchDocSet(SearchRequest searchRequest, Timer timer)
-			throws IOException, ParseException, SyntaxError,
+	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
+			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		rwl.r.lock();
@@ -420,9 +420,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public DocSetHits newDocSetHits(SearchRequest searchRequest, Schema schema,
-			SchemaField defaultField, Analyzer analyzer, Timer timer)
-			throws IOException, ParseException, SyntaxError,
+	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
+			Schema schema, SchemaField defaultField, Analyzer analyzer,
+			Timer timer) throws IOException, ParseException, SyntaxError,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 

@@ -33,7 +33,8 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
@@ -110,13 +111,15 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		StringReader reader = new StringReader(text);
 		DebugTokenFilter lastDebugTokenFilter = new DebugTokenFilter(tokenizer,
 				tokenizer.create(reader));
-		lastDebugTokenFilter.incrementToken();
+		while (lastDebugTokenFilter.incrementToken())
+			;
 		list.add(lastDebugTokenFilter);
 		for (FilterFactory filter : filters) {
 			lastDebugTokenFilter.reset();
 			DebugTokenFilter newDebugTokenFilter = new DebugTokenFilter(filter,
 					filter.create(lastDebugTokenFilter));
-			newDebugTokenFilter.incrementToken();
+			while (newDebugTokenFilter.incrementToken())
+				;
 			list.add(newDebugTokenFilter);
 			lastDebugTokenFilter = newDebugTokenFilter;
 		}
@@ -130,7 +133,8 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TermSetTokenFilter(termSet, ts);
-		ts.incrementToken();
+		while (ts.incrementToken())
+			;
 		IOUtils.closeQuietly(ts);
 	}
 
@@ -141,7 +145,8 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new FieldContentPopulateFilter(fieldContent, ts);
-		ts.incrementToken();
+		while (ts.incrementToken())
+			;
 		IOUtils.closeQuietly(ts);
 	}
 
@@ -152,20 +157,23 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TokenTermPopulateFilter(tokenTerms, ts);
-		ts.incrementToken();
+		while (ts.incrementToken())
+			;
 		IOUtils.closeQuietly(ts);
 	}
 
-	public List<TermQuery> toTermQuery(String field, String text)
-			throws IOException {
+	public int toBooleanQuery(String field, String text, BooleanQuery query,
+			Occur occur) throws IOException {
 		if (text == null)
-			return null;
+			return 0;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
-		TokenTermQueryFilter ttqf = new TokenTermQueryFilter(field, ts);
-		ttqf.incrementToken();
+		TokenQueryFilter.BooleanQueryFilter ttqf = new TokenQueryFilter.BooleanQueryFilter(
+				query, occur, field, 1.0F, ts);
+		while (ttqf.incrementToken())
+			;
 		IOUtils.closeQuietly(ttqf);
-		return ttqf.queryList;
+		return ttqf.termCount;
 	}
 
 	@Override

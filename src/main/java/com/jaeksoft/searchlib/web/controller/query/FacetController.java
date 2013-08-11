@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
@@ -71,7 +71,7 @@ public class FacetController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = (SearchRequest) getRequest();
+			AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
 			if (request == null)
 				return null;
 			fieldLeft = new ArrayList<String>();
@@ -91,7 +91,7 @@ public class FacetController extends AbstractQueryController {
 	public void onFacetRemove(@BindingParam("facetField") FacetField facetField)
 			throws SearchLibException {
 		synchronized (this) {
-			((SearchRequest) getRequest()).getFacetFieldList().remove(
+			((AbstractSearchRequest) getRequest()).getFacetFieldList().remove(
 					facetField.getName());
 			reload();
 		}
@@ -124,7 +124,7 @@ public class FacetController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedFacet == null)
 				return;
-			((SearchRequest) getRequest()).getFacetFieldList().put(
+			((AbstractSearchRequest) getRequest()).getFacetFieldList().put(
 					new FacetField(selectedFacet, 0, false, false));
 			reload();
 		}

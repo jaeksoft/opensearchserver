@@ -57,10 +57,11 @@ public class DocumentsRequest extends AbstractRequest implements
 	private ReturnFieldList returnFieldList;
 
 	public DocumentsRequest() {
+		super(null, RequestTypeEnum.DocumentsRequest);
 	}
 
 	public DocumentsRequest(Config config) {
-		super(config);
+		super(config, RequestTypeEnum.DocumentsRequest);
 	}
 
 	@Override
@@ -107,46 +108,39 @@ public class DocumentsRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
-			throws XPathExpressionException, DOMException, ParseException,
-			InstantiationException, IllegalAccessException,
+	public void fromXmlConfigNoLock(Config config, XPathParser xpp,
+			Node requestNode) throws XPathExpressionException, DOMException,
+			ParseException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		rwl.w.lock();
-		try {
-			super.fromXmlConfig(config, xpp, node);
-
-			NodeList nodes = xpp.getNodeList(node, "docs/doc");
-			if (nodes != null) {
-				for (int i = 0; i < nodes.getLength(); i++) {
-					Node n = nodes.item(i);
-					if (n != null) {
-						int id = XPathParser.getAttributeValue(n, "id");
-						docList.add(id);
-					}
-				}
-			}
-
-			nodes = xpp.getNodeList(node, "uniqueKeys/key");
-			if (nodes != null) {
-				for (int i = 0; i < nodes.getLength(); i++) {
-					Node n = nodes.item(i);
-					if (n != null)
-						uniqueKeyList.add(xpp.getNodeString(n, false));
-				}
-			}
-
-			SchemaFieldList fieldList = config.getSchema().getFieldList();
-			returnFieldList.filterCopy(fieldList,
-					xpp.getNodeString(node, "returnFields"));
-			nodes = xpp.getNodeList(node, "returnFields/field");
+		super.fromXmlConfigNoLock(config, xpp, requestNode);
+		NodeList nodes = xpp.getNodeList(requestNode, "docs/doc");
+		if (nodes != null) {
 			for (int i = 0; i < nodes.getLength(); i++) {
-				ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
-				if (field != null)
-					returnFieldList.put(field);
+				Node n = nodes.item(i);
+				if (n != null) {
+					int id = XPathParser.getAttributeValue(n, "id");
+					docList.add(id);
+				}
 			}
+		}
 
-		} finally {
-			rwl.w.unlock();
+		nodes = xpp.getNodeList(requestNode, "uniqueKeys/key");
+		if (nodes != null) {
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node n = nodes.item(i);
+				if (n != null)
+					uniqueKeyList.add(xpp.getNodeString(n, false));
+			}
+		}
+
+		SchemaFieldList fieldList = config.getSchema().getFieldList();
+		returnFieldList.filterCopy(fieldList,
+				xpp.getNodeString(requestNode, "returnFields"));
+		nodes = xpp.getNodeList(requestNode, "returnFields/field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
+			if (field != null)
+				returnFieldList.put(field);
 		}
 	}
 
@@ -186,50 +180,37 @@ public class DocumentsRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public RequestTypeEnum getType() {
-		return RequestTypeEnum.DocumentsRequest;
-	}
+	public void setFromServletNoLock(ServletTransaction transaction) {
+		String[] values;
 
-	@Override
-	public void setFromServlet(ServletTransaction transaction) {
-		rwl.w.lock();
-		try {
+		SchemaFieldList shemaFieldList = config.getSchema().getFieldList();
 
-			String[] values;
-
-			SchemaFieldList shemaFieldList = config.getSchema().getFieldList();
-
-			if ((values = transaction.getParameterValues("rf")) != null) {
-				for (String value : values)
-					if (value != null)
-						if (value.trim().length() > 0)
-							returnFieldList.put(new ReturnField(shemaFieldList
-									.get(value).getName()));
-			}
-
-			if ((values = transaction.getParameterValues("id")) != null) {
-				for (String value : values)
-					if (value != null)
-						if (value.trim().length() > 0)
-							docList.add(Integer.parseInt(value));
-			}
-			if ((values = transaction.getParameterValues("uk")) != null) {
-				for (String value : values)
-					if (value != null) {
-						value = value.trim();
-						if (value.length() > 0)
-							uniqueKeyList.add(value);
-					}
-			}
-
-		} finally {
-			rwl.w.unlock();
+		if ((values = transaction.getParameterValues("rf")) != null) {
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						returnFieldList.put(new ReturnField(shemaFieldList.get(
+								value).getName()));
 		}
 
+		if ((values = transaction.getParameterValues("id")) != null) {
+			for (String value : values)
+				if (value != null)
+					if (value.trim().length() > 0)
+						docList.add(Integer.parseInt(value));
+		}
+		if ((values = transaction.getParameterValues("uk")) != null) {
+			for (String value : values)
+				if (value != null) {
+					value = value.trim();
+					if (value.length() > 0)
+						uniqueKeyList.add(value);
+				}
+		}
 	}
 
 	@Override
-	public void reset() {
+	protected void resetNoLock() {
 	}
 
 	@Override

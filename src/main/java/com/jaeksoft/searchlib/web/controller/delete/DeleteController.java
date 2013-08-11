@@ -37,7 +37,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -67,7 +68,7 @@ public class DeleteController extends CommonController {
 		}
 	}
 
-	private transient SearchRequest request;
+	private transient AbstractSearchRequest request;
 
 	private transient boolean isChecked;
 
@@ -81,10 +82,10 @@ public class DeleteController extends CommonController {
 		isChecked = false;
 		Client client = getClient();
 		if (client != null)
-			request = new SearchRequest(getClient());
+			request = new SearchPatternRequest(getClient());
 	}
 
-	public SearchRequest getRequest() {
+	public AbstractSearchRequest getRequest() {
 		return request;
 	}
 

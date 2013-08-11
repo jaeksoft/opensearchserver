@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,10 +51,11 @@ public class FieldContentPopulateFilter extends
 	@Override
 	public final boolean incrementToken() throws IOException {
 		current = captureState();
-		while (input.incrementToken())
-			fieldContent.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
-					termAtt.toString()));
-		return false;
+		if (!input.incrementToken())
+			return false;
+		fieldContent.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL,
+				termAtt.toString()));
+		return true;
 	}
 
 }

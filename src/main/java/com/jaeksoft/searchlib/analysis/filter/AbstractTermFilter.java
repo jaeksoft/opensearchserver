@@ -78,4 +78,5 @@ public abstract class AbstractTermFilter extends TokenFilter {
 				tokenTerm.start, tokenTerm.end, tokenTerm.type);
 
 	}
+
 }

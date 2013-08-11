@@ -42,8 +42,8 @@ import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererWidgets;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class RendererController extends CommonController {
 
@@ -101,8 +101,9 @@ public class RendererController extends CommonController {
 		if (client == null)
 			return null;
 		List<String> requestList = new ArrayList<String>(0);
-		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
-				requestList);
+		client.getRequestMap().getNameList(requestList,
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 		return requestList;
 	}
 
@@ -358,8 +359,8 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequest request = (SearchRequest) client.getRequestMap().get(
-				currentRenderer.getRequestName());
+		AbstractSearchRequest request = (AbstractSearchRequest) client
+				.getRequestMap().get(currentRenderer.getRequestName());
 		if (request == null)
 			return null;
 		List<String> nameList = new ArrayList<String>();
@@ -374,8 +375,8 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		SearchRequest request = (SearchRequest) client.getRequestMap().get(
-				currentRenderer.getRequestName());
+		AbstractSearchRequest request = (AbstractSearchRequest) client
+				.getRequestMap().get(currentRenderer.getRequestName());
 		if (request == null)
 			return null;
 		List<String> nameList = new ArrayList<String>();

@@ -40,10 +40,10 @@ import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
@@ -52,21 +52,23 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class CommonSelect extends CommonServices {
 
-	protected AbstractRequest getRequest(Client client, String template,
-			RequestTypeEnum type) throws SearchLibException {
+	@SuppressWarnings("unchecked")
+	protected <T extends AbstractRequest> T getRequest(Client client,
+			String template, Class<T> requestClass) throws SearchLibException {
 		if (template == null || template.length() == 0)
 			return null;
 		AbstractRequest request = client.getNewRequest(template);
-		if (request.getType() != type)
+		if (!requestClass.isInstance(request))
 			throw new CommonServiceException("The template " + template
-					+ " don't have the expected type: " + type.getLabel());
-		return request;
+					+ " don't have the expected type: "
+					+ request.getType().getLabel());
+		return (T) request;
 	}
 
-	protected SearchRequest getSearchRequest(Client client, String template,
-			String query, Integer start, Integer rows, LanguageEnum lang,
-			OperatorEnum operator, String collapseField, Integer collapseMax,
-			CollapseParameters.Mode collapseMode,
+	protected AbstractSearchRequest getSearchRequest(Client client,
+			String template, String query, Integer start, Integer rows,
+			LanguageEnum lang, OperatorEnum operator, String collapseField,
+			Integer collapseMax, CollapseParameters.Mode collapseMode,
 			CollapseParameters.Type collapseType, List<String> filter,
 			List<String> negativeFilter, List<String> sort,
 			List<String> returnedField, List<String> snippetField,
@@ -79,10 +81,10 @@ public class CommonSelect extends CommonServices {
 			ClassNotFoundException, ParseException, URISyntaxException,
 			InterruptedException {
 
-		SearchRequest searchRequest = (SearchRequest) getRequest(client,
-				template, RequestTypeEnum.SearchRequest);
+		AbstractSearchRequest searchRequest = getRequest(client, template,
+				AbstractSearchRequest.class);
 		if (searchRequest == null)
-			searchRequest = new SearchRequest(client);
+			searchRequest = new SearchPatternRequest(client);
 		searchRequest.setQueryString(query);
 		if (start != null)
 			searchRequest.setStart(start);
@@ -188,5 +190,4 @@ public class CommonSelect extends CommonServices {
 
 		return searchRequest;
 	}
-
 }

@@ -37,7 +37,8 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public abstract class AbstractQueryController extends CommonController {
 
-	private final static RequestTypeEnum[] DEFAULT_TYPE_LIST = { RequestTypeEnum.SearchRequest };
+	private final static RequestTypeEnum[] DEFAULT_TYPE_LIST = {
+			RequestTypeEnum.SearchRequest, RequestTypeEnum.SearchFieldRequest };
 
 	private final RequestTypeEnum[] requestTypes;
 
@@ -90,15 +91,19 @@ public abstract class AbstractQueryController extends CommonController {
 		return null;
 	}
 
-	private boolean isResult(RequestTypeEnum type) {
+	private boolean isResult(RequestTypeEnum... types) {
 		AbstractResult<?> result = getAbstractResult();
 		if (result == null)
 			return false;
-		return result.getRequest().getType() == type;
+		for (RequestTypeEnum type : types)
+			if (result.getRequest().getType() == type)
+				return true;
+		return false;
 	}
 
 	public boolean isResultSearch() {
-		return isResult(RequestTypeEnum.SearchRequest);
+		return isResult(RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 	}
 
 	public boolean isResultSpellCheck() {

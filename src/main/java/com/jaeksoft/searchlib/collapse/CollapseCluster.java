@@ -28,14 +28,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseCluster extends CollapseAbstract {
 
-	protected CollapseCluster(SearchRequest searchRequest) {
+	protected CollapseCluster(AbstractSearchRequest searchRequest) {
 		super(searchRequest);
 	}
 

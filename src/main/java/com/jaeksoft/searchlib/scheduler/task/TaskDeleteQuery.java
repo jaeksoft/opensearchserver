@@ -27,7 +27,8 @@ package com.jaeksoft.searchlib.scheduler.task;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -69,7 +70,7 @@ public class TaskDeleteQuery extends TaskAbstract {
 	public void execute(Client client, TaskProperties properties,
 			Variables variables, TaskLog taskLog) throws SearchLibException {
 		String query = properties.getValue(propQuery);
-		SearchRequest request = new SearchRequest(client);
+		AbstractSearchRequest request = new SearchPatternRequest(client);
 		request.setQueryString(query);
 		taskLog.setInfo("Deletion request");
 		int i = client.deleteDocuments(request);

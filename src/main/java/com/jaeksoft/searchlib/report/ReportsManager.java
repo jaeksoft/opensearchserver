@@ -50,7 +50,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
@@ -110,9 +110,10 @@ public class ReportsManager {
 		return reportLine.split("\\s+");
 	}
 
-	private SearchRequest getNewSearchRequest(String defaultOperator, int rows)
-			throws SearchLibException {
-		SearchRequest searchRequest = new SearchRequest(reportsClient);
+	private SearchPatternRequest getNewSearchRequest(String defaultOperator,
+			int rows) throws SearchLibException {
+		SearchPatternRequest searchRequest = new SearchPatternRequest(
+				reportsClient);
 		searchRequest.setDefaultOperator(defaultOperator);
 		searchRequest.setRows(rows);
 		searchRequest.setPhraseSlop(2);
@@ -128,8 +129,9 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private SearchRequest addDateFilter(SearchRequest searchRequest,
-			String startDate, String endDate) throws ParseException {
+	private SearchPatternRequest addDateFilter(
+			SearchPatternRequest searchRequest, String startDate, String endDate)
+			throws ParseException {
 		StringBuffer addDateBuffer = new StringBuffer();
 		addDateBuffer.append(" ");
 		addDateBuffer.append("datetime:[");
@@ -141,10 +143,10 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private SearchRequest generateSearchRequest(String topKeywords,
+	private SearchPatternRequest generateSearchRequest(String topKeywords,
 			String startDate, String endDate, boolean withResult, int rows)
 			throws ParseException, SearchLibException {
-		SearchRequest searchRequest = getNewSearchRequest("OR", rows);
+		SearchPatternRequest searchRequest = getNewSearchRequest("OR", rows);
 		if (!withResult) {
 			StringBuffer addFilterBuffer = new StringBuffer();
 			addFilterBuffer.append(" ");
@@ -171,7 +173,7 @@ public class ReportsManager {
 			Date endDate, boolean withResult, int rows)
 			throws SearchLibException, ParseException {
 
-		SearchRequest searchRequest;
+		SearchPatternRequest searchRequest;
 		String fromDate;
 		String dateTo;
 

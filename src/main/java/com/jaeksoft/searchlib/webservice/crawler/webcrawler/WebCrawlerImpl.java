@@ -59,7 +59,7 @@ import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
@@ -107,9 +107,9 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return CrawlerUtils.status(getCrawlMaster(use, login, key));
 	}
 
-	private SearchRequest getRequest(UrlManager urlManager, String host)
+	private AbstractSearchRequest getRequest(UrlManager urlManager, String host)
 			throws SearchLibException, ParseException {
-		SearchRequest searchRequest = urlManager
+		AbstractSearchRequest searchRequest = urlManager
 				.getSearchRequest(SearchTemplate.urlExport);
 		searchRequest.setQueryString("*:*");
 		if (host != null && host.length() > 0)

@@ -30,7 +30,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
@@ -56,7 +56,6 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -71,21 +70,22 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class SearchRequest extends AbstractRequest implements
+public abstract class AbstractSearchRequest extends AbstractRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
 		RequestInterfaces.FilterListInterface {
 
-	private transient QueryParser queryParser;
 	private transient Query boostedComplexQuery;
 	private transient Query snippetSimpleQuery;
 
-	private transient Analyzer analyzer;
+	protected transient PerFieldAnalyzerWrapper analyzer;
+
+	protected transient QueryParser queryParser;
 
 	private FilterList filterList;
 	private JoinList joinList;
 	private boolean allowLeadingWildcard;
-	private int phraseSlop;
-	private QueryParser.Operator defaultOperator;
+	protected int phraseSlop;
+	protected QueryParser.Operator defaultOperator;
 	private SnippetFieldList snippetFieldList;
 	private ReturnFieldList returnFieldList;
 	private FacetFieldList facetFieldList;
@@ -99,25 +99,21 @@ public class SearchRequest extends AbstractRequest implements
 	private int rows;
 	private LanguageEnum lang;
 	private String queryString;
-	private String snippetPatternQuery;
-	private String searchPatternQuery;
 	private AdvancedScore advancedScore;
 	private String queryParsed;
 	private boolean withSortValues;
 
-	public SearchRequest() {
-	}
-
-	public SearchRequest(Config config) {
-		super(config);
+	protected AbstractSearchRequest(Config config, RequestTypeEnum type) {
+		super(config, type);
 	}
 
 	@Override
 	protected void setDefaultValues() {
 		super.setDefaultValues();
+		this.queryParser = null;
+		this.queryParsed = null;
 		this.filterList = new FilterList(this.config);
 		this.joinList = new JoinList(this.config);
-		this.queryParser = null;
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
 		this.defaultOperator = Operator.OR;
@@ -139,8 +135,6 @@ public class SearchRequest extends AbstractRequest implements
 		this.boostedComplexQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
-		this.snippetPatternQuery = null;
-		this.searchPatternQuery = null;
 		this.advancedScore = null;
 		this.withSortValues = false;
 		this.queryParsed = null;
@@ -149,10 +143,9 @@ public class SearchRequest extends AbstractRequest implements
 	@Override
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
-		SearchRequest searchRequest = (SearchRequest) request;
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
 		this.filterList = new FilterList(searchRequest.filterList);
 		this.joinList = new JoinList(searchRequest.joinList);
-		this.queryParser = null;
 		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
 		this.phraseSlop = searchRequest.phraseSlop;
 		this.defaultOperator = searchRequest.defaultOperator;
@@ -180,36 +173,29 @@ public class SearchRequest extends AbstractRequest implements
 		this.boostedComplexQuery = null;
 		this.analyzer = null;
 		this.queryString = searchRequest.queryString;
-		this.searchPatternQuery = searchRequest.searchPatternQuery;
-		this.snippetPatternQuery = searchRequest.snippetPatternQuery;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
 		this.queryParsed = null;
 	}
 
 	@Override
-	public void reset() {
-		rwl.w.lock();
-		try {
-			this.queryParsed = null;
-			this.snippetSimpleQuery = null;
-			this.boostedComplexQuery = null;
-			this.queryParser = null;
-			this.analyzer = null;
-			if (snippetFieldList != null)
-				for (SnippetField snippetField : snippetFieldList)
-					snippetField.reset();
-		} finally {
-			rwl.w.unlock();
-		}
+	protected void resetNoLock() {
+		this.queryParser = null;
+		this.queryParsed = null;
+		this.snippetSimpleQuery = null;
+		this.boostedComplexQuery = null;
+		this.analyzer = null;
+		if (snippetFieldList != null)
+			for (SnippetField snippetField : snippetFieldList)
+				snippetField.reset();
 	}
 
-	private Analyzer checkAnalyzer() throws SearchLibException {
+	private PerFieldAnalyzerWrapper checkAnalyzer() throws SearchLibException {
 		if (analyzer == null)
 			analyzer = config.getSchema().getQueryPerFieldAnalyzer(lang);
 		return analyzer;
 	}
 
-	public Analyzer getAnalyzer() throws SearchLibException {
+	public PerFieldAnalyzerWrapper getAnalyzer() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (analyzer != null)
@@ -244,23 +230,8 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	private final static String getFinalQuery(String patternQuery,
-			String queryString) {
-		if (patternQuery == null || patternQuery.length() == 0
-				|| queryString == null)
-			return queryString;
-		String finalQuery = patternQuery;
-		if (finalQuery.contains("$$$$")) {
-			String escQuery = QueryUtils.replaceControlChars(queryString);
-			finalQuery = finalQuery.replace("$$$$", escQuery);
-		}
-		if (patternQuery.contains("$$$")) {
-			String escQuery = QueryUtils.escapeQuery(queryString);
-			finalQuery = finalQuery.replace("$$$", escQuery);
-		}
-		finalQuery = finalQuery.replace("$$", queryString);
-		return finalQuery;
-	}
+	protected abstract Query newSnippetQuery(String queryString)
+			throws IOException, ParseException, SyntaxError, SearchLibException;
 
 	public Query getSnippetQuery() throws IOException, ParseException,
 			SyntaxError, SearchLibException {
@@ -275,30 +246,17 @@ public class SearchRequest extends AbstractRequest implements
 		try {
 			if (snippetSimpleQuery != null)
 				return snippetSimpleQuery;
-			String q = snippetPatternQuery == null
-					|| snippetPatternQuery.length() == 0 ? searchPatternQuery
-					: snippetPatternQuery;
-			String fq = getFinalQuery(q, queryString);
-			if (fq == null)
-				return null;
-			queryParser = getQueryParser();
-			Query complexQuery = getParsedQuery(queryParser, fq);
-			snippetSimpleQuery = config.getIndexAbstract()
-					.rewrite(complexQuery);
+			getQueryParser();
+			checkAnalyzer();
+			snippetSimpleQuery = newSnippetQuery(queryString);
 			return snippetSimpleQuery;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final static Query getParsedQuery(QueryParser queryParser,
-			String finalQuery) throws ParseException {
-		try {
-			return queryParser.parse(finalQuery);
-		} catch (org.apache.lucene.queryParser.ParseException e) {
-			throw new ParseException(e);
-		}
-	}
+	protected abstract Query newComplexQuery(String queryString)
+			throws ParseException, SyntaxError, SearchLibException, IOException;
 
 	@Override
 	public Query getQuery() throws ParseException, SyntaxError,
@@ -314,11 +272,9 @@ public class SearchRequest extends AbstractRequest implements
 		try {
 			if (boostedComplexQuery != null)
 				return boostedComplexQuery;
-			String fq = getFinalQuery(searchPatternQuery, queryString);
-			if (fq == null)
-				return null;
-			queryParser = getQueryParser();
-			boostedComplexQuery = getParsedQuery(queryParser, fq);
+			getQueryParser();
+			checkAnalyzer();
+			boostedComplexQuery = newComplexQuery(queryString);
 			if (advancedScore != null && !advancedScore.isEmpty())
 				boostedComplexQuery = advancedScore
 						.getNewQuery(boostedComplexQuery);
@@ -327,15 +283,6 @@ public class SearchRequest extends AbstractRequest implements
 						boostedComplexQuery, queryParser);
 			queryParsed = boostedComplexQuery.toString();
 			return boostedComplexQuery;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void setBoostedComplexQuery(Query query) {
-		rwl.w.lock();
-		try {
-			boostedComplexQuery = query;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -359,50 +306,21 @@ public class SearchRequest extends AbstractRequest implements
 		return queryParser;
 	}
 
+	public void setBoostedComplexQuery(Query query) {
+		rwl.w.lock();
+		try {
+			boostedComplexQuery = query;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public String getQueryString() {
 		rwl.r.lock();
 		try {
 			return queryString;
 		} finally {
 			rwl.r.unlock();
-		}
-	}
-
-	public String getPatternQuery() {
-		rwl.r.lock();
-		try {
-			return searchPatternQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setPatternQuery(String value) {
-		rwl.w.lock();
-		try {
-			searchPatternQuery = value;
-			boostedComplexQuery = null;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getSnippetPatternQuery() {
-		rwl.r.lock();
-		try {
-			return snippetPatternQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void setSnippetPatternQuery(String value) {
-		rwl.w.lock();
-		try {
-			snippetPatternQuery = value;
-			snippetSimpleQuery = null;
-		} finally {
-			rwl.w.unlock();
 		}
 	}
 
@@ -823,112 +741,92 @@ public class SearchRequest extends AbstractRequest implements
 		}
 	}
 
-	/**
-	 * Construit un TemplateRequest bas� sur le noeud indiqu� dans le fichier de
-	 * config XML.
-	 * 
-	 * @param config
-	 * @param xpp
-	 * @param parentNode
-	 * @throws XPathExpressionException
-	 * @throws ParseException
-	 * @throws DOMException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 */
 	@Override
-	public void fromXmlConfig(Config config, XPathParser xpp, Node requestNode)
-			throws XPathExpressionException, DOMException, ParseException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		rwl.w.lock();
-		try {
-			super.fromXmlConfig(config, xpp, requestNode);
-			allowLeadingWildcard = "yes".equalsIgnoreCase(XPathParser
-					.getAttributeString(requestNode, "allowLeadingWildcard"));
-			setPhraseSlop(XPathParser.getAttributeValue(requestNode,
-					"phraseSlop"));
-			setDefaultOperator(XPathParser.getAttributeString(requestNode,
-					"defaultOperator"));
-			setStart(XPathParser.getAttributeValue(requestNode, "start"));
-			setRows(XPathParser.getAttributeValue(requestNode, "rows"));
-			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-					requestNode, "lang")));
-			setPatternQuery(xpp.getNodeString(requestNode, "query"));
-			setSnippetPatternQuery(xpp.getNodeString(requestNode,
-					"snippetQuery"));
+	protected void fromXmlConfigNoLock(Config config, XPathParser xpp,
+			Node requestNode) throws XPathExpressionException,
+			InstantiationException, IllegalAccessException, DOMException,
+			ParseException, ClassNotFoundException {
+		super.fromXmlConfigNoLock(config, xpp, requestNode);
+		allowLeadingWildcard = "yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(requestNode, "allowLeadingWildcard"));
+		setPhraseSlop(XPathParser.getAttributeValue(requestNode, "phraseSlop"));
+		setDefaultOperator(XPathParser.getAttributeString(requestNode,
+				"defaultOperator"));
+		setStart(XPathParser.getAttributeValue(requestNode, "start"));
+		setRows(XPathParser.getAttributeValue(requestNode, "rows"));
+		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
+				requestNode, "lang")));
 
-			AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
-					requestNode);
-			if (advancedScore != null)
-				setAdvancedScore(advancedScore);
+		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
+				requestNode);
+		if (advancedScore != null)
+			setAdvancedScore(advancedScore);
 
-			setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
-					.getAttributeString(requestNode, "collapseMode")));
-			setCollapseType(CollapseParameters.Type.valueOfLabel(XPathParser
-					.getAttributeString(requestNode, "collapseType")));
-			setCollapseField(XPathParser.getAttributeString(requestNode,
-					"collapseField"));
-			setCollapseMax(XPathParser.getAttributeValue(requestNode,
-					"collapseMax"));
+		setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
+				.getAttributeString(requestNode, "collapseMode")));
+		setCollapseType(CollapseParameters.Type.valueOfLabel(XPathParser
+				.getAttributeString(requestNode, "collapseType")));
+		setCollapseField(XPathParser.getAttributeString(requestNode,
+				"collapseField"));
+		setCollapseMax(XPathParser
+				.getAttributeValue(requestNode, "collapseMax"));
 
-			Node bqNode = xpp.getNode(requestNode, "boostingQueries");
-			if (bqNode != null)
-				BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
+		Node bqNode = xpp.getNode(requestNode, "boostingQueries");
+		if (bqNode != null)
+			BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
 
-			SchemaFieldList fieldList = config.getSchema().getFieldList();
-			returnFieldList.filterCopy(fieldList,
-					xpp.getNodeString(requestNode, "returnFields"));
-			NodeList nodes = xpp.getNodeList(requestNode, "returnFields/field");
-			for (int i = 0; i < nodes.getLength(); i++) {
-				ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
-				if (field != null)
-					returnFieldList.put(field);
-			}
+		SchemaFieldList fieldList = config.getSchema().getFieldList();
+		returnFieldList.filterCopy(fieldList,
+				xpp.getNodeString(requestNode, "returnFields"));
+		NodeList nodes = xpp.getNodeList(requestNode, "returnFields/field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
+			if (field != null)
+				returnFieldList.put(field);
+		}
 
-			nodes = xpp.getNodeList(requestNode, "snippet/field");
-			for (int i = 0; i < nodes.getLength(); i++)
-				SnippetField.copySnippetFields(nodes.item(i), fieldList,
-						snippetFieldList);
+		nodes = xpp.getNodeList(requestNode, "snippet/field");
+		for (int i = 0; i < nodes.getLength(); i++)
+			SnippetField.copySnippetFields(nodes.item(i), fieldList,
+					snippetFieldList);
 
-			nodes = xpp.getNodeList(requestNode, "facetFields/facetField");
-			for (int i = 0; i < nodes.getLength(); i++)
-				FacetField.copyFacetFields(nodes.item(i), fieldList,
-						facetFieldList);
+		nodes = xpp.getNodeList(requestNode, "facetFields/facetField");
+		for (int i = 0; i < nodes.getLength(); i++)
+			FacetField
+					.copyFacetFields(nodes.item(i), fieldList, facetFieldList);
 
-			nodes = xpp.getNodeList(requestNode, "filters/*");
-			for (int i = 0; i < nodes.getLength(); i++) {
-				Node node = nodes.item(i);
-				String nodeName = node.getNodeName();
-				if ("filter".equals(nodeName))
-					filterList.add(new QueryFilter(xpp, node));
-				else if ("geofilter".equals(nodeName))
-					filterList.add(new GeoFilter(xpp, node));
-				else if ("relativeDateFilter".equals(nodeName))
-					filterList.add(new RelativeDateFilter(xpp, node));
-			}
+		nodes = xpp.getNodeList(requestNode, "filters/*");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			String nodeName = node.getNodeName();
+			if ("filter".equals(nodeName))
+				filterList.add(new QueryFilter(xpp, node));
+			else if ("geofilter".equals(nodeName))
+				filterList.add(new GeoFilter(xpp, node));
+			else if ("relativeDateFilter".equals(nodeName))
+				filterList.add(new RelativeDateFilter(xpp, node));
+		}
 
-			nodes = xpp.getNodeList(requestNode, "joins/join");
-			for (int i = 0; i < nodes.getLength(); i++)
-				joinList.add(xpp, nodes.item(i));
+		nodes = xpp.getNodeList(requestNode, "joins/join");
+		for (int i = 0; i < nodes.getLength(); i++)
+			joinList.add(xpp, nodes.item(i));
 
-			nodes = xpp.getNodeList(requestNode, "sort/field");
-			for (int i = 0; i < nodes.getLength(); i++) {
-				Node node = nodes.item(i);
-				String textNode = xpp.getNodeString(node, false);
-				if (textNode != null && textNode.length() > 0)
-					sortFieldList.put(new SortField(textNode, false));
-				else
-					sortFieldList.put(new SortField(node));
-			}
-		} finally {
-			rwl.w.unlock();
+		nodes = xpp.getNodeList(requestNode, "sort/field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			String textNode = xpp.getNodeString(node, false);
+			if (textNode != null && textNode.length() > 0)
+				sortFieldList.put(new SortField(textNode, false));
+			else
+				sortFieldList.put(new SortField(node));
 		}
 	}
 
+	protected abstract void writeSubXmlConfig(XmlWriter xmlWriter)
+			throws SAXException;
+
 	@Override
-	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+	public final void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
@@ -948,19 +846,7 @@ public class SearchRequest extends AbstractRequest implements
 				xmlWriter.endElement();
 			}
 
-			if (searchPatternQuery != null
-					&& searchPatternQuery.trim().length() > 0) {
-				xmlWriter.startElement("query");
-				xmlWriter.textNode(searchPatternQuery);
-				xmlWriter.endElement();
-			}
-
-			if (snippetPatternQuery != null
-					&& snippetPatternQuery.trim().length() > 0) {
-				xmlWriter.startElement("snippetQuery");
-				xmlWriter.textNode(snippetPatternQuery);
-				xmlWriter.endElement();
-			}
+			writeSubXmlConfig(xmlWriter);
 
 			if (returnFieldList.size() > 0) {
 				xmlWriter.startElement("returnFields");
@@ -1008,130 +894,116 @@ public class SearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public RequestTypeEnum getType() {
-		return RequestTypeEnum.SearchRequest;
-	}
+	public void setFromServletNoLock(ServletTransaction transaction)
+			throws SyntaxError, SearchLibException {
+		String p;
+		Integer i;
 
-	@Override
-	public void setFromServlet(ServletTransaction transaction)
-			throws SyntaxError {
-		rwl.w.lock();
-		try {
-			String p;
-			Integer i;
+		SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 
-			SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
+		if ((p = transaction.getParameterString("query")) != null)
+			setQueryString(p);
+		else if ((p = transaction.getParameterString("q")) != null)
+			setQueryString(p);
 
-			if ((p = transaction.getParameterString("query")) != null)
-				setQueryString(p);
-			else if ((p = transaction.getParameterString("q")) != null)
-				setQueryString(p);
+		if ((i = transaction.getParameterInteger("start")) != null)
+			setStart(i);
 
-			if ((i = transaction.getParameterInteger("start")) != null)
-				setStart(i);
+		if ((i = transaction.getParameterInteger("rows")) != null)
+			setRows(i);
 
-			if ((i = transaction.getParameterInteger("rows")) != null)
-				setRows(i);
+		if ((p = transaction.getParameterString("lang")) != null)
+			setLang(LanguageEnum.findByCode(p));
 
-			if ((p = transaction.getParameterString("lang")) != null)
-				setLang(LanguageEnum.findByCode(p));
+		if ((p = transaction.getParameterString("collapse.mode")) != null)
+			setCollapseMode(CollapseParameters.Mode.valueOfLabel(p));
 
-			if ((p = transaction.getParameterString("collapse.mode")) != null)
-				setCollapseMode(CollapseParameters.Mode.valueOfLabel(p));
+		if ((p = transaction.getParameterString("collapse.type")) != null)
+			setCollapseType(CollapseParameters.Type.valueOfLabel(p));
 
-			if ((p = transaction.getParameterString("collapse.type")) != null)
-				setCollapseType(CollapseParameters.Type.valueOfLabel(p));
+		if ((p = transaction.getParameterString("collapse.field")) != null)
+			setCollapseField(schemaFieldList.get(p).getName());
 
-			if ((p = transaction.getParameterString("collapse.field")) != null)
-				setCollapseField(schemaFieldList.get(p).getName());
+		if ((i = transaction.getParameterInteger("collapse.max")) != null)
+			setCollapseMax(i);
 
-			if ((i = transaction.getParameterInteger("collapse.max")) != null)
-				setCollapseMax(i);
+		if ((p = transaction.getParameterString("log")) != null)
+			setLogReport(true);
 
-			if ((p = transaction.getParameterString("log")) != null)
-				setLogReport(true);
+		if ((p = transaction.getParameterString("operator")) != null)
+			setDefaultOperator(p);
 
-			if ((p = transaction.getParameterString("operator")) != null)
-				setDefaultOperator(p);
+		if (joinList != null)
+			joinList.setFromServlet(transaction);
 
-			if (joinList != null)
-				joinList.setFromServlet(transaction);
+		if (filterList != null)
+			filterList.setFromServlet(transaction);
 
-			if (filterList != null)
-				filterList.setFromServlet(transaction);
-
-			if (isLogReport()) {
-				for (int j = 1; j <= 10; j++) {
-					p = transaction.getParameterString("log" + j);
-					if (p == null)
-						break;
-					addCustomLog(p);
-				}
+		if (isLogReport()) {
+			for (int j = 1; j <= 10; j++) {
+				p = transaction.getParameterString("log" + j);
+				if (p == null)
+					break;
+				addCustomLog(p);
 			}
-
-			if ((p = transaction.getParameterString("timer.minTime")) != null)
-				setTimerMinTime(Integer.parseInt(p));
-
-			if ((p = transaction.getParameterString("timer.maxDepth")) != null)
-				setTimerMaxDepth(Integer.parseInt(p));
-
-			String[] values;
-
-			filterList.addFromServlet(transaction, null);
-
-			if ((values = transaction.getParameterValues("rf")) != null) {
-				for (String value : values)
-					if (value != null) {
-						value = value.trim();
-						if (value.length() > 0)
-							addReturnFieldNoLock(schemaFieldList, value.trim());
-					}
-			}
-
-			if ((values = transaction.getParameterValues("hl")) != null) {
-				for (String value : values)
-					snippetFieldList.put(new SnippetField(getCheckSchemaField(
-							schemaFieldList, value).getName()));
-			}
-
-			if ((values = transaction.getParameterValues("fl")) != null) {
-				for (String value : values)
-					returnFieldList.put(new ReturnField(getCheckSchemaField(
-							schemaFieldList, value).getName()));
-			}
-
-			if ((values = transaction.getParameterValues("sort")) != null) {
-				for (String value : values)
-					sortFieldList.put(new SortField(value));
-			}
-
-			if ((values = transaction.getParameterValues("facet")) != null) {
-				for (String value : values)
-					facetFieldList.put(FacetField.buildFacetField(value, false,
-							false));
-			}
-			if ((values = transaction.getParameterValues("facet.collapse")) != null) {
-				for (String value : values)
-					facetFieldList.put(FacetField.buildFacetField(value, false,
-							true));
-			}
-			if ((values = transaction.getParameterValues("facet.multi")) != null) {
-				for (String value : values)
-					facetFieldList.put(FacetField.buildFacetField(value, true,
-							false));
-			}
-			if ((values = transaction
-					.getParameterValues("facet.multi.collapse")) != null) {
-				for (String value : values)
-					facetFieldList.put(FacetField.buildFacetField(value, true,
-							true));
-			}
-		} catch (SearchLibException e) {
-			throw new SyntaxError(e.getMessage());
-		} finally {
-			rwl.w.unlock();
 		}
 
+		if ((p = transaction.getParameterString("timer.minTime")) != null)
+			setTimerMinTime(Integer.parseInt(p));
+
+		if ((p = transaction.getParameterString("timer.maxDepth")) != null)
+			setTimerMaxDepth(Integer.parseInt(p));
+
+		String[] values;
+
+		filterList.addFromServlet(transaction, null);
+
+		if ((values = transaction.getParameterValues("rf")) != null) {
+			for (String value : values)
+				if (value != null) {
+					value = value.trim();
+					if (value.length() > 0)
+						addReturnFieldNoLock(schemaFieldList, value.trim());
+				}
+		}
+
+		if ((values = transaction.getParameterValues("hl")) != null) {
+			for (String value : values)
+				snippetFieldList.put(new SnippetField(getCheckSchemaField(
+						schemaFieldList, value).getName()));
+		}
+
+		if ((values = transaction.getParameterValues("fl")) != null) {
+			for (String value : values)
+				returnFieldList.put(new ReturnField(getCheckSchemaField(
+						schemaFieldList, value).getName()));
+		}
+
+		if ((values = transaction.getParameterValues("sort")) != null) {
+			for (String value : values)
+				sortFieldList.put(new SortField(value));
+		}
+
+		if ((values = transaction.getParameterValues("facet")) != null) {
+			for (String value : values)
+				facetFieldList.put(FacetField.buildFacetField(value, false,
+						false));
+		}
+		if ((values = transaction.getParameterValues("facet.collapse")) != null) {
+			for (String value : values)
+				facetFieldList.put(FacetField.buildFacetField(value, false,
+						true));
+		}
+		if ((values = transaction.getParameterValues("facet.multi")) != null) {
+			for (String value : values)
+				facetFieldList.put(FacetField.buildFacetField(value, true,
+						false));
+		}
+		if ((values = transaction.getParameterValues("facet.multi.collapse")) != null) {
+			for (String value : values)
+				facetFieldList.put(FacetField
+						.buildFacetField(value, true, true));
+		}
 	}
 
 	@Override
@@ -1157,13 +1029,6 @@ public class SearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public String getInfo() {
-		rwl.r.lock();
-		try {
-			return searchPatternQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
+	public abstract String getInfo();
 
 }

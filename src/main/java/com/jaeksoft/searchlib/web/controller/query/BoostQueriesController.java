@@ -28,8 +28,8 @@ import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.BoostQuery;
-import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class BoostQueriesController extends AbstractQueryController {
 
@@ -90,7 +90,7 @@ public class BoostQueriesController extends AbstractQueryController {
 
 	@Command
 	public void onSave() throws SearchLibException {
-		SearchRequest request = (SearchRequest) getRequest();
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
 		request.setBoostingQuery(selectedBoostQuery, currentBoostQuery);
 		onCancel();
 	}
@@ -98,7 +98,7 @@ public class BoostQueriesController extends AbstractQueryController {
 	@Command
 	public void onRemove(@BindingParam("boostQuery") BoostQuery boostQuery)
 			throws SearchLibException {
-		SearchRequest request = (SearchRequest) getRequest();
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
 		request.setBoostingQuery(boostQuery, null);
 		onCancel();
 	}

@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocIdCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.CollapseScoreDocCollector;
@@ -44,10 +44,10 @@ public abstract class CollapseAbstract {
 	private transient String collapseField;
 	private transient CollapseParameters.Mode collapseMode;
 	private transient CollapseParameters.Type collapseType;
-	protected transient SearchRequest searchRequest;
+	protected transient AbstractSearchRequest searchRequest;
 	private transient CollapseDocInterface collapsedDocs;
 
-	protected CollapseAbstract(SearchRequest searchRequest) {
+	protected CollapseAbstract(AbstractSearchRequest searchRequest) {
 		this.searchRequest = searchRequest;
 		this.collapseField = searchRequest.getCollapseField();
 		this.collapseMax = searchRequest.getCollapseMax();
@@ -106,7 +106,8 @@ public abstract class CollapseAbstract {
 		return collapseMax;
 	}
 
-	public static CollapseAbstract newInstance(SearchRequest searchRequest) {
+	public static CollapseAbstract newInstance(
+			AbstractSearchRequest searchRequest) {
 		CollapseParameters.Mode mode = searchRequest.getCollapseMode();
 		if (mode == CollapseParameters.Mode.ADJACENT)
 			return new CollapseAdjacent(searchRequest);

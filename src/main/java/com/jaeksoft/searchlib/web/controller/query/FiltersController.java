@@ -62,6 +62,7 @@ public class FiltersController extends AbstractQueryController {
 
 	public FiltersController() throws SearchLibException {
 		super(RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest,
 				RequestTypeEnum.MoreLikeThisRequest);
 		reset();
 	}

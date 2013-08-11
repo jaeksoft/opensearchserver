@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
@@ -61,9 +61,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public ResultSearchSingle(ReaderLocal reader, SearchRequest searchRequest)
-			throws IOException, ParseException, SyntaxError,
-			SearchLibException, InstantiationException, IllegalAccessException,
+	public ResultSearchSingle(ReaderLocal reader,
+			AbstractSearchRequest searchRequest) throws IOException,
+			ParseException, SyntaxError, SearchLibException,
+			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super(searchRequest);
 

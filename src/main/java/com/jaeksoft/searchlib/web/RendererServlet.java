@@ -39,7 +39,8 @@ import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -70,7 +71,7 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("The renderer has not been found");
 
 			String query = transaction.getParameterString("query");
-			SearchRequest searchRequest = (SearchRequest) client
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) client
 					.getNewRequest(renderer.getRequestName());
 			if (searchRequest == null)
 				throw new SearchLibException("No search request has been found");
@@ -103,7 +104,7 @@ public class RendererServlet extends AbstractServlet {
 									searchRequest.getQueryString()));
 				}
 				if (searchRequest.isFacet()) {
-					SearchRequest facetRequest = new SearchRequest();
+					AbstractSearchRequest facetRequest = new SearchPatternRequest();
 					facetRequest.copyFrom(searchRequest);
 					facetRequest
 							.removeFilterSource(FilterAbstract.Source.REQUEST);
@@ -150,7 +151,8 @@ public class RendererServlet extends AbstractServlet {
 	}
 
 	private void setCustomLogs(RendererLogField logField,
-			HttpServletRequest servletRequest, SearchRequest searchRequest) {
+			HttpServletRequest servletRequest,
+			AbstractSearchRequest searchRequest) {
 		RendererLogParameterEnum rendererLogParameterEnum = logField
 				.getLogParameterEnum();
 		String s;
@@ -170,7 +172,7 @@ public class RendererServlet extends AbstractServlet {
 		}
 	}
 
-	private void setLog(Renderer renderer, SearchRequest searchRequest,
+	private void setLog(Renderer renderer, AbstractSearchRequest searchRequest,
 			HttpServletRequest servletRequest) throws SearchLibException {
 		if (renderer.isLogEnabled()) {
 			List<RendererLogField> rendererLogFields = renderer.getLogFields();

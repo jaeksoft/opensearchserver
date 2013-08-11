@@ -34,8 +34,8 @@ import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.filter.FilterListCacheKey;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.BoostQuery;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 
@@ -48,7 +48,7 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 	private final String boostQueryCacheKey;
 	private final String advancedScoreCacheKey;
 
-	public DocSetHitCacheKey(SearchRequest searchRequest,
+	public DocSetHitCacheKey(AbstractSearchRequest searchRequest,
 			SchemaField defaultField, Analyzer analyzer) throws ParseException,
 			SyntaxError, SearchLibException, IOException {
 		Query q = searchRequest.getQuery();

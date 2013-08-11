@@ -33,7 +33,7 @@ import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
@@ -77,7 +77,7 @@ public class SnippetController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = (SearchRequest) getRequest();
+			AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
 			if (request == null)
 				return null;
 			if (snippetFieldLeft != null)
@@ -100,8 +100,8 @@ public class SnippetController extends AbstractQueryController {
 	public void onSnippetRemove(@BindingParam("field") SnippetField field)
 			throws SearchLibException {
 		synchronized (this) {
-			((SearchRequest) getRequest()).getSnippetFieldList().remove(
-					field.getName());
+			((AbstractSearchRequest) getRequest()).getSnippetFieldList()
+					.remove(field.getName());
 			reload();
 		}
 	}
@@ -123,7 +123,7 @@ public class SnippetController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedSnippet == null)
 				return;
-			((SearchRequest) getRequest()).getSnippetFieldList().put(
+			((AbstractSearchRequest) getRequest()).getSnippetFieldList().put(
 					new SnippetField(selectedSnippet));
 			reload();
 		}

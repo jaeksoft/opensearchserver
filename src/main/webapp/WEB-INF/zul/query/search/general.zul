@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -22,17 +22,6 @@
 			<column align="left" />
 		</columns>
 		<rows>
-			<row>
-				<label>Search pattern:</label>
-				<textbox value="@bind(general.request.patternQuery)"
-					multiline="true" width="90%" rows="5" />
-			</row>
-			<row>
-				<label>Snippet pattern:</label>
-				<textbox
-					value="@bind(general.request.snippetPatternQuery)" multiline="true"
-					width="90%" rows="3" />
-			</row>
 			<row>
 				<label>Enter the query:</label>
 				<textbox value="@bind(general.request.queryString)"

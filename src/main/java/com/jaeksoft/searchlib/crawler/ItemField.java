@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib.crawler;
 
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
@@ -35,21 +35,21 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 		super(en, name);
 	}
 
-	public void addFilterQuery(SearchRequest request, Object value,
+	public void addFilterQuery(AbstractSearchRequest request, Object value,
 			boolean quote, boolean negative) throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQuery(sb, value, quote);
 		request.addFilter(sb.toString(), negative);
 	}
 
-	public void addFilterRange(SearchRequest request, Object from, Object to,
-			boolean quote, boolean negative) throws ParseException {
+	public void addFilterRange(AbstractSearchRequest request, Object from,
+			Object to, boolean quote, boolean negative) throws ParseException {
 		StringBuffer sb = new StringBuffer();
 		addQueryRange(sb, from, to, quote);
 		request.addFilter(sb.toString(), negative);
 	}
 
-	public void addSort(SearchRequest request, boolean desc) {
+	public void addSort(AbstractSearchRequest request, boolean desc) {
 		request.addSort(name, desc);
 	}
 
@@ -69,7 +69,8 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 		addQuery(sb, name, value, quote);
 	}
 
-	public void setQuery(SearchRequest request, Object value, boolean quote) {
+	public void setQuery(AbstractSearchRequest request, Object value,
+			boolean quote) {
 		StringBuffer sb = new StringBuffer();
 		addQuery(sb, value, quote);
 		request.setQueryString(sb.toString());

@@ -50,7 +50,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
@@ -95,7 +96,7 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public SearchRequest fileQuery(SearchTemplate searchTemplate,
+	public AbstractSearchRequest fileQuery(SearchTemplate searchTemplate,
 			String repository, String fileName, String lang, String langMethod,
 			Integer minSize, Integer maxSize, String fileExtension,
 			FetchStatus fetchStatus, ParserStatus parserStatus,
@@ -105,7 +106,7 @@ public class FileManager extends AbstractManager {
 			throws SearchLibException {
 		try {
 
-			SearchRequest searchRequest = (SearchRequest) fileDbClient
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 					.getNewRequest(searchTemplate.name());
 
 			StringBuffer query = new StringBuffer();
@@ -207,7 +208,7 @@ public class FileManager extends AbstractManager {
 
 	public FileInfo getFileInfo(String uriString) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
-		SearchRequest searchRequest = (SearchRequest) fileDbClient
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuffer sb = new StringBuffer();
 		fileItemFieldEnum.uri.addQuery(sb, uriString, true);
@@ -224,7 +225,7 @@ public class FileManager extends AbstractManager {
 	public void getFileInfoList(URI parentDirectory,
 			Map<String, FileInfo> indexFileMap) throws SearchLibException,
 			UnsupportedEncodingException, URISyntaxException {
-		SearchRequest searchRequest = (SearchRequest) fileDbClient
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuffer sb = new StringBuffer();
 		String parentUriString = parentDirectory.toASCIIString();
@@ -242,8 +243,8 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public long getFileList(SearchRequest searchRequest, long start, long rows,
-			List<FileItem> list) throws SearchLibException {
+	public long getFileList(AbstractSearchRequest searchRequest, long start,
+			long rows, List<FileItem> list) throws SearchLibException {
 		searchRequest.reset();
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
@@ -273,9 +274,9 @@ public class FileManager extends AbstractManager {
 		return new FileItem(fileInstance);
 	}
 
-	public long getFiles(SearchRequest searchRequest, ItemField orderBy,
-			boolean orderAsc, long start, long rows, List<FileItem> list)
-			throws SearchLibException {
+	public long getFiles(AbstractSearchRequest searchRequest,
+			ItemField orderBy, boolean orderAsc, long start, long rows,
+			List<FileItem> list) throws SearchLibException {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
@@ -361,7 +362,8 @@ public class FileManager extends AbstractManager {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 
-		SearchRequest deleteRequest = new SearchRequest(fileDbClient);
+		AbstractSearchRequest deleteRequest = new SearchPatternRequest(
+				fileDbClient);
 		fileItemFieldEnum.repository.setQuery(deleteRequest, repository, true);
 		fileDbClient.deleteDocuments(deleteRequest);
 	}
@@ -380,7 +382,8 @@ public class FileManager extends AbstractManager {
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
 
-		SearchRequest deleteRequest = new SearchRequest(targetClient);
+		AbstractSearchRequest deleteRequest = new SearchPatternRequest(
+				targetClient);
 		deleteRequest.setQueryString(mappedPath.get(0).getName() + ":\""
 				+ repository + "\"");
 
@@ -510,7 +513,7 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public int delete(SearchRequest searchRequest, TaskLog taskLog)
+	public int delete(AbstractSearchRequest searchRequest, TaskLog taskLog)
 			throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
@@ -537,7 +540,7 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public int updateFetchStatus(SearchRequest searchRequest,
+	public int updateFetchStatus(AbstractSearchRequest searchRequest,
 			FetchStatus fetchStatus, TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {

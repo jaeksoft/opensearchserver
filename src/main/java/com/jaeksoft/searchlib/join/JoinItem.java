@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
@@ -296,7 +296,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			if (request == null)
 				throw new SearchLibException(
 						"The request template was not found: " + queryTemplate);
-			if (!(request instanceof SearchRequest))
+			if (!(request instanceof AbstractSearchRequest))
 				throw new SearchLibException(
 						"The request template is not a Search request: "
 								+ queryTemplate);
@@ -306,7 +306,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				throw new SearchLibException(
 						"No string index found for the local field: "
 								+ localField);
-			SearchRequest searchRequest = (SearchRequest) request;
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
 			// TODO Why ??
 			if (searchRequest.getRows() == 0)
 				searchRequest.setRows(1);

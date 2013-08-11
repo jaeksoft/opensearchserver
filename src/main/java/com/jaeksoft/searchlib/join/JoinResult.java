@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
@@ -71,7 +71,7 @@ public class JoinResult {
 	public void setForeignResult(ResultSearchSingle foreignResult) {
 		this.foreignResult = foreignResult;
 		fieldNameSet = new TreeSet<String>();
-		SearchRequest request = foreignResult.getRequest();
+		AbstractSearchRequest request = foreignResult.getRequest();
 		request.getReturnFieldList().populate(fieldNameSet);
 		request.getSnippetFieldList().populate(fieldNameSet);
 	}

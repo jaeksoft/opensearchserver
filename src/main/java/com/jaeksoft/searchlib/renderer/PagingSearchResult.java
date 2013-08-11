@@ -23,7 +23,7 @@
  **/
 package com.jaeksoft.searchlib.renderer;
 
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public class PagingSearchResult {
@@ -35,7 +35,7 @@ public class PagingSearchResult {
 
 	public PagingSearchResult(AbstractResultSearch result, int maxPages) {
 
-		SearchRequest request = result.getRequest();
+		AbstractSearchRequest request = result.getRequest();
 		int numFound = result.getNumFound() - result.getCollapsedDocCount();
 		int start = request.getStart();
 		int rows = request.getRows();

@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
@@ -502,8 +502,8 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	private SearchRequest getSearchRequest(SearchTemplate urlSearchTemplate)
-			throws SearchLibException {
+	private AbstractSearchRequest getSearchRequest(
+			SearchTemplate urlSearchTemplate) throws SearchLibException {
 		UrlManager urlManager = getUrlManager();
 		if (urlManager == null)
 			return null;
@@ -523,7 +523,7 @@ public class UrlController extends CommonController {
 			if (urlManager == null)
 				return;
 			urlList = new ArrayList<UrlItem>();
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			totalSize = (int) urlManager.getUrlList(searchRequest,
 					getPageSize() * getActivePage(), getPageSize(), urlList);
 		}
@@ -574,7 +574,7 @@ public class UrlController extends CommonController {
 			UrlManager urlManager = getUrlManager();
 			if (urlManager == null)
 				return;
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportSiteMap(searchRequest);
 			Filedownload.save(new FileInputStream(file),
 					"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
@@ -586,7 +586,7 @@ public class UrlController extends CommonController {
 			UrlManager urlManager = getUrlManager();
 			if (urlManager == null)
 				return;
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportURLs(searchRequest);
 			Filedownload.save(new FileInputStream(file),
 					"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
@@ -606,7 +606,7 @@ public class UrlController extends CommonController {
 	public void onSetToUnfetched() throws SearchLibException,
 			InterruptedException {
 		synchronized (this) {
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
 					FetchStatus.UN_FETCHED, getBufferSize());
@@ -618,7 +618,7 @@ public class UrlController extends CommonController {
 	public void onSetToFetchFirst() throws SearchLibException,
 			InterruptedException {
 		synchronized (this) {
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
 					FetchStatus.FETCH_FIRST, getBufferSize());
@@ -639,7 +639,7 @@ public class UrlController extends CommonController {
 
 	public void onDeleteURLs() throws SearchLibException, InterruptedException {
 		synchronized (this) {
-			SearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, true, null,
 					getBufferSize());

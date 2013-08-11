@@ -57,7 +57,8 @@ public class ResultDocumentController extends AbstractQueryController implements
 
 	public ResultDocumentController() throws SearchLibException {
 		super(RequestTypeEnum.MoreLikeThisRequest,
-				RequestTypeEnum.SearchRequest);
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 	}
 
 	public class Document {

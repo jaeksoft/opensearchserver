@@ -40,7 +40,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -203,13 +204,14 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 		xmlWriter.endElement();
 	}
 
-	private SearchRequest getSearchRequest(Client client, LanguageEnum lang)
-			throws SearchLibException {
-		SearchRequest searchRequest;
+	private AbstractSearchRequest getSearchRequest(Client client,
+			LanguageEnum lang) throws SearchLibException {
+		AbstractSearchRequest searchRequest;
 		if (requestName != null && requestName.length() > 0)
-			searchRequest = (SearchRequest) client.getNewRequest(requestName);
+			searchRequest = (AbstractSearchRequest) client
+					.getNewRequest(requestName);
 		else
-			searchRequest = new SearchRequest(client);
+			searchRequest = new SearchPatternRequest(client);
 		searchRequest.setLang(lang);
 		searchRequest.setQueryString(query);
 		return searchRequest;
@@ -217,7 +219,7 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 
 	public int query(Client client, LanguageEnum lang)
 			throws SearchLibException {
-		SearchRequest searchRequest = getSearchRequest(client, lang);
+		AbstractSearchRequest searchRequest = getSearchRequest(client, lang);
 		searchRequest.setRows(0);
 		return ((AbstractResultSearch) client.request(searchRequest))
 				.getNumFound();
@@ -228,7 +230,7 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 			SyntaxError, IOException {
 		Query qry = queryMap.get(lang);
 		if (qry == null) {
-			SearchRequest searchRequest = getSearchRequest(client, lang);
+			AbstractSearchRequest searchRequest = getSearchRequest(client, lang);
 			qry = searchRequest.getQuery();
 			queryMap.put(lang, qry);
 		}

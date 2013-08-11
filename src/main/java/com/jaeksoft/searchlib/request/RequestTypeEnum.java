@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,9 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public enum RequestTypeEnum {
 
-	SearchRequest(SearchRequest.class, "Search"),
+	SearchFieldRequest(SearchFieldRequest.class, "Search (field)"),
+
+	SearchRequest(SearchPatternRequest.class, "Search (pattern)"),
 
 	SpellCheckRequest(SpellCheckRequest.class, "Spell check"),
 

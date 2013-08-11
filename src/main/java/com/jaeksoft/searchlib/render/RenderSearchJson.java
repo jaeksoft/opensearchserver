@@ -32,11 +32,12 @@ import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
-public class RenderSearchJson extends
-		AbstractRenderDocumentsJson<SearchRequest, AbstractResultSearch> {
+public class RenderSearchJson
+		extends
+		AbstractRenderDocumentsJson<AbstractSearchRequest, AbstractResultSearch> {
 
 	private boolean indent;
 

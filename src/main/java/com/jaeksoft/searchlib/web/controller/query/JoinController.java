@@ -40,8 +40,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
 import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
 
 public class JoinController extends AbstractQueryController {
 
@@ -106,7 +106,8 @@ public class JoinController extends AbstractQueryController {
 		if (selectedItem != null)
 			currentItem.copyTo(selectedItem);
 		else
-			((SearchRequest) getRequest()).getJoinList().add(currentItem);
+			((AbstractSearchRequest) getRequest()).getJoinList().add(
+					currentItem);
 		onCancel();
 	}
 
@@ -132,8 +133,9 @@ public class JoinController extends AbstractQueryController {
 		Client client = getForeignClient();
 		if (client == null)
 			return queryList;
-		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
-				queryList);
+		client.getRequestMap().getNameList(queryList,
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 		return queryList;
 	}
 
@@ -158,7 +160,7 @@ public class JoinController extends AbstractQueryController {
 	@NotifyChange("*")
 	public void onRemove(@BindingParam("joinItem") JoinItem item)
 			throws SearchLibException {
-		((SearchRequest) getRequest()).getJoinList().remove(item);
+		((AbstractSearchRequest) getRequest()).getJoinList().remove(item);
 		onCancel();
 	}
 

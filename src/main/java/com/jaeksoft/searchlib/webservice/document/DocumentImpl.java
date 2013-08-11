@@ -33,7 +33,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -47,7 +48,7 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			SearchRequest request = new SearchRequest(client);
+			AbstractSearchRequest request = new SearchPatternRequest(client);
 			request.setQueryString(query);
 			int count = client.deleteDocuments(request);
 			return new CommonResult(true, count + " document(s) deleted");

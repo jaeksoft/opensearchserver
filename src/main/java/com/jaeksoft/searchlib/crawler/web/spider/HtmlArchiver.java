@@ -413,9 +413,9 @@ public class HtmlArchiver {
 				sb.append("']");
 			} else {
 				// POS did not work on Selenium By.XPATH selector
-				/*
-				 * sb.append('['); sb.append(pos); sb.append(']');
-				 */
+				sb.append('[');
+				sb.append(pos);
+				sb.append(']');
 			}
 			pathList.add(sb.toString());
 		}

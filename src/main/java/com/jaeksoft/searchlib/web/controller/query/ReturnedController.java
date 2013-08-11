@@ -49,6 +49,7 @@ public class ReturnedController extends AbstractQueryController {
 
 	public ReturnedController() throws SearchLibException {
 		super(RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest,
 				RequestTypeEnum.MoreLikeThisRequest,
 				RequestTypeEnum.DocumentsRequest);
 	}

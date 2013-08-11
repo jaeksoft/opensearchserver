@@ -36,14 +36,14 @@ import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 
 public class RenderSearchXml extends
-		AbstractRenderDocumentsXml<SearchRequest, AbstractResultSearch> {
+		AbstractRenderDocumentsXml<AbstractSearchRequest, AbstractResultSearch> {
 
 	public RenderSearchXml(AbstractResultSearch result) {
 		super(result);

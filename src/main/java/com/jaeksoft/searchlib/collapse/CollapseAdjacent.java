@@ -27,14 +27,14 @@ package com.jaeksoft.searchlib.collapse;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseAdjacent extends CollapseAbstract {
 
-	protected CollapseAdjacent(SearchRequest searchRequest) {
+	protected CollapseAdjacent(AbstractSearchRequest searchRequest) {
 		super(searchRequest);
 	}
 

@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileManagerAction;
@@ -307,7 +307,7 @@ public class FileController extends CrawlerController {
 		}
 	}
 
-	private SearchRequest getSearchRequest(FileManager fileManager,
+	private AbstractSearchRequest getSearchRequest(FileManager fileManager,
 			SearchTemplate fileSearchTemplate) throws SearchLibException {
 		return fileManager.fileQuery(fileSearchTemplate, getRepository(),
 				getFileName(), getLang(), null, getMinContentLength(),
@@ -327,7 +327,7 @@ public class FileController extends CrawlerController {
 				return null;
 
 			fileList = new ArrayList<FileItem>();
-			SearchRequest searchRequest = getSearchRequest(fileManager,
+			AbstractSearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileSearch);
 
 			totalSize = (int) fileManager.getFiles(searchRequest,
@@ -396,7 +396,7 @@ public class FileController extends CrawlerController {
 			FileManager fileManager = getFileManager();
 			if (fileManager == null)
 				return;
-			SearchRequest searchRequest = getSearchRequest(fileManager,
+			AbstractSearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileSearch);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
 			taskFileManagerAction.setSelection(searchRequest, false, true);
@@ -411,7 +411,7 @@ public class FileController extends CrawlerController {
 			FileManager fileManager = getFileManager();
 			if (fileManager == null)
 				return;
-			SearchRequest searchRequest = getSearchRequest(fileManager,
+			AbstractSearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileExport);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
 			taskFileManagerAction.setSelection(searchRequest, true, false);

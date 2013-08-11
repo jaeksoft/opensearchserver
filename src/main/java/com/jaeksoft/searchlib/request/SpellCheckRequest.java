@@ -65,10 +65,11 @@ public class SpellCheckRequest extends AbstractRequest {
 	private LanguageEnum lang;
 
 	public SpellCheckRequest() {
+		super(null, RequestTypeEnum.SpellCheckRequest);
 	}
 
 	public SpellCheckRequest(Config config) {
-		super(config);
+		super(config, RequestTypeEnum.SpellCheckRequest);
 	}
 
 	@Override
@@ -99,26 +100,21 @@ public class SpellCheckRequest extends AbstractRequest {
 	}
 
 	@Override
-	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
+	public void fromXmlConfigNoLock(Config config, XPathParser xpp, Node node)
 			throws XPathExpressionException, DOMException, ParseException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		rwl.w.lock();
-		try {
-			super.fromXmlConfig(config, xpp, node);
-			SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
-			NodeList nodes = xpp.getNodeList(node,
-					"spellCheckFields/spellCheckField");
-			int l = nodes.getLength();
-			for (int i = 0; i < l; i++)
-				SpellCheckField.copySpellCheckFields(nodes.item(i),
-						schemaFieldList, spellCheckFieldList);
-			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-					node, "lang")));
-			setQueryString(xpp.getNodeString(node, "query"));
-		} finally {
-			rwl.w.unlock();
-		}
+		super.fromXmlConfigNoLock(config, xpp, node);
+		SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
+		NodeList nodes = xpp.getNodeList(node,
+				"spellCheckFields/spellCheckField");
+		int l = nodes.getLength();
+		for (int i = 0; i < l; i++)
+			SpellCheckField.copySpellCheckFields(nodes.item(i),
+					schemaFieldList, spellCheckFieldList);
+		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(node,
+				"lang")));
+		setQueryString(xpp.getNodeString(node, "query"));
 	}
 
 	@Override
@@ -146,27 +142,17 @@ public class SpellCheckRequest extends AbstractRequest {
 	}
 
 	@Override
-	public RequestTypeEnum getType() {
-		return RequestTypeEnum.SpellCheckRequest;
-	}
-
-	@Override
-	public void setFromServlet(ServletTransaction transaction)
+	protected void setFromServletNoLock(ServletTransaction transaction)
 			throws SyntaxError {
-		rwl.w.lock();
-		try {
-			String p;
-			if ((p = transaction.getParameterString("query")) != null)
-				setQueryString(p);
-			else if ((p = transaction.getParameterString("q")) != null)
-				setQueryString(p);
-		} finally {
-			rwl.w.unlock();
-		}
+		String p;
+		if ((p = transaction.getParameterString("query")) != null)
+			setQueryString(p);
+		else if ((p = transaction.getParameterString("q")) != null)
+			setQueryString(p);
 	}
 
 	@Override
-	public void reset() {
+	protected void resetNoLock() {
 	}
 
 	@Override

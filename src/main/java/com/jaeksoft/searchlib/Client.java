@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -295,7 +295,7 @@ public class Client extends Config {
 		}
 	}
 
-	public int deleteDocuments(SearchRequest searchRequest)
+	public int deleteDocuments(AbstractSearchRequest searchRequest)
 			throws SearchLibException {
 		Timer timer = new Timer("Delete by query documents");
 		try {

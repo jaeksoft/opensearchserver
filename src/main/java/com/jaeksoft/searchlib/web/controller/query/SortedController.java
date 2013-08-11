@@ -33,7 +33,7 @@ import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
@@ -72,7 +72,7 @@ public class SortedController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedSort == null)
 				return;
-			((SearchRequest) getRequest()).getSortFieldList().put(
+			((AbstractSearchRequest) getRequest()).getSortFieldList().put(
 					new SortField(selectedSort, true));
 			reload();
 		}
@@ -82,7 +82,7 @@ public class SortedController extends AbstractQueryController {
 	public void onSortRemove(@BindingParam("sortfield") SortField sortField)
 			throws SearchLibException {
 		synchronized (this) {
-			((SearchRequest) getRequest()).getSortFieldList().remove(
+			((AbstractSearchRequest) getRequest()).getSortFieldList().remove(
 					sortField.getName());
 			reload();
 		}
@@ -104,7 +104,7 @@ public class SortedController extends AbstractQueryController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			SearchRequest request = (SearchRequest) getRequest();
+			AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
 			if (request == null)
 				return null;
 			sortFieldLeft = new ArrayList<String>();

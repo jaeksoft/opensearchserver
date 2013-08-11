@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -54,6 +54,8 @@ public abstract class AbstractRequest {
 
 	protected final ReadWriteLock rwl = new ReadWriteLock();
 
+	public final RequestTypeEnum requestType;
+
 	private String requestName;
 	protected Config config;
 	private boolean withLogReport;
@@ -61,24 +63,45 @@ public abstract class AbstractRequest {
 	private int timerMinTime;
 	private int timerMaxDepth;
 
-	public AbstractRequest() {
-		this.config = null;
-		this.requestName = null;
-		setDefaultValues();
-	}
-
-	public AbstractRequest(Config config) {
+	protected AbstractRequest(Config config, RequestTypeEnum requestType) {
 		this.config = config;
+		this.requestType = requestType;
 		this.requestName = null;
 		setDefaultValues();
 	}
 
-	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
-			throws XPathExpressionException, DOMException, ParseException,
-			InstantiationException, IllegalAccessException,
+	protected void fromXmlConfigNoLock(Config config, XPathParser xpp,
+			Node requestNode) throws XPathExpressionException, DOMException,
+			ParseException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		this.config = config;
-		this.requestName = XPathParser.getAttributeString(node, XML_ATTR_NAME);
+		this.requestName = XPathParser.getAttributeString(requestNode,
+				XML_ATTR_NAME);
+	}
+
+	/**
+	 * Build a new request by reading the XML config file
+	 * 
+	 * @param config
+	 * @param xpp
+	 * @param requestNode
+	 * @throws XPathExpressionException
+	 * @throws DOMException
+	 * @throws ParseException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
+	public final void fromXmlConfig(Config config, XPathParser xpp,
+			Node requestNode) throws XPathExpressionException, DOMException,
+			ParseException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		rwl.w.lock();
+		try {
+			fromXmlConfigNoLock(config, xpp, requestNode);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void copyFrom(AbstractRequest request) {
@@ -99,7 +122,9 @@ public abstract class AbstractRequest {
 		timerMaxDepth = 3;
 	}
 
-	public abstract RequestTypeEnum getType();
+	public final RequestTypeEnum getType() {
+		return requestType;
+	}
 
 	public void init(Config config) {
 		rwl.w.lock();
@@ -188,13 +213,32 @@ public abstract class AbstractRequest {
 
 	public abstract String getInfo();
 
-	public abstract void reset();
+	protected abstract void resetNoLock();
+
+	public final void reset() {
+		rwl.w.lock();
+		try {
+			resetNoLock();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
-	public abstract void setFromServlet(ServletTransaction transaction)
-			throws SyntaxError;
+	protected abstract void setFromServletNoLock(ServletTransaction transaction)
+			throws SyntaxError, SearchLibException;
+
+	public final void setFromServlet(ServletTransaction transaction)
+			throws SyntaxError, SearchLibException {
+		rwl.w.lock();
+		try {
+			setFromServletNoLock(transaction);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 
 	public abstract AbstractResult<?> execute(ReaderInterface reader)
 			throws SearchLibException;

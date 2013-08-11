@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public class Pagination {
@@ -58,7 +58,7 @@ public class Pagination {
 	}
 
 	private Pagination(AbstractResultSearch result,
-			SearchRequest searchRequest, int pagesArround) {
+			AbstractSearchRequest searchRequest, int pagesArround) {
 		this(result.getNumFound(), searchRequest.getStart(), searchRequest
 				.getRows(), pagesArround);
 	}

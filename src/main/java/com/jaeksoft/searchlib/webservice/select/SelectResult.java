@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -103,7 +103,7 @@ public class SelectResult extends CommonResult {
 	public SelectResult(AbstractResultSearch result) {
 		super(true, null);
 		try {
-			SearchRequest searchRequest = result.getRequest();
+			AbstractSearchRequest searchRequest = result.getRequest();
 			documents = new ArrayList<DocumentResult>();
 			facets = new ArrayList<FacetResult>();
 			query = searchRequest.getQueryParsed();

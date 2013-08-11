@@ -44,9 +44,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.AbstractServlet;
@@ -70,7 +70,7 @@ public final class QueryController extends AbstractQueryController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedRequest = null;
-		requestType = RequestTypeEnum.SearchRequest;
+		requestType = RequestTypeEnum.SearchFieldRequest;
 		setAttribute(ScopeAttribute.QUERY_REQUEST, null);
 		setAttribute(ScopeAttribute.QUERY_RESULT, null);
 	}
@@ -90,8 +90,8 @@ public final class QueryController extends AbstractQueryController {
 			sb.append("&qt=");
 			sb.append(URLEncoder.encode(requestName, "UTF-8"));
 		}
-		if (request instanceof SearchRequest) {
-			String q = ((SearchRequest) request).getQueryString();
+		if (request instanceof AbstractSearchRequest) {
+			String q = ((AbstractSearchRequest) request).getQueryString();
 			if (q == null || q.length() == 0)
 				q = "*:*";
 			sb.append("&q=");
@@ -136,12 +136,20 @@ public final class QueryController extends AbstractQueryController {
 		return !isEditing();
 	}
 
-	public boolean isEditingSearch() throws SearchLibException {
+	public boolean isEditingSearchPattern() throws SearchLibException {
 		return isEditing(RequestTypeEnum.SearchRequest);
 	}
 
-	public boolean isNotEditingSearch() throws SearchLibException {
-		return !isEditingSearch();
+	public boolean isNotEditingSearchPattern() throws SearchLibException {
+		return !isEditingSearchPattern();
+	}
+
+	public boolean isEditingSearchField() throws SearchLibException {
+		return isEditing(RequestTypeEnum.SearchFieldRequest);
+	}
+
+	public boolean isNotEditingSearchField() throws SearchLibException {
+		return !isEditingSearchField();
 	}
 
 	public boolean isEditingSpellCheck() throws SearchLibException {
@@ -319,8 +327,8 @@ public final class QueryController extends AbstractQueryController {
 			IllegalAccessException {
 		AbstractRequest request = getAbstractRequest();
 
-		if (request instanceof SearchRequest) {
-			SearchRequest searchRequest = (SearchRequest) request;
+		if (request instanceof AbstractSearchRequest) {
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
 			if (searchRequest.getQueryString() == null)
 				searchRequest.setQueryString("*:*");
 		}

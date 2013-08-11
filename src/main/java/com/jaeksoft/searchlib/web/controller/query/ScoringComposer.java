@@ -32,7 +32,7 @@ import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
@@ -56,7 +56,7 @@ public class ScoringComposer extends AbstractQueryController {
 	}
 
 	public AdvancedScore getAdvancedScore() throws SearchLibException {
-		SearchRequest searchRequest = (SearchRequest) getRequest();
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
 		AdvancedScore av = searchRequest.getAdvancedScore();

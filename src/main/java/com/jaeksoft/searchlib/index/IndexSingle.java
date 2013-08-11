@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -184,7 +184,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query) throws SearchLibException {
+	public int deleteDocuments(AbstractSearchRequest query)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);

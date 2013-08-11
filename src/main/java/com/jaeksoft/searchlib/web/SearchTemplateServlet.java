@@ -37,10 +37,11 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.ReturnField;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
@@ -120,8 +121,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
 		if (client.getRequestMap().get(searchTemplate) != null) {
-			SearchRequest request = (SearchRequest) client.getRequestMap().get(
-					searchTemplate);
+			AbstractSearchRequest request = (AbstractSearchRequest) client
+					.getRequestMap().get(searchTemplate);
 			if (snippetField != null) {
 				request.getSnippetFieldList().put(
 						new SnippetField(snippetField));
@@ -152,8 +153,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String returnField = transaction.getParameterString("returnfield");
 		Client client = transaction.getClient();
 		if (client.getRequestMap().get(searchTemplate) != null) {
-			SearchRequest request = (SearchRequest) client.getRequestMap().get(
-					searchTemplate);
+			AbstractSearchRequest request = (AbstractSearchRequest) client
+					.getRequestMap().get(searchTemplate);
 			request.addReturnField(returnField);
 			client.getRequestMap().put(request);
 			client.saveRequests();
@@ -262,7 +263,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	}
 
-	private void createSearchTemplate(SearchRequest request,
+	private void createSearchTemplate(SearchPatternRequest request,
 			ServletTransaction transaction) {
 		String p;
 		if ((p = transaction.getParameterString("qt.name")) != null)
@@ -324,7 +325,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 		if (queryType == null
 				|| RequestTypeEnum.SearchRequest.name().equalsIgnoreCase(
 						queryType)) {
-			SearchRequest request = new SearchRequest(client);
+			SearchPatternRequest request = new SearchPatternRequest(client);
 			createSearchTemplate(request, transaction);
 			client.getRequestMap().put(request);
 		}

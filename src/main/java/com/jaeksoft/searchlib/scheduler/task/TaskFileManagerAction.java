@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -80,13 +80,13 @@ public class TaskFileManagerAction extends TaskAbstract {
 		optimize = true;
 	}
 
-	private SearchRequest selectionRequest = null;
+	private AbstractSearchRequest selectionRequest = null;
 
 	private boolean deleteSelection;
 
 	private boolean setToUnfetched;
 
-	public void setSelection(SearchRequest selectionRequest,
+	public void setSelection(AbstractSearchRequest selectionRequest,
 			boolean deleteSelection, boolean setToUnfetched) {
 		this.selectionRequest = selectionRequest;
 		this.setToUnfetched = setToUnfetched;

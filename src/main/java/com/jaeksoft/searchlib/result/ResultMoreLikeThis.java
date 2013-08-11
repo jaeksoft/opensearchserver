@@ -37,8 +37,9 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderMoreLikeThisJson;
 import com.jaeksoft.searchlib.render.RenderMoreLikeThisXml;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -59,7 +60,8 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 			ClassNotFoundException {
 		super(request);
 		this.reader = reader;
-		SearchRequest searchRequest = new SearchRequest(request.getConfig());
+		AbstractSearchRequest searchRequest = new SearchPatternRequest(
+				request.getConfig());
 		for (FilterAbstract<?> filter : request.getFilterList())
 			searchRequest.getFilterList().add(filter);
 		searchRequest.setBoostedComplexQuery(request.getQuery());

@@ -108,10 +108,18 @@ public class RequestMap {
 		return map.keySet();
 	}
 
-	public void getNameList(RequestTypeEnum type, List<String> nameList) {
-		for (AbstractRequest request : map.values())
-			if (request.getType() == type)
+	public void getNameList(List<String> nameList, RequestTypeEnum... types) {
+		for (AbstractRequest request : map.values()) {
+			boolean found = false;
+			for (RequestTypeEnum type : types) {
+				if (request.requestType == type) {
+					found = true;
+					break;
+				}
+			}
+			if (found)
 				nameList.add(request.getRequestName());
+		}
 	}
 
 	public void remove(String requestName) {

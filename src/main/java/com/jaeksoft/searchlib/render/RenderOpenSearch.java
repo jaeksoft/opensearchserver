@@ -46,8 +46,8 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -58,7 +58,7 @@ public class RenderOpenSearch implements Render {
 
 	private PrintWriter writer;
 	private AbstractResultSearch result;
-	private SearchRequest searchRequest;
+	private AbstractSearchRequest searchRequest;
 	private Matcher controlMatcher;
 	private String serverURL;
 	private String outputEncoding;
@@ -115,7 +115,7 @@ public class RenderOpenSearch implements Render {
 	private void renderDocuments() throws IOException, ParseException,
 			SyntaxError, XPathExpressionException,
 			ParserConfigurationException, SAXException, SearchLibException {
-		SearchRequest searchRequest = result.getRequest();
+		AbstractSearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
 		writer.println("\t<opensearch:totalResults>");

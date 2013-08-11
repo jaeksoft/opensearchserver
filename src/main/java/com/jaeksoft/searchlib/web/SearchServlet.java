@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderOpenSearch;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -66,8 +66,8 @@ public class SearchServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClientApi(getIndexName());
-			SearchRequest searchRequest = buildOpenSearchRequest(client,
-					transaction);
+			AbstractSearchRequest searchRequest = buildOpenSearchRequest(
+					client, transaction);
 			Render render = null;
 			if (transaction.getParameterString("oe") != null)
 				render = doQueryRequest(client, searchRequest,
@@ -82,11 +82,11 @@ public class SearchServlet extends AbstractServlet {
 
 	}
 
-	protected Render doQueryRequest(Client client, SearchRequest searchRequest,
-			String outputEncoding) throws IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, SearchLibException, InstantiationException,
-			IllegalAccessException {
+	protected Render doQueryRequest(Client client,
+			AbstractSearchRequest searchRequest, String outputEncoding)
+			throws IOException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			SearchLibException, InstantiationException, IllegalAccessException {
 
 		AbstractResultSearch result = (AbstractResultSearch) client
 				.request(searchRequest);
@@ -94,14 +94,14 @@ public class SearchServlet extends AbstractServlet {
 
 	}
 
-	private SearchRequest buildOpenSearchRequest(Client client,
+	private AbstractSearchRequest buildOpenSearchRequest(Client client,
 			ServletTransaction transaction)
 			throws TransformerConfigurationException, SearchLibException,
 			XPathExpressionException, ParserConfigurationException,
 			SAXException, IOException {
 		ApiManager apiManager = client.getApiManager();
 
-		SearchRequest searchRequest = (SearchRequest) client
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) client
 				.getNewRequest(apiManager.getFieldValue("opensearch").trim());
 		searchRequest.setQueryString(transaction.getParameterString("q"));
 		if (transaction.getParameterInteger("start") != null)

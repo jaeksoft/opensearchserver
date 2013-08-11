@@ -99,8 +99,10 @@
 			<space width="10px" />
 			<button label="Save" onClick="@command('onSave')" />
 		</caption>
-		<include src="WEB-INF/zul/query/requestSearch.zul"
-			visible="@load(query.editingSearch)" />
+		<include src="WEB-INF/zul/query/requestSearchPattern.zul"
+			visible="@load(query.editingSearchPattern)" />
+		<include src="WEB-INF/zul/query/requestSearchField.zul"
+			visible="@load(query.editingSearchField)" />
 		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
 			visible="@load(query.editingSpellCheck)" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"

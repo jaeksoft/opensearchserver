@@ -35,9 +35,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.ReturnField;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
@@ -54,7 +54,7 @@ public class ResultDocument {
 	final private Map<String, SnippetFieldValue> snippetFields;
 	final private int docId;
 
-	public ResultDocument(SearchRequest searchRequest,
+	public ResultDocument(AbstractSearchRequest searchRequest,
 			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 

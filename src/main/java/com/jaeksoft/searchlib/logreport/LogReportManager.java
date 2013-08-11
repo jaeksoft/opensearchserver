@@ -38,7 +38,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
@@ -124,7 +124,7 @@ public class LogReportManager {
 		if (!request.isLogReport())
 			return;
 		try {
-			SearchRequest searchRequest = request instanceof SearchRequest ? (SearchRequest) request
+			AbstractSearchRequest searchRequest = request instanceof AbstractSearchRequest ? (AbstractSearchRequest) request
 					: null;
 			StringBuffer sb = new StringBuffer();
 			sb.append('\u0009');

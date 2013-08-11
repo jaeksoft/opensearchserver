@@ -33,10 +33,10 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
-import com.jaeksoft.searchlib.request.SearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
@@ -86,10 +86,10 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 		ResultDocument doc = resultDocs.getDocument(pos, renderingTimer);
 		ReturnFieldList returnFieldList = null;
 		SnippetFieldList snippetFieldList = null;
-		if (abstractRequest instanceof SearchRequest) {
-			returnFieldList = ((SearchRequest) abstractRequest)
+		if (abstractRequest instanceof AbstractSearchRequest) {
+			returnFieldList = ((AbstractSearchRequest) abstractRequest)
 					.getReturnFieldList();
-			snippetFieldList = ((SearchRequest) abstractRequest)
+			snippetFieldList = ((AbstractSearchRequest) abstractRequest)
 					.getSnippetFieldList();
 		} else if (abstractRequest instanceof RequestInterfaces.ReturnedFieldInterface) {
 			returnFieldList = ((RequestInterfaces.ReturnedFieldInterface) abstractRequest)

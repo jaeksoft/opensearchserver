@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
@@ -256,7 +256,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		analyzer = null;
 	}
 
-	public void initSearchTerms(SearchRequest searchRequest)
+	public void initSearchTerms(AbstractSearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException, SearchLibException {
 		synchronized (this) {
 			if (searchTerms != null)

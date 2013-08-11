@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
@@ -77,9 +77,9 @@ public class URLBrowserServlet extends AbstractServlet {
 
 	}
 
-	private SearchRequest getRequest(UrlManager urlManager, String host)
+	private AbstractSearchRequest getRequest(UrlManager urlManager, String host)
 			throws SearchLibException, ParseException {
-		SearchRequest searchRequest = urlManager
+		AbstractSearchRequest searchRequest = urlManager
 				.getSearchRequest(SearchTemplate.urlExport);
 		searchRequest.setQueryString("*:*");
 		if (host != null && host.length() > 0)
@@ -90,7 +90,7 @@ public class URLBrowserServlet extends AbstractServlet {
 	private void exportSiteMap(UrlManager urlManager,
 			ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
-		SearchRequest searchRequest = getRequest(urlManager, host);
+		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportSiteMap(searchRequest);
 		transaction
 				.sendFile(file, "OSS_SiteMap.xml", "text/xml; charset-UTF-8");
@@ -99,7 +99,7 @@ public class URLBrowserServlet extends AbstractServlet {
 	private void exportURLs(UrlManager urlManager,
 			ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
-		SearchRequest searchRequest = getRequest(urlManager, host);
+		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportURLs(searchRequest);
 		transaction.sendFile(file, "OSS_URL_Export.txt",
 				"text/plain; charset-UTF-8");

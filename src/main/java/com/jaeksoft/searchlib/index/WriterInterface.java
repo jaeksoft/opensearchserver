@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
@@ -40,7 +40,8 @@ public interface WriterInterface {
 	public int deleteDocuments(Schema schema, String field,
 			Collection<String> values) throws SearchLibException;
 
-	public int deleteDocuments(SearchRequest query) throws SearchLibException;
+	public int deleteDocuments(AbstractSearchRequest query)
+			throws SearchLibException;
 
 	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
 			throws SearchLibException;

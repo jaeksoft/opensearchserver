@@ -30,7 +30,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.user.Role;
@@ -45,7 +44,7 @@ public class SpellcheckImpl extends CommonSelect implements RestSpellCheck,
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SpellCheckRequest spellCheckRequest = (SpellCheckRequest) getRequest(
-					client, template, RequestTypeEnum.SpellCheckRequest);
+					client, template, SpellCheckRequest.class);
 			if (spellCheckRequest == null)
 				throw new CommonServiceException("Request " + template
 						+ " not found");

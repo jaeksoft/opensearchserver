@@ -35,7 +35,6 @@ import java.util.TreeMap;
 
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,7 +43,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.join.JoinResult;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
@@ -113,20 +112,17 @@ public class StandardLearner implements LearnerInterface {
 		rwl.r.lock();
 		try {
 			checkIndex();
-			SearchRequest searchRequest = (SearchRequest) learnerClient
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
 					.getNewRequest("search");
 			Schema schema = learnerClient.getSchema();
 			SchemaField schemaField = schema.getFieldList().get("data");
 			BooleanQuery booleanQuery = new BooleanQuery();
 			Analyzer analyzer = schema.getAnalyzer(schemaField,
 					LanguageEnum.UNDEFINED);
-			List<TermQuery> termList = analyzer.getQueryAnalyzer().toTermQuery(
-					"data", data);
-			if (termList == null)
+			int termCount = analyzer.getQueryAnalyzer().toBooleanQuery("data",
+					data, booleanQuery, Occur.SHOULD);
+			if (termCount == 0)
 				return;
-			for (TermQuery termQuery : termList)
-				booleanQuery.add(termQuery, Occur.SHOULD);
-			termList.clear();
 			TreeMap<String, LearnerResultItem> targetMap = new TreeMap<String, LearnerResultItem>();
 			int start = 0;
 			final int rows = 1000;
@@ -183,7 +179,7 @@ public class StandardLearner implements LearnerInterface {
 			checkIndex();
 			int count = 0;
 			learnerClient.deleteAll();
-			SearchRequest request = (SearchRequest) client
+			AbstractSearchRequest request = (AbstractSearchRequest) client
 					.getNewRequest(requestName);
 			int start = 0;
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(

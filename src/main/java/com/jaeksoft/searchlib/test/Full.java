@@ -22,7 +22,8 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.DomUtils;
 
@@ -56,7 +57,7 @@ public class Full {
 
 	@Test
 	public void matchAllDocs() throws Exception {
-		SearchRequest searchRequest = new SearchRequest(client);
+		AbstractSearchRequest searchRequest = new SearchPatternRequest(client);
 		searchRequest.setQueryString("*:*");
 		AbstractResultSearch result = (AbstractResultSearch) client
 				.request(searchRequest);

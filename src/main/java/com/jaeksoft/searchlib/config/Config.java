@@ -98,7 +98,7 @@ import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -1695,7 +1695,7 @@ public abstract class Config implements ThreadFactory {
 		if (requestName != null)
 			request = getNewRequest(requestName);
 		if (request == null)
-			request = new SearchRequest(this);
+			request = new SearchPatternRequest(this);
 		request.setFromServlet(transaction);
 		return request;
 	}

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -17,6 +17,7 @@
 <tabbox>
 	<tabs>
 		<tab id="tabQuery" label="Query" selected="true" />
+		<tab id="tabSearchField" label="Searched fields" />
 		<tab id="tabReturn" label="Returned fields" />
 		<tab id="tabFacet" label="Faceted fields" />
 		<tab id="tabSnippet" label="Snippet fields" />
@@ -30,6 +31,9 @@
 	<tabpanels>
 		<tabpanel>
 			<include src="WEB-INF/zul/query/search/general.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabSearchField.onSelect">
+			<include src="WEB-INF/zul/query/search/searchFields.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabReturn.onSelect">
 			<include src="WEB-INF/zul/query/search/returned.zul" />

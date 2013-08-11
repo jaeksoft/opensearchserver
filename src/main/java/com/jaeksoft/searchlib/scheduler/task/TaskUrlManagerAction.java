@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -92,7 +92,7 @@ public class TaskUrlManagerAction extends TaskAbstract {
 		optimize = true;
 	}
 
-	private SearchRequest selectionRequest = null;
+	private AbstractSearchRequest selectionRequest = null;
 
 	private boolean doSiteMaps;
 
@@ -103,7 +103,7 @@ public class TaskUrlManagerAction extends TaskAbstract {
 	private int bufferSize = 10000;
 
 	public void setSelection(boolean doSiteMaps,
-			SearchRequest selectionRequest, boolean deleteSelection,
+			AbstractSearchRequest selectionRequest, boolean deleteSelection,
 			FetchStatus setToFetchStatus, int bufferSize) {
 		this.doSiteMaps = doSiteMaps;
 		this.selectionRequest = selectionRequest;

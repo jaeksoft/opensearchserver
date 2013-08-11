@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.api.Api;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.api.OpenSearchApi;
 import com.jaeksoft.searchlib.api.OpenSearchTypes;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.web.SearchServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -154,8 +154,8 @@ public class OpenSearchController extends CommonController {
 			return null;
 		if (searchTemplate == null)
 			new AlertController("Please Select an Query Template");
-		SearchRequest request = (SearchRequest) client.getRequestMap().get(
-				searchTemplate);
+		AbstractSearchRequest request = (AbstractSearchRequest) client
+				.getRequestMap().get(searchTemplate);
 		if (request == null)
 			return null;
 		List<String> nameList = new ArrayList<String>();

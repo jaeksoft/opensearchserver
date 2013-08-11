@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -1093,7 +1093,7 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
-	public void configureAuthRequest(SearchRequest searchRequest,
+	public void configureAuthRequest(AbstractSearchRequest searchRequest,
 			HttpServletRequest servletRequest) throws ParseException,
 			IOException, SearchLibException {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();

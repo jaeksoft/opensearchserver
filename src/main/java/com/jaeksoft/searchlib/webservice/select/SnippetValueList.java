@@ -63,11 +63,12 @@ public class SnippetValueList extends FieldValueList {
 			return;
 		String fieldName = json.getString("name");
 		String value = json.getString("value");
-		for (SnippetValueList snippetValueList : list)
+		for (SnippetValueList snippetValueList : list) {
 			if (snippetValueList.fieldName.equals(fieldName)) {
 				snippetValueList.values.add(value);
 				return;
 			}
+		}
 		SnippetValueList snippetValueList = new SnippetValueList(fieldName);
 		snippetValueList.values.add(value);
 		list.add(snippetValueList);

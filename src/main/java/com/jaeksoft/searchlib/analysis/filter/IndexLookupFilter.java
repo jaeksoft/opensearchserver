@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
@@ -91,7 +91,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream)
 			throws SearchLibException {
 		Client indexClient = ClientCatalog.getClient(indexName);
-		SearchRequest searchRequest = (SearchRequest) indexClient
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) indexClient
 				.getNewRequest(requestName);
 		searchRequest.setDefaultOperator("OR");
 		return new IndexLookupTokenFilter(tokenStream, indexClient,
@@ -101,7 +101,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public static class IndexLookupTokenFilter extends AbstractTermFilter {
 
 		private final Client indexClient;
-		private final SearchRequest searchRequest;
+		private final AbstractSearchRequest searchRequest;
 		private final String[] returnFields;
 		private final String requestedField;
 
@@ -111,7 +111,7 @@ public class IndexLookupFilter extends FilterFactory {
 		private int currentQueuePos;
 
 		public IndexLookupTokenFilter(TokenStream input, Client indexClient,
-				SearchRequest searchRequest, String requestedField,
+				AbstractSearchRequest searchRequest, String requestedField,
 				String returnField, int batchBuffer) {
 			super(input);
 			tokenQueue = new ArrayList<TokenTerm>(0);

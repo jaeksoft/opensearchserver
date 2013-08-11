@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -410,7 +410,7 @@ public class WriterLocal extends WriterAbstract {
 		return count;
 	}
 
-	private int deleteDocumentsNoLock(SearchRequest query)
+	private int deleteDocumentsNoLock(AbstractSearchRequest query)
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
@@ -439,7 +439,8 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(SearchRequest query) throws SearchLibException {
+	public int deleteDocuments(AbstractSearchRequest query)
+			throws SearchLibException {
 		lock.rl.lock();
 		try {
 			return deleteDocumentsNoLock(query);

@@ -38,8 +38,9 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.DeleteRequest;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -63,7 +64,7 @@ public class DeleteServlet extends AbstractServlet {
 			throws SearchLibException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
 			SyntaxError, URISyntaxException, InterruptedException {
-		SearchRequest request = new SearchRequest(client);
+		AbstractSearchRequest request = new SearchPatternRequest(client);
 		request.setQueryString(q);
 		return client.deleteDocuments(request);
 	}

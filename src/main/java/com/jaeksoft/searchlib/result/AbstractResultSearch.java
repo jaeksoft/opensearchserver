@@ -34,14 +34,14 @@ import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractResultSearch extends
-		AbstractResult<SearchRequest> implements
-		ResultDocumentsInterface<SearchRequest> {
+		AbstractResult<AbstractSearchRequest> implements
+		ResultDocumentsInterface<AbstractSearchRequest> {
 
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
@@ -51,7 +51,7 @@ public abstract class AbstractResultSearch extends
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
 
-	protected AbstractResultSearch(SearchRequest searchRequest) {
+	protected AbstractResultSearch(AbstractSearchRequest searchRequest) {
 		super(searchRequest);
 		this.numFound = 0;
 		this.maxScore = 0;

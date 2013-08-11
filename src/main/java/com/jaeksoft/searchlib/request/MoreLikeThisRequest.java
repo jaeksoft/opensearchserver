@@ -82,10 +82,11 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	private Query mltQuery;
 
 	public MoreLikeThisRequest() {
+		super(null, RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	public MoreLikeThisRequest(Config config) {
-		super(config);
+		super(config, RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	@Override
@@ -176,7 +177,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 			}
 
 			if (docQuery != null && docQuery.length() > 0) {
-				SearchRequest searchRequest = new SearchRequest(config);
+				AbstractSearchRequest searchRequest = new SearchPatternRequest(
+						config);
 				searchRequest.setRows(1);
 				searchRequest.setQueryString(docQuery);
 				AbstractResultSearch result = (AbstractResultSearch) index
@@ -513,70 +515,62 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void fromXmlConfig(Config config, XPathParser xpp, Node node)
+	protected void fromXmlConfigNoLock(Config config, XPathParser xpp, Node node)
 			throws XPathExpressionException, DOMException, ParseException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		rwl.w.lock();
-		try {
-			super.fromXmlConfig(config, xpp, node);
-			setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-					node, "lang")));
-			setAnalyzerName(XPathParser.getAttributeString(node, "analyzer"));
-			setMinWordLen(XPathParser.getAttributeValue(node, "minWordLen"));
-			setMaxWordLen(XPathParser.getAttributeValue(node, "maxWordLen"));
-			setMinTermFreq(XPathParser.getAttributeValue(node, "minTermFreq"));
-			setMinDocFreq(XPathParser.getAttributeValue(node, "minDocFreq"));
-			setMaxNumTokensParsed(XPathParser.getAttributeValue(node,
-					"maxNumTokensParsed"));
-			setMaxQueryTerms(XPathParser.getAttributeValue(node,
-					"maxQueryTerms"));
-			setBoost(Boolean.TRUE.toString().equalsIgnoreCase(
-					XPathParser.getAttributeString(node, "boost")));
-			setStopWords(XPathParser.getAttributeString(node, "stopWords"));
-			setStart(XPathParser.getAttributeValue(node, "start"));
-			setRows(XPathParser.getAttributeValue(node, "rows"));
+		super.fromXmlConfigNoLock(config, xpp, node);
+		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(node,
+				"lang")));
+		setAnalyzerName(XPathParser.getAttributeString(node, "analyzer"));
+		setMinWordLen(XPathParser.getAttributeValue(node, "minWordLen"));
+		setMaxWordLen(XPathParser.getAttributeValue(node, "maxWordLen"));
+		setMinTermFreq(XPathParser.getAttributeValue(node, "minTermFreq"));
+		setMinDocFreq(XPathParser.getAttributeValue(node, "minDocFreq"));
+		setMaxNumTokensParsed(XPathParser.getAttributeValue(node,
+				"maxNumTokensParsed"));
+		setMaxQueryTerms(XPathParser.getAttributeValue(node, "maxQueryTerms"));
+		setBoost(Boolean.TRUE.toString().equalsIgnoreCase(
+				XPathParser.getAttributeString(node, "boost")));
+		setStopWords(XPathParser.getAttributeString(node, "stopWords"));
+		setStart(XPathParser.getAttributeValue(node, "start"));
+		setRows(XPathParser.getAttributeValue(node, "rows"));
 
-			NodeList mltFieldsNodes = xpp.getNodeList(node, "fields/field");
-			if (mltFieldsNodes != null) {
-				ReturnFieldList moreLikeThisFields = getFieldList();
-				for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
-					ReturnField field = ReturnField
-							.fromXmlConfig(mltFieldsNodes.item(i));
-					if (field != null)
-						moreLikeThisFields.put(field);
-				}
-			}
-
-			Node mltDocQueryNode = xpp.getNode(node, "docQuery");
-			if (mltDocQueryNode != null)
-				setDocQuery(xpp.getNodeString(mltDocQueryNode, false));
-
-			Node mltDocLikeText = xpp.getNode(node, "likeText");
-			if (mltDocLikeText != null)
-				setLikeText(xpp.getNodeString(mltDocLikeText, false));
-
-			NodeList nodes = xpp.getNodeList(node, "filters/filter");
-			for (int i = 0; i < nodes.getLength(); i++) {
-				Node n = nodes.item(i);
-				filterList.add(new QueryFilter(xpp.getNodeString(n, false),
-						"yes".equals(XPathParser.getAttributeString(n,
-								"negative")), FilterAbstract.Source.CONFIGXML,
-						null));
-			}
-
-			SchemaFieldList fieldList = config.getSchema().getFieldList();
-			returnFieldList.filterCopy(fieldList,
-					xpp.getNodeString(node, "returnFields"));
-			nodes = xpp.getNodeList(node, "returnFields/field");
-			for (int i = 0; i < nodes.getLength(); i++) {
-				ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
+		NodeList mltFieldsNodes = xpp.getNodeList(node, "fields/field");
+		if (mltFieldsNodes != null) {
+			ReturnFieldList moreLikeThisFields = getFieldList();
+			for (int i = 0; i < mltFieldsNodes.getLength(); i++) {
+				ReturnField field = ReturnField.fromXmlConfig(mltFieldsNodes
+						.item(i));
 				if (field != null)
-					returnFieldList.put(field);
+					moreLikeThisFields.put(field);
 			}
+		}
 
-		} finally {
-			rwl.w.unlock();
+		Node mltDocQueryNode = xpp.getNode(node, "docQuery");
+		if (mltDocQueryNode != null)
+			setDocQuery(xpp.getNodeString(mltDocQueryNode, false));
+
+		Node mltDocLikeText = xpp.getNode(node, "likeText");
+		if (mltDocLikeText != null)
+			setLikeText(xpp.getNodeString(mltDocLikeText, false));
+
+		NodeList nodes = xpp.getNodeList(node, "filters/filter");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node n = nodes.item(i);
+			filterList.add(new QueryFilter(xpp.getNodeString(n, false), "yes"
+					.equals(XPathParser.getAttributeString(n, "negative")),
+					FilterAbstract.Source.CONFIGXML, null));
+		}
+
+		SchemaFieldList fieldList = config.getSchema().getFieldList();
+		returnFieldList.filterCopy(fieldList,
+				xpp.getNodeString(node, "returnFields"));
+		nodes = xpp.getNodeList(node, "returnFields/field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
+			if (field != null)
+				returnFieldList.put(field);
 		}
 	}
 
@@ -629,69 +623,53 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public RequestTypeEnum getType() {
-		return RequestTypeEnum.MoreLikeThisRequest;
+	protected void setFromServletNoLock(ServletTransaction transaction) {
+		String p;
+		Integer i;
+		Boolean b;
+
+		if ((p = transaction.getParameterString("mlt.docquery")) != null)
+			setDocQuery(p);
+
+		if ((p = transaction.getParameterString("mlt.liketext")) != null)
+			setLikeText(p);
+
+		if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
+			setMinWordLen(i);
+
+		if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
+			setMaxWordLen(i);
+
+		if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
+			setMinDocFreq(i);
+
+		if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
+			setMinTermFreq(i);
+
+		if ((p = transaction.getParameterString("mlt.stopwords")) != null)
+			setStopWords(p);
+
+		if ((p = transaction.getParameterString("lang")) != null)
+			setLang(LanguageEnum.findByCode(p));
+		else if ((p = transaction.getParameterString("mlt.lang")) != null)
+			setLang(LanguageEnum.findByCode(p));
+
+		if ((p = transaction.getParameterString("mlt.analyzer")) != null)
+			setAnalyzerName(p);
+
+		if ((b = transaction.getParameterBoolean("mlt.boost")) != null)
+			setBoost(b);
+
+		if ((i = transaction.getParameterInteger("start")) != null)
+			setStart(i);
+
+		if ((i = transaction.getParameterInteger("rows")) != null)
+			setRows(i);
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
-		rwl.w.lock();
-		try {
-			String p;
-			Integer i;
-			Boolean b;
-
-			if ((p = transaction.getParameterString("mlt.docquery")) != null)
-				setDocQuery(p);
-
-			if ((p = transaction.getParameterString("mlt.liketext")) != null)
-				setLikeText(p);
-
-			if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
-				setMinWordLen(i);
-
-			if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
-				setMaxWordLen(i);
-
-			if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
-				setMinDocFreq(i);
-
-			if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
-				setMinTermFreq(i);
-
-			if ((p = transaction.getParameterString("mlt.stopwords")) != null)
-				setStopWords(p);
-
-			if ((p = transaction.getParameterString("lang")) != null)
-				setLang(LanguageEnum.findByCode(p));
-			else if ((p = transaction.getParameterString("mlt.lang")) != null)
-				setLang(LanguageEnum.findByCode(p));
-
-			if ((p = transaction.getParameterString("mlt.analyzer")) != null)
-				setAnalyzerName(p);
-
-			if ((b = transaction.getParameterBoolean("mlt.boost")) != null)
-				setBoost(b);
-
-			if ((i = transaction.getParameterInteger("start")) != null)
-				setStart(i);
-
-			if ((i = transaction.getParameterInteger("rows")) != null)
-				setRows(i);
-		} finally {
-			rwl.w.unlock();
-		}
-
-	}
-
-	@Override
-	public void reset() {
-		rwl.w.lock();
-		try {
-			mltQuery = null;
-		} finally {
-			rwl.w.unlock();
-		}
+	protected void resetNoLock() {
+		mltQuery = null;
 	}
 
 	@Override

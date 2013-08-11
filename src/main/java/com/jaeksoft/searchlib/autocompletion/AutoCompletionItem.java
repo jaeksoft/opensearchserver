@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.query.QueryUtils;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
@@ -306,7 +306,7 @@ public class AutoCompletionItem implements Closeable,
 				return null;
 			if (rows == null)
 				rows = propRows;
-			SearchRequest searchRequest = (SearchRequest) autoCompClient
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) autoCompClient
 					.getNewRequest("search");
 			query = QueryUtils.replaceControlChars(query.replace("\"", ""));
 			searchRequest.setQueryString(query);

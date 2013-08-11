@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 
@@ -56,11 +56,11 @@ public class SearchImpl extends CommonSelect implements RestSearch, SoapSearch {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
-			SearchRequest searchRequest = getSearchRequest(client, template,
-					query, start, rows, lang, operator, collapseField,
-					collapseMax, collapseMode, collapseType, filter,
-					negativeFilter, sort, returnedField, snippetField, facet,
-					facetCollapse, facetMulti, facetMultiCollapse,
+			AbstractSearchRequest searchRequest = getSearchRequest(client,
+					template, query, start, rows, lang, operator,
+					collapseField, collapseMax, collapseMode, collapseType,
+					filter, negativeFilter, sort, returnedField, snippetField,
+					facet, facetCollapse, facetMulti, facetMultiCollapse,
 					filterParams, joinParams, enableLog, customLog);
 			return new SelectResult(
 					(AbstractResultSearch) client.request(searchRequest));

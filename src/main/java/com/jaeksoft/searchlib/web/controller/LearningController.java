@@ -163,8 +163,9 @@ public class LearningController extends CommonController implements
 		Client client = getClient();
 		if (client == null)
 			return requestList;
-		client.getRequestMap().getNameList(RequestTypeEnum.SearchRequest,
-				requestList);
+		client.getRequestMap().getNameList(requestList,
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 		return requestList;
 	}
 

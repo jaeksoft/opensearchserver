@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -140,7 +140,7 @@ public class SourceField implements Comparable<SourceField> {
 		return sb.length() == 0 ? null : sb.toString();
 	}
 
-	public void addReturnField(SearchRequest searchRequest)
+	public void addReturnField(AbstractSearchRequest searchRequest)
 			throws SearchLibException {
 		for (String name : names)
 			searchRequest.addReturnField(name);

@@ -36,7 +36,8 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.request.SearchRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
@@ -95,7 +96,7 @@ public class TaskPullFields extends TaskPullAbstract {
 			sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
 					LanguageEnum.UNDEFINED);
 
-			SearchRequest searchRequest = new SearchRequest(
+			AbstractSearchRequest searchRequest = new SearchPatternRequest(
 					executionData.sourceClient);
 			searchRequest.setQueryString(sourceQuery);
 			searchRequest.addReturnField(executionData.sourceField);
