@@ -29,6 +29,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Status;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -85,14 +87,12 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		if (documents == null || documents.size() == 0)
-			throw new CommonServiceException("No documents");
+			throw new CommonServiceException(Status.NO_CONTENT, "No documents");
 		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(0);
 		for (DocumentUpdate document : documents) {
-			IndexDocument indexDoc = new IndexDocument(document.lang);
-			if (document.fields != null)
-				for (DocumentUpdate.Field field : document.fields)
-					indexDoc.add(field.name, field.value, field.boost);
-			indexDocuments.add(indexDoc);
+			IndexDocument indexDocument = document.getIndexDocument();
+			if (indexDocument != null)
+				indexDocuments.add(indexDocument);
 		}
 		return client.updateDocuments(indexDocuments);
 	}

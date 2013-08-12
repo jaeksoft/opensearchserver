@@ -34,13 +34,14 @@ import javax.xml.bind.annotation.XmlValue;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.IndexDocument;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @JsonInclude(Include.NON_NULL)
 public class DocumentUpdate {
 
-	@XmlAttribute(required = true)
+	@XmlAttribute
 	public LanguageEnum lang;
 
 	public List<Field> fields;
@@ -58,4 +59,12 @@ public class DocumentUpdate {
 		public String value;
 	}
 
+	public IndexDocument getIndexDocument() {
+		IndexDocument indexDocument = lang == null ? new IndexDocument()
+				: new IndexDocument(lang);
+		if (fields != null)
+			for (Field field : fields)
+				indexDocument.add(field.name, field.value, field.boost);
+		return indexDocument;
+	}
 }
