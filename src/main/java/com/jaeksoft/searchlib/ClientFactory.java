@@ -51,6 +51,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<Integer> booleanQueryMaxClauseCount;
 
+	private PropertyItem<Boolean> soapActive;
+
+	private PropertyItem<Boolean> logFullTrace;
+
 	private PropertyItem<String> smtpHostname;
 
 	private PropertyItem<Integer> smtpPort;
@@ -85,9 +89,15 @@ public class ClientFactory implements PropertyItemListener {
 			advancedProperties = new PropertyManager(advPropFile);
 			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty(
 					"booleanQueryMaxClauseCount", 1024, null, null);
-			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
-					.getValue());
+			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
+			soapActive = advancedProperties.newBooleanProperty("soapActive",
+					false);
+			soapActive.addListener(this);
+			logFullTrace = advancedProperties.newBooleanProperty(
+					"logFullTrace", false);
+			hasBeenSet(logFullTrace);
+			logFullTrace.addListener(this);
 			smtpHostname = advancedProperties.newStringProperty("smtpHostname",
 					"localhost");
 			smtpHostname.addListener(this);
@@ -159,6 +169,14 @@ public class ClientFactory implements PropertyItemListener {
 		return booleanQueryMaxClauseCount;
 	}
 
+	public PropertyItem<Boolean> getSoapActive() {
+		return soapActive;
+	}
+
+	public PropertyItem<Boolean> getLogFullTrace() {
+		return logFullTrace;
+	}
+
 	public PropertyItem<String> getSmtpHostname() {
 		return smtpHostname;
 	}
@@ -200,6 +218,8 @@ public class ClientFactory implements PropertyItemListener {
 		if (prop == booleanQueryMaxClauseCount)
 			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
 					.getValue());
+		else if (prop == logFullTrace)
+			Logging.setShowStackTrace(logFullTrace.isValue());
 		try {
 			advancedProperties.save();
 		} catch (IOException e) {

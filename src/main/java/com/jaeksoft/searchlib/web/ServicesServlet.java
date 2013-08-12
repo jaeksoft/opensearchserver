@@ -31,10 +31,35 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.webservice.WebServiceEnum;
 
 public class ServicesServlet extends CXFNonSpringJaxrsServlet {
+
+	public class ThreadedLoad implements Runnable {
+
+		public ThreadedLoad() {
+			new Thread(ClientCatalog.getThreadGroup(), this).start();
+		}
+
+		@Override
+		public void run() {
+			for (WebServiceEnum webServiceEnum : WebServiceEnum.values()) {
+				try {
+					if (webServiceEnum.defaultPath != null)
+						Endpoint.publish(webServiceEnum.defaultPath,
+								webServiceEnum.getNewInstance());
+				} catch (InstantiationException e) {
+					Logging.error(e);
+				} catch (IllegalAccessException e) {
+					Logging.error(e);
+				}
+			}
+		}
+
+	}
 
 	/**
 	 * 
@@ -48,15 +73,10 @@ public class ServicesServlet extends CXFNonSpringJaxrsServlet {
 		Bus bus = getBus();
 		BusFactory.setDefaultBus(bus);
 
-		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
-			try {
-				if (webServiceEnum.defaultPath != null)
-					Endpoint.publish(webServiceEnum.defaultPath,
-							webServiceEnum.getNewInstance());
-			} catch (InstantiationException e) {
-				Logging.error(e);
-			} catch (IllegalAccessException e) {
-				Logging.error(e);
-			}
+		if (!ClientFactory.INSTANCE.getSoapActive().isValue())
+			return;
+
+		new ThreadedLoad();
+
 	}
 }

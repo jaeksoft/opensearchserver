@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,13 +41,18 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class Logging {
 
+	private static final ReadWriteLock rwl = new ReadWriteLock();
+
 	private static Logger logger = null;
 
 	public static boolean isDebug = System.getenv("OPENSEARCHSERVER_DEBUG") != null;;
+
+	private static boolean showStackTrace = true;
 
 	private static void configure() {
 
@@ -128,9 +133,27 @@ public class Logging {
 			return false;
 		if (msg != null)
 			ps.println(msg);
-		if (e != null)
+		if (e != null && isShowStackTrace())
 			e.printStackTrace();
 		return true;
+	}
+
+	public static boolean isShowStackTrace() {
+		rwl.r.lock();
+		try {
+			return showStackTrace;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public static void setShowStackTrace(boolean show) {
+		rwl.w.lock();
+		try {
+			showStackTrace = show;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public final static void error(Object msg, Exception e) {
@@ -173,13 +196,19 @@ public class Logging {
 	public final static void warn(Exception e) {
 		if (noLogger(System.err, e.getMessage(), e))
 			return;
-		logger.warn(e.getMessage(), e);
+		if (isShowStackTrace())
+			logger.warn(e.getMessage(), e);
+		else
+			logger.warn(e.getMessage());
 	}
 
 	public final static void info(Object msg, Exception e) {
 		if (noLogger(System.out, msg, e))
 			return;
-		logger.info(msg, e);
+		if (isShowStackTrace())
+			logger.info(msg, e);
+		else
+			logger.info(msg);
 	}
 
 	public final static void info(Object msg) {
@@ -191,13 +220,19 @@ public class Logging {
 	public final static void info(Exception e) {
 		if (noLogger(System.out, e.getMessage(), e))
 			return;
-		logger.info(e.getMessage(), e);
+		if (isShowStackTrace())
+			logger.info(e.getMessage(), e);
+		else
+			logger.info(e.getMessage());
 	}
 
 	public final static void debug(Object msg, Exception e) {
 		if (noLogger(System.out, msg, e))
 			return;
-		logger.debug(msg, e);
+		if (isShowStackTrace())
+			logger.debug(msg, e);
+		else
+			logger.debug(msg);
 	}
 
 	public final static void debug(Object msg) {
@@ -209,7 +244,10 @@ public class Logging {
 	public final static void debug(Exception e) {
 		if (noLogger(System.out, e.getMessage(), e))
 			return;
-		logger.debug(e.getMessage(), e);
+		if (isShowStackTrace())
+			logger.debug(e.getMessage(), e);
+		else
+			logger.debug(e.getMessage());
 	}
 
 	public final static String readLogs(int lines, String fileName)

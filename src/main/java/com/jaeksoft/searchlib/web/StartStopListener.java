@@ -117,6 +117,21 @@ public class StartStopListener implements ServletContextListener {
 		return version;
 	}
 
+	public class ThreadedLoad implements Runnable {
+
+		public ThreadedLoad() {
+			new Thread(ClientCatalog.getThreadGroup(), this).start();
+		}
+
+		@Override
+		public void run() {
+			Logging.info("OSS starts loading index(es)");
+			ClientCatalog.openAll();
+			Logging.info("OSS ends loading index(es)");
+		}
+
+	}
+
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 
@@ -126,7 +141,7 @@ public class StartStopListener implements ServletContextListener {
 		initDataDir(servletContext);
 
 		Logging.initLogger();
-		Logging.info("OSS IS STARTING");
+		Logging.info("OSS IS STARTING ");
 
 		ErrorParserLogger.init();
 
@@ -142,7 +157,7 @@ public class StartStopListener implements ServletContextListener {
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}
-		ClientCatalog.openAll();
-	}
 
+		new ThreadedLoad();
+	}
 }

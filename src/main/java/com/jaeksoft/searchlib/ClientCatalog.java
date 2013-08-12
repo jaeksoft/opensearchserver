@@ -108,11 +108,11 @@ public class ClientCatalog {
 		try {
 
 			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-				Logging.info("OSS load index " + catalogItem.getIndexName());
+				Logging.info("OSS loads index " + catalogItem.getIndexName());
 				getClient(catalogItem.getIndexName());
 			}
 		} catch (SearchLibException e) {
-			e.printStackTrace();
+			Logging.error(e);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -123,7 +123,7 @@ public class ClientCatalog {
 		try {
 			for (Client client : CLIENTS.values()) {
 				if (client != null) {
-					Logging.info("OSS unload index " + client.getIndexName());
+					Logging.info("OSS unloads index " + client.getIndexName());
 					client.close();
 				}
 			}

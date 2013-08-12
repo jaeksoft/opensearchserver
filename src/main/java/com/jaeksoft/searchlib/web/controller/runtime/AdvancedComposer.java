@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -62,6 +62,14 @@ public class AdvancedComposer extends CommonController {
 
 	public PropertyItem<Integer> getMaxClauseCount() {
 		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
+	}
+
+	public PropertyItem<Boolean> getSoapActive() {
+		return ClientFactory.INSTANCE.getSoapActive();
+	}
+
+	public PropertyItem<Boolean> getLogFullTrace() {
+		return ClientFactory.INSTANCE.getLogFullTrace();
 	}
 
 	public ClientFactory getClientFactory() {
