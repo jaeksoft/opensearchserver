@@ -28,50 +28,34 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_NULL)
 public class DocumentUpdate {
 
 	@XmlAttribute(required = true)
 	public LanguageEnum lang;
 
-	@XmlElement(name = "value")
-	public List<Value> value;
-
-	@XmlElement(name = "values")
-	public List<Values> values;
+	public List<Field> fields;
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	public static class Value {
+	public static class Field {
 
 		@XmlAttribute
-		public String field;
+		public String name;
 
 		@XmlAttribute
 		public Float boost;
 
 		@XmlValue
-		public String content;
-	}
-
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	public static class Values {
-
-		@XmlAttribute
-		public String field;
-
-		@XmlAttribute
-		public Float boost;
-
-		@XmlElement(name = "value", required = true)
-		public List<Value> value;
-
+		public String value;
 	}
 
 }

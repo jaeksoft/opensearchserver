@@ -46,7 +46,13 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			setField(client, schemaFieldRecord);
+			if (schemaFieldRecord == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"The field structure is missing");
+			SchemaField schemaField = new SchemaField();
+			schemaFieldRecord.toShemaField(schemaField);
+			client.getSchema().getFieldList().put(schemaField);
+			client.saveConfig();
 			return new CommonResult(true, "Added Field "
 					+ schemaFieldRecord.name);
 		} catch (SearchLibException e) {
@@ -56,20 +62,6 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
-	}
-
-	private void setField(Client client, SchemaFieldRecord schemaFieldRecord)
-			throws SearchLibException {
-		com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
-		SchemaField schemaField = new SchemaField();
-		schemaField.setIndexAnalyzer(schemaFieldRecord.analyzer);
-		schemaField.setIndexed(schemaFieldRecord.indexed);
-		schemaField.setName(schemaFieldRecord.name);
-		schemaField.setStored(schemaFieldRecord.stored);
-		schemaField.setTermVector(schemaFieldRecord.termVector);
-		schemaField.setCopyOf(schemaFieldRecord.copyOf);
-		schema.getFieldList().put(schemaField);
-		client.saveConfig();
 	}
 
 	@Override

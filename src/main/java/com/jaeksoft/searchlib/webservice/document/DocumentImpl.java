@@ -43,10 +43,11 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		RestDocument {
 
 	@Override
-	public CommonResult deleteByQuery(String use, String login, String key,
+	public CommonResult deleteByQuery(String index, String login, String key,
 			String query) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractSearchRequest request = new SearchPatternRequest(client);
 			request.setQueryString(query);
@@ -62,10 +63,11 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 	}
 
 	@Override
-	public CommonResult deleteByValue(String use, String login, String key,
+	public CommonResult deleteByValue(String index, String login, String key,
 			String field, List<String> values) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			int count = client.deleteDocuments(field, values);
 			return new CommonResult(true, count + " document(s) deleted");
@@ -87,26 +89,20 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(0);
 		for (DocumentUpdate document : documents) {
 			IndexDocument indexDoc = new IndexDocument(document.lang);
-			if (document.values != null)
-				for (DocumentUpdate.Values values : document.values)
-					if (values.value != null)
-						for (DocumentUpdate.Value value : values.value)
-							indexDoc.add(values.field, value.content,
-									value.boost != null ? value.boost
-											: values.boost);
-			if (document.value != null)
-				for (DocumentUpdate.Value value : document.value)
-					indexDoc.add(value.field, value.content, value.boost);
+			if (document.fields != null)
+				for (DocumentUpdate.Field field : document.fields)
+					indexDoc.add(field.name, field.value, field.boost);
 			indexDocuments.add(indexDoc);
 		}
 		return client.updateDocuments(indexDocuments);
 	}
 
 	@Override
-	public CommonResult update(String use, String login, String key,
+	public CommonResult update(String index, String login, String key,
 			List<DocumentUpdate> documents) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			int count = updateDocument(client, documents);
 			return new CommonResult(true, count + " document(s) updated");

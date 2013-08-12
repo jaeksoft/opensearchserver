@@ -35,18 +35,18 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 public interface SoapDocument {
 
 	@WebMethod(operationName = "update")
-	public CommonResult update(@WebParam(name = "use") String use,
+	public CommonResult update(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "documents") List<DocumentUpdate> documents);
 
-	public CommonResult deleteByValue(@WebParam(name = "use") String use,
+	public CommonResult deleteByValue(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "field") String field,
 			@WebParam(name = "values") List<String> values);
 
-	public CommonResult deleteByQuery(@WebParam(name = "use") String use,
+	public CommonResult deleteByQuery(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "query") String query);

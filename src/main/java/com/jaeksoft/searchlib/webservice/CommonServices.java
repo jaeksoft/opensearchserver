@@ -120,8 +120,7 @@ public class CommonServices {
 		}
 	}
 
-	protected static class CommonServiceException extends
-			WebApplicationException {
+	public static class CommonServiceException extends WebApplicationException {
 
 		/**
 		 * 

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.fields;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -35,8 +36,10 @@ import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
+import com.jaeksoft.searchlib.webservice.CommonServices;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_NULL)
 public class SchemaFieldRecord {
 
 	public String name;
@@ -49,7 +52,6 @@ public class SchemaFieldRecord {
 
 	public TermVector termVector;
 
-	@JsonInclude(Include.NON_NULL)
 	public List<String> copyOf;
 
 	public SchemaFieldRecord() {
@@ -69,5 +71,22 @@ public class SchemaFieldRecord {
 		this.termVector = schemaField.getTermVector();
 		this.copyOf = schemaField.getCopyOf() == null ? null
 				: new ArrayList<String>(schemaField.getCopyOf());
+	}
+
+	public void toShemaField(SchemaField schemaField) {
+		if (analyzer != null)
+			schemaField.setIndexAnalyzer(analyzer);
+		if (indexed != null)
+			schemaField.setIndexed(indexed);
+		if (name == null)
+			throw new CommonServices.CommonServiceException(Status.BAD_REQUEST,
+					"The name is missing");
+		schemaField.setName(name);
+		if (stored != null)
+			schemaField.setStored(stored);
+		if (termVector != null)
+			schemaField.setTermVector(termVector);
+		if (copyOf != null)
+			schemaField.setCopyOf(copyOf);
 	}
 }

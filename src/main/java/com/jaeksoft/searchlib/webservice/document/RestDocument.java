@@ -43,7 +43,7 @@ public interface RestDocument {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult update(@PathParam("index") String use,
+	public CommonResult update(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<DocumentUpdate> documents);
 
@@ -51,14 +51,14 @@ public interface RestDocument {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult deleteByValue(@PathParam("index") String use,
+	public CommonResult deleteByValue(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			String field, List<String> values);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult deleteByQuery(@PathParam("index") String use,
+	public CommonResult deleteByQuery(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("query") String query);
 }
