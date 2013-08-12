@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,11 +32,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.ws.WebServiceException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -46,10 +41,12 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.CommonServices;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class SelectResult extends CommonResult {
+public class SearchResult extends CommonResult {
 
 	@XmlElement(name = "document")
 	public List<DocumentResult> documents;
@@ -78,7 +75,7 @@ public class SelectResult extends CommonResult {
 	@XmlAttribute
 	public float maxScore;
 
-	public SelectResult() {
+	public SearchResult() {
 		documents = null;
 		query = null;
 		rows = 0;
@@ -89,18 +86,7 @@ public class SelectResult extends CommonResult {
 		maxScore = 0;
 	}
 
-	public SelectResult(JSONObject json) throws JSONException {
-		JSONObject jsonResult = json.getJSONObject("result");
-		numFound = jsonResult.getInt("@numFound");
-		documents = new ArrayList<DocumentResult>(0);
-		facets = new ArrayList<FacetResult>(0);
-		DocumentResult.add(jsonResult.optJSONObject("document"), documents);
-		DocumentResult.add(jsonResult.optJSONArray("document"), documents);
-		FacetResult.add(jsonResult.optJSONObject("facet"), facets);
-		FacetResult.add(jsonResult.optJSONArray("facet"), facets);
-	}
-
-	public SelectResult(AbstractResultSearch result) {
+	public SearchResult(AbstractResultSearch result) {
 		super(true, null);
 		try {
 			AbstractSearchRequest searchRequest = result.getRequest();
@@ -129,59 +115,14 @@ public class SelectResult extends CommonResult {
 					facets.add(new FacetResult(result, FacetField.getName()));
 
 		} catch (ParseException e) {
-			throw new WebServiceException(e);
+			throw new CommonServices.CommonServiceException(e);
 		} catch (SyntaxError e) {
-			throw new WebServiceException(e);
+			throw new CommonServices.CommonServiceException(e);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServices.CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServices.CommonServiceException(e);
 		}
-	}
-
-	@XmlTransient
-	public int getNumFound() {
-		return numFound;
-	}
-
-	@XmlTransient
-	public List<DocumentResult> getDocuments() {
-		return documents;
-	}
-
-	@XmlTransient
-	public List<FacetResult> getFacets() {
-		return facets;
-	}
-
-	@XmlTransient
-	public String getQuery() {
-		return query;
-	}
-
-	@XmlTransient
-	public int getRows() {
-		return rows;
-	}
-
-	@XmlTransient
-	public int getStart() {
-		return start;
-	}
-
-	@XmlTransient
-	public long getTime() {
-		return time;
-	}
-
-	@XmlTransient
-	public long getCollapsedDocCount() {
-		return collapsedDocCount;
-	}
-
-	@XmlTransient
-	public float getMaxScore() {
-		return maxScore;
 	}
 
 }

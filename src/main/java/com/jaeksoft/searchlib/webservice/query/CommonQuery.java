@@ -22,13 +22,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Status;
+
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
@@ -41,6 +44,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
@@ -48,9 +52,11 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonServices;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
-public class CommonSelect extends CommonServices {
+public class CommonQuery extends CommonServices {
 
 	@SuppressWarnings("unchecked")
 	protected <T extends AbstractRequest> T getRequest(Client client,
@@ -63,6 +69,50 @@ public class CommonSelect extends CommonServices {
 					+ " don't have the expected type: "
 					+ request.getType().getLabel());
 		return (T) request;
+	}
+
+	protected QueryTemplateResultList queryTemplateList(String index,
+			String login, String key, RequestTypeEnum... types) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.GROUP_INDEX);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return new QueryTemplateResultList(client.getRequestMap()
+					.getRequests(), types);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	protected AbstractRequest searchTemplateGet(String index, String login,
+			String key, String template, RequestTypeEnum... types) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.GROUP_INDEX);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (template == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"Not template found");
+			AbstractRequest request = client.getRequestMap().get(template);
+			if (request == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Template not found: " + template);
+			for (RequestTypeEnum type : types)
+				if (type == request.requestType)
+					return request;
+			throw new CommonServiceException(Status.BAD_REQUEST,
+					"Wrong request type: " + request.requestType.getLabel());
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	protected AbstractSearchRequest getSearchRequest(Client client,

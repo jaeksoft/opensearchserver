@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.spellcheck;
 
 import java.util.ArrayList;
 import java.util.List;

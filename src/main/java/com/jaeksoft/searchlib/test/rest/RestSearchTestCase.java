@@ -38,7 +38,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.junit.Test;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.select.SelectResult;
+import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 
 /**
  * @author Ayyathurai N Naveen
@@ -62,9 +62,9 @@ public class RestSearchTestCase extends TestCase {
 		builder.addParameter("template", "search");
 		InputStream inputStream = commonRestTestCase.httpGet(builder);
 		JAXBContext context = JAXBContext.newInstance(CommonResult.class,
-				SelectResult.class);
+				SearchResult.class);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		SelectResult selectResult = (SelectResult) unmarshaller
+		SearchResult selectResult = (SearchResult) unmarshaller
 				.unmarshal(inputStream);
 		checkNumResults(selectResult, 233);
 		checkRows(selectResult, 10);
@@ -84,9 +84,9 @@ public class RestSearchTestCase extends TestCase {
 				"url:\"http://www.open-search-server.com/\"");
 		InputStream inputStream = commonRestTestCase.httpGet(builder);
 		JAXBContext context = JAXBContext.newInstance(CommonResult.class,
-				SelectResult.class);
+				SearchResult.class);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		SelectResult selectResult = (SelectResult) unmarshaller
+		SearchResult selectResult = (SearchResult) unmarshaller
 				.unmarshal(inputStream);
 		checkNumResults(selectResult, 1);
 		checkRows(selectResult, 10);
@@ -110,9 +110,9 @@ public class RestSearchTestCase extends TestCase {
 		System.out.println(builder.build().toString());
 		InputStream inputStream = commonRestTestCase.httpGet(builder);
 		JAXBContext context = JAXBContext.newInstance(CommonResult.class,
-				SelectResult.class);
+				SearchResult.class);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
-		SelectResult selectResult = (SelectResult) unmarshaller
+		SearchResult selectResult = (SearchResult) unmarshaller
 				.unmarshal(inputStream);
 		checkNumResults(selectResult, 233);
 		checkRows(selectResult, 10);
@@ -122,24 +122,24 @@ public class RestSearchTestCase extends TestCase {
 		checkFacet(selectResult, 45);
 	}
 
-	public void checkFacet(SelectResult selectResult, int facets) {
+	public void checkFacet(SearchResult selectResult, int facets) {
 		assertEquals(facets, selectResult.facets.get(0).terms.size());
 	}
 
-	public void checkNumResults(SelectResult selectResult, int numFound) {
+	public void checkNumResults(SearchResult selectResult, int numFound) {
 		assertEquals(numFound, selectResult.numFound);
 	}
 
-	public void checkRows(SelectResult selectResult, int rows) {
+	public void checkRows(SearchResult selectResult, int rows) {
 		assertEquals(rows, selectResult.rows);
 	}
 
-	public void checkCollapseDocCount(SelectResult selectResult,
+	public void checkCollapseDocCount(SearchResult selectResult,
 			int collapseDocCount) {
 		assertEquals(collapseDocCount, selectResult.collapsedDocCount);
 	}
 
-	public void checkFirstDocument(SelectResult selectResult, String urlExact) {
+	public void checkFirstDocument(SearchResult selectResult, String urlExact) {
 		String url = selectResult.documents.get(0).fields.get(1).values.get(0);
 		assertEquals(urlExact, url);
 	}

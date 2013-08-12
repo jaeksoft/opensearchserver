@@ -37,6 +37,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -71,8 +73,15 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			Client client = getLoggedClient(index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			int count = client.deleteDocuments(field, values);
-			return new CommonResult(true, count + " document(s) deleted");
+			SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
+			SchemaField schemaField = field != null ? schemaFieldList
+					.get(field) : schemaFieldList.getUniqueField();
+			if (schemaField == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Field not found: " + field);
+			int count = client.deleteDocuments(schemaField.getName(), values);
+			return new CommonResult(true, count + " document(s) deleted by "
+					+ schemaField.getName());
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

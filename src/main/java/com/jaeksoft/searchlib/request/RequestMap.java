@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class RequestMap {
 
-	private Map<String, AbstractRequest> map;
+	private final Map<String, AbstractRequest> map;
 
 	/**
 	 * Returns a map containing the request read from the XML configuration

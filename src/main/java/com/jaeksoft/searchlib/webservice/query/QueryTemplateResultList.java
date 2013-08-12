@@ -21,43 +21,58 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice;
+package com.jaeksoft.searchlib.webservice.query;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class CommonListResult extends CommonResult {
+public class QueryTemplateResultList extends CommonResult {
 
-	public final Collection<String> items;
+	final public Collection<QueryTemplate> templates;
 
-	public CommonListResult() {
-		items = null;
+	public QueryTemplateResultList() {
+		templates = null;
 	}
 
-	public CommonListResult(Set<String> items) {
-		super(true, items.size() + " item(s) found");
-		this.items = items;
+	public QueryTemplateResultList(
+			Set<Entry<String, AbstractRequest>> requests,
+			RequestTypeEnum[] types) {
+		super(true, requests.size() + " template(s)");
+		templates = requests == null ? null : new ArrayList<QueryTemplate>(
+				requests.size());
+		if (requests != null)
+			for (Entry<String, AbstractRequest> entry : requests)
+				for (RequestTypeEnum type : types)
+					if (entry.getValue().requestType == type)
+						templates.add(new QueryTemplate(entry.getValue()));
 	}
 
-	public CommonListResult(List<String> items) {
-		super(true, items.size() + " item(s) found");
-		this.items = items;
-	}
+	public class QueryTemplate {
 
-	public CommonListResult(Collection<AutoCompletionItem> items) {
-		super(true, items.size() + " item(s) found");
-		this.items = new ArrayList<String>(items.size());
-		for (AutoCompletionItem item : items)
-			this.items.add(item.getName());
+		final public String name;
+		final public String type;
+
+		public QueryTemplate() {
+			name = null;
+			type = null;
+		}
+
+		public QueryTemplate(AbstractRequest request) {
+			name = request.getRequestName();
+			type = request.requestType.getLabel();
+		}
+
 	}
 }

@@ -36,10 +36,9 @@ import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
 import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
+import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
+import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
-import com.jaeksoft.searchlib.webservice.select.SearchImpl;
-import com.jaeksoft.searchlib.webservice.select.SelectImpl;
-import com.jaeksoft.searchlib.webservice.select.SpellcheckImpl;
 
 public enum WebServiceEnum {
 
@@ -66,8 +65,6 @@ public enum WebServiceEnum {
 	RestCrawler(RestCrawlerImpl.class, "/crawler/rest"),
 
 	Scheduler(SchedulerImpl.class, "/scheduler"),
-
-	Select(SelectImpl.class, "/select"),
 
 	Search(SearchImpl.class, "/search"),
 

@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.util.List;
 
@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class SnippetValueList extends FieldValueList {

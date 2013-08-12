@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,6 @@
 
 package com.jaeksoft.searchlib.snippet;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -35,12 +31,7 @@ import org.w3c.dom.NamedNodeMap;
 
 import com.jaeksoft.searchlib.Logging;
 
-public abstract class FragmenterAbstract implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1443188121132664991L;
+public abstract class FragmenterAbstract {
 
 	private transient TreeSet<Integer> splitPos;
 
@@ -105,14 +96,5 @@ public abstract class FragmenterAbstract implements Externalizable {
 	}
 
 	protected abstract void check(String originalText);
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-	}
 
 }

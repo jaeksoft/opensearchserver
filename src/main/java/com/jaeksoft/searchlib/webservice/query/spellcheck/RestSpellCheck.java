@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.spellcheck;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -36,11 +36,12 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-@Path("/index/{index_name}/spellcheck/{template_name}")
+@Path("/index/{index_name}/spellcheck")
 public interface RestSpellCheck {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{template_name}")
 	public SpellcheckResult spellcheck(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
@@ -50,6 +51,7 @@ public interface RestSpellCheck {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{template_name}")
 	public SpellcheckResult spellcheckPost(
 			@PathParam("index_name") String index,
 			@FormParam("login") String login, @FormParam("key") String key,

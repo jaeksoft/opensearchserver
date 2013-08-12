@@ -21,10 +21,22 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.webservice.query.search;
 
-package com.jaeksoft.searchlib.webservice.select;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.request.SearchPatternRequest;
 
-public enum OperatorEnum {
+@JsonInclude(Include.NON_NULL)
+public class SearchPatternQuery extends SearchQueryAbstract {
 
-	AND, OR;
+	public String patternSearchQuery;
+	public String patternSnippetQuery;
+
+	public SearchPatternQuery(SearchPatternRequest request) {
+		super(request);
+		patternSearchQuery = request.getPatternQuery();
+		patternSnippetQuery = request.getSnippetPatternQuery();
+	}
+
 }

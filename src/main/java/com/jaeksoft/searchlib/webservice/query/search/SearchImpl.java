@@ -22,11 +22,18 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -36,13 +43,35 @@ import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.query.CommonQuery;
+import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
-public class SearchImpl extends CommonSelect implements RestSearch, SoapSearch {
+public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 
 	@Override
-	public SelectResult search(String index, String login, String key,
+	public QueryTemplateResultList searchTemplateList(String index,
+			String login, String key) {
+		return super.queryTemplateList(index, login, key,
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
+	}
+
+	@Override
+	public SearchTemplateResult searchTemplateGet(String index, String login,
+			String key, String template) {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) super
+				.searchTemplateGet(index, login, key, template,
+						RequestTypeEnum.SearchRequest,
+						RequestTypeEnum.SearchFieldRequest);
+		return new SearchTemplateResult(searchRequest);
+	}
+
+	@Override
+	public SearchResult search(String index, String login, String key,
 			String template, String query, Integer start, Integer rows,
 			LanguageEnum lang, OperatorEnum operator, String collapseField,
 			Integer collapseMax, CollapseParameters.Mode collapseMode,
@@ -62,7 +91,7 @@ public class SearchImpl extends CommonSelect implements RestSearch, SoapSearch {
 					filter, negativeFilter, sort, returnedField, snippetField,
 					facet, facetCollapse, facetMulti, facetMultiCollapse,
 					filterParams, joinParams, enableLog, customLog);
-			return new SelectResult(
+			return new SearchResult(
 					(AbstractResultSearch) client.request(searchRequest));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -86,23 +115,52 @@ public class SearchImpl extends CommonSelect implements RestSearch, SoapSearch {
 	}
 
 	@Override
-	public SelectResult searchPost(String index, String login, String key,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, OperatorEnum operator, String collapseField,
-			Integer collapseMax, CollapseParameters.Mode collapseMode,
-			CollapseParameters.Type collapseType, List<String> filter,
-			List<String> negativeFilter, List<String> sort,
-			List<String> returnedField, List<String> snippetField,
-			List<String> facet, List<String> facetCollapse,
-			List<String> facetMulti, List<String> facetMultiCollapse,
-			List<String> filterParams, List<String> joinParams,
-			Boolean enableLog, List<String> customLog) {
-		return search(index, login, key, template, query, start, rows, lang,
-				operator, collapseField, collapseMax, collapseMode,
-				collapseType, filter, negativeFilter, sort, returnedField,
-				snippetField, facet, facetCollapse, facetMulti,
-				facetMultiCollapse, filterParams, joinParams, enableLog,
-				customLog);
-
+	@POST
+	@Consumes({ "application/json", "application/xml" })
+	@Produces({ "application/json", "application/xml" })
+	@Path("/{template_name}")
+	public SearchResult searchTemplate(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("template_name") String template,
+			SearchPatternQuery query) {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+	@Override
+	@POST
+	@Consumes({ "application/json", "application/xml" })
+	@Produces({ "application/json", "application/xml" })
+	@Path("/")
+	public SearchResult searchTemplate(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("template_name") String template, SearchFieldQuery query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@POST
+	@Consumes({ "application/json", "application/xml" })
+	@Produces({ "application/json", "application/xml" })
+	@Path("/")
+	public SearchResult search(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			SearchPatternQuery query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@POST
+	@Consumes({ "application/json", "application/xml" })
+	@Produces({ "application/json", "application/xml" })
+	@Path("/")
+	public SearchResult search(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			SearchFieldQuery query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

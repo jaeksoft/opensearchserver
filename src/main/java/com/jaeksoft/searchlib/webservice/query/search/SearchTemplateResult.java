@@ -21,21 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.webservice.query.search;
 
-package com.jaeksoft.searchlib.webservice.select;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+@XmlRootElement(name = "result")
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+public class SearchTemplateResult extends CommonResult {
 
-@WebService(name = "Spellcheck")
-public interface SoapSpellCheck {
+	final public SearchQueryAbstract query;
 
-	public SpellcheckResult spellcheck(@WebParam(name = "index") String index,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "template") String template,
-			@WebParam(name = "language") LanguageEnum language,
-			@WebParam(name = "query") String query);
+	public SearchTemplateResult() {
+		query = null;
+	}
+
+	public SearchTemplateResult(AbstractSearchRequest request) {
+		super(true, null);
+		this.query = SearchQueryAbstract.newInstance(request);
+	}
 }

@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.select;
+package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +36,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
-import com.jaeksoft.searchlib.webservice.select.FieldValueList;
-import com.jaeksoft.searchlib.webservice.select.SnippetValueList;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_NULL)
 public class DocumentResult {
 
 	@XmlAttribute

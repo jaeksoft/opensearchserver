@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,42 +21,26 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.webservice.query.search;
 
-package com.jaeksoft.searchlib.snippet;
+import java.util.List;
 
-import org.w3c.dom.NamedNodeMap;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.request.SearchFieldRequest;
 
-public class SentenceFragmenter extends FragmenterAbstract {
+@JsonInclude(Include.NON_NULL)
+public class SearchFieldQuery extends SearchQueryAbstract {
 
-	@Override
-	public void setAttributes(NamedNodeMap attr) {
+	public List<SearchField> searchFields;
+
+	public static class SearchField {
+		public String field;
+		public Boolean phrase;
+		public Float boost;
 	}
 
-	@Override
-	public void check(String originalText) {
-		int pos = 0;
-		char[] chars = originalText.toCharArray();
-		boolean nextSpaceIsSplit = false;
-		for (char ch : chars) {
-			if (nextSpaceIsSplit)
-				if (Character.isWhitespace(ch))
-					addSplit(pos + 1);
-			switch (ch) {
-			case '.':
-			case '?':
-			case '!':
-				nextSpaceIsSplit = true;
-				break;
-			default:
-				nextSpaceIsSplit = false;
-				break;
-			}
-			pos++;
-		}
-	}
-
-	@Override
-	protected FragmenterAbstract newInstance() {
-		return new SentenceFragmenter();
+	public SearchFieldQuery(SearchFieldRequest request) {
+		super(request);
 	}
 }
