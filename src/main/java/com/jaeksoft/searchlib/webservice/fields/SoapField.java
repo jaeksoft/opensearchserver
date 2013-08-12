@@ -44,16 +44,12 @@ public interface SoapField {
 			@WebParam(name = "key") String key,
 			@WebParam(name = "deleteField") String deleteField);
 
-	@WebResult(name = "defaultField")
-	public CommonResult setDefaultField(@WebParam(name = "index") String use,
+	@WebResult(name = "defaultUniqueField")
+	public CommonResult setDefaultUniqueField(
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "defaultField") String defaultField);
-
-	@WebResult(name = "uniqueField")
-	public CommonResult setUniqueField(@WebParam(name = "index") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
+			@WebParam(name = "defaultField") String defaultField,
 			@WebParam(name = "uniqueField") String uniqueField);
 
 	@WebResult(name = "fieldList")

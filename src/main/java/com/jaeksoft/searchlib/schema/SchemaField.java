@@ -81,8 +81,8 @@ public class SchemaField extends AbstractField<SchemaField> {
 		this.indexed = sc.indexed;
 		this.termVector = sc.termVector;
 		this.indexAnalyzer = sc.indexAnalyzer;
-		this.copyOf = sc.copyOf == null ? null : new ArrayList<String>(
-				sc.copyOf);
+		this.copyOf = sc.copyOf != null && sc.copyOf.size() > 0 ? new ArrayList<String>(
+				sc.copyOf) : null;
 	}
 
 	private SchemaField(String name, String stored, String indexed,
@@ -244,6 +244,8 @@ public class SchemaField extends AbstractField<SchemaField> {
 		if (copyOf == null)
 			return;
 		copyOf.remove(field);
+		if (copyOf.size() == 0)
+			copyOf = null;
 	}
 
 	/**
@@ -251,7 +253,8 @@ public class SchemaField extends AbstractField<SchemaField> {
 	 *            the copyOf to set
 	 */
 	public void setCopyOf(List<String> copyOf) {
-		this.copyOf = new ArrayList<String>(copyOf);
+		this.copyOf = copyOf != null && copyOf.size() > 0 ? new ArrayList<String>(
+				copyOf) : null;
 		if (copyOf != null && copyOf.size() > 0)
 			setStored(Stored.NO);
 	}

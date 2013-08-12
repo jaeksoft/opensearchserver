@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class SchemaServlet extends AbstractServlet {
 
@@ -70,13 +69,6 @@ public class SchemaServlet extends AbstractServlet {
 		schema.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 		return true;
-	}
-
-	public static void saveSchema(Client client, Schema schema)
-			throws SearchLibException {
-		client.saveConfig();
-		schema.recompileAnalyzers();
-		PushEvent.eventSchemaChange.publish(client);
 	}
 
 	private boolean setField(User user, ServletTransaction transaction)
@@ -106,7 +98,7 @@ public class SchemaServlet extends AbstractServlet {
 						transaction.getParameterString("field.name"));
 			}
 		}
-		saveSchema(client, schema);
+		client.saveConfig();
 		return true;
 	}
 
@@ -125,7 +117,7 @@ public class SchemaServlet extends AbstractServlet {
 		if (field == null)
 			return false;
 		sfl.remove(field.getName());
-		saveSchema(client, schema);
+		client.saveConfig();
 		transaction.addXmlResponse("Info", "field '" + name + "' removed");
 		return true;
 	}

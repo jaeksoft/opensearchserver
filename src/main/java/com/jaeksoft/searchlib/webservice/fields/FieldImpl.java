@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
@@ -63,13 +62,14 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			throws SearchLibException {
 		com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 		SchemaField schemaField = new SchemaField();
-		schemaField.setIndexAnalyzer(schemaFieldRecord.indexAnalyzer);
+		schemaField.setIndexAnalyzer(schemaFieldRecord.analyzer);
 		schemaField.setIndexed(schemaFieldRecord.indexed);
 		schemaField.setName(schemaFieldRecord.name);
 		schemaField.setStored(schemaFieldRecord.stored);
 		schemaField.setTermVector(schemaFieldRecord.termVector);
+		schemaField.setCopyOf(schemaFieldRecord.copyOf);
 		schema.getFieldList().put(schemaField);
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 	}
 
 	@Override
@@ -95,43 +95,45 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 		SchemaFieldList sfl = schema.getFieldList();
 		SchemaField field = sfl.get(deleteField.trim());
 		if (field == null)
-			return "Nothing to delete";
+			throw new CommonServiceException(Status.NOT_FOUND,
+					"Field not found: " + deleteField);
 		sfl.remove(field.getName());
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 		return "Deleted " + deleteField;
 	}
 
 	@Override
-	public CommonResult setDefaultField(String use, String login, String key,
-			String defaultField) {
+	public CommonResult setDefaultUniqueField(String use, String login,
+			String key, String defaultField, String uniqueField) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
-			schema.getFieldList().setDefaultField(defaultField);
-			SchemaServlet.saveSchema(client, schema);
-			String message = "Default field has been set to " + defaultField;
-			return new CommonResult(true, message);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		}
-	}
+			SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
 
-	@Override
-	public CommonResult setUniqueField(String use, String login, String key,
-			String uniqueField) {
-		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
-			ClientFactory.INSTANCE.properties.checkApi();
-			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
-			schema.getFieldList().setUniqueField(uniqueField);
-			SchemaServlet.saveSchema(client, schema);
-			String message = "Unique field has been set to " + uniqueField;
-			return new CommonResult(true, message);
+			StringBuffer msg = new StringBuffer();
+
+			if (defaultField != null) {
+				if (defaultField.length() > 0)
+					if (schemaFieldList.get(defaultField) == null)
+						throw new CommonServiceException(Status.NOT_FOUND,
+								"Field not found: " + defaultField);
+				schemaFieldList.setDefaultField(defaultField);
+				msg.append("Default field set to '");
+				msg.append(defaultField);
+				msg.append("'. ");
+			}
+			if (uniqueField != null) {
+				if (uniqueField.length() > 0)
+					if (schemaFieldList.get(uniqueField) == null)
+						throw new CommonServiceException(Status.NOT_FOUND,
+								"Field not found: " + uniqueField);
+				schemaFieldList.setUniqueField(uniqueField);
+				msg.append("Unique field set to '");
+				msg.append(uniqueField);
+				msg.append("'.");
+			}
+			client.saveConfig();
+			return new CommonResult(true, msg.toString().trim());
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -148,9 +150,12 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			ClientFactory.INSTANCE.properties.checkApi();
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			List<SchemaFieldRecord> fieldList = new ArrayList<SchemaFieldRecord>();
-			for (SchemaField schemaField : schema.getFieldList().getList())
+			SchemaFieldList schemaFieldList = schema.getFieldList();
+			for (SchemaField schemaField : schemaFieldList.getList())
 				fieldList.add(new SchemaFieldRecord(schemaField));
-			return new ResultFieldList(true, fieldList);
+			return new ResultFieldList(true, fieldList,
+					schemaFieldList.getUniqueField(),
+					schemaFieldList.getDefaultField());
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

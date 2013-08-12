@@ -27,22 +27,39 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
 public class ResultFieldList extends CommonResult {
 
-	final public List<SchemaFieldRecord> fieldList;
+	@XmlElement(name = "unique")
+	@JsonProperty("unique")
+	final public String uniqueField;
+
+	@XmlElement(name = "default")
+	@JsonProperty("default")
+	final public String defaultField;
+
+	final public List<SchemaFieldRecord> fields;
 
 	public ResultFieldList() {
-		fieldList = null;
+		fields = null;
+		uniqueField = null;
+		defaultField = null;
 	}
 
-	public ResultFieldList(Boolean successful, List<SchemaFieldRecord> fieldList) {
-		super(successful, fieldList.size() + " field(s)");
-		this.fieldList = fieldList;
+	public ResultFieldList(Boolean successful, List<SchemaFieldRecord> fields,
+			SchemaField uniqueField, SchemaField defaultField) {
+		super(successful, fields.size() + " field(s)");
+		this.fields = fields;
+		this.uniqueField = uniqueField == null ? null : uniqueField.getName();
+		this.defaultField = defaultField == null ? null : defaultField
+				.getName();
 	}
 }

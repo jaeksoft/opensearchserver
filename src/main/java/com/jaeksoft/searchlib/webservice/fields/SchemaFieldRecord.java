@@ -29,6 +29,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
@@ -39,7 +41,7 @@ public class SchemaFieldRecord {
 
 	public String name;
 
-	public String indexAnalyzer;
+	public String analyzer;
 
 	public Indexed indexed;
 
@@ -47,11 +49,12 @@ public class SchemaFieldRecord {
 
 	public TermVector termVector;
 
+	@JsonInclude(Include.NON_NULL)
 	public List<String> copyOf;
 
 	public SchemaFieldRecord() {
 		name = null;
-		indexAnalyzer = null;
+		analyzer = null;
 		indexed = null;
 		stored = null;
 		termVector = null;
@@ -60,7 +63,7 @@ public class SchemaFieldRecord {
 
 	public SchemaFieldRecord(SchemaField schemaField) {
 		this.name = schemaField.getName();
-		this.indexAnalyzer = schemaField.getIndexAnalyzer();
+		this.analyzer = schemaField.getIndexAnalyzer();
 		this.indexed = schemaField.getIndexed();
 		this.stored = schemaField.getStored();
 		this.termVector = schemaField.getTermVector();

@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
-import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -88,7 +87,7 @@ public class FieldsController extends CommonController {
 		schema.getFieldList().remove(selectedField.getName());
 		field = new SchemaField();
 		selectedField = null;
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 	}
 
 	@Command
@@ -109,7 +108,7 @@ public class FieldsController extends CommonController {
 			schema.getFieldList().put(field);
 		field = new SchemaField();
 		selectedField = null;
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 	}
 
 	@NotifyChange("*")
@@ -217,7 +216,7 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		Schema schema = client.getSchema();
 		schema.getFieldList().setUniqueField(field);
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 	}
 
 	public String getSelectedDefault() throws SearchLibException {
@@ -235,7 +234,7 @@ public class FieldsController extends CommonController {
 		Client client = getClient();
 		Schema schema = client.getSchema();
 		schema.getFieldList().setDefaultField(field);
-		SchemaServlet.saveSchema(client, schema);
+		client.saveConfig();
 	}
 
 	@Override

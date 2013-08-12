@@ -45,7 +45,6 @@ import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.web.SchemaServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
@@ -255,7 +254,7 @@ public class AnalyzersController extends CommonController {
 			selectedAnalyzer.copyFrom(currentAnalyzer);
 		else
 			client.getSchema().getAnalyzerList().add(currentAnalyzer);
-		SchemaServlet.saveSchema(client, client.getSchema());
+		client.saveConfig();
 		onCancel();
 	}
 

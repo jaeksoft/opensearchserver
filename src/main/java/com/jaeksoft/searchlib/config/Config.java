@@ -108,6 +108,7 @@ import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public abstract class Config implements ThreadFactory {
 
@@ -422,6 +423,7 @@ public abstract class Config implements ThreadFactory {
 			rwl.w.lock();
 			try {
 				saveConfigWithoutLock();
+				schema.recompileAnalyzers();
 			} finally {
 				rwl.w.unlock();
 			}
@@ -436,6 +438,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 		}
+		PushEvent.eventSchemaChange.publish((Client) this);
 	}
 
 	private IndexAbstract newIndex(File indexDir, XPathParser xpp,

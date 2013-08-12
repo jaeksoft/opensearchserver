@@ -56,16 +56,11 @@ public interface RestField {
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult setDefaultField(@PathParam("index_name") String use,
+	public CommonResult setDefaultUniqueField(
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("default") String field);
-
-	@PUT
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public CommonResult setUniqueField(@PathParam("index_name") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("unique") String field);
+			@QueryParam("default") String defaultField,
+			@QueryParam("unique") String uniqueField);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
