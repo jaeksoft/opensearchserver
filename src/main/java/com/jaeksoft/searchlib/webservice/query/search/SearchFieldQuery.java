@@ -23,24 +23,67 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.search;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @JsonInclude(Include.NON_NULL)
 public class SearchFieldQuery extends SearchQueryAbstract {
 
-	public List<SearchField> searchFields;
+	final public List<SearchField> searchFields;
 
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@JsonInclude(Include.NON_NULL)
 	public static class SearchField {
-		public String field;
-		public Boolean phrase;
-		public Float boost;
+
+		final public String field;
+		final public Boolean phrase;
+		final public Float boost;
+
+		public SearchField(
+				com.jaeksoft.searchlib.request.SearchField searchField) {
+			field = searchField.getField();
+			phrase = searchField.isPhrase();
+			boost = searchField.getBoost();
+		}
+
+		public com.jaeksoft.searchlib.request.SearchField getSearchField() {
+			return new com.jaeksoft.searchlib.request.SearchField(field,
+					phrase, boost);
+		}
+	}
+
+	private static List<SearchField> newSearchFields(
+			Collection<com.jaeksoft.searchlib.request.SearchField> searchFieldCollection) {
+		if (searchFieldCollection == null)
+			return null;
+		if (searchFieldCollection.size() == 0)
+			return null;
+		List<SearchField> searchFields = new ArrayList<SearchField>(
+				searchFieldCollection.size());
+		for (com.jaeksoft.searchlib.request.SearchField searchField : searchFieldCollection)
+			searchFields.add(new SearchField(searchField));
+		return searchFields;
 	}
 
 	public SearchFieldQuery(SearchFieldRequest request) {
 		super(request);
+		searchFields = newSearchFields(request.getSearchFields());
+	}
+
+	public void apply(SearchFieldRequest request) {
+		super.apply(request);
+		if (searchFields != null)
+			for (SearchField searchField : searchFields)
+				request.add(searchField.getSearchField());
+
 	}
 }

@@ -47,7 +47,7 @@ public interface RestSearch {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
+	@Path("/template/{template_name}")
 	public SearchTemplateResult searchTemplateGet(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -56,8 +56,9 @@ public interface RestSearch {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
-	public SearchResult searchTemplate(@PathParam("index_name") String index,
+	@Path("/pattern/{template_name}")
+	public SearchResult searchPatternTemplate(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
 			SearchPatternQuery query);
@@ -65,24 +66,25 @@ public interface RestSearch {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public SearchResult searchTemplate(@PathParam("index_name") String index,
+	@Path("/field/{template_name}")
+	public SearchResult searchFieldTemplate(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, SearchFieldQuery query);
 
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public SearchResult search(@PathParam("index_name") String index,
+	@Path("/pattern")
+	public SearchResult searchPattern(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchPatternQuery query);
 
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public SearchResult search(@PathParam("index_name") String index,
+	@Path("/field")
+	public SearchResult searchField(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchFieldQuery query);
 

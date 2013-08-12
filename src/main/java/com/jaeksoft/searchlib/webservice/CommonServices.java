@@ -37,8 +37,8 @@ import com.jaeksoft.searchlib.user.User;
 
 public class CommonServices {
 
-	private Client client = null;
-	private User user = null;
+	protected Client client = null;
+	protected User user = null;
 
 	private final void checkClientAndUser(String use, String login, String key)
 			throws SearchLibException, NamingException {

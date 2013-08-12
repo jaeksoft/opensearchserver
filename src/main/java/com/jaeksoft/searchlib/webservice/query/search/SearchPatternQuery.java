@@ -23,10 +23,14 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.search;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @JsonInclude(Include.NON_NULL)
 public class SearchPatternQuery extends SearchQueryAbstract {
 
@@ -37,6 +41,14 @@ public class SearchPatternQuery extends SearchQueryAbstract {
 		super(request);
 		patternSearchQuery = request.getPatternQuery();
 		patternSnippetQuery = request.getSnippetPatternQuery();
+	}
+
+	public void apply(SearchPatternRequest request) {
+		super.apply(request);
+		if (patternSearchQuery != null)
+			request.setPatternQuery(patternSearchQuery);
+		if (patternSnippetQuery != null)
+			request.setSnippetPatternQuery(patternSnippetQuery);
 	}
 
 }

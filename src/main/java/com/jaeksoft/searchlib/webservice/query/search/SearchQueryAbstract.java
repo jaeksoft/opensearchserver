@@ -48,11 +48,13 @@ import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
+import com.jaeksoft.searchlib.snippet.NoFragmenter;
 import com.jaeksoft.searchlib.snippet.SentenceFragmenter;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
 
 @JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -82,7 +84,7 @@ public abstract class SearchQueryAbstract {
 	public static class Collapsing {
 
 		final public String field;
-		final public int max;
+		final public Integer max;
 		final public CollapseParameters.Mode mode;
 		final public CollapseParameters.Type type;
 
@@ -91,6 +93,17 @@ public abstract class SearchQueryAbstract {
 			max = request.getCollapseMax();
 			mode = request.getCollapseMode();
 			type = request.getCollapseType();
+		}
+
+		public void apply(AbstractSearchRequest request) {
+			if (field != null)
+				request.setCollapseField(field);
+			if (max != null)
+				request.setCollapseMax(max);
+			if (mode != null)
+				request.setCollapseMode(mode);
+			if (type != null)
+				request.setCollapseType(type);
 		}
 	}
 
@@ -101,6 +114,13 @@ public abstract class SearchQueryAbstract {
 		protected Filter(Boolean negative) {
 			this.negative = negative;
 		}
+
+		protected void apply(FilterAbstract<?> filter) {
+			if (negative != null)
+				filter.setNegative(negative);
+		}
+
+		public abstract FilterAbstract<?> getFilter();
 	}
 
 	@JsonInclude(Include.NON_NULL)
@@ -112,6 +132,21 @@ public abstract class SearchQueryAbstract {
 		protected QueryFilter(com.jaeksoft.searchlib.filter.QueryFilter src) {
 			super(src.isNegative());
 			this.query = src.getQueryString();
+		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+			com.jaeksoft.searchlib.filter.QueryFilter queryFilter = (com.jaeksoft.searchlib.filter.QueryFilter) filter;
+			if (query != null)
+				queryFilter.setQueryString(query);
+		}
+
+		@Override
+		public FilterAbstract<?> getFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.QueryFilter();
+			apply(filter);
+			return filter;
 		}
 	}
 
@@ -139,6 +174,35 @@ public abstract class SearchQueryAbstract {
 			longitude = src.getLongitude();
 			coordUnit = src.getCoordUnit();
 		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+			com.jaeksoft.searchlib.filter.GeoFilter geoFilter = (com.jaeksoft.searchlib.filter.GeoFilter) filter;
+			if (unit != null)
+				geoFilter.setUnit(unit);
+			if (type != null)
+				geoFilter.setType(type);
+			if (distance != null)
+				geoFilter.setDistance(distance);
+			if (latitudeField != null)
+				geoFilter.setLatitudeField(latitudeField);
+			if (longitudeField != null)
+				geoFilter.setLongitudeField(longitudeField);
+			if (latitude != null)
+				geoFilter.setLatitude(latitude);
+			if (longitude != null)
+				geoFilter.setLongitude(longitude);
+			if (coordUnit != null)
+				geoFilter.setCoordUnit(coordUnit);
+		}
+
+		@Override
+		public FilterAbstract<?> getFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.GeoFilter();
+			apply(filter);
+			return filter;
+		}
 	}
 
 	@JsonInclude(Include.NON_NULL)
@@ -159,6 +223,27 @@ public abstract class SearchQueryAbstract {
 			field = src.getField();
 			dateFormat = src.getDateFormat();
 		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+			com.jaeksoft.searchlib.filter.RelativeDateFilter dateFilter = (com.jaeksoft.searchlib.filter.RelativeDateFilter) filter;
+			if (from != null)
+				from.apply(dateFilter.getFrom());
+			if (to != null)
+				to.apply(dateFilter.getTo());
+			if (field != null)
+				dateFilter.setField(field);
+			if (dateFormat != null)
+				dateFilter.setDateFormat(dateFormat);
+		}
+
+		@Override
+		public FilterAbstract<?> getFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.RelativeDateFilter();
+			apply(filter);
+			return filter;
+		}
 	}
 
 	@JsonInclude(Include.NON_NULL)
@@ -172,6 +257,14 @@ public abstract class SearchQueryAbstract {
 				com.jaeksoft.searchlib.crawler.common.database.TimeInterval src) {
 			unit = src.getUnit();
 			interval = src.getInterval();
+		}
+
+		protected void apply(
+				com.jaeksoft.searchlib.crawler.common.database.TimeInterval timeInterval) {
+			if (unit != null)
+				timeInterval.setUnit(unit);
+			if (interval != null)
+				timeInterval.setInterval(interval);
 		}
 	}
 
@@ -210,6 +303,13 @@ public abstract class SearchQueryAbstract {
 		public Sort(SortField sortField) {
 			field = sortField.getName();
 			direction = sortField.isDesc() ? Direction.DESC : Direction.ASC;
+		}
+
+		protected SortField getSortField() {
+			SortField sortField = new SortField(field, false);
+			if (direction != null)
+				sortField.setDirection(direction.name());
+			return sortField;
 		}
 	}
 
@@ -258,13 +358,38 @@ public abstract class SearchQueryAbstract {
 			maxNumber = snippetField.getMaxSnippetNumber();
 			fragmenter = FragmenterEnum.find(snippetField.getFragmenter());
 		}
+
+		protected SnippetField getSnippetField() throws InstantiationException,
+				IllegalAccessException {
+			SnippetField snippetField = new SnippetField(field);
+			if (tag != null)
+				snippetField.setTag(tag);
+			if (separator != null)
+				snippetField.setSeparator(separator);
+			if (maxSize != null)
+				snippetField.setMaxSnippetSize(maxSize);
+			if (maxNumber != null)
+				snippetField.setMaxSnippetNumber(maxNumber);
+			if (fragmenter != null)
+				snippetField.setFragmenter(fragmenter.className);
+			return snippetField;
+		}
 	}
 
 	public enum FragmenterEnum {
-		NO, SENTENCE;
+
+		NO(NoFragmenter.class.getSimpleName()),
+
+		SENTENCE(SentenceFragmenter.class.getSimpleName());
+
+		private final String className;
+
+		private FragmenterEnum(String className) {
+			this.className = className;
+		}
 
 		private static FragmenterEnum find(String className) {
-			if (SentenceFragmenter.class.getSimpleName().equals(className))
+			if (SENTENCE.className.equals(className))
 				return SENTENCE;
 			return NO;
 		}
@@ -296,6 +421,19 @@ public abstract class SearchQueryAbstract {
 			minCount = facetField.getMinCount();
 			multivalued = facetField.isCheckMultivalued();
 			postCollapsing = facetField.isCheckPostCollapsing();
+		}
+
+		public FacetField getFacetField() {
+			FacetField facetField = new FacetField();
+			if (field != null)
+				facetField.setName(field);
+			if (minCount != null)
+				facetField.setMinCount(minCount);
+			if (multivalued != null)
+				facetField.setMultivalued(multivalued);
+			if (postCollapsing != null)
+				facetField.setPostCollapsing(postCollapsing);
+			return facetField;
 		}
 	}
 
@@ -332,6 +470,27 @@ public abstract class SearchQueryAbstract {
 			returnFields = joinItem.isReturnFields();
 			returnScores = joinItem.isReturnScores();
 			returnFacets = joinItem.isReturnFacets();
+		}
+
+		protected JoinItem getJoinItem() {
+			JoinItem joinItem = new JoinItem();
+			if (indexName != null)
+				joinItem.setIndexName(indexName);
+			if (queryTemplate != null)
+				joinItem.setQueryTemplate(queryTemplate);
+			if (queryString != null)
+				joinItem.setQueryString(queryString);
+			if (localField != null)
+				joinItem.setLocalField(localField);
+			if (foreignField != null)
+				joinItem.setForeignField(foreignField);
+			if (returnFields != null)
+				joinItem.setReturnFields(returnFields);
+			if (returnScores != null)
+				joinItem.setReturnScores(returnScores);
+			if (returnFacets != null)
+				joinItem.setReturnFacets(returnFacets);
+			return joinItem;
 		}
 	}
 
@@ -385,4 +544,49 @@ public abstract class SearchQueryAbstract {
 		}
 	}
 
+	public void apply(AbstractSearchRequest request) {
+		try {
+			if (query != null)
+				request.setQueryString(query);
+			if (start != null)
+				request.setStart(start);
+			if (rows != null)
+				request.setRows(rows);
+			if (lang != null)
+				request.setLang(lang);
+			if (operator != null)
+				request.setDefaultOperator(operator.name());
+			if (collapsing != null)
+				collapsing.apply(request);
+			if (filters != null)
+				for (Filter filter : filters)
+					request.getFilterList().add(filter.getFilter());
+			if (sorts != null)
+				for (Sort sort : sorts)
+					request.getSortFieldList().put(sort.getSortField());
+			if (returnedFields != null)
+				for (String returnedField : returnedFields)
+					request.getReturnFieldList().put(
+							new ReturnField(returnedField));
+			if (snippets != null)
+				for (Snippet snippet : snippets)
+					request.getSnippetFieldList()
+							.put(snippet.getSnippetField());
+			if (facets != null)
+				for (Facet facet : facets)
+					request.getFacetFieldList().put(facet.getFacetField());
+			if (joins != null)
+				for (Join join : joins)
+					request.getJoinList().add(join.getJoinItem());
+			if (enableLog != null)
+				request.setLogReport(enableLog);
+			if (customLogs != null)
+				for (String customLog : customLogs)
+					request.getCustomLogs().add(customLog);
+		} catch (InstantiationException e) {
+			throw new CommonServiceException(e);
+		} catch (IllegalAccessException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 }

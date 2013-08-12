@@ -95,6 +95,10 @@ public class FacetField extends AbstractField<FacetField> {
 		return multivalued ? "yes" : "no";
 	}
 
+	public void setMultivalued(boolean b) {
+		multivalued = b;
+	}
+
 	public void setMultivalued(String value) {
 		multivalued = "yes".equalsIgnoreCase(value)
 				|| "true".equalsIgnoreCase(value)
@@ -107,6 +111,10 @@ public class FacetField extends AbstractField<FacetField> {
 
 	public String getPostCollapsing() {
 		return postCollapsing ? "yes" : "no";
+	}
+
+	public void setPostCollapsing(boolean b) {
+		postCollapsing = b;
 	}
 
 	public void setPostCollapsing(String value) {

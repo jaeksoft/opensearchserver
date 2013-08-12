@@ -49,35 +49,36 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 public class SearchResult extends CommonResult {
 
 	@XmlElement(name = "document")
-	public List<DocumentResult> documents;
+	final public List<DocumentResult> documents;
 
 	@XmlElement(name = "facet")
-	public List<FacetResult> facets;
+	final public List<FacetResult> facets;
 
 	@XmlElement
-	public String query;
+	final public String query;
 
 	@XmlAttribute
-	public int rows;
+	final public int rows;
 
 	@XmlAttribute
-	public int start;
+	final public int start;
 
 	@XmlAttribute
-	public int numFound;
+	final public int numFound;
 
 	@XmlAttribute
-	public long time;
+	final public long time;
 
 	@XmlAttribute
-	public long collapsedDocCount;
+	final public long collapsedDocCount;
 
 	@XmlAttribute
-	public float maxScore;
+	final public float maxScore;
 
 	public SearchResult() {
 		documents = null;
 		query = null;
+		facets = null;
 		rows = 0;
 		start = 0;
 		numFound = 0;
@@ -90,8 +91,8 @@ public class SearchResult extends CommonResult {
 		super(true, null);
 		try {
 			AbstractSearchRequest searchRequest = result.getRequest();
-			documents = new ArrayList<DocumentResult>();
-			facets = new ArrayList<FacetResult>();
+			documents = new ArrayList<DocumentResult>(0);
+			facets = new ArrayList<FacetResult>(0);
 			query = searchRequest.getQueryParsed();
 			start = searchRequest.getStart();
 			rows = searchRequest.getRows();
@@ -107,7 +108,6 @@ public class SearchResult extends CommonResult {
 				DocumentResult documentResult = new DocumentResult(
 						resultDocument, collapseDocCount, i, docScore);
 				documents.add(documentResult);
-
 			}
 
 			if (searchRequest.getFacetFieldList().size() > 0)

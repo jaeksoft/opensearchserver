@@ -24,43 +24,46 @@
 
 package com.jaeksoft.searchlib.webservice.query.search;
 
-import java.util.List;
-
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.collapse.CollapseParameters;
-import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
+import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
 @WebService(name = "Search")
 public interface SoapSearch {
 
-	public SearchResult search(
+	public QueryTemplateResultList searchTemplateList(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key);
+
+	public SearchTemplateResult searchTemplateGet(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "template") String template);
+
+	public SearchResult searchPatternTemplate(
 			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "template") String template,
-			@WebParam(name = "query") String query,
-			@WebParam(name = "start") Integer start,
-			@WebParam(name = "rows") Integer rows,
-			@WebParam(name = "lang") LanguageEnum lang,
-			@WebParam(name = "operator") OperatorEnum operator,
-			@WebParam(name = "collapseField") String collapseField,
-			@WebParam(name = "collapseMax") Integer collapseMax,
-			@WebParam(name = "collapseMode") CollapseParameters.Mode collapseMode,
-			@WebParam(name = "collapseType") CollapseParameters.Type collapseType,
-			@WebParam(name = "filter") List<String> filter,
-			@WebParam(name = "negativeFilter") List<String> negativeFilter,
-			@WebParam(name = "sort") List<String> sort,
-			@WebParam(name = "returnedField") List<String> returnedField,
-			@WebParam(name = "snippetField") List<String> snippetField,
-			@WebParam(name = "facet") List<String> facet,
-			@WebParam(name = "facetCollapse") List<String> facetCollapse,
-			@WebParam(name = "facetMulti") List<String> facetMulti,
-			@WebParam(name = "facetMultiCollapse") List<String> facetMultiCollapse,
-			@WebParam(name = "filterParam") List<String> filterParams,
-			@WebParam(name = "joinParam") List<String> joinParams,
-			@WebParam(name = "enableLog") Boolean enableLog,
-			@WebParam(name = "customLog") List<String> customLog);
+			@WebParam(name = "query") SearchPatternQuery query);
+
+	public SearchResult searchFieldTemplate(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "template") String template,
+			@WebParam(name = "query") SearchFieldQuery query);
+
+	public SearchResult searchPattern(@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "query") SearchPatternQuery query);
+
+	public SearchResult searchField(@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "query") SearchFieldQuery query);
 }
