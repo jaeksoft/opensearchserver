@@ -40,6 +40,10 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 
 	final public List<SearchField> searchFields;
 
+	public SearchFieldQuery() {
+		searchFields = null;
+	}
+
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	@JsonInclude(Include.NON_NULL)
 	public static class SearchField {

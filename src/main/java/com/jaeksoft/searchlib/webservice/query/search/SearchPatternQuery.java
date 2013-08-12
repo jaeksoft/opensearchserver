@@ -37,6 +37,11 @@ public class SearchPatternQuery extends SearchQueryAbstract {
 	public String patternSearchQuery;
 	public String patternSnippetQuery;
 
+	public SearchPatternQuery() {
+		patternSearchQuery = null;
+		patternSnippetQuery = null;
+	}
+
 	public SearchPatternQuery(SearchPatternRequest request) {
 		super(request);
 		patternSearchQuery = request.getPatternQuery();

@@ -75,6 +75,23 @@ public abstract class SearchQueryAbstract {
 	final public Boolean enableLog;
 	final public List<String> customLogs;
 
+	public SearchQueryAbstract() {
+		query = null;
+		start = null;
+		rows = null;
+		lang = null;
+		operator = null;
+		collapsing = null;
+		filters = null;
+		sorts = null;
+		returnedFields = null;
+		snippets = null;
+		facets = null;
+		joins = null;
+		enableLog = null;
+		customLogs = null;
+	}
+
 	public enum OperatorEnum {
 		AND, OR;
 	}
