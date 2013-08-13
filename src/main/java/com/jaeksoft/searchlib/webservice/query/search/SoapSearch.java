@@ -57,7 +57,21 @@ public interface SoapSearch {
 			@WebParam(name = "template") String template,
 			@WebParam(name = "query") SearchPatternQuery query);
 
+	public CommonResult searchPatternTemplateSet(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "template") String template,
+			@WebParam(name = "query") SearchPatternQuery query);
+
 	public SearchResult searchFieldTemplate(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "template") String template,
+			@WebParam(name = "query") SearchFieldQuery query);
+
+	public CommonResult searchFieldTemplateSet(
 			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,

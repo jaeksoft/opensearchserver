@@ -30,6 +30,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -52,6 +53,12 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		final public Boolean phrase;
 		final public Float boost;
 
+		public SearchField() {
+			field = null;
+			phrase = null;
+			boost = null;
+		}
+
 		public SearchField(
 				com.jaeksoft.searchlib.request.SearchField searchField) {
 			field = searchField.getField();
@@ -59,7 +66,8 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 			boost = searchField.getBoost();
 		}
 
-		public com.jaeksoft.searchlib.request.SearchField getSearchField() {
+		@JsonIgnore
+		protected com.jaeksoft.searchlib.request.SearchField newSearchField() {
 			return new com.jaeksoft.searchlib.request.SearchField(field,
 					phrase, boost);
 		}
@@ -87,7 +95,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		super.apply(request);
 		if (searchFields != null)
 			for (SearchField searchField : searchFields)
-				request.add(searchField.getSearchField());
+				request.add(searchField.newSearchField());
 
 	}
 }

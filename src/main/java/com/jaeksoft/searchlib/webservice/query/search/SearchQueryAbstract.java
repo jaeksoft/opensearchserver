@@ -29,6 +29,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -105,6 +106,13 @@ public abstract class SearchQueryAbstract {
 		final public CollapseParameters.Mode mode;
 		final public CollapseParameters.Type type;
 
+		public Collapsing() {
+			field = null;
+			max = null;
+			mode = null;
+			type = null;
+		}
+
 		public Collapsing(AbstractSearchRequest request) {
 			field = request.getCollapseField();
 			max = request.getCollapseMax();
@@ -128,6 +136,10 @@ public abstract class SearchQueryAbstract {
 
 		final public Boolean negative;
 
+		public Filter() {
+			negative = null;
+		}
+
 		protected Filter(Boolean negative) {
 			this.negative = negative;
 		}
@@ -137,7 +149,7 @@ public abstract class SearchQueryAbstract {
 				filter.setNegative(negative);
 		}
 
-		public abstract FilterAbstract<?> getFilter();
+		protected abstract FilterAbstract<?> newFilter();
 	}
 
 	@JsonInclude(Include.NON_NULL)
@@ -145,6 +157,10 @@ public abstract class SearchQueryAbstract {
 	public static class QueryFilter extends Filter {
 
 		final public String query;
+
+		public QueryFilter() {
+			query = null;
+		}
 
 		protected QueryFilter(com.jaeksoft.searchlib.filter.QueryFilter src) {
 			super(src.isNegative());
@@ -160,7 +176,8 @@ public abstract class SearchQueryAbstract {
 		}
 
 		@Override
-		public FilterAbstract<?> getFilter() {
+		@JsonIgnore
+		protected FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.QueryFilter();
 			apply(filter);
 			return filter;
@@ -179,6 +196,17 @@ public abstract class SearchQueryAbstract {
 		final public Double latitude;
 		final public Double longitude;
 		final public CoordUnit coordUnit;
+
+		public GeoFilter() {
+			unit = null;
+			type = null;
+			distance = null;
+			latitudeField = null;
+			longitudeField = null;
+			latitude = null;
+			longitude = null;
+			coordUnit = null;
+		}
 
 		public GeoFilter(com.jaeksoft.searchlib.filter.GeoFilter src) {
 			super(src.isNegative());
@@ -215,7 +243,8 @@ public abstract class SearchQueryAbstract {
 		}
 
 		@Override
-		public FilterAbstract<?> getFilter() {
+		@JsonIgnore
+		protected FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.GeoFilter();
 			apply(filter);
 			return filter;
@@ -230,6 +259,13 @@ public abstract class SearchQueryAbstract {
 		final public TimeInterval to;
 		final public String field;
 		final public String dateFormat;
+
+		public RelativeDateFilter() {
+			from = null;
+			to = null;
+			field = null;
+			dateFormat = null;
+		}
 
 		public RelativeDateFilter(
 				com.jaeksoft.searchlib.filter.RelativeDateFilter src) {
@@ -256,7 +292,8 @@ public abstract class SearchQueryAbstract {
 		}
 
 		@Override
-		public FilterAbstract<?> getFilter() {
+		@JsonIgnore
+		protected FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.RelativeDateFilter();
 			apply(filter);
 			return filter;
@@ -269,6 +306,11 @@ public abstract class SearchQueryAbstract {
 
 		final public IntervalUnit unit;
 		final public Long interval;
+
+		public TimeInterval() {
+			unit = null;
+			interval = null;
+		}
 
 		protected TimeInterval(
 				com.jaeksoft.searchlib.crawler.common.database.TimeInterval src) {
@@ -317,12 +359,18 @@ public abstract class SearchQueryAbstract {
 		final public String field;
 		final public Direction direction;
 
+		public Sort() {
+			field = null;
+			direction = null;
+		}
+
 		public Sort(SortField sortField) {
 			field = sortField.getName();
 			direction = sortField.isDesc() ? Direction.DESC : Direction.ASC;
 		}
 
-		protected SortField getSortField() {
+		@JsonIgnore
+		protected SortField newSortField() {
 			SortField sortField = new SortField(field, false);
 			if (direction != null)
 				sortField.setDirection(direction.name());
@@ -360,12 +408,22 @@ public abstract class SearchQueryAbstract {
 	@JsonInclude(Include.NON_NULL)
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class Snippet {
+
 		final public String field;
 		final public String tag;
 		final public String separator;
 		final public Integer maxSize;
 		final public Integer maxNumber;
 		final public FragmenterEnum fragmenter;
+
+		public Snippet() {
+			field = null;
+			tag = null;
+			separator = null;
+			maxSize = null;
+			maxNumber = null;
+			fragmenter = null;
+		}
 
 		public Snippet(SnippetField snippetField) {
 			field = snippetField.getName();
@@ -376,7 +434,8 @@ public abstract class SearchQueryAbstract {
 			fragmenter = FragmenterEnum.find(snippetField.getFragmenter());
 		}
 
-		protected SnippetField getSnippetField() throws InstantiationException,
+		@JsonIgnore
+		protected SnippetField newSnippetField() throws InstantiationException,
 				IllegalAccessException {
 			SnippetField snippetField = new SnippetField(field);
 			if (tag != null)
@@ -433,6 +492,13 @@ public abstract class SearchQueryAbstract {
 		final public Boolean multivalued;
 		final public Boolean postCollapsing;
 
+		public Facet() {
+			field = null;
+			minCount = null;
+			multivalued = null;
+			postCollapsing = null;
+		}
+
 		public Facet(FacetField facetField) {
 			field = facetField.getName();
 			minCount = facetField.getMinCount();
@@ -440,7 +506,8 @@ public abstract class SearchQueryAbstract {
 			postCollapsing = facetField.isCheckPostCollapsing();
 		}
 
-		public FacetField getFacetField() {
+		@JsonIgnore
+		protected FacetField newFacetField() {
 			FacetField facetField = new FacetField();
 			if (field != null)
 				facetField.setName(field);
@@ -478,6 +545,17 @@ public abstract class SearchQueryAbstract {
 		final public Boolean returnScores;
 		final public Boolean returnFacets;
 
+		public Join() {
+			indexName = null;
+			queryTemplate = null;
+			queryString = null;
+			localField = null;
+			foreignField = null;
+			returnFields = null;
+			returnScores = null;
+			returnFacets = null;
+		}
+
 		public Join(JoinItem joinItem) {
 			indexName = joinItem.getIndexName();
 			queryTemplate = joinItem.getQueryTemplate();
@@ -489,7 +567,8 @@ public abstract class SearchQueryAbstract {
 			returnFacets = joinItem.isReturnFacets();
 		}
 
-		protected JoinItem getJoinItem() {
+		@JsonIgnore
+		protected JoinItem newJoinItem() {
 			JoinItem joinItem = new JoinItem();
 			if (indexName != null)
 				joinItem.setIndexName(indexName);
@@ -577,10 +656,10 @@ public abstract class SearchQueryAbstract {
 				collapsing.apply(request);
 			if (filters != null)
 				for (Filter filter : filters)
-					request.getFilterList().add(filter.getFilter());
+					request.getFilterList().add(filter.newFilter());
 			if (sorts != null)
 				for (Sort sort : sorts)
-					request.getSortFieldList().put(sort.getSortField());
+					request.getSortFieldList().put(sort.newSortField());
 			if (returnedFields != null)
 				for (String returnedField : returnedFields)
 					request.getReturnFieldList().put(
@@ -588,13 +667,13 @@ public abstract class SearchQueryAbstract {
 			if (snippets != null)
 				for (Snippet snippet : snippets)
 					request.getSnippetFieldList()
-							.put(snippet.getSnippetField());
+							.put(snippet.newSnippetField());
 			if (facets != null)
 				for (Facet facet : facets)
-					request.getFacetFieldList().put(facet.getFacetField());
+					request.getFacetFieldList().put(facet.newFacetField());
 			if (joins != null)
 				for (Join join : joins)
-					request.getJoinList().add(join.getJoinItem());
+					request.getJoinList().add(join.newJoinItem());
 			if (enableLog != null)
 				request.setLogReport(enableLog);
 			if (customLogs != null)

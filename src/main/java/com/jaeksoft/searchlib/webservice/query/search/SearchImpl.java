@@ -88,6 +88,28 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 		}
 	}
 
+	private CommonResult searchTemplateSet(Client client, String index,
+			String login, String key, String template,
+			SearchQueryAbstract query, AbstractSearchRequest searchRequest) {
+		try {
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (query == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"The query is missing");
+			searchRequest.setRequestName(template);
+			query.apply(searchRequest);
+			client.getRequestMap().put(searchRequest);
+			client.saveRequests();
+			return new CommonResult(true, "Templated updated: " + template);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
 	@Override
 	public SearchResult searchPatternTemplate(String index, String login,
 			String key, String template, SearchPatternQuery query) {
@@ -105,6 +127,15 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 	}
 
 	@Override
+	public CommonResult searchPatternTemplateSet(String index, String login,
+			String key, String template, SearchPatternQuery query) {
+		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+		SearchPatternRequest searchRequest = new SearchPatternRequest(client);
+		return searchTemplateSet(client, index, login, key, template, query,
+				searchRequest);
+	}
+
+	@Override
 	public SearchResult searchFieldTemplate(String index, String login,
 			String key, String template, SearchFieldQuery query) {
 		try {
@@ -118,6 +149,15 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult searchFieldTemplateSet(String index, String login,
+			String key, String template, SearchFieldQuery query) {
+		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+		SearchFieldRequest searchRequest = new SearchFieldRequest(client);
+		return searchTemplateSet(client, index, login, key, template, query,
+				searchRequest);
 	}
 
 	@Override
