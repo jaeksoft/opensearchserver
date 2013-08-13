@@ -100,7 +100,7 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 			query.apply(searchRequest);
 			client.getRequestMap().put(searchRequest);
 			client.saveRequests();
-			return new CommonResult(true, "Templated updated: " + template);
+			return new CommonResult(true, "Template updated: " + template);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
