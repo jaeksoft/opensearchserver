@@ -40,7 +40,7 @@ public interface RestSearch {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
+	@Path("/template")
 	public QueryTemplateResultList searchTemplateList(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
