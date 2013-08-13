@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -69,11 +68,6 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	protected void setDefaultValues() {
 		super.setDefaultValues();
 		searchFields = new ArrayList<SearchField>(0);
-		if (config != null)
-			for (SchemaField schemaField : config.getSchema().getFieldList()
-					.getList())
-				searchFields.add(new SearchField(schemaField.getName(), true,
-						1.0F));
 	}
 
 	@Override

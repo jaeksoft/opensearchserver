@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -48,12 +49,14 @@ public class SearchPatternQuery extends SearchQueryAbstract {
 		patternSnippetQuery = request.getSnippetPatternQuery();
 	}
 
-	public void apply(SearchPatternRequest request) {
+	@Override
+	public void apply(AbstractSearchRequest request) {
 		super.apply(request);
+		SearchPatternRequest patternRequest = (SearchPatternRequest) request;
 		if (patternSearchQuery != null)
-			request.setPatternQuery(patternSearchQuery);
+			patternRequest.setPatternQuery(patternSearchQuery);
 		if (patternSnippetQuery != null)
-			request.setSnippetPatternQuery(patternSnippetQuery);
+			patternRequest.setSnippetPatternQuery(patternSnippetQuery);
 	}
 
 }

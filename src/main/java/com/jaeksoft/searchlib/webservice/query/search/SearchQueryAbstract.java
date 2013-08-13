@@ -640,7 +640,7 @@ public abstract class SearchQueryAbstract {
 		}
 	}
 
-	public void apply(AbstractSearchRequest request) {
+	protected void apply(AbstractSearchRequest request) {
 		try {
 			if (query != null)
 				request.setQueryString(query);
