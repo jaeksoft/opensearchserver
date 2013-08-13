@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.webservice.query.search;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
 @WebService(name = "Search")
@@ -38,6 +39,12 @@ public interface SoapSearch {
 			@WebParam(name = "key") String key);
 
 	public SearchTemplateResult searchTemplateGet(
+			@WebParam(name = "index") String index,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "template") String template);
+
+	public CommonResult searchTemplateDelete(
 			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,

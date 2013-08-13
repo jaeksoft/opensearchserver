@@ -26,15 +26,19 @@ package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.Response.Status;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
@@ -56,6 +60,32 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 						RequestTypeEnum.SearchRequest,
 						RequestTypeEnum.SearchFieldRequest);
 		return new SearchTemplateResult(searchRequest);
+	}
+
+	@Override
+	public CommonResult searchTemplateDelete(String index, String login,
+			String key, String template) {
+		try {
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (template == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"Not template given");
+			RequestMap requestMap = client.getRequestMap();
+			if (requestMap.get(template) == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Template not found: " + template);
+			requestMap.remove(template);
+			client.saveRequests();
+			return new CommonResult(true, "Template deleted: " + template);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	@Override
