@@ -353,21 +353,11 @@ public class HtmlArchiver {
 	}
 
 	final private void checkScriptContent(TagNode node,
-			Collection<Selector> selectors, Set<TagNode> xpathSelectorSet) {
+			Set<TagNode> disableScriptNodeSet) {
 		if (!("script".equalsIgnoreCase(node.getName())))
 			return;
-		boolean removeScript = false;
-		if (xpathSelectorSet != null)
-			if (hasAncestorXPath(xpathSelectorSet, node))
-				removeScript = true;
-		if (selectors != null)
-			for (Selector selector : selectors)
-				if (selector.type == Type.ID_SELECTOR)
-					if (selector.disableScript)
-						if (hasAncestorId(StringUtils.split(selector.query),
-								node))
-							removeScript = true;
-		if (removeScript) {
+		if (disableScriptNodeSet != null
+				&& hasAncestorXPath(disableScriptNodeSet, node)) {
 			node.removeFromTree();
 			return;
 		}
@@ -393,7 +383,7 @@ public class HtmlArchiver {
 		List<String> pathList = new ArrayList<String>(0);
 		while (node != null) {
 			String tag = node.getName();
-			int pos = 0;
+			int pos = 1;
 			String id = node.getAttributeByName("id");
 			TagNode parent = node.getParent();
 			if (id == null) {
@@ -406,22 +396,20 @@ public class HtmlArchiver {
 				}
 			}
 			node = parent;
-			StringBuffer sb = new StringBuffer(tag);
 			if (id != null) {
-				sb.append("[@id='");
-				sb.append(id);
-				sb.append("']");
-			} else {
-				// POS did not work on Selenium By.XPATH selector
-				sb.append('[');
-				sb.append(pos);
-				sb.append(']');
+				pathList.add(tag + "[@id='" + id + "']");
+				break;
 			}
-			pathList.add(sb.toString());
+			// POS did not work on Selenium By.XPATH selector
+			pathList.add(tag + '[' + pos + ']');
 		}
 		Collections.reverse(pathList);
-		return new Selectors.Selector(Type.XPATH_SELECTOR,
-				'/' + StringUtils.join(pathList, '/'));
+		String sel = StringUtils.join(pathList, '/');
+		if (node == null)
+			sel = '/' + sel;
+		else
+			sel = "//" + sel;
+		return new Selectors.Selector(Type.XPATH_SELECTOR, sel);
 	}
 
 	final private String downloadIframe(URL parentUrl, TagNode node)
@@ -432,7 +420,8 @@ public class HtmlArchiver {
 		browserDriver.locateBy(selector, set);
 		if (set.size() != 1) {
 			Logging.warn("Issue when finding IFRAME using selector: "
-					+ selector.query + " - found: " + set.size());
+					+ selector.type + ' ' + selector.query + " - found: "
+					+ set.size());
 			return null;
 		}
 		URL oldBaseUrl = baseUrl;
@@ -449,7 +438,7 @@ public class HtmlArchiver {
 				.getFrameSource(set.iterator().next());
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
-		recursiveArchive(htmlCleanerParser.getTagNode(), null, null);
+		recursiveArchive(htmlCleanerParser.getTagNode(), null);
 		htmlCleanerParser.writeHtmlToFile(destFile);
 		baseUrl = oldBaseUrl;
 		return getLocalPath(parentUrl, destFile.getName());
@@ -500,43 +489,39 @@ public class HtmlArchiver {
 	}
 
 	final private void recursiveArchive(TagNode node,
-			Collection<Selector> selectors, Set<TagNode> xpathSelectorSet)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException,
-			ParserConfigurationException, SAXException {
+			Set<TagNode> disableScriptNodeSet) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException,
+			URISyntaxException, ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
 		downloadObjectFromTag(node, null, "src", null);
 		downloadObjectFromTag(node, "link", "href", "type");
 		checkStyleCSS(node);
-		checkScriptContent(node, selectors, xpathSelectorSet);
+		checkScriptContent(node, disableScriptNodeSet);
 		checkStyleAttribute(node);
 		TagNode[] nodes = node.getChildTags();
 		if (nodes == null)
 			return;
 		for (TagNode n : nodes)
-			recursiveArchive(n, selectors, xpathSelectorSet);
+			recursiveArchive(n, disableScriptNodeSet);
 	}
 
 	final public void archive(BrowserDriver<?> browserDriver,
-			Collection<Selector> selectors) throws IOException,
+			Set<String> xPathDisableScriptSet) throws IOException,
 			ParserConfigurationException, SAXException, IllegalStateException,
 			SearchLibException, URISyntaxException, XPatherException {
 		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
-		Set<TagNode> xpathSelectorSet = null;
-		if (selectors != null) {
-			xpathSelectorSet = new HashSet<TagNode>();
-			for (Selector selector : selectors)
-				if (selector.type == Type.XPATH_SELECTOR)
-					if (selector.disableScript)
-						htmlCleanerParser.xpath(selector.query,
-								xpathSelectorSet);
+		Set<TagNode> disableScriptNodeSet = null;
+		if (xPathDisableScriptSet != null && xPathDisableScriptSet.size() > 0) {
+			disableScriptNodeSet = new HashSet<TagNode>();
+			for (String xPath : xPathDisableScriptSet) {
+				htmlCleanerParser.xpath(xPath, disableScriptNodeSet);
+			}
 		}
-		recursiveArchive(htmlCleanerParser.getTagNode(), selectors,
-				xpathSelectorSet);
+		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)

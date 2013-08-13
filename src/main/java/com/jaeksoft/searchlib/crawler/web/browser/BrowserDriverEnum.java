@@ -37,6 +37,8 @@ public enum BrowserDriverEnum {
 
 	INTERNET_EXPLORER(InternetExplorerBrowserDriver.class, "Internet Exlorer"),
 
+	PHANTOM_JS(PhantomDriver.class, "PhantomJS"),
+
 	SAFARI(SafariBrowserDriver.class, "Safari");
 
 	private final Class<? extends BrowserDriver<?>> driverClass;

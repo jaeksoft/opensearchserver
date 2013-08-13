@@ -33,6 +33,7 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +54,7 @@ import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -61,7 +63,7 @@ import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
-	private T driver = null;
+	protected T driver = null;
 
 	public BrowserDriver() {
 		driver = initialize();
@@ -81,12 +83,32 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.get(sUrl);
 	}
 
-	public void javascript(String javascript) throws IOException {
+	public String javascript(String javascript, Object... objects)
+			throws IOException {
 		if (!(driver instanceof JavascriptExecutor))
 			throw new IOException(
 					"The Web driver don't support javascript execution");
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript(javascript);
+		return (String) js.executeScript(javascript, objects);
+	}
+
+	private final static String XPATH_SCRIPT = "function getPathTo(node) {"
+			+ "  var stack = [];" + "  while(node.parentNode !== null) {"
+			+ "    stack.unshift(node.tagName);"
+			+ "    node = node.parentNode;" + "  }"
+			+ "  return stack.join('/');" + "}"
+			+ "return getPathTo(arguments[0]);";
+
+	private final static String XPATH_SCRIPT2 = "gPt=function(c){if(c.id!=='')"
+			+ "{return'id(\"'+c.id+'\")'}if(c===document.documentElement)"
+			+ "{return '/'}var a=0;var e=c.parentNode.childNodes;"
+			+ "for(var b=0;b<e.length;b++){var d=e[b];"
+			+ "if(d===c){return gPt(c.parentNode)+'/'+c.tagName+'['+(a+1)+']'}"
+			+ "if(d.nodeType===1&&d.tagName===c.tagName){a++}}};"
+			+ "return gPt(arguments[0]).toLowerCase();";
+
+	public String getXPath(WebElement webElement) throws IOException {
+		return javascript(XPATH_SCRIPT2, webElement);
 	}
 
 	final public BufferedImage getScreenshot() throws IOException {
@@ -98,7 +120,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return ImageIO.read(new ByteArrayInputStream(data));
 	}
 
-	final public String getSourceCode() {
+	public String getSourceCode() {
 		return driver.getPageSource();
 	}
 
@@ -127,12 +149,17 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	final public int locateBy(Selectors.Selector selector, Set<WebElement> set) {
-		List<WebElement> list = driver.findElements(selector.getBy());
-		if (list == null)
+		try {
+			List<WebElement> list = driver.findElements(selector.getBy());
+			if (list == null)
+				return 0;
+			for (WebElement element : list)
+				set.add(element);
+			return list.size();
+		} catch (Exception e) {
+			Logging.warn(e);
 			return 0;
-		for (WebElement element : list)
-			set.add(element);
-		return list.size();
+		}
 	}
 
 	final public void saveArchive(HttpDownloader httpDownloader,
@@ -148,7 +175,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		try {
 			HtmlArchiver archiver = new HtmlArchiver(this, parentDirectory,
 					httpDownloader, currentURL);
-			archiver.archive(this, selectors);
+			Set<WebElement> webElements = new HashSet<WebElement>();
+			Set<String> xPathDisableScriptSet = new HashSet<String>();
+			for (Selector selector : selectors)
+				if (selector.disableScript)
+					locateBy(selector, webElements);
+			for (WebElement webElement : webElements)
+				xPathDisableScriptSet.add(getXPath(webElement));
+			archiver.archive(this, xPathDisableScriptSet);
 		} finally {
 			if (reader != null)
 				IOUtils.close(reader);

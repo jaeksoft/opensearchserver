@@ -40,7 +40,7 @@ public class FileCrawler extends TemplateAbstract {
 
 	"filecrawler-mapping.xml", "filecrawler-properties.xml",
 
-	"autocompletion-properties.xml",
+	"autocompletion" + "/" + "autocomplete.xml",
 
 	"renderers" + '/' + "default-file.xml",
 

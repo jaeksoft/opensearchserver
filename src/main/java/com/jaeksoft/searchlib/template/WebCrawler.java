@@ -42,7 +42,7 @@ public class WebCrawler extends TemplateAbstract {
 
 	"webcrawler-urlfilter.xml", "webcrawler-properties.xml",
 
-	"autocompletion-properties.xml",
+	"autocompletion" + "/" + "autocomplete.xml",
 
 	"renderers" + '/' + "default.xml",
 
