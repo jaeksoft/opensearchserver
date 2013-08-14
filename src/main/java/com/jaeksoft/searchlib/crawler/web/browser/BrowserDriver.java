@@ -54,6 +54,7 @@ import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -147,13 +148,22 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		timeOuts.setScriptTimeout(script, TimeUnit.SECONDS);
 	}
 
-	final public int locateBy(Selectors.Selector selector, Set<WebElement> set) {
-		List<WebElement> list = driver.findElements(selector.getBy());
-		if (list == null)
-			return 0;
-		for (WebElement element : list)
-			set.add(element);
-		return list.size();
+	final public int locateBy(Selectors.Selector selector, Set<WebElement> set,
+			boolean faultTolerant) throws SearchLibException {
+		try {
+			List<WebElement> list = driver.findElements(selector.getBy());
+			if (list == null)
+				return 0;
+			for (WebElement element : list)
+				set.add(element);
+			return list.size();
+		} catch (Exception e) {
+			if (faultTolerant) {
+				Logging.warn(e);
+				return 0;
+			}
+			throw new SearchLibException(e);
+		}
 	}
 
 	final public void saveArchive(HttpDownloader httpDownloader,
@@ -174,7 +184,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			if (selectors != null)
 				for (Selector selector : selectors)
 					if (selector.disableScript)
-						locateBy(selector, webElements);
+						locateBy(selector, webElements, true);
 			for (WebElement webElement : webElements)
 				xPathDisableScriptSet.add(getXPath(webElement));
 			archiver.archive(this, xPathDisableScriptSet);

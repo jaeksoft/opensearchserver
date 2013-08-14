@@ -417,7 +417,7 @@ public class HtmlArchiver {
 			IllegalStateException, SearchLibException, URISyntaxException {
 		Set<WebElement> set = new HashSet<WebElement>();
 		Selector selector = findSelector(node);
-		browserDriver.locateBy(selector, set);
+		browserDriver.locateBy(selector, set, true);
 		if (set.size() != 1) {
 			Logging.warn("Issue when finding IFRAME using selector: "
 					+ selector.type + ' ' + selector.query + " - found: "

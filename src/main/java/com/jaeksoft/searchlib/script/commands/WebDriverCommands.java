@@ -184,7 +184,7 @@ public class WebDriverCommands {
 				if (selectors != null) {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
-						browserDriver.locateBy(selector, elementSet);
+						browserDriver.locateBy(selector, elementSet, true);
 					int i = 1;
 					for (WebElement element : elementSet) {
 						if ("iframe".equals(element.getTagName()))
@@ -275,7 +275,7 @@ public class WebDriverCommands {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
 						if (selector.screenshotHighlight)
-							browserDriver.locateBy(selector, elementSet);
+							browserDriver.locateBy(selector, elementSet, true);
 					List<Rectangle> boxes = new ArrayList<Rectangle>(
 							elementSet.size());
 					int i = 1;
@@ -301,6 +301,8 @@ public class WebDriverCommands {
 				writer.close();
 				writer = null;
 			} catch (IOException e) {
+				throw new ScriptException(e);
+			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			} finally {
 				if (writer != null)
