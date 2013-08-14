@@ -151,6 +151,8 @@ public class FieldsController extends CommonController {
 	@Command
 	@NotifyChange("*")
 	public void onCopyOfAdd() {
+		if (selectedCopyOf == null || selectedCopyOf.length() == 0)
+			return;
 		this.field.addCopyOf(selectedCopyOf);
 	}
 

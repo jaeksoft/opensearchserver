@@ -2,7 +2,7 @@
 
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -21,25 +21,24 @@
 <!-- See the GNU General Public License for more details. -->
 
 <requests>
-	<request name="search" phraseSlop="2" defaultOperator="AND"
-		start="0" rows="10" lang="en">
+	<request name="search" type="SearchFieldRequest" phraseSlop="2"
+		defaultOperator="AND" start="0" rows="10" lang="en">
 
 		<query>
-<![CDATA[
-uri:($$)^5 OR uri:("$$")^5 OR
-fileName:($$)^10 OR fileName:("$$")^10 OR
-fileNameExact:($$)^10 OR fileNameExact:("$$")^10 OR
-fileNamePhonetic:($$)^10 OR fileNamePhonetic:("$$")^10 OR
-content:($$) OR content:("$$") OR
-contentExact:($$) OR contentExact:("$$") OR
-contentPhonetic:($$) OR contentPhonetic:("$$") OR
-title:($$)^10 OR title:("$$")^10 OR
-titleExact:($$)^10 OR titleExact:("$$")^10 OR
-titlePhonetic:($$)^10 OR titlePhonetic:("$$")^10 OR
-full:($$)^0.1 OR full:("$$")^0.1 OR
-fullExact:($$)^0.1 OR fullExact:("$$")^0.1 OR
-fullPhonetic:($$)^0.1 OR fullPhonetic:("$$")^0.1
-]]>
+			<searchField field="title" phrase="true" boost="10.0" />
+			<searchField field="titleExact" phrase="true" boost="10.0" />
+			<searchField field="titlePhonetic" phrase="true" boost="10.0" />
+			<searchField field="content" phrase="true" boost="1.0" />
+			<searchField field="contentExact" phrase="true" boost="1.0" />
+			<searchField field="contentPhonetic" phrase="true" boost="1.0" />
+			<searchField field="uri" phrase="true" boost="5.0" />
+			<searchField field="fileName" phrase="true" boost="10.0" />
+			<searchField field="fileNameExact" phrase="true" boost="10.0" />
+			<searchField field="fileNamePhonetic" phrase="true"
+				boost="10.0" />
+			<searchField field="full" phrase="true" boost="0.1" />
+			<searchField field="fullExact" phrase="true" boost="0.1" />
+			<searchField field="fullPhonetic" phrase="true" boost="0.1" />
 		</query>
 
 		<returnFields>

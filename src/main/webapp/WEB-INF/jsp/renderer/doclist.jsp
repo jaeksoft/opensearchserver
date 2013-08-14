@@ -1,5 +1,5 @@
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
-<%@ page import="com.jaeksoft.searchlib.request.SearchRequest"%>
+<%@ page import="com.jaeksoft.searchlib.request.AbstractSearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererWidgets"%>
@@ -11,7 +11,7 @@
 	if (result != null) {
 		Renderer renderer = (Renderer) request.getAttribute("renderer");
 		if (result.getDocumentCount() > 0) {
-			SearchRequest searchRequest = result.getRequest();
+			AbstractSearchRequest searchRequest = result.getRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart()
 					+ result.getDocumentCount();

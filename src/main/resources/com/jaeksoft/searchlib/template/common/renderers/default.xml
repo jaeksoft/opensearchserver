@@ -19,7 +19,8 @@
 <!-- -->
 <renderer name="default" request="search" searchButtonLabel="Search"
 	noResultFoundText="No result found" oneResultFoundText="1 result found"
-	resultsFoundText="results found" contentTypeField="contentBaseType">
+	resultsFoundText="results found" contentTypeField="contentBaseType"
+	autoCompletionName="autocomplete">
 <css>.osscmnrdr { font-family: arial,sans-serif;
 font-size: 14px;
  }

@@ -1,10 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=UTF-8" %> 
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
-<%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
-<%@ page import="com.jaeksoft.searchlib.request.SearchRequest"%>
-<%@ page import="java.net.URLEncoder"%>
-<%@ page import="java.net.URLDecoder"%>
 <% Renderer renderer = (Renderer) request.getAttribute("renderer"); %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

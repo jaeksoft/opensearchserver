@@ -235,6 +235,10 @@ public class SchemaField extends AbstractField<SchemaField> {
 	}
 
 	public void addCopyOf(String field) {
+		if (field == null)
+			return;
+		if (field.length() == 0)
+			return;
 		if (copyOf == null)
 			copyOf = new ArrayList<String>(1);
 		copyOf.add(field);

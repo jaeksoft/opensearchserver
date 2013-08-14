@@ -3,5 +3,5 @@
 <properties>
 	<comment />
 	<entry key="rows">10</entry>
-	<entry key="field">autocomplete</entry>
+	<entry key="field1">autocomplete</entry>
 </properties>
