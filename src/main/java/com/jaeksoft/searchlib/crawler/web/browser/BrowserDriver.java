@@ -54,7 +54,6 @@ import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -149,17 +148,12 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	final public int locateBy(Selectors.Selector selector, Set<WebElement> set) {
-		try {
-			List<WebElement> list = driver.findElements(selector.getBy());
-			if (list == null)
-				return 0;
-			for (WebElement element : list)
-				set.add(element);
-			return list.size();
-		} catch (Exception e) {
-			Logging.warn(e);
+		List<WebElement> list = driver.findElements(selector.getBy());
+		if (list == null)
 			return 0;
-		}
+		for (WebElement element : list)
+			set.add(element);
+		return list.size();
 	}
 
 	final public void saveArchive(HttpDownloader httpDownloader,

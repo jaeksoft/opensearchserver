@@ -69,7 +69,8 @@ public class AutoCompletionManager implements Closeable {
 			try {
 				add(new AutoCompletionItem(config, autoCompFile));
 			} catch (InvalidPropertiesFormatException e) {
-				Logging.error(e);
+				Logging.warn("Invalid autocompletion file: "
+						+ autoCompFile.getAbsolutePath());
 			}
 		}
 	}
