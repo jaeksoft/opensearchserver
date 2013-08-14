@@ -92,10 +92,16 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 		try {
 			Charset.forName(charsetCache);
 			return charsetCache;
-		} catch (UnsupportedCharsetException e) {
-			Logging.warn(e);
-			charsetCache = null;
-			return null;
+		} catch (UnsupportedCharsetException e1) {
+			try {
+				charsetCache = charsetCache.toUpperCase();
+				Charset.forName(charsetCache);
+				return charsetCache;
+			} catch (UnsupportedCharsetException e2) {
+				Logging.warn(e2);
+				charsetCache = null;
+				return null;
+			}
 		}
 	}
 
