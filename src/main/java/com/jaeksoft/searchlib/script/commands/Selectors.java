@@ -98,11 +98,24 @@ public class Selectors {
 			super(commandEnum);
 		}
 
-		public boolean isCommandParam(String commandName, int from) {
-			for (int i = from; i < getParameterCount(); i++)
-				if (commandName.equalsIgnoreCase(getParameterString(i)))
-					return true;
-			return false;
+		protected Selector newSelector(Type type) throws ScriptException {
+			boolean disableScript = false;
+			boolean screenshotHighlight = false;
+			for (int i = 1; i < getParameterCount(); i++) {
+				String param = getParameterString(i);
+				if (param == null)
+					continue;
+				if (param.length() == 0)
+					continue;
+				if ("disable_script".equalsIgnoreCase(param))
+					disableScript = true;
+				else if ("screenshot_highlight".equalsIgnoreCase(param))
+					screenshotHighlight = true;
+				else
+					throw new ScriptException("Unknown parameter: " + param);
+			}
+			return new Selector(Type.CSS_SELECTOR, getParameterString(0),
+					disableScript, screenshotHighlight);
 		}
 	}
 
@@ -116,9 +129,7 @@ public class Selectors {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(new Selector(Type.CSS_SELECTOR,
-					getParameterString(0), isCommandParam("disable_script", 1),
-					isCommandParam("screenshot_highlight", 1)));
+			context.addSelector(newSelector(Type.CSS_SELECTOR));
 		}
 	}
 
@@ -146,9 +157,7 @@ public class Selectors {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(new Selector(Type.XPATH_SELECTOR,
-					getParameterString(0), isCommandParam("disable_script", 1),
-					isCommandParam("screenshot_highlight", 1)));
+			context.addSelector(newSelector(Type.XPATH_SELECTOR));
 		}
 	}
 
@@ -176,11 +185,8 @@ public class Selectors {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(new Selector(Type.ID_SELECTOR,
-					getParameterString(0), isCommandParam("disable_script", 1),
-					isCommandParam("screenshot_highlight", 1)));
+			context.addSelector(newSelector(Type.ID_SELECTOR));
 		}
-
 	}
 
 	public static class ID_Reset extends CommandAbstract {

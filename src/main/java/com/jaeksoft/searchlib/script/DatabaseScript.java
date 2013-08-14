@@ -148,23 +148,24 @@ public class DatabaseScript implements Closeable {
 						parameters[i] = variables.replace(o.toString());
 					}
 				}
-				CommandEnum commandEnum = CommandEnum.find(command);
-				if (commandFinder != null) {
-					// On error next_command is active, looking for next
-					// statement
-					boolean bFind = false;
-					for (CommandEnum cmd : commandFinder) {
-						if (cmd == commandEnum) {
-							bFind = true;
-							break;
-						}
-					}
-					if (!bFind)
-						continue;
-					commandFinder = null;
-				}
-				CommandAbstract commandAbstract = commandEnum.getNewInstance();
 				try {
+					CommandEnum commandEnum = CommandEnum.find(command);
+					if (commandFinder != null) {
+						// On error next_command is active, looking for next
+						// statement
+						boolean bFind = false;
+						for (CommandEnum cmd : commandFinder) {
+							if (cmd == commandEnum) {
+								bFind = true;
+								break;
+							}
+						}
+						if (!bFind)
+							continue;
+						commandFinder = null;
+					}
+					CommandAbstract commandAbstract = commandEnum
+							.getNewInstance();
 					commandAbstract.run(scriptCommandContext, id, parameters);
 				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);

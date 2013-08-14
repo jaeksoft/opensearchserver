@@ -74,6 +74,9 @@ public class ExecutionCommands {
 					String p = parameters[i];
 					if (p == null)
 						continue;
+					p = p.trim();
+					if (p.length() == 0)
+						continue;
 					commands.add(CommandEnum.find(p));
 				}
 				context.setOnError(onError, commands);

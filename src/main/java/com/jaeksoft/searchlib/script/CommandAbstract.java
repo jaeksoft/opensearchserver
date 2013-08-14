@@ -66,6 +66,8 @@ public abstract class CommandAbstract {
 		String s = getParameterString(pos);
 		if (s == null)
 			return null;
+		if (s.length() == 0)
+			return null;
 		return new Integer(s);
 	}
 

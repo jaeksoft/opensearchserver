@@ -98,8 +98,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			+ "  return stack.join('/');" + "}"
 			+ "return getPathTo(arguments[0]);";
 
-	private final static String XPATH_SCRIPT2 = "gPt=function(c){if(c.id!=='')"
-			+ "{return'id(\"'+c.id+'\")'}if(c===document.documentElement)"
+	private final static String XPATH_SCRIPT2 = "gPt=function(c){"
+			+ "if(c===document.documentElement)"
 			+ "{return '/'}var a=0;var e=c.parentNode.childNodes;"
 			+ "for(var b=0;b<e.length;b++){var d=e[b];"
 			+ "if(d===c){return gPt(c.parentNode)+'/'+c.tagName+'['+(a+1)+']'}"
@@ -171,9 +171,10 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 					httpDownloader, currentURL);
 			Set<WebElement> webElements = new HashSet<WebElement>();
 			Set<String> xPathDisableScriptSet = new HashSet<String>();
-			for (Selector selector : selectors)
-				if (selector.disableScript)
-					locateBy(selector, webElements);
+			if (selectors != null)
+				for (Selector selector : selectors)
+					if (selector.disableScript)
+						locateBy(selector, webElements);
 			for (WebElement webElement : webElements)
 				xPathDisableScriptSet.add(getXPath(webElement));
 			archiver.archive(this, xPathDisableScriptSet);

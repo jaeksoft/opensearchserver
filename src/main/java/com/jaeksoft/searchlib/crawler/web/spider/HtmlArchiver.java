@@ -518,7 +518,11 @@ public class HtmlArchiver {
 		if (xPathDisableScriptSet != null && xPathDisableScriptSet.size() > 0) {
 			disableScriptNodeSet = new HashSet<TagNode>();
 			for (String xPath : xPathDisableScriptSet) {
+				int oldlCount = disableScriptNodeSet.size();
 				htmlCleanerParser.xpath(xPath, disableScriptNodeSet);
+				if (disableScriptNodeSet.size() == oldlCount)
+					Logging.warn("DisableScript not found using XPath: "
+							+ xPath);
 			}
 		}
 		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet);
