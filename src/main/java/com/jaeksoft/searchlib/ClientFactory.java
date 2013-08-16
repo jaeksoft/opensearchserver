@@ -34,6 +34,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.util.FilesUtils;
 import com.jaeksoft.searchlib.util.Sequence;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
@@ -50,6 +51,8 @@ public class ClientFactory implements PropertyItemListener {
 	private final Sequence globalSequence;
 
 	private PropertyItem<Integer> booleanQueryMaxClauseCount;
+
+	private PropertyItem<String> defaultWebBrowserDriver;
 
 	private PropertyItem<Boolean> soapActive;
 
@@ -91,6 +94,10 @@ public class ClientFactory implements PropertyItemListener {
 					"booleanQueryMaxClauseCount", 1024, null, null);
 			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
+			defaultWebBrowserDriver = advancedProperties.newStringProperty(
+					"defaultWebBrowserDriver",
+					BrowserDriverEnum.FIREFOX.getName());
+			defaultWebBrowserDriver.addListener(this);
 			soapActive = advancedProperties.newBooleanProperty("soapActive",
 					false);
 			soapActive.addListener(this);
@@ -167,6 +174,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<Integer> getBooleanQueryMaxClauseCount() {
 		return booleanQueryMaxClauseCount;
+	}
+
+	public PropertyItem<String> getDefaultWebBrowserDriver() {
+		return defaultWebBrowserDriver;
 	}
 
 	public PropertyItem<Boolean> getSoapActive() {

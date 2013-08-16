@@ -43,12 +43,12 @@ public enum BrowserDriverEnum {
 
 	private final Class<? extends BrowserDriver<?>> driverClass;
 
-	private final String name;
+	private final String label;
 
 	private BrowserDriverEnum(Class<? extends BrowserDriver<?>> driverClass,
-			String name) {
+			String label) {
 		this.driverClass = driverClass;
-		this.name = name;
+		this.label = label;
 	}
 
 	public BrowserDriver<?> getNewInstance() throws InstantiationException,
@@ -62,13 +62,17 @@ public enum BrowserDriverEnum {
 			return defaultValue;
 		for (BrowserDriverEnum driver : BrowserDriverEnum.values())
 			if (value.equalsIgnoreCase(driver.name())
-					|| value.equalsIgnoreCase(driver.name))
+					|| value.equalsIgnoreCase(driver.label))
 				return driver;
 		return defaultValue;
 	}
 
+	public String getLabel() {
+		return label;
+	}
+
 	public String getName() {
-		return name;
+		return name();
 	}
 
 }

@@ -22,6 +22,17 @@
 	</columns>
 	<rows>
 		<row>
+			<label value="Default web browser driver" />
+			<listbox model="@load(advanced.browserList)" mold="select"
+				selectedItem="@bind(advanced.defaultWebBrowserDriver)">
+				<template name="model">
+					<listitem label="@load(each.label)" />
+				</template>
+			</listbox>
+			<label
+				value="Set the default web browser driver (for screenshot)" />
+		</row>
+		<row>
 			<label value="Maximum number of clauses" />
 			<intbox cols="5"
 				value="@bind(advanced.maxClauseCount.value)" />

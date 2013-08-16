@@ -37,6 +37,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -74,9 +75,12 @@ public class ScreenshotManager implements PropertyItemListener {
 		screenshotDir = new File(config.getDirectory(), "screenshot");
 		if (!screenshotDir.exists())
 			screenshotDir.mkdir();
+		BrowserDriverEnum defaultBrowserDriverEnum = BrowserDriverEnum.find(
+				ClientFactory.INSTANCE.getDefaultWebBrowserDriver().getValue(),
+				BrowserDriverEnum.FIREFOX);
 		WebPropertyManager props = config.getWebPropertyManager();
 		browserDriverEnum = BrowserDriverEnum.find(props.getScreenshotBrowser()
-				.getValue(), BrowserDriverEnum.FIREFOX);
+				.getValue(), defaultBrowserDriverEnum);
 		screenshotMethodEnum = ScreenshotMethodEnum.find(props
 				.getScreenshotMethod().getValue());
 		captureDimension = getCaptureDimension(props);

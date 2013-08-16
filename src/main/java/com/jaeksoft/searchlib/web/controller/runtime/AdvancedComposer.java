@@ -32,6 +32,7 @@ import org.zkoss.bind.annotation.NotifyChange;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.ocr.TesseractLanguageEnum;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
@@ -58,6 +59,22 @@ public class AdvancedComposer extends CommonController {
 			InterruptedException {
 		ClientCatalog.getOcrManager().checkTesseract();
 		new AlertController("OK");
+	}
+
+	public BrowserDriverEnum[] getBrowserList() {
+		return BrowserDriverEnum.values();
+	}
+
+	public BrowserDriverEnum getDefaultWebBrowserDriver() {
+		return BrowserDriverEnum.find(ClientFactory.INSTANCE
+				.getDefaultWebBrowserDriver().getValue(),
+				BrowserDriverEnum.FIREFOX);
+	}
+
+	public void setDefaultWebBrowserDriver(BrowserDriverEnum driver)
+			throws IOException, SearchLibException {
+		ClientFactory.INSTANCE.getDefaultWebBrowserDriver().setValue(
+				driver.name());
 	}
 
 	public PropertyItem<Integer> getMaxClauseCount() {

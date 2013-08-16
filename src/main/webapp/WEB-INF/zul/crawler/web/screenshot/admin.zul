@@ -36,7 +36,7 @@
 			<listbox model="@load(screenshot.browserList)" mold="select"
 				selectedItem="@bind(screenshot.screenshotManager.browserDriver)">
 				<template name="model" var="driver">
-					<listitem label="@load(driver.name)" />
+					<listitem label="@load(driver.label)" />
 				</template>
 			</listbox>
 			<space />
