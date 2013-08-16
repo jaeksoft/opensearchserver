@@ -255,11 +255,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (URISyntaxException e) {
 			throw new WebServiceException(e);
 		}
 	}
@@ -291,7 +291,9 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			ScreenshotThread screenshotThread = new ScreenshotThread(
 					new Dimension(browserWidth, browserHeight),
 					reductionPercent, visiblePartOnly, url, wait,
-					BrowserDriverEnum.FIREFOX);
+					BrowserDriverEnum.find(ClientFactory.INSTANCE
+							.getDefaultWebBrowserDriver().getValue(),
+							BrowserDriverEnum.FIREFOX));
 			screenshotThread.runner();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(screenshotThread.getImage(), "png", baos);
