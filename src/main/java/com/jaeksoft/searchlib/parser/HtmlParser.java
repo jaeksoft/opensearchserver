@@ -164,7 +164,13 @@ public class HtmlParser extends Parser {
 			.length();
 
 	private void getBodyTextContent(ParserResultItem result, StringBuffer sb,
-			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields) {
+			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields,
+			int recursion) {
+		if (recursion == 0) {
+			Logging.warn("Max recursion reached (getBodyTextContent)");
+			return;
+		}
+		recursion--;
 		if (node.isComment())
 			return;
 		String nodeName = node.getNodeName();
@@ -219,7 +225,7 @@ public class HtmlParser extends Parser {
 		if (children != null)
 			for (HtmlNodeAbstract<?> htmlNode : children)
 				getBodyTextContent(result, sb, htmlNode, bAddBlock,
-						directFields);
+						directFields, recursion);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
@@ -503,7 +509,7 @@ public class HtmlParser extends Parser {
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuffer sb = new StringBuffer();
-				getBodyTextContent(result, sb, nodes.get(0), true, null);
+				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024);
 				result.addField(ParserFieldEnum.body, sb);
 			}
 		}

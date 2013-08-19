@@ -109,7 +109,7 @@ public class WebDriverHtmlNode extends HtmlNodeAbstract<WebElement> {
 	}
 
 	@Override
-	public List<HtmlNodeAbstract<?>> getChildNodes() {
+	protected List<HtmlNodeAbstract<?>> getNewChildNodes() {
 		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
 		List<WebElement> webElements = node.findElements(By.xpath(".//"));
 		if (webElements != null)

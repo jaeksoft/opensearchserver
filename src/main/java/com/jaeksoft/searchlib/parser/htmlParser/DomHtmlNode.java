@@ -74,7 +74,7 @@ public class DomHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
-	public List<HtmlNodeAbstract<?>> getChildNodes() {
+	protected List<HtmlNodeAbstract<?>> getNewChildNodes() {
 		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
 		NodeList nodeList = node.getChildNodes();
 		int l = nodeList.getLength();

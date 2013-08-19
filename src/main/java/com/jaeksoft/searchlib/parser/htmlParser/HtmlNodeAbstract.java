@@ -31,8 +31,11 @@ public abstract class HtmlNodeAbstract<T> {
 
 	protected T node;
 
+	private List<HtmlNodeAbstract<?>> childNodes;
+
 	public HtmlNodeAbstract(T node) {
 		this.node = node;
+		childNodes = null;
 	}
 
 	public abstract int countElements();
@@ -68,7 +71,13 @@ public abstract class HtmlNodeAbstract<T> {
 
 	public abstract String getAttribute(String name);
 
-	public abstract List<HtmlNodeAbstract<?>> getChildNodes();
+	protected abstract List<HtmlNodeAbstract<?>> getNewChildNodes();
+
+	final public List<HtmlNodeAbstract<?>> getChildNodes() {
+		if (childNodes == null)
+			childNodes = getNewChildNodes();
+		return (List<HtmlNodeAbstract<?>>) childNodes;
+	}
 
 	public abstract List<HtmlNodeAbstract<?>> getAllNodes(String... names);
 

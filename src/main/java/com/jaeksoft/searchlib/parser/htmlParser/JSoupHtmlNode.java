@@ -92,7 +92,7 @@ public class JSoupHtmlNode extends HtmlNodeAbstract<Node> {
 	}
 
 	@Override
-	public List<HtmlNodeAbstract<?>> getChildNodes() {
+	public List<HtmlNodeAbstract<?>> getNewChildNodes() {
 		List<HtmlNodeAbstract<?>> nodes = getNewNodeList();
 		List<Node> nodeList = node.childNodes();
 		int l = nodeList.size();
