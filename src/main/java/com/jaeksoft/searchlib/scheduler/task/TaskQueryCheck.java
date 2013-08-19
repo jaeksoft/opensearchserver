@@ -55,11 +55,11 @@ public class TaskQueryCheck extends TaskAbstract {
 			"The query string to pass to the search template", 50);
 
 	final private TaskPropertyDef propJsonPath = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Json Path request", "JsonPathRequest",
+			TaskPropertyType.textBox, "JSON Path request", "JsonPathRequest",
 			"The JSON Path query to apply to the result", 70);
 
 	final private TaskPropertyDef propJsonResultComparator = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Json result comparator",
+			TaskPropertyType.listBox, "JSON result comparator",
 			"JsonResultComparator", "The JSON comparator", 70);
 
 	final private static String COMPARATOR_GREATER = ">";

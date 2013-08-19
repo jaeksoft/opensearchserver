@@ -97,7 +97,7 @@ public class CommonQuery extends CommonServices {
 			if (template == null)
 				throw new CommonServiceException(Status.BAD_REQUEST,
 						"Not template found");
-			AbstractRequest request = client.getRequestMap().get(template);
+			AbstractRequest request = client.getNewRequest(template);
 			if (request == null)
 				throw new CommonServiceException(Status.NOT_FOUND,
 						"Template not found: " + template);

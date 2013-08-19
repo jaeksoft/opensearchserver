@@ -28,10 +28,19 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval.IntervalUnit;
@@ -58,7 +67,7 @@ import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
 
 @JsonInclude(Include.NON_NULL)
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class SearchQueryAbstract {
 
 	final public String query;
@@ -67,7 +76,13 @@ public abstract class SearchQueryAbstract {
 	final public LanguageEnum lang;
 	final public OperatorEnum operator;
 	final public Collapsing collapsing;
+
+	@XmlElements({
+			@XmlElement(name = "QueryFilter", type = QueryFilter.class),
+			@XmlElement(name = "GeoFilter", type = GeoFilter.class),
+			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class) })
 	final public List<Filter> filters;
+
 	final public List<Sort> sorts;
 	final public List<String> returnedFields;
 	final public List<Snippet> snippets;
@@ -98,13 +113,13 @@ public abstract class SearchQueryAbstract {
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Collapsing {
 
 		final public String field;
 		final public Integer max;
-		final public CollapseParameters.Mode mode;
-		final public CollapseParameters.Type type;
+		final public ModeEnum mode;
+		final public TypeEnum type;
 
 		public Collapsing() {
 			field = null;
@@ -116,8 +131,27 @@ public abstract class SearchQueryAbstract {
 		public Collapsing(AbstractSearchRequest request) {
 			field = request.getCollapseField();
 			max = request.getCollapseMax();
-			mode = request.getCollapseMode();
-			type = request.getCollapseType();
+			switch (request.getCollapseMode()) {
+			default:
+			case OFF:
+				mode = ModeEnum.OFF;
+				break;
+			case ADJACENT:
+				mode = ModeEnum.ADJACENT;
+				break;
+			case CLUSTER:
+				mode = ModeEnum.CLUSTER;
+				break;
+			}
+			switch (request.getCollapseType()) {
+			case FULL:
+				type = TypeEnum.FULL;
+				break;
+			default:
+			case OPTIMIZED:
+				type = TypeEnum.OPTIMIZED;
+				break;
+			}
 		}
 
 		public void apply(AbstractSearchRequest request) {
@@ -126,22 +160,56 @@ public abstract class SearchQueryAbstract {
 			if (max != null)
 				request.setCollapseMax(max);
 			if (mode != null)
-				request.setCollapseMode(mode);
+				request.setCollapseMode(mode.mode);
 			if (type != null)
-				request.setCollapseType(type);
+				request.setCollapseType(type.type);
+		}
+
+		public enum ModeEnum {
+
+			OFF(CollapseParameters.Mode.OFF), ADJACENT(
+					CollapseParameters.Mode.ADJACENT), CLUSTER(
+					CollapseParameters.Mode.CLUSTER);
+
+			private final CollapseParameters.Mode mode;
+
+			private ModeEnum(CollapseParameters.Mode mode) {
+				this.mode = mode;
+			}
+		}
+
+		public enum TypeEnum {
+
+			FULL(CollapseParameters.Type.FULL), OPTIMIZED(
+					CollapseParameters.Type.OPTIMIZED);
+
+			private final CollapseParameters.Type type;
+
+			private TypeEnum(CollapseParameters.Type type) {
+				this.type = type;
+			}
 		}
 	}
 
+	@XmlTransient
+	@JsonTypeInfo(use = Id.NAME, property = "type")
+	@JsonSubTypes({
+			@JsonSubTypes.Type(value = QueryFilter.class, name = "QueryFilter"),
+			@JsonSubTypes.Type(value = GeoFilter.class, name = "GeoFilter"),
+			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter") })
 	public static abstract class Filter {
 
 		final public Boolean negative;
+		final public String type;
 
 		public Filter() {
 			negative = null;
+			type = getClass().getSimpleName();
 		}
 
 		protected Filter(Boolean negative) {
 			this.negative = negative;
+			type = getClass().getSimpleName();
 		}
 
 		protected void apply(FilterAbstract<?> filter) {
@@ -150,10 +218,14 @@ public abstract class SearchQueryAbstract {
 		}
 
 		protected abstract FilterAbstract<?> newFilter();
+
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "QueryFilter")
+	@XmlRootElement(name = "QueryFilter")
+	@JsonTypeName("QueryFilter")
 	public static class QueryFilter extends Filter {
 
 		final public String query;
@@ -182,10 +254,14 @@ public abstract class SearchQueryAbstract {
 			apply(filter);
 			return filter;
 		}
+
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "GeoFilter")
+	@XmlRootElement(name = "GeoFilter")
+	@JsonTypeName("GeoFilter")
 	public static class GeoFilter extends Filter {
 
 		final public Unit unit;
@@ -249,10 +325,14 @@ public abstract class SearchQueryAbstract {
 			apply(filter);
 			return filter;
 		}
+
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "RelativeDateFilter")
+	@XmlRootElement(name = "RelativeDateFilter")
+	@JsonTypeName("RelativeDateFilter")
 	public static class RelativeDateFilter extends Filter {
 
 		final public TimeInterval from;
@@ -298,10 +378,11 @@ public abstract class SearchQueryAbstract {
 			apply(filter);
 			return filter;
 		}
+
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class TimeInterval {
 
 		final public IntervalUnit unit;
@@ -353,7 +434,7 @@ public abstract class SearchQueryAbstract {
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Sort {
 
 		final public String field;
@@ -406,7 +487,7 @@ public abstract class SearchQueryAbstract {
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Snippet {
 
 		final public String field;
@@ -484,7 +565,7 @@ public abstract class SearchQueryAbstract {
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Facet {
 
 		final public String field;
@@ -533,7 +614,7 @@ public abstract class SearchQueryAbstract {
 	}
 
 	@JsonInclude(Include.NON_NULL)
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Join {
 
 		final public String indexName;

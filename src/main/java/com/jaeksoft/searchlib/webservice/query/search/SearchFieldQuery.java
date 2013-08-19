@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_NULL)
 public class SearchFieldQuery extends SearchQueryAbstract {
 
@@ -46,7 +46,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		searchFields = null;
 	}
 
-	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	@JsonInclude(Include.NON_NULL)
 	public static class SearchField {
 

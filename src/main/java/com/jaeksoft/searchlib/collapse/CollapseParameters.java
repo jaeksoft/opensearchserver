@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+
 public class CollapseParameters {
 
 	public enum Mode {

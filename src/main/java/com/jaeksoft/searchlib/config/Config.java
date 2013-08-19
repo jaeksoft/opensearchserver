@@ -1278,10 +1278,10 @@ public abstract class Config implements ThreadFactory {
 	public AbstractRequest getNewRequest(String requestName)
 			throws SearchLibException {
 		if (requestName == null)
-			throw new SearchLibException("No request name");
+			throw new SearchLibException("No request name given");
 		AbstractRequest request = getRequestMap().get(requestName);
 		if (request == null)
-			throw new SearchLibException("No request found");
+			throw new SearchLibException("No request found: " + requestName);
 		try {
 			return RequestTypeEnum.getNewCopy(request);
 		} catch (InstantiationException e) {

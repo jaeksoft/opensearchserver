@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
 @JsonInclude(Include.NON_NULL)
 public class CommonResult implements InfoCallback {
