@@ -50,5 +50,4 @@ public class JsonUtils {
 			throws JsonProcessingException {
 		return mapper.writeValueAsString(object);
 	}
-
 }

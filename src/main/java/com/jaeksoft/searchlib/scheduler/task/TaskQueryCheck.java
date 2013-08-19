@@ -24,11 +24,15 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
@@ -52,14 +56,29 @@ public class TaskQueryCheck extends TaskAbstract {
 
 	final private TaskPropertyDef propJsonPath = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Json Path request", "JsonPathRequest",
-			"The JSON Path query to apply to the result", 100);
+			"The JSON Path query to apply to the result", 70);
 
-	final private TaskPropertyDef propXPath = new TaskPropertyDef(
-			TaskPropertyType.textBox, "XPath request", "XPathRequest",
-			"The XPath query to apply to the result", 100);
+	final private TaskPropertyDef propJsonResultComparator = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Json result comparator",
+			"JsonResultComparator", "The JSON comparator", 70);
+
+	final private static String COMPARATOR_GREATER = ">";
+	final private static String COMPARATOR_GREATER_OR_EQUAL = ">=";
+	final private static String COMPARATOR_LESSER = "<";
+	final private static String COMPARATOR_LESSER_OR_EQUAL = "<=";
+	final private static String COMPARATOR_EQUAL = "=";
+
+	final private static String[] RESULT_COMPARATORS = { COMPARATOR_LESSER,
+			COMPARATOR_LESSER_OR_EQUAL, COMPARATOR_EQUAL,
+			COMPARATOR_GREATER_OR_EQUAL, COMPARATOR_GREATER };
+
+	final private TaskPropertyDef propJsonResultValue = new TaskPropertyDef(
+			TaskPropertyType.textBox, "JSON result value", "JsonResultValue",
+			"The expected JSON value", 20);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propSearchTemplate,
-			propQueryString, propJsonPath };
+			propQueryString, propJsonPath, propJsonResultComparator,
+			propJsonResultValue };
 
 	@Override
 	public String getName() {
@@ -75,11 +94,22 @@ public class TaskQueryCheck extends TaskAbstract {
 	public String[] getPropertyValues(Config config,
 			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
-		return null;
+		List<String> nameList = new ArrayList<String>(0);
+		if (propJsonResultComparator == propertyDef)
+			return RESULT_COMPARATORS;
+		if (propSearchTemplate == propertyDef)
+			config.getRequestMap().getNameList(nameList,
+					RequestTypeEnum.SearchFieldRequest,
+					RequestTypeEnum.SearchRequest);
+		if (nameList.size() == 0)
+			return null;
+		return nameList.toArray(new String[nameList.size()]);
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propJsonResultComparator == propertyDef)
+			return COMPARATOR_EQUAL;
 		return null;
 	}
 
@@ -89,6 +119,8 @@ public class TaskQueryCheck extends TaskAbstract {
 		String searchTemplate = properties.getValue(propSearchTemplate);
 		String queryString = properties.getValue(propQueryString);
 		String jsonPath = properties.getValue(propJsonPath);
+		String resultComparator = properties.getValue(propJsonResultComparator);
+		String resultValue = properties.getValue(propJsonResultValue);
 		taskLog.setInfo("Query check");
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) client
 				.getNewRequest(searchTemplate);
@@ -102,15 +134,48 @@ public class TaskQueryCheck extends TaskAbstract {
 					(AbstractResultSearch) client.request(searchRequest));
 			if (jsonPath != null && jsonPath.length() > 0) {
 				String json = JsonUtils.toJsonString(searchResult);
-				System.out.println(jsonPath);
-				System.out.println(json);
-				Object jsonPathResult = JsonPath.read(json, jsonPath);
+				JsonPath jsonPathCompile = JsonPath.compile(jsonPath);
+				Object jsonPathResult = jsonPathCompile.read((String) json);
 				if (jsonPathResult == null)
 					throw new SearchLibException("The JSON Path query failed");
+				if (jsonPathResult instanceof Integer)
+					compareResultNumber((Integer) jsonPathResult,
+							resultComparator, Integer.parseInt(resultValue));
+				else if (jsonPathResult instanceof Double)
+					compareResultNumber((Double) jsonPathResult,
+							resultComparator, Double.parseDouble(resultValue));
+				if (jsonPathResult instanceof Float)
+					compareResultNumber((Float) jsonPathResult,
+							resultComparator, Float.parseFloat(resultValue));
+				else
+					compareResultNumber(jsonPathResult.toString(),
+							resultComparator, resultValue);
 				taskLog.setInfo("JSON Path succeed: " + jsonPathResult);
 			}
 		} catch (JsonProcessingException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	private <T extends Comparable<T>> void compareResultNumber(
+			T jsonPathResult, String resultComparator, T resultValue)
+			throws SearchLibException {
+		if (resultComparator.equals(COMPARATOR_EQUAL))
+			if (jsonPathResult.equals(resultValue))
+				return;
+		if (resultComparator.equals(COMPARATOR_LESSER))
+			if (jsonPathResult.compareTo(resultValue) < 0)
+				return;
+		if (resultComparator.equals(COMPARATOR_LESSER_OR_EQUAL))
+			if (jsonPathResult.compareTo(resultValue) <= 0)
+				return;
+		if (resultComparator.equals(COMPARATOR_GREATER))
+			if (jsonPathResult.compareTo(resultValue) > 0)
+				return;
+		if (resultComparator.equals(COMPARATOR_GREATER_OR_EQUAL))
+			if (jsonPathResult.compareTo(resultValue) >= 0)
+				return;
+		throw new SearchLibException("Wrong returned value: " + jsonPathResult
+				+ ". Expected: " + resultComparator + ' ' + resultValue);
 	}
 }
