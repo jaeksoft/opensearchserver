@@ -32,23 +32,20 @@ import javax.ws.rs.WebApplicationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
 
 public class JSONParam {
 
 	private String json;
 
-	private final static ObjectMapper mapper = new ObjectMapper();
-
 	public JSONParam(String json) throws WebApplicationException {
 		this.json = json;
-		System.out.println("HELLO WORLD: " + json);
 	}
 
 	public <T> T getObject(Class<T> objectClass) {
 		try {
-			return mapper.readValue(json, objectClass);
+			return JsonUtils.getObject(json, objectClass);
 		} catch (JsonParseException e) {
 			throw new CommonServiceException(e);
 		} catch (JsonMappingException e) {
@@ -60,7 +57,7 @@ public class JSONParam {
 
 	public <T> T getObject(TypeReference<T> typeReference) {
 		try {
-			return mapper.readValue(json, typeReference);
+			return JsonUtils.getObject(json, typeReference);
 		} catch (JsonParseException e) {
 			throw new CommonServiceException(e);
 		} catch (JsonMappingException e) {
@@ -74,4 +71,5 @@ public class JSONParam {
 		return getObject(new TypeReference<Map<String, String>>() {
 		});
 	}
+
 }

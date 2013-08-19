@@ -58,4 +58,5 @@ public class CommonResult implements InfoCallback {
 	public void setInfo(String info) {
 		this.info = info;
 	}
+
 }
