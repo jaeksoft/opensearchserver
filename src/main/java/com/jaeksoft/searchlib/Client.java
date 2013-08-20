@@ -156,7 +156,7 @@ public class Client extends Config {
 	}
 
 	public int updateTextDocuments(StreamSource streamSource, String charset,
-			int bufferSize, String capturePattern, int langPosition,
+			Integer bufferSize, String capturePattern, Integer langPosition,
 			List<String> fieldList, InfoCallback infoCallBack)
 			throws SearchLibException, IOException, NoSuchAlgorithmException,
 			URISyntaxException, InstantiationException, IllegalAccessException,
@@ -173,6 +173,10 @@ public class Client extends Config {
 				.getUniqueField();
 		String uniqueField = uniqueSchemaField != null ? uniqueSchemaField
 				.getName() : null;
+		if (charset == null)
+			charset = "UTF-8";
+		if (bufferSize == null)
+			bufferSize = 50;
 		try {
 			Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
 					bufferSize);
@@ -192,7 +196,7 @@ public class Client extends Config {
 					continue;
 				LanguageEnum lang = LanguageEnum.UNDEFINED;
 				int matcherGroupCount = matcher.groupCount();
-				if (langPosition != 0 && matcherGroupCount >= langPosition)
+				if (langPosition != null && matcherGroupCount >= langPosition)
 					lang = LanguageEnum.findByNameOrCode(matcher
 							.group(langPosition));
 				IndexDocument document = new IndexDocument(lang);

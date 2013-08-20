@@ -24,12 +24,14 @@
 package com.jaeksoft.searchlib.webservice.document;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
+import javax.xml.transform.stream.StreamSource;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -134,4 +136,35 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		}
 	}
 
+	@Override
+	public CommonResult update(String index, String login, String key,
+			String capturePattern, List<String> fields, Integer langPosition,
+			String charset, Integer bufferSize, InputStream inputStream) {
+		try {
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			CommonResult result = new CommonResult(true, null);
+			StreamSource streamSource = new StreamSource(inputStream);
+			client.updateTextDocuments(streamSource, charset, bufferSize,
+					capturePattern, langPosition, fields, result);
+			return result;
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new CommonServiceException(e);
+		} catch (InstantiationException e) {
+			throw new CommonServiceException(e);
+		} catch (IllegalAccessException e) {
+			throw new CommonServiceException(e);
+		} catch (ClassNotFoundException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 }

@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.document;
 
+import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -46,6 +47,19 @@ public interface RestDocument {
 	public CommonResult update(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<DocumentUpdate> documents);
+
+	@PUT
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public CommonResult update(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("pattern") String pattern,
+			@QueryParam("field") List<String> fields,
+			@QueryParam("langpos") Integer langPosition,
+			@QueryParam("charset") String charset,
+			@QueryParam("buffersize") Integer bufferSize,
+			InputStream inputStream);
 
 	@DELETE
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
