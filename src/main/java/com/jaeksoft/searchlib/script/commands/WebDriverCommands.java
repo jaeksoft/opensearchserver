@@ -230,14 +230,15 @@ public class WebDriverCommands {
 
 	public static class Screenshot extends Capture {
 
+		private final static String SUBST_FILE = "{screenshot}";
 		private final static String SUBST_WIDTH = "{width}";
 		private final static String SUBST_HEIGHT = "{height}";
 		private final static String SUBST_COORD = "{coord}";
 		private final static String SUBST_ALT = "{alt}";
 
-		private final static String HTML_START = "<html><body>"
-				+ "<img src=\"screenshot.png\" width=\"" + SUBST_WIDTH
-				+ "\" height=\"" + SUBST_HEIGHT
+		private final static String HTML_START = "<html><body>" + "<img src=\""
+				+ SUBST_FILE + "\" width=\"" + SUBST_WIDTH + "\" height=\""
+				+ SUBST_HEIGHT
 				+ "\" usemap=\"#capturemap\"/><map name=\"capturemap\"/>";
 
 		private final static String HTML_AREA = "<area shape=\"rect\" coords=\""
@@ -264,6 +265,7 @@ public class WebDriverCommands {
 				File pngFile = new File(destFile, destname + ".png");
 				File htmlFile = new File(destFile, destname + ".html");
 				String html = HTML_START;
+				html = html.replace(SUBST_FILE, pngFile.getName());
 				html = html.replace(SUBST_WIDTH,
 						Integer.toString(image.getWidth()));
 				html = html.replace(SUBST_HEIGHT,

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 
 public class NaiveCSSParser {
@@ -275,7 +276,7 @@ public class NaiveCSSParser {
 				return css.substring(start + (in ? 1 : 0), end - (in ? 1 : 0))
 						.trim();
 			} catch (java.lang.StringIndexOutOfBoundsException e) {
-				System.out.println(this);
+				Logging.warn(this, e);
 				return "";
 			}
 		}

@@ -114,8 +114,8 @@ public class Selectors {
 				else
 					throw new ScriptException("Unknown parameter: " + param);
 			}
-			return new Selector(Type.CSS_SELECTOR, getParameterString(0),
-					disableScript, screenshotHighlight);
+			return new Selector(type, getParameterString(0), disableScript,
+					screenshotHighlight);
 		}
 	}
 
