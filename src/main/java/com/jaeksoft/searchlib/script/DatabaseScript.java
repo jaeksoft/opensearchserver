@@ -99,6 +99,13 @@ public class DatabaseScript implements Closeable {
 		this.variables = variables != null ? variables : new Variables();
 	}
 
+	private void doSqlUpdateOneCall(String sqlU, String id,
+			String currentScriptError) throws SQLException {
+		if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
+			DatabaseUtils.update(transaction, id, currentScriptError,
+					sqlUpdateMode, sqlU);
+	}
+
 	public void run() throws SQLException, ScriptException {
 		try {
 			transaction = connectionManager.getNewTransaction(false,
@@ -160,8 +167,11 @@ public class DatabaseScript implements Closeable {
 								break;
 							}
 						}
-						if (!bFind)
+						if (!bFind) {
+							doSqlUpdateOneCall(sqlU, id,
+									"ignored due to previous error");
 							continue;
+						}
 						commandFinder = null;
 					}
 					CommandAbstract commandAbstract = commandEnum
@@ -169,8 +179,8 @@ public class DatabaseScript implements Closeable {
 					commandAbstract.run(scriptCommandContext, id, parameters);
 				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);
-					currentScriptError = t != null ? t.getClass().getName() : e
-							.getClass().getName();
+					currentScriptError = t != null ? t.getMessage() : e
+							.getMessage();
 					lastScriptError = currentScriptError;
 					switch (scriptCommandContext.getOnError()) {
 					case FAILURE:
@@ -185,9 +195,7 @@ public class DatabaseScript implements Closeable {
 						break;
 					}
 				}
-				if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
-					DatabaseUtils.update(transaction, id, currentScriptError,
-							sqlUpdateMode, sqlU);
+				doSqlUpdateOneCall(sqlU, id, currentScriptError);
 			}
 			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
 					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)

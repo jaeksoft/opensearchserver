@@ -162,7 +162,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				Logging.warn(e);
 				return 0;
 			}
-			throw new SearchLibException(e);
+			throw new SearchLibException(selector.type.name() + " failed: "
+					+ selector.query, e);
 		}
 	}
 
