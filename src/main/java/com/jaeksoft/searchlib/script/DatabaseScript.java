@@ -179,8 +179,8 @@ public class DatabaseScript implements Closeable {
 					commandAbstract.run(scriptCommandContext, id, parameters);
 				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);
-					currentScriptError = t != null ? t.getMessage() : e
-							.getMessage();
+					currentScriptError = t != null ? ExceptionUtils
+							.getMessage(t) : ExceptionUtils.getMessage(e);
 					lastScriptError = currentScriptError;
 					switch (scriptCommandContext.getOnError()) {
 					case FAILURE:
