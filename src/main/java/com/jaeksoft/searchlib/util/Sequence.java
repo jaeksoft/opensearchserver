@@ -43,8 +43,9 @@ public class Sequence {
 		this.radix = radix;
 		this.file = file;
 		if (file.exists())
-			counter = Long.parseLong(FileUtils.readFileToString(file), radix);
-
+			if (file.length() > 0)
+				counter = Long.parseLong(FileUtils.readFileToString(file),
+						radix);
 	}
 
 	public String next() throws IOException {
