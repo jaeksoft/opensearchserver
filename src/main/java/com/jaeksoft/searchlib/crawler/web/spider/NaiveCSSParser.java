@@ -273,6 +273,8 @@ public class NaiveCSSParser {
 
 		public String toBlock(boolean in) {
 			try {
+				if (end == start)
+					return "";
 				return css.substring(start + (in ? 1 : 0), end - (in ? 1 : 0))
 						.trim();
 			} catch (java.lang.StringIndexOutOfBoundsException e) {

@@ -346,15 +346,33 @@ public class WebDriverCommands {
 			super(CommandEnum.WEBDRIVER_JAVASCRIPT);
 		}
 
+		private boolean isStrict() throws ScriptException {
+			boolean isStrict = false;
+			for (int i = 1; i < getParameterCount(); i++) {
+				String param = getParameterString(i);
+				if (param == null)
+					continue;
+				if (param.length() == 0)
+					continue;
+				if ("strict".equalsIgnoreCase(param)) {
+					isStrict = true;
+					continue;
+				}
+				throw new ScriptException("Unknown parameter: " + param);
+			}
+			return isStrict;
+		}
+
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
+			boolean faultTolerant = !isStrict();
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();
 			if (browserDriver == null)
 				throwError("No browser open");
 			try {
-				browserDriver.javascript(getParameterString(0), true);
+				browserDriver.javascript(getParameterString(0), faultTolerant);
 			} catch (IOException e) {
 				throw new ScriptException(e);
 			} catch (SearchLibException e) {

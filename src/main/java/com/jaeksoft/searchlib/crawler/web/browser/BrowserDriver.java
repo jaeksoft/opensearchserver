@@ -132,12 +132,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return xPath;
 	}
 
-	public boolean clearElement(WebElement webElement, boolean faultTolerant)
-			throws IOException, SearchLibException {
-		javascript("arguments[0].innerHTML = \"\";", faultTolerant, webElement);
-		return true;
-	}
-
 	final public BufferedImage getScreenshot() throws IOException {
 		if (!(driver instanceof TakesScreenshot))
 			throw new IOException(
@@ -213,16 +207,9 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 					if (selector.disableScript)
 						locateBy(selector, webElements, true);
 			for (WebElement webElement : webElements) {
-				// If it is a script, just use the clear method of the web
-				// element
-				if ("script".equalsIgnoreCase(webElement.getTagName()))
-					clearElement(webElement, true);
-				else {
-					// Try to find the XPATH
-					String xPath = getXPath(webElement, true);
-					if (xPath != null)
-						xPathDisableScriptSet.add(xPath);
-				}
+				String xPath = getXPath(webElement, true);
+				if (xPath != null)
+					xPathDisableScriptSet.add(xPath);
 			}
 			archiver.archive(this, xPathDisableScriptSet);
 		} finally {
