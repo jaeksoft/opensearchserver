@@ -121,8 +121,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			sb.append(line.trim());
 		br.close();
 		XPATH_SCRIPT = sb.toString();
-		System.out.println("XPATH LOADED");
-		System.out.println(XPATH_SCRIPT);
 		return XPATH_SCRIPT;
 	}
 

@@ -354,7 +354,7 @@ public class WebDriverCommands {
 			if (browserDriver == null)
 				throwError("No browser open");
 			try {
-				browserDriver.javascript(getParameterString(0), false);
+				browserDriver.javascript(getParameterString(0), true);
 			} catch (IOException e) {
 				throw new ScriptException(e);
 			} catch (SearchLibException e) {
