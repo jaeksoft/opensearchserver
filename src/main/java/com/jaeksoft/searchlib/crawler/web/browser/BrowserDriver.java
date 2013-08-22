@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.web.browser;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -54,6 +55,8 @@ import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
@@ -83,32 +86,58 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.get(sUrl);
 	}
 
-	public String javascript(String javascript, Object... objects)
-			throws IOException {
-		if (!(driver instanceof JavascriptExecutor))
-			throw new IOException(
-					"The Web driver don't support javascript execution");
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		return (String) js.executeScript(javascript, objects);
+	public String javascript(String javascript, boolean faultTolerant,
+			Object... objects) throws IOException, SearchLibException {
+		try {
+			if (!(driver instanceof JavascriptExecutor))
+				throw new IOException(
+						"The Web driver don't support javascript execution");
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			return (String) js.executeScript(javascript, objects);
+		} catch (IOException e) {
+			if (!faultTolerant)
+				throw e;
+			Logging.warn(e);
+		} catch (Exception e) {
+			if (!faultTolerant)
+				throw new SearchLibException(e);
+			Logging.warn(e);
+		}
+		return null;
 	}
 
-	private final static String XPATH_SCRIPT = "function getPathTo(node) {"
-			+ "  var stack = [];" + "  while(node.parentNode !== null) {"
-			+ "    stack.unshift(node.tagName);"
-			+ "    node = node.parentNode;" + "  }"
-			+ "  return stack.join('/');" + "}"
-			+ "return getPathTo(arguments[0]);";
+	private static String XPATH_SCRIPT = null;
 
-	private final static String XPATH_SCRIPT2 = "gPt=function(c){"
-			+ "if(c===document.documentElement)"
-			+ "{return '/'}var a=0;var e=c.parentNode.childNodes;"
-			+ "for(var b=0;b<e.length;b++){var d=e[b];"
-			+ "if(d===c){return gPt(c.parentNode)+'/'+c.tagName+'['+(a+1)+']'}"
-			+ "if(d.nodeType===1&&d.tagName===c.tagName){a++}}};"
-			+ "return gPt(arguments[0]).toLowerCase();";
+	private final synchronized static String getXPath() throws IOException {
+		if (XPATH_SCRIPT != null)
+			return XPATH_SCRIPT;
+		URL url = Resources
+				.getResource("/com/jaeksoft/searchlib/crawler/web/browser/get_xpath.js");
+		String content = Resources.toString(url, Charsets.UTF_8);
+		BufferedReader br = new BufferedReader(new StringReader(content));
+		StringBuffer sb = new StringBuffer();
+		String line;
+		while ((line = br.readLine()) != null)
+			sb.append(line.trim());
+		br.close();
+		XPATH_SCRIPT = sb.toString();
+		System.out.println("XPATH LOADED");
+		System.out.println(XPATH_SCRIPT);
+		return XPATH_SCRIPT;
+	}
 
-	public String getXPath(WebElement webElement) throws IOException {
-		return javascript(XPATH_SCRIPT2, webElement);
+	public String getXPath(WebElement webElement, boolean faultTolerant)
+			throws IOException, SearchLibException {
+		String xPath = javascript(getXPath(), faultTolerant, webElement);
+		if (xPath == null)
+			Logging.warn("XPATH extraction failed on " + webElement);
+		return xPath;
+	}
+
+	public boolean clearElement(WebElement webElement, boolean faultTolerant)
+			throws IOException, SearchLibException {
+		javascript("arguments[0].innerHTML = \"\";", faultTolerant, webElement);
+		return true;
 	}
 
 	final public BufferedImage getScreenshot() throws IOException {
@@ -158,12 +187,11 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				set.add(element);
 			return list.size();
 		} catch (Exception e) {
-			if (faultTolerant) {
-				Logging.warn(e);
-				return 0;
-			}
-			throw new SearchLibException(selector.type.name() + " failed: "
-					+ selector.query, e);
+			if (!faultTolerant)
+				throw new SearchLibException(selector.type.name() + " failed: "
+						+ selector.query, e);
+			Logging.warn(e);
+			return 0;
 		}
 	}
 
@@ -186,8 +214,18 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				for (Selector selector : selectors)
 					if (selector.disableScript)
 						locateBy(selector, webElements, true);
-			for (WebElement webElement : webElements)
-				xPathDisableScriptSet.add(getXPath(webElement));
+			for (WebElement webElement : webElements) {
+				// If it is a script, just use the clear method of the web
+				// element
+				if ("script".equalsIgnoreCase(webElement.getTagName()))
+					clearElement(webElement, true);
+				else {
+					// Try to find the XPATH
+					String xPath = getXPath(webElement, true);
+					if (xPath != null)
+						xPathDisableScriptSet.add(xPath);
+				}
+			}
 			archiver.archive(this, xPathDisableScriptSet);
 		} finally {
 			if (reader != null)
