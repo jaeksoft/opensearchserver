@@ -32,11 +32,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -65,10 +63,8 @@ import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.script.commands.Selectors;
-import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 import com.jaeksoft.searchlib.script.commands.Selectors.Type;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
 
@@ -374,54 +370,17 @@ public class HtmlArchiver {
 		node.addChild(new ContentNode(newContent));
 	}
 
-	final private Selector findSelector(TagNode node) {
-		// Check ID selector
-		String iframe_id = node.getAttributeByName("id");
-		if (iframe_id != null)
-			return new Selectors.Selector(Type.ID_SELECTOR, iframe_id);
-		// Build XPATH selector
-		List<String> pathList = new ArrayList<String>(0);
-		while (node != null) {
-			String tag = node.getName();
-			int pos = 1;
-			String id = node.getAttributeByName("id");
-			TagNode parent = node.getParent();
-			if (id == null) {
-				if (parent != null) {
-					for (TagNode n : node.getChildTagList())
-						if (n == node)
-							break;
-						else if (n.getName().equals(tag))
-							pos++;
-				}
-			}
-			node = parent;
-			if (id != null) {
-				pathList.add(tag + "[@id='" + id + "']");
-				break;
-			}
-			// POS did not work on Selenium By.XPATH selector
-			pathList.add(tag + '[' + pos + ']');
+	final private String downloadIframe(URL parentUrl, TagNode node,
+			Map<TagNode, WebElement> iframeNodeMap) throws IOException,
+			ParserConfigurationException, SAXException, IllegalStateException,
+			SearchLibException, URISyntaxException {
+		if (iframeNodeMap == null) {
+			Logging.warn("Unable to download IFRAME (no iframeNodeNap) " + node);
+			return null;
 		}
-		Collections.reverse(pathList);
-		String sel = StringUtils.join(pathList, '/');
-		if (node == null)
-			sel = '/' + sel;
-		else
-			sel = "//" + sel;
-		return new Selectors.Selector(Type.XPATH_SELECTOR, sel);
-	}
-
-	final private String downloadIframe(URL parentUrl, TagNode node)
-			throws IOException, ParserConfigurationException, SAXException,
-			IllegalStateException, SearchLibException, URISyntaxException {
-		Set<WebElement> set = new HashSet<WebElement>();
-		Selector selector = findSelector(node);
-		browserDriver.locateBy(selector, set, true);
-		if (set.size() != 1) {
-			Logging.warn("Issue when finding IFRAME using selector: "
-					+ selector.type + ' ' + selector.query + " - found: "
-					+ set.size());
+		WebElement webElement = iframeNodeMap.get(node);
+		if (webElement == null) {
+			Logging.warn("Issue when finding IFRAME for " + node);
 			return null;
 		}
 		URL oldBaseUrl = baseUrl;
@@ -432,43 +391,56 @@ public class HtmlArchiver {
 				&& !urlFileMap.containsKey(baseUrl.toExternalForm()))
 			urlFileMapKey = baseUrl.toExternalForm();
 		else
-			urlFileMapKey = selector.query;
+			urlFileMapKey = Integer.toString(node.hashCode());
 		File destFile = getAndRegisterDestFile(urlFileMapKey, "iframe", "html");
-		String frameSource = browserDriver
-				.getFrameSource(set.iterator().next());
+		String frameSource = browserDriver.getFrameSource(webElement);
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
-		recursiveArchive(htmlCleanerParser.getTagNode(), null);
+		recursiveArchive(htmlCleanerParser.getTagNode(), null, iframeNodeMap);
 		htmlCleanerParser.writeHtmlToFile(destFile);
 		baseUrl = oldBaseUrl;
 		return getLocalPath(parentUrl, destFile.getName());
 	}
 
-	final private void downloadObjectFromTag(TagNode node, String tagName,
-			String srcAttrName, String typeAttrName)
+	final private boolean downloadObjectIframe(TagNode node,
+			Map<TagNode, WebElement> iframeNodeMap)
+			throws IllegalStateException, IOException,
+			ParserConfigurationException, SAXException, SearchLibException,
+			URISyntaxException {
+		if (!"iframe".equalsIgnoreCase(node.getName()))
+			return false;
+		String src = downloadIframe(baseUrl, node, iframeNodeMap);
+		if (src != null)
+			node.addAttribute("src", src);
+		return true;
+	}
+
+	final private boolean downloadObjectSrc(TagNode node)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException {
+		String src = node.getAttributeByName("src");
+		if (src == null)
+			return false;
+		src = downloadObject(baseUrl, src, null);
+		if (src != null)
+			node.addAttribute("src", src);
+		return true;
+	}
+
+	final private boolean downloadObjectLink(TagNode node)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException,
 			ParserConfigurationException, SAXException {
-		if (tagName != null)
-			if (!tagName.equalsIgnoreCase(node.getName()))
-				return;
-		String src = node.getAttributeByName(srcAttrName);
+		String src = node.getAttributeByName("href");
 		if (src == null)
-			return;
-		String newSrc = null;
-		if ("iframe".equalsIgnoreCase(node.getName()))
-			newSrc = downloadIframe(baseUrl, node);
-		else {
-			String type = typeAttrName != null ? node
-					.getAttributeByName(typeAttrName) : null;
-
-			if (type == null && node.getName().equalsIgnoreCase("script"))
-				type = "text/javascript";
-
-			newSrc = downloadObject(baseUrl, src, type);
-		}
-		if (newSrc != null)
-			node.addAttribute(srcAttrName, newSrc);
+			return false;
+		String type = node.getAttributeByName("type");
+		if (type == null && node.getName().equalsIgnoreCase("script"))
+			type = "text/javascript";
+		src = downloadObject(baseUrl, src, type);
+		if (src != null)
+			node.addAttribute("href", src);
+		return true;
 	}
 
 	final private void checkBaseHref(TagNode node) {
@@ -489,14 +461,17 @@ public class HtmlArchiver {
 	}
 
 	final private void recursiveArchive(TagNode node,
-			Set<TagNode> disableScriptNodeSet) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException, ParserConfigurationException, SAXException {
+			Set<TagNode> disableScriptNodeSet,
+			Map<TagNode, WebElement> iframeNodeMap)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, URISyntaxException,
+			ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
-		downloadObjectFromTag(node, null, "src", null);
-		downloadObjectFromTag(node, "link", "href", "type");
+		if (!downloadObjectIframe(node, iframeNodeMap))
+			if (!downloadObjectSrc(node))
+				downloadObjectLink(node);
 		checkStyleCSS(node);
 		checkScriptContent(node, disableScriptNodeSet);
 		checkStyleAttribute(node);
@@ -504,7 +479,7 @@ public class HtmlArchiver {
 		if (nodes == null)
 			return;
 		for (TagNode n : nodes)
-			recursiveArchive(n, disableScriptNodeSet);
+			recursiveArchive(n, disableScriptNodeSet, iframeNodeMap);
 	}
 
 	final public void archive(BrowserDriver<?> browserDriver,
@@ -514,6 +489,29 @@ public class HtmlArchiver {
 		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
+		// Find iframe
+		Set<WebElement> iframeWebElementSet = new HashSet<WebElement>();
+		browserDriver.locateBy(new Selectors.Selector(Type.XPATH_SELECTOR,
+				"//iframe"), iframeWebElementSet, true);
+		Map<TagNode, WebElement> iframeNodeMap = null;
+		if (iframeWebElementSet != null && iframeWebElementSet.size() > 0) {
+			iframeNodeMap = new HashMap<TagNode, WebElement>();
+			Set<TagNode> tagNodeSet = new HashSet<TagNode>();
+			for (WebElement webElement : iframeWebElementSet) {
+				String xPath = browserDriver.getXPath(webElement, true);
+				if (xPath == null)
+					continue;
+				if (htmlCleanerParser.xpath(xPath, tagNodeSet) == 0) {
+					Logging.warn("DisableScript not found using XPath: "
+							+ xPath);
+					continue;
+				}
+				for (TagNode tagNode : tagNodeSet)
+					iframeNodeMap.put(tagNode, webElement);
+				tagNodeSet.clear();
+			}
+		}
+		// Find node that need to be disabled
 		Set<TagNode> disableScriptNodeSet = null;
 		if (xPathDisableScriptSet != null && xPathDisableScriptSet.size() > 0) {
 			disableScriptNodeSet = new HashSet<TagNode>();
@@ -522,7 +520,8 @@ public class HtmlArchiver {
 					Logging.warn("DisableScript not found using XPath: "
 							+ xPath);
 		}
-		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet);
+		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet,
+				iframeNodeMap);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)

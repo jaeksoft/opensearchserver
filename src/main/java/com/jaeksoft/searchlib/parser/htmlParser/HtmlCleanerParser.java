@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Set;
+import java.util.Collection;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -120,15 +120,15 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 		return rootTagNode;
 	}
 
-	public int xpath(String xPathExpression, Set<TagNode> set)
-			throws XPatherException {
+	public int xpath(String xPathExpression,
+			Collection<TagNode> tagNodeCollection) throws XPatherException {
 		if (xPathExpression.startsWith("/html"))
 			xPathExpression = xPathExpression.substring(5);
 		Object[] objects = rootTagNode.evaluateXPath(xPathExpression);
 		if (objects == null)
 			return 0;
 		for (Object object : objects)
-			set.add((TagNode) object);
+			tagNodeCollection.add((TagNode) object);
 		return objects.length;
 	}
 }

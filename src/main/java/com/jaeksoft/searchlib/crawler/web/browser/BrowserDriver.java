@@ -200,13 +200,13 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		try {
 			HtmlArchiver archiver = new HtmlArchiver(this, parentDirectory,
 					httpDownloader, currentURL);
-			Set<WebElement> webElements = new HashSet<WebElement>();
+			Set<WebElement> disableScriptWebElements = new HashSet<WebElement>();
 			Set<String> xPathDisableScriptSet = new HashSet<String>();
 			if (selectors != null)
 				for (Selector selector : selectors)
 					if (selector.disableScript)
-						locateBy(selector, webElements, true);
-			for (WebElement webElement : webElements) {
+						locateBy(selector, disableScriptWebElements, true);
+			for (WebElement webElement : disableScriptWebElements) {
 				String xPath = getXPath(webElement, true);
 				if (xPath != null)
 					xPathDisableScriptSet.add(xPath);
