@@ -42,7 +42,6 @@ public class DecodeHtmlEntitiesFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			for (;;) {
 				if (!input.incrementToken())
 					return false;

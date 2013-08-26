@@ -84,6 +84,8 @@ public enum FilterEnum {
 
 	RemoveDuplicateCharactersFilter("Remove consecutive duplicate characters."),
 
+	RemoveTokenTypeFilter("Remove token of given type."),
+
 	RemoveTagFilter("Remove XML/HTML tags"),
 
 	RussianStemFilter("A filter that stems Russian words."),

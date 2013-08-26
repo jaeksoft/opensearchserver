@@ -31,6 +31,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.util.ExpressionMap;
 
 public class SynonymMap {
@@ -45,7 +47,7 @@ public class SynonymMap {
 	}
 
 	private static final String[] splitTerms(String line) {
-		String[] terms = line.split("[:=,]");
+		String[] terms = StringUtils.split(line, "[:=,]");
 		int i = 0;
 		for (String term : terms)
 			terms[i++] = term.trim();
@@ -76,4 +78,5 @@ public class SynonymMap {
 	public final String[] getSynonyms(String term) {
 		return expressionMap.find(term);
 	}
+
 }

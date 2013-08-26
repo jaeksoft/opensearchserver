@@ -50,7 +50,6 @@ public class DailymotionTokenFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		for (;;) {
 			if (!input.incrementToken())
 				return false;

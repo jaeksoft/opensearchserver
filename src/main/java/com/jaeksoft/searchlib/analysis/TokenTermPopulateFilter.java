@@ -43,7 +43,6 @@ public class TokenTermPopulateFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		if (!input.incrementToken())
 			return false;
 		tokenTerms.add(new TokenTerm(termAtt, posIncrAtt, offsetAtt, typeAtt));

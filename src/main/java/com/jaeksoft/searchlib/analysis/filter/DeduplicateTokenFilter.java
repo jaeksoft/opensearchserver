@@ -45,7 +45,6 @@ public class DeduplicateTokenFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			while (input.incrementToken()) {
 				String term = termAtt.toString();
 				if (tokens.contains(term))

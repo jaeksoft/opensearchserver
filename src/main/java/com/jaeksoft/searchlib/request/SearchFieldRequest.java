@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -53,8 +55,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		RequestInterfaces.FilterListInterface {
 
 	public final static String SEARCHFIELD_QUERY_NODE_NAME = "query";
+	public final static String SEARCHFIELD_SYNONYMS_NODE_NAME = "synonyms";
 
 	private List<SearchField> searchFields;
+
+	private Set<String> synonymsSet;
 
 	public SearchFieldRequest() {
 		super(null, RequestTypeEnum.SearchFieldRequest);
@@ -68,6 +73,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	protected void setDefaultValues() {
 		super.setDefaultValues();
 		searchFields = new ArrayList<SearchField>(0);
+		synonymsSet = new TreeSet<String>();
 	}
 
 	@Override
@@ -78,6 +84,8 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		if (searchFieldRequest.searchFields != null)
 			for (SearchField searchField : searchFieldRequest.searchFields)
 				this.searchFields.add(searchField.clone());
+		synonymsSet.clear();
+		synonymsSet.addAll(searchFieldRequest.synonymsSet);
 	}
 
 	@Override
@@ -117,6 +125,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		if (fieldNodeList != null)
 			for (Node fieldNode : fieldNodeList)
 				searchFields.add(new SearchField(fieldNode));
+		List<Node> synonymsNodeList = DomUtils.getNodes(requestNode,
+				SEARCHFIELD_QUERY_NODE_NAME, SEARCHFIELD_SYNONYMS_NODE_NAME);
+		if (synonymsNodeList != null)
+			for (Node synonymsNode : synonymsNodeList)
+				addSynonyms(synonymsNode.getTextContent());
 	}
 
 	@Override
@@ -124,6 +137,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		xmlWriter.startElement(SEARCHFIELD_QUERY_NODE_NAME);
 		for (SearchField searchField : searchFields)
 			searchField.writeXmlConfig(xmlWriter);
+		for (String synonyms : synonymsSet) {
+			xmlWriter.startElement(SEARCHFIELD_SYNONYMS_NODE_NAME);
+			xmlWriter.textNode(synonyms);
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
 	}
 
@@ -163,6 +181,35 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			resetNoLock();
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	public void addSynonyms(String synonyms) {
+		rwl.w.lock();
+		try {
+			synonymsSet.add(synonyms);
+			resetNoLock();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeSynonyms(String synonyms) {
+		rwl.w.lock();
+		try {
+			synonymsSet.remove(synonyms);
+			resetNoLock();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public Collection<String> getSynonyms() {
+		rwl.r.lock();
+		try {
+			return synonymsSet;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

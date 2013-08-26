@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,8 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 
 	private int currentPos = 0;
 
+	private final static String TYPE = "synonym";
+
 	public SynonymTokenFilter(TokenStream input, SynonymMap synonymMap) {
 		super(input);
 		this.synonymMap = synonymMap;
@@ -55,7 +57,8 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 			return false;
 		if (currentPos == wordQueue.length)
 			return false;
-		createToken(wordQueue[currentPos++]);
+		createToken(wordQueue[currentPos++], 0, offsetAtt.startOffset(),
+				offsetAtt.endOffset(), TYPE);
 		return true;
 	}
 
@@ -67,7 +70,6 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		for (;;) {
 			if (popToken())
 				return true;

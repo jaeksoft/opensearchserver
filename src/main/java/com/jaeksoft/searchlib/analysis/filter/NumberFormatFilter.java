@@ -149,7 +149,6 @@ public class NumberFormatFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			if (!input.incrementToken())
 				return false;
 			try {

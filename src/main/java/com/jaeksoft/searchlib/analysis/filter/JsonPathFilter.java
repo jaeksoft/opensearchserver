@@ -72,7 +72,6 @@ public class JsonPathFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			try {
 				for (;;) {
 					if (popToken())

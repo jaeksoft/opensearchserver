@@ -82,6 +82,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "token_separator", "Token separator",
 			"The string to use when joining adjacent tokens");
 
+	public final static ClassPropertyEnum TOKEN_TYPE = new ClassPropertyEnum(
+			true, "token_type", "Token type",
+			"The type of the token (shingle, synonym, ...)");
+
 	public final static ClassPropertyEnum IGNORE_CASE = new ClassPropertyEnum(
 			true, "ignore_case", "Ignore case", "");
 

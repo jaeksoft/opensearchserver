@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,16 +26,19 @@ package com.jaeksoft.searchlib.analysis.shingle;
 
 public class ShingleToken {
 
-	private String term;
-	private int positionIncrement;
-	private int startOffset;
-	private int endOffset;
+	public final String term;
+	public final int positionIncrement;
+	public final int startOffset;
+	public final int endOffset;
+	public final String type;
 
-	protected ShingleToken(String term, int posInc, int start, int end) {
+	protected ShingleToken(String term, int posInc, int start, int end,
+			String type) {
 		this.term = term;
 		this.positionIncrement = posInc;
 		this.startOffset = start;
 		this.endOffset = end;
+		this.type = type;
 	}
 
 	public final int getPositionIncrement() {

@@ -51,7 +51,6 @@ public class GroupAllTokensFilter extends FilterFactory {
 		public final boolean incrementToken() throws IOException {
 			if (buffer == null)
 				return false;
-			current = captureState();
 			while (input.incrementToken()) {
 				if (startOffset == null)
 					startOffset = offsetAtt.startOffset();

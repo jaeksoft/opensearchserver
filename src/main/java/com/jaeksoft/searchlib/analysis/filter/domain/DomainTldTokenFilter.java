@@ -41,7 +41,6 @@ public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		if (!input.incrementToken())
 			return false;
 		try {

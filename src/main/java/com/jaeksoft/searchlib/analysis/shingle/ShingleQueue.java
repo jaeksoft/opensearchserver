@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,7 @@ public class ShingleQueue {
 
 	private String tokenSeparator;
 
-	public static final String TYPE = "Shingle";
+	private static final String TYPE = "shingle";
 
 	public ShingleQueue(String tokenSeparator, int size) {
 		this.tokenSeparator = tokenSeparator;
@@ -42,6 +42,10 @@ public class ShingleQueue {
 
 	public final boolean isFull() {
 		return currentSize == tokens.length;
+	}
+
+	public final String getType() {
+		return tokens.length == 1 ? tokens[0].type : TYPE;
 	}
 
 	public final void addToken(ShingleToken shingleToken) {
@@ -58,10 +62,7 @@ public class ShingleQueue {
 	}
 
 	protected final int getPositionIncrement() {
-		int pos = 0;
-		for (int i = 0; i < currentSize; i++)
-			pos += tokens[i].getPositionIncrement();
-		return pos;
+		return tokens.length == 1 ? 1 : 0;
 	}
 
 	protected final int getStartOffset() {

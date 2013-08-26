@@ -29,13 +29,10 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import org.apache.lucene.util.AttributeSource;
 
 import com.jaeksoft.searchlib.analysis.TokenTerm;
 
 public abstract class AbstractTermFilter extends TokenFilter {
-
-	protected AttributeSource.State current = null;
 
 	protected PositionIncrementAttribute posIncrAtt = null;
 
@@ -59,7 +56,6 @@ public abstract class AbstractTermFilter extends TokenFilter {
 			return false;
 		if (term.length() == 0)
 			return false;
-		restoreState(current);
 		termAtt.setEmpty();
 		termAtt.append(term);
 		posIncrAtt.setPositionIncrement(posInc);

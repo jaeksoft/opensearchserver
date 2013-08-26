@@ -58,7 +58,6 @@ public class PrefixSuffixFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		int skippedPositions = 0;
 		for (;;) {
 			if (!input.incrementToken())

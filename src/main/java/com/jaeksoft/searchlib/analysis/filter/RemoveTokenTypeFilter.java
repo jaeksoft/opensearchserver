@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,57 +31,51 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
 
-public class ExpressionLookupFilter extends FilterFactory {
+public class RemoveTokenTypeFilter extends FilterFactory {
 
-	private WordArray words = null;
-	private boolean ignoreCase = false;
+	private String type = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		String[] values = config.getStopWordsManager().getList();
-		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
-		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
-				ClassPropertyEnum.BOOLEAN_LIST);
+		addProperty(ClassPropertyEnum.TOKEN_TYPE, "shingle", null);
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop != ClassPropertyEnum.FILE_LIST)
-			return;
-		if (value == null || value.length() == 0)
-			return;
-		words = config.getStopWordsManager().getWordArray(value, ignoreCase);
+		if (prop == ClassPropertyEnum.TOKEN_TYPE)
+			type = value;
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		if (words == null)
-			return tokenStream;
-		return new ExpressionLookupTokenFilter(tokenStream, words);
+		return new RemoveTokenTypeTokenFilter(tokenStream, type);
 	}
 
-	public class ExpressionLookupTokenFilter extends AbstractTermFilter {
+	public class RemoveTokenTypeTokenFilter extends AbstractTermFilter {
 
-		private WordArray words = null;
+		private final String type;
 
-		public ExpressionLookupTokenFilter(TokenStream input, WordArray words) {
+		public RemoveTokenTypeTokenFilter(TokenStream input, String type) {
 			super(input);
-			this.words = words;
+			this.type = type;
 		}
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			while (input.incrementToken()) {
-				if (words.match(termAtt.toString()))
+			int skippedPositions = 0;
+			for (;;) {
+				if (!input.incrementToken())
+					return false;
+				if (!type.equals(typeAtt.type())) {
+					posIncrAtt.setPositionIncrement(posIncrAtt
+							.getPositionIncrement() + skippedPositions);
 					return true;
+				}
+				skippedPositions += posIncrAtt.getPositionIncrement();
 			}
-			return false;
 		}
 	}
-
 }

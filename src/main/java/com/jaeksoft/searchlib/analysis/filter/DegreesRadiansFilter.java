@@ -90,7 +90,6 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		@Override
 		public boolean incrementToken() throws IOException {
-			current = captureState();
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
@@ -134,7 +133,6 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
@@ -172,7 +170,6 @@ public class DegreesRadiansFilter extends FilterFactory {
 
 		@Override
 		public final boolean incrementToken() throws IOException {
-			current = captureState();
 			for (;;) {
 				if (!input.incrementToken())
 					return false;

@@ -63,7 +63,6 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		for (;;) {
 			if (popToken())
 				return true;

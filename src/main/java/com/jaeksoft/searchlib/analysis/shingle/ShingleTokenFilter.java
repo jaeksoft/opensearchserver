@@ -54,7 +54,7 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 			return false;
 		createToken(shingle.getTerm(), shingle.getPositionIncrement(),
 				shingle.getStartOffset(), shingle.getEndOffset(),
-				ShingleQueue.TYPE);
+				shingle.getType());
 		shingle.pop();
 		return true;
 	}
@@ -66,7 +66,6 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		for (;;) {
 			ShingleQueue shingle = isToken();
 			if (shingle != null)
@@ -75,7 +74,7 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 				return false;
 			addToken(new ShingleToken(termAtt.toString(),
 					posIncrAtt.getPositionIncrement(), offsetAtt.startOffset(),
-					offsetAtt.endOffset()));
+					offsetAtt.endOffset(), typeAtt.type()));
 		}
 	}
 

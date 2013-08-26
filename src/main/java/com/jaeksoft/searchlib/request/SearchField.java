@@ -26,9 +26,12 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collections;
+import java.util.Iterator;
 
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PhraseQuery;
@@ -36,6 +39,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.TokenQueryFilter;
+import com.jaeksoft.searchlib.analysis.TokenQueryFilter.TermQueryFilter;
+import com.jaeksoft.searchlib.analysis.TokenQueryFilter.TermQueryItem;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -145,26 +150,45 @@ public class SearchField implements Cloneable {
 			throws IOException {
 		TokenStream ts = analyzer.tokenStream(field, new StringReader(
 				queryString));
-		TokenQueryFilter.PhraseQueryFilter tfp = null;
-		TokenQueryFilter.BooleanQueryFilter tft = new TokenQueryFilter.BooleanQueryFilter(
-				new BooleanQuery(), occur, field, boost, ts);
-		ts = tft;
-		if (phrase) {
-			tfp = new TokenQueryFilter.PhraseQueryFilter(new PhraseQuery(),
-					field, boost, ts);
-			tfp.query.setBoost(boost);
-			tfp.query.setSlop(phraseSlop);
-			ts = tfp;
-		}
-		while (ts.incrementToken())
+		// Extract terms
+		TokenQueryFilter.TermQueryFilter tqf = new TermQueryFilter(ts);
+		while (tqf.incrementToken())
 			;
 		ts.end();
 		ts.close();
-		complexQuery.add(tft.query, Occur.SHOULD);
-		if (tfp != null) {
-			BooleanQuery bpQuery = new BooleanQuery();
-			bpQuery.add(tfp.query, Occur.MUST);
-			complexQuery.add(bpQuery, Occur.SHOULD);
+		// Sort by offset
+		Collections.sort(tqf.termQueryItems, tqf);
+		Iterator<TermQueryItem> iterator = tqf.termQueryItems.iterator();
+		if (iterator.hasNext()) {
+			TermQueryItem current = iterator.next();
+			while (iterator.hasNext()) {
+				TermQueryItem next = iterator.next();
+				if (current.includes(next))
+					current.addChild(next);
+				else
+					current = next;
+			}
 		}
+
+		// Build term queries
+		BooleanQuery booleanQuery = new BooleanQuery();
+		for (TermQueryItem termQueryItem : tqf.termQueryItems)
+			if (termQueryItem.parent == null)
+				booleanQuery.add(termQueryItem.getQuery(field, boost, occur),
+						occur);
+
+		complexQuery.add(booleanQuery, Occur.SHOULD);
+
+		// Build optional phrase query
+		PhraseQuery phraseQuery = null;
+		if (phrase) {
+			phraseQuery = new PhraseQuery();
+			for (TermQueryItem termQueryItem : tqf.termQueryItems)
+				if (termQueryItem.children == null)
+					phraseQuery.add(new Term(field, termQueryItem.term));
+			phraseQuery.setBoost(boost);
+			complexQuery.add(phraseQuery, Occur.SHOULD);
+		}
+
 	}
 }

@@ -168,8 +168,8 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 			return 0;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
-		TokenQueryFilter.BooleanQueryFilter ttqf = new TokenQueryFilter.BooleanQueryFilter(
-				query, occur, field, 1.0F, ts);
+		TokenQueryFilter ttqf = new TokenQueryFilter.BooleanQueryFilter(query,
+				occur, field, 1.0F, ts);
 		while (ttqf.incrementToken())
 			;
 		IOUtils.closeQuietly(ttqf);

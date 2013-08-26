@@ -68,7 +68,6 @@ public class RegularExpressionTokenFilter extends AbstractTermFilter implements
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		for (;;) {
 			if (popToken())
 				return true;
