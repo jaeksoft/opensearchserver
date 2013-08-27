@@ -29,15 +29,15 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.KeywordAnalyzer;
-import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -49,17 +49,17 @@ public class Schema {
 
 	private AnalyzerList analyzers;
 
-	private Map<String, PerFieldAnalyzerWrapper> langQueryAnalyzers;
+	private Map<String, PerFieldAnalyzer> langQueryAnalyzers;
 
-	private Map<String, PerFieldAnalyzerWrapper> langIndexAnalyzers;
+	private Map<String, PerFieldAnalyzer> langIndexAnalyzers;
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
 	private Schema() {
 		fieldList = null;
 		analyzers = null;
-		langQueryAnalyzers = new TreeMap<String, PerFieldAnalyzerWrapper>();
-		langIndexAnalyzers = new TreeMap<String, PerFieldAnalyzerWrapper>();
+		langQueryAnalyzers = new TreeMap<String, PerFieldAnalyzer>();
+		langIndexAnalyzers = new TreeMap<String, PerFieldAnalyzer>();
 	}
 
 	public static Schema fromXmlConfig(Config config, Node parentNode,
@@ -125,14 +125,13 @@ public class Schema {
 		}
 	}
 
-	public PerFieldAnalyzerWrapper getQueryPerFieldAnalyzer(LanguageEnum lang)
+	public PerFieldAnalyzer getQueryPerFieldAnalyzer(LanguageEnum lang)
 			throws SearchLibException {
 		if (lang == null)
 			lang = LanguageEnum.UNDEFINED;
 		rwl.r.lock();
 		try {
-			PerFieldAnalyzerWrapper pfa = langQueryAnalyzers
-					.get(lang.getCode());
+			PerFieldAnalyzer pfa = langQueryAnalyzers.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
 		} finally {
@@ -140,17 +139,16 @@ public class Schema {
 		}
 		rwl.w.lock();
 		try {
-			PerFieldAnalyzerWrapper pfa = langQueryAnalyzers
-					.get(lang.getCode());
+			PerFieldAnalyzer pfa = langQueryAnalyzers.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
-			Map<String, org.apache.lucene.analysis.Analyzer> mapField = new TreeMap<String, org.apache.lucene.analysis.Analyzer>();
+			Map<String, CompiledAnalyzer> mapField = new TreeMap<String, CompiledAnalyzer>();
 			for (SchemaField field : fieldList) {
 				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
 					mapField.put(field.name, analyzer.getQueryAnalyzer());
 			}
-			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer(), mapField);
+			pfa = new PerFieldAnalyzer(mapField);
 			langQueryAnalyzers.put(lang.getCode(), pfa);
 			return pfa;
 		} finally {
@@ -158,14 +156,13 @@ public class Schema {
 		}
 	}
 
-	public PerFieldAnalyzerWrapper getIndexPerFieldAnalyzer(LanguageEnum lang)
+	public PerFieldAnalyzer getIndexPerFieldAnalyzer(LanguageEnum lang)
 			throws SearchLibException {
 		if (lang == null)
 			lang = LanguageEnum.UNDEFINED;
 		rwl.r.lock();
 		try {
-			PerFieldAnalyzerWrapper pfa = langIndexAnalyzers
-					.get(lang.getCode());
+			PerFieldAnalyzer pfa = langIndexAnalyzers.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
 		} finally {
@@ -173,17 +170,16 @@ public class Schema {
 		}
 		rwl.w.lock();
 		try {
-			PerFieldAnalyzerWrapper pfa = langIndexAnalyzers
-					.get(lang.getCode());
+			PerFieldAnalyzer pfa = langIndexAnalyzers.get(lang.getCode());
 			if (pfa != null)
 				return pfa;
-			Map<String, org.apache.lucene.analysis.Analyzer> mapField = new TreeMap<String, org.apache.lucene.analysis.Analyzer>();
+			Map<String, CompiledAnalyzer> mapField = new TreeMap<String, CompiledAnalyzer>();
 			for (SchemaField field : fieldList) {
 				Analyzer analyzer = getAnalyzer(field, lang);
 				if (analyzer != null)
 					mapField.put(field.name, analyzer.getIndexAnalyzer());
 			}
-			pfa = new PerFieldAnalyzerWrapper(new KeywordAnalyzer(), mapField);
+			pfa = new PerFieldAnalyzer(mapField);
 			langIndexAnalyzers.put(lang.getCode(), pfa);
 			return pfa;
 		} finally {

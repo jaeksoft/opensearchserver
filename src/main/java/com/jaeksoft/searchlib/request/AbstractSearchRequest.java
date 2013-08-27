@@ -30,7 +30,6 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.Query;
@@ -42,6 +41,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -77,7 +77,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private transient Query boostedComplexQuery;
 	private transient Query snippetSimpleQuery;
 
-	protected transient PerFieldAnalyzerWrapper analyzer;
+	protected transient PerFieldAnalyzer analyzer;
 
 	protected transient QueryParser queryParser;
 
@@ -189,13 +189,13 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				snippetField.reset();
 	}
 
-	private PerFieldAnalyzerWrapper checkAnalyzer() throws SearchLibException {
+	private PerFieldAnalyzer checkAnalyzer() throws SearchLibException {
 		if (analyzer == null)
 			analyzer = config.getSchema().getQueryPerFieldAnalyzer(lang);
 		return analyzer;
 	}
 
-	public PerFieldAnalyzerWrapper getAnalyzer() throws SearchLibException {
+	public PerFieldAnalyzer getAnalyzer() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (analyzer != null)

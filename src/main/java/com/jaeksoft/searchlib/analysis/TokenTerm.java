@@ -60,7 +60,7 @@ public class TokenTerm {
 	 * 
 	 * @param tokenTerms
 	 */
-	public TokenTerm(Collection<TokenTerm> tokenTerms) {
+	public TokenTerm(final Collection<TokenTerm> tokenTerms) {
 		int start = Integer.MAX_VALUE;
 		int end = 0;
 		int increment = 0;
@@ -78,9 +78,9 @@ public class TokenTerm {
 		this.increment = increment;
 	}
 
-	public TokenTerm(CharTermAttribute termAtt,
-			PositionIncrementAttribute posIncrAtt, OffsetAttribute offsetAtt,
-			TypeAttribute typeAtt) {
+	public TokenTerm(final CharTermAttribute termAtt,
+			final PositionIncrementAttribute posIncrAtt,
+			final OffsetAttribute offsetAtt, final TypeAttribute typeAtt) {
 		this.term = termAtt != null ? termAtt.toString() : null;
 		this.start = offsetAtt != null ? offsetAtt.startOffset() : 0;
 		this.end = offsetAtt != null ? offsetAtt.endOffset() : 0;

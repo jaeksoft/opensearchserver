@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
@@ -49,6 +48,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -147,7 +147,7 @@ public class WriterLocal extends WriterAbstract {
 				beforeUpdate.update(schema, document);
 
 		Document doc = getLuceneDocument(schema, document);
-		PerFieldAnalyzerWrapper pfa = schema.getIndexPerFieldAnalyzer(document
+		PerFieldAnalyzer pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());
 
 		SchemaField uniqueField = schema.getFieldList().getUniqueField();

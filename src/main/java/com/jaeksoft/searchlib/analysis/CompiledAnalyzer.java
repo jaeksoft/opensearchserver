@@ -84,8 +84,18 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		}
 	}
 
+	public void justTokenize(String text, List<TokenTerm> tokenTerms)
+			throws IOException {
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenizer.create(reader);
+		ts = new TokenTermPopulateFilter(tokenTerms, ts);
+		while (ts.incrementToken())
+			;
+		IOUtils.closeQuietly(ts);
+	}
+
 	@Override
-	public TokenStream tokenStream(String fieldname, Reader reader) {
+	public TokenStream tokenStream(final String fieldname, final Reader reader) {
 		try {
 			TokenStream ts = tokenizer.create(reader);
 			for (FilterFactory filter : filters)

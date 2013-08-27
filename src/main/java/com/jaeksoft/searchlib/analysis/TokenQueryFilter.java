@@ -41,14 +41,21 @@ import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
 public abstract class TokenQueryFilter extends AbstractTermFilter {
 
+	public final CompiledAnalyzer analyzer;
+	public final String field;
+	public final float boost;
 	public int termCount;
 
-	public TokenQueryFilter(TokenStream input) {
+	public TokenQueryFilter(final CompiledAnalyzer analyzer,
+			final String field, final float boost, TokenStream input) {
 		super(input);
+		this.analyzer = analyzer;
+		this.field = field;
+		this.boost = boost;
 		this.termCount = 0;
 	}
 
-	public static class TermQueryItem {
+	public class TermQueryItem {
 
 		public final String term;
 		public final int start;
@@ -56,7 +63,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		public List<TermQueryItem> children;
 		public TermQueryItem parent;
 
-		public TermQueryItem(String term, int start, int end) {
+		public TermQueryItem(final String term, final int start, final int end) {
 			this.term = term;
 			this.start = start;
 			this.end = end;
@@ -91,29 +98,40 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			next.parent = this;
 		}
 
-		public final TermQuery getTermQuery(String field, float boost) {
+		public final Query getTermOrPhraseQuery() throws IOException {
+			if (analyzer != null) {
+				List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>(1);
+				analyzer.justTokenize(term, tokenTerms);
+				if (tokenTerms.size() > 1) {
+					PhraseQuery phraseQuery = new PhraseQuery();
+					for (TokenTerm tokenTerm : tokenTerms)
+						phraseQuery.add(new Term(field, tokenTerm.term));
+					phraseQuery.setBoost(boost);
+					phraseQuery.setSlop(0);
+					return phraseQuery;
+				}
+			}
 			TermQuery termQuery = new TermQuery(new Term(field, term));
 			termQuery.setBoost(boost);
 			return termQuery;
 		}
 
-		private final Query getChildBooleanQuery(String field, float boost,
-				Occur occur) {
+		private final Query getChildBooleanQuery(final Occur occur)
+				throws IOException {
 			if (children.size() == 1)
-				return getTermQuery(field, boost);
+				return children.get(0).getTermOrPhraseQuery();
 			BooleanQuery booleanQuery = new BooleanQuery();
 			for (TermQueryItem child : children)
-				booleanQuery.add(child.getTermQuery(field, boost), occur);
+				booleanQuery.add(child.getTermOrPhraseQuery(), occur);
 			return booleanQuery;
 		}
 
-		public final Query getQuery(String field, float boost, Occur occur) {
+		public final Query getQuery(final Occur occur) throws IOException {
 			if (children == null)
-				return getTermQuery(field, boost);
+				return getTermOrPhraseQuery();
 			BooleanQuery booleanQuery = new BooleanQuery();
-			booleanQuery.add(getTermQuery(field, boost), Occur.SHOULD);
-			booleanQuery.add(getChildBooleanQuery(field, boost, occur),
-					Occur.SHOULD);
+			booleanQuery.add(getTermOrPhraseQuery(), Occur.SHOULD);
+			booleanQuery.add(getChildBooleanQuery(occur), Occur.SHOULD);
 			return booleanQuery;
 		}
 	}
@@ -123,8 +141,9 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 
 		public final List<TermQueryItem> termQueryItems;
 
-		public TermQueryFilter(TokenStream input) {
-			super(input);
+		public TermQueryFilter(final CompiledAnalyzer analyzer,
+				final String field, final float boost, TokenStream input) {
+			super(analyzer, field, boost, input);
 			termQueryItems = new ArrayList<TermQueryItem>();
 		}
 
@@ -150,18 +169,13 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 	public static class BooleanQueryFilter extends TokenQueryFilter {
 
 		public final BooleanQuery booleanQuery;
-		private final String field;
-		private final Occur occur;
-		private final float boost;
+		public final Occur occur;
 
 		public BooleanQueryFilter(BooleanQuery booleanQuery, Occur occur,
 				String field, float boost, TokenStream input) {
-			super(input);
-			this.field = field;
+			super(null, field, boost, input);
 			this.booleanQuery = booleanQuery;
 			this.occur = occur;
-			this.boost = boost;
-
 		}
 
 		@Override
@@ -178,14 +192,11 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 
 	public static class PhraseQueryFilter extends TokenQueryFilter {
 
-		private final String field;
-
 		public final PhraseQuery query;
 
 		public PhraseQueryFilter(PhraseQuery query, String field, float boost,
 				TokenStream input) {
-			super(input);
-			this.field = field;
+			super(null, field, boost, input);
 			this.query = query;
 		}
 

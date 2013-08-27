@@ -29,7 +29,7 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -38,6 +38,8 @@ import org.apache.lucene.search.PhraseQuery;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.analysis.TokenQueryFilter;
 import com.jaeksoft.searchlib.analysis.TokenQueryFilter.TermQueryFilter;
 import com.jaeksoft.searchlib.analysis.TokenQueryFilter.TermQueryItem;
@@ -145,13 +147,21 @@ public class SearchField implements Cloneable {
 		return sb.toString();
 	}
 
-	public void addQuery(PerFieldAnalyzerWrapper analyzer, String queryString,
+	public void addQuery(PerFieldAnalyzer perFieldAnalyzer, String queryString,
 			BooleanQuery complexQuery, int phraseSlop, Occur occur)
 			throws IOException {
+
+		CompiledAnalyzer compiledAnalyzer = perFieldAnalyzer
+				.getCompiledAnalyzer(field);
+		Analyzer analyzer = compiledAnalyzer != null ? compiledAnalyzer
+				: perFieldAnalyzer.getKeywordAnalyzer();
+
 		TokenStream ts = analyzer.tokenStream(field, new StringReader(
 				queryString));
+
 		// Extract terms
-		TokenQueryFilter.TermQueryFilter tqf = new TermQueryFilter(ts);
+		TokenQueryFilter.TermQueryFilter tqf = new TermQueryFilter(
+				compiledAnalyzer, field, boost, ts);
 		while (tqf.incrementToken())
 			;
 		ts.end();
@@ -171,14 +181,14 @@ public class SearchField implements Cloneable {
 		}
 
 		// Build term queries
+
 		BooleanQuery booleanQuery = new BooleanQuery();
-		for (TermQueryItem termQueryItem : tqf.termQueryItems)
+		for (TermQueryItem termQueryItem : tqf.termQueryItems) {
 			if (termQueryItem.parent == null)
-				booleanQuery.add(termQueryItem.getQuery(field, boost, occur),
-						occur);
+				booleanQuery.add(termQueryItem.getQuery(occur), occur);
+		}
 
 		complexQuery.add(booleanQuery, Occur.SHOULD);
-
 		// Build optional phrase query
 		PhraseQuery phraseQuery = null;
 		if (phrase) {
@@ -190,5 +200,6 @@ public class SearchField implements Cloneable {
 			complexQuery.add(phraseQuery, Occur.SHOULD);
 		}
 
+		analyzer.close();
 	}
 }
