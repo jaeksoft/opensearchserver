@@ -24,9 +24,13 @@
 
 package com.jaeksoft.searchlib.analysis;
 
+import it.unimi.dsi.fastutil.Arrays;
+import it.unimi.dsi.fastutil.Swapper;
+import it.unimi.dsi.fastutil.ints.IntComparator;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
@@ -134,10 +138,18 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			booleanQuery.add(getChildBooleanQuery(occur), Occur.SHOULD);
 			return booleanQuery;
 		}
+
+		public void includeChilds() {
+			if (children == null)
+				return;
+			TermQueryFilter.includeChilds(children);
+			for (TermQueryItem child : children)
+				child.includeChilds();
+		}
 	}
 
 	public static class TermQueryFilter extends TokenQueryFilter implements
-			Comparator<TermQueryItem> {
+			IntComparator, Swapper {
 
 		public final List<TermQueryItem> termQueryItems;
 
@@ -158,12 +170,50 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		}
 
 		@Override
-		public int compare(TermQueryItem item1, TermQueryItem item2) {
-			if (item1.start == item2.start)
-				return item2.end - item1.end;
-			return item1.end - item1.start;
+		public void swap(int a, int b) {
+			TermQueryItem tqfa = termQueryItems.get(a);
+			TermQueryItem tqfb = termQueryItems.get(b);
+			termQueryItems.set(a, tqfb);
+			termQueryItems.set(b, tqfa);
 		}
 
+		@Override
+		public int compare(int a, int b) {
+			return compareInt(a, b);
+		}
+
+		@Override
+		public int compare(Integer a, Integer b) {
+			return compareInt(a, b);
+		}
+
+		public void sortByOffset() {
+			Arrays.quickSort(0, termQueryItems.size(), this, this);
+		}
+
+		public int compareInt(int k1, int k2) {
+			TermQueryItem item1 = termQueryItems.get(k1);
+			TermQueryItem item2 = termQueryItems.get(k2);
+			if (item2.start == item1.start)
+				return item2.end - item1.end;
+			return item1.start - item2.start;
+		}
+
+		public final static void includeChilds(
+				List<TermQueryItem> termQueryItems) {
+			Iterator<TermQueryItem> iterator = termQueryItems.iterator();
+			if (!iterator.hasNext())
+				return;
+			TermQueryItem current = iterator.next();
+			while (iterator.hasNext()) {
+				TermQueryItem next = iterator.next();
+				if (current.includes(next)) {
+					current.addChild(next);
+					iterator.remove();
+				} else
+					current = next;
+			}
+		}
 	}
 
 	public static class BooleanQueryFilter extends TokenQueryFilter {

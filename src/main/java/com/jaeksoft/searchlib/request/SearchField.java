@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.Iterator;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -166,19 +164,12 @@ public class SearchField implements Cloneable {
 			;
 		ts.end();
 		ts.close();
-		// Sort by offset
-		Collections.sort(tqf.termQueryItems, tqf);
-		Iterator<TermQueryItem> iterator = tqf.termQueryItems.iterator();
-		if (iterator.hasNext()) {
-			TermQueryItem current = iterator.next();
-			while (iterator.hasNext()) {
-				TermQueryItem next = iterator.next();
-				if (current.includes(next))
-					current.addChild(next);
-				else
-					current = next;
-			}
-		}
+
+		tqf.sortByOffset();
+
+		TermQueryFilter.includeChilds(tqf.termQueryItems);
+		for (TermQueryItem termQueryItem : tqf.termQueryItems)
+			termQueryItem.includeChilds();
 
 		// Build term queries
 
@@ -199,7 +190,7 @@ public class SearchField implements Cloneable {
 			phraseQuery.setBoost(boost);
 			complexQuery.add(phraseQuery, Occur.SHOULD);
 		}
-
+		tqf.close();
 		analyzer.close();
 	}
 }
