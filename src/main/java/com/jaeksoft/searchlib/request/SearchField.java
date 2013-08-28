@@ -149,6 +149,9 @@ public class SearchField implements Cloneable {
 			BooleanQuery complexQuery, int phraseSlop, Occur occur)
 			throws IOException {
 
+		if (queryString == null)
+			return;
+
 		CompiledAnalyzer compiledAnalyzer = perFieldAnalyzer
 				.getCompiledAnalyzer(field);
 		Analyzer analyzer = compiledAnalyzer != null ? compiledAnalyzer

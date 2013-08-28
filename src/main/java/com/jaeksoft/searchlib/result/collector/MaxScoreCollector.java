@@ -31,7 +31,7 @@ public class MaxScoreCollector extends AbstractCollector {
 	private float maxScore = 0;
 
 	@Override
-	final public void collectDoc(int docId) throws IOException {
+	final public void collectDoc(final int docId) throws IOException {
 		float sc = scorer.score();
 		if (sc > maxScore)
 			maxScore = sc;

@@ -14,8 +14,7 @@
 	<http://www.gnu.org/licenses/>. -->
 <configuration>
 	<indices>
-		<index name="url" searchCache="100" filterCache="100"
-			fieldCache="500" />
+		<index name="url" searchCache="0" filterCache="0" fieldCache="0" />
 	</indices>
 	<schema>
 		<fields default="url" unique="url">

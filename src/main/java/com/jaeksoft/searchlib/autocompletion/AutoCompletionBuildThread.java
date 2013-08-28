@@ -40,6 +40,9 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
 public class AutoCompletionBuildThread extends
@@ -47,6 +50,7 @@ public class AutoCompletionBuildThread extends
 
 	private volatile Client sourceClient;
 	private volatile Client autoCompClient;
+	private volatile String searchRequest;
 	private volatile String[] fieldNames;
 	private volatile TermEnum termEnum;
 	private volatile InfoCallback infoCallBack;
@@ -58,6 +62,7 @@ public class AutoCompletionBuildThread extends
 		this.sourceClient = sourceClient;
 		this.autoCompClient = autoCompClient;
 		this.fieldNames = null;
+		this.searchRequest = null;
 		this.termEnum = null;
 		this.bufferSize = 50;
 	}
@@ -81,40 +86,71 @@ public class AutoCompletionBuildThread extends
 			return docCount;
 		docCount += autoCompClient.updateDocuments(buffer);
 		buffer.clear();
-		if (infoCallBack != null) {
+		if (infoCallBack != null)
 			infoCallBack.setInfo(docCount + " term(s) indexed");
+		return docCount;
+	}
 
+	private int indexTerm(String term, Integer freq,
+			List<IndexDocument> buffer, int docCount)
+			throws NoSuchAlgorithmException, SearchLibException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		IndexDocument indexDocument = new IndexDocument();
+		indexDocument.addString("term", term);
+		indexDocument.addString("cluster", term);
+		if (freq != null)
+			indexDocument.addString("freq", Integer.toString(freq));
+		buffer.add(indexDocument);
+		if (buffer.size() == bufferSize)
+			docCount = indexBuffer(docCount, buffer);
+		return docCount;
+	}
+
+	private int buildTermEnum(List<IndexDocument> buffer, int docCount)
+			throws SearchLibException, NoSuchAlgorithmException, IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (fieldNames == null)
+			return docCount;
+		for (String fieldName : fieldNames) {
+			termEnum = sourceClient.getTermEnum(fieldName, "");
+			Term term = null;
+			while ((term = termEnum.term()) != null) {
+				if (!fieldName.equals(term.field()))
+					break;
+				docCount = indexTerm(term.text(), termEnum.docFreq(), buffer,
+						docCount);
+				termEnum.next();
+			}
 		}
+		return docCount;
+	}
+
+	private int buildSearchRequest(List<IndexDocument> buffer, int docCount)
+			throws SearchLibException {
+		AbstractRequest request = sourceClient.getNewRequest(searchRequest);
+		if (request == null)
+			throw new SearchLibException("Request not found " + searchRequest);
+		if (!(request instanceof AbstractSearchRequest))
+			throw new SearchLibException("The request " + searchRequest
+					+ " is not a Search request ");
+		AbstractResultSearch result = (AbstractResultSearch) sourceClient
+				.request(request);
+		System.out.println("buildSearchRequest " + result.getNumFound());
 		return docCount;
 	}
 
 	@Override
 	public void runner() throws Exception {
 		autoCompClient.deleteAll();
-		if (fieldNames == null)
-			return;
-		for (String fieldName : fieldNames) {
-			termEnum = sourceClient.getTermEnum(fieldName, "");
-			Term term = null;
-			List<IndexDocument> buffer = new ArrayList<IndexDocument>();
-			int docCount = 0;
-			while ((term = termEnum.term()) != null) {
-				if (!fieldName.equals(term.field()))
-					break;
-				IndexDocument indexDocument = new IndexDocument();
-				String t = term.text();
-				indexDocument.addString("term", t);
-				indexDocument.addString("cluster", t);
-				indexDocument.addString("freq",
-						Integer.toString(termEnum.docFreq()));
-				buffer.add(indexDocument);
-				if (buffer.size() == bufferSize)
-					docCount = indexBuffer(docCount, buffer);
-				if (!termEnum.next())
-					break;
-			}
-			docCount = indexBuffer(docCount, buffer);
-		}
+		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
+		int docCount = 0;
+		if (searchRequest != null && searchRequest.length() > 0)
+			docCount = buildSearchRequest(buffer, docCount);
+		else
+			docCount = buildTermEnum(buffer, docCount);
+		docCount = indexBuffer(docCount, buffer);
 		autoCompClient.optimize();
 	}
 
@@ -130,9 +166,10 @@ public class AutoCompletionBuildThread extends
 		}
 	}
 
-	public void init(Collection<String> fieldNames, int bufferSize,
-			InfoCallback infoCallBack) {
+	public void init(Collection<String> fieldNames, String searchRequest,
+			int bufferSize, InfoCallback infoCallBack) {
 		this.fieldNames = fieldNames.toArray(new String[fieldNames.size()]);
+		this.searchRequest = searchRequest;
 		this.infoCallBack = infoCallBack;
 		this.bufferSize = bufferSize;
 	}

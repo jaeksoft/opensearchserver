@@ -14,7 +14,7 @@
 	<http://www.gnu.org/licenses/>. -->
 <configuration>
 	<indices>
-		<index searchCache="100" filterCache="100" fieldCache="500" />
+		<index searchCache="0" filterCache="0" fieldCache="0" />
 	</indices>
 	<schema>
 		<fields default="keywords" unique="reportId">

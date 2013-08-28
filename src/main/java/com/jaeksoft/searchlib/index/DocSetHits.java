@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,12 +26,11 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.MaxScoreCollector;
@@ -55,36 +54,15 @@ public class DocSetHits {
 	private DocIdCollector docIdCollector;
 	private ScoreDocCollector scoreDocCollector;
 
-	private class FilterBitSet extends Filter {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1626629515659451528L;
-
-		private OpenBitSet filterBitSet;
-
-		public FilterBitSet(OpenBitSet filterBitSet) {
-			this.filterBitSet = filterBitSet;
-		}
-
-		@Override
-		public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
-			return filterBitSet;
-		}
-
-	}
-
 	protected DocSetHits(ReaderLocal reader, Query query,
-			OpenBitSet filterBitSet, SortFieldList sortFieldList, Timer timer)
+			FilterHits filterHits, SortFieldList sortFieldList, Timer timer)
 			throws IOException {
 		rwl.w.lock();
 		try {
 			this.query = query;
-			this.filter = filterBitSet != null ? new FilterBitSet(filterBitSet)
-					: null;
 			this.reader = reader;
 			this.sortFieldList = sortFieldList;
+			this.filter = filterHits;
 			docIdCollector = null;
 			maxScoreCollector = null;
 			scoreDocCollector = null;
@@ -92,7 +70,7 @@ public class DocSetHits {
 			if (reader.numDocs() == 0)
 				return;
 			Timer t = new Timer(timer, "DocSetHits: " + query.toString());
-			reader.search(query, filter, numFoundCollector);
+			reader.search(query, filterHits, numFoundCollector);
 			t.getDuration();
 
 		} finally {

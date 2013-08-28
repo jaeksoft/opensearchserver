@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -90,23 +89,20 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return filterList.iterator();
 	}
 
-	public OpenBitSet getOpenBitSet(ReaderLocal reader,
+	public FilterHits getFilterHits(ReaderLocal reader,
 			SchemaField defaultField, Analyzer analyzer, Timer timer)
 			throws IOException, ParseException {
 
 		if (size() == 0)
 			return null;
 
-		OpenBitSet docSet = null;
+		FilterHits finalFilterHits = new FilterHits();
 		for (FilterAbstract<?> filter : filterList) {
 			FilterHits filterHits = reader.getFilterHits(defaultField,
 					analyzer, filter, timer);
-			if (docSet == null)
-				docSet = (OpenBitSet) filterHits.docSet.clone();
-			else
-				filterHits.and(docSet);
+			finalFilterHits.and(filterHits);
 		}
-		return docSet;
+		return finalFilterHits;
 	}
 
 	public Object[] getArray() {

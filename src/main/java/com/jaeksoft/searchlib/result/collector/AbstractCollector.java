@@ -47,11 +47,11 @@ public abstract class AbstractCollector extends Collector {
 	}
 
 	@Override
-	final public void collect(int doc) throws IOException {
+	final public void collect(final int doc) throws IOException {
 		collectDoc(doc + currentDocBase);
 	}
 
-	protected abstract void collectDoc(int doc) throws IOException;
+	protected abstract void collectDoc(final int doc) throws IOException;
 
 	@Override
 	final public void setScorer(Scorer scorer) throws IOException {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionBuildThread;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -63,6 +64,8 @@ public class AutoCompletionComposer extends CommonController {
 	private String selectedField;
 
 	private final Set<String> fields;
+
+	private String searchRequest;
 
 	private ListModel<String> comboList;
 
@@ -112,6 +115,7 @@ public class AutoCompletionComposer extends CommonController {
 		name = null;
 		rows = 10;
 		selectedField = null;
+		searchRequest = null;
 	}
 
 	@Command
@@ -134,6 +138,7 @@ public class AutoCompletionComposer extends CommonController {
 				: new AutoCompletionItem(client, name);
 		autoCompItem.setFields(fields);
 		autoCompItem.setRows(rows);
+		autoCompItem.setSearchRequest(searchRequest);
 		if (selectedItem == null)
 			manager.add(autoCompItem);
 		else
@@ -243,6 +248,7 @@ public class AutoCompletionComposer extends CommonController {
 		fields.addAll(selectedItem.getFields());
 		this.rows = selectedItem.getRows();
 		this.name = selectedItem.getName();
+		this.searchRequest = selectedItem.getSearchRequest();
 	}
 
 	/**
@@ -298,4 +304,29 @@ public class AutoCompletionComposer extends CommonController {
 		return fields;
 	}
 
+	/**
+	 * @return the searchRequest
+	 */
+	public String getSearchRequest() {
+		return searchRequest;
+	}
+
+	/**
+	 * @param searchRequest
+	 *            the searchRequest to set
+	 */
+	public void setSearchRequest(String searchRequest) {
+		this.searchRequest = searchRequest;
+	}
+
+	public List<String> getSearchRequests() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> nameList = new ArrayList<String>(0);
+		client.getRequestMap().getNameList(nameList,
+				RequestTypeEnum.SearchFieldRequest,
+				RequestTypeEnum.SearchRequest);
+		return nameList;
+	}
 }

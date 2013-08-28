@@ -71,6 +71,17 @@
 						<label
 							value="Set how many suggestions will be submitted" />
 					</row>
+					<row>
+						<label value="Search request" />
+						<combobox value="@bind(auto.searchRequest)"
+							model="@load(auto.searchRequests)">
+							<template name="model">
+								<comboitem label="@load(each)" />
+							</template>
+						</combobox>
+						<label
+							value="An optional search request for filtering the terms" />
+					</row>
 					<row visible="@load(not empty auto.selectedItem)">
 						<label value="Testing" />
 						<combobox cols="50" autodrop="true"

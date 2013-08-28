@@ -63,7 +63,7 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 	}
 
 	@Override
-	public void collectDoc(int docId) throws IOException {
+	public void collectDoc(final int docId) throws IOException {
 		ids[currentPos++] = docId;
 	}
 

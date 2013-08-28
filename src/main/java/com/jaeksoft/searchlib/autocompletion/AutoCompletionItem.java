@@ -62,12 +62,15 @@ public class AutoCompletionItem implements Closeable,
 
 	private final Set<String> propFields;
 
+	private String searchRequest;
+
 	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
 	private final static String autoCompletionPropertyRows = "rows";
 	private final static String autoCompletionPropertyRowsDefault = "10";
 	public final static String autoCompletionSchemaFieldTerm = "term";
 	public final static String autoCompletionSchemaFieldFreq = "freq";
+	public final static String autoCompletionSearchRequest = "searchRequest";
 
 	public final static String getPropertyField(Properties props) {
 		return props.getProperty(autoCompletionPropertyField);
@@ -81,6 +84,7 @@ public class AutoCompletionItem implements Closeable,
 		this.autoCompClientDir = new File(manager.getDirectory(), name);
 		this.propRows = 10;
 		this.propFields = new TreeSet<String>();
+		this.searchRequest = null;
 	}
 
 	private final static File getAutoCompClientDir(File autoCompPropFile)
@@ -113,6 +117,7 @@ public class AutoCompletionItem implements Closeable,
 		}
 		propRows = Integer.parseInt(properties.getProperty(
 				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
+		searchRequest = properties.getProperty(autoCompletionSearchRequest);
 		checkIndexAndThread();
 	}
 
@@ -271,7 +276,7 @@ public class AutoCompletionItem implements Closeable,
 		if (infoCallBack != null)
 			infoCallBack.setInfo("Build starts");
 		checkIfRunning();
-		buildThread.init(propFields, bufferSize, infoCallBack);
+		buildThread.init(propFields, searchRequest, bufferSize, infoCallBack);
 		buildThread.execute();
 		buildThread.waitForStart(300);
 		if (endTimeOut != null)
@@ -326,12 +331,39 @@ public class AutoCompletionItem implements Closeable,
 		}
 		properties.setProperty(autoCompletionPropertyRows,
 				Integer.toString(propRows));
+		if (searchRequest != null && searchRequest.length() > 0)
+			properties.setProperty(autoCompletionSearchRequest, searchRequest);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
 	@Override
 	public int compareTo(AutoCompletionItem item) {
 		return propFile.getName().compareTo(item.propFile.getName());
+	}
+
+	/**
+	 * @return the searchRequest
+	 */
+	public String getSearchRequest() {
+		rwl.r.lock();
+		try {
+			return searchRequest;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param searchRequest
+	 *            the searchRequest to set
+	 */
+	public void setSearchRequest(String searchRequest) {
+		rwl.w.lock();
+		try {
+			this.searchRequest = searchRequest;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

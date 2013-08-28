@@ -610,7 +610,7 @@ public class UrlController extends CommonController {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
 					FetchStatus.UN_FETCHED, getBufferSize());
-			taskUrlManagerAction.setOptimize();
+			// taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
 	}
