@@ -141,7 +141,7 @@ public class CommonServices {
 		}
 
 		public CommonServiceException(Exception e) {
-			this(Response.Status.INTERNAL_SERVER_ERROR, e);
+			this(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 }

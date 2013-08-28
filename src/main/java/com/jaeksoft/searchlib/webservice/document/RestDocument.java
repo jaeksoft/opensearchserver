@@ -62,12 +62,12 @@ public interface RestDocument {
 			InputStream inputStream);
 
 	@DELETE
-	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{field_name}")
+	@Path("/{field_name}/{values:.+}")
 	public CommonResult deleteByValue(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("field_name") String field, List<String> values);
+			@PathParam("field_name") String field,
+			@PathParam("values") String values);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

@@ -28,10 +28,13 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -91,6 +94,15 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
+	}
+
+	@Override
+	public CommonResult deleteByValue(String index, String login, String key,
+			String field, String values) {
+		String[] valueArray = StringUtils.split(values, '/');
+		return deleteByValue(index, login, key, field,
+				Arrays.asList(valueArray));
+
 	}
 
 	private int updateDocument(Client client, List<DocumentUpdate> documents)
