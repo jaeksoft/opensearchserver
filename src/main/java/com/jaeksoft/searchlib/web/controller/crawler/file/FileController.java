@@ -400,7 +400,6 @@ public class FileController extends CrawlerController {
 					SearchTemplate.fileSearch);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
 			taskFileManagerAction.setSelection(searchRequest, false, true);
-			taskFileManagerAction.setOptimize();
 			onTask(taskFileManagerAction);
 		}
 	}
@@ -415,7 +414,6 @@ public class FileController extends CrawlerController {
 					SearchTemplate.fileExport);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
 			taskFileManagerAction.setSelection(searchRequest, true, false);
-			taskFileManagerAction.setOptimize();
 			onTask(taskFileManagerAction);
 		}
 	}
