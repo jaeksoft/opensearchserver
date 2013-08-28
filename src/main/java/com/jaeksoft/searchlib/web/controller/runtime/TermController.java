@@ -116,7 +116,7 @@ public class TermController extends CommonController {
 			String currentField = getCurrentField();
 			if (currentField == null)
 				return null;
-			return client.getTermEnum(currentField, getSearchTerm());
+			return client.getTermEnum(new Term(currentField, getSearchTerm()));
 		}
 	}
 
