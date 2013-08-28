@@ -326,13 +326,6 @@ public final class QueryController extends AbstractQueryController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		AbstractRequest request = getAbstractRequest();
-
-		if (request instanceof AbstractSearchRequest) {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
-			if (searchRequest.getQueryString() == null)
-				searchRequest.setQueryString("*:*");
-		}
-
 		request.reset();
 		setResult(getClient().request(request));
 	}

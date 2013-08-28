@@ -41,6 +41,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.w3c.dom.Node;
 
@@ -416,9 +417,8 @@ public class Client extends Config {
 		return getIndexAbstract().getStatistics();
 	}
 
-	public TermEnum getTermEnum(String field, String term)
-			throws SearchLibException {
-		return getIndexAbstract().getTermEnum(field, term);
+	public TermEnum getTermEnum(Term term) throws SearchLibException {
+		return getIndexAbstract().getTermEnum(term);
 	}
 
 	private final static String REPL_CHECK_FILENAME = "repl.check";

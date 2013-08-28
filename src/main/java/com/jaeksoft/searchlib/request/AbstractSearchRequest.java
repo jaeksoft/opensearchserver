@@ -32,6 +32,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
@@ -66,6 +67,7 @@ import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -102,6 +104,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private AdvancedScore advancedScore;
 	private String queryParsed;
 	private boolean withSortValues;
+	protected boolean emptyReturnsAll;
 
 	protected AbstractSearchRequest(Config config, RequestTypeEnum type) {
 		super(config, type);
@@ -138,6 +141,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.advancedScore = null;
 		this.withSortValues = false;
 		this.queryParsed = null;
+		this.emptyReturnsAll = true;
 	}
 
 	@Override
@@ -175,6 +179,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.queryString = searchRequest.queryString;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
 		this.queryParsed = null;
+		this.emptyReturnsAll = searchRequest.emptyReturnsAll;
 	}
 
 	@Override
@@ -230,6 +235,24 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
+	public boolean getEmptyReturnsAll() {
+		rwl.r.lock();
+		try {
+			return emptyReturnsAll;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setEmptyReturnsAll(boolean value) {
+		rwl.w.lock();
+		try {
+			emptyReturnsAll = value;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	protected abstract Query newSnippetQuery(String queryString)
 			throws IOException, ParseException, SyntaxError, SearchLibException;
 
@@ -275,6 +298,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			getQueryParser();
 			checkAnalyzer();
 			boostedComplexQuery = newComplexQuery(queryString);
+			if (boostedComplexQuery == null)
+				boostedComplexQuery = new BooleanQuery();
 			if (advancedScore != null && !advancedScore.isEmpty())
 				boostedComplexQuery = advancedScore
 						.getNewQuery(boostedComplexQuery);
@@ -756,6 +781,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		setRows(XPathParser.getAttributeValue(requestNode, "rows"));
 		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				requestNode, "lang")));
+		setEmptyReturnsAll(!"no".equalsIgnoreCase(DomUtils.getAttributeText(
+				requestNode, "emtpyReturnsAll")));
 
 		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
 				requestNode);
@@ -837,7 +864,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					"lang", lang != null ? lang.getCode() : null,
 					"collapseMode", collapseMode.getLabel(), "collapseType",
 					collapseType.getLabel(), "collapseField", collapseField,
-					"collapseMax", Integer.toString(collapseMax));
+					"collapseMax", Integer.toString(collapseMax),
+					"emptyReturnsAll", emptyReturnsAll ? "yes" : "no");
 
 			if (boostingQueries.size() > 0) {
 				xmlWriter.startElement("boostingQueries");

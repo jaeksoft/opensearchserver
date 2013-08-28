@@ -32,6 +32,7 @@ import java.util.Collection;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
@@ -336,13 +337,26 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term)
-			throws SearchLibException {
+	public TermEnum getTermEnum(Term term) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
 			if (reader != null)
-				return reader.getTermEnum(field, term);
+				return reader.getTermEnum(term);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermDocs getTermDocs(Term term) throws SearchLibException,
+			IOException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getTermDocs(term);
 			return null;
 		} finally {
 			rwl.r.unlock();

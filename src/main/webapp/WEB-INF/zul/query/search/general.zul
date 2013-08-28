@@ -28,6 +28,11 @@
 					width="90%" />
 			</row>
 			<row>
+				<label>Empty query string returns all documents:</label>
+				<checkbox
+					checked="@bind(general.request.emptyReturnsAll)" />
+			</row>
+			<row>
 				<label>Default operator:</label>
 				<listbox mold="select"
 					selectedItem="@bind(general.request.defaultOperator)">

@@ -33,7 +33,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -43,6 +45,7 @@ import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
 public class AutoCompletionBuildThread extends
@@ -114,7 +117,7 @@ public class AutoCompletionBuildThread extends
 		if (fieldNames == null)
 			return docCount;
 		for (String fieldName : fieldNames) {
-			termEnum = sourceClient.getTermEnum(fieldName, "");
+			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
 			Term term = null;
 			while ((term = termEnum.term()) != null) {
 				if (!fieldName.equals(term.field()))
@@ -123,21 +126,52 @@ public class AutoCompletionBuildThread extends
 						docCount);
 				termEnum.next();
 			}
+			termEnum.close();
 		}
 		return docCount;
 	}
 
 	private int buildSearchRequest(List<IndexDocument> buffer, int docCount)
-			throws SearchLibException {
+			throws SearchLibException, IOException, NoSuchAlgorithmException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (fieldNames == null)
+			return docCount;
 		AbstractRequest request = sourceClient.getNewRequest(searchRequest);
 		if (request == null)
 			throw new SearchLibException("Request not found " + searchRequest);
 		if (!(request instanceof AbstractSearchRequest))
 			throw new SearchLibException("The request " + searchRequest
 					+ " is not a Search request ");
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
+		searchRequest.setRows(0);
 		AbstractResultSearch result = (AbstractResultSearch) sourceClient
 				.request(request);
-		System.out.println("buildSearchRequest " + result.getNumFound());
+		if (result == null)
+			return docCount;
+		DocIdInterface docIds = result.getDocs();
+		if (docIds == null)
+			return docCount;
+		OpenBitSet openBitSet = docIds.getBitSet();
+		if (openBitSet == null || openBitSet.size() == 0)
+			return docCount;
+		for (String fieldName : fieldNames) {
+			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
+			Term term = null;
+			while ((term = termEnum.term()) != null) {
+				if (!fieldName.equals(term.field()))
+					break;
+				TermDocs termDocs = sourceClient.getIndex().getTermDocs(term);
+				boolean add = false;
+				while (termDocs.next() && !add)
+					add = openBitSet.fastGet(termDocs.doc());
+				if (add)
+					docCount = indexTerm(term.text(), termEnum.docFreq(),
+							buffer, docCount);
+				termEnum.next();
+			}
+			termEnum.close();
+		}
 		return docCount;
 	}
 

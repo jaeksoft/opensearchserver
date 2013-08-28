@@ -141,6 +141,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public TermDocs getTermDocs(Term term) throws IOException {
 		rwl.r.lock();
 		try {
@@ -186,11 +187,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public TermEnum getTermEnum(String field, String term)
-			throws SearchLibException {
+	public TermEnum getTermEnum(Term term) throws SearchLibException {
 		rwl.r.lock();
 		try {
-			return indexReader.terms(new Term(field, term));
+			return indexReader.terms(term);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

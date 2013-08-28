@@ -264,7 +264,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 			this.query = searchRequest.getSnippetQuery();
 			this.analyzer = searchRequest.getAnalyzer();
 			Set<Term> terms = new HashSet<Term>();
-			query.extractTerms(terms);
+			if (query != null)
+				query.extractTerms(terms);
 			String[] tempTerms = new String[terms.size()];
 			int i = 0;
 			// Find term for that field only

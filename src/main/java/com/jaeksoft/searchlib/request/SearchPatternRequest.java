@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
@@ -115,6 +116,8 @@ public class SearchPatternRequest extends AbstractSearchRequest implements
 	@Override
 	public Query newComplexQuery(String queryString) throws ParseException,
 			SyntaxError, SearchLibException, IOException {
+		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
+			queryString = "*:*";
 		String fq = getFinalQuery(searchPatternQuery, queryString);
 		if (fq == null)
 			return null;

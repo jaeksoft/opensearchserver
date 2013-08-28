@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
@@ -49,8 +50,10 @@ public interface ReaderInterface {
 
 	public TermEnum getTermEnum() throws SearchLibException;
 
-	public TermEnum getTermEnum(String field, String term)
-			throws SearchLibException;
+	public TermEnum getTermEnum(Term term) throws SearchLibException;
+
+	public TermDocs getTermDocs(Term term) throws IOException,
+			SearchLibException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException, SearchLibException;
