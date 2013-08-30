@@ -19,10 +19,9 @@
 <!-- -->
 <!-- See the GNU General Public License for more details. -->
 <jobs>
-	<job name="Optimize" active="no">
+	<job name="BuildAutocompletion" active="no">
 		<cron seconds="0" minutes="*" hours="*" dayOfMonth="*" month="*"
 			dayOfWeek="?" year="*" />
-		<task class="TaskOptimizeIndex" />
 		<task class="TaskBuildAutocompletion">
 			<property name="Buffer size">1000</property>
 			<property name="Item name">autocomplete</property>
