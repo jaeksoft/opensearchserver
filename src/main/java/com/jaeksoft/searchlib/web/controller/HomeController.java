@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.template.TemplateList;
 
 public class HomeController extends CommonController {
@@ -45,6 +46,8 @@ public class HomeController extends CommonController {
 	private String indexName;
 
 	private TemplateList indexTemplate;
+
+	private IndexType indexType;
 
 	private Set<ClientCatalogItem> catalogItems;
 
@@ -58,6 +61,7 @@ public class HomeController extends CommonController {
 	protected void reset() throws SearchLibException {
 		indexName = null;
 		indexTemplate = TemplateList.EMPTY_INDEX;
+		indexType = IndexType.LUCENE;
 		catalogItems = null;
 	}
 
@@ -133,7 +137,7 @@ public class HomeController extends CommonController {
 			return;
 		}
 		ClientCatalog.createIndex(getLoggedUser(), indexName,
-				indexTemplate.getTemplate());
+				indexTemplate.getTemplate(), indexType);
 		setClient(ClientCatalog.getClient(indexName));
 	}
 
@@ -180,5 +184,24 @@ public class HomeController extends CommonController {
 		if (catalogItem == null)
 			return;
 		catalogItem.computeInfos();
+	}
+
+	/**
+	 * @return the indexType
+	 */
+	public IndexType getNewIndexType() {
+		return indexType;
+	}
+
+	/**
+	 * @param indexType
+	 *            the indexType to set
+	 */
+	public void setNewIndexType(IndexType indexType) {
+		this.indexType = indexType;
+	}
+
+	public IndexType[] getIndexTypeList() {
+		return IndexType.values();
 	}
 }

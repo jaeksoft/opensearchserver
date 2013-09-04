@@ -50,6 +50,8 @@ import org.zkoss.zk.ui.WebApp;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
+import com.jaeksoft.searchlib.index.IndexStatistics;
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
@@ -142,7 +144,10 @@ public class ClientCatalog {
 			for (Client client : CLIENTS.values()) {
 				if (client.isTrueReplicate())
 					continue;
-				count += client.getStatistics().getNumDocs();
+				IndexStatistics stats = client.getStatistics();
+				if (stats == null)
+					continue;
+				count += stats.getNumDocs();
 			}
 			return count;
 		} finally {
@@ -270,7 +275,8 @@ public class ClientCatalog {
 	}
 
 	public static void createIndex(User user, String indexName,
-			TemplateAbstract template) throws SearchLibException, IOException {
+			TemplateAbstract template, IndexType indexType)
+			throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		ClientFactory.INSTANCE.properties.checkMaxIndexNumber();
@@ -284,7 +290,7 @@ public class ClientCatalog {
 			if (indexDir.exists())
 				throw new SearchLibException("directory " + indexName
 						+ " already exists");
-			template.createIndex(indexDir);
+			template.createIndex(indexDir, indexType);
 		} finally {
 			rwl.w.unlock();
 		}

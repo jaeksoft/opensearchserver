@@ -57,22 +57,22 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
-public class WriterLocal extends WriterAbstract {
+public class WriterLucene extends WriterAbstract {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	private IndexDirectory indexDirectory;
+	private final IndexDirectory indexDirectory;
 
-	private IndexSingle indexSingle;
+	private final IndexLucene indexLucene;
 
-	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
+	protected WriterLucene(IndexConfig indexConfig, IndexLucene indexLucene,
 			IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
-		this.indexSingle = indexSingle;
+		this.indexLucene = indexLucene;
 		this.indexDirectory = indexDirectory;
 	}
 
-	private IndexWriter close(IndexWriter indexWriter) {
+	public IndexWriter close(IndexWriter indexWriter) {
 		if (indexWriter == null)
 			return null;
 		try {
@@ -87,6 +87,10 @@ public class WriterLocal extends WriterAbstract {
 		} finally {
 			indexDirectory.unlock();
 		}
+	}
+
+	@Override
+	public void close() {
 	}
 
 	public final void create() throws CorruptIndexException,
@@ -172,7 +176,7 @@ public class WriterLocal extends WriterAbstract {
 			boolean updated = updateDocNoLock(indexWriter, schema, document);
 			indexWriter = close(indexWriter);
 			if (updated)
-				indexSingle.reload();
+				indexLucene.reload();
 			return updated;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -211,7 +215,7 @@ public class WriterLocal extends WriterAbstract {
 					count++;
 			indexWriter = close(indexWriter);
 			if (count > 0)
-				indexSingle.reload();
+				indexLucene.reload();
 			return count;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -303,12 +307,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexLucene.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
 			indexWriter = close(indexWriter);
-			indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+			indexLucene.reload();
+			l = indexLucene.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -347,13 +351,13 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexLucene.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
 			indexWriter = close(indexWriter);
 			if (terms.length > 0)
-				indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+				indexLucene.reload();
+			l = indexLucene.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -414,12 +418,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexLucene.getStatistics().getNumDeletedDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
 			indexWriter = close(indexWriter);
-			indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+			indexLucene.reload();
+			l = indexLucene.getStatistics().getNumDeletedDocs() - l;
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -455,7 +459,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = open();
 			indexWriter.deleteAll();
 			indexWriter = close(indexWriter);
-			indexSingle.reload();
+			indexLucene.reload();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -490,7 +494,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = open();
 			indexWriter.addIndexes(directory.getDirectory());
 			indexWriter = close(indexWriter);
-			indexSingle.reload();
+			indexLucene.reload();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InstantiationException e) {
@@ -507,10 +511,10 @@ public class WriterLocal extends WriterAbstract {
 
 	@Override
 	public void mergeData(WriterInterface source) throws SearchLibException {
-		WriterLocal sourceWriter = null;
-		if (!(source instanceof WriterLocal))
+		WriterLucene sourceWriter = null;
+		if (!(source instanceof WriterLucene))
 			throw new SearchLibException("Unsupported operation");
-		sourceWriter = (WriterLocal) source;
+		sourceWriter = (WriterLucene) source;
 		lock.rl.lock();
 		try {
 			sourceWriter.lock.rl.lock();

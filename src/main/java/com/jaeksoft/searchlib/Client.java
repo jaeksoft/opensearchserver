@@ -329,8 +329,10 @@ public class Client extends Config {
 			return "Unknown";
 		if (isOptimizing())
 			return "Running";
-		return Boolean.toString(getIndexAbstract().getStatistics()
-				.isOptimized());
+		IndexStatistics stats = getIndexAbstract().getStatistics();
+		if (stats == null)
+			return null;
+		return Boolean.toString(stats.isOptimized());
 	}
 
 	public String getMergeStatus() {

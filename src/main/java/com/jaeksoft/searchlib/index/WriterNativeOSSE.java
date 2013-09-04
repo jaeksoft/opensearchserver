@@ -264,4 +264,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	}
 
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

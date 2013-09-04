@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -51,7 +53,9 @@ public class IndexConfig {
 
 	private int maxNumSegments;
 
-	public IndexConfig(XPathParser xpp, Node node) throws URISyntaxException {
+	private IndexType indexType;
+
+	public IndexConfig(Node node) throws URISyntaxException {
 		maxNumSegments = 1;
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
 		filterCache = XPathParser.getAttributeValue(node, "filterCache");
@@ -67,13 +71,15 @@ public class IndexConfig {
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
 		if (maxNumSegments == 0)
 			maxNumSegments = 1;
+		indexType = IndexType.find(XPathParser.getAttributeString(node,
+				"indexType"));
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("index", "searchCache", Integer
-				.toString(searchCache), "filterCache", Integer
-				.toString(filterCache), "fieldCache", Integer
-				.toString(fieldCache), "remoteUrl",
+		xmlWriter.startElement("index", "indexType", indexType.name(),
+				"searchCache", Integer.toString(searchCache), "filterCache",
+				Integer.toString(filterCache), "fieldCache", Integer
+						.toString(fieldCache), "remoteUrl",
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
 				similarityClass, "maxNumSegments", Integer
@@ -199,6 +205,34 @@ public class IndexConfig {
 	 */
 	public void setMaxNumSegments(int maxNumSegments) {
 		this.maxNumSegments = maxNumSegments;
+	}
+
+	/**
+	 * @return the indexType
+	 */
+	public IndexType getIndexType() {
+		return indexType;
+	}
+
+	/**
+	 * @param indexType
+	 *            the indexType to set
+	 */
+	public void setIndexType(IndexType indexType) {
+		this.indexType = indexType;
+	}
+
+	public final IndexAbstract getNewIndex(File configDir,
+			boolean createIndexIfNotExists) throws IOException,
+			URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		switch (indexType) {
+		case OSSE:
+			return new IndexOsse(configDir, this, createIndexIfNotExists);
+		default:
+		case LUCENE:
+			return new IndexLucene(configDir, this, createIndexIfNotExists);
+		}
 	}
 
 }

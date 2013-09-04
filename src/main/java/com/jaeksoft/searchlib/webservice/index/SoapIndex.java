@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.index;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -35,7 +36,8 @@ public interface SoapIndex {
 	public CommonResult createIndex(@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name,
-			@WebParam(name = "template") TemplateList template);
+			@WebParam(name = "template") TemplateList template,
+			@WebParam(name = "type") IndexType type);
 
 	public CommonResult deleteIndex(@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,

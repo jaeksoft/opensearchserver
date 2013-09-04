@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.User;
@@ -62,7 +63,7 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 
 	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
-			TemplateList indexTemplateName) {
+			TemplateList indexTemplateName, IndexType indexType) {
 		try {
 			User user = getLoggedAdmin(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -70,7 +71,7 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 				throw new CommonServiceException("Not allowed");
 			TemplateAbstract template = TemplateList
 					.findTemplate(indexTemplateName.name());
-			ClientCatalog.createIndex(user, indexName, template);
+			ClientCatalog.createIndex(user, indexName, template, indexType);
 			return new CommonResult(true, "Created Index " + indexName);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -82,8 +83,10 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult createIndex(String login, String key, String indexName) {
-		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX);
+	public CommonResult createIndex(String login, String key, String indexName,
+			IndexType type) {
+		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX,
+				type);
 	}
 
 	@Override

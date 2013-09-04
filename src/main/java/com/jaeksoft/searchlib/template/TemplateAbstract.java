@@ -28,10 +28,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.tools.ant.util.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexType;
 
 public abstract class TemplateAbstract {
 
@@ -59,8 +62,8 @@ public abstract class TemplateAbstract {
 		return description;
 	}
 
-	public void createIndex(File indexDir) throws SearchLibException,
-			IOException {
+	public void createIndex(File indexDir, IndexType indexType)
+			throws SearchLibException, IOException {
 
 		if (!indexDir.mkdir())
 			throw new SearchLibException("directory creation failed ("
@@ -76,6 +79,16 @@ public abstract class TemplateAbstract {
 				is = getClass().getResourceAsStream("common" + '/' + resource);
 			if (is == null)
 				throw new SearchLibException("Unable to find resource " + res);
+
+			if (resource.equals("config.xml")) {
+				StringWriter writer = new StringWriter();
+				IOUtils.copy(is, writer, "UTF-8");
+				String newConfig = StringUtils.replace(writer.toString(),
+						"{indexType}", indexType.name());
+				IOUtils.closeQuietly(is);
+				is = IOUtils.toInputStream(newConfig, "UTF-8");
+			}
+
 			try {
 				File f = new File(indexDir, resource);
 				if (f.getParentFile() != indexDir)

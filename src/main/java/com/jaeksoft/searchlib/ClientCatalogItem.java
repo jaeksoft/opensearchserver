@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import javax.naming.NamingException;
 
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
@@ -63,7 +64,10 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 			return null;
 		if (!client.isOnline())
 			return null;
-		return client.getStatistics().getNumDocs();
+		IndexStatistics stats = client.getStatistics();
+		if (stats == null)
+			return null;
+		return stats.getNumDocs();
 	}
 
 	public long getLastModified() {

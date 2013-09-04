@@ -21,7 +21,7 @@
 <configuration>
 	<indices>
 		<index name="index" searchCache="100" filterCache="100"
-			fieldCache="500" />
+			fieldCache="500" indexType="{indexType}" />
 	</indices>
 	<schema>
 		<analyzers>

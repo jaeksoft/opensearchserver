@@ -24,35 +24,513 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.Collection;
+
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cache.FieldCache;
+import com.jaeksoft.searchlib.cache.FilterCache;
+import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
 
-	protected IndexConfig indexConfig;
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	protected IndexAbstract(IndexConfig indexConfig) {
+	private final IndexConfig indexConfig;
+
+	private ReaderInterface reader = null;
+
+	private WriterInterface writer = null;
+
+	private volatile boolean online;
+
+	protected IndexAbstract(File configDir, IndexConfig indexConfig,
+			boolean createIfNotExists) throws IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 		this.indexConfig = indexConfig;
+		this.online = true;
+		boolean bCreate = false;
+		File indexDir = new File(configDir, "index");
+		if (!indexDir.exists()) {
+			if (!createIfNotExists)
+				return;
+			indexDir.mkdir();
+			bCreate = true;
+		} else
+			indexDir = findIndexDirOrSub(indexDir);
+		initIndexDirectory(indexDir, bCreate);
+		writer = getNewWriter(indexConfig, bCreate);
+		reader = getNewReader(indexConfig);
 	}
 
-	public abstract IndexAbstract get(String name);
+	/**
+	 * Check if there is old style index sub directory
+	 * 
+	 * @param indexDir
+	 * @return
+	 */
+	private File findIndexDirOrSub(File indexDir) {
+		File[] dirs = indexDir
+				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+		if (dirs == null)
+			return indexDir;
+		if (dirs.length == 0)
+			return indexDir;
+		return dirs[dirs.length - 1];
+	}
 
-	public IndexConfig getIndexConfig() {
+	protected abstract void initIndexDirectory(File indexDir, boolean bCreate)
+			throws IOException;
+
+	protected abstract void closeIndexDirectory();
+
+	protected abstract ReaderInterface getNewReader(IndexConfig indexConfig)
+			throws IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException;
+
+	protected abstract WriterInterface getNewWriter(IndexConfig indexConfig,
+			boolean bCreate) throws IOException;
+
+	public final IndexConfig getIndexConfig() {
 		return indexConfig;
 	}
 
-	public abstract boolean isOnline();
+	@Override
+	public void close() {
+		rwl.w.lock();
+		try {
+			if (reader != null)
+				reader.close();
+			if (writer != null)
+				writer.close();
+			closeIndexDirectory();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 
-	public abstract void setOnline(boolean v);
+	private void checkOnline(boolean online) throws SearchLibException {
+		if (this.online != online)
+			throw new SearchLibException("Index is offline");
+	}
 
-	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
-			throws SAXException;
+	public boolean isOnline() {
+		rwl.r.lock();
+		try {
+			return online;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setOnline(boolean v) {
+		rwl.w.lock();
+		try {
+			online = v;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("indices");
-		writeXmlConfigIndex(xmlWriter);
+		indexConfig.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 	}
 
+	@Override
+	public void optimize() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer == null)
+				return;
+			writer.optimize();
+			if (reader != null)
+				reader.reload();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean isOptimizing() {
+		rwl.r.lock();
+		try {
+			return writer != null ? writer.isOptimizing() : false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public int deleteDocument(Schema schema, String field, String value)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer != null)
+				return writer.deleteDocument(schema, field, value);
+			else
+				return 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public int deleteDocuments(Schema schema, String field,
+			Collection<String> values) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer != null)
+				return writer.deleteDocuments(schema, field, values);
+			else
+				return 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void deleteAll() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer != null)
+				writer.deleteAll();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public int deleteDocuments(AbstractSearchRequest query)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			return writer.deleteDocuments(query);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (writer != null)
+				writer.addBeforeUpdate(beforeUpdate);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean updateDocument(Schema schema, IndexDocument document)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer != null)
+				return writer.updateDocument(schema, document);
+			else
+				return false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public int updateDocuments(Schema schema,
+			Collection<IndexDocument> documents) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (writer != null)
+				return writer.updateDocuments(schema, documents);
+			else
+				return 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void reload() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			reader.reload();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public AbstractResult<?> request(AbstractRequest request)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.request(request);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public String explain(AbstractRequest request, int docId, boolean bHtml)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.explain(request, docId, bHtml);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean sameIndex(ReaderInterface reader) {
+		rwl.r.lock();
+		try {
+			if (reader == this)
+				return true;
+			if (reader == this.reader)
+				return true;
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public IndexStatistics getStatistics() throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getStatistics();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public int getDocFreq(Term term) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getDocFreq(term);
+			return 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getTermEnum();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum(Term term) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getTermEnum(term);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermDocs getTermDocs(Term term) throws SearchLibException,
+			IOException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getTermDocs(term);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermFreqVector getTermFreqVector(int docId, String field)
+			throws IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getTermFreqVector(docId, field);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public long getVersion() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader == null)
+				return 0;
+			return reader.getVersion();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public SearchCache getSearchCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getSearchCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FilterCache getFilterCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getFilterCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldCache getFieldCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getFieldCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public Collection<?> getFieldNames() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getFieldNames();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public Query rewrite(Query query) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.rewrite(query);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getMoreLikeThis();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void mergeData(WriterInterface source) throws SearchLibException {
+		if (!(source instanceof IndexAbstract))
+			throw new SearchLibException("Unsupported operation");
+		IndexAbstract sourceIndex = (IndexAbstract) source;
+		rwl.r.lock();
+		try {
+			if (writer == null)
+				return;
+			sourceIndex.rwl.r.lock();
+			try {
+				writer.mergeData(sourceIndex.writer);
+				if (reader != null)
+					reader.reload();
+			} finally {
+				sourceIndex.rwl.r.unlock();
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean isMerging() {
+		rwl.r.lock();
+		try {
+			return writer != null ? writer.isMerging() : false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
 }

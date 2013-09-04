@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
@@ -189,8 +190,10 @@ public class CommandsController extends CommonController {
 				return "Unknown";
 			if (client.isOptimizing())
 				return "Running";
-			return client.getStatistics().isOptimized() ? "Optimized"
-					: "Not optimized";
+			IndexStatistics stats = client.getStatistics();
+			if (stats == null)
+				return null;
+			return stats.isOptimized() ? "Optimized" : "Not optimized";
 		}
 	}
 
@@ -214,7 +217,10 @@ public class CommandsController extends CommonController {
 				return null;
 			if (!client.isOnline())
 				return "Unknown";
-			return client.getStatistics().getNumDocs() + " document(s).";
+			IndexStatistics stats = client.getStatistics();
+			if (stats == null)
+				return null;
+			return stats.getNumDocs() + " document(s).";
 		}
 	}
 

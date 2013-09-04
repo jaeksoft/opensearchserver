@@ -66,6 +66,7 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -328,6 +329,9 @@ public class UrlManager extends AbstractManager {
 
 	public long getSize() throws SearchLibException {
 		try {
+			IndexStatistics stats = urlDbClient.getStatistics();
+			if (stats == null)
+				return 0;
 			return urlDbClient.getStatistics().getNumDocs();
 		} catch (IOException e) {
 			throw new SearchLibException(e);

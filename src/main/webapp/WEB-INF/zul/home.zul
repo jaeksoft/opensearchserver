@@ -42,9 +42,21 @@
 				<listbox mold="select"
 					selectedItem="@bind(home.newIndexTemplate)"
 					model="@load(home.templateList)">
-					<template name="model" var="telist">
+					<template name="model">
 						<listitem
-							label="@load(telist.template.publicName)" />
+							label="@load(each.template.publicName)" />
+					</template>
+				</listbox>
+				<label
+					value="@load(home.newIndexTemplate.template.description)" />
+			</row>
+			<row>
+				<label value="Type: " />
+				<listbox mold="select"
+					selectedItem="@bind(home.newIndexType)"
+					model="@load(home.indexTypeList)">
+					<template name="model">
+						<listitem label="@load(each.label)" />
 					</template>
 				</listbox>
 				<label

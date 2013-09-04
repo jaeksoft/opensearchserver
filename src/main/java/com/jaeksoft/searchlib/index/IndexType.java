@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,20 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.xmlrpc;
+package com.jaeksoft.searchlib.index;
 
-import java.util.HashMap;
-import java.util.Map;
+public enum IndexType {
 
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
+	OSSE("OpenSearchServer"),
 
-public abstract class AbstractXmlRpc {
+	LUCENE("Apache Lucene");
 
-	protected Map<String, FieldValueItem> newInfoMap(String info) {
-		Map<String, FieldValueItem> map = new HashMap<String, FieldValueItem>();
-		map.put("info", new FieldValueItem(FieldValueOriginEnum.EXTERNAL, info));
-		return map;
+	private final String label;
+
+	private IndexType(String label) {
+		this.label = label;
 	}
 
+	/**
+	 * @return the label
+	 */
+	public final String getLabel() {
+		return label;
+	}
+
+	public final static IndexType find(String name) {
+		for (IndexType type : values())
+			if (type.name().equals(name))
+				return type;
+		return LUCENE;
+	}
 }

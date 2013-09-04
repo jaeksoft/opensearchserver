@@ -82,7 +82,6 @@ import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.learning.Learner;
 import com.jaeksoft.searchlib.learning.LearnerManager;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
@@ -450,8 +449,7 @@ public abstract class Config implements ThreadFactory {
 		default:
 			return null;
 		case 1:
-			return new IndexSingle(indexDir, new IndexConfig(xpp,
-					xpp.getNode("/configuration/indices/index")),
+			return new IndexConfig(nodeList.item(0)).getNewIndex(indexDir,
 					createIndexIfNotExists);
 		}
 	}

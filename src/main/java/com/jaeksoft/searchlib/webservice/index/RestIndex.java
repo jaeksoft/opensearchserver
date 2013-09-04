@@ -32,6 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -40,17 +41,20 @@ public interface RestIndex {
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{index_name}/template/{template}")
+	@Path("/{index_name}/template/{template}/type/{type}")
 	public CommonResult createIndex(@QueryParam("login") String login,
 			@QueryParam("key") String key,
 			@PathParam("index_name") String name,
-			@PathParam("template") TemplateList template);
+			@PathParam("template") TemplateList template,
+			@PathParam("type") IndexType indexType);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{index_name}")
+	@Path("/{index_name}/type/{type}")
 	public CommonResult createIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key, @PathParam("index_name") String name);
+			@QueryParam("key") String key,
+			@PathParam("index_name") String name,
+			@PathParam("type") IndexType indexType);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

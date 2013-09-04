@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
@@ -127,7 +128,9 @@ public class SchemaServlet extends AbstractServlet {
 		String indexName = transaction.getParameterString("index.name");
 		TemplateAbstract template = TemplateList.findTemplate(transaction
 				.getParameterString("index.template"));
-		ClientCatalog.createIndex(null, indexName, template);
+		IndexType type = IndexType.find(transaction
+				.getParameterString("index.type"));
+		ClientCatalog.createIndex(null, indexName, template, type);
 		transaction.addXmlResponse("Info", "Index created: " + indexName);
 		return true;
 	}

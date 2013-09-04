@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -78,7 +79,10 @@ public class AutoCompletionBuildThread extends
 	}
 
 	public int getIndexNumDocs() throws IOException, SearchLibException {
-		return autoCompClient.getStatistics().getNumDocs();
+		IndexStatistics stats = autoCompClient.getStatistics();
+		if (stats == null)
+			return 0;
+		return stats.getNumDocs();
 	}
 
 	final private int indexBuffer(int docCount, List<IndexDocument> buffer)
