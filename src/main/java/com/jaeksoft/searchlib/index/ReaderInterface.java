@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 
 public interface ReaderInterface {
 
-	public abstract boolean sameIndex(ReaderInterface reader);
+	public boolean sameIndex(ReaderInterface reader);
 
 	public void close();
 
@@ -58,9 +58,9 @@ public interface ReaderInterface {
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException, SearchLibException;
 
-	public abstract Query rewrite(Query query) throws SearchLibException;
+	public Query rewrite(Query query) throws SearchLibException;
 
-	public abstract MoreLikeThis getMoreLikeThis() throws SearchLibException;
+	public MoreLikeThis getMoreLikeThis() throws SearchLibException;
 
 	public AbstractResult<?> request(AbstractRequest request)
 			throws SearchLibException;

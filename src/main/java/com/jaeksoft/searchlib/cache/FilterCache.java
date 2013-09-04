@@ -26,8 +26,7 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
-
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
@@ -47,7 +46,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 	}
 
 	public FilterHits get(ReaderLocal reader, FilterAbstract<?> filter,
-			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
 			throws ParseException, IOException {
 		rwl.w.lock();
 		try {

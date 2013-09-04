@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,19 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.IOException;
+
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
+
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.Timer;
+
 public abstract class ReaderAbstract implements ReaderInterface {
 
 	final protected IndexConfig indexConfig;
@@ -31,4 +44,19 @@ public abstract class ReaderAbstract implements ReaderInterface {
 	public ReaderAbstract(IndexConfig indexConfig) {
 		this.indexConfig = indexConfig;
 	}
+
+	public abstract FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, FilterAbstract<?> filter, Timer timer)
+			throws ParseException, IOException;
+
+	public abstract int numDocs();
+
+	public abstract void search(Query query, Filter filter, Collector collector)
+			throws IOException;
+
+	public abstract FieldCacheIndex getStringIndex(String name)
+			throws IOException;
+
+	public abstract int maxDoc() throws IOException;
+
 }

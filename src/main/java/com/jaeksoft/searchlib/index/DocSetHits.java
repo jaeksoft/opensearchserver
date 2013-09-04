@@ -45,7 +45,7 @@ public class DocSetHits {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private ReaderLocal reader;
+	private ReaderAbstract reader;
 	private Query query;
 	private Filter filter;
 	private SortFieldList sortFieldList;
@@ -54,7 +54,7 @@ public class DocSetHits {
 	private DocIdCollector docIdCollector;
 	private ScoreDocCollector scoreDocCollector;
 
-	protected DocSetHits(ReaderLocal reader, Query query,
+	protected DocSetHits(ReaderAbstract reader, Query query,
 			FilterHits filterHits, SortFieldList sortFieldList, Timer timer)
 			throws IOException {
 		rwl.w.lock();

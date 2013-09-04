@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,40 +28,105 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
+import com.sun.jna.ptr.IntByReference;
 
 public interface OsseLibrary extends Library {
 
-	final public static int LOG_FATAL = 0, LOG_SEVERE = 1, LOG_WARNING = 2,
-			LOG_INFO = 3, LOG_DEBUG = 4;
+	final public static int OSSCLIB_FIELD_UI32FIELDTYPE_STRING = 1;
+	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET = 0x00000002;
+	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION = 0x00000004;
+	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1 = 0x00000040;
 
-	public void logger_setLevel(int level);
-
-	public Pointer document_new();
-
-	public void document_delete(Pointer document);
-
-	public void document_add(Pointer document, WString field, WString[] terms,
-			int count);
-
-	public Pointer index_new();
-
-	public void index_delete(Pointer index);
-
-	public long index_add(Pointer index, Pointer document);
-
-	public void index_search(WString query, Pointer result);
-
-	public Pointer result_new();
-
-	void result_delete(Pointer result);
-
-	float result_getScore(Pointer result, long pos);
-
-	long result_getDocumentId(Pointer result, long pos);
-
-	public void test();
+	final public static int OSSCLIB_QCURSOR_UI32BOP_OR = 0x00000000;
+	final public static int OSSCLIB_QCURSOR_UI32BOP_AND = 0x00000001;
+	final public static int OSSCLIB_QCURSOR_UI32BOP_INVERTED_OR = 0x00000002;
+	final public static int OSSCLIB_QCURSOR_UI32BOP_INVERTED_AND = 0x00000003;
 
 	public OsseLibrary INSTANCE = (OsseLibrary) Native.loadLibrary(
-			"OpenSearchServerEngine", OsseLibrary.class);
+			"OpenSearchServer_CLib", OsseLibrary.class);
 
+	WString OSSCLib_GetVersionInfoText();
+
+	Pointer OSSCLib_ExtErrInfo_Create();
+
+	int OSSCLib_ExtErrInfo_GetErrorCode(Pointer hExtErrInfo);
+
+	WString OSSCLib_ExtErrInfo_GetText(Pointer lpErr);
+
+	void OSSCLib_ExtErrInfo_Delete(Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Index_Create(WString wszIndexDirectoryName,
+			WString wszRootFileName, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Index_Open(WString wszIndexDirectoryName,
+			WString wszRootFileName, Pointer hExtErrInfo);
+
+	boolean OSSCLib_Index_Close(Pointer hIndex, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Transact_Begin(Pointer hIndex, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Transact_Document_New(Pointer hTransact, Pointer hExtErrInfo);
+
+	int OSSCLib_Transact_Document_AddStringTerms(Pointer hTransact,
+			Pointer hDoc, Pointer hField, WString[] termArray,
+			OsseTermOffset[] termOffsetArray, int[] termPosIncrArray,
+			boolean[] successArray, int numberOfTerms, Pointer hExtErrInfo);
+
+	boolean OSSCLib_Transact_RollBack(Pointer hTransact, Pointer hExtErrInfo);
+
+	boolean OSSCLib_Transact_Commit(Pointer hTransact, Pointer lphDoc,
+			long ui64NumberOfDocs, Pointer lpui64DocId, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Transact_CreateField(Pointer hTransact,
+			WString wszFieldName, int ui32FieldType, int ui32FieldFlags,
+			Pointer lpFieldParams, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Transact_GetField(Pointer hTransact, WString wszFieldName,
+			Pointer hExtErrInfo);
+
+	int OSSCLib_Transact_DeleteFields(Pointer hTransact,
+			WString[] lplpwszFieldName, int ui32NumberOfFields,
+			Pointer hExtErrInfo);
+
+	int OSSCLib_Transact_ReserveExtraSpaceForDocHandles(Pointer hTransact,
+			int ui32NumberOfNewDocs, int ui32NumberOfExistingDocs,
+			Pointer hExtErrInfo);
+
+	int OSSCLib_Index_GetListOfFields(Pointer hIndex, Pointer[] hFieldArray,
+			int fieldArraySize, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_Index_GetFieldNameAndProperties(Pointer hIndex,
+			Pointer hIndexField, IntByReference fieldId,
+			IntByReference fieldType, IntByReference fieldFlags,
+			Pointer hExtErrInfo);
+
+	void OSSCLib_Index_GetFieldNameAndProperties_Free(Pointer hFieldName);
+
+	Pointer OSSCLib_QCursor_Create(Pointer hIndex, WString lpwszFieldName,
+			WString[] lplpwszTerm, int ui32NumberOfTerms, int ui32Bop,
+			Pointer hExtErrInfo);
+
+	void OSSCLib_QCursor_Delete(Pointer hCursor);
+
+	Pointer OSSCLib_QCursor_CreateCombinedCursor(Pointer[] lphCursor,
+			int ui32NumberOfCursors, int ui32Bop, Pointer hExtErrInfo);
+
+	long OSSCLib_QCursor_GetDocumentIds(
+			Pointer hCursor, // Cursor handle
+			long[] lpui64DocId, long ui64NumberOfDocsToRetrieve,
+			long ui64DocPosition, boolean bPosMeasuredFromEnd,
+			IntByReference lpbSuccess, Pointer hExtErrInfo);
+
+	long OSSCLib_QCursor_GetNumberOfDocuments(Pointer hCursor,
+			Pointer lpbSuccess, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_DocTCursor_Create(Pointer hIndex, Pointer hExtErrInfo);
+
+	void OSSCLib_DocTCursor_Delete(Pointer hDocTCursor);
+
+	WString OSSCLib_DocTCursor_FindFirstTerm(Pointer hDocTCursor,
+			Pointer hIndexField, long ui64DocId, Pointer hExtErrInfo);
+
+	WString OSSCLib_DocTCursor_FindNextTerm(Pointer hDocTCursor,
+			IntByReference lpbError, Pointer hExtErrInfo);
 }

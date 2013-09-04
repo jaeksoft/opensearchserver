@@ -41,8 +41,8 @@
 	<property name="tomcat-lib" location="pkg/tomcat_lib" />
 	<property name="shell-dir" location="pkg/shell" />
 	<property name="examples" location="examples" />
-	<property name="war" location="target/opensearchserver-1.5-SNAPSHOT.war" />
-	<property name="tomcat-context-path" value="/jenkins-oss-1.5-testing" />
+	<property name="war" location="target/opensearchserver-2.0-SNAPSHOT.war" />
+	<property name="tomcat-context-path" value="/jenkins-oss-2.0-testing" />
 	<property name="tomcat-test-url" value="http://localhost:8080/manager/text" />
 	<property name="tomcat-username" value="testing" />
 	<loadproperties srcfile="version" />

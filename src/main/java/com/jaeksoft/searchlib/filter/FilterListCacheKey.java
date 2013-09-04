@@ -27,8 +27,7 @@ package com.jaeksoft.searchlib.filter;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.apache.lucene.analysis.Analyzer;
-
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -39,7 +38,7 @@ public class FilterListCacheKey implements
 	private TreeSet<FilterCacheKey> filterCacheKeySet;
 
 	public FilterListCacheKey(FilterList filterList, SchemaField defaultField,
-			Analyzer analyzer) throws ParseException {
+			PerFieldAnalyzer analyzer) throws ParseException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
 		for (FilterAbstract<?> filter : filterList)
 			filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,

@@ -35,6 +35,7 @@ import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -98,8 +99,8 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	}
 
 	@Override
-	public String getCacheKey(SchemaField defaultField, Analyzer analyzer)
-			throws ParseException {
+	public String getCacheKey(SchemaField defaultField,
+			PerFieldAnalyzer analyzer) throws ParseException {
 		return "QueryFilter - " + getQuery(defaultField, analyzer).toString();
 	}
 
@@ -113,7 +114,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	@Override
 	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
 			throws ParseException, IOException {
 		Query query = getQuery(defaultField, analyzer);
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,

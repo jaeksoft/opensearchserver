@@ -26,10 +26,10 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -134,13 +134,13 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	public abstract String getDescription();
 
 	public abstract String getCacheKey(SchemaField defaultField,
-			Analyzer analyzer) throws ParseException;
+			PerFieldAnalyzer analyzer) throws ParseException;
 
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
 	public abstract FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer, Timer timer)
+			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
 			throws ParseException, IOException;
 
 	public abstract T duplicate();

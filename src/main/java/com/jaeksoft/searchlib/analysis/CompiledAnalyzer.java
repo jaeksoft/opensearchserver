@@ -44,8 +44,13 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 
 	private boolean superClosed;
 
-	private TokenizerFactory tokenizer;
-	private FilterFactory[] filters;
+	private final TokenizerFactory tokenizer;
+	private final FilterFactory[] filters;
+
+	protected CompiledAnalyzer() {
+		this.tokenizer = null;
+		this.filters = null;
+	}
 
 	protected CompiledAnalyzer(TokenizerFactory sourceTokenizer,
 			List<FilterFactory> sourceFilters, FilterScope scopeTarget)

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.IndexReader;
@@ -58,6 +57,7 @@ import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
@@ -77,7 +77,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
+public class ReaderLocal extends ReaderAbstract {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -254,7 +254,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public int maxDoc() throws IOException {
+	@Override
+	public final int maxDoc() throws IOException {
 		rwl.r.lock();
 		try {
 			return indexSearcher.maxDoc();
@@ -263,7 +264,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public int numDocs() {
+	@Override
+	public final int numDocs() {
 		rwl.r.lock();
 		try {
 			return indexReader.numDocs();
@@ -313,6 +315,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void search(Query query, Filter filter, Collector collector)
 			throws IOException {
 		rwl.r.lock();
@@ -326,8 +329,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, FilterAbstract<?> filter, Timer timer)
+			PerFieldAnalyzer analyzer, FilterAbstract<?> filter, Timer timer)
 			throws ParseException, IOException {
 		rwl.r.lock();
 		try {
@@ -350,6 +354,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public FieldCacheIndex getStringIndex(String fieldName) throws IOException {
 		rwl.r.lock();
 		try {
@@ -420,7 +425,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
-			Schema schema, SchemaField defaultField, Analyzer analyzer,
+			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {

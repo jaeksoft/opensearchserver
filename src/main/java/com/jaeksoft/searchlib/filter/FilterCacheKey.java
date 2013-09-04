@@ -24,8 +24,7 @@
 
 package com.jaeksoft.searchlib.filter;
 
-import org.apache.lucene.analysis.Analyzer;
-
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -37,7 +36,7 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 	private boolean isNegative;
 
 	public FilterCacheKey(FilterAbstract<?> filter, SchemaField defaultField,
-			Analyzer analyzer) throws ParseException {
+			PerFieldAnalyzer analyzer) throws ParseException {
 		key = filter.getCacheKey(defaultField, analyzer);
 		isNegative = filter.isNegative();
 	}

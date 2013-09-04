@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.util.DomUtils;
@@ -91,8 +91,8 @@ public class SortField extends AbstractField<SortField> implements
 		return name.equals("score");
 	}
 
-	public SorterAbstract getSorter(DocIdInterface collector, ReaderLocal reader)
-			throws IOException {
+	public SorterAbstract getSorter(DocIdInterface collector,
+			ReaderAbstract reader) throws IOException {
 		if (isScore()) {
 			if (desc)
 				return new DescScoreSorter(collector);

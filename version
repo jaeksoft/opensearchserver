@@ -1,5 +1,5 @@
 # File used by hudson to manage publication
-VERSION=1.5-dev4
+VERSION=2.0-dev
 
 # STAGE options are "developer", "beta" or "stable"
 STAGE=developer

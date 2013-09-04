@@ -26,9 +26,8 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
-
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
@@ -56,7 +55,7 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
-			Analyzer analyzer = searchRequest.getAnalyzer();
+			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
 			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,
 					defaultField, analyzer);
 			DocSetHits dsh = getAndPromote(key);
