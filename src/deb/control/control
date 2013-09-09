@@ -1,0 +1,8 @@
+Package: [[name]]
+Version: [[version]]
+Section: java
+Priority: low
+Architecture: all
+Description: [[description]]
+Depends: default-jre-headless | java6-runtime-headless | java7-runtime-headless
+Maintainer: Emmanuel Keller <ekeller@open-search-server.com>

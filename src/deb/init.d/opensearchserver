@@ -1,0 +1,51 @@
+# OpenSearchServer start
+#
+
+### BEGIN INIT INFO
+# Provides:          opensearchserver
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop OpenSearchServer at boot time
+# Description:       Enable service provided by OpenSearchServer.
+### END INIT INFO
+
+CONFIGFILE=/etc/opensearchserver
+if [ -f "$CONFIGFILE" ]; then
+    . "$CONFIGFILE"
+fi
+
+export OPENSEARCHSERVER_DATA
+export OPENSEARCHSERVER_MULTIDATA
+
+OPENSEARCHSERVER_DIR=/var/lib/opensearchserver
+OPENSEARCHSERVER_JAR=/usr/share/opensearchserver/opensearchserver.jar
+SERVER_DIR=$OPENSEARCHSERVER_DIR/server
+SERVER_OPTS="$JAVA_OPTS -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT"
+SERVER_PID="/var/run/opensearchserver.pid"
+
+case $1 in
+start)
+        echo "Starting OpenSearchServer ..."
+        if [ ! -f $SERVER_PID ]; then
+            if start-stop-daemon -o --start -m -b --pidfile $SERVER_PID --exec "/usr/bin/java" -- $SERVER_OPTS; then
+                echo "OpenSearchServer started ..."
+            fi
+        else
+            echo "OpenSearchServer is already running ..."
+        fi
+        ;;
+stop)
+        if [ -f $SERVER_PID ]; then
+            echo "Stopping OpenSearchServer ..."
+            if start-stop-daemon -o --stop --pidfile $SERVER_PID; then
+                echo "OpenSearchServer stopped ..."
+                rm $SERVER_PID
+            fi
+        else
+            echo "OpenSearchServer is not running ..."
+        fi
+        ;;
+esac
+exit 0
