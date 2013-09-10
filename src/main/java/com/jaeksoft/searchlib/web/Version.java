@@ -28,32 +28,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
 
 public class Version {
 
-	private String version = null;
+	private final String title;
 
-	private String stage = null;
+	private final String version;
 
-	private String revision = null;
-
-	private String build = null;
+	private final String build;
 
 	public Version(ServletContext servletContext) throws IOException {
 		InputStream is = null;
 		try {
-			is = servletContext.getResourceAsStream("/version");
-			if (is == null)
-				return;
-			Properties properties = new Properties();
-			properties.load(is);
-			version = properties.getProperty("VERSION");
-			stage = properties.getProperty("STAGE");
-			revision = properties.getProperty("REVISION");
-			build = properties.getProperty("BUILD");
+			is = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
+			if (is != null) {
+				Manifest manifest = new Manifest(is);
+				Attributes attributes = manifest.getMainAttributes();
+				title = attributes.getValue("Implementation-Title");
+				version = attributes.getValue("Implementation-Version");
+				build = attributes.getValue("Implementation-Build");
+			} else {
+				title = null;
+				version = null;
+				build = null;
+			}
 		} finally {
 			if (is != null)
 				is.close();
@@ -67,14 +69,6 @@ public class Version {
 			sb.append("&v=");
 			sb.append(URLEncoder.encode(version, "UTF-8"));
 		}
-		if (stage != null) {
-			sb.append("&s=");
-			sb.append(URLEncoder.encode(stage, "UTF-8"));
-		}
-		if (revision != null) {
-			sb.append("&r=");
-			sb.append(URLEncoder.encode(revision, "UTF-8"));
-		}
 		if (build != null) {
 			sb.append("&b=");
 			sb.append(URLEncoder.encode(build, "UTF-8"));
@@ -85,18 +79,10 @@ public class Version {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("OpenSearchServer");
+		sb.append(title == null ? "OpenSearchServer" : title);
 		if (version != null) {
 			sb.append(" v");
 			sb.append(version);
-		}
-		if (stage != null) {
-			sb.append(" - ");
-			sb.append(stage);
-		}
-		if (revision != null) {
-			sb.append(" - rev ");
-			sb.append(revision);
 		}
 		if (build != null) {
 			sb.append(" - build ");
