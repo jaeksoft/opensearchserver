@@ -16,14 +16,14 @@ You need to have a JAVA 6 (or newer) runtime on your server
 http://www.open-search-server.com/download
 
 ### Deflate the content to get the following files:
-- [FILE] opensearchserver.jar -> the main library
-- [FILE] README.md -> this file
-- [DIR] data -> will contains your index
-- [DIR] server -> will contains servers files
-- [FILE] start.sh -> Shell to start the server on Unix
-- [FILE] start.bat -> Batch to start the server on Windows
-- [FILE] NOTICE.txt -> the third-party license informations
-- [DIR] LICENSES -> Contains the detailled licenses
+- ```FILE``` opensearchserver.jar -> the main library
+- ```FILE``` README.md -> this file
+- ```DIR``` data -> will contains your index
+- ```DIR``` server -> will contains servers files
+- ```FILE``` start.sh -> Shell to start the server on Unix
+- ```FILE``` start.bat -> Batch to start the server on Windows
+- ```FILE``` NOTICE.txt -> the third-party license informations
+- ```DIR``` LICENSES -> Contains the detailled licenses
 
 ### Edit the parameters 
 Optionally, can you change the parameters in the start.sh/start.bat script:
