@@ -27,25 +27,48 @@
 	<property environment="env" />
 	<property name="dist" location="dist" />
 	<property name="licenses" location="licenses" />
-	<property name="shell-dir" location="shell" />
+	<property name="shelldir" location="shell" />
 	<property name="product" value="opensearchserver" />
+	<property name="env.BUILD_NUMBER" value="" />
+
+	<!-- Read the manifest from the WAR -->
+	<loadproperties>
+		<zipentry name="META-INF/MANIFEST.MF">
+			<first>
+				<fileset dir="target" includes="**/opensearchserver-*.war" />
+			</first>
+		</zipentry>
+	</loadproperties>
+
+	<property name="productsrc" value="${product}-${Implementation-Version}" />
+	<property name="productdest" value="${product}-${Implementation-Version}-b${env.BUILD_NUMBER}" />
 
 	<target name="dist">
+
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
+
 		<copy tofile="${dist}/${product}/${product}.jar">
-			<first id="first">
-				<fileset dir="target" includes="**/opensearchserver-*-war-exec.jar" />
-			</first>
+			<fileset file="target/${productsrc}-war-exec.jar" />
 		</copy>
+
+		<copy tofile="${dist}/${productdest}.deb">
+			<fileset file="target/${productsrc}.deb" />
+		</copy>
+
+		<copy tofile="${dist}/${productdest}.war">
+			<fileset file="target/${productsrc}.war" />
+		</copy>
+
 		<copy todir="${dist}/${product}/LICENSES">
 			<fileset dir="${licenses}" />
 		</copy>
+
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.md" />
 			<fileset file="CHANGELOG.txt" />
-			<fileset dir="${shell-dir}" />
+			<fileset dir="${shelldir}" />
 		</copy>
 
 		<!-- Check executable file flag for batches -->
@@ -57,7 +80,7 @@
 		</chmod>
 
 		<!-- Create the tar.gz archive -->
-		<tar longfile="gnu" compression="gzip" destfile="${dist}/${product}.tar.gz">
+		<tar longfile="gnu" compression="gzip" destfile="${dist}/${productdest}.tar.gz">
 			<tarfileset dir="${dist}/${product}" mode="755" prefix="${product}">
 				<include name="**/*.sh" />
 				<include name="**/*.bat" />
@@ -70,7 +93,7 @@
 		</tar>
 
 		<!-- Create the zip archive -->
-		<zip encoding="windows-1250" destfile="${dist}/${product}.zip">
+		<zip encoding="windows-1250" destfile="${dist}/${productdest}.zip">
 			<zipfileset dir="${dist}/${product}" filemode="755" prefix="${product}">
 				<include name="**/*.sh" />
 				<include name="**/*.bat" />
@@ -84,7 +107,6 @@
 
 		<!-- Copy Txt Files -->
 		<copy todir="${dist}">
-			<fileset file="NOTICE.txt" />
 			<fileset file="README.md" />
 			<fileset file="CHANGELOG.txt" />
 		</copy>
@@ -97,7 +119,7 @@
 	<!-- The tarball -->
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
+		<tar compression="gzip" destfile="${dist}/${product-dest}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
 	</target>
 
 	<target name="clean" description="clean up">
