@@ -407,7 +407,7 @@
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
-					<shortRevisionLength>8</shortRevisionLength>
+					<shortRevisionLength>10</shortRevisionLength>
 				</configuration>
 			</plugin>
 			<plugin>

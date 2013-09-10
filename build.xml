@@ -29,12 +29,15 @@
 	<property name="licenses" location="licenses" />
 	<property name="shell-dir" location="shell" />
 	<property name="product" value="opensearchserver" />
-	<property name="jar" location="target/opensearchserver-1.5-dev4-war-exec.jar" />
 
 	<target name="dist">
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
-		<copy file="${jar}" tofile="${dist}/${product}/${product}.jar" />
+		<copy tofile="${dist}/${product}/${product}.jar">
+			<first id="first">
+				<fileset dir="target" includes="**/opensearchserver-*-war-exec.jar" />
+			</first>
+		</copy>
 		<copy todir="${dist}/${product}/LICENSES">
 			<fileset dir="${licenses}" />
 		</copy>
@@ -86,8 +89,8 @@
 			<fileset file="CHANGELOG.txt" />
 		</copy>
 
-		<!-- Clean the temporary product directory 
-		<delete dir="${dist}/${product}" />-->
+		<!-- Clean the temporary product directory -->
+		<delete dir="${dist}/${product}" />
 
 	</target>
 
