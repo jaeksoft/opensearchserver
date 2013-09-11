@@ -1,8 +1,14 @@
-Package: [[name]]
+Package: opensearchserver
 Version: [[version]]
 Section: java
-Priority: low
+Priority: optional
 Architecture: all
-Description: [[description]]
+Description: full-text search-engine software
+ OpenSearchServer is an enterprise-class search engine program. Using the web
+ user interface, the crawlers (web, file, database, ...) and the REST/RESTFul
+ API you will be able to integrate advanced full-text search capabilities in
+ your application.
 Depends: default-jre-headless | java6-runtime-headless | java7-runtime-headless
 Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
+Homepage: http://www.open-search-server.com
+Vcs-Git: https://github.com/jaeksoft/opensearchserver.git
