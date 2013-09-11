@@ -124,8 +124,7 @@ public class Crawl {
 				.getValue();
 		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled()
 				.getValue();
-		this.urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
-
+		this.urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
 	}
 
 	public Crawl(WebCrawlThread crawlThread) throws SearchLibException {
