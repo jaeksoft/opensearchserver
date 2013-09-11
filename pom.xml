@@ -382,9 +382,9 @@
 			<version>4.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna</artifactId>
-			<version>4.0.0</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.5</version>
 		</dependency>
 	</dependencies>
 	<properties>
