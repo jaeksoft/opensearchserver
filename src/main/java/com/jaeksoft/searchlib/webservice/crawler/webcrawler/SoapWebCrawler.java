@@ -62,6 +62,12 @@ public interface SoapWebCrawler {
 			@WebParam(name = "replaceAll") boolean replaceAll,
 			@WebParam(name = "inject") List<String> injectList);
 
+	public CommonResult injectUrls(@WebParam(name = "use") String use,
+			@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "replace") boolean replaceAll,
+			@WebParam(name = "inject") List<String> urls);
+
 	@WebResult(name = "urls")
 	public byte[] exportURLs(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,

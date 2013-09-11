@@ -53,7 +53,6 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.database.InjectUrlItem.Status;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
@@ -76,6 +75,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -87,10 +87,10 @@ public class UrlManager extends AbstractManager {
 		urlSearch, urlExport, hostFacet;
 	}
 
-	protected final UrlItemFieldEnum urlItemFieldEnum;
+	public final UrlItemFieldEnum urlItemFieldEnum;
 
 	public UrlManager() {
-		urlItemFieldEnum = getNewUrlItemFieldEnum();
+		urlItemFieldEnum = new UrlItemFieldEnum();
 	}
 
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -120,14 +120,6 @@ public class UrlManager extends AbstractManager {
 				workDeleteUrlList);
 	}
 
-	public UrlItem getNewUrlItem() {
-		return new UrlItem();
-	}
-
-	public UrlItemFieldEnum getNewUrlItemFieldEnum() {
-		return new UrlItemFieldEnum();
-	}
-
 	public boolean exists(String sUrl) throws SearchLibException {
 		AbstractSearchRequest request = (AbstractSearchRequest) urlDbClient
 				.getNewRequest(SearchTemplate.urlExport.name());
@@ -143,27 +135,30 @@ public class UrlManager extends AbstractManager {
 				it.remove();
 	}
 
-	public void inject(List<InjectUrlItem> list) throws SearchLibException {
+	public void inject(List<String> urls, InfoCallback infoCallback)
+			throws SearchLibException {
 		try {
-			List<IndexDocument> injectList = new ArrayList<IndexDocument>(0);
-			for (InjectUrlItem item : list) {
-				if (exists(item.getUrl()))
-					item.setStatus(InjectUrlItem.Status.ALREADY);
-				else
-					injectList.add(item.getIndexDocument(urlItemFieldEnum));
-			}
-			if (injectList.size() == 0)
-				return;
-			urlDbClient.updateDocuments(injectList);
+			int already = 0;
 			int injected = 0;
-			for (InjectUrlItem item : list) {
-				if (item.getStatus() == Status.UNDEFINED) {
-					item.setStatus(Status.INJECTED);
-					injected++;
+			List<IndexDocument> injectList = new ArrayList<IndexDocument>(0);
+			for (String url : urls) {
+				if (exists(url))
+					already++;
+				else {
+					UrlItem item = getNewUrlItem(url);
+					IndexDocument indexDocument = new IndexDocument();
+					item.populate(indexDocument, urlItemFieldEnum);
+					injectList.add(indexDocument);
 				}
 			}
-			if (injected > 0)
-				urlDbClient.reload();
+			if (injectList.size() > 0) {
+				injected = urlDbClient.updateDocuments(injectList);
+				if (injected > 0)
+					urlDbClient.reload();
+			}
+			if (infoCallback != null)
+				infoCallback.setInfo("Injected: " + injected + " - Already: "
+						+ already);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -182,13 +177,16 @@ public class UrlManager extends AbstractManager {
 	public void injectPrefix(List<PatternItem> patternList)
 			throws SearchLibException {
 		Iterator<PatternItem> it = patternList.iterator();
-		List<InjectUrlItem> urlList = new ArrayList<InjectUrlItem>();
+		List<String> urlList = new ArrayList<String>(0);
 		while (it.hasNext()) {
 			PatternItem item = it.next();
-			if (item.getStatus() == PatternItem.Status.INJECTED)
-				urlList.add(new InjectUrlItem(item));
+			if (item.getStatus() == PatternItem.Status.INJECTED) {
+				URL url = item.tryExtractURL();
+				if (url != null)
+					urlList.add(url.toExternalForm());
+			}
 		}
-		inject(urlList);
+		inject(urlList, null);
 	}
 
 	private void filterQueryToFetch(AbstractSearchRequest request,
@@ -275,12 +273,8 @@ public class UrlManager extends AbstractManager {
 		getFacetLimit(field, searchRequest, limit, list);
 	}
 
-	public final UrlItemFieldEnum getUrlItemFieldEnum() {
-		return urlItemFieldEnum;
-	}
-
 	public final UrlItem getNewUrlItem(LinkItem linkItem) {
-		UrlItem ui = getNewUrlItem();
+		UrlItem ui = new UrlItem();
 		ui.setUrl(linkItem.getUrl());
 		ui.setParentUrl(linkItem.getParentUrl());
 		ui.setOrigin(linkItem.getOrigin());
@@ -288,15 +282,22 @@ public class UrlManager extends AbstractManager {
 	}
 
 	final protected UrlItem getNewUrlItem(ResultDocument item) {
-		UrlItem ui = getNewUrlItem();
+		UrlItem ui = new UrlItem();
 		ui.init(item, urlItemFieldEnum);
 		return ui;
 	}
 
 	final protected UrlItem getNewUrlItem(SiteMapUrl siteMapUrl) {
-		UrlItem ui = getNewUrlItem();
+		UrlItem ui = new UrlItem();
 		ui.setUrl(siteMapUrl.getLoc().toString());
 		ui.setOrigin(Origin.sitemap);
+		return ui;
+	}
+
+	public final UrlItem getNewUrlItem(String url) {
+		UrlItem ui = new UrlItem();
+		ui.setUrl(url);
+		ui.setOrigin(Origin.manual);
 		return ui;
 	}
 

@@ -148,7 +148,7 @@ public class HtmlParser extends Parser {
 		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
 				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
 		if (config != null)
-			urlItemFieldEnum = config.getUrlManager().getUrlItemFieldEnum();
+			urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
 		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
 		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null);
 		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null);
