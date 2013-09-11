@@ -119,7 +119,7 @@
 	<!-- The tarball -->
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${product-dest}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
+		<tar compression="gzip" destfile="${dist}/${productdest}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
 	</target>
 
 	<target name="clean" description="clean up">
