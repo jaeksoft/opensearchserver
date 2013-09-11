@@ -120,4 +120,12 @@ public interface RestWebCrawler {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("url") URL url);
 
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/urls")
+	public CommonResult injectUrls(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("replace") boolean replaceAll, List<String> urls);
+
 }
