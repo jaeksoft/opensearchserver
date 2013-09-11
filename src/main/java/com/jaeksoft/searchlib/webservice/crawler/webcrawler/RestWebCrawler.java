@@ -26,156 +26,98 @@ package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 import java.net.URL;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-@Path("/crawler/web")
+@Path("/index/{index_name}/crawler/web")
 public interface RestWebCrawler {
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/run/once/{index}/xml")
-	public CommonResult runOnceXML(@PathParam("index") String use,
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/run")
+	public CommonResult run(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("once") boolean once);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/run")
+	public CommonResult stop(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/run/once/{index}/json")
-	public CommonResult runOnceJSON(@PathParam("index") String use,
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/run")
+	public CommonResult status(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/run/forever/{index}/xml")
-	public CommonResult runForeverXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/inclusion")
+	public CommonResult injectPatternsInclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("replace") boolean replaceAll, List<String> injectList);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/inclusion")
+	public CommonResult deletePatternsInclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			List<String> deleteList);
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/run/forever/{index}/json")
-	public CommonResult runForeverJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/inclusion")
+	public CommonListResult extractPatternsInclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("starts_with") String startsWith);
+
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/exclusion")
+	public CommonResult injectPatternsExclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("replace") boolean replaceAll, List<String> injectList);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/exclusion")
+	public CommonResult deletePatternsExclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			List<String> deleteList);
 
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/stop/{index}/xml")
-	public CommonResult stopXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/exclusion")
+	public CommonListResult extractPatternsExclusion(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("starts_with") String startsWith);
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/stop/{index}/json")
-	public CommonResult stopJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/status/{index}/xml")
-	public CommonResult statusXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/status/{index}/json")
-	public CommonResult statusJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@POST
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/patterns/inclusion/inject/{index}/xml")
-	public CommonResult injectPatternsInclusionXML(
-			@PathParam("index") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key,
-			@QueryParam("deleteall") Boolean deleteAll,
-			@QueryParam("inject") List<String> injectList);
-
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/patterns/inclusion/inject/{index}/json")
-	public CommonResult injectPatternsInclusionJSON(
-			@PathParam("index") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key,
-			@QueryParam("deleteall") Boolean deleteAll,
-			@QueryParam("inject") List<String> injectList);
-
-	@POST
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/patterns/exclusion/inject/{index}/xml")
-	public CommonResult injectPatternsExclusionXML(
-			@PathParam("index") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key,
-			@QueryParam("deleteall") Boolean deleteAll,
-			@QueryParam("inject") List<String> injectList);
-
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/patterns/exclusion/inject/{index}/json")
-	public CommonResult injectPatternsExclusionJSON(
-			@PathParam("index") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key,
-			@QueryParam("deleteall") Boolean deleteAll,
-			@QueryParam("inject") List<String> injectList);
-
-	@GET
-	@Produces("image/png")
-	@Path("/screenshot")
-	public byte[] captureScreenshotAPI(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("url") URL url,
-			@QueryParam("width") Integer browserWidth,
-			@QueryParam("height") Integer browserHeight,
-			@QueryParam("reduction") Integer reductionPercent,
-			@QueryParam("visible") Boolean visiblePartOnly,
-			@QueryParam("wait") Integer wait,
-			@Context HttpServletRequest request);
-
-	@POST
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/screenshot/capture/{index}/xml")
-	public CommonResult captureScreenshotXML(@PathParam("index") String use,
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/crawl")
+	public CommonResult crawl(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("url") URL url);
 
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/screenshot/capture/{index}/json")
-	public CommonResult captureScreenshotJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/screenshot/check/{index}/xml")
-	public CommonResult checkScreenshotXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/screenshot/check/{index}/json")
-	public CommonResult checkScreenshotJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/crawl/{index}/xml")
-	public CommonResult crawlXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/crawl/{index}/json")
-	public CommonResult crawlJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
 }
