@@ -23,8 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
-import java.awt.Dimension;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,11 +31,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.commons.io.IOUtils;
@@ -45,7 +41,6 @@ import org.apache.commons.io.IOUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
@@ -56,14 +51,13 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
-import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
-import com.jaeksoft.searchlib.webservice.ApiIdentifier;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
@@ -79,22 +73,20 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			ClientFactory.INSTANCE.properties.checkApi();
 			return client.getWebCrawlMaster();
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
 	@Override
-	public CommonResult runOnce(String use, String login, String key) {
-		return CrawlerUtils.runOnce(getCrawlMaster(use, login, key));
-	}
-
-	@Override
-	public CommonResult runForever(String use, String login, String key) {
-		return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
+	public CommonResult run(String use, String login, String key, boolean once) {
+		if (once)
+			return CrawlerUtils.runOnce(getCrawlMaster(use, login, key));
+		else
+			return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
 	}
 
 	@Override
@@ -127,15 +119,15 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 					getRequest(client.getUrlManager(), null));
 			return IOUtils.toByteArray(new FileInputStream(file));
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (FileNotFoundException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (ParseException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -150,52 +142,117 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 					getRequest(client.getUrlManager(), host));
 			return IOUtils.toByteArray(new FileInputStream(file));
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (FileNotFoundException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (ParseException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
-	public CommonResult injectPatterns(String use, String login, String key,
-			Boolean deleteAll, List<String> patterns, boolean inclusion) {
+	private CommonResult injectPatterns(String index, String login, String key,
+			boolean replaceAll, List<String> patterns, boolean inclusion) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<PatternItem> patternList = PatternManager
 					.getPatternList(patterns);
 			PatternManager patternManager = inclusion ? client
 					.getInclusionPatternManager() : client
 					.getExclusionPatternManager();
-			patternManager.addList(patternList, deleteAll);
+			patternManager.addList(patternList, replaceAll);
 			int count = PatternManager.countStatus(patternList,
 					PatternItem.Status.INJECTED);
 			return new CommonResult(true, count + " patterns injected");
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
 	@Override
-	public CommonResult injectPatternsInclusion(String use, String login,
-			String key, Boolean deleteAll, List<String> patterns) {
-		return injectPatterns(use, login, key, deleteAll, patterns, true);
+	public CommonResult injectPatternsInclusion(String index, String login,
+			String key, boolean replaceAll, List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, patterns, true);
 	}
 
 	@Override
-	public CommonResult injectPatternsExclusion(String use, String login,
-			String key, Boolean deleteAll, List<String> patterns) {
-		return injectPatterns(use, login, key, deleteAll, patterns, false);
+	public CommonResult injectPatternsExclusion(String index, String login,
+			String key, boolean replaceAll, List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, patterns, false);
+	}
+
+	private CommonResult deletePatterns(String index, String login, String key,
+			List<String> patterns, boolean inclusion) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			ClientFactory.INSTANCE.properties.checkApi();
+			PatternManager patternManager = inclusion ? client
+					.getInclusionPatternManager() : client
+					.getExclusionPatternManager();
+			int count = patternManager.delPattern(patterns);
+			return new CommonResult(true, count + " patterns deleted");
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult deletePatternsInclusion(String index, String login,
+			String key, List<String> deleteList) {
+		return deletePatterns(index, login, key, deleteList, true);
+	}
+
+	@Override
+	public CommonResult deletePatternsExclusion(String index, String login,
+			String key, List<String> deleteList) {
+		return deletePatterns(index, login, key, deleteList, false);
+	}
+
+	public CommonListResult extractPatterns(String index, String login,
+			String key, String startsWith, boolean inclusion) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
+			PatternManager patternManager = inclusion ? client
+					.getInclusionPatternManager() : client
+					.getExclusionPatternManager();
+			List<String> patterns = new ArrayList<String>();
+			patternManager.getPatterns(startsWith, patterns);
+			return new CommonListResult(patterns);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonListResult extractPatternsInclusion(String index,
+			String login, String key, String startsWith) {
+		return extractPatterns(index, login, key, startsWith, true);
+	}
+
+	@Override
+	public CommonListResult extractPatternsExclusion(String index,
+			String login, String key, String startsWith) {
+		return extractPatterns(index, login, key, startsWith, false);
 	}
 
 	@Override
@@ -215,25 +272,25 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 					+ urlItem.getIndexStatus() : null;
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (ParseException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (SyntaxError e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (URISyntaxException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (ClassNotFoundException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InstantiationException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IllegalAccessException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -252,60 +309,15 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			String message = "Captured URL " + url;
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (URISyntaxException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
-		}
-	}
-
-	@Override
-	public byte[] captureScreenshotAPI(String login, String key, URL url,
-			Integer browserWidth, Integer browserHeight,
-			Integer reductionPercent, Boolean visiblePartOnly, Integer wait,
-			HttpServletRequest request) {
-		try {
-			ClientFactory.INSTANCE.properties.checkApi(key,
-					ApiIdentifier.capt00, request.getRemoteAddr());
-			if (browserWidth == null)
-				browserWidth = 1280;
-			if (browserHeight == null)
-				browserHeight = 768;
-			if (browserWidth > 1600)
-				browserWidth = 1600;
-			if (browserHeight > 1200)
-				browserHeight = 1200;
-			if (reductionPercent == null)
-				reductionPercent = 100;
-			if (visiblePartOnly == null)
-				visiblePartOnly = false;
-			if (wait == null)
-				wait = 0;
-			if (wait > 20)
-				wait = 20;
-			ScreenshotThread screenshotThread = new ScreenshotThread(
-					new Dimension(browserWidth, browserHeight),
-					reductionPercent, visiblePartOnly, url, wait,
-					BrowserDriverEnum.find(ClientFactory.INSTANCE
-							.getDefaultWebBrowserDriver().getValue(),
-							BrowserDriverEnum.FIREFOX));
-			screenshotThread.runner();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(screenshotThread.getImage(), "png", baos);
-			return baos.toByteArray();
-		} catch (WebApplicationException e) {
-			throw e;
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException();
-		} catch (Exception e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
 	}
 
@@ -320,123 +332,25 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			String message = ScreenshotServlet.doCheck(screenshotManager, url);
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		} catch (IOException e) {
-			throw new WebServiceException(e);
+			throw new CommonServiceException(e);
 		}
-	}
-
-	@Override
-	public CommonResult runOnceXML(String use, String login, String key) {
-		return runOnce(use, login, key);
-	}
-
-	@Override
-	public CommonResult runOnceJSON(String use, String login, String key) {
-		return runOnce(use, login, key);
-	}
-
-	@Override
-	public CommonResult runForeverXML(String use, String login, String key) {
-		return runForever(use, login, key);
-	}
-
-	@Override
-	public CommonResult runForeverJSON(String use, String login, String key) {
-		return runForever(use, login, key);
-	}
-
-	@Override
-	public CommonResult stopXML(String use, String login, String key) {
-		return stop(use, login, key);
-	}
-
-	@Override
-	public CommonResult stopJSON(String use, String login, String key) {
-		return stop(use, login, key);
-	}
-
-	@Override
-	public CommonResult statusXML(String use, String login, String key) {
-		return status(use, login, key);
-	}
-
-	@Override
-	public CommonResult statusJSON(String use, String login, String key) {
-		return status(use, login, key);
-	}
-
-	@Override
-	public CommonResult injectPatternsInclusionXML(String use, String login,
-			String key, Boolean deleteAll, List<String> injectList) {
-		return injectPatternsInclusion(use, login, key, deleteAll, injectList);
-	}
-
-	@Override
-	public CommonResult injectPatternsInclusionJSON(String use, String login,
-			String key, Boolean deleteAll, List<String> injectList) {
-		return injectPatternsInclusion(use, login, key, deleteAll, injectList);
-	}
-
-	@Override
-	public CommonResult injectPatternsExclusionXML(String use, String login,
-			String key, Boolean deleteAll, List<String> injectList) {
-		return injectPatternsExclusion(use, login, key, deleteAll, injectList);
-	}
-
-	@Override
-	public CommonResult injectPatternsExclusionJSON(String use, String login,
-			String key, Boolean deleteAll, List<String> injectList) {
-		return injectPatternsExclusion(use, login, key, deleteAll, injectList);
-	}
-
-	@Override
-	public CommonResult captureScreenshotXML(String use, String login,
-			String key, URL url) {
-		return captureScreenshot(use, login, key, url);
-	}
-
-	@Override
-	public CommonResult captureScreenshotJSON(String use, String login,
-			String key, URL url) {
-		return captureScreenshot(use, login, key, url);
-	}
-
-	@Override
-	public CommonResult checkScreenshotXML(String use, String login,
-			String key, URL url) {
-		return checkScreenshot(use, login, key, url);
-	}
-
-	@Override
-	public CommonResult checkScreenshotJSON(String use, String login,
-			String key, URL url) {
-		return checkScreenshot(use, login, key, url);
-	}
-
-	@Override
-	public CommonResult crawlXML(String use, String login, String key, URL url) {
-		return crawl(use, login, key, url);
-	}
-
-	@Override
-	public CommonResult crawlJSON(String use, String login, String key, URL url) {
-		return crawl(use, login, key, url);
 	}
 
 	public static String getCrawlXML(User user, Client client, String url)
 			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/crawler/web/crawl/{index}/xml",
+		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl",
 				user, client, "url", url);
 	}
 
 	public static String getCrawlJSON(User user, Client client, String url)
 			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/crawler/web/crawl/{index}/json",
+		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl",
 				user, client, "url", url);
 	}
 
