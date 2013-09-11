@@ -13,6 +13,18 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	<version>2.0-dev</version>
+	<scm>
+		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
+		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
+		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<url>http://www.open-search-server.com/jenkins</url>
+	</ciManagement>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -391,9 +403,37 @@
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<shortRevisionLength>10</shortRevisionLength>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
+						</manifestEntries>
+					</archive>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -437,6 +477,7 @@
 							<goal>jdeb</goal>
 						</goals>
 						<configuration>
+							<deb>${project.build.directory}/${project.build.finalName}.deb</deb>
 							<dataSet>
 								<data>
 									<src>${project.build.directory}/${project.build.finalName}-war-exec.jar</src>
@@ -492,16 +533,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<version>2.0-SNAPSHOT</version>
-	<scm>
-		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
-		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
-		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
-	</scm>
-	<issueManagement>
-		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
-	</issueManagement>
-	<ciManagement>
-		<url>http://www.open-search-server.com/jenkins</url>
-	</ciManagement>
 </project>
