@@ -25,79 +25,50 @@
 <project name="OpenSearchServer" default="dist" basedir=".">
 
 	<property environment="env" />
-	<property name="lib" location="lib" />
-	<property name="build" location="ant-build" />
-	<property name="build-doc" location="${build}/doc" />
 	<property name="dist" location="dist" />
-	<property name="temp" location="temp" />
-	<property name="temp-version" location="${temp}/version" />
 	<property name="licenses" location="licenses" />
-	<property name="product" value="open-search-server" />
-	<property name="name" value="${product}" />
-	<property name="tomcat-name" value="apache-tomcat-7.0.42" />
-	<property name="tomcat-zip" location="pkg/${tomcat-name}.zip" />
-	<property name="tomcat-config" location="pkg/tomcat_config" />
-	<property name="tomcat-bin" location="pkg/tomcat_bin" />
-	<property name="tomcat-lib" location="pkg/tomcat_lib" />
-	<property name="shell-dir" location="pkg/shell" />
-	<property name="examples" location="examples" />
-	<property name="war" location="target/opensearchserver-1.5-SNAPSHOT.war" />
-	<property name="tomcat-context-path" value="/jenkins-oss-1.5-testing" />
-	<property name="tomcat-test-url" value="http://localhost:8080/manager/text" />
-	<property name="tomcat-username" value="testing" />
-	<loadproperties srcfile="version" />
+	<property name="shelldir" location="shell" />
+	<property name="product" value="opensearchserver" />
+	<property name="env.BUILD_NUMBER" value="" />
 
-	<target name="init">
-		<mkdir dir="${build}" />
-		<mkdir dir="${temp}" />
-		<echo file="${temp-version}" append="false" message="VERSION = ${VERSION}${line.separator}" />
-		<echo file="${temp-version}" append="true" message="STAGE = ${STAGE}${line.separator}" />
-		<echo file="${temp-version}" append="true" message="REVISION = ${env.GIT_COMMIT}${line.separator}" />
-		<echo file="${temp-version}" append="true" message="BUILD = ${env.BUILD_NUMBER}${line.separator}" />
-	</target>
+	<!-- Read the manifest from the WAR -->
+	<loadproperties>
+		<zipentry name="META-INF/MANIFEST.MF">
+			<first>
+				<fileset dir="target" includes="**/opensearchserver-*.war" />
+			</first>
+		</zipentry>
+	</loadproperties>
 
-	<target name="dist" depends="init">
+	<property name="productsrc" value="${product}-${Implementation-Version}" />
+	<property name="productdest" value="${product}-${Implementation-Version}-b${env.BUILD_NUMBER}" />
+
+	<target name="dist">
+
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
-		<unzip src="${tomcat-zip}" dest="${dist}/${product}" />
-		<copy todir="${dist}/${product}/${tomcat-name}/conf">
-			<fileset dir="${tomcat-config}" />
+
+		<copy tofile="${dist}/${product}/${product}.jar">
+			<fileset file="target/${productsrc}-war-exec.jar" />
 		</copy>
-		<delete dir="${dist}/${product}/${tomcat-name}/webapps/ROOT" />
-		<delete dir="${dist}/${product}/${tomcat-name}/webapps/examples" />
-		<delete dir="${dist}/${product}/${tomcat-name}/webapps/docs" />
 
-		<!-- Put version file to WAR -->
-		<zip destfile="${war}" update="true">
-			<zipfileset file="${temp-version}" prefix="/" />
-		</zip>
+		<copy tofile="${dist}/${productdest}.deb">
+			<fileset file="target/${productsrc}.deb" />
+		</copy>
 
-		<copy file="${war}" tofile="${dist}/${product}/${tomcat-name}/webapps/ROOT.war" />
-		<copy file="${war}" tofile="${dist}/${product}.war" />
+		<copy tofile="${dist}/${productdest}.war">
+			<fileset file="target/${productsrc}.war" />
+		</copy>
+
 		<copy todir="${dist}/${product}/LICENSES">
 			<fileset dir="${licenses}" />
 		</copy>
 
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
-			<fileset file="README.txt" />
+			<fileset file="README.md" />
 			<fileset file="CHANGELOG.txt" />
-			<fileset dir="${shell-dir}" />
-		</copy>
-
-		<!-- Copy examples -->
-		<copy todir="${dist}/${product}/examples">
-			<fileset dir="${examples}" />
-		</copy>
-
-		<!-- Copy bin -->
-		<copy todir="${dist}/${product}/${tomcat-name}/bin">
-			<fileset dir="${tomcat-bin}" />
-		</copy>
-
-		<!-- Copy lib -->
-		<copy todir="${dist}/${product}/${tomcat-name}/lib">
-			<fileset dir="${tomcat-lib}" />
+			<fileset dir="${shelldir}" />
 		</copy>
 
 		<!-- Check executable file flag for batches -->
@@ -109,7 +80,7 @@
 		</chmod>
 
 		<!-- Create the tar.gz archive -->
-		<tar longfile="gnu" compression="gzip" destfile="${dist}/${product}.tar.gz">
+		<tar longfile="gnu" compression="gzip" destfile="${dist}/${productdest}.tar.gz">
 			<tarfileset dir="${dist}/${product}" mode="755" prefix="${product}">
 				<include name="**/*.sh" />
 				<include name="**/*.bat" />
@@ -122,7 +93,7 @@
 		</tar>
 
 		<!-- Create the zip archive -->
-		<zip encoding="windows-1250" destfile="${dist}/${product}.zip">
+		<zip encoding="windows-1250" destfile="${dist}/${productdest}.zip">
 			<zipfileset dir="${dist}/${product}" filemode="755" prefix="${product}">
 				<include name="**/*.sh" />
 				<include name="**/*.bat" />
@@ -136,8 +107,7 @@
 
 		<!-- Copy Txt Files -->
 		<copy todir="${dist}">
-			<fileset file="NOTICE.txt" />
-			<fileset file="README.txt" />
+			<fileset file="README.md" />
 			<fileset file="CHANGELOG.txt" />
 		</copy>
 
@@ -149,13 +119,11 @@
 	<!-- The tarball -->
 	<target name="dist-src">
 		<mkdir dir="${dist}" />
-		<tar compression="gzip" destfile="${dist}/${product}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
+		<tar compression="gzip" destfile="${dist}/${product-dest}.src.tar.gz" longfile="gnu" basedir="." excludes="temp/**, dist/**, ant-build/**, build/**, target/**, .git/**" />
 	</target>
 
 	<target name="clean" description="clean up">
-		<delete dir="${build}" />
 		<delete dir="${dist}" />
-		<delete dir="${temp}" />
 	</target>
 
 </project>

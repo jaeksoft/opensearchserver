@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jaeksoft</groupId>
 	<artifactId>opensearchserver</artifactId>
@@ -12,6 +13,18 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	<version>1.5-dev4</version>
+	<scm>
+		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
+		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
+		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<url>http://www.open-search-server.com/jenkins</url>
+	</ciManagement>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -341,6 +354,12 @@
 			<groupId>com.github.detro.ghostdriver</groupId>
 			<artifactId>phantomjsdriver</artifactId>
 			<version>1.0.4</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>servlet-api-2.5</artifactId>
+					<groupId>org.mortbay.jetty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
@@ -374,9 +393,37 @@
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<shortRevisionLength>10</shortRevisionLength>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
+						</manifestEntries>
+					</archive>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -392,18 +439,88 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<path>/</path>
+				</configuration>
+				<executions>
+					<execution>
+						<id>tomcat-run</id>
+						<goals>
+							<goal>exec-war-only</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>jdeb</artifactId>
+				<groupId>org.vafer</groupId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jdeb</goal>
+						</goals>
+						<configuration>
+							<deb>${project.build.directory}/${project.build.finalName}.deb</deb>
+							<dataSet>
+								<data>
+									<src>${project.build.directory}/${project.build.finalName}-war-exec.jar</src>
+									<dst>opensearchserver.jar</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/opensearchserver</prefix>
+										<user>daemon</user>
+										<group>daemon</group>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/etc/opensearchserver</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/init.d</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc/init.d</prefix>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+								<data>
+									<type>template</type>
+									<paths>
+										<path>/var/lib/${project.artifactId}/data</path>
+										<path>/var/log/${project.artifactId}</path>
+										<path>/var/run/${project.artifactId}</path>
+									</paths>
+									<mapper>
+										<type>perm</type>
+										<user>daemon</user>
+										<group>daemon</group>
+									</mapper>
+								</data>
+								<data>
+									<type>link</type>
+									<symlink>true</symlink>
+									<linkName>/var/lib/${project.artifactId}/data/logs</linkName>
+									<linkTarget>/var/log/${project.artifactId}</linkTarget>
+								</data>
+							</dataSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-	<version>1.5-SNAPSHOT</version>
-	<scm>
-		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
-		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
-		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
-	</scm>
-	<issueManagement>
-		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
-	</issueManagement>
-	<ciManagement>
-		<url>http://www.open-search-server.com/jenkins</url>
-	</ciManagement>
 </project>

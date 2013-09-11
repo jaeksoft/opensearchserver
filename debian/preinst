@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if which invoke-rc.d >/dev/null 2>&1; then
-	invoke-rc.d tomcat6 stop
-else
-	/etc/init.d/tomcat6 stop
-fi
