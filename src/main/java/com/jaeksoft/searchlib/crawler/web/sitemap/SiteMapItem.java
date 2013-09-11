@@ -34,6 +34,8 @@ import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.w3c.dom.Document;
@@ -108,7 +110,15 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		try {
 			DownloadItem downloadItem = httpDownloader.get(uri, null);
 			downloadItem.checkNoError(200);
-			inputStream = downloadItem.getContentInputStream();
+			System.out.println("CONTENTTYPE IS "
+					+ downloadItem.getContentBaseType());
+			if ("application/x-gzip".equals(downloadItem.getContentBaseType())) {
+				inputStream = new CompressorStreamFactory()
+						.createCompressorInputStream(
+								CompressorStreamFactory.GZIP,
+								downloadItem.getContentInputStream());
+			} else
+				inputStream = downloadItem.getContentInputStream();
 			Document doc = DomUtils.readXml(new InputSource(inputStream), true);
 			if (doc != null) {
 				List<Node> nodes = DomUtils.getAllNodes(doc, "url");
@@ -129,10 +139,11 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
+		} catch (CompressorException e) {
+			throw new SearchLibException(e);
 		} finally {
 			if (inputStream != null)
 				IOUtils.closeQuietly(inputStream);
 		}
 	}
-
 }
