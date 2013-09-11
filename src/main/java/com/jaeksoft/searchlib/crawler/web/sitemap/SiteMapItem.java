@@ -110,8 +110,6 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		try {
 			DownloadItem downloadItem = httpDownloader.get(uri, null);
 			downloadItem.checkNoError(200);
-			System.out.println("CONTENTTYPE IS "
-					+ downloadItem.getContentBaseType());
 			if ("application/x-gzip".equals(downloadItem.getContentBaseType())) {
 				inputStream = new CompressorStreamFactory()
 						.createCompressorInputStream(
