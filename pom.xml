@@ -384,7 +384,7 @@
 		<lucene.version>3.6.2</lucene.version>
 		<jackson.version>1.9.13</jackson.version>
 	</properties>
-	<description>An open source search engine and crawler based on best open source technologies. A stable, high-performance piece of software. It is a modern search engine and a suite of high-powered full text search algorithms.</description>
+	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>
 		<name>Jaeksoft OpenSearchServer</name>
 		<url>http://www.open-search-server.com</url>
@@ -459,7 +459,7 @@
 			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
-				<version>1.0</version>
+				<version>1.0.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -478,6 +478,23 @@
 										<prefix>/usr/share/opensearchserver</prefix>
 										<user>daemon</user>
 										<group>daemon</group>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/data/copyright</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/doc/opensearchserver</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/CHANGELOG.txt.gz</src>
+									<dst>changelog.gz</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/doc/opensearchserver</prefix>
 									</mapper>
 								</data>
 								<data>

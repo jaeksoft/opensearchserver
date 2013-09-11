@@ -29,7 +29,7 @@ case $1 in
 start)
         echo "Starting OpenSearchServer ..."
         if [ ! -f $SERVER_PID ]; then
-            if start-stop-daemon -o --start -m -b --pidfile $SERVER_PID --exec "/usr/bin/java" -- $SERVER_OPTS; then
+            if start-stop-daemon -c daemon -o --start -m -b --pidfile $SERVER_PID --exec "/usr/bin/java" -- $SERVER_OPTS; then
                 echo "OpenSearchServer started ..."
             fi
         else
@@ -39,7 +39,7 @@ start)
 stop)
         if [ -f $SERVER_PID ]; then
             echo "Stopping OpenSearchServer ..."
-            if start-stop-daemon -o --stop --pidfile $SERVER_PID; then
+            if start-stop-daemon -c daemon -o --stop --pidfile $SERVER_PID; then
                 echo "OpenSearchServer stopped ..."
                 rm $SERVER_PID
             fi
@@ -47,5 +47,9 @@ stop)
             echo "OpenSearchServer is not running ..."
         fi
         ;;
+restart|force-reload)
+        $0 stop
+        $0 start
+		;;
 esac
 exit 0
