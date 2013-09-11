@@ -336,19 +336,6 @@ public class PatternManager {
 		}
 	}
 
-	public void injectUrl(List<InjectUrlItem> urlListItems)
-			throws SearchLibException {
-		Iterator<InjectUrlItem> it = urlListItems.iterator();
-		List<PatternItem> patternList = new ArrayList<PatternItem>();
-		while (it.hasNext()) {
-			InjectUrlItem item = it.next();
-			if (matchPattern(item.getURL()))
-				continue;
-			patternList.add(new PatternItem(item.getURL()));
-		}
-		addList(patternList, false);
-	}
-
 	final private static void addLine(List<PatternItem> list, String pattern) {
 		pattern = pattern.trim();
 		if (pattern.length() == 0)

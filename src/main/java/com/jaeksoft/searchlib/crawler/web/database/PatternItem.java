@@ -25,9 +25,12 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PatternItem {
@@ -90,7 +93,24 @@ public class PatternItem {
 	}
 
 	public final String getPatternWithoutWildcard() {
-		return sPattern.replace("*", "");
+		return StringUtils.replace(sPattern, "*", "");
+	}
+
+	/**
+	 * Return NULL if no valid URL can be extracted
+	 * 
+	 * @return
+	 */
+	public final URL tryExtractURL() {
+		try {
+			return LinkUtils.newEncodedURL(getPatternWithoutWildcard());
+		} catch (MalformedURLException e) {
+			Logging.warn("Unable to extract URL from " + sPattern);
+			return null;
+		} catch (URISyntaxException e) {
+			Logging.warn("Unable to extract URL from " + sPattern);
+			return null;
+		}
 	}
 
 	public String getHost() throws MalformedURLException {

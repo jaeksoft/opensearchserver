@@ -354,4 +354,26 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 				user, client, "url", url);
 	}
 
+	@Override
+	public CommonResult injectUrls(String index, String login, String key,
+			boolean replaceAll, List<String> urls) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.WEB_CRAWLER_EDIT_PARAMETERS);
+			ClientFactory.INSTANCE.properties.checkApi();
+			UrlManager urlManager = client.getUrlManager();
+			CommonResult result = new CommonResult(true, null);
+			if (replaceAll)
+				urlManager.deleteAll(null);
+			urlManager.inject(urls, result);
+			return result;
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
 }
