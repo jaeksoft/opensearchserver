@@ -45,6 +45,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -156,25 +157,32 @@ public class PatternManager {
 		}
 	}
 
-	private void delPatternWithoutLock(String sPattern)
+	private int delPatternWithoutLock(String sPattern)
 			throws MalformedURLException, URISyntaxException {
 		String host = new PatternItem(sPattern).getHost();
 		List<PatternItem> itemList = patternMap.get(host);
 		if (itemList == null)
-			return;
+			return 0;
+		int count = 0;
 		Iterator<PatternItem> it = itemList.iterator();
-		while (it.hasNext())
-			if (it.next().sPattern.equals(sPattern))
+		while (it.hasNext()) {
+			if (it.next().sPattern.equals(sPattern)) {
 				it.remove();
+				count++;
+			}
+		}
+		return count;
 	}
 
-	public void delPattern(Collection<String> patterns)
+	public int delPattern(Collection<String> patterns)
 			throws SearchLibException {
 		rwl.w.lock();
 		try {
+			int count = 0;
 			for (String pattern : patterns)
-				delPatternWithoutLock(pattern);
+				count += delPatternWithoutLock(pattern);
 			store();
+			return count;
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
@@ -246,6 +254,8 @@ public class PatternManager {
 			List<PatternItem> list) throws SearchLibException {
 		rwl.r.lock();
 		try {
+			if (StringUtils.isEmpty(startsWith))
+				startsWith = null;
 			Iterator<List<PatternItem>> it = patternMap.values().iterator();
 			long end = start + rows;
 			int pos = 0;
@@ -258,10 +268,34 @@ public class PatternManager {
 							continue;
 						}
 					}
-					if (pos >= start && pos < end)
-						list.add(item);
+					if (rows == 0 || pos < end) {
+						if (pos >= start)
+							list.add(item);
+					}
 					total++;
 					pos++;
+				}
+			return total;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public int getPatterns(String startsWith, List<String> list)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (StringUtils.isEmpty(startsWith))
+				startsWith = null;
+			Iterator<List<PatternItem>> it = patternMap.values().iterator();
+			int total = 0;
+			while (it.hasNext())
+				for (PatternItem item : it.next()) {
+					if (startsWith != null)
+						if (!item.getPattern().startsWith(startsWith))
+							continue;
+					list.add(item.sPattern);
+					total++;
 				}
 			return total;
 		} finally {
