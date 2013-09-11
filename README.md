@@ -5,13 +5,45 @@ http://www.open-search-server.com
 Copyright Emmanuel Keller / Jaeksoft (2008-2013)
 This software is licensed under the GPL v3.
 
-An open source search engine and crawler based on best open source technologies. A stable, high-performance piece of software. It is a modern search engine and a suite of high-powered full text search algorithms.
+OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.
+
+Quickstart
+----------
+### One requirement
+You need to have a JAVA 6 (or newer) runtime on your server
+
+### Download the last ZIP or the TAR.GZ archive:
+http://www.open-search-server.com/download
+
+### Deflate the content to get the following files:
+- [FILE] opensearchserver-1.5-xxxx-war-exec.jar
+- [FILE] README.md -> this file
+- [DIR] data -> will contains your index
+- [DIR] server -> will contains servers files
+- [FILE] start.sh -> starting the server on Unix
+- [FILE] start.bat -> starting the server on Windows
+- [FILE] NOTICE.txt -> the third-party license informations
+- [DIR] LICENSES -> Contains the detailled licenses
+
+### (Optional) You may change the parameters in the start.sh/start.bat script:
+- The allowed memory size
+- The TCP port (9090 by default)
+
+### Start the server
+```
+cd opensearchserver
+./start.sh
+```
+
+### Go with the interface and/or the API
+http://localhost:9090
 
 Useful links
 ------------
 + Download binaries: http://www.open-search-server.com/download
-+ The documentation: http://www.open-search-server.com/documentation
-+ Issues (bug, enhancement): https://github.com/jaeksoft/opensearchserver/issues
++ The documentation of the RESTFul API: https://github.com/jaeksoft/opensearchserver/wiki 
++ The user guide: http://www.open-search-server.com/documentation
++ Issues (bugs, enhancements): https://github.com/jaeksoft/opensearchserver/issues
 
 Features
 --------
@@ -63,5 +95,3 @@ Features
 - Index replication
 - Scheduler for management of periodic tasks
 - WordPress plugin and Drupal module
-
-OpenSearchServer was developed in such a way that you can do all of these things as simply as possible. You will have full access to all of the components of our search engine. This is the most important feature that we wanted to offer you. It means that, instead of having to accept fixed parameters and options set by us, you will have total freedom to customize any parameters to perfectly match the needs of your application. You will never face a black box.
