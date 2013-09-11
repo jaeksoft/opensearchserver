@@ -35,13 +35,10 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "WebCrawler")
 public interface SoapWebCrawler {
 
-	public CommonResult runOnce(@WebParam(name = "use") String use,
+	public CommonResult run(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
-
-	public CommonResult runForever(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
+			@WebParam(name = "key") String key,
+			@WebParam(name = "once") boolean bOnce);
 
 	public CommonResult stop(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
@@ -55,14 +52,14 @@ public interface SoapWebCrawler {
 			@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "deleteAll") Boolean deleteAll,
+			@WebParam(name = "replaceAll") boolean replaceAll,
 			@WebParam(name = "inject") List<String> injectList);
 
 	public CommonResult injectPatternsExclusion(
 			@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "deleteAll") Boolean deleteAll,
+			@WebParam(name = "replaceAll") boolean replaceAll,
 			@WebParam(name = "inject") List<String> injectList);
 
 	@WebResult(name = "urls")
