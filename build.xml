@@ -67,7 +67,7 @@
 		<copy todir="${dist}/${product}">
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.md" />
-			<fileset file="CHANGELOG.txt" />
+			<fileset file="CHANGELOG.txt.gz" />
 			<fileset dir="${shelldir}" />
 		</copy>
 
@@ -108,7 +108,7 @@
 		<!-- Copy Txt Files -->
 		<copy todir="${dist}">
 			<fileset file="README.md" />
-			<fileset file="CHANGELOG.txt" />
+			<fileset file="CHANGELOG.txt.gz" />
 		</copy>
 
 		<!-- Clean the temporary product directory -->
