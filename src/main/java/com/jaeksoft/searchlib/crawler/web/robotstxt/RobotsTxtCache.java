@@ -92,8 +92,8 @@ public class RobotsTxtCache {
 	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config,
 			URL url, boolean reloadRobotsTxt) throws MalformedURLException,
 			SearchLibException, URISyntaxException {
-		UrlItem urlItem = config.getUrlManager().getNewUrlItem();
-		urlItem.setUrl(RobotsTxt.getRobotsUrl(url).toExternalForm());
+		UrlItem urlItem = config.getUrlManager().getNewUrlItem(
+				RobotsTxt.getRobotsUrl(url).toExternalForm());
 		String robotsKey = urlItem.getUrl();
 		synchronized (robotsTxtList) {
 			checkExpiration(System.currentTimeMillis());
