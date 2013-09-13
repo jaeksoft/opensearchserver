@@ -26,8 +26,11 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -49,12 +52,22 @@ public class AutoCompletionServlet extends AbstractServlet {
 		if (user != null
 				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 			throw new SearchLibException("Not permitted");
-		if (name == null || name.length() == 0)
-			return;
 		Integer rows = transaction.getParameterInteger("rows", 10);
 		String query = transaction.getParameterString("query");
-		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()
-				.getItem(name);
+		AutoCompletionItem autoCompItem = null;
+		if (StringUtils.isEmpty(name)) {
+			Collection<AutoCompletionItem> collection = client
+					.getAutoCompletionManager().getItems();
+			if (collection == null)
+				return;
+			Iterator<AutoCompletionItem> iterator = collection.iterator();
+			if (iterator.hasNext())
+				autoCompItem = iterator.next();
+
+		} else
+			autoCompItem = client.getAutoCompletionManager().getItem(name);
+		if (autoCompItem == null)
+			return;
 		transaction.setResponseContentType("text/plain");
 		PrintWriter pw = transaction.getWriter("UTF-8");
 		AbstractResultSearch result = autoCompItem.search(query, rows);
