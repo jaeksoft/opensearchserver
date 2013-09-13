@@ -1,0 +1,23 @@
+[
+  {
+    "lang": "ENGLISH",
+    "fields": [
+      { "name": "id", "value": 1 },
+      { "name": "content", "value": "Hello world!", "boost": 1 }
+    ]
+  },
+  {
+    "lang": "FRENCH",
+    "fields": [
+      { "name": "id", "value": 2 },
+      { "name": "content", "value": "Bonjour le monde!" }
+     ]
+   },
+   {
+    "lang": "GERMAN",
+    "fields": [
+      { "name": "id", "value": 3 },
+      { "name": "content", "value": "Hallo Welt!", "boost": 1 }
+     ]
+   }
+]
