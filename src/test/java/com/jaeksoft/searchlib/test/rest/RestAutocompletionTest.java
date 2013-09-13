@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,40 +21,38 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.test;
+
+package com.jaeksoft.searchlib.test.rest;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import junit.framework.TestCase;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpPost;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
-public class OptimizeTestCase extends TestCase {
-	private CommonTestCase commomTestCase = null;
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class RestAutocompletionTest extends CommonRestAPI {
 
-	public OptimizeTestCase(String name) {
-		super(name);
-		commomTestCase = new CommonTestCase();
+	@Test
+	public void testASetAutocompletionField() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
+			ParserConfigurationException {
 	}
 
 	@Test
-	public void testOptimizeIndex() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
+	public void testBStartAutocompletionField() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommonTestCase.OPTIMIZE_API, true);
-		String response = commomTestCase.getHttpResponse(httpPost,
-				"response/entry[@key='Status']");
-		assertEquals("OK", response);
 	}
 
+	@Test
+	public void testCQueryAutocompletionField() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
+			ParserConfigurationException {
+
+	}
 }

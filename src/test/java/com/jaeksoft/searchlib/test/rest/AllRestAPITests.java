@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,17 +21,21 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.test;
+
+package com.jaeksoft.searchlib.test.rest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ WebTemplateTestCase.class, PatternTestCase.class,
-		IndexTestCase.class, OptimizeTestCase.class,
-		SearchTemplateTestCase.class, SearchTestCase.class,
-		DeleteIndexTestCase.class })
-public class AllTests {
+@SuiteClasses({ RestIndexCreateExistsListTest.class, RestUpdateTest.class,
+		RestAutocompletionTest.class, RestSearchTest.class,
+		RestDeleteTest.class })
+public class AllRestAPITests {
+
+	public final static String INDEX_NAME = "oss_testing_suite";
+	public final static String SERVER_URL = "http://localhost:8080";
+	public final static String REST_PATH = "/services/rest";
 
 }

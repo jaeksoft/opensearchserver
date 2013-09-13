@@ -40,15 +40,11 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SearchTestCase extends TestCase {
+public class SearchTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public SearchTestCase(String name) {
+	public SearchTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}

@@ -37,10 +37,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-public class DeleteIndexTestCase extends TestCase {
+public class DeleteIndexTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public DeleteIndexTestCase(String name) {
+	public DeleteIndexTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}

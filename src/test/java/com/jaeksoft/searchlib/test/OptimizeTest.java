@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,7 +21,6 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.test;
 
 import java.io.IOException;
@@ -35,50 +34,27 @@ import junit.framework.TestCase;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class WebCrawlerTestCase extends TestCase {
+public class OptimizeTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public WebCrawlerTestCase(String name) {
+	public OptimizeTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
 
-	public String startStopCrawler(String action) throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	@Test
+	public void testOptimizeIndex() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
 			ParserConfigurationException {
 		List<NameValuePair> namedValuePairs = new ArrayList<NameValuePair>();
-		namedValuePairs.add(commomTestCase.getNameValuePair("action", action));
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
-				CommonTestCase.WEBCRAWLER_API, true);
-		return commomTestCase.getHttpResponse(httpPost,
-				"response/entry[@key='Info']");
-
-	}
-
-	@Test
-	public void testAStartCrawler() throws IllegalStateException,
-			XPathExpressionException, IOException, SAXException,
-			ParserConfigurationException {
-		String response = startStopCrawler("start");
-		assertEquals("STARTED", response);
-	}
-
-	@Test
-	public void testBStopCrawler() throws IllegalStateException,
-			XPathExpressionException, IOException, SAXException,
-			ParserConfigurationException {
-		String response = startStopCrawler("stop");
-		assertEquals("STOPPED", response);
+				CommonTestCase.OPTIMIZE_API, true);
+		String response = commomTestCase.getHttpResponse(httpPost,
+				"response/entry[@key='Status']");
+		assertEquals("OK", response);
 	}
 
 }
