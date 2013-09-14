@@ -1,3 +1,26 @@
+/**   
+ * License Agreement for OpenSearchServer
+ *
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of OpenSearchServer.
+ *
+ * OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
 package com.jaeksoft.searchlib.test;
 
 import java.io.IOException;
@@ -9,17 +32,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.xml.sax.SAXException;
 
-public class AutocompletionTestCase extends TestCase {
+public class AutocompletionTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public AutocompletionTestCase(String name) {
+	public AutocompletionTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
@@ -63,14 +85,4 @@ public class AutocompletionTestCase extends TestCase {
 		assertEquals(10, suggests.length);
 	}
 
-	public static TestSuite suite() throws InterruptedException {
-		TestSuite autoCompletionTestCase = new TestSuite();
-		autoCompletionTestCase.addTest(new AutocompletionTestCase(
-				"setAutocompletionField"));
-		autoCompletionTestCase.addTest(new AutocompletionTestCase(
-				"startAutoCompletion"));
-		autoCompletionTestCase.addTest(new AutocompletionTestCase(
-				"getAutocompletion"));
-		return autoCompletionTestCase;
-	}
 }

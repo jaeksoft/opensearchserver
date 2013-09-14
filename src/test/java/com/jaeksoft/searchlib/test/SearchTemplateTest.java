@@ -14,10 +14,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-public class SearchTemplateTestCase extends TestCase {
+public class SearchTemplateTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public SearchTemplateTestCase(String name) {
+	public SearchTemplateTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
