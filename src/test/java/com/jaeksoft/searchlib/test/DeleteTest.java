@@ -8,16 +8,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.xml.sax.SAXException;
 
-public class DeleteTestCase extends TestCase {
+public class DeleteTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public DeleteTestCase(String name) {
+	public DeleteTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
@@ -32,12 +31,6 @@ public class DeleteTestCase extends TestCase {
 		String response = commomTestCase.getHttpResponse(httpPost,
 				"response/entry[@key='Deleted']");
 		assertEquals("174", response);
-	}
-
-	public static TestSuite suite() throws InterruptedException {
-		TestSuite deleteTestCase = new TestSuite();
-		deleteTestCase.addTest(new DeleteTestCase("getDeletedDocument"));
-		return deleteTestCase;
 	}
 
 }
