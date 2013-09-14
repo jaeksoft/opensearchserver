@@ -24,12 +24,12 @@
 
 package com.jaeksoft.searchlib.test.rest;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -46,40 +46,43 @@ import com.jaeksoft.searchlib.webservice.index.ResultIndexList;
 public class RestIndexCreateExistsListTest extends CommonRestAPI {
 
 	@Test
-	public void testACreateIndex() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
-			ParserConfigurationException {
-		Target target = getIndexTarget("/services/rest/index/{index_name}/template/{template_name}");
-		target.pathParam("index_name", AllRestAPITests.INDEX_NAME);
-		target.pathParam("template_name", TemplateList.EMPTY_INDEX.name());
-		CommonResult commonResult = target.request(MediaType.APPLICATION_JSON)
-				.post(null, CommonResult.class);
-		assertNotNull(commonResult.successful);
-		assertTrue(commonResult.successful);
+	public void testAdeleteRemainingIndex() {
+		client().path("/services/rest/index/{index_name}",
+				AllRestAPITests.INDEX_NAME).accept(MediaType.APPLICATION_JSON)
+				.delete();
 	}
 
 	@Test
-	public void testBExistsIndex() throws IllegalStateException, IOException,
+	public void testBCreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Target target = getIndexTarget("/services/rest/index/{index_name}");
-		target.pathParam("index_name", AllRestAPITests.INDEX_NAME);
-		CommonResult commonResult = target.request(MediaType.APPLICATION_JSON)
-				.get(CommonResult.class);
-		assertNotNull(commonResult.successful);
-		assertTrue(commonResult.successful);
+		Response response = client()
+				.path("/services/rest/index/{index_name}/template/{template_name}",
+						AllRestAPITests.INDEX_NAME,
+						TemplateList.EMPTY_INDEX.name())
+				.accept(MediaType.APPLICATION_JSON).post(null);
+		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
-	public void testCListIndex() throws IllegalStateException, IOException,
+	public void testCExistsIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Target target = getTarget("/services/rest/index");
-		ResultIndexList resultIndexList = target.request(
-				MediaType.APPLICATION_JSON).get(ResultIndexList.class);
-		assertNotNull(resultIndexList.successful);
-		assertTrue(resultIndexList.successful);
-		assertNotNull(resultIndexList.indexList);
+		Response response = client()
+				.path("/services/rest/index/{index_name}",
+						AllRestAPITests.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).get();
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
+	@Test
+	public void testDListIndex() throws IllegalStateException, IOException,
+			XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		Response response = client().path("/services/rest/index")
+				.accept(MediaType.APPLICATION_JSON).get();
+		ResultIndexList resultIndexList = checkCommonResult(response,
+				ResultIndexList.class, 200);
 		assertTrue(resultIndexList.indexList
 				.contains(AllRestAPITests.INDEX_NAME));
 	}

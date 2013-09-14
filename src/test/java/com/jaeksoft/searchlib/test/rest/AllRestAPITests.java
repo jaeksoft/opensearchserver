@@ -29,13 +29,15 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RestIndexCreateExistsListTest.class, RestUpdateTest.class,
-		RestAutocompletionTest.class, RestSearchTest.class,
-		RestDeleteTest.class })
+@SuiteClasses({ RestIndexCreateExistsListTest.class /*
+													 * , RestUpdateTest.class,
+													 * RestAutocompletionTest
+													 * .class,
+													 * RestSearchTest.class
+													 */, RestDeleteTest.class })
 public class AllRestAPITests {
 
 	public final static String INDEX_NAME = "oss_testing_suite";
 	public final static String SERVER_URL = "http://localhost:8080";
-	public final static String REST_PATH = "/services/rest";
 
 }
