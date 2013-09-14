@@ -23,13 +23,10 @@
  **/
 package com.jaeksoft.searchlib.test.rest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
@@ -44,12 +41,10 @@ public class RestUpdateTest extends CommonRestAPI {
 			IOException {
 		String json = IOUtils.toString(this.getClass().getResourceAsStream(
 				"documents.json"));
-		Target target = getTarget(AllRestAPITests.SERVER_URL);
-		target.path("/services/rest/index/{index_name}/document");
-		target.pathParam("index_name", AllRestAPITests.INDEX_NAME);
-		CommonResult commonResult = target.request(MediaType.APPLICATION_JSON)
-				.put(Entity.json(json), CommonResult.class);
-		assertNotNull(commonResult.successful);
-		assertTrue(commonResult.successful);
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document",
+						AllRestAPITests.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).put(json);
+		checkCommonResult(response, CommonResult.class, 200);
 	}
 }

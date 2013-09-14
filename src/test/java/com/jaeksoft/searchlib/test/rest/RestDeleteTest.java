@@ -24,12 +24,10 @@
 
 package com.jaeksoft.searchlib.test.rest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -44,12 +42,10 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testADeleteIndexXML() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Target target = getTarget("/services/rest/index/{index_name}");
-		CommonResult commonResult = target.request(MediaType.APPLICATION_JSON)
-				.delete(CommonResult.class);
-		assertNotNull(commonResult.successful);
-		assertTrue(commonResult.successful);
-
+		Response response = client()
+				.path("/services/rest/index/{index_name}",
+						AllRestAPITests.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).delete();
+		checkCommonResult(response, CommonResult.class, 200);
 	}
-
 }
