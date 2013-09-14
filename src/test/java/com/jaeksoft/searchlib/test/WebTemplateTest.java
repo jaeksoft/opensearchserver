@@ -44,10 +44,10 @@ import org.xml.sax.SAXException;
  * 
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class WebTemplateTestCase extends TestCase {
+public class WebTemplateTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public WebTemplateTestCase(String name) {
+	public WebTemplateTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
