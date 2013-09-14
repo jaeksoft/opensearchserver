@@ -8,16 +8,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.xml.sax.SAXException;
 
-public class FileCrawlerTestCase extends TestCase {
+public class FileCrawlerTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public FileCrawlerTestCase(String name) {
+	public FileCrawlerTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
@@ -70,13 +69,4 @@ public class FileCrawlerTestCase extends TestCase {
 
 	}
 
-	public static TestSuite suite() {
-		TestSuite fileCrawlerTestSuite = new TestSuite();
-		fileCrawlerTestSuite.addTest(new FileCrawlerTestCase(
-				"createFileCrawlerInstance"));
-		fileCrawlerTestSuite
-				.addTest(new FileCrawlerTestCase("startFileCrwler"));
-		fileCrawlerTestSuite.addTest(new FileCrawlerTestCase("stopFileCrwler"));
-		return fileCrawlerTestSuite;
-	}
 }

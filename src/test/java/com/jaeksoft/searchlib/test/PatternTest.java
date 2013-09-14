@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,6 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+
 package com.jaeksoft.searchlib.test;
 
 import java.io.File;
@@ -32,21 +33,24 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
-public class IndexTestCase extends TestCase {
+/**
+ * @author Ayyathurai N Naveen
+ * 
+ */
+public class PatternTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
 
-	public IndexTestCase(String name) {
+	public PatternTest(String name) {
 		super(name);
 		commomTestCase = new CommonTestCase();
 	}
 
 	@Test
-	public void testIndexDocument() throws ClientProtocolException, IOException {
-		File documents = FileUtils.toFile(this.getClass().getResource(
-				"documents.xml"));
-		int status = commomTestCase.postFile(documents, "text/xml",
-				CommonTestCase.INDEX_API);
+	public void testInsertPattern() throws ClientProtocolException, IOException {
+		File patterns = FileUtils.toFile(this.getClass().getResource(
+				"patterns.txt"));
+		int status = commomTestCase.postFile(patterns, "text/plain",
+				CommonTestCase.PATTERN_API);
 		assertEquals(200, status);
 	}
-
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,36 +21,30 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.test.rest;
 
-package com.jaeksoft.searchlib.test;
-
-import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public class PatternTestCase extends TestCase {
-	private CommonTestCase commomTestCase = null;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-	public PatternTestCase(String name) {
-		super(name);
-		commomTestCase = new CommonTestCase();
-	}
+public class RestUpdateTest extends CommonRestAPI {
 
 	@Test
-	public void testInsertPattern() throws ClientProtocolException, IOException {
-		File patterns = FileUtils.toFile(this.getClass().getResource(
-				"patterns.txt"));
-		int status = commomTestCase.postFile(patterns, "text/plain",
-				CommonTestCase.PATTERN_API);
-		assertEquals(200, status);
+	public void testRestAPIUpdateDocument() throws ClientProtocolException,
+			IOException {
+		String json = IOUtils.toString(this.getClass().getResourceAsStream(
+				"documents.json"));
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document",
+						AllRestAPITests.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).put(json);
+		checkCommonResult(response, CommonResult.class, 200);
 	}
 }
