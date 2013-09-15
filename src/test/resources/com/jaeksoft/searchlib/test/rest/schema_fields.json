@@ -1,0 +1,21 @@
+[
+	{
+	  "name": "id",
+	  "indexed": "YES"
+	},{
+	  "name": "content",
+	  "analyzer": "TextAnalyzer",
+	  "indexed": "YES",
+	  "stored": "YES",
+	  "termVector": "POSITIONS_OFFSETS"
+	},{
+	  "name": "autocomplete",
+	  "analyzer": "AutoCompletionAnalyzer",
+	  "indexed": "YES",
+	  "stored": "NO",
+	  "termVector": "NO",
+	  "copyOf": [
+	    "content"
+	  ]
+	}
+]

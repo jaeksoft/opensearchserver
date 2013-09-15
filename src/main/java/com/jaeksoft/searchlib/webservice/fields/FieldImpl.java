@@ -42,19 +42,22 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 
 	@Override
 	public CommonResult setField(String use, String login, String key,
-			SchemaFieldRecord schemaFieldRecord) {
+			List<SchemaFieldRecord> schemaFieldRecords) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (schemaFieldRecord == null)
+			if (schemaFieldRecords == null)
 				throw new CommonServiceException(Status.BAD_REQUEST,
 						"The field structure is missing");
-			SchemaField schemaField = new SchemaField();
-			schemaFieldRecord.toShemaField(schemaField);
-			client.getSchema().getFieldList().put(schemaField);
-			client.saveConfig();
-			return new CommonResult(true, "Added Field "
-					+ schemaFieldRecord.name);
+			int count = 0;
+			for (SchemaFieldRecord schemaFieldRecord : schemaFieldRecords) {
+				SchemaField schemaField = new SchemaField();
+				schemaFieldRecord.toShemaField(schemaField);
+				client.getSchema().getFieldList().put(schemaField);
+				client.saveConfig();
+				count++;
+			}
+			return new CommonResult(true, "Added Fields " + count);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

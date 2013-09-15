@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,34 +22,36 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.test.rest;
+package com.jaeksoft.searchlib.test.legacy;
 
-import static org.junit.Assert.assertEquals;
-
+import java.io.File;
 import java.io.IOException;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
-import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 
-public class RestSearchTest extends CommonRestAPI {
+/**
+ * @author Ayyathurai N Naveen
+ * 
+ */
+public class PatternTest extends TestCase {
+	private CommonTestCase commomTestCase = null;
+
+	public PatternTest(String name) {
+		super(name);
+		commomTestCase = new CommonTestCase();
+	}
 
 	@Test
-	public void testA_WildcardSearchPattern() throws ClientProtocolException,
-			IOException {
-		String json = getResource("wildcard_search_pattern.json");
-		Response response = client()
-				.path("/services/rest/index/{index_name}/search/pattern",
-						IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON).post(json);
-		SearchResult searchResult = checkCommonResult(response,
-				SearchResult.class, 200);
-		assertEquals(3, searchResult.numFound);
+	public void testInsertPattern() throws ClientProtocolException, IOException {
+		File patterns = FileUtils.toFile(this.getClass().getResource(
+				"patterns.txt"));
+		int status = commomTestCase.postFile(patterns, "text/plain",
+				CommonTestCase.PATTERN_API);
+		assertEquals(200, status);
 	}
 }

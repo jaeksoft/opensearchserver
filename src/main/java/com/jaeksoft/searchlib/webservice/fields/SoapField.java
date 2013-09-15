@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.webservice.fields;
 
+import java.util.List;
+
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
@@ -33,10 +35,11 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 public interface SoapField {
 
 	@WebResult(name = "setField")
-	public CommonResult setField(@WebParam(name = "index") String use,
+	public CommonResult setField(
+			@WebParam(name = "index") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "schemaField") SchemaFieldRecord schemaFieldRecord);
+			@WebParam(name = "schemaField") List<SchemaFieldRecord> schemaFieldRecord);
 
 	@WebResult(name = "deleteField")
 	public CommonResult deleteField(@WebParam(name = "index") String use,

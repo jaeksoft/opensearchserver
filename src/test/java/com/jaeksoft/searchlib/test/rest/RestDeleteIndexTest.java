@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,35 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.rest;
 
-import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public class PatternTest extends TestCase {
-	private CommonTestCase commomTestCase = null;
+import com.jaeksoft.searchlib.test.IntegrationTest;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-	public PatternTest(String name) {
-		super(name);
-		commomTestCase = new CommonTestCase();
-	}
+public class RestDeleteIndexTest extends CommonRestAPI {
 
 	@Test
-	public void testInsertPattern() throws ClientProtocolException, IOException {
-		File patterns = FileUtils.toFile(this.getClass().getResource(
-				"patterns.txt"));
-		int status = commomTestCase.postFile(patterns, "text/plain",
-				CommonTestCase.PATTERN_API);
-		assertEquals(200, status);
+	public void testADeleteIndexXML() throws IllegalStateException,
+			IOException, XPathExpressionException, SAXException,
+			ParserConfigurationException {
+		Response response = client()
+				.path("/services/rest/index/{index_name}",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).delete();
+		checkCommonResult(response, CommonResult.class, 200);
 	}
 }
