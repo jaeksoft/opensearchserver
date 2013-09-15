@@ -28,24 +28,33 @@ import java.io.IOException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class RestDeleteTest extends CommonRestAPI {
+public class RestSchemaTest extends CommonRestAPI {
 
 	@Test
-	public void testADeleteIndexXML() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
-			ParserConfigurationException {
+	public void testA_addFields() throws IOException {
+		String json = getResource("schema_fields.json");
 		Response response = client()
-				.path("/services/rest/index/{index_name}",
-						AllRestAPITests.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).delete();
+				.path("/services/rest/index/{index_name}/field",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).put(json);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
+
+	@Test
+	public void testD_setDefaulUniqueField() {
+		Response response = client()
+				.accept(MediaType.APPLICATION_JSON)
+				.path("/services/rest/index/{index_name}/field",
+						IntegrationTest.INDEX_NAME).query("default", "id")
+				.query("unique", "content").post(null);
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
 }

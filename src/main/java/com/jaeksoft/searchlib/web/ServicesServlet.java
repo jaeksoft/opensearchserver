@@ -71,6 +71,8 @@ public class ServicesServlet extends CXFNonSpringJaxrsServlet {
 		super.loadBus(servletConfig);
 
 		Bus bus = getBus();
+		// bus.getInInterceptors().add(new LoggingInInterceptor());
+		// bus.getOutInterceptors().add(new LoggingOutInterceptor());
 		BusFactory.setDefaultBus(bus);
 
 		if (!ClientFactory.INSTANCE.getSoapActive().isValue())
