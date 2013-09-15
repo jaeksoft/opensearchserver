@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,23 +21,32 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.test.legacy;
 
-package com.jaeksoft.searchlib.test.rest;
+import java.io.File;
+import java.io.IOException;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import junit.framework.TestCase;
 
-@RunWith(Suite.class)
-@SuiteClasses({ RestIndexCreateExistsListTest.class /*
-													 * , RestUpdateTest.class,
-													 * RestAutocompletionTest
-													 * .class,
-													 * RestSearchTest.class
-													 */, RestDeleteTest.class })
-public class AllRestAPITests {
+import org.apache.commons.io.FileUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.junit.Test;
 
-	public final static String INDEX_NAME = "oss_testing_suite";
-	public final static String SERVER_URL = "http://localhost:8080";
+public class IndexTest extends TestCase {
+	private CommonTestCase commomTestCase = null;
+
+	public IndexTest(String name) {
+		super(name);
+		commomTestCase = new CommonTestCase();
+	}
+
+	@Test
+	public void testIndexDocument() throws ClientProtocolException, IOException {
+		File documents = FileUtils.toFile(this.getClass().getResource(
+				"documents.xml"));
+		int status = commomTestCase.postFile(documents, "text/xml",
+				CommonTestCase.INDEX_API);
+		assertEquals(200, status);
+	}
 
 }

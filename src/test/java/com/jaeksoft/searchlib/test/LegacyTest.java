@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012 - 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,30 +23,22 @@
  **/
 package com.jaeksoft.searchlib.test;
 
-import java.io.File;
-import java.io.IOException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import junit.framework.TestCase;
+import com.jaeksoft.searchlib.test.legacy.DeleteIndexTest;
+import com.jaeksoft.searchlib.test.legacy.IndexTest;
+import com.jaeksoft.searchlib.test.legacy.OptimizeTest;
+import com.jaeksoft.searchlib.test.legacy.PatternTest;
+import com.jaeksoft.searchlib.test.legacy.SearchTemplateTest;
+import com.jaeksoft.searchlib.test.legacy.SearchTest;
+import com.jaeksoft.searchlib.test.legacy.WebTemplateTest;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.junit.Test;
-
-public class IndexTest extends TestCase {
-	private CommonTestCase commomTestCase = null;
-
-	public IndexTest(String name) {
-		super(name);
-		commomTestCase = new CommonTestCase();
-	}
-
-	@Test
-	public void testIndexDocument() throws ClientProtocolException, IOException {
-		File documents = FileUtils.toFile(this.getClass().getResource(
-				"documents.xml"));
-		int status = commomTestCase.postFile(documents, "text/xml",
-				CommonTestCase.INDEX_API);
-		assertEquals(200, status);
-	}
+@RunWith(Suite.class)
+@SuiteClasses({ WebTemplateTest.class, PatternTest.class, IndexTest.class,
+		OptimizeTest.class, SearchTemplateTest.class, SearchTest.class,
+		DeleteIndexTest.class })
+public class LegacyTest {
 
 }
