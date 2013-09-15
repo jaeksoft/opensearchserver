@@ -28,10 +28,10 @@ import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
+import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class RestUpdateTest extends CommonRestAPI {
@@ -39,12 +39,12 @@ public class RestUpdateTest extends CommonRestAPI {
 	@Test
 	public void testRestAPIUpdateDocument() throws ClientProtocolException,
 			IOException {
-		String json = IOUtils.toString(this.getClass().getResourceAsStream(
-				"documents.json"));
+		String json = getResource("documents.json");
 		Response response = client()
 				.path("/services/rest/index/{index_name}/document",
-						AllRestAPITests.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).put(json);
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).put(json);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 }

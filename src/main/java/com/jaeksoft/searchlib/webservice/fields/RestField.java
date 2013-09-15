@@ -23,9 +23,12 @@
  **/
 package com.jaeksoft.searchlib.webservice.fields;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -42,22 +45,22 @@ public interface RestField {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult setField(@PathParam("index_name") String use,
+	public CommonResult setField(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			SchemaFieldRecord schemaFieldRecord);
+			List<SchemaFieldRecord> schemaFieldRecord);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")
-	public CommonResult deleteField(@PathParam("index_name") String use,
+	public CommonResult deleteField(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field);
 
-	@PUT
+	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public CommonResult setDefaultUniqueField(
-			@PathParam("index_name") String use,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("default") String defaultField,
 			@QueryParam("unique") String uniqueField);
@@ -65,13 +68,13 @@ public interface RestField {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public ResultFieldList getFieldList(@PathParam("index_name") String use,
+	public ResultFieldList getFieldList(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")
-	public ResultField getFieldList(@PathParam("index_name") String use,
+	public ResultField getFieldList(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field);
 
