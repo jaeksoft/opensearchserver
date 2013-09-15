@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.legacy;
 
 import java.io.File;
 import java.io.IOException;

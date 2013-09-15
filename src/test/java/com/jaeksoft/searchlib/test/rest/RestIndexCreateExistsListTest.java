@@ -39,6 +39,7 @@ import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.template.TemplateList;
+import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.index.ResultIndexList;
 
@@ -48,7 +49,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 	@Test
 	public void testAdeleteRemainingIndex() {
 		client().path("/services/rest/index/{index_name}",
-				AllRestAPITests.INDEX_NAME).accept(MediaType.APPLICATION_JSON)
+				IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON)
 				.delete();
 	}
 
@@ -58,7 +59,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client()
 				.path("/services/rest/index/{index_name}/template/{template_name}",
-						AllRestAPITests.INDEX_NAME,
+						IntegrationTest.INDEX_NAME,
 						TemplateList.EMPTY_INDEX.name())
 				.accept(MediaType.APPLICATION_JSON).post(null);
 		checkCommonResult(response, CommonResult.class, 200);
@@ -70,7 +71,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client()
 				.path("/services/rest/index/{index_name}",
-						AllRestAPITests.INDEX_NAME)
+						IntegrationTest.INDEX_NAME)
 				.accept(MediaType.APPLICATION_JSON).get();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
@@ -84,7 +85,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 		ResultIndexList resultIndexList = checkCommonResult(response,
 				ResultIndexList.class, 200);
 		assertTrue(resultIndexList.indexList
-				.contains(AllRestAPITests.INDEX_NAME));
+				.contains(IntegrationTest.INDEX_NAME));
 	}
 
 }

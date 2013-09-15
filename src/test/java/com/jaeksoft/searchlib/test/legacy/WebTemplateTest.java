@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.legacy;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
+
 
 /**
  * @author Ayyathurai N Naveen

@@ -1,4 +1,4 @@
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.legacy;
 
 import static org.junit.Assert.assertTrue;
 
