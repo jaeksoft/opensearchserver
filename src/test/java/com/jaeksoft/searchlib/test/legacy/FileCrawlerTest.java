@@ -1,4 +1,4 @@
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.legacy;
 
 import java.io.IOException;
 import java.util.ArrayList;

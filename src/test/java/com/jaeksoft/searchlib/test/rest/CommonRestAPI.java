@@ -27,19 +27,22 @@ package com.jaeksoft.searchlib.test.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public abstract class CommonRestAPI {
 
 	public WebClient client() {
-		return WebClient.create(AllRestAPITests.SERVER_URL,
+		return WebClient.create(IntegrationTest.SERVER_URL,
 				Collections.singletonList(new JacksonJsonProvider()));
 	}
 
@@ -51,5 +54,9 @@ public abstract class CommonRestAPI {
 		assertNotNull(commonResult.successful);
 		assertEquals(true, commonResult.successful);
 		return commonResult;
+	}
+
+	public String getResource(String name) throws IOException {
+		return IOUtils.toString(getClass().getResourceAsStream(name));
 	}
 }

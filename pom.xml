@@ -550,9 +550,26 @@
 				<version>2.16</version>
 				<configuration>
 					<includes>
-						<include>**/AllRestAPITests.java</include>
+						<include>**/Test.java</include>
 					</includes>
 				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<phase>integration-test</phase>
+						<configuration>
+							<excludes>
+								<exclude>none</exclude>
+							</excludes>
+							<includes>
+								<include>**/IntegrationTest.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

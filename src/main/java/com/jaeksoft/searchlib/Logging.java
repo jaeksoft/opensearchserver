@@ -119,6 +119,9 @@ public class Logging {
 		props.put("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
 		props.put("log4j.appender.R.layout.ConversionPattern",
 				"%d{HH:mm:ss,SSS} %p: %c - %m%n");
+		props.put(
+				"log4j.logger.org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper",
+				"ERROR");
 		return props;
 	}
 

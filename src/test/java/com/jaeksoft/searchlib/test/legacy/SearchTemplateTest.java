@@ -1,4 +1,4 @@
-package com.jaeksoft.searchlib.test;
+package com.jaeksoft.searchlib.test.legacy;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+
 
 public class SearchTemplateTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
