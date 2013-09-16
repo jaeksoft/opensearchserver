@@ -29,6 +29,8 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,6 +41,37 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class FieldImpl extends CommonServices implements SoapField, RestField {
+
+	@Override
+	public CommonResult setField(String use, String login, String key,
+			String field_name, SchemaFieldRecord schemaFieldRecord) {
+		try {
+			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (schemaFieldRecord == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"The field structure is missing");
+			if (StringUtils.isEmpty(field_name))
+				throw new CommonServiceException("Field name is missing");
+			SchemaField schemaField = new SchemaField();
+			if (!StringUtils.isEmpty(schemaFieldRecord.name)) {
+				if (!schemaFieldRecord.name.equals(field_name))
+					throw new CommonServiceException(
+							"Field names does not match");
+			} else
+				schemaFieldRecord.name = field_name;
+			schemaFieldRecord.toShemaField(schemaField);
+			client.getSchema().getFieldList().put(schemaField);
+			client.saveConfig();
+			return new CommonResult(true, "Field added: " + field_name);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 
 	@Override
 	public CommonResult setField(String use, String login, String key,

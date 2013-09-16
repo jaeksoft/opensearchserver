@@ -24,16 +24,23 @@
 
 package com.jaeksoft.searchlib.test.rest;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.fields.ResultField;
+import com.jaeksoft.searchlib.webservice.fields.ResultFieldList;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestSchemaTest extends CommonRestAPI {
 
 	@Test
@@ -48,13 +55,67 @@ public class RestSchemaTest extends CommonRestAPI {
 	}
 
 	@Test
+	public void testB_addField() throws IOException {
+		String json = getResource("schema_field.json");
+		Response response = client()
+				.path("/services/rest/index/{index_name}/field/{field_name}",
+						IntegrationTest.INDEX_NAME, "autocomplete")
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).put(json);
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
+	@Test
+	public void testC_addField() throws IOException {
+		String json = getResource("schema_field_noname.json");
+		Response response = client()
+				.path("/services/rest/index/{index_name}/field/{field_name}",
+						IntegrationTest.INDEX_NAME, "autocomplete2")
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).put(json);
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
+	@Test
 	public void testD_setDefaulUniqueField() {
 		Response response = client()
 				.accept(MediaType.APPLICATION_JSON)
 				.path("/services/rest/index/{index_name}/field",
-						IntegrationTest.INDEX_NAME).query("default", "id")
-				.query("unique", "content").post(null);
+						IntegrationTest.INDEX_NAME).query("default", "content")
+				.query("unique", "id").post(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
+	@Test
+	public void testE_listFields() {
+		Response response = client()
+				.accept(MediaType.APPLICATION_JSON)
+				.path("/services/rest/index/{index_name}/field",
+						IntegrationTest.INDEX_NAME).get();
+		ResultFieldList resultFieldList = checkCommonResult(response,
+				ResultFieldList.class, 200);
+		assertEquals("id", resultFieldList.uniqueField);
+		assertEquals("content", resultFieldList.defaultField);
+		assertEquals((int) 4, resultFieldList.fields.size());
+	}
+
+	@Test
+	public void testF_getField() {
+		Response response = client()
+				.accept(MediaType.APPLICATION_JSON)
+				.path("/services/rest/index/{index_name}/field/{field_name}",
+						IntegrationTest.INDEX_NAME, "autocomplete2").get();
+		ResultField resultField = checkCommonResult(response,
+				ResultField.class, 200);
+		assertEquals("autocomplete2", resultField.field.name);
+	}
+
+	@Test
+	public void testG_deleteField() {
+		Response response = client()
+				.accept(MediaType.APPLICATION_JSON)
+				.path("/services/rest/index/{index_name}/field/{field_name}",
+						IntegrationTest.INDEX_NAME, "autocomplete2").delete();
+		checkCommonResult(response, CommonResult.class, 200);
+	}
 }

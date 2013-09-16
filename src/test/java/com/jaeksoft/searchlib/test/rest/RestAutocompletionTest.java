@@ -38,21 +38,23 @@ import org.xml.sax.SAXException;
 public class RestAutocompletionTest extends CommonRestAPI {
 
 	@Test
-	public void testASetAutocompletionField() throws IllegalStateException,
+	public void testA_SetAutocompletionField() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
+		// TODO
 	}
 
 	@Test
-	public void testBStartAutocompletionField() throws IllegalStateException,
+	public void test_BStartAutocompletionField() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
+		// TODO
 	}
 
 	@Test
-	public void testCQueryAutocompletionField() throws IllegalStateException,
+	public void testC_QueryAutocompletionField() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-
+		// TODO
 	}
 }
