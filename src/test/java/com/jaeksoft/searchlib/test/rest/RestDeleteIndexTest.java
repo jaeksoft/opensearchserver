@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
@@ -38,6 +39,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class RestDeleteIndexTest extends CommonRestAPI {
 
+	@Test
 	public void testADeleteIndexXML() throws IllegalStateException,
 			IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
