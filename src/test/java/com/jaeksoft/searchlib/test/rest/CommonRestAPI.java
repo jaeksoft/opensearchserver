@@ -25,19 +25,25 @@
 package com.jaeksoft.searchlib.test.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.client.ClientProtocolException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 
 public abstract class CommonRestAPI {
 
@@ -57,6 +63,48 @@ public abstract class CommonRestAPI {
 	}
 
 	public String getResource(String name) throws IOException {
-		return IOUtils.toString(getClass().getResourceAsStream(name));
+		InputStream is = getClass().getResourceAsStream(name);
+		assertNotNull("Resource not found: " + name, is);
+		String res = IOUtils.toString(is);
+		assertFalse("Resource is empty: " + name, StringUtils.isEmpty(res));
+		return res;
 	}
+
+	private SearchResult search(String json, String path)
+			throws ClientProtocolException, IOException {
+		Response response = client().path(path, IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).post(json);
+		return checkCommonResult(response, SearchResult.class, 200);
+	}
+
+	public SearchResult searchPattern(String json)
+			throws ClientProtocolException, IOException {
+		return search(json, "/services/rest/index/{index_name}/search/pattern");
+	}
+
+	public SearchResult searchField(String json)
+			throws ClientProtocolException, IOException {
+		return search(json, "/services/rest/index/{index_name}/search/field");
+	}
+
+	public void updateDocuments(String json) throws ClientProtocolException,
+			IOException {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).put(json);
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
+	public void deleteAll() throws ClientProtocolException, IOException {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document/",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).query("query", "*:*")
+				.delete();
+		checkCommonResult(response, CommonResult.class, 200);
+	}
+
 }

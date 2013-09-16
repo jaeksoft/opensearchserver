@@ -76,6 +76,7 @@ public abstract class SearchQueryAbstract {
 	final public LanguageEnum lang;
 	final public OperatorEnum operator;
 	final public Collapsing collapsing;
+	final public boolean emptyReturnsAll;
 
 	@XmlElements({
 			@XmlElement(name = "QueryFilter", type = QueryFilter.class),
@@ -106,6 +107,7 @@ public abstract class SearchQueryAbstract {
 		joins = null;
 		enableLog = null;
 		customLogs = null;
+		emptyReturnsAll = true;
 	}
 
 	public enum OperatorEnum {
@@ -692,6 +694,7 @@ public abstract class SearchQueryAbstract {
 
 	public SearchQueryAbstract(AbstractSearchRequest request) {
 		query = request.getQueryString();
+		emptyReturnsAll = request.getEmptyReturnsAll();
 		start = request.getStart();
 		rows = request.getRows();
 		lang = request.getLang();
@@ -725,6 +728,7 @@ public abstract class SearchQueryAbstract {
 		try {
 			if (query != null)
 				request.setQueryString(query);
+			request.setEmptyReturnsAll(emptyReturnsAll);
 			if (start != null)
 				request.setStart(start);
 			if (rows != null)
