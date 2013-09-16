@@ -32,11 +32,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestSearchTest extends CommonRestAPI {
 
 	@Test
