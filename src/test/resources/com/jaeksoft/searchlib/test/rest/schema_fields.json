@@ -8,5 +8,13 @@
 	  "indexed": "YES",
 	  "stored": "YES",
 	  "termVector": "POSITIONS_OFFSETS"
+	},
+	{
+		"name": "category",
+		"indexed": "YES"
+	},
+	{
+		"name": "quantity",
+		"indexed": "YES"
 	}
 ]
