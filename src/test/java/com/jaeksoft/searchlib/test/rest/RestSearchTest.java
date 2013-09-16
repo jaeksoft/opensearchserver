@@ -28,15 +28,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.http.client.ClientProtocolException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -46,13 +42,7 @@ public class RestSearchTest extends CommonRestAPI {
 	public void testA_WildcardSearchPattern() throws ClientProtocolException,
 			IOException {
 		String json = getResource("wildcard_search_pattern.json");
-		Response response = client()
-				.path("/services/rest/index/{index_name}/search/pattern",
-						IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON).post(json);
-		SearchResult searchResult = checkCommonResult(response,
-				SearchResult.class, 200);
+		SearchResult searchResult = searchPattern(json);
 		assertEquals(3, searchResult.numFound);
 	}
 }

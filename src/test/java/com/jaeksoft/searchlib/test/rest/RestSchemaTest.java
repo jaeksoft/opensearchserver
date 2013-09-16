@@ -96,7 +96,7 @@ public class RestSchemaTest extends CommonRestAPI {
 				ResultFieldList.class, 200);
 		assertEquals("id", resultFieldList.uniqueField);
 		assertEquals("content", resultFieldList.defaultField);
-		assertEquals((int) 4, resultFieldList.fields.size());
+		assertEquals((int) 6, resultFieldList.fields.size());
 	}
 
 	@Test
