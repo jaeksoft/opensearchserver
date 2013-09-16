@@ -25,16 +25,10 @@ package com.jaeksoft.searchlib.test.rest;
 
 import java.io.IOException;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.http.client.ClientProtocolException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestUpdateTest extends CommonRestAPI {
@@ -43,11 +37,6 @@ public class RestUpdateTest extends CommonRestAPI {
 	public void testA_RestAPIUpdateDocument() throws ClientProtocolException,
 			IOException {
 		String json = getResource("documents.json");
-		Response response = client()
-				.path("/services/rest/index/{index_name}/document",
-						IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON).put(json);
-		checkCommonResult(response, CommonResult.class, 200);
+		updateDocuments(json);
 	}
 }
