@@ -49,6 +49,15 @@ public interface RestField {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<SchemaFieldRecord> schemaFieldRecord);
 
+	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{field_name}")
+	public CommonResult setField(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("field_name") String fieldName,
+			SchemaFieldRecord schemaFieldRecord);
+
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")

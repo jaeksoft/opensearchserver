@@ -29,15 +29,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestUpdateTest extends CommonRestAPI {
 
 	@Test
-	public void testRestAPIUpdateDocument() throws ClientProtocolException,
+	public void testA_RestAPIUpdateDocument() throws ClientProtocolException,
 			IOException {
 		String json = getResource("documents.json");
 		Response response = client()
