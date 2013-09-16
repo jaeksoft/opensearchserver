@@ -1,0 +1,100 @@
+[
+  {
+    "fields": [
+      { "name": "id", "value": 1 },
+      { "name": "category", "value": "blue" },
+      { "name": "quantity", "value": 1 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 2 },
+      { "name": "category", "value": "blue" },
+      { "name": "quantity", "value": 2 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 3 },
+      { "name": "category", "value": "green" },
+      { "name": "quantity", "value": 3 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 4 },
+      { "name": "category", "value": "green" },
+      { "name": "quantity", "value": 2 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 5 },
+      { "name": "category", "value": "green" },
+      { "name": "quantity", "value": 1 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 6 },
+      { "name": "category", "value": "red" },
+      { "name": "quantity", "value": 1 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 7 },
+      { "name": "category", "value": "red" },
+      { "name": "quantity", "value": 2 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 8 },
+      { "name": "category", "value": "red" },
+      { "name": "quantity", "value": 3 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 9 },
+      { "name": "category", "value": "red" },
+      { "name": "quantity", "value": 4 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 10 },
+      { "name": "category", "value": "yellow" },
+      { "name": "quantity", "value": 5 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 11 },
+      { "name": "category", "value": "yellow" },
+      { "name": "quantity", "value": 4 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 12 },
+      { "name": "category", "value": "yellow" },
+      { "name": "quantity", "value": 3 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 13 },
+      { "name": "category", "value": "yellow" },
+      { "name": "quantity", "value": 2 }
+    ]
+  },
+  {
+    "fields": [
+      { "name": "id", "value": 14 },
+      { "name": "category", "value": "yellow" },
+      { "name": "quantity", "value": 1 }
+    ]
+  }
+ ]
