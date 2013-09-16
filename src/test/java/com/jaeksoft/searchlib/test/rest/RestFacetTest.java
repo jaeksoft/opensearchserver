@@ -97,7 +97,7 @@ public class RestFacetTest extends CommonRestAPI {
 	public void testC_FacetSinglePostCollapseCluster()
 			throws ClientProtocolException, IOException {
 		String json = getResource("facet_single_post_collapse_cluster.json");
-		final long[] results = { 2, 3, 4, 5 };
+		final long[] results = { 1, 1, 1, 1 };
 		facetTest(json, results);
 	}
 
@@ -105,7 +105,7 @@ public class RestFacetTest extends CommonRestAPI {
 	public void testC_FacetSinglePostCollapseAdjacent()
 			throws ClientProtocolException, IOException {
 		String json = getResource("facet_single_post_collapse_adjacent.json");
-		final long[] results = { 2, 3, 4, 5 };
+		final long[] results = { 1, 1, 1, 1 };
 		facetTest(json, results);
 	}
 }

@@ -1,98 +1,98 @@
 [
   {
     "fields": [
-      { "name": "id", "value": 1 },
+      { "name": "id", "value": "01" },
       { "name": "category", "value": "blue" },
       { "name": "quantity", "value": 1 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 2 },
+      { "name": "id", "value": "02" },
       { "name": "category", "value": "blue" },
       { "name": "quantity", "value": 2 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 3 },
+      { "name": "id", "value": "03" },
       { "name": "category", "value": "green" },
       { "name": "quantity", "value": 3 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 4 },
+      { "name": "id", "value": "04" },
       { "name": "category", "value": "green" },
       { "name": "quantity", "value": 2 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 5 },
+      { "name": "id", "value": "05" },
       { "name": "category", "value": "green" },
       { "name": "quantity", "value": 1 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 6 },
+      { "name": "id", "value": "06" },
       { "name": "category", "value": "red" },
       { "name": "quantity", "value": 1 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 7 },
+      { "name": "id", "value": "07" },
       { "name": "category", "value": "red" },
       { "name": "quantity", "value": 2 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 8 },
+      { "name": "id", "value": "08" },
       { "name": "category", "value": "red" },
       { "name": "quantity", "value": 3 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 9 },
+      { "name": "id", "value": "09" },
       { "name": "category", "value": "red" },
       { "name": "quantity", "value": 4 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 10 },
+      { "name": "id", "value": "10" },
       { "name": "category", "value": "yellow" },
       { "name": "quantity", "value": 5 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 11 },
+      { "name": "id", "value": "11" },
       { "name": "category", "value": "yellow" },
       { "name": "quantity", "value": 4 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 12 },
+      { "name": "id", "value": "12" },
       { "name": "category", "value": "yellow" },
       { "name": "quantity", "value": 3 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 13 },
+      { "name": "id", "value": "13" },
       { "name": "category", "value": "yellow" },
       { "name": "quantity", "value": 2 }
     ]
   },
   {
     "fields": [
-      { "name": "id", "value": 14 },
+      { "name": "id", "value": "14" },
       { "name": "category", "value": "yellow" },
       { "name": "quantity", "value": 1 }
     ]
