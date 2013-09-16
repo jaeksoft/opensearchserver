@@ -140,7 +140,7 @@ public class Facet implements Iterable<FacetItem>,
 			throws IOException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
-		int[] countIndex = computeSinglevalued(stringIndex, collector.getIds());
+		int[] countIndex = computeSinglevalued(stringIndex, collector);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -170,11 +170,16 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final private static int[] computeSinglevalued(FieldCacheIndex stringIndex,
-			int[] docsId) throws IOException {
+			DocIdInterface collector) throws IOException {
 		int[] countArray = new int[stringIndex.lookup.length];
 		int[] order = stringIndex.order;
-		for (int id : docsId)
+		int i = collector.getSize();
+		for (int id : collector.getIds()) {
+			if (i == 0)
+				break;
 			countArray[order[id]]++;
+			i--;
+		}
 		return countArray;
 	}
 
