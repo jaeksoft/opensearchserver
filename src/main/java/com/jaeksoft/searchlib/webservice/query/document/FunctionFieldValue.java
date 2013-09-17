@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.query.document;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
@@ -47,6 +48,21 @@ public class FunctionFieldValue {
 		this.function = functionField.getFunction();
 		this.field = functionField.getField();
 		this.value = value;
+	}
+
+	@XmlTransient
+	public Function getFunction() {
+		return function;
+	}
+
+	@XmlTransient
+	public String getField() {
+		return field;
+	}
+
+	@XmlTransient
+	public String getValue() {
+		return value;
 	}
 
 }
