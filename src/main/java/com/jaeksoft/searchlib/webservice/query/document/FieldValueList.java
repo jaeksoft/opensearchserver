@@ -44,10 +44,10 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 public class FieldValueList {
 
 	@XmlElement(name = "name")
-	public String fieldName;
+	public final String fieldName;
 
 	@XmlElement(name = "value")
-	public List<String> values;
+	public final List<String> values;
 
 	public FieldValueList() {
 		fieldName = null;

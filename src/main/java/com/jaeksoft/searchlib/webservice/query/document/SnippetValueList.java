@@ -35,13 +35,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
-import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class SnippetValueList extends FieldValueList {
 
 	@XmlElement(name = "highlighted")
-	public boolean highlighted;
+	final public boolean highlighted;
 
 	public SnippetValueList() {
 		super();
@@ -56,6 +55,7 @@ public class SnippetValueList extends FieldValueList {
 
 	protected SnippetValueList(String fieldName) {
 		super(fieldName);
+		highlighted = false;
 	}
 
 	public static final void addSnippetValue(JSONObject json,

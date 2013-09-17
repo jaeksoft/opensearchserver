@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -62,7 +62,8 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		int collapsedDocCount = (int) collapsedSet.cardinality();
 		CollapseDocInterface collapseCollector = getNewCollapseInterfaceInstance(
-				collector, fetchLength - collapsedDocCount, getCollapseMax());
+				collector, fetchLength - collapsedDocCount,
+				getCollectDocArray());
 		int collapsePos = -1;
 		for (int i = 0; i < fetchLength; i++) {
 			if (!collapsedSet.get(i))
