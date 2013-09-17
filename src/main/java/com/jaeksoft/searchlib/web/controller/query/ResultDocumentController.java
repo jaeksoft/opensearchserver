@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -141,22 +141,14 @@ public class ResultDocumentController extends AbstractQueryController implements
 			return resultDocument.getSnippetFields().size() > 0;
 		}
 
-		public String getReturnPercent() throws IOException, ParseException,
+		public boolean isFunctionValid() throws IOException, ParseException,
 				SyntaxError, SearchLibException {
-			if (!isReturnValid())
-				return "0%";
-			if (!isSnippetValid())
-				return "100%";
-			return "50%";
-		}
-
-		public String getSnippetPercent() throws IOException, ParseException,
-				SyntaxError, SearchLibException {
-			if (!isSnippetValid())
-				return "0%";
-			if (!isReturnValid())
-				return "100%";
-			return "50%";
+			ResultDocument resultDocument = getResultDocument();
+			if (resultDocument == null)
+				return false;
+			if (resultDocument.getFunctionFieldValues() == null)
+				return false;
+			return resultDocument.getFunctionFieldValues().size() > 0;
 		}
 
 		public TreeModel<Object> getReturnTree() throws IOException,
