@@ -42,23 +42,27 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 public class DocumentResult {
 
 	@XmlAttribute
-	public int pos;
+	public final int pos;
 
 	@XmlAttribute
-	public float score;
+	public final float score;
 
 	@XmlAttribute
-	public int collapseCount;
+	public final int collapseCount;
 
 	@XmlElement(name = "field")
-	public List<FieldValueList> fields;
+	public final List<FieldValueList> fields;
 
 	@XmlElement(name = "snippet")
-	public List<SnippetValueList> snippets;
+	public final List<SnippetValueList> snippets;
+
+	@XmlElement(name = "function")
+	public final List<FunctionFieldValue> functions;
 
 	public DocumentResult() {
 		fields = null;
 		snippets = null;
+		functions = null;
 		collapseCount = 0;
 		pos = 0;
 		score = 0;
@@ -76,6 +80,7 @@ public class DocumentResult {
 					.getName());
 			snippets.add(new SnippetValueList(highlighted, snippetFiedValue));
 		}
+		functions = resultDocument.getFunctionFieldValues();
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;

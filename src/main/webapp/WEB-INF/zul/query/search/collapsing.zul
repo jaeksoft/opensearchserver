@@ -60,6 +60,52 @@
 				<intbox cols="5" constraint="no empty, no negative"
 					value="@bind(collapse.request.collapseMax)" />
 			</row>
+			<row>
+				<label>Functions</label>
+				<grid
+					model="@load(collapse.request.collapseFunctionFields)">
+					<columns>
+						<column label="Function" />
+						<column label="Field" />
+						<column label="Action" />
+					</columns>
+					<auxhead>
+						<auxheader>
+							<listbox mold="select"
+								model="@load(collapse.functionList)"
+								selectedItem="@bind(collapse.functionField.function)">
+								<template name="model">
+									<listitem label="@load(each.label)" />
+								</template>
+							</listbox>
+						</auxheader>
+						<auxheader>
+							<listbox mold="select"
+								model="@load(collapse.indexedFields)"
+								selectedItem="@bind(collapse.functionField.field)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
+						</auxheader>
+						<auxheader>
+							<button image="images/action_add.png"
+								onClick="@command('onAddFunctionField')" />
+						</auxheader>
+					</auxhead>
+					<rows>
+						<template name="model">
+							<row>
+								<label
+									value="@load(each.function.label)" />
+								<label value="@load(each.field)" />
+								<button image="images/action_delete.png"
+									onClick="@command('onRemoveFonctionField', functionfield=each)" />
+							</row>
+						</template>
+					</rows>
+				</grid>
+			</row>
 		</rows>
 	</grid>
 </window>

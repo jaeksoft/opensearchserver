@@ -26,7 +26,10 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -43,6 +46,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
+import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -97,6 +101,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private int collapseMax;
 	private CollapseParameters.Mode collapseMode;
 	private CollapseParameters.Type collapseType;
+	private Set<CollapseFunctionField> collapseFunctionFields;
 	private int start;
 	private int rows;
 	private LanguageEnum lang;
@@ -130,6 +135,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.collapseMax = 2;
 		this.collapseMode = CollapseParameters.Mode.OFF;
 		this.collapseType = CollapseParameters.Type.OPTIMIZED;
+		this.collapseFunctionFields = null;
 
 		this.start = 0;
 		this.rows = 10;
@@ -168,6 +174,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
 		this.collapseType = searchRequest.collapseType;
+		this.collapseFunctionFields = CollapseFunctionField
+				.duplicate(searchRequest.collapseFunctionFields);
 
 		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
@@ -561,6 +569,40 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
+	public Collection<CollapseFunctionField> getCollapseFunctionFields() {
+		rwl.r.lock();
+		try {
+			return this.collapseFunctionFields;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void addCollapseFunctionField(CollapseFunctionField functionField) {
+		if (functionField == null)
+			return;
+		rwl.w.lock();
+		try {
+			if (collapseFunctionFields == null)
+				collapseFunctionFields = new HashSet<CollapseFunctionField>();
+			collapseFunctionFields
+					.add(new CollapseFunctionField(functionField));
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeCollapseFunctionField(CollapseFunctionField functionField) {
+		rwl.w.lock();
+		try {
+			collapseFunctionFields.remove(functionField);
+			if (collapseFunctionFields.size() == 0)
+				collapseFunctionFields = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public int getStart() {
 		rwl.r.lock();
 		try {
@@ -798,6 +840,11 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		setCollapseMax(XPathParser
 				.getAttributeValue(requestNode, "collapseMax"));
 
+		NodeList nodes = xpp.getNodeList(requestNode, "collapseFunction");
+		for (int i = 0; i < nodes.getLength(); i++)
+			addCollapseFunctionField(CollapseFunctionField.fromXmlConfig(nodes
+					.item(i)));
+
 		Node bqNode = xpp.getNode(requestNode, "boostingQueries");
 		if (bqNode != null)
 			BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
@@ -805,7 +852,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		SchemaFieldList fieldList = config.getSchema().getFieldList();
 		returnFieldList.filterCopy(fieldList,
 				xpp.getNodeString(requestNode, "returnFields"));
-		NodeList nodes = xpp.getNodeList(requestNode, "returnFields/field");
+		nodes = xpp.getNodeList(requestNode, "returnFields/field");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
 			if (field != null)
@@ -866,6 +913,10 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					collapseType.getLabel(), "collapseField", collapseField,
 					"collapseMax", Integer.toString(collapseMax),
 					"emptyReturnsAll", emptyReturnsAll ? "yes" : "no");
+
+			if (collapseFunctionFields != null)
+				for (CollapseFunctionField functionField : collapseFunctionFields)
+					functionField.writeXmlConfig(xmlWriter, "collapseFunction");
 
 			if (boostingQueries.size() > 0) {
 				xmlWriter.startElement("boostingQueries");

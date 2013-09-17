@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,6 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 
 	protected final int[][] foreignDocIdsArray;
 	protected final int[] sourceIds;
-	protected final int collapseMax;
 	protected int totalCollapseCount = 0;
 	protected final int[] ids;
 	protected final int[][] collapseDocsArray;
@@ -42,7 +41,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 	protected OpenBitSet bitSet;
 
 	public CollapseDocIdCollector(DocIdInterface sourceCollector, int size,
-			int collapseMax) {
+			boolean collectDocArray) {
 		if (sourceCollector instanceof JoinDocInterface) {
 			foreignDocIdsArray = ((JoinDocInterface) sourceCollector)
 					.getForeignDocIdsArray();
@@ -50,8 +49,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 			foreignDocIdsArray = null;
 		this.sourceIds = sourceCollector.getIds();
 		this.totalCollapseCount = 0;
-		this.collapseMax = collapseMax;
-		this.collapseDocsArray = new int[size][];
+		this.collapseDocsArray = collectDocArray ? new int[size][] : null;
 		this.collapseCounts = new int[size];
 		this.ids = new int[size];
 		this.currentPos = 0;
@@ -67,7 +65,6 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 			foreignDocIdsArray = null;
 		this.sourceIds = src.sourceIds;
 		this.totalCollapseCount = src.totalCollapseCount;
-		this.collapseMax = src.collapseMax;
 		this.collapseDocsArray = new int[src.collapseDocsArray.length][];
 		int i = 0;
 		for (int[] collDocArray : src.collapseDocsArray)
@@ -96,8 +93,8 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 	@Override
 	public void collectCollapsedDoc(int sourcePos, int collapsePos) {
 		totalCollapseCount++;
-		int collCount = collapseCounts[collapsePos]++;
-		if (collapseMax != 0 || collapseMax < collCount)
+		collapseCounts[collapsePos]++;
+		if (collapseDocsArray == null)
 			return;
 		if (collapseDocsArray[collapsePos] == null)
 			collapseDocsArray[collapsePos] = new int[] { sourceIds[sourcePos] };
@@ -113,15 +110,21 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 
 	@Override
 	public void swap(int pos1, int pos2) {
+
 		int id = ids[pos1];
-		int[] colArray = collapseDocsArray[pos1];
-		int colCount = collapseCounts[pos1];
 		ids[pos1] = ids[pos2];
-		collapseDocsArray[pos1] = collapseDocsArray[pos2];
-		collapseCounts[pos1] = collapseCounts[pos2];
 		ids[pos2] = id;
-		collapseDocsArray[pos2] = colArray;
+
+		int colCount = collapseCounts[pos1];
+		collapseCounts[pos1] = collapseCounts[pos2];
 		collapseCounts[pos2] = colCount;
+
+		if (collapseDocsArray != null) {
+			int[] colArray = collapseDocsArray[pos1];
+			collapseDocsArray[pos1] = collapseDocsArray[pos2];
+			collapseDocsArray[pos2] = colArray;
+		}
+
 		if (foreignDocIdsArray != null)
 			JoinDocCollector.swap(foreignDocIdsArray, pos1, pos2);
 	}
@@ -158,6 +161,8 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 
 	@Override
 	public int[] getCollapsedDocs(int pos) {
+		if (collapseDocsArray == null)
+			return null;
 		return collapseDocsArray[pos];
 	}
 

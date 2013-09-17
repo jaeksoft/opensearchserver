@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -42,7 +43,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
+import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval.IntervalUnit;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
@@ -122,12 +125,14 @@ public abstract class SearchQueryAbstract {
 		final public Integer max;
 		final public ModeEnum mode;
 		final public TypeEnum type;
+		final public List<FunctionField> functionFields;
 
 		public Collapsing() {
 			field = null;
 			max = null;
 			mode = null;
 			type = null;
+			functionFields = null;
 		}
 
 		public Collapsing(AbstractSearchRequest request) {
@@ -154,6 +159,8 @@ public abstract class SearchQueryAbstract {
 				type = TypeEnum.OPTIMIZED;
 				break;
 			}
+			functionFields = FunctionField.newList(request
+					.getCollapseFunctionFields());
 		}
 
 		public void apply(AbstractSearchRequest request) {
@@ -165,6 +172,10 @@ public abstract class SearchQueryAbstract {
 				request.setCollapseMode(mode.mode);
 			if (type != null)
 				request.setCollapseType(type.type);
+			if (functionFields != null)
+				for (FunctionField functionField : functionFields)
+					request.addCollapseFunctionField(functionField
+							.getCollapseFunctionField());
 		}
 
 		public enum ModeEnum {
@@ -191,6 +202,37 @@ public abstract class SearchQueryAbstract {
 				this.type = type;
 			}
 		}
+
+		public static class FunctionField {
+			final public Function function;
+			final public String field;
+
+			public FunctionField() {
+				function = null;
+				field = null;
+			}
+
+			private FunctionField(CollapseFunctionField functionField) {
+				this.function = functionField.getFunction();
+				this.field = functionField.getField();
+			}
+
+			private CollapseFunctionField getCollapseFunctionField() {
+				return new CollapseFunctionField(function, field);
+			}
+
+			private static List<FunctionField> newList(
+					Collection<CollapseFunctionField> collapseFunctionFields) {
+				if (collapseFunctionFields == null)
+					return null;
+				List<FunctionField> functionFieldList = new ArrayList<FunctionField>(
+						collapseFunctionFields.size());
+				for (CollapseFunctionField functionField : collapseFunctionFields)
+					functionFieldList.add(new FunctionField(functionField));
+				return functionFieldList;
+			}
+		}
+
 	}
 
 	@XmlTransient

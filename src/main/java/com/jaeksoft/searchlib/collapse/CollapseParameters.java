@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,34 +24,30 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionConcat;
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionCount;
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMaximum;
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMinimum;
 
 public class CollapseParameters {
 
-	public enum Mode {
+	public static enum Mode {
 
-		OFF(0, "off"),
+		OFF("off"),
 
-		ADJACENT(2, "adjacent"),
+		ADJACENT("adjacent"),
 
-		CLUSTER(3, "cluster");
+		CLUSTER("cluster");
 
-		final public int code;
 		final private String label;
 
-		private Mode(int code, String label) {
-			this.code = code;
+		private Mode(String label) {
 			this.label = label;
 		}
 
 		public String getLabel() {
 			return label;
-		}
-
-		public static Mode valueOf(int code) {
-			for (Mode mode : values())
-				if (mode.code == code)
-					return mode;
-			return OFF;
 		}
 
 		public static Mode valueOfLabel(String label) {
@@ -64,29 +60,20 @@ public class CollapseParameters {
 		}
 	}
 
-	public enum Type {
+	public static enum Type {
 
-		OPTIMIZED(0, "optimized"),
+		OPTIMIZED("optimized"),
 
-		FULL(1, "full");
+		FULL("full");
 
-		final public int code;
 		final private String label;
 
-		private Type(int code, String label) {
-			this.code = code;
+		private Type(String label) {
 			this.label = label;
 		}
 
 		public String getLabel() {
 			return label;
-		}
-
-		public static Type valueOf(int code) {
-			for (Type type : values())
-				if (type.code == code)
-					return type;
-			return OPTIMIZED;
 		}
 
 		public static Type valueOfLabel(String label) {
@@ -99,4 +86,30 @@ public class CollapseParameters {
 		}
 
 	}
+
+	public static enum Function {
+
+		MIN("minimum", new FunctionMinimum()),
+
+		MAX("maximum", new FunctionMaximum()),
+
+		CONCAT("concatenate", new FunctionConcat()),
+
+		COUNT("count", new FunctionCount());
+
+		final private String label;
+
+		final FunctionExecutor executor;
+
+		private Function(String label, FunctionExecutor executor) {
+			this.label = label;
+			this.executor = executor;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+	}
+
 }
