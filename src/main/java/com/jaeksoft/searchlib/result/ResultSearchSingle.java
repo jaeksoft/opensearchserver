@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,9 +25,11 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -103,6 +105,11 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			collapsedDocs = collapse.collapse(reader, notCollapsedDocs, timer);
 			collapsedDocCount = collapsedDocs == null ? 0 : collapsedDocs
 					.getCollapsedCount();
+			Collection<CollapseFunctionField> functionFields = request
+					.getCollapseFunctionFields();
+			if (functionFields != null)
+				for (CollapseFunctionField functionField : functionFields)
+					functionField.prepareExecute(reader);
 		}
 
 		// We compute facet
@@ -167,10 +174,16 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					fieldNameSet, docId, reader, timer);
 			if (!(docs instanceof CollapseDocInterface))
 				return resultDocument;
-			if (request.getCollapseMax() > 0)
-				return resultDocument;
 			int[] collapsedDocs = ((CollapseDocInterface) docs)
 					.getCollapsedDocs(pos);
+			Collection<CollapseFunctionField> functionFields = request
+					.getCollapseFunctionFields();
+			if (functionFields != null && collapsedDocs != null)
+				for (CollapseFunctionField functionField : functionFields)
+					resultDocument.addFunctionField(functionField,
+							collapsedDocs, reader, timer);
+			if (request.getCollapseMax() > 0)
+				return resultDocument;
 			if (collapsedDocs != null)
 				for (int doc : collapsedDocs) {
 					ResultDocument rd = new ResultDocument(request,

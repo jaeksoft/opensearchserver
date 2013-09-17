@@ -32,7 +32,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -47,12 +49,14 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.FunctionFieldValue;
 
 public class ResultDocument {
 
 	final private Map<String, FieldValue> returnFields;
 	final private Map<String, SnippetFieldValue> snippetFields;
 	final private int docId;
+	final private List<FunctionFieldValue> functionFieldValue;
 
 	public ResultDocument(AbstractSearchRequest searchRequest,
 			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
@@ -62,6 +66,7 @@ public class ResultDocument {
 
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
 
 		Map<String, FieldValue> documentFields = reader.getDocumentFields(
 				docId, fieldSet, timer);
@@ -94,6 +99,7 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		functionFieldValue = null;
 	}
 
 	public static <T> List<T> toList(Map<String, T> map) {
@@ -206,6 +212,23 @@ public class ResultDocument {
 				fieldValue.addIfStringDoesNotExist(newFieldValue
 						.getValueArray());
 		}
+	}
+
+	public void addFunctionField(CollapseFunctionField functionField,
+			int[] collapsedDocs, ReaderLocal reader, Timer timer)
+			throws IOException {
+		if (collapsedDocs == null)
+			return;
+		FieldCacheIndex stringIndex = reader.getStringIndex(functionField
+				.getField());
+		if (stringIndex == null)
+			return;
+		functionFieldValue.add(new FunctionFieldValue(functionField,
+				functionField.execute(docId, collapsedDocs)));
+	}
+
+	public List<FunctionFieldValue> getFunctionFieldValues() {
+		return functionFieldValue;
 	}
 
 	final public static float getScore(DocIdInterface docs, int pos) {
