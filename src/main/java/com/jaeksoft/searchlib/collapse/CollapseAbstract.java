@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
@@ -40,11 +41,12 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAbstract {
 
-	private transient int collapseMax;
-	private transient String collapseField;
-	private transient CollapseParameters.Mode collapseMode;
-	private transient CollapseParameters.Type collapseType;
-	protected transient AbstractSearchRequest searchRequest;
+	private transient final int collapseMax;
+	private transient final String collapseField;
+	private transient final CollapseParameters.Mode collapseMode;
+	private transient final CollapseParameters.Type collapseType;
+	private transient final Collection<CollapseFunctionField> collapseFunctionFields;
+	protected transient final AbstractSearchRequest searchRequest;
 	private transient CollapseDocInterface collapsedDocs;
 
 	protected CollapseAbstract(AbstractSearchRequest searchRequest) {
@@ -53,6 +55,7 @@ public abstract class CollapseAbstract {
 		this.collapseMax = searchRequest.getCollapseMax();
 		this.collapseMode = searchRequest.getCollapseMode();
 		this.collapseType = searchRequest.getCollapseType();
+		this.collapseFunctionFields = searchRequest.getCollapseFunctionFields();
 		this.collapsedDocs = null;
 	}
 
@@ -102,8 +105,16 @@ public abstract class CollapseAbstract {
 	/**
 	 * @return the collapseMax
 	 */
-	public int getCollapseMax() {
+	public final int getCollapseMax() {
 		return collapseMax;
+	}
+
+	public boolean getCollectDocArray() {
+		if (collapseMax == 0)
+			return true;
+		if (collapseFunctionFields == null)
+			return false;
+		return collapseFunctionFields.size() > 0;
 	}
 
 	public static CollapseAbstract newInstance(
@@ -199,11 +210,11 @@ public abstract class CollapseAbstract {
 	}
 
 	protected static CollapseDocInterface getNewCollapseInterfaceInstance(
-			DocIdInterface collector, int capacity, int collapseMax) {
+			DocIdInterface collector, int capacity, boolean collectDocArray) {
 		if (collector instanceof ScoreDocInterface)
 			return new CollapseScoreDocCollector((ScoreDocInterface) collector,
-					capacity, collapseMax);
-		return new CollapseDocIdCollector(collector, capacity, collapseMax);
+					capacity, collectDocArray);
+		return new CollapseDocIdCollector(collector, capacity, collectDocArray);
 	}
 
 }

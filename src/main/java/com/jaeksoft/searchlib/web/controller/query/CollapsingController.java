@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,12 +27,17 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
+import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
@@ -40,8 +45,11 @@ public class CollapsingController extends AbstractQueryController {
 
 	private transient List<String> indexedFields;
 
+	private transient final CollapseFunctionField functionField;
+
 	public CollapsingController() throws SearchLibException {
 		super();
+		functionField = new CollapseFunctionField(Function.MAX, "");
 	}
 
 	@Override
@@ -86,5 +94,32 @@ public class CollapsingController extends AbstractQueryController {
 	@Override
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
+	}
+
+	public Function[] getFunctionList() {
+		return Function.values();
+	}
+
+	/**
+	 * @return the functionField
+	 */
+	public CollapseFunctionField getFunctionField() {
+		return functionField;
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onAddFunctionField() throws SearchLibException {
+		((AbstractSearchRequest) getRequest())
+				.addCollapseFunctionField(functionField);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onRemoveFonctionField(
+			@BindingParam("functionfield") CollapseFunctionField functionField)
+			throws SearchLibException {
+		((AbstractSearchRequest) getRequest())
+				.removeCollapseFunctionField(functionField);
 	}
 }
