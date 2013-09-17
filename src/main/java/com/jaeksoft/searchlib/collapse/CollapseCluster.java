@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,7 +48,7 @@ public class CollapseCluster extends CollapseAbstract {
 		int[] ids = collector.getIds();
 
 		CollapseDocInterface collapseInterface = getNewCollapseInterfaceInstance(
-				collector, fetchLength, getCollapseMax());
+				collector, fetchLength, getCollectDocArray());
 		Integer collapsePos;
 
 		for (int i = 0; i < fetchLength; i++) {
