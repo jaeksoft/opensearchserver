@@ -32,10 +32,9 @@
 						<panelchildren>
 							<grid>
 								<columns>
-									<column
-										width="@load(document.returnPercent)" />
-									<column
-										width="@load(document.snippetPercent)" />
+									<column hflex="min" />
+									<column hflex="min" />
+									<column hflex="min" />
 								</columns>
 								<rows>
 									<row valign="top">
@@ -44,23 +43,47 @@
 											treeitemRenderer="@load(resultDocs)"
 											visible="@load(document.returnValid)" width="99%">
 											<treecols>
-												<treecol width="30%"
+												<treecol hflex="min"
 													label="Returned field(s)" />
 												<treecol
-													label="First value" width="69%" />
+													label="First value" />
 											</treecols>
 										</tree>
 										<tree
 											model="@load(document.snippetTree)"
 											treeitemRenderer="@load(resultDocs)"
-											visible="@load(document.snippetValid)" width="100%">
+											visible="@load(document.snippetValid)" width="99%">
 											<treecols>
-												<treecol width="30%"
+												<treecol hflex="min"
 													label="Snippet field(s)" />
 												<treecol
-													label="First value" width="69%" />
+													label="First value" />
 											</treecols>
 										</tree>
+										<grid
+											model="@load(document.resultDocument.functionFieldValues)"
+											visible="@load(document.functionValid)" width="99%">
+											<columns>
+												<column label="Function"
+													hflex="min" />
+												<column label="Field"
+													hflex="min" />
+												<column label="Value" />
+											</columns>
+											<rows>
+												<template
+													name="model">
+													<row>
+														<label
+															value="@load(each.function.label)" />
+														<label
+															value="@load(each.field)" />
+														<label
+															value="@load(each.value)" />
+													</row>
+												</template>
+											</rows>
+										</grid>
 									</row>
 								</rows>
 							</grid>
