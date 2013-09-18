@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -46,8 +47,9 @@ public abstract class ReaderAbstract implements ReaderInterface {
 	}
 
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, FilterAbstract<?> filter, Timer timer)
-			throws ParseException, IOException;
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException;
 
 	public abstract int numDocs();
 

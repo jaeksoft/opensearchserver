@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
@@ -139,7 +140,8 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 
 	@Override
 	public String getCacheKey(SchemaField defaultField,
-			PerFieldAnalyzer analyzer) throws ParseException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException {
 		return "QueryFilter - " + getQuery(defaultField, analyzer).toString();
 	}
 
@@ -153,8 +155,9 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 
 	@Override
 	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
-			throws ParseException, IOException {
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractSearchRequest request, Timer timer) throws ParseException,
+			IOException {
 		Query query = getQuery(defaultField, analyzer);
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
 				timer);

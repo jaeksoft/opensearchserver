@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.filter;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
@@ -36,8 +37,9 @@ public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
 	private boolean isNegative;
 
 	public FilterCacheKey(FilterAbstract<?> filter, SchemaField defaultField,
-			PerFieldAnalyzer analyzer) throws ParseException {
-		key = filter.getCacheKey(defaultField, analyzer);
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException {
+		key = filter.getCacheKey(defaultField, analyzer, request);
 		isNegative = filter.isNegative();
 	}
 
