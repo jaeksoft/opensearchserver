@@ -109,7 +109,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					.getCollapseFunctionFields();
 			if (functionFields != null)
 				for (CollapseFunctionField functionField : functionFields)
-					functionField.prepareExecute(reader);
+					functionField.prepareExecute(request, reader);
 		}
 
 		// We compute facet
@@ -196,6 +196,12 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
+			throw new SearchLibException(e);
+		} catch (java.text.ParseException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		}
 	}
