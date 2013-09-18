@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.filter.RelativeDateFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.join.JoinList;
@@ -110,6 +111,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private String queryParsed;
 	private boolean withSortValues;
 	protected boolean emptyReturnsAll;
+	private final GeoParameters geoParameters = new GeoParameters();
 
 	protected AbstractSearchRequest(Config config, RequestTypeEnum type) {
 		super(config, type);
@@ -176,6 +178,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.collapseType = searchRequest.collapseType;
 		this.collapseFunctionFields = CollapseFunctionField
 				.duplicate(searchRequest.collapseFunctionFields);
+		this.geoParameters.set(searchRequest.geoParameters);
 
 		this.withSortValues = searchRequest.withSortValues;
 		this.start = searchRequest.start;
@@ -770,6 +773,10 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
+	public GeoParameters getGeoParameters() {
+		return geoParameters;
+	}
+
 	public boolean isFacet() {
 		rwl.r.lock();
 		try {
@@ -845,6 +852,10 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			addCollapseFunctionField(CollapseFunctionField.fromXmlConfig(nodes
 					.item(i)));
 
+		Node geoNode = xpp.getNode(requestNode, "geoParameters");
+		if (geoNode != null)
+			geoParameters.set(geoNode);
+
 		Node bqNode = xpp.getNode(requestNode, "boostingQueries");
 		if (bqNode != null)
 			BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
@@ -917,6 +928,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			if (collapseFunctionFields != null)
 				for (CollapseFunctionField functionField : collapseFunctionFields)
 					functionField.writeXmlConfig(xmlWriter, "collapseFunction");
+
+			geoParameters.writeXmlConfig(xmlWriter, "geoParameters");
 
 			if (boostingQueries.size() > 0) {
 				xmlWriter.startElement("boostingQueries");
@@ -1083,6 +1096,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				facetFieldList.put(FacetField
 						.buildFacetField(value, true, true));
 		}
+
+		geoParameters.setFromServlet(transaction);
 	}
 
 	@Override
