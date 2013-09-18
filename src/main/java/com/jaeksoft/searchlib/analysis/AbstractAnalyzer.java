@@ -24,35 +24,20 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import java.io.Reader;
-import java.util.Map;
+public abstract class AbstractAnalyzer extends
+		org.apache.lucene.analysis.Analyzer {
 
-import org.apache.lucene.analysis.KeywordAnalyzer;
-import org.apache.lucene.analysis.TokenStream;
+	private boolean superClosed;
 
-public class PerFieldAnalyzer extends AbstractAnalyzer {
-
-	private final Map<String, CompiledAnalyzer> analyzerMap;
-
-	public PerFieldAnalyzer(Map<String, CompiledAnalyzer> analyzerMap) {
-		this.analyzerMap = analyzerMap;
-	}
-
-	public final CompiledAnalyzer getCompiledAnalyzer(String fieldName) {
-		return analyzerMap.get(fieldName);
+	public AbstractAnalyzer() {
+		superClosed = false;
 	}
 
 	@Override
-	public final TokenStream tokenStream(final String fieldName,
-			final Reader reader) {
-		CompiledAnalyzer analyzer = analyzerMap.get(fieldName);
-		if (analyzer == null)
-			return getKeywordAnalyzer().tokenStream(fieldName, reader);
-		return analyzer.tokenStream(fieldName, reader);
+	public void close() {
+		if (superClosed)
+			return;
+		super.close();
+		superClosed = true;
 	}
-
-	public KeywordAnalyzer getKeywordAnalyzer() {
-		return new KeywordAnalyzer();
-	}
-
 }
