@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,6 +23,7 @@
 		<tab id="tabSnippet" label="Snippet fields" />
 		<tab id="tabSort" label="Sorted fields" />
 		<tab id="tabFilter" label="Filters" />
+		<tab id="tabGeo" label="Geo" />
 		<tab id="tabCollapsing" label="Collapsing" />
 		<tab id="tabBoostQueries" label="Boosting queries" />
 		<tab id="tabScoreFunction" label="Scoring" />
@@ -49,6 +50,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabFilter.onSelect">
 			<include src="WEB-INF/zul/query/search/filters.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabGeo.onSelect">
+			<include src="WEB-INF/zul/query/search/geo.zul" />
 		</tabpanel>
 		<tabpanel fulfill="tabCollapsing.onSelect">
 			<include src="WEB-INF/zul/query/search/collapsing.zul" />

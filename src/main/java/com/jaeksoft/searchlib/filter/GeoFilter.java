@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 import java.text.NumberFormat;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
@@ -38,8 +37,10 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
+import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.Timer;
@@ -108,31 +109,6 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		}
 	}
 
-	public static enum CoordUnit {
-
-		DEGREES("Degrees"),
-
-		RADIANS("Radians");
-
-		final private String label;
-
-		private CoordUnit(String label) {
-			this.label = label;
-		}
-
-		@Override
-		final public String toString() {
-			return label;
-		}
-
-		final public static CoordUnit find(String name) {
-			for (CoordUnit unit : values())
-				if (unit.name().equals(name))
-					return unit;
-			return null;
-		}
-	}
-
 	private transient Query query;
 
 	private Unit unit;
@@ -141,35 +117,17 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	private double distance;
 
-	private String latitudeField;
-
-	private String longitudeField;
-
-	private double latitude;
-
-	private double longitude;
-
-	private CoordUnit coordUnit;
-
 	public GeoFilter() {
-		this(Source.REQUEST, false, null, Unit.KILOMETERS, Type.SQUARED, 0,
-				null, null, 0, 0, CoordUnit.RADIANS);
+		this(Source.REQUEST, false, null, Unit.KILOMETERS, Type.SQUARED, 0);
 	}
 
 	public GeoFilter(Source source, boolean negative, String paramPosition,
-			Unit unit, Type type, double distance, String latitudeField,
-			String longitudeField, double latitude, double longitude,
-			CoordUnit coordUnit) {
+			Unit unit, Type type, double distance) {
 		super(FilterType.GEO_FILTER, source, negative, paramPosition);
 		query = null;
 		this.unit = unit;
 		this.type = type;
 		this.distance = distance;
-		this.latitudeField = latitudeField;
-		this.longitudeField = longitudeField;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.coordUnit = coordUnit;
 	}
 
 	public GeoFilter(XPathParser xpp, Node node) {
@@ -178,14 +136,6 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		this.unit = Unit.find(XPathParser.getAttributeString(node, "unit"));
 		this.type = Type.find(XPathParser.getAttributeString(node, "type"));
 		this.distance = XPathParser.getAttributeDouble(node, "distance");
-		this.latitudeField = XPathParser.getAttributeString(node,
-				"latitudeField");
-		this.longitudeField = XPathParser.getAttributeString(node,
-				"longitudeField");
-		this.latitude = XPathParser.getAttributeDouble(node, "latitude");
-		this.longitude = XPathParser.getAttributeDouble(node, "longitude");
-		this.coordUnit = CoordUnit.find(XPathParser.getAttributeString(node,
-				"coordUnit"));
 	}
 
 	@Override
@@ -196,10 +146,6 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		sb.append(distance);
 		sb.append(' ');
 		sb.append(unit);
-		sb.append(" - Fields: ");
-		sb.append(latitudeField);
-		sb.append('/');
-		sb.append(longitudeField);
 		return sb.toString();
 	}
 
@@ -254,39 +200,37 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("geofilter", "type", type.name(), "unit",
-				unit.name(), "distance", Double.toString(distance),
-				"latitudeField", latitudeField, "longitudeField",
-				longitudeField, "latitude", Double.toString(latitude),
-				"longitude", Double.toString(longitude), "coordUnit",
-				coordUnit.name());
+				unit.name(), "distance", Double.toString(distance));
 		xmlWriter.endElement();
 	}
 
 	@Override
 	public String getCacheKey(SchemaField defaultField,
-			PerFieldAnalyzer analyzer) throws ParseException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException {
 		String key = "GeoFilter - "
-				+ getQuery(defaultField, analyzer).toString();
+				+ getQuery(defaultField, analyzer, request.getGeoParameters())
+						.toString();
 		return key;
 	}
 
-	private String getQueryString() {
-		double lat = coordUnit == CoordUnit.RADIANS ? latitude : Math
-				.toRadians(latitude);
-		double lon = coordUnit == CoordUnit.RADIANS ? longitude : Math
-				.toRadians(longitude);
+	private String getQueryString(GeoParameters geoParams) {
+		if (geoParams == null)
+			return null;
+		double lat = geoParams.getLatitudeRadian();
+		double lon = geoParams.getLongitudeRadian();
 		Geospatial.Location loc = new Geospatial.Location(lat, lon);
 		double dist = distance / unit.div;
 		Geospatial.Location[] bound = Geospatial.boundingCoordinates(loc, dist,
 				unit.radius);
-		StringBuffer sb = new StringBuffer(latitudeField);
+		StringBuffer sb = new StringBuffer(geoParams.getLatitudeField());
 		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
 		sb.append(":[");
 		sb.append(nf.format(bound[0].latitude));
 		sb.append(" TO ");
 		sb.append(nf.format(bound[1].latitude));
 		sb.append("] AND ");
-		sb.append(longitudeField);
+		sb.append(geoParams.getLongitudeField());
 		sb.append(":[");
 		sb.append(nf.format(bound[0].longitude));
 		sb.append(" TO ");
@@ -295,15 +239,15 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		return sb.toString();
 	}
 
-	private Query getQuery(SchemaField defaultField, Analyzer analyzer)
-			throws ParseException {
+	private Query getQuery(SchemaField defaultField, Analyzer analyzer,
+			GeoParameters geoParams) throws ParseException {
 		if (query != null)
 			return query;
 		QueryParser queryParser = new QueryParser(Version.LUCENE_36,
 				defaultField.getName(), analyzer);
 		queryParser.setLowercaseExpandedTerms(false);
 		try {
-			query = queryParser.parse(getQueryString());
+			query = queryParser.parse(getQueryString(geoParams));
 		} catch (org.apache.lucene.queryParser.ParseException e) {
 			throw new ParseException(e);
 		}
@@ -312,9 +256,11 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
-			throws ParseException, IOException {
-		Query query = getQuery(defaultField, analyzer);
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractSearchRequest request, Timer timer) throws ParseException,
+			IOException {
+		Query query = getQuery(defaultField, analyzer,
+				request.getGeoParameters());
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
 				timer);
 		return filterHits;
@@ -323,39 +269,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	@Override
 	public GeoFilter duplicate() {
 		return new GeoFilter(getSource(), isNegative(), getParamPosition(),
-				unit, type, distance, latitudeField, longitudeField, latitude,
-				longitude, coordUnit);
-	}
-
-	/**
-	 * @return the latitudeField
-	 */
-	public String getLatitudeField() {
-		return latitudeField;
-	}
-
-	/**
-	 * @param latitudeField
-	 *            the latitudeField to set
-	 */
-	public void setLatitudeField(String latitudeField) {
-		this.latitudeField = latitudeField;
-		this.query = null;
-	}
-
-	/**
-	 * @return the longitudeField
-	 */
-	public String getLongitudeField() {
-		return longitudeField;
-	}
-
-	/**
-	 * @param longitudeField
-	 *            the longitudeField to set
-	 */
-	public void setLongitudeField(String longitudeField) {
-		this.longitudeField = longitudeField;
+				unit, type, distance);
 	}
 
 	@Override
@@ -368,86 +282,19 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		copyTo.unit = unit;
 		copyTo.type = type;
 		copyTo.distance = distance;
-		copyTo.latitudeField = latitudeField;
-		copyTo.longitudeField = longitudeField;
-		copyTo.latitude = latitude;
-		copyTo.longitude = longitude;
-		copyTo.coordUnit = coordUnit;
 		copyTo.query = null;
-	}
-
-	/**
-	 * @return the latitude
-	 */
-	public double getLatitude() {
-		return latitude;
-	}
-
-	/**
-	 * @param latitude
-	 *            the latitude to set
-	 */
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-		this.query = null;
-	}
-
-	/**
-	 * @return the longitude
-	 */
-	public double getLongitude() {
-		return longitude;
-	}
-
-	/**
-	 * @param longitude
-	 *            the longitude to set
-	 */
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
-		this.query = null;
-	}
-
-	/**
-	 * @return the coordUnit
-	 */
-	public CoordUnit getCoordUnit() {
-		return coordUnit;
-	}
-
-	/**
-	 * @param coordUnit
-	 *            the coordUnit to set
-	 */
-	public void setCoordUnit(CoordUnit coordUnit) {
-		this.coordUnit = coordUnit;
-		this.query = null;
 	}
 
 	@Override
 	public void setFromServlet(ServletTransaction transaction) {
 		String pp = getParamPosition();
-		String q = transaction.getParameterString(pp + ".lon");
-		if (q != null)
-			setLongitude(Double.parseDouble(q));
-		q = transaction.getParameterString(pp + ".lat");
-		if (q != null)
-			setLatitude(Double.parseDouble(q));
-		q = transaction.getParameterString(pp + ".dist");
+		String q = transaction.getParameterString(pp + ".dist");
 		if (q != null)
 			setDistance(Double.parseDouble(q));
 	}
 
 	@Override
 	public void setParam(String params) throws SearchLibException {
-		String[] values = StringUtils.split(params, '|');
-		if (values == null || values.length < 2 || values.length > 3)
-			throw new SearchLibException(
-					"GeoFilter: Wrong number of parameters (" + values.length
-							+ ")");
-		setLongitude(Double.parseDouble(values[0]));
-		setLatitude(Double.parseDouble(values[1]));
-		if (values.length == 3)
-			setDistance(Double.parseDouble(values[2]));
+		setDistance(Double.parseDouble(params));
 	}
 }
