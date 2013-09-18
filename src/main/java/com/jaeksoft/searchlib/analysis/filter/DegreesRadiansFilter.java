@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.analysis.filter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -36,7 +38,8 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 public class DegreesRadiansFilter extends FilterFactory {
 
 	final private static NumberFormat getNumberFormat(int integer, int fraction) {
-		DecimalFormat df = (DecimalFormat) DecimalFormat.getNumberInstance();
+		DecimalFormat df = (DecimalFormat) DecimalFormat
+				.getNumberInstance(Locale.US);
 		df.setMaximumIntegerDigits(integer);
 		df.setMinimumIntegerDigits(integer);
 		df.setMinimumFractionDigits(fraction);
@@ -55,9 +58,11 @@ public class DegreesRadiansFilter extends FilterFactory {
 		return getNumberFormat(1, 7);
 	}
 
-	public final static void main(String[] argv) {
+	public final static void main(String[] argv) throws ParseException {
 		System.out.println(getDegreesFormat().format(33.6564353435));
 		System.out.println(getRadiansFormat().format(-0.675757575575));
+		System.out.println(getRadiansFormat().parse("N0.67576"));
+		System.out.println(getRadiansFormat().parse("P0.7986312"));
 	}
 
 	abstract private class CheckTokenFilter extends AbstractTermFilter {

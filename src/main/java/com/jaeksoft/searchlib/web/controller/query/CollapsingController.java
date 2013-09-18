@@ -45,6 +45,8 @@ public class CollapsingController extends AbstractQueryController {
 
 	private transient List<String> indexedFields;
 
+	private transient List<String> functionFields;
+
 	private transient final CollapseFunctionField functionField;
 
 	public CollapsingController() throws SearchLibException {
@@ -79,6 +81,18 @@ public class CollapsingController extends AbstractQueryController {
 					indexedFields.add(field.getName());
 			return indexedFields;
 		}
+	}
+
+	public List<String> getFunctionFields() throws SearchLibException {
+		if (functionFields != null)
+			return functionFields;
+		functionFields = new ArrayList<String>();
+		getIndexedFields();
+		if (indexedFields != null)
+			functionFields.addAll(indexedFields);
+		for (String function : CollapseFunctionField.DIST_FUNCTIONS)
+			functionFields.add(function);
+		return functionFields;
 	}
 
 	@Command
