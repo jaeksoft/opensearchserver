@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.request;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.index.Term;
@@ -195,7 +194,6 @@ public class SearchField implements Cloneable {
 			complexQuery.add(phraseQuery, Occur.SHOULD);
 		}
 		tqf.close();
-		// TODO check why quietly is required
-		IOUtils.closeQuietly(analyzer);
+		analyzer.close();
 	}
 }
