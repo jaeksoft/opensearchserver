@@ -40,9 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.index.FieldContent;
 
-public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
-
-	private boolean superClosed;
+public class CompiledAnalyzer extends AbstractAnalyzer {
 
 	private TokenizerFactory tokenizer;
 	private FilterFactory[] filters;
@@ -50,7 +48,6 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 	protected CompiledAnalyzer(TokenizerFactory sourceTokenizer,
 			List<FilterFactory> sourceFilters, FilterScope scopeTarget)
 			throws SearchLibException {
-		superClosed = false;
 		sourceTokenizer.checkProperties();
 		tokenizer = sourceTokenizer;
 		List<FilterFactory> ff = new ArrayList<FilterFactory>();
@@ -184,14 +181,6 @@ public class CompiledAnalyzer extends org.apache.lucene.analysis.Analyzer {
 			;
 		IOUtils.closeQuietly(ttqf);
 		return ttqf.termCount;
-	}
-
-	@Override
-	public void close() {
-		if (superClosed)
-			return;
-		super.close();
-		superClosed = true;
 	}
 
 }
