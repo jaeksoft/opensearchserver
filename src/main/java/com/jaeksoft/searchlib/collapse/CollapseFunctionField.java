@@ -24,24 +24,39 @@
 package com.jaeksoft.searchlib.collapse;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.Geospatial;
+import com.jaeksoft.searchlib.util.Geospatial.Location;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class CollapseFunctionField implements Comparable<CollapseFunctionField> {
 
+	public final static String DIST_KM = "dist_km()";
+	public final static String DIST_MILES = "dist_miles()";
+
+	public final static String[] DIST_FUNCTIONS = { DIST_KM, DIST_MILES };
+
 	private Function function;
 	private String field;
 	private transient FieldCacheIndex stringIndex;
+	private transient FieldCacheIndex stringIndexLatitude;
+	private transient FieldCacheIndex stringIndexLongitude;
+	private transient double radius;
+	private transient Location location;
+	private transient FunctionExecutor executor;
 
 	public CollapseFunctionField(Function function, String field) {
 		this.function = function;
@@ -93,23 +108,46 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 		return StringUtils.compareNullString(field, functionField.field);
 	}
 
-	public void prepareExecute(ReaderLocal reader) throws IOException {
+	public void prepareExecute(AbstractSearchRequest searchRequest,
+			ReaderLocal reader) throws IOException, InstantiationException,
+			IllegalAccessException {
 		this.stringIndex = reader.getStringIndex(field);
+		radius = 0;
+		if (DIST_KM.equals(field))
+			radius = Geospatial.EARTH_RADIUS_KM;
+		else if (DIST_MILES.equals(field))
+			radius = Geospatial.EARTH_RADIUS_MILES;
+		if (radius != 0) {
+			stringIndexLatitude = reader.getStringIndex(searchRequest
+					.getGeoParameters().getLatitudeField());
+			stringIndexLongitude = reader.getStringIndex(searchRequest
+					.getGeoParameters().getLongitudeField());
+			location = new Location(searchRequest.getGeoParameters()
+					.getLatitudeRadian(), searchRequest.getGeoParameters()
+					.getLongitudeRadian());
+		}
+		executor = function.newExecutor();
 	}
 
-	public String execute(int doc, int[] collapsedDocs) {
-		return function.executor.execute(stringIndex, doc, collapsedDocs);
+	public String execute(int doc, int[] collapsedDocs) throws ParseException {
+		if (radius != 0)
+			return executor.execute(location, radius, stringIndexLatitude,
+					stringIndexLongitude, doc, collapsedDocs);
+		else
+			return executor.execute(stringIndex, doc, collapsedDocs);
 	}
 
-	public static Set<CollapseFunctionField> duplicate(Set<CollapseFunctionField> functionFields) {
+	public static Set<CollapseFunctionField> duplicate(
+			Set<CollapseFunctionField> functionFields) {
 		if (functionFields == null)
 			return null;
 		return new TreeSet<CollapseFunctionField>(functionFields);
 	}
 
 	public static CollapseFunctionField fromXmlConfig(Node node) {
-		return new CollapseFunctionField(Function.valueOf(DomUtils.getAttributeText(
-				node, "function")), DomUtils.getAttributeText(node, "field"));
+		return new CollapseFunctionField(Function.valueOf(DomUtils
+				.getAttributeText(node, "function")),
+				DomUtils.getAttributeText(node, "field"));
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter, String nodeName)
