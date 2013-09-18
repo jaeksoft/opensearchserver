@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -90,8 +91,9 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	}
 
 	public FilterHits getFilterHits(ReaderAbstract reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
-			throws IOException, ParseException {
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractSearchRequest request, Timer timer) throws IOException,
+			ParseException {
 
 		if (size() == 0)
 			return null;
@@ -99,7 +101,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		FilterHits finalFilterHits = new FilterHits();
 		for (FilterAbstract<?> filter : filterList) {
 			FilterHits filterHits = reader.getFilterHits(defaultField,
-					analyzer, filter, timer);
+					analyzer, request, filter, timer);
 			finalFilterHits.and(filterHits);
 		}
 		return finalFilterHits;

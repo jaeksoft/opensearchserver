@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -331,11 +331,13 @@ public class ReaderLocal extends ReaderAbstract {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, FilterAbstract<?> filter, Timer timer)
-			throws ParseException, IOException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException {
 		rwl.r.lock();
 		try {
-			return filterCache.get(this, filter, defaultField, analyzer, timer);
+			return filterCache.get(this, filter, defaultField, analyzer,
+					request, timer);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -431,7 +433,7 @@ public class ReaderLocal extends ReaderAbstract {
 			ClassNotFoundException, SearchLibException {
 
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
-				this, defaultField, analyzer, timer);
+				this, defaultField, analyzer, searchRequest, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
 				filterHits, searchRequest.getSortFieldList(), timer);

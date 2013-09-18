@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,7 +56,8 @@ public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
 		facet = searchRequest.isFacet();
 		sortListCacheKey = searchRequest.getSortFieldList().getCacheKey();
 		filterListCacheKey = new FilterListCacheKey(
-				searchRequest.getFilterList(), defaultField, analyzer);
+				searchRequest.getFilterList(), defaultField, analyzer,
+				searchRequest);
 		boostQueryCacheKey = BoostQuery.getCacheKey(searchRequest
 				.getBoostingQueries());
 		advancedScoreCacheKey = AdvancedScore.getCacheKey(searchRequest

@@ -167,7 +167,8 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			IOException, SyntaxError {
 
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
-				this, defaultField, searchRequest.getAnalyzer(), timer);
+				this, defaultField, searchRequest.getAnalyzer(), searchRequest,
+				timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
 				filterHits, searchRequest.getSortFieldList(), timer);
@@ -244,8 +245,9 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, FilterAbstract<?> filter, Timer timer)
-			throws ParseException, IOException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

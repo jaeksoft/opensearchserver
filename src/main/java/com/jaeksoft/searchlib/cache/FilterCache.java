@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -46,17 +47,18 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 	}
 
 	public FilterHits get(ReaderLocal reader, FilterAbstract<?> filter,
-			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
-			throws ParseException, IOException {
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractSearchRequest request, Timer timer) throws ParseException,
+			IOException {
 		rwl.w.lock();
 		try {
 			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
-					defaultField, analyzer);
+					defaultField, analyzer, request);
 			FilterHits filterHits = getAndPromote(filterCacheKey);
 			if (filterHits != null)
 				return filterHits;
 			filterHits = filter.getFilterHits(reader, defaultField, analyzer,
-					timer);
+					request, timer);
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {
