@@ -89,27 +89,32 @@ public class CollapseParameters {
 
 	public static enum Function {
 
-		MIN("minimum", new FunctionMinimum()),
+		MIN("minimum", FunctionMinimum.class),
 
-		MAX("maximum", new FunctionMaximum()),
+		MAX("maximum", FunctionMaximum.class),
 
-		CONCAT("concatenate", new FunctionConcat()),
+		CONCAT("concatenate", FunctionConcat.class),
 
-		COUNT("count", new FunctionCount());
+		COUNT("count", FunctionCount.class);
 
 		final private String label;
 
-		final FunctionExecutor executor;
+		final private Class<? extends FunctionExecutor> executorClass;
 
-		private Function(String label, FunctionExecutor executor) {
+		private Function(String label,
+				Class<? extends FunctionExecutor> executorClass) {
 			this.label = label;
-			this.executor = executor;
+			this.executorClass = executorClass;
 		}
 
 		public String getLabel() {
 			return label;
 		}
 
+		public FunctionExecutor newExecutor() throws InstantiationException,
+				IllegalAccessException {
+			return executorClass.newInstance();
+		}
 	}
 
 }
