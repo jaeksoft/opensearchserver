@@ -1,0 +1,66 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('geo') @init('com.jaeksoft.searchlib.web.controller.query.GeneralController')">
+	<grid>
+		<columns>
+			<column align="right" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Latitude field" />
+				<listbox mold="select"
+					model="@load(geo.indexedFieldList)"
+					selectedItem="@bind(geo.request.geoParameters.latitudeField)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label value="Longitude field" />
+				<listbox mold="select"
+					model="@load(geo.indexedFieldList)"
+					selectedItem="@bind(geo.request.geoParameters.longitudeField)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label value="Latitude" />
+				<textbox constraint="/[0-9,.]*/"
+					value="@bind(geo.request.geoParameters.latitude)" />
+			</row>
+			<row>
+				<label value="Longitude" />
+				<textbox constraint="/[0-9,.]*/"
+					value="@bind(geo.request.geoParameters.longitude)" />
+			</row>
+			<row>
+				<label value="Location unit" />
+				<listbox mold="select" model="@load(geo.geoCoordUnits)"
+					selectedItem="@bind(geo.request.geoParameters.coordUnit)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</row>
+		</rows>
+	</grid>
+</window>

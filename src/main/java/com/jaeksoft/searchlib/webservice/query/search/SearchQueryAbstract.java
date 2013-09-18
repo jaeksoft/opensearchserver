@@ -51,9 +51,10 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
-import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
+import com.jaeksoft.searchlib.geo.GeoParameters;
+import com.jaeksoft.searchlib.geo.GeoParameters.CoordUnit;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -79,6 +80,7 @@ public abstract class SearchQueryAbstract {
 	final public LanguageEnum lang;
 	final public OperatorEnum operator;
 	final public Collapsing collapsing;
+	final public Geo geo;
 	final public boolean emptyReturnsAll;
 
 	@XmlElements({
@@ -102,6 +104,7 @@ public abstract class SearchQueryAbstract {
 		lang = null;
 		operator = null;
 		collapsing = null;
+		geo = null;
 		filters = null;
 		sorts = null;
 		returnedFields = null;
@@ -235,6 +238,41 @@ public abstract class SearchQueryAbstract {
 
 	}
 
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class Geo {
+
+		final public String latitudeField;
+		final public String longitudeField;
+		final public double latitude;
+		final public double longitude;
+		final public CoordUnit coordUnit;
+
+		public Geo() {
+			latitudeField = null;
+			longitudeField = null;
+			latitude = 0;
+			longitude = 0;
+			coordUnit = null;
+		}
+
+		public Geo(GeoParameters geoParams) {
+			latitudeField = geoParams.getLatitudeField();
+			longitudeField = geoParams.getLongitudeField();
+			latitude = geoParams.getLatitude();
+			longitude = geoParams.getLongitude();
+			coordUnit = geoParams.getCoordUnit();
+		}
+
+		private void apply(GeoParameters geoParams) {
+			geoParams.setLatitude(latitude);
+			geoParams.setLongitude(longitude);
+			geoParams.setLatitudeField(latitudeField);
+			geoParams.setLongitudeField(longitudeField);
+			geoParams.setCoordUnit(coordUnit);
+		}
+	}
+
 	@XmlTransient
 	@JsonTypeInfo(use = Id.NAME, property = "type")
 	@JsonSubTypes({
@@ -311,21 +349,11 @@ public abstract class SearchQueryAbstract {
 		final public Unit unit;
 		final public Type type;
 		final public Double distance;
-		final public String latitudeField;
-		final public String longitudeField;
-		final public Double latitude;
-		final public Double longitude;
-		final public CoordUnit coordUnit;
 
 		public GeoFilter() {
 			unit = null;
 			type = null;
 			distance = null;
-			latitudeField = null;
-			longitudeField = null;
-			latitude = null;
-			longitude = null;
-			coordUnit = null;
 		}
 
 		public GeoFilter(com.jaeksoft.searchlib.filter.GeoFilter src) {
@@ -333,11 +361,6 @@ public abstract class SearchQueryAbstract {
 			unit = src.getUnit();
 			type = src.getType();
 			distance = src.getDistance();
-			latitudeField = src.getLatitudeField();
-			longitudeField = src.getLongitudeField();
-			latitude = src.getLatitude();
-			longitude = src.getLongitude();
-			coordUnit = src.getCoordUnit();
 		}
 
 		@Override
@@ -350,16 +373,6 @@ public abstract class SearchQueryAbstract {
 				geoFilter.setType(type);
 			if (distance != null)
 				geoFilter.setDistance(distance);
-			if (latitudeField != null)
-				geoFilter.setLatitudeField(latitudeField);
-			if (longitudeField != null)
-				geoFilter.setLongitudeField(longitudeField);
-			if (latitude != null)
-				geoFilter.setLatitude(latitude);
-			if (longitude != null)
-				geoFilter.setLongitude(longitude);
-			if (coordUnit != null)
-				geoFilter.setCoordUnit(coordUnit);
 		}
 
 		@Override
@@ -743,6 +756,7 @@ public abstract class SearchQueryAbstract {
 		operator = request.getDefaultOperator() == null ? null : OperatorEnum
 				.valueOf(request.getDefaultOperator());
 		collapsing = new Collapsing(request);
+		geo = new Geo(request.getGeoParameters());
 		filters = newFilterList(request.getFilterList());
 		sorts = newSortList(request.getSortFieldList());
 		returnedFields = newReturnFieldList(request.getReturnFieldList());
@@ -781,6 +795,8 @@ public abstract class SearchQueryAbstract {
 				request.setDefaultOperator(operator.name());
 			if (collapsing != null)
 				collapsing.apply(request);
+			if (geo != null)
+				geo.apply(request.getGeoParameters());
 			if (filters != null)
 				for (Filter filter : filters)
 					request.getFilterList().add(filter.newFilter());
