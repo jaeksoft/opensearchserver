@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -151,6 +151,11 @@ public class DomUtils {
 		if (attr == null)
 			return null;
 		return attr.getNodeValue();
+	}
+
+	final public static double getAttributeDouble(Node node, String name) {
+		String value = getAttributeText(node, name);
+		return value == null ? 0 : Double.parseDouble(value);
 	}
 
 	final public static void updateAttributeText(Node node, String name,

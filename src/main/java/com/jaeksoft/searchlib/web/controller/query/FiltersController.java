@@ -24,20 +24,15 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
 import com.jaeksoft.searchlib.filter.GeoFilter;
-import com.jaeksoft.searchlib.filter.GeoFilter.CoordUnit;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
@@ -159,21 +154,8 @@ public class FiltersController extends AbstractQueryController {
 		return GeoFilter.Unit.values();
 	}
 
-	public CoordUnit[] getGeoCoordUnits() {
-		return GeoFilter.CoordUnit.values();
-	}
-
 	public TimeInterval.IntervalUnit[] getIntervalUnits() {
 		return TimeInterval.IntervalUnit.values();
-	}
-
-	public List<String> getIndexedFieldList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		List<String> fieldList = new ArrayList<String>();
-		client.getSchema().getFieldList().getIndexedFields(fieldList);
-		return fieldList;
 	}
 
 }
