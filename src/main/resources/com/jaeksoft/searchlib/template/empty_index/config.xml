@@ -215,6 +215,21 @@
 					scope="QUERY_INDEX" />
 			</analyzer>
 
+			<!-- Geospatial -->
+			<analyzer name="GeoDegreesAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="DegreesRadiansFilter"
+					degrees_radians_conversion="Degrees to Radians" fault_tolerant="true"
+					scope="QUERY_INDEX" />
+			</analyzer>
+			
+			<analyzer name="GeoRadianAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<filter class="DegreesRadiansFilter"
+					degrees_radians_conversion="Check radians" fault_tolerant="true"
+					scope="QUERY_INDEX" />
+			</analyzer>
+
 		</analyzers>
 
 		<fields />
