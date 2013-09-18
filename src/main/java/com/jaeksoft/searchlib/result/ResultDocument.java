@@ -216,7 +216,8 @@ public class ResultDocument {
 
 	public void addFunctionField(CollapseFunctionField functionField,
 			int[] collapsedDocs, ReaderLocal reader, Timer timer)
-			throws IOException {
+			throws IOException, java.text.ParseException,
+			InstantiationException, IllegalAccessException {
 		if (collapsedDocs == null)
 			return;
 		FieldCacheIndex stringIndex = reader.getStringIndex(functionField

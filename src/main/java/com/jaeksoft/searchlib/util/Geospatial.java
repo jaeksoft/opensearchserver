@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,16 @@ public class Geospatial {
 			this.longitude = lon;
 		}
 
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer();
+			sb.append('(');
+			sb.append(latitude);
+			sb.append(',');
+			sb.append(longitude);
+			sb.append(')');
+			return sb.toString();
+		}
 	}
 
 	public final static double EARTH_RADIUS_KM = 6371;
@@ -56,8 +66,8 @@ public class Geospatial {
 	 * @param lat2
 	 * @return
 	 */
-	public final static double distance(Location loc1, Location loc2,
-			double radius) {
+	public final static double distance(final Location loc1,
+			final Location loc2, final double radius) {
 		double x = (loc2.longitude - loc1.longitude)
 				* Math.cos((loc1.latitude + loc2.latitude) / 2);
 		double y = (loc2.latitude - loc1.latitude);
