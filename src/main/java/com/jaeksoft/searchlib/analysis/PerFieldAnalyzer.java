@@ -56,4 +56,9 @@ public class PerFieldAnalyzer extends org.apache.lucene.analysis.Analyzer {
 		return keywordAnalyzer;
 	}
 
+	@Override
+	public void close() {
+
+	}
+
 }
