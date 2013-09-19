@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
@@ -281,13 +282,18 @@ public abstract class HttpAbstract {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;
-			ContentType ct = ContentType.getOrDefault(httpEntity);
-			if (ct == null)
+			try {
+				ContentType ct = ContentType.getOrDefault(httpEntity);
+				if (ct == null)
+					return null;
+				Charset charset = ct.getCharset();
+				if (charset == null)
+					return null;
+				return charset.name();
+			} catch (UnsupportedCharsetException e) {
+				Logging.warn(e);
 				return null;
-			Charset charset = ct.getCharset();
-			if (charset == null)
-				return null;
-			return charset.name();
+			}
 		}
 	}
 
