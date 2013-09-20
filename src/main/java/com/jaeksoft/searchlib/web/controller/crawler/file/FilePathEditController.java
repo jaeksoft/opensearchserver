@@ -25,48 +25,37 @@
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.apache.commons.io.filefilter.HiddenFileFilter;
+import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.dropbox.core.DbxWebAuth;
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
-import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class FilePathEditController extends FileCrawlerController {
 
 	private FilePathItem currentFilePath;
 
-	private transient FileSelectorItem currentFile;
-
-	private transient FileSelectorItem currentFolder;
-
-	private transient List<FileSelectorItem> currentFolderList;
-
-	private transient FileSelectorItem[] currentFileList;
-
 	private boolean showHidden;
 
 	private DbxWebAuth webAuthInfo;
+
+	private boolean pathIsValid = false;
 
 	private class DeleteAlert extends AlertController {
 
@@ -90,29 +79,6 @@ public class FilePathEditController extends FileCrawlerController {
 		}
 	}
 
-	public class FileSelectorItem {
-
-		final protected File file;
-
-		protected FileSelectorItem(File file) {
-			this.file = file;
-		}
-
-		public String getName() {
-			if (file == null)
-				return null;
-			String n = file.getName();
-			if (n != null && n.length() > 0)
-				return n;
-			return file.getPath();
-		}
-
-		public File getFile() {
-			return file;
-		}
-
-	}
-
 	public FilePathEditController() throws SearchLibException, NamingException {
 		super();
 	}
@@ -121,41 +87,21 @@ public class FilePathEditController extends FileCrawlerController {
 	protected void reset() throws SearchLibException {
 		super.reset();
 		currentFilePath = null;
-		currentFileList = null;
-		currentFile = null;
-		currentFolder = null;
+		pathIsValid = false;
 		showHidden = false;
 		webAuthInfo = null;
 	}
 
-	public FileInstanceType[] getTypeList() throws SearchLibException {
-		return FileInstanceType.values();
+	@Override
+	public void reload() throws SearchLibException {
+		currentFilePath = getFilePathItemEdit();
+		if (currentFilePath != null)
+			checkPath(currentFilePath.getPath());
+		super.reload();
 	}
 
-	@Override
-	@Command
-	public void reload() throws SearchLibException {
-		FilePathItem filePathItem = getFilePathItemEdit();
-		if (filePathItem == currentFilePath || filePathItem == null) {
-			super.reload();
-			return;
-		}
-		try {
-			currentFilePath = filePathItem;
-			if ("file".equals(filePathItem.getType().getScheme())) {
-				String path = filePathItem.getPath();
-				if (path != null) {
-					File f = new File(path);
-					if (f.exists()) {
-						setCurrentFolder(f.getParentFile());
-						setCurrentFile(new FileSelectorItem(new File(path)));
-					}
-				}
-			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
-		super.reload();
+	public FileInstanceType[] getTypeList() throws SearchLibException {
+		return FileInstanceType.values();
 	}
 
 	/**
@@ -169,6 +115,20 @@ public class FilePathEditController extends FileCrawlerController {
 	public String getCurrentEditMode() throws SearchLibException {
 		return isNoFilePathSelected() ? "Add a new location"
 				: "Edit the selected location";
+	}
+
+	@Command
+	@NotifyChange("pathValid")
+	public void checkPath(@BindingParam("path") String path) {
+		pathIsValid = false;
+		if (StringUtils.isEmpty(path))
+			return;
+		if (isLocalFileType())
+			pathIsValid = new File(path).exists();
+	}
+
+	public boolean isPathValid() {
+		return pathIsValid;
 	}
 
 	@Command
@@ -221,68 +181,6 @@ public class FilePathEditController extends FileCrawlerController {
 		onCancel();
 	}
 
-	private FileSelectorItem[] getList(File[] files) {
-		if (files == null)
-			return null;
-		FileSelectorItem[] items = new FileSelectorItem[files.length];
-		int i = 0;
-		for (File file : files)
-			items[i++] = new FileSelectorItem(file);
-		return items;
-
-	}
-
-	public FileSelectorItem[] getCurrentFileList() throws SearchLibException,
-			IOException {
-		synchronized (this) {
-			if (currentFileList != null)
-				return currentFileList;
-			File[] files = null;
-			getCurrentFolder();
-			if (currentFolder == null) {
-				files = File.listRoots();
-			} else {
-				if (!isShowHidden())
-					files = currentFolder.file
-							.listFiles((FileFilter) HiddenFileFilter.VISIBLE);
-				else
-					files = currentFolder.file.listFiles();
-			}
-			currentFileList = getList(files);
-			return currentFileList;
-		}
-	}
-
-	@NotifyChange("*")
-	public void setCurrentFile(FileSelectorItem item) {
-		currentFile = item;
-	}
-
-	public FileSelectorItem getCurrentFile() {
-		return currentFile;
-	}
-
-	public FileSelectorItem getCurrentFolder() throws SearchLibException,
-			IOException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			if (currentFolder == null
-					&& ClientFactory.INSTANCE.properties.isChroot())
-				setCurrentFolder(StartStopListener.OPENSEARCHSERVER_DATA_FILE);
-			return currentFolder;
-		}
-	}
-
-	public List<FileSelectorItem> getFolderTree() {
-		return currentFolderList;
-	}
-
-	public boolean isNotRoot() {
-		return currentFolder != null;
-	}
-
 	public boolean isLocalFileType() {
 		if (currentFilePath == null)
 			return false;
@@ -313,49 +211,6 @@ public class FilePathEditController extends FileCrawlerController {
 		return "smb".equals(currentFilePath.getType().getScheme());
 	}
 
-	public boolean isNotSelectedFile() {
-		return currentFile != null;
-	}
-
-	public boolean isSelectedFile() {
-		return !isNotSelectedFile();
-	}
-
-	public void setCurrentFolder(FileSelectorItem fileSelectorItem)
-			throws IOException, SearchLibException {
-		if (fileSelectorItem != null)
-			if (!ClientFactory.INSTANCE.properties
-					.checkChrootQuietly(fileSelectorItem.file))
-				return;
-		currentFolder = fileSelectorItem;
-		currentFolderList = null;
-		if (currentFolder != null) {
-			currentFolderList = new ArrayList<FileSelectorItem>();
-			FileSelectorItem f = currentFolder;
-			for (;;) {
-				currentFolderList.add(0, new FileSelectorItem(f.file));
-				File p = f.file.getParentFile();
-				if (p == null)
-					break;
-				f = new FileSelectorItem(p);
-				if (!ClientFactory.INSTANCE.properties
-						.checkChrootQuietly(f.file))
-					break;
-			}
-		}
-		currentFileList = null;
-		currentFile = null;
-		reload();
-	}
-
-	private void setCurrentFolder(File file) throws IOException,
-			SearchLibException {
-		if (file == null)
-			setCurrentFolder((FileSelectorItem) null);
-		else
-			setCurrentFolder(new FileSelectorItem(file));
-	}
-
 	public FileInstanceType getCurrentFileType() {
 		if (currentFilePath == null)
 			return null;
@@ -374,35 +229,7 @@ public class FilePathEditController extends FileCrawlerController {
 
 	public void setShowHidden(boolean b) throws SearchLibException {
 		showHidden = b;
-		currentFileList = null;
 		reload();
-	}
-
-	@Command
-	public void onOpenFile() throws IOException, SearchLibException {
-		if (currentFile != null)
-			if (currentFile.file.isDirectory())
-				setCurrentFolder(currentFile);
-	}
-
-	@Command
-	public void onSelectFile() throws SearchLibException {
-		if (currentFile != null) {
-			currentFilePath.setPath(currentFile.file.getAbsolutePath());
-			reload();
-		}
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onRefreshList() {
-		currentFileList = null;
-	}
-
-	@Command
-	public void onParentFolder() throws IOException, SearchLibException {
-		if (currentFolder != null)
-			setCurrentFolder(currentFolder.file.getParentFile());
 	}
 
 	public boolean isDropbox() {
