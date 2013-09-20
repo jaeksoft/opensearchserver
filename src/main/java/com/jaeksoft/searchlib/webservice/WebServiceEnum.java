@@ -40,6 +40,8 @@ import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
 import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
 import com.jaeksoft.searchlib.webservice.screenshot.ScreenshotImpl;
+import com.jaeksoft.searchlib.webservice.stopwords.StopWordsImpl;
+import com.jaeksoft.searchlib.webservice.synonyms.SynonymsImpl;
 
 public enum WebServiceEnum {
 
@@ -72,6 +74,10 @@ public enum WebServiceEnum {
 	Search(SearchImpl.class, "/search"),
 
 	Spellcheck(SpellcheckImpl.class, "/spellcheck"),
+
+	Synonyms(SynonymsImpl.class, "/synonyms"),
+
+	Stopwords(StopWordsImpl.class, "/stopwords"),
 
 	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
 
