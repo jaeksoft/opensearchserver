@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,11 @@ public class CommonListResult extends CommonResult {
 	public CommonListResult(Set<String> items) {
 		super(true, items.size() + " item(s) found");
 		this.items = items;
+	}
+
+	public CommonListResult(String[] items) {
+		super(true, items.length + " item(s) found");
+		this.items = Arrays.asList(items);
 	}
 
 	public CommonListResult(List<String> items) {
