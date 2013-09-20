@@ -107,63 +107,18 @@
 					</row>
 					<row>
 						<label value="Path: " />
-						<textbox
-							value="@bind(filepathedit.currentFilePath.path)" cols="150" />
-					</row>
-					<row visible="@load(filepathedit.localFileType)">
-						<label value="Local folder" />
-						<listbox
-							model="@load(filepathedit.currentFileList)"
-							selectedItem="@bind(filepathedit.currentFile)" height="250px">
-							<listhead>
-								<listheader label="Local file system">
-									<label
-										visible="@load(filepathedit.notRoot)" value="Path: " />
-									<listbox
-										visible="@load(filepathedit.notRoot)"
-										model="@load(filepathedit.folderTree)"
-										selectedItem="@bind(filepathedit.currentFolder)"
-										mold="select">
-										<template name="model">
-											<listitem
-												label="@load(each.name)" />
-										</template>
-									</listbox>
-									<button
-										visible="@load(filepathedit.notRoot)"
-										label="go to parent folder"
-										onClick="@command('onParentFolder')" />
-									<space width="30px" />
-									<button label="Refresh the list"
-										onClick="@command('onRefreshList')" />
-									<space width="30px" />
-									<checkbox label="Show hidden file"
-										checked="@bind(filepathedit.showHidden)" />
-								</listheader>
-							</listhead>
-							<template name="model" var="file">
-								<listitem>
-									<listcell
-										onDoubleClick="@command('onOpenFile', file=file)">
-										<image src="/images/file.png"
-											visible="@load(file.file.file)" />
-										<image
-											src="/images/directory.png"
-											visible="@load(file.file.directory)" />
-										<label value="@load(file.name)" />
-									</listcell>
-								</listitem>
-							</template>
-							<listfoot>
-								<listfooter>
-									<button
-										disabled="@load(filepathedit.selectedFile)" label="Select"
-										onClick="@command('onSelectFile')" />
-									<label
-										value="@load(filepathedit.currentFile.file.absolutePath)" />
-								</listfooter>
-							</listfoot>
-						</listbox>
+						<cell>
+							<textbox
+								onChanging="@command('checkPath', path=event.value)"
+								value="@bind(filepathedit.currentFilePath.path)" cols="150" />
+							<space />
+							<image
+								visible="@bind(filepathedit.pathValid)"
+								src="images/action_check.png" />
+							<image
+								visible="@bind(!filepathedit.pathValid)"
+								src="images/action_cancel.png" />
+						</cell>
 					</row>
 					<row>
 						<label value="With sub directories: " />
