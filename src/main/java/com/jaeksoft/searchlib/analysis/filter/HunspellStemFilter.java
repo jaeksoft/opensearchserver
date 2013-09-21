@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,55 +25,92 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.text.ParseException;
+import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.hunspell.HunspellDictionary;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.spellcheck.HunspellCache;
+
+import dk.dren.hunspell.Hunspell;
 
 public class HunspellStemFilter extends FilterFactory {
 
-	private String affix_path = null;
 	private String dict_path = null;
-	private boolean ignore_case = false;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.HUNSPELL_AFFIX_PATH, "", null);
 		addProperty(ClassPropertyEnum.HUNSPELL_DICT_PATH, "", null);
-		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.TRUE.toString(),
-				ClassPropertyEnum.BOOLEAN_LIST);
 	}
 
 	@Override
 	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
 
-		if (prop == ClassPropertyEnum.HUNSPELL_AFFIX_PATH) {
-			affix_path = value;
-		} else if (prop == ClassPropertyEnum.HUNSPELL_DICT_PATH) {
+		if (prop == ClassPropertyEnum.HUNSPELL_DICT_PATH)
 			dict_path = value;
-		} else if (prop == ClassPropertyEnum.IGNORE_CASE) {
-			ignore_case = Boolean.parseBoolean(value);
-		}
 	}
 
 	@Override
 	public TokenStream create(TokenStream input) throws SearchLibException {
 		try {
-			HunspellDictionary dict = HunspellCache.getDictionnary(affix_path,
-					dict_path, ignore_case);
-			return new org.apache.lucene.analysis.hunspell.HunspellStemFilter(
-					input, dict);
+			Hunspell.Dictionary dict = Hunspell.getInstance().getDictionary(
+					dict_path);
+			return new HunspellStemTokenFilter(input, dict);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
+		}
+	}
+
+	public static class HunspellStemTokenFilter extends AbstractTermFilter {
+
+		private final Hunspell.Dictionary hunspell_dict;
+
+		private List<String> wordQueue = null;
+
+		private String currentTerm = null;
+
+		private int currentPos = 0;
+
+		public HunspellStemTokenFilter(TokenStream input,
+				Hunspell.Dictionary hunspell_dict) {
+			super(input);
+			this.hunspell_dict = hunspell_dict;
+		}
+
+		private final boolean popToken() {
+			if (currentTerm != null) {
+				createToken(currentTerm);
+				currentTerm = null;
+				return true;
+			}
+			if (wordQueue == null)
+				return false;
+			if (currentPos == wordQueue.size())
+				return false;
+			createToken(wordQueue.get(currentPos++));
+			return true;
+		}
+
+		private final void createTokens() {
+			currentTerm = termAtt.toString();
+			wordQueue = hunspell_dict.stem(currentTerm);
+			if (wordQueue != null && wordQueue.size() > 0)
+				currentTerm = null;
+			currentPos = 0;
+		}
+
+		@Override
+		public final boolean incrementToken() throws IOException {
+			for (;;) {
+				if (popToken())
+					return true;
+				if (!input.incrementToken())
+					return false;
+				createTokens();
+			}
 		}
 	}
 
