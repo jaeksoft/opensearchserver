@@ -43,6 +43,8 @@ import com.jaeksoft.searchlib.test.rest.RestUpdateTest;
 public class IntegrationTest {
 
 	public final static String INDEX_NAME = "oss_testing_suite";
-	public final static String SERVER_URL = "http://localhost:8080";
+	public final static String SERVER_URL = System
+			.getProperty("OSS_TESTING_INSTANCE") == null ? "http://localhost:8080"
+			: System.getProperty("OSS_TESTING_INSTANCE");
 
 }
