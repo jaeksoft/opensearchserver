@@ -270,13 +270,11 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"The way RSS feed are indexed",
 			"One document in the index per item in the RSS feed, or one document for all items");
 
-	public static final ClassPropertyEnum HUNSPELL_AFFIX_PATH = new ClassPropertyEnum(
-			true, "hunspellAffixPath", "Affix file path",
-			"The path to the affix file (.aff)");
-
 	public static final ClassPropertyEnum HUNSPELL_DICT_PATH = new ClassPropertyEnum(
-			true, "hunspellDictPath", "Dictionnary file path",
-			"The path to the dictionnary file (.dic)");
+			true,
+			"hunspellDictPath",
+			"Hunspell dictionary path",
+			"The path to the files containing the dictionnary, without the extension (.aff, .dic)");
 
 	private boolean isUser;
 
