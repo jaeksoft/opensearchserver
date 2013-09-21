@@ -91,6 +91,8 @@ public class RssParser extends Parser {
 						feed.getLink());
 				resultItem.addField(ParserFieldEnum.channel_description,
 						feed.getDescription());
+				resultItem.addField(ParserFieldEnum.creation_date,
+						entry.getPublishedDate());
 				resultItem.addField(ParserFieldEnum.title, entry.getTitle());
 				resultItem.addField(ParserFieldEnum.link, entry.getLink());
 				resultItem.addField(ParserFieldEnum.description, entry
