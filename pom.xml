@@ -279,10 +279,10 @@
 			<version>4.4.0</version>
 		</dependency>
 		<dependency>
-    		<groupId>org</groupId>
-    		<artifactId>jaudiotagger</artifactId>
-   			<version>2.0.3</version>
-			</dependency>
+			<groupId>org</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.0.3</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jaeksoft</groupId>
 			<artifactId>pojodbc</artifactId>
@@ -463,6 +463,36 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>oss-start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<ant antfile="${basedir}/build.xml" target="start" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>oss-stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<ant antfile="${basedir}/build.xml" target="stop" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
 				<version>1.0.1</version>
@@ -549,6 +579,12 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.16</version>
 				<configuration>
+					<systemProperties>
+						<property>
+							<name>OSS_TESTING_INSTANCE</name>
+							<value>http://localhost:9090</value>
+						</property>
+					</systemProperties>
 					<includes>
 						<include>**/Test.java</include>
 					</includes>
@@ -568,6 +604,19 @@
 								<include>**/IntegrationTest.java</include>
 							</includes>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.16</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

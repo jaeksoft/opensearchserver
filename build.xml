@@ -30,6 +30,8 @@
 	<property name="shelldir" location="shell" />
 	<property name="product" value="opensearchserver" />
 	<property name="env.BUILD_NUMBER" value="" />
+	<property name="oss_testing_instance" value="http://localhost:9090" />
+	<property name="temp" location="temp" />
 
 	<!-- Read the manifest from the WAR -->
 	<loadproperties>
@@ -42,6 +44,47 @@
 
 	<property name="productsrc" value="${product}-${Implementation-Version}" />
 	<property name="productdest" value="${product}-${Implementation-Version}-b${env.BUILD_NUMBER}" />
+
+	<!-- Start OpenSearchServer using the embedded Tomcat -->
+	<target name="start" description="Starts OpenSearchServer">
+		<mkdir dir="${temp}" />
+		<mkdir dir="${temp}/data" />
+		<java fork="true" jar="target/${productsrc}-war-exec.jar" dir="${temp}" spawn="true">
+			<env key="OPENSEARCHSERVER_DATA" value="${temp}/data" />
+			<arg line="-httpPort 9090" />
+		</java>
+		<waitfor maxwait="120" maxwaitunit="second" checkevery="2" checkeveryunit="second">
+			<http url="${oss_testing_instance}" />
+		</waitfor>
+	</target>
+
+	<!-- Stop any running OpenSearchServer -->
+	<target name="stop" description="Stop any running embedded Tomcat">
+		<exec executable="jps" output="${temp}/jps.out" />
+		<loadfile srcfile="${temp}/jps.out" property="oss_pid">
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="[0-9]+ ${productsrc}-war-exec.jar" />
+				</linecontainsregexp>
+				<replaceregex pattern="([0-9]+) ${productsrc}-war-exec.jar" replace="\1" />
+				<prefixlines prefix=" " />
+				<striplinebreaks />
+				<trim />
+			</filterchain>
+		</loadfile>
+
+		<fail message="No PID found">
+			<condition>
+				<not>
+					<isset property="oss_pid" />
+				</not>
+			</condition>
+		</fail>
+
+		<exec executable="kill">
+			<arg line="${oss_pid}" />
+		</exec>
+	</target>
 
 	<target name="dist">
 
@@ -123,6 +166,7 @@
 	</target>
 
 	<target name="clean" description="clean up">
+		<delete dir="${temp}" />
 		<delete dir="${dist}" />
 	</target>
 
