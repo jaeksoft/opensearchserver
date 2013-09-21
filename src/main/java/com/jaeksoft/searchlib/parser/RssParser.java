@@ -25,18 +25,20 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.commons.feedparser.DefaultFeedParserListener;
-import org.apache.commons.feedparser.FeedParser;
-import org.apache.commons.feedparser.FeedParserException;
-import org.apache.commons.feedparser.FeedParserFactory;
-import org.apache.commons.feedparser.FeedParserState;
+import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedInput;
+import com.sun.syndication.io.XmlReader;
 
 public class RssParser extends Parser {
 
@@ -57,74 +59,53 @@ public class RssParser extends Parser {
 				ClassPropertyEnum.RSS_METHODS[0], ClassPropertyEnum.RSS_METHODS);
 	}
 
-	private class FeedListener extends DefaultFeedParserListener {
-
-		private String currentChannelTitle = null;
-		private String currentChannelLink = null;
-		private String currentChannelDescription = null;
-		private ParserResultItem currentResult = null;
-		private final boolean oneResult;
-
-		private FeedListener(boolean oneResult) {
-			this.oneResult = oneResult;
-		}
-
-		private ParserResultItem nextResult() {
-			if (oneResult && currentResult != null)
-				return currentResult;
-			currentResult = getNewParserResultItem();
-			return currentResult;
-		}
-
-		@Override
-		public void onChannel(FeedParserState state, String title, String link,
-				String description) throws FeedParserException {
-			this.currentChannelTitle = title;
-			this.currentChannelLink = link;
-			this.currentChannelDescription = description;
-		}
-
-		@Override
-		public void onItem(FeedParserState state, String title, String link,
-				String description, String permalink)
-				throws FeedParserException {
-			currentResult = nextResult();
-			currentResult.addField(ParserFieldEnum.channel_title,
-					currentChannelTitle);
-			currentResult.addField(ParserFieldEnum.channel_link,
-					currentChannelLink);
-			currentResult.addField(ParserFieldEnum.channel_description,
-					currentChannelDescription);
-			currentResult.addField(ParserFieldEnum.title, title);
-			currentResult.addField(ParserFieldEnum.link, link);
-			currentResult.addField(ParserFieldEnum.description, description);
-			addDetectedLink(link);
-		}
-
-		@Override
-		public void onCreated(FeedParserState state, Date date)
-				throws FeedParserException {
-			if (currentResult == null)
-				return;
-			currentResult.addField(ParserFieldEnum.creation_date, date);
-		}
-
-	}
-
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 
-		try {
-			String p = getProperty(ClassPropertyEnum.RSS_METHOD).getValue();
-			boolean oneResult = p == null
-					|| ClassPropertyEnum.RSS_METHODS[0].equals(p);
+		String p = getProperty(ClassPropertyEnum.RSS_METHOD).getValue();
+		boolean oneResult = p == null
+				|| ClassPropertyEnum.RSS_METHODS[0].equals(p);
 
-			FeedParser parser = FeedParserFactory.newFeedParser();
-			parser.parse(new FeedListener(oneResult),
-					streamLimiter.getNewInputStream(), null);
-		} catch (FeedParserException e) {
+		XmlReader reader = null;
+		try {
+			SyndFeedInput input = new SyndFeedInput();
+			reader = new XmlReader(streamLimiter.getNewInputStream());
+			SyndFeed feed = input.build(reader);
+			List<?> entries = feed.getEntries();
+			if (entries == null)
+				return;
+			Iterator<?> itEntries = entries.iterator();
+
+			ParserResultItem resultItem = oneResult ? getNewParserResultItem()
+					: null;
+
+			while (itEntries.hasNext()) {
+				if (!oneResult)
+					resultItem = getNewParserResultItem();
+
+				SyndEntry entry = (SyndEntry) itEntries.next();
+				resultItem.addField(ParserFieldEnum.channel_title,
+						feed.getTitle());
+				resultItem.addField(ParserFieldEnum.channel_link,
+						feed.getLink());
+				resultItem.addField(ParserFieldEnum.channel_description,
+						feed.getDescription());
+				resultItem.addField(ParserFieldEnum.creation_date,
+						entry.getPublishedDate());
+				resultItem.addField(ParserFieldEnum.title, entry.getTitle());
+				resultItem.addField(ParserFieldEnum.link, entry.getLink());
+				resultItem.addField(ParserFieldEnum.description, entry
+						.getDescription().getValue());
+				addDetectedLink(entry.getLink());
+			}
+		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
+		} catch (FeedException e) {
+			throw new IOException(e);
+		} finally {
+			if (reader != null)
+				IOUtils.closeQuietly(reader);
 		}
 
 	}
