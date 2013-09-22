@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -119,7 +120,7 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 		String fieldName = field.getName();
 		FieldValueItem[] values = doc.getValueArray(field);
 		JSONObject jsonField = new JSONObject();
-		if (values == null)
+		if (ArrayUtils.isEmpty(values))
 			return;
 		for (FieldValueItem v : values) {
 			jsonField.put("name", fieldName);

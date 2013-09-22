@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,11 +25,13 @@
 package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
@@ -57,7 +59,17 @@ public class JoinDocCollector implements JoinDocInterface {
 		this.maxDoc = docs.getMaxDoc();
 		this.ids = ArrayUtils.clone(docs.getIds());
 		this.foreignDocIdsArray = new int[ids.length][];
+		if (docs instanceof JoinDocCollector)
+			((JoinDocCollector) docs).copyForeignDocIdsArray(this);
 		this.joinResultSize = joinResultSize;
+	}
+
+	private void copyForeignDocIdsArray(JoinDocCollector joinDocCollector) {
+		int i = 0;
+		if (foreignDocIdsArray == null)
+			return;
+		for (int[] ids : foreignDocIdsArray)
+			joinDocCollector.foreignDocIdsArray[i++] = ids;
 	}
 
 	protected JoinDocCollector(int joinResultSize, int idsLength, int maxDoc) {
@@ -152,8 +164,10 @@ public class JoinDocCollector implements JoinDocInterface {
 	public void setForeignDocId(int pos, int joinResultPos, int foreignDocId,
 			float foreignScore) {
 		int[] foreignDocIds = foreignDocIdsArray[pos];
-		if (foreignDocIds == null)
+		if (foreignDocIds == null) {
 			foreignDocIds = new int[joinResultSize];
+			Arrays.fill(foreignDocIds, -1);
+		}
 		foreignDocIds[joinResultPos] = foreignDocId;
 		foreignDocIdsArray[pos] = foreignDocIds;
 	}
@@ -183,13 +197,81 @@ public class JoinDocCollector implements JoinDocInterface {
 		return docIdCollector;
 	}
 
+	final private static void innerJoin(JoinDocInterface docs1,
+			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
+			FieldCacheIndex doc2StringIndex, float scores2[], int joinResultPos) {
+		float score2 = 1.0F;
+		int i1 = 0;
+		int i2 = 0;
+		int[] ids1 = docs1.getIds();
+		int[] ids2 = docs2.getIds();
+		while (i1 != ids1.length) {
+			int id1 = ids1[i1];
+			int id2 = ids2[i2];
+			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
+			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
+			int c = StringUtils.compareNullString(t1, t2);
+			if (c < 0) {
+				ids1[i1] = -1;
+				i1++;
+			} else if (c > 0) {
+				i2++;
+				if (i2 == ids2.length)
+					while (i1 != ids1.length)
+						ids1[i1++] = -1;
+			} else {
+				if (scores2 != null)
+					score2 = scores2[i2];
+				docs1.setForeignDocId(i1, joinResultPos, id2, score2);
+				i1++;
+			}
+		}
+	}
+
+	final private static void outerJoin(JoinDocInterface docs1,
+			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
+			FieldCacheIndex doc2StringIndex, float scores2[], int joinResultPos) {
+		float score2 = 1.0F;
+		int i1 = 0;
+		int i2 = 0;
+		int[] ids1 = docs1.getIds();
+		int[] ids2 = docs2.getIds();
+		while (i1 != ids1.length) {
+			int id1 = ids1[i1];
+			int id2 = ids2[i2];
+			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
+			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
+			int c = StringUtils.compareNullString(t1, t2);
+			if (c < 0) {
+				i1++;
+			} else if (c > 0) {
+				i2++;
+				if (i2 == ids2.length)
+					while (i1 != ids1.length)
+						ids1[i1++] = -1;
+			} else {
+				if (scores2 != null)
+					score2 = scores2[i2];
+				docs1.setForeignDocId(i1, joinResultPos, id2, score2);
+				i1++;
+			}
+		}
+	}
+
 	final public static DocIdInterface join(DocIdInterface docs,
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
 			FieldCacheIndex doc2StringIndex, int joinResultSize,
-			int joinResultPos, Timer timer, boolean factorScore) {
+			int joinResultPos, Timer timer, boolean factorScore,
+			JoinType joinType) {
+
+		DocIdInterface emptyDocs = docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
+				: JoinDocCollector.EMPTY;
+
 		if (docs.getSize() == 0 || docs2.getSize() == 0)
-			return docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
-					: JoinDocCollector.EMPTY;
+			return emptyDocs;
+
+		if (docs2.getSize() == 0)
+			return joinType == JoinType.INNER ? emptyDocs : docs;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
 		JoinDocInterface docs1 = (docs instanceof ScoreDocInterface) ? new JoinScoreDocCollector(
@@ -210,33 +292,18 @@ public class JoinDocCollector implements JoinDocInterface {
 		t.getDuration();
 
 		t = new Timer(timer, "join operation");
-		float score2 = 1.0F;
-		int i1 = 0;
-		int i2 = 0;
-		int[] ids1 = docs1.getIds();
-		int[] ids2 = docs2.getIds();
-		while (i1 != ids1.length) {
-			int id1 = ids1[i1];
-			int id2 = ids2[i2];
-			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
-			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
-			int c = StringUtils.compareNullString(t1, t2);
-			if (c < 0) {
-				ids1[i1] = -1;
-				i1++;
-			} else if (c > 0) {
-				i2++;
-				if (i2 == ids2.length) {
-					while (i1 != ids1.length)
-						ids1[i1++] = -1;
-				}
-			} else {
-				if (scores2 != null)
-					score2 = scores2[i2];
-				docs1.setForeignDocId(i1, joinResultPos, id2, score2);
-				i1++;
-			}
+
+		switch (joinType) {
+		case INNER:
+			innerJoin(docs1, doc1StringIndex, docs2, doc2StringIndex, scores2,
+					joinResultPos);
+			break;
+		case OUTER:
+			outerJoin(docs1, doc1StringIndex, docs2, doc2StringIndex, scores2,
+					joinResultPos);
+			break;
 		}
+
 		t.getDuration();
 
 		return docs1.duplicate();

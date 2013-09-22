@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -135,10 +137,11 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 			throws IOException {
 		String fieldName = field.getName();
 		FieldValueItem[] values = doc.getValueArray(field);
-		if (values == null || values.length == 0) {
+		if (ArrayUtils.isEmpty(values)) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print("\"/>");
+			return;
 		}
 		for (FieldValueItem v : values) {
 			writer.print("\t\t<field name=\"");
