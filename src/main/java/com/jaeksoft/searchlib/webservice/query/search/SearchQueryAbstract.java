@@ -56,6 +56,7 @@ import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.geo.GeoParameters.CoordUnit;
 import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
@@ -679,6 +680,7 @@ public abstract class SearchQueryAbstract {
 		final public String queryString;
 		final public String localField;
 		final public String foreignField;
+		final public JoinType type;
 		final public Boolean returnFields;
 		final public Boolean returnScores;
 		final public Boolean returnFacets;
@@ -689,6 +691,7 @@ public abstract class SearchQueryAbstract {
 			queryString = null;
 			localField = null;
 			foreignField = null;
+			type = JoinType.INNER;
 			returnFields = null;
 			returnScores = null;
 			returnFacets = null;
@@ -700,6 +703,7 @@ public abstract class SearchQueryAbstract {
 			queryString = joinItem.getQueryString();
 			localField = joinItem.getLocalField();
 			foreignField = joinItem.getForeignField();
+			type = joinItem.getType();
 			returnFields = joinItem.isReturnFields();
 			returnScores = joinItem.isReturnScores();
 			returnFacets = joinItem.isReturnFacets();
@@ -716,6 +720,8 @@ public abstract class SearchQueryAbstract {
 				joinItem.setQueryString(queryString);
 			if (localField != null)
 				joinItem.setLocalField(localField);
+			if (type != null)
+				joinItem.setType(type);
 			if (foreignField != null)
 				joinItem.setForeignField(foreignField);
 			if (returnFields != null)

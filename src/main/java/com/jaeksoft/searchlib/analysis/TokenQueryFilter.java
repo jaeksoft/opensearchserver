@@ -48,7 +48,6 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 	public final CompiledAnalyzer analyzer;
 	public final String field;
 	public final float boost;
-	public int termCount;
 
 	public TokenQueryFilter(final CompiledAnalyzer analyzer,
 			final String field, final float boost, TokenStream input) {
@@ -56,7 +55,6 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		this.analyzer = analyzer;
 		this.field = field;
 		this.boost = boost;
-		this.termCount = 0;
 	}
 
 	public class TermQueryItem {
@@ -165,7 +163,6 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 				return false;
 			termQueryItems.add(new TermQueryItem(termAtt.toString(), offsetAtt
 					.startOffset(), offsetAtt.endOffset()));
-			termCount++;
 			return true;
 		}
 
@@ -255,7 +252,6 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			if (!input.incrementToken())
 				return false;
 			query.add(new Term(field, termAtt.toString()));
-			termCount++;
 			return true;
 		}
 
