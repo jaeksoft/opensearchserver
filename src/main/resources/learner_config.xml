@@ -34,7 +34,7 @@
 			allowLeadingWildcard="no">
 			<query></query>
 			<returnFields>
-				data,target
+				name,target
 			</returnFields>
 		</request>
 	</requests>
