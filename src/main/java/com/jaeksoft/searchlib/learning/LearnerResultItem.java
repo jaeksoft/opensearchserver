@@ -28,17 +28,24 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class LearnerResultItem {
 
 	public double score;
 	public int rank;
 	public final String target;
+	public final String name;
 	public int count;
 
-	public LearnerResultItem(double score, int rank, String target, int count) {
+	public LearnerResultItem(double score, int rank, String target,
+			String name, int count) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
+		this.name = name;
 		this.count = count;
 	}
 
@@ -48,6 +55,10 @@ public class LearnerResultItem {
 
 	public String getTarget() {
 		return target;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public int getRank() {

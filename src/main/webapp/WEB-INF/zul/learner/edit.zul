@@ -28,15 +28,6 @@
 						readonly="@load(learning.selected)" cols="50" />
 				</row>
 				<row>
-					<label value="Class name: " />
-					<cell>
-						<textbox
-							value="@bind(learning.currentLearner.className)" cols="80" />
-						<button label="Check"
-							onClick="@command('onCheck')" />
-					</cell>
-				</row>
-				<row>
 					<label value="Query template" />
 					<combobox cols="20"
 						model="@load(learning.requestList)"

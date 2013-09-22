@@ -172,7 +172,7 @@ public class LearningController extends CommonController implements
 	@Command
 	@NotifyChange("*")
 	public void onNewLearner() throws SearchLibException {
-		currentLearner = new Learner();
+		currentLearner = new Learner(getClient());
 	}
 
 	@Command
@@ -207,18 +207,6 @@ public class LearningController extends CommonController implements
 		client.getLearnerManager().remove(selectedLearner);
 		client.deleteLearner(selectedLearner);
 		onCancel();
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onCheck() throws SearchLibException, InterruptedException {
-		Client client = getClient();
-		if (client == null)
-			return;
-		if (currentLearner == null)
-			return;
-		currentLearner.checkInstance(client);
-		new AlertController("Learner successfully checked");
 	}
 
 	@Command
@@ -307,10 +295,7 @@ public class LearningController extends CommonController implements
 	public void onReset() throws SearchLibException, IOException {
 		if (currentLearner == null)
 			return;
-		Client client = getClient();
-		if (client == null)
-			return;
-		currentLearner.reset(client);
+		currentLearner.reset();
 	}
 
 	@Command
@@ -318,10 +303,7 @@ public class LearningController extends CommonController implements
 	public void onLearn() throws SearchLibException {
 		if (currentLearner == null)
 			return;
-		Client client = getClient();
-		if (client == null)
-			return;
-		currentLearner.learn(client, this);
+		currentLearner.learn(this);
 	}
 
 	@Command
