@@ -105,6 +105,68 @@ public class StandardLearner implements LearnerInterface {
 
 	}
 
+	private BooleanQuery getBooleanQuery(String data) throws IOException,
+			SearchLibException {
+		BooleanQuery booleanQuery = new BooleanQuery();
+		Schema schema = learnerClient.getSchema();
+		SchemaField schemaField = schema.getFieldList().get("data");
+		Analyzer analyzer = schema.getAnalyzer(schemaField,
+				LanguageEnum.UNDEFINED);
+		analyzer.getQueryAnalyzer().toBooleanQuery("data", data, booleanQuery,
+				Occur.SHOULD);
+		return booleanQuery;
+	}
+
+	@Override
+	public void similar(String data, int maxRank, double minScore,
+			Collection<LearnerResultItem> collector) throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			checkIndex();
+			BooleanQuery booleanQuery = getBooleanQuery(data);
+			if (booleanQuery == null || booleanQuery.getClauses() == null
+					|| booleanQuery.getClauses().length == 0)
+				return;
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
+					.getNewRequest("search");
+			int start = 0;
+			final int rows = 1000;
+			for (;;) {
+				searchRequest.setStart(start);
+				searchRequest.setRows(rows);
+				searchRequest.setBoostedComplexQuery(booleanQuery);
+				AbstractResultSearch result = (AbstractResultSearch) learnerClient
+						.request(searchRequest);
+				if (result.getDocumentCount() == 0)
+					break;
+				for (int i = 0; i < result.getDocumentCount(); i++) {
+					int pos = start + i;
+					double docScore = result.getScore(pos);
+					if (docScore < minScore)
+						break;
+					ResultDocument document = result.getDocument(pos);
+					FieldValue fieldValue = document.getReturnFields().get(
+							"name");
+					if (fieldValue == null)
+						continue;
+					for (FieldValueItem fvi : fieldValue.getValueArray()) {
+						String value = fvi.getValue();
+						if (value == null)
+							continue;
+						collector.add(new LearnerResultItem(docScore, pos,
+								null, value, 1));
+						break;
+					}
+				}
+				searchRequest.reset();
+				start += rows;
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public void classify(String data, int maxRank, double minScore,
 			Collection<LearnerResultItem> collector) throws IOException,
@@ -112,23 +174,18 @@ public class StandardLearner implements LearnerInterface {
 		rwl.r.lock();
 		try {
 			checkIndex();
+			TreeMap<String, LearnerResultItem> targetMap = new TreeMap<String, LearnerResultItem>();
+			BooleanQuery booleanQuery = getBooleanQuery(data);
+			if (booleanQuery == null || booleanQuery.getClauses() == null
+					|| booleanQuery.getClauses().length == 0)
+				return;
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
 					.getNewRequest("search");
-			Schema schema = learnerClient.getSchema();
-			SchemaField schemaField = schema.getFieldList().get("data");
-			BooleanQuery booleanQuery = new BooleanQuery();
-			Analyzer analyzer = schema.getAnalyzer(schemaField,
-					LanguageEnum.UNDEFINED);
-			int termCount = analyzer.getQueryAnalyzer().toBooleanQuery("data",
-					data, booleanQuery, Occur.SHOULD);
-			if (termCount == 0)
-				return;
-			TreeMap<String, LearnerResultItem> targetMap = new TreeMap<String, LearnerResultItem>();
 			int start = 0;
 			final int rows = 1000;
-			searchRequest.setRows(rows);
 			for (;;) {
 				searchRequest.setStart(start);
+				searchRequest.setRows(rows);
 				searchRequest.setBoostedComplexQuery(booleanQuery);
 				AbstractResultSearch result = (AbstractResultSearch) learnerClient
 						.request(searchRequest);
@@ -150,7 +207,7 @@ public class StandardLearner implements LearnerInterface {
 								.get(value);
 						if (learnerResultItem == null) {
 							learnerResultItem = new LearnerResultItem(0, -1,
-									value, 0);
+									value, null, 0);
 							targetMap.put(value, learnerResultItem);
 						}
 						learnerResultItem.addScoreInstance(docScore, 1);
