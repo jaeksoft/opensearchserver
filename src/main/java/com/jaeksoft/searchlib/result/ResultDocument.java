@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -67,6 +67,9 @@ public class ResultDocument {
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
+
+		if (docId < 0)
+			return;
 
 		Map<String, FieldValue> documentFields = reader.getDocumentFields(
 				docId, fieldSet, timer);
