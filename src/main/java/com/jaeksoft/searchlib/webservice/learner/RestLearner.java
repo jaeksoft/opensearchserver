@@ -36,6 +36,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.learner.LearnerImpl.LearnerMode;
 
 @Path("/index/{index_name}/learner/{learner_name}")
 public interface RestLearner {
@@ -47,6 +48,7 @@ public interface RestLearner {
 			@PathParam("learner_name") String learner_name,
 			@QueryParam("max_rank") int max_rank,
 			@QueryParam("min_score") double min_score,
+			@QueryParam("mode") LearnerMode mode,
 			@QueryParam("text") String text);
 
 	@POST
@@ -58,7 +60,7 @@ public interface RestLearner {
 			@PathParam("learner_name") String learner_name,
 			@FormParam("max_rank") int max_rank,
 			@FormParam("min_score") double min_score,
-			@FormParam("text") String text);
+			@FormParam("mode") LearnerMode mode, @FormParam("text") String text);
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

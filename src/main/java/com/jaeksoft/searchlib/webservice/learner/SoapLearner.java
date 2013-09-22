@@ -28,6 +28,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.learner.LearnerImpl.LearnerMode;
 
 @WebService(name = "Learner")
 public interface SoapLearner {
@@ -38,6 +39,7 @@ public interface SoapLearner {
 			@WebParam(name = "learner_name") String name,
 			@WebParam(name = "max_rank") int max_rank,
 			@WebParam(name = "min_score") double min_score,
+			@WebParam(name = "mode") LearnerMode mode,
 			@WebParam(name = "text") String text);
 
 	public CommonResult learn(@WebParam(name = "index") String index,

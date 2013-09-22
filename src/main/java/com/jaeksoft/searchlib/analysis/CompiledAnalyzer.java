@@ -178,14 +178,15 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 			Occur occur) throws IOException {
 		if (text == null)
 			return 0;
+		int termCount = 0;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		TokenQueryFilter ttqf = new TokenQueryFilter.BooleanQueryFilter(query,
 				occur, field, 1.0F, ts);
 		while (ttqf.incrementToken())
-			;
+			termCount++;
 		IOUtils.closeQuietly(ttqf);
-		return ttqf.termCount;
+		return termCount;
 	}
 
 }
