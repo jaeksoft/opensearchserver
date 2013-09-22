@@ -72,7 +72,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 					continue;
 				if (fname.endsWith("_tmp.xml"))
 					continue;
-				add(new Learner(f));
+				add(new Learner(client, f));
 			}
 	}
 
@@ -153,14 +153,15 @@ public class LearnerManager implements BeforeUpdateInterface {
 		if (learnerArray == null)
 			return;
 		for (Learner learner : activeLearnerArray)
-			learner.classify(client, document);
+			learner.classify(document);
 	}
 
 	public Learner get(String name) {
 		rwl.r.lock();
 		try {
-
-			Learner find = learnerSet.ceiling(new Learner(name));
+			Learner searchLearner = new Learner(client);
+			searchLearner.setName(name);
+			Learner find = learnerSet.ceiling(searchLearner);
 			if (find == null)
 				return null;
 			if (find.getName().equals(name))

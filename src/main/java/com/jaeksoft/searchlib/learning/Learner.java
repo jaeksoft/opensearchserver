@@ -46,7 +46,6 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -55,7 +54,6 @@ public class Learner implements Comparable<Learner> {
 	private final static String LEARNER_ITEM_ROOT_NODE_NAME = "learner";
 	private final static String LEARNER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String LEARNER_ITEM_ROOT_ATTR_ACTIVE = "active";
-	private final static String LEARNER_ITEM_ROOT_ATTR_CLASS = "class";
 	private final static String LEARNER_ITEM_ROOT_ATTR_BUFFER = "buffer";
 	private final static String LEARNER_ITEM_ROOT_ATTR_MAX_RANK = "maxRank";
 	private final static String LEARNER_ITEM_ROOT_ATTR_MIN_SCORE = "minScore";
@@ -66,8 +64,6 @@ public class Learner implements Comparable<Learner> {
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private String name;
-
-	private String className;
 
 	private String searchRequest;
 
@@ -85,10 +81,12 @@ public class Learner implements Comparable<Learner> {
 
 	private LearnerInterface learnerInstance;
 
-	public Learner(String name) {
-		this.name = name;
+	private Client client;
+
+	public Learner(Client client) {
+		this.client = client;
+		this.name = null;
 		active = false;
-		className = null;
 		learnerInstance = null;
 		searchRequest = null;
 		sourceFieldMap = new FieldMap();
@@ -98,12 +96,8 @@ public class Learner implements Comparable<Learner> {
 		buffer = 1000;
 	}
 
-	public Learner() {
-		this((String) null);
-	}
-
 	public Learner(Learner source) {
-		this();
+		this(source.client);
 		source.copyTo(this);
 	}
 
@@ -112,9 +106,9 @@ public class Learner implements Comparable<Learner> {
 		try {
 			target.rwl.w.lock();
 			try {
+				target.client = client;
 				target.name = name;
 				target.active = active;
-				target.className = className;
 				target.searchRequest = searchRequest;
 				target.learnerInstance = learnerInstance;
 				sourceFieldMap.copyTo(target.sourceFieldMap);
@@ -129,10 +123,10 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	protected Learner(File file) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			SearchLibException {
-		this();
+	protected Learner(Client client, File file)
+			throws ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException, SearchLibException {
+		this(client);
 		if (!file.exists())
 			return;
 		Document document = DOMUtils.readXml(new StreamSource(file));
@@ -144,8 +138,6 @@ public class Learner implements Comparable<Learner> {
 				LEARNER_ITEM_ROOT_ATTR_NAME));
 		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(
 				rootNode, LEARNER_ITEM_ROOT_ATTR_ACTIVE)));
-		setClassName(XPathParser.getAttributeString(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_CLASS));
 		setSearchRequest(XPathParser.getAttributeString(rootNode,
 				LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
 		setMinScore(XPathParser.getAttributeDouble(rootNode,
@@ -208,37 +200,6 @@ public class Learner implements Comparable<Learner> {
 	}
 
 	/**
-	 * @param className
-	 *            the className to set
-	 * @throws SearchLibException
-	 */
-	public void setClassName(String className) throws SearchLibException {
-		rwl.w.lock();
-		try {
-			if (!StringUtils.equals(className, this.className)) {
-				if (learnerInstance != null)
-					learnerInstance.reset();
-				learnerInstance = null;
-			}
-			this.className = className;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	/**
-	 * @return the classNAme
-	 */
-	public String getClassName() {
-		rwl.r.lock();
-		try {
-			return className;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
 	 * @param active
 	 *            the active to set
 	 */
@@ -278,7 +239,6 @@ public class Learner implements Comparable<Learner> {
 		try {
 			xmlWriter.startElement(LEARNER_ITEM_ROOT_NODE_NAME,
 					LEARNER_ITEM_ROOT_ATTR_NAME, name,
-					LEARNER_ITEM_ROOT_ATTR_CLASS, className,
 					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest,
 					LEARNER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no",
 					LEARNER_ITEM_ROOT_ATTR_MAX_RANK, Integer.toString(maxRank),
@@ -315,12 +275,11 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	private final File getInstancesDataFile(Client client) {
+	private final File getInstancesDataFile() {
 		return new File(client.getLearnerDirectory(), name + ".data");
 	}
 
-	private LearnerInterface getInstance(Client client)
-			throws SearchLibException {
+	public LearnerInterface getInstance() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (learnerInstance != null)
@@ -334,34 +293,18 @@ public class Learner implements Comparable<Learner> {
 				return learnerInstance;
 			if (client == null)
 				return null;
-			learnerInstance = (LearnerInterface) Class.forName(className)
-					.newInstance();
-			learnerInstance.init(getInstancesDataFile(client));
+			learnerInstance = new StandardLearner();
+			learnerInstance.init(getInstancesDataFile());
 			return learnerInstance;
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public LearnerInterface getInstance() throws SearchLibException {
-		return getInstance(null);
-	}
-
-	public void checkInstance(Client client) throws SearchLibException {
-		getInstance(client);
-	}
-
-	public void classify(Client client, IndexDocument document)
-			throws SearchLibException {
+	public void classify(IndexDocument document) throws SearchLibException {
 		rwl.r.lock();
 		try {
-			LearnerInterface instance = getInstance(client);
+			LearnerInterface instance = getInstance();
 			instance.classify(document, sourceFieldMap, targetFieldMap,
 					maxRank, minScore);
 		} catch (IOException e) {
@@ -373,7 +316,7 @@ public class Learner implements Comparable<Learner> {
 
 	public LearnerResultItem[] classify(Client client, String text,
 			Integer max_rank, Double min_score) throws SearchLibException {
-		LearnerInterface instance = getInstance(client);
+		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
 			if (max_rank == null)
@@ -391,9 +334,28 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public void learn(Client client, InfoCallback infoCallback)
-			throws SearchLibException {
-		LearnerInterface instance = getInstance(client);
+	public LearnerResultItem[] similar(Client client, String text,
+			Integer max_rank, Double min_score) throws SearchLibException {
+		LearnerInterface instance = getInstance();
+		rwl.r.lock();
+		try {
+			if (max_rank == null)
+				max_rank = maxRank;
+			if (min_score == null)
+				min_score = minScore;
+			List<LearnerResultItem> list = new ArrayList<LearnerResultItem>(0);
+			instance.similar(text, max_rank, min_score, list);
+			LearnerResultItem[] result = LearnerResultItem.sortArray(list);
+			return LearnerResultItem.maxRank(result, max_rank);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void learn(InfoCallback infoCallback) throws SearchLibException {
+		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
 			instance.learn(client, searchRequest, sourceFieldMap, buffer,
@@ -405,10 +367,10 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public void reset(Client client) throws SearchLibException, IOException {
-		LearnerInterface instance = getInstance(client);
+	public void reset() throws SearchLibException, IOException {
+		LearnerInterface instance = getInstance();
 		instance.reset();
-		File f = getInstancesDataFile(client);
+		File f = getInstancesDataFile();
 		if (f.exists())
 			if (f.isFile())
 				f.delete();

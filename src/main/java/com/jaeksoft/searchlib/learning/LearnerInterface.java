@@ -82,6 +82,20 @@ public interface LearnerInterface {
 			SearchLibException;
 
 	/**
+	 * Return the closest items
+	 * 
+	 * @param data
+	 * @param maxRank
+	 * @param minScore
+	 * @param collector
+	 * @throws IOException
+	 * @throws SearchLibException
+	 */
+	public void similar(String data, int maxRank, double minScore,
+			Collection<LearnerResultItem> collector) throws IOException,
+			SearchLibException;
+
+	/**
 	 * SearchLibException Learn by reading the document returned by the search
 	 * query
 	 * 
