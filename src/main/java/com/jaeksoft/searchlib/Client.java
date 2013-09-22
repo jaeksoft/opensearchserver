@@ -216,8 +216,8 @@ public class Client extends Config {
 				if (uniqueField != null && lastDocument != null
 						&& uniqueValue != null
 						&& uniqueValue.equals(lastUniqueValue)) {
-					document.addIfNotAlreadyHere(lastDocument);
-					docList.remove(docList.size() - 1);
+					lastDocument.addIfNotAlreadyHere(document);
+					continue;
 				}
 				docList.add(document);
 				if (docList.size() == bufferSize)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,6 +52,23 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class JoinItem implements CacheKeyInterface<JoinItem> {
 
+	public static enum JoinType {
+		INNER, OUTER;
+
+		private final String label = name().toLowerCase();
+
+		final public static JoinType find(String name) {
+			for (JoinType type : values())
+				if (type.name().equalsIgnoreCase(name))
+					return type;
+			return INNER;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
+
 	private String indexName;
 
 	private String queryTemplate;
@@ -72,6 +89,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 
 	private boolean returnFacets;
 
+	private JoinType type;
+
 	public JoinItem() {
 		indexName = null;
 		queryTemplate = null;
@@ -82,6 +101,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		returnFields = false;
 		returnScores = false;
 		returnFacets = false;
+		type = JoinType.INNER;
 		filterList = new FilterList();
 	}
 
@@ -99,6 +119,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		target.returnFields = returnFields;
 		target.returnScores = returnScores;
 		target.returnFacets = returnFacets;
+		target.type = type;
 		target.filterList = new FilterList(filterList);
 	}
 
@@ -116,6 +137,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				node, ATTR_NAME_RETURNSCORES));
 		returnFacets = Boolean.parseBoolean(XPathParser.getAttributeString(
 				node, ATTR_NAME_RETURNFACETS));
+		type = JoinType.find(XPathParser.getAttributeString(node,
+				ATTR_NAME_TYPE));
 		filterList = new FilterList();
 	}
 
@@ -127,6 +150,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 	public final String ATTR_NAME_RETURNFIELDS = "returnFields";
 	public final String ATTR_NAME_RETURNSCORES = "returnScores";
 	public final String ATTR_NAME_RETURNFACETS = "returnFacets";
+	public final String ATTR_NAME_TYPE = "type";
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(NODE_NAME_JOIN, ATTR_NAME_INDEXNAME, indexName,
@@ -134,7 +158,8 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 				localField, ATTR_NAME_FOREIGNFIELD, foreignField,
 				ATTR_NAME_RETURNFIELDS, Boolean.toString(returnFields),
 				ATTR_NAME_RETURNSCORES, Boolean.toString(returnScores),
-				ATTR_NAME_RETURNFACETS, Boolean.toString(returnFacets));
+				ATTR_NAME_RETURNFACETS, Boolean.toString(returnFacets),
+				ATTR_NAME_TYPE, type.name());
 		xmlWriter.textNode(queryString);
 		xmlWriter.endElement();
 	}
@@ -285,6 +310,21 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 		this.returnFacets = returnFacets;
 	}
 
+	/**
+	 * @return the type
+	 */
+	public JoinType getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(JoinType type) {
+		this.type = type;
+	}
+
 	public DocIdInterface apply(ReaderLocal reader, DocIdInterface docs,
 			int joinResultSize, JoinResult joinResult,
 			List<JoinFacet> joinFacets, Timer timer) throws SearchLibException {
@@ -336,7 +376,7 @@ public class JoinItem implements CacheKeyInterface<JoinItem> {
 			DocIdInterface joinDocs = JoinDocCollector.join(docs,
 					localStringIndex, resultSearch.getDocs(),
 					foreignFieldIndex, joinResultSize, joinResult.joinPosition,
-					t, returnScores);
+					t, returnScores, type);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {

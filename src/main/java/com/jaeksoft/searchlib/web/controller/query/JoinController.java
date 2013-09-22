@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
 import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
@@ -154,6 +155,10 @@ public class JoinController extends AbstractQueryController {
 	public List<String> getForeignFieldList() throws SearchLibException,
 			NamingException {
 		return getIndexedFieldList(getForeignClient());
+	}
+
+	public JoinType[] getTypeList() {
+		return JoinType.values();
 	}
 
 	@Command
