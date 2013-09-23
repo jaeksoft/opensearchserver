@@ -107,6 +107,9 @@
 			visible="@load(query.editingSpellCheck)" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
 			visible="@load(query.editingMoreLikeThis)" />
+		<include
+			src="WEB-INF/zul/query/requestNamedEntityExtraction.zul"
+			visible="@load(query.editingNamedEntityExtraction)" />
 		<include src="WEB-INF/zul/query/requestDocuments.zul"
 			visible="@load(query.editingDocuments)" />
 		<vbox width="100%" align="center">
