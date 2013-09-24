@@ -64,7 +64,7 @@ public class GroupAllTokensFilter extends FilterFactory {
 			String term = buffer.toString().trim();
 			if (term.length() == 0)
 				return false;
-			createToken(term, 1, startOffset, endOffset, null);
+			createToken(term, 1, startOffset, endOffset, null, 0);
 			buffer = null;
 			return true;
 		}

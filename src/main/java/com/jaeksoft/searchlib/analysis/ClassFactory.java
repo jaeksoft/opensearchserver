@@ -192,6 +192,30 @@ public abstract class ClassFactory {
 
 	/**
 	 * 
+	 * @param config
+	 * @param factoryClass
+	 * @return
+	 * @throws SearchLibException
+	 */
+	protected static <T extends ClassFactory> T createInstance(Config config,
+			Class<T> factoryClass) throws SearchLibException {
+		try {
+			T o = factoryClass.newInstance();
+			o.setParams(config, factoryClass.getPackage().getName(),
+					factoryClass.getSimpleName());
+			o.initProperties();
+			return o;
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	/**
+	 * 
 	 * @param classFactory
 	 * @return
 	 * @throws SearchLibException

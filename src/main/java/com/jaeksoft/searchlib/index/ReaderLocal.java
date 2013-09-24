@@ -440,6 +440,7 @@ public class ReaderLocal extends ReaderAbstract {
 		return dsh;
 	}
 
+	@Override
 	public Map<String, FieldValue> getDocumentFields(int docId,
 			Set<String> fieldNameSet, Timer timer) throws IOException,
 			ParseException, SyntaxError {

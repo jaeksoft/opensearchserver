@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -35,8 +37,12 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.util.Timer;
 
 public interface ReaderInterface {
 
@@ -54,6 +60,10 @@ public interface ReaderInterface {
 
 	public TermDocs getTermDocs(Term term) throws IOException,
 			SearchLibException;
+
+	public Map<String, FieldValue> getDocumentFields(int docId,
+			Set<String> fieldNameSet, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException;
 
 	public TermFreqVector getTermFreqVector(int docId, String field)
 			throws IOException, SearchLibException;

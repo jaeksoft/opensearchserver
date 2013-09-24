@@ -25,30 +25,27 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.AttributeSource;
 
 public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
-	protected AttributeSource.State current = null;
 	private CharTermAttribute termAtt;
-	private Set<String> termSet;
+	private final Collection<String> terms;
 
-	protected TermSetTokenFilter(Set<String> termSet, TokenStream input) {
+	protected TermSetTokenFilter(Collection<String> terms, TokenStream input) {
 		super(input);
-		this.termSet = termSet;
+		this.terms = terms;
 		this.termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		current = captureState();
 		if (!input.incrementToken())
 			return false;
-		termSet.add(termAtt.toString());
+		terms.add(termAtt.toString());
 		return true;
 	}
 

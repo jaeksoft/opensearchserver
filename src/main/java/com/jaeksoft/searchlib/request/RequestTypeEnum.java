@@ -43,6 +43,9 @@ public enum RequestTypeEnum {
 
 	MoreLikeThisRequest(MoreLikeThisRequest.class, "More like this"),
 
+	NamedEntityExtractionRequest(NamedEntityExtractionRequest.class,
+			"Named entity extraction"),
+
 	DocumentsRequest(DocumentsRequest.class, "Document(s)");
 
 	private Class<? extends AbstractRequest> requestClass;

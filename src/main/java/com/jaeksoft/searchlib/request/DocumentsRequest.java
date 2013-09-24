@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -214,21 +213,11 @@ public class DocumentsRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public AbstractResult<DocumentsRequest> execute(ReaderInterface reader)
+	public AbstractResult<AbstractRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
 		try {
 			return new ResultDocuments((ReaderLocal) reader, this);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}

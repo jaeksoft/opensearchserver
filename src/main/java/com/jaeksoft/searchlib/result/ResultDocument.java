@@ -35,10 +35,10 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -59,8 +59,9 @@ public class ResultDocument {
 	final private List<FunctionFieldValue> functionFieldValue;
 
 	public ResultDocument(AbstractSearchRequest searchRequest,
-			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			TreeSet<String> fieldSet, int docId, ReaderInterface reader,
+			Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
 
 		this.docId = docId;
 
@@ -96,9 +97,9 @@ public class ResultDocument {
 		}
 	}
 
-	public ResultDocument(RequestInterfaces.ReturnedFieldInterface rfiRequest,
-			TreeSet<String> fieldSet, int docId, ReaderLocal reader, Timer timer)
-			throws IOException, ParseException, SyntaxError {
+	public ResultDocument(TreeSet<String> fieldSet, int docId,
+			ReaderInterface reader, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();

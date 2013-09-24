@@ -120,7 +120,8 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	public boolean isResultDocuments() {
-		return isResult(RequestTypeEnum.DocumentsRequest);
+		return isResult(RequestTypeEnum.DocumentsRequest,
+				RequestTypeEnum.NamedEntityExtractionRequest);
 	}
 
 	public CoordUnit[] getGeoCoordUnits() {
