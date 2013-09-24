@@ -1,0 +1,50 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('named') @init('com.jaeksoft.searchlib.web.controller.query.NamedEntityExtractionController')">
+	<grid>
+		<columns>
+			<column align="right" hflex="min" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label>Search request:</label>
+				<combobox model="@load(named.searchRequests)" cols="25"
+					value="@bind(named.request.searchRequest)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label>Named entity field:</label>
+				<combobox model="@load(named.indexedFieldList)"
+					cols="25" value="@bind(named.request.namedEntityField)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label>Enter the text:</label>
+				<textbox value="@bind(named.request.text)" rows="15"
+					multiline="true" width="90%" />
+			</row>
+		</rows>
+	</grid>
+</window>

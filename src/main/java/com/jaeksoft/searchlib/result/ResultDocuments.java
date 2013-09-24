@@ -56,18 +56,21 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	final private List<Integer> docList;
 
 	public ResultDocuments(ReaderInterface reader, AbstractRequest request,
-			List<Integer> docList) {
+			TreeSet<String> fieldNameSet, List<Integer> docList) {
 		super(request);
 		this.reader = reader;
-		fieldNameSet = new TreeSet<String>();
-		((RequestInterfaces.ReturnedFieldInterface) request)
-				.getReturnFieldList().populate(fieldNameSet);
+		this.fieldNameSet = fieldNameSet == null ? new TreeSet<String>()
+				: fieldNameSet;
+		if (fieldNameSet.size() == 0
+				&& request instanceof RequestInterfaces.ReturnedFieldInterface)
+			((RequestInterfaces.ReturnedFieldInterface) request)
+					.getReturnFieldList().populate(fieldNameSet);
 		this.docList = new ArrayList<Integer>(docList);
 	}
 
 	public ResultDocuments(ReaderLocal reader, DocumentsRequest request)
 			throws IOException {
-		this(reader, request, request.getDocList());
+		this(reader, request, null, request.getDocList());
 		SchemaField uniqueField = request.getConfig().getSchema()
 				.getFieldList().getUniqueField();
 		if (uniqueField != null) {
@@ -89,9 +92,8 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 		if (docList == null || pos < 0 || pos > docList.size())
 			return null;
 		try {
-			return new ResultDocument(
-					(RequestInterfaces.ReturnedFieldInterface) request,
-					fieldNameSet, docList.get(pos), reader, timer);
+			return new ResultDocument(fieldNameSet, docList.get(pos), reader,
+					timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

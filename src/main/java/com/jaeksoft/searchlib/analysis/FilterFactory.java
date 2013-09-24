@@ -105,4 +105,16 @@ public abstract class FilterFactory extends ClassFactory {
 				className);
 	}
 
+	/**
+	 * Create a new filter with default parameters
+	 * 
+	 * @param config
+	 * @param filterFactoryClass
+	 * @return
+	 * @throws SearchLibException
+	 */
+	public static <T extends FilterFactory> T create(Config config,
+			Class<T> filterFactoryClass) throws SearchLibException {
+		return ClassFactory.create(config, filterFactoryClass);
+	}
 }
