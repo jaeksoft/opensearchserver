@@ -30,7 +30,8 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 public class ResultDocumentsController extends AbstractQueryController {
 
 	public ResultDocumentsController() throws SearchLibException {
-		super(RequestTypeEnum.DocumentsRequest);
+		super(RequestTypeEnum.DocumentsRequest,
+				RequestTypeEnum.NamedEntityExtractionRequest);
 	}
 
 	@Override

@@ -58,7 +58,7 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 		if (currentPos == wordQueue.length)
 			return false;
 		createToken(wordQueue[currentPos++], 0, offsetAtt.startOffset(),
-				offsetAtt.endOffset(), TYPE);
+				offsetAtt.endOffset(), TYPE, flagsAtt.getFlags());
 		return true;
 	}
 

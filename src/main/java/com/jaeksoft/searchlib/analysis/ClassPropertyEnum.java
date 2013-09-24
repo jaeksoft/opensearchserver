@@ -155,6 +155,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "removeDuplicateWhiteSpaces", "Duplicate spaces",
 			"Detect and remove consecutive duplicate white spaces");
 
+	public static ClassPropertyEnum REMOVE_MATCHING_FLAGS = new ClassPropertyEnum(
+			true, "removeMatchingFlags", "Remove matching flags",
+			"Remove tokens having the same flags than deleted one");
+
 	public final static ClassPropertyEnum URL_FRAGMENT = new ClassPropertyEnum(
 			true, "url_fragment", "URL Fragment",
 			"The Option to remove or keep the URL Fragment");

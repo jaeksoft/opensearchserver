@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.analysis.filter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
@@ -42,16 +43,19 @@ public abstract class AbstractTermFilter extends TokenFilter {
 
 	protected TypeAttribute typeAtt = null;
 
+	protected FlagsAttribute flagsAtt = null;
+
 	protected AbstractTermFilter(TokenStream input) {
 		super(input);
 		termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
 		posIncrAtt = (PositionIncrementAttribute) addAttribute(PositionIncrementAttribute.class);
 		offsetAtt = (OffsetAttribute) addAttribute(OffsetAttribute.class);
 		typeAtt = (TypeAttribute) addAttribute(TypeAttribute.class);
+		flagsAtt = (FlagsAttribute) addAttribute(FlagsAttribute.class);
 	}
 
 	protected final boolean createToken(String term, int posInc, int startOff,
-			int endOff, String type) {
+			int endOff, String type, int flags) {
 		if (term == null)
 			return false;
 		if (term.length() == 0)
@@ -61,17 +65,19 @@ public abstract class AbstractTermFilter extends TokenFilter {
 		posIncrAtt.setPositionIncrement(posInc);
 		offsetAtt.setOffset(startOff, endOff);
 		typeAtt.setType(type);
+		flagsAtt.setFlags(flags);
 		return true;
 	}
 
 	protected final boolean createToken(String term) {
 		return createToken(term, posIncrAtt.getPositionIncrement(),
-				offsetAtt.startOffset(), offsetAtt.endOffset(), typeAtt.type());
+				offsetAtt.startOffset(), offsetAtt.endOffset(), typeAtt.type(),
+				flagsAtt.getFlags());
 	}
 
 	protected final boolean createToken(TokenTerm tokenTerm) {
 		return createToken(tokenTerm.term, tokenTerm.increment,
-				tokenTerm.start, tokenTerm.end, tokenTerm.type);
+				tokenTerm.start, tokenTerm.end, tokenTerm.type, tokenTerm.flags);
 
 	}
 

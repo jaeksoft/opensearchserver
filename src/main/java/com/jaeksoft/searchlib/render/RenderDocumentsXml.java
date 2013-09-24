@@ -24,11 +24,11 @@
 
 package com.jaeksoft.searchlib.render;
 
-import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class RenderDocumentsXml extends
-		AbstractRenderDocumentsXml<DocumentsRequest, ResultDocuments> {
+		AbstractRenderDocumentsXml<AbstractRequest, ResultDocuments> {
 
 	public RenderDocumentsXml(ResultDocuments result) {
 		super(result);

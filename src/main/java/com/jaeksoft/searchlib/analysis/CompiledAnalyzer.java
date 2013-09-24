@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.TokenStream;
@@ -133,13 +133,25 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		return list;
 	}
 
-	public void extractTerms(String text, Set<String> termSet)
+	public void extractTerms(String text, Collection<String> termSet)
 			throws IOException {
 		if (text == null)
 			return;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TermSetTokenFilter(termSet, ts);
+		while (ts.incrementToken())
+			;
+		IOUtils.closeQuietly(ts);
+	}
+
+	public void extractFlags(String text, Collection<Integer> flags)
+			throws IOException {
+		if (text == null)
+			return;
+		StringReader reader = new StringReader(text);
+		TokenStream ts = tokenStream(null, reader);
+		ts = new FlagsTokenFilter(flags, ts);
 		while (ts.incrementToken())
 			;
 		IOUtils.closeQuietly(ts);
