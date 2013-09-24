@@ -48,7 +48,7 @@ public class ShingleFilter extends FilterFactory {
 	}
 
 	@Override
-	protected void checkValue(ClassPropertyEnum prop, String value)
+	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
 		if (prop == ClassPropertyEnum.TOKEN_SEPARATOR)
 			tokenSeparator = value;
@@ -56,6 +56,19 @@ public class ShingleFilter extends FilterFactory {
 			maxShingleSize = Integer.parseInt(value);
 		else if (prop == ClassPropertyEnum.MIN_SHINGLE_SIZE)
 			minShingleSize = Integer.parseInt(value);
+	}
+
+	public void setProperties(String tokenSeparator, Integer minShingleSize,
+			Integer maxShingleSize) throws SearchLibException {
+		if (tokenSeparator != null)
+			getProperty(ClassPropertyEnum.TOKEN_SEPARATOR).setValue(
+					tokenSeparator);
+		if (maxShingleSize != null)
+			getProperty(ClassPropertyEnum.MAX_SHINGLE_SIZE).setValue(
+					maxShingleSize.toString());
+		if (minShingleSize != null)
+			getProperty(ClassPropertyEnum.MIN_SHINGLE_SIZE).setValue(
+					minShingleSize.toString());
 	}
 
 	@Override

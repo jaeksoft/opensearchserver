@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenStream;
 
+import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
 public class ShingleTokenFilter extends AbstractTermFilter {
@@ -54,14 +55,14 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 			return false;
 		createToken(shingle.getTerm(), shingle.getPositionIncrement(),
 				shingle.getStartOffset(), shingle.getEndOffset(),
-				shingle.getType());
+				shingle.getType(), shingle.getFlags());
 		shingle.pop();
 		return true;
 	}
 
-	private final void addToken(ShingleToken shingleToken) {
+	private final void addToken(TokenTerm token) {
 		for (ShingleQueue shingle : shingles)
-			shingle.addToken(shingleToken);
+			shingle.addToken(token);
 	}
 
 	@Override
@@ -72,9 +73,8 @@ public class ShingleTokenFilter extends AbstractTermFilter {
 				return createToken(shingle);
 			if (!input.incrementToken())
 				return false;
-			addToken(new ShingleToken(termAtt.toString(),
-					posIncrAtt.getPositionIncrement(), offsetAtt.startOffset(),
-					offsetAtt.endOffset(), typeAtt.type()));
+			addToken(new TokenTerm(termAtt, posIncrAtt, offsetAtt, typeAtt,
+					flagsAtt));
 		}
 	}
 

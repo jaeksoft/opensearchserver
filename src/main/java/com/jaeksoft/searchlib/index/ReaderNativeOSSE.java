@@ -29,6 +29,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -275,6 +276,14 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	public int maxDoc() throws IOException {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public Map<String, FieldValue> getDocumentFields(int docId,
+			Set<String> fieldNameSet, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

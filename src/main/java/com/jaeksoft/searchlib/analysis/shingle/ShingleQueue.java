@@ -24,9 +24,11 @@
 
 package com.jaeksoft.searchlib.analysis.shingle;
 
+import com.jaeksoft.searchlib.analysis.TokenTerm;
+
 public class ShingleQueue {
 
-	private ShingleToken[] tokens;
+	private TokenTerm[] tokens;
 
 	private int currentSize;
 
@@ -36,7 +38,7 @@ public class ShingleQueue {
 
 	public ShingleQueue(String tokenSeparator, int size) {
 		this.tokenSeparator = tokenSeparator;
-		tokens = new ShingleToken[size];
+		tokens = new TokenTerm[size];
 		currentSize = 0;
 	}
 
@@ -48,15 +50,19 @@ public class ShingleQueue {
 		return tokens.length == 1 ? tokens[0].type : TYPE;
 	}
 
-	public final void addToken(ShingleToken shingleToken) {
+	public final int getFlags() {
+		return tokens.length == 1 ? tokens[0].flags : 0;
+	}
+
+	public final void addToken(TokenTerm shingleToken) {
 		tokens[currentSize++] = shingleToken;
 	}
 
 	public final String getTerm() {
-		StringBuffer sb = new StringBuffer(tokens[0].getTerm());
+		StringBuffer sb = new StringBuffer(tokens[0].term);
 		for (int i = 1; i < currentSize; i++) {
 			sb.append(tokenSeparator);
-			sb.append(tokens[i].getTerm());
+			sb.append(tokens[i].term);
 		}
 		return sb.toString();
 	}
@@ -68,7 +74,7 @@ public class ShingleQueue {
 	protected final int getStartOffset() {
 		int startOffset = Integer.MAX_VALUE;
 		for (int i = 0; i < currentSize; i++) {
-			int so = tokens[i].getStartOffset();
+			int so = tokens[i].start;
 			if (so < startOffset)
 				startOffset = so;
 		}
@@ -78,7 +84,7 @@ public class ShingleQueue {
 	protected final int getEndOffset() {
 		int endOffset = 0;
 		for (int i = 0; i < currentSize; i++) {
-			int so = tokens[i].getEndOffset();
+			int so = tokens[i].end;
 			if (so > endOffset)
 				endOffset = so;
 		}

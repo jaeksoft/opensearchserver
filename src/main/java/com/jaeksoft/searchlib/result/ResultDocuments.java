@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,32 +35,42 @@ import org.apache.lucene.index.TermDocs;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderDocumentsJson;
 import com.jaeksoft.searchlib.render.RenderDocumentsXml;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class ResultDocuments extends AbstractResult<DocumentsRequest> implements
-		ResultDocumentsInterface<DocumentsRequest> {
+public class ResultDocuments extends AbstractResult<AbstractRequest> implements
+		ResultDocumentsInterface<AbstractRequest> {
 
-	transient private ReaderLocal reader = null;
+	transient private ReaderInterface reader = null;
 	final private TreeSet<String> fieldNameSet;
 	final private List<Integer> docList;
 
-	public ResultDocuments(ReaderLocal reader, DocumentsRequest request)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public ResultDocuments(ReaderInterface reader, AbstractRequest request,
+			TreeSet<String> fieldNameSet, List<Integer> docList) {
 		super(request);
 		this.reader = reader;
-		fieldNameSet = new TreeSet<String>();
-		request.getReturnFieldList().populate(fieldNameSet);
-		docList = new ArrayList<Integer>(request.getDocList());
+		this.fieldNameSet = fieldNameSet == null ? new TreeSet<String>()
+				: fieldNameSet;
+		if (fieldNameSet.size() == 0
+				&& request instanceof RequestInterfaces.ReturnedFieldInterface)
+			((RequestInterfaces.ReturnedFieldInterface) request)
+					.getReturnFieldList().populate(fieldNameSet);
+		this.docList = new ArrayList<Integer>(docList);
+	}
+
+	public ResultDocuments(ReaderLocal reader, DocumentsRequest request)
+			throws IOException {
+		this(reader, request, null, request.getDocList());
 		SchemaField uniqueField = request.getConfig().getSchema()
 				.getFieldList().getUniqueField();
 		if (uniqueField != null) {
@@ -82,8 +92,8 @@ public class ResultDocuments extends AbstractResult<DocumentsRequest> implements
 		if (docList == null || pos < 0 || pos > docList.size())
 			return null;
 		try {
-			return new ResultDocument(request, fieldNameSet, docList.get(pos),
-					reader, timer);
+			return new ResultDocument(fieldNameSet, docList.get(pos), reader,
+					timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
