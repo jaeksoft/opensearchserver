@@ -28,24 +28,25 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 
-public class TermSetTokenFilter extends org.apache.lucene.analysis.TokenFilter {
+public class FlagsTokenFilter extends org.apache.lucene.analysis.TokenFilter {
 
-	private CharTermAttribute termAtt;
-	private final Collection<String> terms;
+	private FlagsAttribute flagsAtt;
+	private final Collection<Integer> flagsCollector;
 
-	protected TermSetTokenFilter(Collection<String> terms, TokenStream input) {
+	protected FlagsTokenFilter(Collection<Integer> flagsCollector,
+			TokenStream input) {
 		super(input);
-		this.terms = terms;
-		this.termAtt = (CharTermAttribute) addAttribute(CharTermAttribute.class);
+		this.flagsCollector = flagsCollector;
+		this.flagsAtt = (FlagsAttribute) addAttribute(FlagsAttribute.class);
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
 		if (!input.incrementToken())
 			return false;
-		terms.add(termAtt.toString());
+		flagsCollector.add(flagsAtt.getFlags());
 		return true;
 	}
 

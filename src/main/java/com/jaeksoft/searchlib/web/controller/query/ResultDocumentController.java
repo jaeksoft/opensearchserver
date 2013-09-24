@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
@@ -58,7 +59,9 @@ public class ResultDocumentController extends AbstractQueryController implements
 	public ResultDocumentController() throws SearchLibException {
 		super(RequestTypeEnum.MoreLikeThisRequest,
 				RequestTypeEnum.SearchRequest,
-				RequestTypeEnum.SearchFieldRequest);
+				RequestTypeEnum.SearchFieldRequest,
+				RequestTypeEnum.DocumentsRequest,
+				RequestTypeEnum.NamedEntityExtractionRequest);
 	}
 
 	public class Document {
@@ -79,12 +82,21 @@ public class ResultDocumentController extends AbstractQueryController implements
 				title = new StringBuffer();
 				title.append('#');
 				title.append(getPos());
-				title.append(" - Score: ");
-				title.append(getScore());
-				title.append(" - Collapsed: ");
-				title.append(getCollapseCount());
-				title.append(" - docId: ");
-				title.append(getDocId());
+				float score = getScore();
+				if (score != 0) {
+					title.append(" - Score: ");
+					title.append(getScore());
+				}
+				int collapseCount = getCollapseCount();
+				if (collapseCount != 0) {
+					title.append(" - Collapsed: ");
+					title.append(getCollapseCount());
+				}
+				int docId = getDocId();
+				if (docId != 0) {
+					title.append(" - docId: ");
+					title.append(docId);
+				}
 				return title.toString();
 			}
 		}
@@ -111,7 +123,10 @@ public class ResultDocumentController extends AbstractQueryController implements
 			ResultDocumentsInterface<?> result = getResultDocuments();
 			if (result == null)
 				return 0;
-			return result.getDocs().getIds()[pos];
+			DocIdInterface docIdInterface = result.getDocs();
+			if (docIdInterface == null)
+				return 0;
+			return docIdInterface.getIds()[pos];
 		}
 
 		public ResultDocument getResultDocument() throws IOException,

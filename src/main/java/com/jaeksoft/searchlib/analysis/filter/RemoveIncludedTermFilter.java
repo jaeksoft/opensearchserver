@@ -70,7 +70,7 @@ public class RemoveIncludedTermFilter extends FilterFactory {
 					if (type != null && !type.equals(token.type))
 						continue;
 					for (TokenTerm token2 : tokenList) {
-						if (type != null && !type.equals(token.type))
+						if (type != null && !type.equals(token2.type))
 							continue;
 						if (token2 != token && token2.term.contains(token.term)) {
 							deletionList.add(token);
@@ -111,12 +111,21 @@ public class RemoveIncludedTermFilter extends FilterFactory {
 	}
 
 	@Override
-	protected void checkValue(ClassPropertyEnum prop, String value)
+	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
 		if (prop == ClassPropertyEnum.TOKEN_TYPE)
 			type = value;
 		else if (prop == ClassPropertyEnum.REMOVE_MATCHING_FLAGS)
 			removeMatchingFlags = Boolean.parseBoolean(value);
+	}
+
+	public void setProperties(String tokenType, Boolean removeMatchingFlags)
+			throws SearchLibException {
+		if (tokenType != null)
+			getProperty(ClassPropertyEnum.TOKEN_TYPE).setValue(tokenType);
+		if (removeMatchingFlags != null)
+			getProperty(ClassPropertyEnum.REMOVE_MATCHING_FLAGS).setValue(
+					removeMatchingFlags.toString());
 	}
 
 	@Override

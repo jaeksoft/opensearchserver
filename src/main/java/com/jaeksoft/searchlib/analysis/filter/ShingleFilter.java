@@ -58,6 +58,19 @@ public class ShingleFilter extends FilterFactory {
 			minShingleSize = Integer.parseInt(value);
 	}
 
+	public void setProperties(String tokenSeparator, Integer minShingleSize,
+			Integer maxShingleSize) throws SearchLibException {
+		if (tokenSeparator != null)
+			getProperty(ClassPropertyEnum.TOKEN_SEPARATOR).setValue(
+					tokenSeparator);
+		if (maxShingleSize != null)
+			getProperty(ClassPropertyEnum.MAX_SHINGLE_SIZE).setValue(
+					maxShingleSize.toString());
+		if (minShingleSize != null)
+			getProperty(ClassPropertyEnum.MIN_SHINGLE_SIZE).setValue(
+					minShingleSize.toString());
+	}
+
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
 		return new ShingleTokenFilter(tokenStream, tokenSeparator,

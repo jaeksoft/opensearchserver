@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.request;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -37,12 +38,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
-import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenFilter;
 import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
+import com.jaeksoft.searchlib.analysis.filter.RemoveIncludedTermFilter;
 import com.jaeksoft.searchlib.analysis.filter.ShingleFilter;
-import com.jaeksoft.searchlib.analysis.tokenizer.StandardTokenizer;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -59,6 +61,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private String searchRequest;
 
+	private String namedEntityField;
+
 	public NamedEntityExtractionRequest() {
 		super(null, RequestTypeEnum.NamedEntityExtractionRequest);
 	}
@@ -72,6 +76,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		super.setDefaultValues();
 		this.text = null;
 		this.searchRequest = null;
+		this.namedEntityField = null;
 	}
 
 	@Override
@@ -80,6 +85,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		NamedEntityExtractionRequest neeRequest = (NamedEntityExtractionRequest) request;
 		this.text = neeRequest.text;
 		this.searchRequest = neeRequest.searchRequest;
+		this.namedEntityField = neeRequest.namedEntityField;
 	}
 
 	@Override
@@ -94,6 +100,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
 		searchRequest = DomUtils.getAttributeText(requestNode, "searchRequest");
+		namedEntityField = DomUtils.getAttributeText(requestNode,
+				"namedEntityField");
 		text = DomUtils.getText(requestNode);
 	}
 
@@ -103,7 +111,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		try {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
 					getRequestName(), XML_ATTR_TYPE, getType().name(),
-					"searchRequest", searchRequest);
+					"searchRequest", searchRequest, "namedEntityField",
+					namedEntityField);
 			xmlWriter.textNode(text);
 			xmlWriter.endElement();
 		} finally {
@@ -118,6 +127,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			text = value;
 		if ((value = transaction.getParameterString("searchRequest")) != null)
 			searchRequest = value;
+		if ((value = transaction.getParameterString("namedEntityField")) != null)
+			namedEntityField = value;
+
 	}
 
 	@Override
@@ -128,20 +140,35 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	public AbstractResult<AbstractRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
 		try {
+			AbstractSearchRequest abstractSearchRequest = (AbstractSearchRequest) config
+					.getNewRequest(searchRequest);
+			if (abstractSearchRequest == null)
+				throw new SearchLibException("Request not found: "
+						+ searchRequest);
+			TreeSet<String> fieldNameSet = new TreeSet<String>();
+			abstractSearchRequest.getReturnFieldList().populate(fieldNameSet);
 			Analyzer analyzer = new Analyzer(config);
-			analyzer.setTokenizer(new StandardTokenizer());
-			ShingleFilter shingleFilter = new ShingleFilter();
-			shingleFilter.checkValue(ClassPropertyEnum.MAX_SHINGLE_SIZE, "5");
+			analyzer.setTokenizer(TokenizerFactory.create(config,
+					"StandardTokenizer"));
+			ShingleFilter shingleFilter = FilterFactory.create(config,
+					ShingleFilter.class);
+			shingleFilter.setProperties(" ", 1, 5);
 			analyzer.add(shingleFilter);
-			analyzer.add(new DeduplicateTokenFilter());
-			List<Integer> docIds = new ArrayList<Integer>(0);
-			IndexLookupFilter ilf = new IndexLookupFilter(docIds);
-			ilf.checkValue(ClassPropertyEnum.INDEX_LIST, config.getIndexName());
-			ilf.checkValue(ClassPropertyEnum.SEARCH_REQUEST, searchRequest);
+			analyzer.add(FilterFactory.create(config,
+					DeduplicateTokenFilter.class));
+			IndexLookupFilter ilf = FilterFactory.create(config,
+					IndexLookupFilter.class);
+			ilf.setProperties(config.getIndexName(), searchRequest,
+					namedEntityField, namedEntityField);
 			analyzer.add(ilf);
+			RemoveIncludedTermFilter ritf = FilterFactory.create(config,
+					RemoveIncludedTermFilter.class);
+			ritf.setProperties(namedEntityField, true);
+			analyzer.add(ritf);
 			CompiledAnalyzer compiledAnalyzer = analyzer.getQueryAnalyzer();
-			compiledAnalyzer.test(text);
-			return new ResultDocuments(reader, this, docIds);
+			List<Integer> docs = new ArrayList<Integer>(0);
+			compiledAnalyzer.extractFlags(text, docs);
+			return new ResultDocuments(reader, this, fieldNameSet, docs);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -155,6 +182,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			sb.append("SearchRequest:");
 			if (searchRequest != null)
 				sb.append(searchRequest);
+			sb.append(" - NamedEntityField:");
+			if (namedEntityField != null)
+				sb.append(namedEntityField);
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();
@@ -189,6 +219,21 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	 */
 	public void setSearchRequest(String searchRequest) {
 		this.searchRequest = searchRequest;
+	}
+
+	/**
+	 * @return the namedEntityField
+	 */
+	public String getNamedEntityField() {
+		return namedEntityField;
+	}
+
+	/**
+	 * @param namedEntityField
+	 *            the namedEntityField to set
+	 */
+	public void setNamedEntityField(String namedEntityField) {
+		this.namedEntityField = namedEntityField;
 	}
 
 }

@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.index.Term;
@@ -59,15 +59,6 @@ public class IndexLookupFilter extends FilterFactory {
 	private String requestName = null;
 	private String returnField = null;
 	private String requestedField = null;
-	private Collection<Integer> collector;
-
-	public IndexLookupFilter(Collection<Integer> collector) {
-		this.collector = collector;
-	}
-
-	public IndexLookupFilter() {
-		collector = null;
-	}
 
 	private final int maxTokenSearch = ClientFactory.INSTANCE
 			.getBooleanQueryMaxClauseCount().getValue();
@@ -95,6 +86,20 @@ public class IndexLookupFilter extends FilterFactory {
 			requestedField = value;
 		else if (prop == ClassPropertyEnum.RETURN_FIELD)
 			returnField = value;
+	}
+
+	public void setProperties(String indexName, String requestName,
+			String requestedField, String returnField)
+			throws SearchLibException {
+		if (indexName != null)
+			getProperty(ClassPropertyEnum.INDEX_LIST).setValue(indexName);
+		if (requestName != null)
+			getProperty(ClassPropertyEnum.SEARCH_REQUEST).setValue(requestName);
+		if (requestedField != null)
+			getProperty(ClassPropertyEnum.REQUESTED_FIELD).setValue(
+					requestedField);
+		if (returnField != null)
+			getProperty(ClassPropertyEnum.RETURN_FIELD).setValue(returnField);
 	}
 
 	@Override
@@ -130,9 +135,8 @@ public class IndexLookupFilter extends FilterFactory {
 			this.indexClient = indexClient;
 			this.searchRequest = searchRequest;
 			this.returnFields = StringUtils.split(returnField, '|');
-			this.requestedField = requestedField != null
-					&& requestedField.length() > 0 ? requestedField
-					: returnFields[0];
+			this.requestedField = !StringUtils.isEmpty(requestedField) ? requestedField
+					: ArrayUtils.isEmpty(returnFields) ? null : returnFields[0];
 		}
 
 		private final boolean popToken() {
@@ -144,9 +148,8 @@ public class IndexLookupFilter extends FilterFactory {
 			return true;
 		}
 
-		private final void extractTokens(TokenTerm tokenTerm,
+		private final void extractTokens(TokenTerm tokenTerm, int docId,
 				ResultDocument resultDoc) {
-			int docId = resultDoc.getDocId();
 			for (String returnField : returnFields) {
 				FieldValueItem[] fieldValueItems = resultDoc
 						.getValueArray(returnField);
@@ -180,12 +183,15 @@ public class IndexLookupFilter extends FilterFactory {
 			currentQueuePos = 0;
 			for (int i = 0; i < max; i++) {
 				ResultDocument resultDoc = result.getDocument(i);
-				extractTokens(mergedTokenTerm, resultDoc);
+				int docId = resultDoc.getDocId();
+				extractTokens(mergedTokenTerm, docId, resultDoc);
 				JoinResult[] joinResults = result.getJoinResult();
 				if (joinResults != null)
 					for (JoinResult joinResult : joinResults)
-						extractTokens(mergedTokenTerm, joinResult.getDocument(
-								(JoinDocInterface) result.getDocs(), i, null));
+						extractTokens(mergedTokenTerm, docId,
+								joinResult.getDocument(
+										(JoinDocInterface) result.getDocs(), i,
+										null));
 			}
 		}
 
