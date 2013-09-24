@@ -115,6 +115,6 @@ public abstract class FilterFactory extends ClassFactory {
 	 */
 	public static <T extends FilterFactory> T create(Config config,
 			Class<T> filterFactoryClass) throws SearchLibException {
-		return ClassFactory.create(config, filterFactoryClass);
+		return ClassFactory.createInstance(config, filterFactoryClass);
 	}
 }

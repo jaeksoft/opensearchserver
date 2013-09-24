@@ -197,7 +197,7 @@ public abstract class ClassFactory {
 	 * @return
 	 * @throws SearchLibException
 	 */
-	protected static <T extends ClassFactory> T create(Config config,
+	protected static <T extends ClassFactory> T createInstance(Config config,
 			Class<T> factoryClass) throws SearchLibException {
 		try {
 			T o = factoryClass.newInstance();
