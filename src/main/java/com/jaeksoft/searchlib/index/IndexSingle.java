@@ -29,6 +29,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.index.Term;
@@ -43,11 +45,15 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexSingle extends IndexAbstract {
@@ -461,6 +467,21 @@ public class IndexSingle extends IndexAbstract {
 			checkOnline(true);
 			if (reader != null)
 				return reader.getFieldNames();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public Map<String, FieldValue> getDocumentFields(int docId,
+			Set<String> fieldNameSet, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getDocumentFields(docId, fieldNameSet, timer);
 			return null;
 		} finally {
 			rwl.r.unlock();

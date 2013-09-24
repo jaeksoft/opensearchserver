@@ -26,11 +26,11 @@ package com.jaeksoft.searchlib.render;
 
 import org.json.simple.JSONObject;
 
-import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class RenderDocumentsJson extends
-		AbstractRenderDocumentsJson<DocumentsRequest, ResultDocuments> {
+		AbstractRenderDocumentsJson<AbstractRequest, ResultDocuments> {
 	Boolean indent = null;
 
 	public RenderDocumentsJson(ResultDocuments result, Boolean indent) {

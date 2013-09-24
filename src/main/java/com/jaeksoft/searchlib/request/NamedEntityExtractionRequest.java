@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -35,12 +37,17 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenFilter;
+import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
 import com.jaeksoft.searchlib.analysis.filter.ShingleFilter;
 import com.jaeksoft.searchlib.analysis.tokenizer.StandardTokenizer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -118,12 +125,26 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	}
 
 	@Override
-	public AbstractResult<NamedEntityExtractionRequest> execute(
-			ReaderInterface reader) throws SearchLibException {
-		Analyzer analyzer = new Analyzer(config);
-		analyzer.setTokenizer(new StandardTokenizer());
-		ShingleFilter shinglerFilter = new ShingleFilter();
-		throw new SearchLibException("Not implemented");
+	public AbstractResult<AbstractRequest> execute(ReaderInterface reader)
+			throws SearchLibException {
+		try {
+			Analyzer analyzer = new Analyzer(config);
+			analyzer.setTokenizer(new StandardTokenizer());
+			ShingleFilter shingleFilter = new ShingleFilter();
+			shingleFilter.checkValue(ClassPropertyEnum.MAX_SHINGLE_SIZE, "5");
+			analyzer.add(shingleFilter);
+			analyzer.add(new DeduplicateTokenFilter());
+			List<Integer> docIds = new ArrayList<Integer>(0);
+			IndexLookupFilter ilf = new IndexLookupFilter(docIds);
+			ilf.checkValue(ClassPropertyEnum.INDEX_LIST, config.getIndexName());
+			ilf.checkValue(ClassPropertyEnum.SEARCH_REQUEST, searchRequest);
+			analyzer.add(ilf);
+			CompiledAnalyzer compiledAnalyzer = analyzer.getQueryAnalyzer();
+			compiledAnalyzer.test(text);
+			return new ResultDocuments(reader, this, docIds);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override

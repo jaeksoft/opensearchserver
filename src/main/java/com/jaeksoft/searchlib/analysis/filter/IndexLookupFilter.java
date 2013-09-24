@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +59,15 @@ public class IndexLookupFilter extends FilterFactory {
 	private String requestName = null;
 	private String returnField = null;
 	private String requestedField = null;
+	private Collection<Integer> collector;
+
+	public IndexLookupFilter(Collection<Integer> collector) {
+		this.collector = collector;
+	}
+
+	public IndexLookupFilter() {
+		collector = null;
+	}
 
 	private final int maxTokenSearch = ClientFactory.INSTANCE
 			.getBooleanQueryMaxClauseCount().getValue();
@@ -136,6 +146,7 @@ public class IndexLookupFilter extends FilterFactory {
 
 		private final void extractTokens(TokenTerm tokenTerm,
 				ResultDocument resultDoc) {
+			int docId = resultDoc.getDocId();
 			for (String returnField : returnFields) {
 				FieldValueItem[] fieldValueItems = resultDoc
 						.getValueArray(returnField);
@@ -143,7 +154,7 @@ public class IndexLookupFilter extends FilterFactory {
 					continue;
 				for (FieldValueItem fieldValueItem : fieldValueItems)
 					tokenQueue.add(new TokenTerm(fieldValueItem.getValue(),
-							tokenTerm, returnField));
+							tokenTerm, returnField, docId));
 			}
 		}
 
@@ -172,11 +183,9 @@ public class IndexLookupFilter extends FilterFactory {
 				extractTokens(mergedTokenTerm, resultDoc);
 				JoinResult[] joinResults = result.getJoinResult();
 				if (joinResults != null)
-					for (JoinResult joinResult : joinResults) {
+					for (JoinResult joinResult : joinResults)
 						extractTokens(mergedTokenTerm, joinResult.getDocument(
 								(JoinDocInterface) result.getDocs(), i, null));
-
-					}
 			}
 		}
 
@@ -192,9 +201,8 @@ public class IndexLookupFilter extends FilterFactory {
 						searchTokens();
 						continue;
 					}
-					collectedTokenBuffer.add(new TokenTerm(termAtt.toString(),
-							offsetAtt.startOffset(), offsetAtt.endOffset(),
-							posIncrAtt.getPositionIncrement(), null));
+					collectedTokenBuffer.add(new TokenTerm(termAtt, posIncrAtt,
+							offsetAtt, typeAtt, flagsAtt));
 					if (collectedTokenBuffer.size() >= batchBuffer)
 						searchTokens();
 				}
