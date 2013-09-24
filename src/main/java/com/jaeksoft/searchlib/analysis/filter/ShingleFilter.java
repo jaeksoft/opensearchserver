@@ -48,7 +48,7 @@ public class ShingleFilter extends FilterFactory {
 	}
 
 	@Override
-	protected void checkValue(ClassPropertyEnum prop, String value)
+	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
 		if (prop == ClassPropertyEnum.TOKEN_SEPARATOR)
 			tokenSeparator = value;

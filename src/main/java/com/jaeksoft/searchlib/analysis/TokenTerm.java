@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.analysis;
 import java.util.Collection;
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
@@ -38,21 +39,25 @@ public class TokenTerm {
 	public final int end;
 	public final int increment;
 	public final String type;
+	public final int flags;
 
-	public TokenTerm(String term, int start, int end, int increment, String type) {
+	public TokenTerm(String term, int start, int end, int increment,
+			String type, int flags) {
 		this.term = term;
 		this.start = start;
 		this.end = end;
 		this.increment = increment;
 		this.type = type;
+		this.flags = flags;
 	}
 
-	public TokenTerm(String term, TokenTerm tt, String type) {
+	public TokenTerm(String term, TokenTerm tt, String type, int flags) {
 		this.term = term;
 		this.start = tt.start;
 		this.end = tt.end;
 		this.increment = tt.increment;
 		this.type = type;
+		this.flags = flags;
 	}
 
 	/**
@@ -76,16 +81,19 @@ public class TokenTerm {
 		this.start = start;
 		this.end = end;
 		this.increment = increment;
+		this.flags = 0;
 	}
 
 	public TokenTerm(final CharTermAttribute termAtt,
 			final PositionIncrementAttribute posIncrAtt,
-			final OffsetAttribute offsetAtt, final TypeAttribute typeAtt) {
+			final OffsetAttribute offsetAtt, final TypeAttribute typeAtt,
+			final FlagsAttribute flagsAtt) {
 		this.term = termAtt != null ? termAtt.toString() : null;
 		this.start = offsetAtt != null ? offsetAtt.startOffset() : 0;
 		this.end = offsetAtt != null ? offsetAtt.endOffset() : 0;
 		this.increment = posIncrAtt != null ? posIncrAtt.getPositionIncrement()
 				: 0;
 		this.type = typeAtt != null ? typeAtt.type() : null;
+		this.flags = flagsAtt != null ? flagsAtt.getFlags() : null;
 	}
 }
