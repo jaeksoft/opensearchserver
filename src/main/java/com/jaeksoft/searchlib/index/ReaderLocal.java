@@ -435,6 +435,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		return dsh;
 	}
 
+	@Override
 	public Map<String, FieldValue> getDocumentFields(int docId,
 			Set<String> fieldNameSet, Timer timer) throws IOException,
 			ParseException, SyntaxError {

@@ -24,8 +24,17 @@
 		<rows>
 			<row>
 				<label>Search request:</label>
-				<combobox model="@load(named.searchRequests)"
+				<combobox model="@load(named.searchRequests)" cols="25"
 					value="@bind(named.request.searchRequest)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label>Named entity field:</label>
+				<combobox model="@load(named.indexedFieldList)"
+					cols="25" value="@bind(named.request.namedEntityField)">
 					<template name="model">
 						<comboitem label="@load(each)" />
 					</template>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,38 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.analysis.shingle;
+package com.jaeksoft.searchlib.analysis;
 
-public class ShingleToken {
+import java.io.IOException;
+import java.util.Collection;
 
-	public final String term;
-	public final int positionIncrement;
-	public final int startOffset;
-	public final int endOffset;
-	public final String type;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 
-	protected ShingleToken(String term, int posInc, int start, int end,
-			String type) {
-		this.term = term;
-		this.positionIncrement = posInc;
-		this.startOffset = start;
-		this.endOffset = end;
-		this.type = type;
+public class FlagsTokenFilter extends org.apache.lucene.analysis.TokenFilter {
+
+	private FlagsAttribute flagsAtt;
+	private final Collection<Integer> flagsCollector;
+
+	protected FlagsTokenFilter(Collection<Integer> flagsCollector,
+			TokenStream input) {
+		super(input);
+		this.flagsCollector = flagsCollector;
+		this.flagsAtt = (FlagsAttribute) addAttribute(FlagsAttribute.class);
 	}
 
-	public final int getPositionIncrement() {
-		return positionIncrement;
+	@Override
+	public final boolean incrementToken() throws IOException {
+		if (!input.incrementToken())
+			return false;
+		flagsCollector.add(flagsAtt.getFlags());
+		return true;
 	}
 
-	public final int getStartOffset() {
-		return startOffset;
-	}
-
-	public final int getEndOffset() {
-		return endOffset;
-	}
-
-	public final String getTerm() {
-		return term;
-	}
 }

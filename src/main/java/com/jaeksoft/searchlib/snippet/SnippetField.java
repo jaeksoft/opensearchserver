@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.AbstractField;
@@ -211,7 +211,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
-			ReaderLocal reader) throws IOException, ParseException,
+			ReaderInterface reader) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 		if (searchTerms == null)
 			return null;
@@ -329,7 +329,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		return currentVector;
 	}
 
-	public boolean getSnippets(int docId, ReaderLocal reader,
+	public boolean getSnippets(int docId, ReaderInterface reader,
 			FieldValueItem[] values, List<FieldValueItem> snippets)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 
