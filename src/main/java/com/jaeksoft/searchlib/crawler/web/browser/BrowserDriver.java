@@ -46,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.lucene.util.IOUtils;
 import org.htmlcleaner.XPatherException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
@@ -169,14 +170,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		timeOuts.setScriptTimeout(script, TimeUnit.SECONDS);
 	}
 
-	final public int locateBy(Selectors.Selector selector, Set<WebElement> set,
-			boolean faultTolerant) throws SearchLibException {
+	final public int locateBy(Selectors.Selector selector,
+			Collection<WebElement> elements, boolean faultTolerant)
+			throws SearchLibException {
 		try {
 			List<WebElement> list = driver.findElements(selector.getBy());
 			if (list == null)
 				return 0;
-			for (WebElement element : list)
-				set.add(element);
+			elements.addAll(list);
 			return list.size();
 		} catch (Exception e) {
 			if (!faultTolerant)
@@ -184,6 +185,21 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 						+ selector.query, e);
 			Logging.warn(e);
 			return 0;
+		}
+	}
+
+	public final List<WebElement> locateBy(WebElement originElement, By by,
+			boolean faultTolerant) throws SearchLibException {
+		try {
+			if (originElement == null)
+				return null;
+			return originElement.findElements(by);
+		} catch (Exception e) {
+			if (!faultTolerant)
+				throw new SearchLibException("Web element location failed: "
+						+ by);
+			Logging.warn(e);
+			return null;
 		}
 	}
 
@@ -233,4 +249,23 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		FileUtils.write(sourceFile, getFrameSource(frameWebelement));
 	}
 
+	/**
+	 * Click on the given WebElement. If the current URL change, return the new
+	 * URL. If the current URL does not change, return NULL;
+	 * 
+	 * @param element
+	 * @return
+	 */
+	public String click(WebElement element) {
+		String lastURL = driver.getCurrentUrl();
+		element.click();
+		String newURL = driver.getCurrentUrl();
+		if (lastURL != null && newURL != null && lastURL.equals(newURL))
+			return null;
+		return newURL;
+	}
+
+	public void back() {
+		driver.navigate().back();
+	}
 }
