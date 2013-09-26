@@ -24,8 +24,10 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.File;
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -49,5 +51,10 @@ public class JsonUtils {
 	public static String toJsonString(Object object)
 			throws JsonProcessingException {
 		return mapper.writeValueAsString(object);
+	}
+
+	public static void jsonToFile(Object object, File file)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		mapper.writeValue(file, object);
 	}
 }
