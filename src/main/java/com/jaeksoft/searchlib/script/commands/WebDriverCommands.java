@@ -32,17 +32,26 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.htmlcleaner.XPatherException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
@@ -52,6 +61,7 @@ import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ImageUtils;
+import com.jaeksoft.searchlib.util.JsonUtils;
 
 public class WebDriverCommands {
 
@@ -167,6 +177,76 @@ public class WebDriverCommands {
 			return browserDriver;
 		}
 
+		@JsonInclude(Include.NON_NULL)
+		public final static class ClickCaptureResult {
+
+			public String anchorHref = null;
+			public String finalUrl = null;
+			public String objectData = null;
+			public Set<String> imageSources = null;
+
+			private void addImageSource(String src) {
+				if (imageSources == null)
+					imageSources = new TreeSet<String>();
+				imageSources.add(src);
+			}
+		}
+
+		private void doClickCapture(BrowserDriver<?> browserDriver,
+				WebElement webElement, Collection<ClickCaptureResult> results)
+				throws SearchLibException {
+			List<WebElement> aElements = browserDriver.locateBy(webElement,
+					By.cssSelector("a"), true);
+			if (aElements != null) {
+				for (WebElement aElement : aElements) {
+					if (!aElement.isDisplayed())
+						continue;
+					ClickCaptureResult result = new ClickCaptureResult();
+					result.anchorHref = aElement.getAttribute("href");
+					results.add(result);
+					List<WebElement> imgElements = browserDriver.locateBy(
+							aElement, By.cssSelector("img"), true);
+					if (imgElements != null) {
+						for (WebElement imgElement : imgElements) {
+							if (!imgElement.isDisplayed())
+								continue;
+							result.addImageSource(imgElement
+									.getAttribute("src"));
+						}
+					}
+					result.finalUrl = browserDriver.click(aElement);
+				}
+			}
+			List<WebElement> objectElements = browserDriver.locateBy(
+					webElement, By.cssSelector("object"), true);
+			if (objectElements != null) {
+				for (WebElement objectElement : objectElements) {
+					if (!objectElement.isDisplayed())
+						continue;
+					ClickCaptureResult result = new ClickCaptureResult();
+					result.objectData = objectElement.getAttribute("data");
+					result.finalUrl = browserDriver.click(objectElement);
+					results.add(result);
+				}
+			}
+		}
+
+		private void doClickCaptures(
+				BrowserDriver<?> browserDriver,
+				HashMap<Selectors.Selector, HashSet<WebElement>> selectorsClickCapture,
+				Collection<ClickCaptureResult> results)
+				throws SearchLibException {
+			if (MapUtils.isEmpty(selectorsClickCapture))
+				return;
+			for (Map.Entry<Selectors.Selector, HashSet<WebElement>> entry : selectorsClickCapture
+					.entrySet()) {
+				if (CollectionUtils.isEmpty(entry.getValue()))
+					continue;
+				for (WebElement webElement : entry.getValue())
+					doClickCapture(browserDriver, webElement, results);
+			}
+		}
+
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
@@ -175,21 +255,29 @@ public class WebDriverCommands {
 			BrowserDriver<?> browserDriver = checkBrowserDriver(context);
 			File destFile = checkDestFile();
 			try {
-				File captureFile = new File(destFile, "capture");
-				if (!captureFile.exists())
-					captureFile.mkdir();
 
 				Collection<Selectors.Selector> selectors = context
 						.getSelectors();
+				HashMap<Selectors.Selector, HashSet<WebElement>> selectorsClickCapture = null;
 				if (selectors != null) {
+					selectorsClickCapture = new HashMap<Selectors.Selector, HashSet<WebElement>>();
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
-					for (Selectors.Selector selector : selectors)
-						browserDriver.locateBy(selector, elementSet, true);
+					for (Selectors.Selector selector : selectors) {
+						HashSet<WebElement> elements = new HashSet<WebElement>();
+						browserDriver.locateBy(selector, elements, true);
+						elementSet.addAll(elements);
+						if (selector.clickCapture)
+							selectorsClickCapture.put(selector, elements);
+					}
 					int i = 1;
+					File captureFile = new File(destFile, "capture");
 					for (WebElement element : elementSet) {
-						if ("iframe".equals(element.getTagName()))
+						if ("iframe".equals(element.getTagName())) {
+							if (!captureFile.exists())
+								captureFile.mkdir();
 							browserDriver.getFrameSource(element, new File(
 									captureFile, Integer.toString(i)));
+						}
 
 					}
 				}
@@ -197,6 +285,14 @@ public class WebDriverCommands {
 						.getNewHttpDownloader(true, null);
 				browserDriver.saveArchive(httpDownloader, destFile,
 						context.getSelectors());
+
+				List<ClickCaptureResult> clickCaptures = new ArrayList<WebDriverCommands.Capture.ClickCaptureResult>(
+						0);
+				doClickCaptures(browserDriver, selectorsClickCapture,
+						clickCaptures);
+				if (clickCaptures.size() > 0)
+					JsonUtils.jsonToFile(clickCaptures, new File(destFile,
+							"clickCapture.json"));
 
 			} catch (IOException e) {
 				throw new ScriptException(e);
@@ -225,7 +321,6 @@ public class WebDriverCommands {
 					httpDownloader.release();
 			}
 		}
-
 	}
 
 	public static class Screenshot extends Capture {
