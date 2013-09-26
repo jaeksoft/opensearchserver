@@ -44,18 +44,20 @@ public class Selectors {
 		public final String query;
 		public final boolean disableScript;
 		public final boolean screenshotHighlight;
+		public final boolean clickCapture;
 
 		public Selector(Type type, String query, boolean disableScript,
-				boolean screenshotHighlight) {
+				boolean screenshotHighlight, boolean clickCapture) {
 			this.type = type;
 			// Avoid null value in query part (for comparison)
 			this.query = query == null ? "" : query;
 			this.disableScript = disableScript;
 			this.screenshotHighlight = screenshotHighlight;
+			this.clickCapture = clickCapture;
 		}
 
 		public Selector(Type type, String query) {
-			this(type, query, false, false);
+			this(type, query, false, false, false);
 		}
 
 		public final By getBy() {
@@ -98,24 +100,31 @@ public class Selectors {
 			super(commandEnum);
 		}
 
+		public final static String PARAM_DISABLE_SCRIPT = "disable_script";
+		public final static String PARAM_SCREENSHOT_HIGHLIGHT = "screenshot_highlight";
+		public final static String PARAM_CLICK_CAPTURE = "click_capture";
+
 		protected Selector newSelector(Type type) throws ScriptException {
 			boolean disableScript = false;
 			boolean screenshotHighlight = false;
+			boolean clickCapture = false;
 			for (int i = 1; i < getParameterCount(); i++) {
 				String param = getParameterString(i);
 				if (param == null)
 					continue;
 				if (param.length() == 0)
 					continue;
-				if ("disable_script".equalsIgnoreCase(param))
+				if (PARAM_DISABLE_SCRIPT.equalsIgnoreCase(param))
 					disableScript = true;
-				else if ("screenshot_highlight".equalsIgnoreCase(param))
+				else if (PARAM_SCREENSHOT_HIGHLIGHT.equalsIgnoreCase(param))
 					screenshotHighlight = true;
+				else if (PARAM_CLICK_CAPTURE.equalsIgnoreCase(param))
+					clickCapture = true;
 				else
 					throw new ScriptException("Unknown parameter: " + param);
 			}
 			return new Selector(type, getParameterString(0), disableScript,
-					screenshotHighlight);
+					screenshotHighlight, clickCapture);
 		}
 	}
 
