@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.script;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 
+import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
@@ -54,6 +56,8 @@ public class ScriptCommandContext implements Closeable {
 
 	private CommandEnum[] onErrorNextCommands;
 
+	private Transaction transaction;
+
 	public static enum OnError {
 		FAILURE, RESUME, NEXT_COMMAND;
 	}
@@ -65,6 +69,7 @@ public class ScriptCommandContext implements Closeable {
 		selectors = null;
 		onError = OnError.FAILURE;
 		onErrorNextCommands = null;
+		transaction = null;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -163,6 +168,19 @@ public class ScriptCommandContext implements Closeable {
 
 	public CommandEnum[] getOnErrorNextCommands() {
 		return onErrorNextCommands;
+	}
+
+	public void executeSqlUpdate(String sql) throws SQLException,
+			ScriptException {
+		if (transaction == null)
+			throw new ScriptException("Not database connection");
+		transaction.update(sql);
+		transaction.commit();
+	}
+
+	public void setSql(Transaction transaction) {
+		this.transaction = transaction;
+
 	}
 
 }
