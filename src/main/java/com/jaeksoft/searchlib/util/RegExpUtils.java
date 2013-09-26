@@ -89,7 +89,12 @@ public class RegExpUtils {
 		public void group(int start, int end, String content) {
 			list.add(content);
 		}
+	}
 
+	public static Matcher matcher(Pattern pattern, String text) {
+		synchronized (pattern) {
+			return pattern.matcher(text);
+		}
 	}
 
 	public static List<String> getGroups(Pattern pattern, String text) {
@@ -105,6 +110,14 @@ public class RegExpUtils {
 			matcher = pattern.matcher(source);
 		}
 		return matcher.replaceAll(replace);
+	}
+
+	public static boolean find(Pattern pattern, String text) {
+		Matcher matcher;
+		synchronized (pattern) {
+			matcher = pattern.matcher(text);
+		}
+		return matcher.find();
 	}
 
 	public static String replaceFirst(String source, Pattern pattern,
