@@ -30,7 +30,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.filter.FilterListCacheKey;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -39,7 +38,7 @@ import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 
-public class DocSetHitCacheKey implements CacheKeyInterface<DocSetHitCacheKey> {
+public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 
 	private final String query;
 	private final Boolean facet;

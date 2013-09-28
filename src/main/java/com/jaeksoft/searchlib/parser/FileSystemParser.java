@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,13 +25,16 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class FileSystemParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.file_name, ParserFieldEnum.file_length,
+			ParserFieldEnum.md5 };
 
 	public FileSystemParser() {
 		super(fl);
@@ -40,7 +43,19 @@ public class FileSystemParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		getNewParserResultItem();
-	}
+		ParserResultItem resultItem = getNewParserResultItem();
+		try {
+			if (getFieldMap().isMapped(ParserFieldEnum.file_length))
+				resultItem.addField(ParserFieldEnum.file_length,
+						streamLimiter.getSize());
+			if (getFieldMap().isMapped(ParserFieldEnum.md5))
+				resultItem.addField(ParserFieldEnum.md5,
+						streamLimiter.getMD5Hash());
+			resultItem.addField(ParserFieldEnum.file_name,
+					streamLimiter.getOriginalFileName());
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException(e);
+		}
 
+	}
 }

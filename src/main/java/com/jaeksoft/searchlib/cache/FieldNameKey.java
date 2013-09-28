@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.cache;
 
-public class FieldNameKey implements CacheKeyInterface<FieldNameKey> {
+public class FieldNameKey implements Comparable<FieldNameKey> {
 
 	private String fieldName;
 

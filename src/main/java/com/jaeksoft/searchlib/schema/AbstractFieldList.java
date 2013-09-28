@@ -33,12 +33,11 @@ import java.util.TreeMap;
 
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class AbstractFieldList<T extends AbstractField<T>> implements
-		CacheKeyInterface<AbstractFieldList<T>>, Iterable<T> {
+		Comparable<AbstractFieldList<T>>, Iterable<T> {
 
 	private List<T> fieldList;
 	private Map<String, T> fieldMap;

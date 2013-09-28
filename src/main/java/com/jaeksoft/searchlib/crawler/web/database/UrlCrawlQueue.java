@@ -51,9 +51,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	private List<UrlItem> workingInsertUrlList;
 	private List<String> workingDeleteUrlList;
 
-	public UrlCrawlQueue(Config config, WebPropertyManager propertyManager)
-			throws SearchLibException {
-		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
+	public UrlCrawlQueue(Config config) throws SearchLibException {
+		super(config);
 		updateCrawlList = new ArrayList<Crawl>(0);
 		insertUrlList = new ArrayList<UrlItem>(0);
 		deleteUrlList = new ArrayList<String>(0);

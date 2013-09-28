@@ -55,7 +55,10 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		}
-		loadOutputCache(fileInstance.getInputStream());
+		if (fileInstance instanceof LocalFileInstance)
+			loadOutputCache(((LocalFileInstance) fileInstance).getFile());
+		else
+			loadOutputCache(fileInstance.getInputStream());
 	}
 
 	@Override

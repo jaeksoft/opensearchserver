@@ -168,9 +168,10 @@ public class WebDriverCommands {
 				throwError("No destination path given");
 			File destFile = new File(dest);
 			if (destFile.exists() && !destFile.isDirectory())
-				throw new ScriptException("The destination " + dest
-						+ " is not a directory");
+				throwError("The destination " + dest + " is not a directory");
 			destFile.mkdirs();
+			if (!destFile.exists())
+				throwError("Unable to create the directory " + destFile);
 			return destFile;
 		}
 
@@ -272,18 +273,21 @@ public class WebDriverCommands {
 					result.finalUrl = browserDriver.click(aElement);
 				}
 			}
-			List<WebElement> objectElements = browserDriver.locateBy(
-					webElement, By.cssSelector("object"), true);
-			if (objectElements != null) {
-				for (WebElement objectElement : objectElements) {
-					if (!objectElement.isDisplayed())
+			List<WebElement> embedElements = browserDriver.locateBy(webElement,
+					By.cssSelector("object embed"), true);
+			if (embedElements != null) {
+				for (WebElement embedElement : embedElements) {
+					if (!embedElement.isDisplayed())
 						continue;
 					ClickCaptureResult result = new ClickCaptureResult(selector);
-					result.objectData = objectElement.getAttribute("data");
-					result.finalUrl = browserDriver.click(objectElement);
 					results.add(result);
+					result.objectData = embedElement.getAttribute("src");
+					result.finalUrl = browserDriver.click(embedElement);
 				}
 			}
+			List<WebElement> noScriptElements = browserDriver.locateBy(
+					webElement, By.cssSelector("noscript"), true);
+			// TODO
 		}
 
 		private void doClickCaptures(

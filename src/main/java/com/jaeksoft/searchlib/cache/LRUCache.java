@@ -33,7 +33,7 @@ import java.util.TreeMap;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
-public abstract class LRUCache<K extends CacheKeyInterface<K>, V> {
+public abstract class LRUCache<K extends Comparable<K>, V> {
 
 	final protected ReadWriteLock rwl = new ReadWriteLock();
 
