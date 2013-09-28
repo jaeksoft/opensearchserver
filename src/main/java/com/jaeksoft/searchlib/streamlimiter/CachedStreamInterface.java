@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,11 @@
 
 package com.jaeksoft.searchlib.streamlimiter;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface CachedStreamInterface {
+public interface CachedStreamInterface extends Closeable {
 
 	public InputStream getNewInputStream() throws IOException;
 

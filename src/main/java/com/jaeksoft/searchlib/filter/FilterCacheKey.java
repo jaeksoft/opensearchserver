@@ -25,12 +25,11 @@
 package com.jaeksoft.searchlib.filter;
 
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class FilterCacheKey implements CacheKeyInterface<FilterCacheKey> {
+public class FilterCacheKey implements Comparable<FilterCacheKey> {
 
 	private String key;
 

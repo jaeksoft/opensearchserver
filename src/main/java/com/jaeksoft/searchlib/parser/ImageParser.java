@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.sanselan.ImageInfo;
@@ -39,6 +42,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.ImagePHash;
 
 public class ImageParser extends Parser {
 
@@ -46,7 +50,8 @@ public class ImageParser extends Parser {
 			ParserFieldEnum.image_width, ParserFieldEnum.image_height,
 			ParserFieldEnum.image_area_size, ParserFieldEnum.image_number,
 			ParserFieldEnum.image_format, ParserFieldEnum.file_name,
-			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes };
+			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes,
+			ParserFieldEnum.image_phash, ParserFieldEnum.md5 };
 
 	public ImageParser() {
 		super(fl);
@@ -107,13 +112,45 @@ public class ImageParser extends Parser {
 		}
 	}
 
+	private void doPHash(ParserResultItem result, StreamLimiter streamLimiter)
+			throws IOException {
+		if (!getFieldMap().isMapped(ParserFieldEnum.image_phash))
+			return;
+		try {
+			ArrayList<?> images = Sanselan.getAllBufferedImages(
+					streamLimiter.getNewInputStream(),
+					streamLimiter.getOriginalFileName());
+			if (images == null)
+				return;
+			ImagePHash imgPhash = new ImagePHash();
+
+			for (Object image : images) {
+				if (!(image instanceof BufferedImage))
+					continue;
+				BufferedImage bimage = (BufferedImage) image;
+				String phash = imgPhash.getHash(bimage);
+				result.addField(ParserFieldEnum.image_phash, phash);
+			}
+		} catch (ImageReadException e) {
+			throw new IOException(e);
+		}
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		ParserResultItem result = getNewParserResultItem();
-		result.addField(ParserFieldEnum.file_name,
-				streamLimiter.getOriginalFileName());
-		doMetaData(result, streamLimiter);
-		doOCR(result, streamLimiter, lang);
+		try {
+			ParserResultItem resultItem = getNewParserResultItem();
+			resultItem.addField(ParserFieldEnum.file_name,
+					streamLimiter.getOriginalFileName());
+			doMetaData(resultItem, streamLimiter);
+			doOCR(resultItem, streamLimiter, lang);
+			doPHash(resultItem, streamLimiter);
+			if (getFieldMap().isMapped(ParserFieldEnum.md5))
+				resultItem.addField(ParserFieldEnum.md5,
+						streamLimiter.getMD5Hash());
+		} catch (NoSuchAlgorithmException e) {
+			throw new IOException(e);
+		}
 	}
 }

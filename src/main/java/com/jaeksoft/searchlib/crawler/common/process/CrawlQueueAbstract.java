@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,18 +35,16 @@ import com.jaeksoft.searchlib.util.SimpleLock;
 
 public abstract class CrawlQueueAbstract {
 
-	private Config config;
+	private final Config config;
 	private CrawlStatistics sessionStats;
-	private int maxBufferSize;
 	private boolean containedData;
+	private int maxBufferSize;
 
 	private final SimpleLock lock = new SimpleLock();
 
-	protected CrawlQueueAbstract(Config config, int maxBufferSize)
-			throws SearchLibException {
+	protected CrawlQueueAbstract(Config config) throws SearchLibException {
 		this.sessionStats = null;
 		this.config = config;
-		this.maxBufferSize = maxBufferSize;
 		this.containedData = false;
 	}
 
@@ -60,6 +58,10 @@ public abstract class CrawlQueueAbstract {
 
 	public void setSessionStats(CrawlStatistics sessionStats) {
 		this.sessionStats = sessionStats;
+	}
+
+	public void setMaxBufferSize(int bufferSize) {
+		this.maxBufferSize = bufferSize;
 	}
 
 	public int getMaxBufferSize() {

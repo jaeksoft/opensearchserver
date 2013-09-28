@@ -29,7 +29,6 @@ import java.io.IOException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
@@ -37,7 +36,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends AbstractField<SortField> implements
-		CacheKeyInterface<SortField> {
+		Comparable<SortField> {
 
 	/**
 	 * 

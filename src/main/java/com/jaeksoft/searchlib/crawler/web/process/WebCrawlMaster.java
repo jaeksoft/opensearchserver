@@ -97,7 +97,7 @@ public class WebCrawlMaster extends
 	public WebCrawlMaster(Config config) throws SearchLibException {
 		super(config);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		urlCrawlQueue = new UrlCrawlQueue(config, propertyManager);
+		urlCrawlQueue = new UrlCrawlQueue(config);
 		hostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
@@ -109,6 +109,8 @@ public class WebCrawlMaster extends
 	public void runner() throws Exception {
 		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		urlCrawlQueue.setMaxBufferSize(propertyManager
+				.getIndexDocumentBufferSize().getValue());
 		while (!isAborted()) {
 
 			currentStats = new CrawlStatistics();

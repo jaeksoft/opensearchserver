@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,9 +49,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	private List<CrawlFile> workingUpdateCrawlList;
 	private List<String> workingDeleteUriList;
 
-	public FileCrawlQueue(Config config, FilePropertyManager propertyManager)
-			throws SearchLibException {
-		super(config, propertyManager.getIndexDocumentBufferSize().getValue());
+	public FileCrawlQueue(Config config) throws SearchLibException {
+		super(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteUriList = new ArrayList<String>(0);
 	}
@@ -144,7 +143,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		if (updateCrawls(workingUpdateCrawlList, sessionStats))
 			needReload = true;
 		if (needReload)
-			fileManager.reload(false, null);
+			fileManager.reload(null);
 	}
 
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList,

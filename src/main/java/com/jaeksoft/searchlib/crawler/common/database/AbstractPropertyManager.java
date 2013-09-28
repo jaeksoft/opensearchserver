@@ -37,10 +37,11 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 	protected PropertyItem<Integer> maxThreadNumber;
 	private PropertyItem<String> schedulerAfterSession;
 
-	protected AbstractPropertyManager(File file) throws IOException {
+	protected AbstractPropertyManager(File file, int defautBufferSize)
+			throws IOException {
 		super(file);
 		indexDocumentBufferSize = newIntegerProperty("indexDocumentBufferSize",
-				1000, null, null);
+				defautBufferSize, null, null);
 		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 		schedulerAfterSession = newStringProperty("schedulerAfterSession", "");

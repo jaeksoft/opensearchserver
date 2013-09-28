@@ -54,7 +54,7 @@ public class CrawlFileMaster extends
 		super(config);
 		FilePropertyManager filePropertyManager = config
 				.getFilePropertyManager();
-		fileCrawlQueue = new FileCrawlQueue(config, filePropertyManager);
+		fileCrawlQueue = new FileCrawlQueue(config);
 		filePathList = new LinkedList<FilePathItem>();
 		if (filePropertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("The file crawler is starting for "
@@ -67,6 +67,8 @@ public class CrawlFileMaster extends
 	public void runner() throws Exception {
 		Config config = getConfig();
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		fileCrawlQueue.setMaxBufferSize(propertyManager
+				.getIndexDocumentBufferSize().getValue());
 
 		while (!isAborted()) {
 
@@ -101,10 +103,8 @@ public class CrawlFileMaster extends
 			waitForChild(1800);
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
-			if (fileCrawlQueue.hasContainedData()) {
-				setStatus(CrawlStatus.OPTIMIZATION);
-				config.getFileManager().reload(true, null);
-			}
+			if (fileCrawlQueue.hasContainedData())
+				config.getFileManager().reload(null);
 
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);

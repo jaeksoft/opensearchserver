@@ -24,10 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 
-public class FieldContentCacheKey implements
-		CacheKeyInterface<FieldContentCacheKey> {
+public class FieldContentCacheKey implements Comparable<FieldContentCacheKey> {
 
 	private String fieldName;
 

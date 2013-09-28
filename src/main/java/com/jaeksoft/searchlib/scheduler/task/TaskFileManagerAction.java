@@ -115,7 +115,7 @@ public class TaskFileManagerAction extends TaskAbstract {
 		}
 		if (optimize) {
 			taskLog.setInfo("File manager: optimize");
-			fileManager.reload(true, taskLog);
+			fileManager.optimize(taskLog);
 		}
 		taskLog.setInfo("File manager Action done");
 	}
