@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,17 +30,21 @@ import org.apache.commons.codec.language.ColognePhonetic;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
+import org.apache.commons.codec.language.bm.RuleType;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.analysis.filter.phonetic.BeiderMorseCache.EncoderKey;
 import com.jaeksoft.searchlib.analysis.filter.phonetic.BeiderMorseTokenFilter;
 import com.jaeksoft.searchlib.analysis.filter.phonetic.EncoderTokenFilter;
 
 public class PhoneticFilter extends FilterFactory {
 
 	private String codec = null;
+	private int maxPhonemes = 10;
+	private RuleType ruleType = RuleType.EXACT;
 
 	private final static String BEIDER_MORSE = "Beider Morse";
 	private final static String CAVERPHONE1 = "Caverphone 1";
@@ -57,6 +61,9 @@ public class PhoneticFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.CODEC, BEIDER_MORSE, CODEC_LIST);
+		addProperty(ClassPropertyEnum.MAX_PHONEMES, "10", null);
+		addProperty(ClassPropertyEnum.BEIDER_MORSE_RULE, RuleType.EXACT.name(),
+				ClassPropertyEnum.BEIDER_MORSE_RULES);
 	}
 
 	@Override
@@ -66,12 +73,17 @@ public class PhoneticFilter extends FilterFactory {
 			return;
 		if (prop == ClassPropertyEnum.CODEC)
 			codec = value;
+		else if (prop == ClassPropertyEnum.MAX_PHONEMES)
+			maxPhonemes = Integer.parseInt(value);
+		else if (prop == ClassPropertyEnum.BEIDER_MORSE_RULE)
+			ruleType = RuleType.valueOf(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
 		if (BEIDER_MORSE.equals(codec))
-			return new BeiderMorseTokenFilter(tokenStream);
+			return new BeiderMorseTokenFilter(tokenStream, new EncoderKey(
+					ruleType, maxPhonemes));
 		if (COLOGNE_PHONETIC.equals(codec))
 			return new EncoderTokenFilter(tokenStream, new ColognePhonetic());
 		if (SOUNDEX.equals(codec))
@@ -86,4 +98,5 @@ public class PhoneticFilter extends FilterFactory {
 			return new EncoderTokenFilter(tokenStream, new Caverphone2());
 		return null;
 	}
+
 }

@@ -111,6 +111,7 @@ public class DatabaseScript implements Closeable {
 			transaction = connectionManager.getNewTransaction(false,
 					isolationLevel.value);
 
+			scriptCommandContext.setSql(transaction);
 			// Load variables
 			if (sqlVariable != null && sqlVariable.length() > 0) {
 				Query query = transaction.prepare(sqlVariable);

@@ -66,7 +66,7 @@ public abstract class StreamLimiter implements Closeable {
 			throws LimitException, IOException {
 		if (outputCache != null)
 			return;
-		outputCache = new CachedMemoryStream(inputStream, limit);
+		outputCache = CachedMemoryStream.getCachedStream(inputStream, limit);
 	}
 
 	final protected void loadOutputCache(File file) throws LimitException,
