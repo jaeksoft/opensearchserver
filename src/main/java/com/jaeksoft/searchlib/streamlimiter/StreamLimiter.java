@@ -73,6 +73,8 @@ public abstract class StreamLimiter implements Closeable {
 			IOException {
 		if (outputCache != null)
 			return;
+		if (file.isDirectory())
+			return;
 		outputCache = new CachedFileStream(file, limit);
 	}
 
@@ -82,6 +84,8 @@ public abstract class StreamLimiter implements Closeable {
 	public InputStream getNewInputStream() throws IOException {
 		if (outputCache == null)
 			loadOutputCache();
+		if (outputCache == null)
+			return null;
 		InputStream inputStream = outputCache.getNewInputStream();
 		inputStreamList.add(inputStream);
 		return inputStream;
@@ -91,6 +95,8 @@ public abstract class StreamLimiter implements Closeable {
 			IOException {
 		if (outputCache == null)
 			loadOutputCache();
+		if (outputCache == null)
+			return null;
 		InputStream is = null;
 		try {
 			is = getNewInputStream();
@@ -104,6 +110,8 @@ public abstract class StreamLimiter implements Closeable {
 	public long getSize() throws LimitException, IOException {
 		if (outputCache == null)
 			loadOutputCache();
+		if (outputCache == null)
+			return 0;
 		return outputCache.getSize();
 	}
 

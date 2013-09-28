@@ -78,6 +78,8 @@ public class CachedFileStream implements CachedStreamInterface {
 
 	@Override
 	public InputStream getNewInputStream() throws FileNotFoundException {
+		if (file.isDirectory())
+			return null;
 		return new FileInputStream(file);
 	}
 
