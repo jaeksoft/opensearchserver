@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.analysis;
 
+import org.apache.commons.codec.language.bm.RuleType;
+
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 import com.jaeksoft.searchlib.util.ExtensibleEnumItem;
 
@@ -107,6 +109,16 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public static final ClassPropertyEnum CODEC = new ClassPropertyEnum(true,
 			"codec", "Codec algorithm", "Select a encoder/decoder algorithm");
+
+	public static final ClassPropertyEnum MAX_PHONEMES = new ClassPropertyEnum(
+			true, "maxPhonenes", "Maximum number of phonemes",
+			"The maximum number of phonemes that will be handled");
+
+	public static final ClassPropertyEnum BEIDER_MORSE_RULE = new ClassPropertyEnum(
+			true, "beiderMorseRule", "Type of rules", "The type of rules");
+
+	public static final String[] BEIDER_MORSE_RULES = { RuleType.APPROX.name(),
+			RuleType.EXACT.name() };
 
 	public static ClassPropertyEnum REMOVE_DUPLICATE_LETTERS = new ClassPropertyEnum(
 			true, "removeDuplicateLetters", "Duplicate letters",

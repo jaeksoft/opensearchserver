@@ -219,7 +219,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return new String(Base64.decodeBase64(base64String));
 	}
 
-	public final static int compareNullValues(Object v1, Object v2) {
+	public final static int compareNullValues(final Object v1, final Object v2) {
 		if (v1 == null) {
 			if (v2 == null)
 				return 0;
@@ -230,7 +230,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return 0;
 	}
 
-	public final static int compareNullString(String v1, String v2) {
+	public final static int compareNullString(final String v1, final String v2) {
 		if (v1 == null) {
 			if (v2 == null)
 				return 0;

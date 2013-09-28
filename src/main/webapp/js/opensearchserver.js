@@ -90,7 +90,7 @@ OpenSearchServer.autosuggest = function(event, urlwithparam, formid, textid,
 			urlwithparam + encodeURIComponent(str), true);
 	OpenSearchServer.xmlHttp.onreadystatechange = function() {
 		OpenSearchServer.handleAutocomplete(formid, textid, divautocompid, str);
-	}
+	};
 	OpenSearchServer.xmlHttp.send(null);
 	return true;
 };

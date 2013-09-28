@@ -43,10 +43,6 @@ public class XmlParser extends Parser {
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.content };
-	private SAXParserFactory saxParserFactory;
-	private SAXParser saxParser;
-	private StringBuilder content;
-	private Boolean addContent;
 
 	public XmlParser() {
 		super(fl);
@@ -63,35 +59,36 @@ public class XmlParser extends Parser {
 			throws IOException {
 
 		try {
-			saxParserFactory = SAXParserFactory.newInstance();
-			saxParser = saxParserFactory.newSAXParser();
-			content = new StringBuilder();
+			final ParserResultItem result = getNewParserResultItem();
+			final StringBuilder stringBuilder = new StringBuilder();
+			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+			SAXParser saxParser = saxParserFactory.newSAXParser();
+
 			DefaultHandler handler = new DefaultHandler() {
+
 				@Override
 				public void startElement(String uri, String localName,
-						String qName, Attributes attributes)
-						throws SAXException {
-					addContent = true;
+						String qName, Attributes attributes) {
+					stringBuilder.setLength(0);
 				}
 
 				@Override
 				public void endElement(String uri, String localName,
-						String qName) throws SAXException {
-					addContent = true;
+						String qName) {
+					if (stringBuilder.length() > 0) {
+						String t = stringBuilder.toString().trim();
+						result.addField(ParserFieldEnum.content, t);
+					}
 				}
 
 				@Override
 				public void characters(char ch[], int start, int length)
 						throws SAXException {
-					if (addContent) {
-						content.append(ch, start, length);
-					}
+					stringBuilder.append(ch, start, length);
 				}
 			};
 			saxParser.parse(new InputSource(streamLimiter.getNewInputStream()),
 					handler);
-			ParserResultItem result = getNewParserResultItem();
-			result.addField(ParserFieldEnum.content, content.toString().trim());
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
 		} catch (SAXException e) {

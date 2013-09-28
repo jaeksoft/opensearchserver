@@ -27,10 +27,9 @@ package com.jaeksoft.searchlib.join;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 
-public class JoinListCacheKey implements CacheKeyInterface<JoinListCacheKey> {
+public class JoinListCacheKey implements Comparable<JoinListCacheKey> {
 
 	private TreeSet<JoinItem> joinCacheKeySet;
 
