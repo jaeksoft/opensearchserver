@@ -12,7 +12,7 @@ rem The TCP port used by the server
 SERVER_PORT=9090
 
 rem Any JAVA option. Often used to allocate more memory. Uncomment this line to allocate 1GB.
-JAVA_OPTS="-Xms1G -Xmx1G"
+rem set JAVA_OPTS="-Xms1G -Xmx1G"
 
 # Starting the server
 java %JAVA_OPTS% -jar opensearchserver.jar -extractDirectory server -httpPort %SERVER_PORT%

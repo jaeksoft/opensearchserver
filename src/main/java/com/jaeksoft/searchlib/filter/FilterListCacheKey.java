@@ -29,13 +29,11 @@ import java.util.TreeSet;
 
 import org.apache.lucene.analysis.Analyzer;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
-public class FilterListCacheKey implements
-		CacheKeyInterface<FilterListCacheKey> {
+public class FilterListCacheKey implements Comparable<FilterListCacheKey> {
 
 	private TreeSet<FilterCacheKey> filterCacheKeySet;
 

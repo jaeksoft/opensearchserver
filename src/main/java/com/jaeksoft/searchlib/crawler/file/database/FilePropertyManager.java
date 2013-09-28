@@ -28,14 +28,11 @@ import java.io.File;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
-import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 public class FilePropertyManager extends AbstractPropertyManager {
 
 	public FilePropertyManager(File file) throws IOException {
-		super(file);
-		indexDocumentBufferSize = new PropertyItem<Integer>(this,
-				"indexDocumentBufferSize", 50, null, null);
+		super(file, 50);
 	}
 
 }

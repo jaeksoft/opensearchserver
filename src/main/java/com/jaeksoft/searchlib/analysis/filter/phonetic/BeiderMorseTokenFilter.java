@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,6 @@ import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.bm.NameType;
 import org.apache.commons.codec.language.bm.PhoneticEngine;
 import org.apache.commons.codec.language.bm.RuleType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
@@ -38,12 +37,12 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 
 	private String[] wordQueue = null;
 	private int currentPos = 0;
-	private PhoneticEngine encoder;
+	private final BeiderMorseCache.EncoderKey encoderKey;
 
-	public BeiderMorseTokenFilter(TokenStream input) {
+	public BeiderMorseTokenFilter(TokenStream input,
+			BeiderMorseCache.EncoderKey encoderKey) {
 		super(input);
-		encoder = new PhoneticEngine(NameType.GENERIC, RuleType.APPROX, true,
-				20);
+		this.encoderKey = encoderKey;
 	}
 
 	private final boolean popToken() {
@@ -56,8 +55,7 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 	}
 
 	private final void createTokens() throws EncoderException {
-		String encoded = encoder.encode(termAtt.toString());
-		wordQueue = StringUtils.split(encoded, '|');
+		wordQueue = BeiderMorseCache.get(encoderKey, termAtt.toString());
 		currentPos = 0;
 	}
 
@@ -84,4 +82,5 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 			System.out.println(encoder.encode("sample"));
 		}
 	}
+
 }

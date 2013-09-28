@@ -3,6 +3,10 @@
 # Move to the directory containing this script
 cd `dirname "$0"`
 
+#
+LANG=en_US.UTF-8
+export LANG
+
 # The directory containing the indexes (must be exported)
 OPENSEARCHSERVER_DATA=data
 export OPENSEARCHSERVER_DATA
