@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.pagefactory.ByAll;
@@ -32,6 +35,7 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class Selectors {
 
@@ -45,19 +49,21 @@ public class Selectors {
 		public final boolean disableScript;
 		public final boolean screenshotHighlight;
 		public final boolean clickCapture;
+		public final String custom;
 
 		public Selector(Type type, String query, boolean disableScript,
-				boolean screenshotHighlight, boolean clickCapture) {
+				boolean screenshotHighlight, boolean clickCapture, String custom) {
 			this.type = type;
 			// Avoid null value in query part (for comparison)
 			this.query = query == null ? "" : query;
 			this.disableScript = disableScript;
 			this.screenshotHighlight = screenshotHighlight;
 			this.clickCapture = clickCapture;
+			this.custom = custom;
 		}
 
 		public Selector(Type type, String query) {
-			this(type, query, false, false, false);
+			this(type, query, false, false, false, null);
 		}
 
 		public final By getBy() {
@@ -100,31 +106,40 @@ public class Selectors {
 			super(commandEnum);
 		}
 
-		public final static String PARAM_DISABLE_SCRIPT = "disable_script";
-		public final static String PARAM_SCREENSHOT_HIGHLIGHT = "screenshot_highlight";
-		public final static String PARAM_CLICK_CAPTURE = "click_capture";
+		public final static Pattern PARAM_DISABLE_SCRIPT = Pattern.compile(
+				"disable_script", Pattern.CASE_INSENSITIVE);
+		public final static Pattern PARAM_SCREENSHOT_HIGHLIGHT = Pattern
+				.compile("screenshot_highlight", Pattern.CASE_INSENSITIVE);
+		public final static Pattern PARAM_CLICK_CAPTURE = Pattern.compile(
+				"click_capture\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
 
 		protected Selector newSelector(Type type) throws ScriptException {
 			boolean disableScript = false;
 			boolean screenshotHighlight = false;
 			boolean clickCapture = false;
+			String custom = null;
 			for (int i = 1; i < getParameterCount(); i++) {
 				String param = getParameterString(i);
 				if (param == null)
 					continue;
 				if (param.length() == 0)
 					continue;
-				if (PARAM_DISABLE_SCRIPT.equalsIgnoreCase(param))
+				if (RegExpUtils.find(PARAM_DISABLE_SCRIPT, param))
 					disableScript = true;
-				else if (PARAM_SCREENSHOT_HIGHLIGHT.equalsIgnoreCase(param))
+				else if (RegExpUtils.find(PARAM_SCREENSHOT_HIGHLIGHT, param))
 					screenshotHighlight = true;
-				else if (PARAM_CLICK_CAPTURE.equalsIgnoreCase(param))
+				else if (RegExpUtils.find(PARAM_CLICK_CAPTURE, param)) {
+					Matcher matcher = RegExpUtils.matcher(PARAM_CLICK_CAPTURE,
+							param);
+					if (matcher.matches())
+						if (matcher.groupCount() > 0)
+							custom = matcher.group(1);
 					clickCapture = true;
-				else
+				} else
 					throw new ScriptException("Unknown parameter: " + param);
 			}
 			return new Selector(type, getParameterString(0), disableScript,
-					screenshotHighlight, clickCapture);
+					screenshotHighlight, clickCapture, custom);
 		}
 	}
 

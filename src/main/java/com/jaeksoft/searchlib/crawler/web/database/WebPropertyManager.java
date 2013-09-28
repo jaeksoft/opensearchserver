@@ -60,7 +60,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	private ProxyHandler proxyHandler = null;
 
 	public WebPropertyManager(File file) throws IOException {
-		super(file);
+		super(file, 1000);
 		delayBetweenAccesses = newIntegerProperty("delayBetweenAccesses", 10,
 				ClientFactory.INSTANCE.properties.getMinCrawlerDelay(), null);
 		fetchInterval = newIntegerProperty("fetchInterval", 30, 1, null);

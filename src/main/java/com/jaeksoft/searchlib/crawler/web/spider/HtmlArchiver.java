@@ -125,6 +125,14 @@ public class HtmlArchiver {
 		return sb.toString();
 	}
 
+	final public String getUrlFileName(String src) {
+		if (urlFileMap == null)
+			return null;
+		URL objectURL = LinkUtils.getLink(pageUrl, src, null, false);
+		String url = objectURL == null ? src : objectURL.toExternalForm();
+		return urlFileMap.get(url);
+	}
+
 	final private File getAndRegisterDestFile(String urlString,
 			String baseName, String extension) {
 		String fileName = buildFileName(baseName, extension, null);

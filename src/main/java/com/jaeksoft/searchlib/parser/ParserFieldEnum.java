@@ -124,6 +124,8 @@ public enum ParserFieldEnum {
 
 	image_ocr_boxes,
 
+	image_phash,
+
 	image_height,
 
 	image_width,
@@ -142,7 +144,9 @@ public enum ParserFieldEnum {
 
 	link,
 
-	rss_mode;
+	rss_mode,
+
+	md5;
 
 	public static ParserFieldEnum find(String fieldName) {
 		for (ParserFieldEnum pfe : values())

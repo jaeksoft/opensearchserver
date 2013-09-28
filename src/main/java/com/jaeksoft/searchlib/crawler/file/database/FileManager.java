@@ -82,15 +82,19 @@ public class FileManager extends AbstractManager {
 		return fileDbClient;
 	}
 
-	public void reload(boolean optimize, TaskLog taskLog)
-			throws SearchLibException {
+	public void reload(TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
-			if (optimize) {
-				fileDbClient.reload();
-				fileDbClient.optimize();
-			}
 			targetClient.reload();
+		} finally {
+			resetCurrentTaskLog();
+		}
+	}
+
+	public void optimize(TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			fileDbClient.optimize();
 		} finally {
 			resetCurrentTaskLog();
 		}
@@ -568,4 +572,5 @@ public class FileManager extends AbstractManager {
 			resetCurrentTaskLog();
 		}
 	}
+
 }

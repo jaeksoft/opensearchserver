@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.spellcheck;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.cache.CacheKeyInterface;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
@@ -35,7 +34,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SpellCheckField extends AbstractField<SpellCheckField> implements
-		CacheKeyInterface<SpellCheckField> {
+		Comparable<SpellCheckField> {
 
 	/**
 	 * 

@@ -57,7 +57,7 @@ public class DatabaseUtils {
 		return sb.toString();
 	}
 
-	final private static String escapeSqlChar(String error) {
+	public final static String escapeSqlChar(String error) {
 		if (error == null)
 			return "null";
 		StringBuffer sb = new StringBuffer();

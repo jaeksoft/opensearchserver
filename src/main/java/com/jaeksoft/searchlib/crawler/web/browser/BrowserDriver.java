@@ -203,7 +203,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		}
 	}
 
-	final public void saveArchive(HttpDownloader httpDownloader,
+	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader,
 			File parentDirectory, Collection<Selector> selectors)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, SAXException,
@@ -228,6 +228,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 					xPathDisableScriptSet.add(xPath);
 			}
 			archiver.archive(this, xPathDisableScriptSet);
+			return archiver;
 		} finally {
 			if (reader != null)
 				IOUtils.close(reader);

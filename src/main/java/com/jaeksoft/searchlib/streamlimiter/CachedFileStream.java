@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,20 +27,53 @@ package com.jaeksoft.searchlib.streamlimiter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+
+import com.jaeksoft.searchlib.streamlimiter.CachedMemoryStream.MaxMemoryException;
 
 public class CachedFileStream implements CachedStreamInterface {
 
 	private final File file;
+	private final boolean isTemp;
 
 	public CachedFileStream(File file, long limit) throws LimitException,
 			IOException {
 		this.file = file;
+		this.isTemp = false;
 		if (limit != 0)
 			if (getSize() > limit)
 				throw new LimitException("File " + file.getName()
 						+ " larger than " + limit + " bytes.");
+	}
+
+	CachedFileStream(MaxMemoryException mme, InputStream inputStream, long limit)
+			throws IOException {
+		FileOutputStream output = null;
+		this.isTemp = true;
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("CachedFileStream", "cache");
+			output = new FileOutputStream(tempFile);
+			output.write(mme.buf, 0, mme.count);
+			int bufferSize = 0;
+			byte[] buffer = new byte[65536];
+			while ((bufferSize = inputStream.read(buffer)) != -1) {
+				output.write(buffer, 0, bufferSize);
+				limit = CachedMemoryStream.checkLimit(limit, bufferSize);
+			}
+			file = tempFile;
+		} catch (IOException e) {
+			if (tempFile != null)
+				tempFile.delete();
+			throw e;
+		} finally {
+			if (output != null)
+				IOUtils.closeQuietly(output);
+		}
 	}
 
 	@Override
@@ -51,6 +84,12 @@ public class CachedFileStream implements CachedStreamInterface {
 	@Override
 	public long getSize() {
 		return file.length();
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (isTemp && file != null)
+			file.delete();
 	}
 
 }
