@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem.CallbackMode;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlThread;
@@ -75,6 +76,10 @@ public class RestCrawlController
 
 	public CredentialType[] getCredentialTypes() {
 		return CredentialType.values();
+	}
+
+	public CallbackMode[] getCallbackModes() {
+		return CallbackMode.values();
 	}
 
 	@Command

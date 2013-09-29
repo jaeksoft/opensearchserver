@@ -29,12 +29,14 @@ import java.io.UnsupportedEncodingException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.utils.Variables;
@@ -54,6 +56,27 @@ public class RestCrawlItem extends
 
 	private String pathDocument;
 
+	private String callbackMethod;
+
+	private String callbackUrl;
+
+	private CallbackMode callbackMode;
+
+	private String callbackQueryParameter;
+
+	private String callbackPayload;
+
+	public static enum CallbackMode {
+		NO_CALL, ONE_CALL_PER_DOCUMENT, ONE_CALL_FOR_ALL_DOCUMENTS;
+
+		public final static CallbackMode find(String name) {
+			for (CallbackMode mode : values())
+				if (mode.name().equalsIgnoreCase(name))
+					return mode;
+			return NO_CALL;
+		}
+	}
+
 	public RestCrawlItem(RestCrawlMaster crawlMaster) {
 		super(crawlMaster, new RestFieldMap());
 		name = null;
@@ -62,6 +85,11 @@ public class RestCrawlItem extends
 		pathDocument = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
+		callbackMethod = "GET";
+		callbackUrl = null;
+		callbackMode = CallbackMode.NO_CALL;
+		callbackQueryParameter = null;
+		callbackPayload = null;
 	}
 
 	public RestCrawlItem(RestCrawlMaster crawlMaster, String name) {
@@ -95,6 +123,11 @@ public class RestCrawlItem extends
 		this.credential.copyTo(crawl.credential);
 		crawl.lang = this.lang;
 		crawl.bufferSize = this.bufferSize;
+		crawl.callbackMethod = callbackMethod;
+		crawl.callbackUrl = callbackUrl;
+		crawl.callbackMode = callbackMode;
+		crawl.callbackQueryParameter = callbackQueryParameter;
+		crawl.callbackPayload = callbackPayload;
 	}
 
 	/**
@@ -166,6 +199,12 @@ public class RestCrawlItem extends
 	protected final static String REST_CRAWL_NODE_NAME_MAP = "map";
 	protected final static String REST_CRAWL_NODE_DOC_PATH = "documentPath";
 
+	protected final static String REST_CRAWL_NODE_CALLBACK = "callback";
+	protected final static String REST_CRAWL_CALLBACK_ATTR_METHOD = "method";
+	protected final static String REST_CRAWL_CALLBACK_ATTR_URL = "url";
+	protected final static String REST_CRAWL_CALLBACK_ATTR_MODE = "mode";
+	protected final static String REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM = "queryParam";
+
 	public RestCrawlItem(RestCrawlMaster crawlMaster, XPathParser xpp, Node item)
 			throws XPathExpressionException {
 		this(crawlMaster);
@@ -185,6 +224,19 @@ public class RestCrawlItem extends
 		Node credNode = xpp.getNode(item, REST_CRAWL_NODE_CREDENTIAL);
 		if (credNode != null)
 			credential = CredentialItem.fromXml(credNode);
+		Node callBackNode = DomUtils.getFirstNode(item,
+				REST_CRAWL_NODE_CALLBACK);
+		if (callBackNode != null) {
+			setCallbackMethod(DomUtils.getAttributeText(callBackNode,
+					REST_CRAWL_CALLBACK_ATTR_METHOD));
+			setCallbackUrl(DomUtils.getAttributeText(callBackNode,
+					REST_CRAWL_CALLBACK_ATTR_URL));
+			setCallbackMode(CallbackMode.find(DomUtils.getAttributeText(
+					callBackNode, REST_CRAWL_CALLBACK_ATTR_MODE)));
+			setCallbackQueryParameter(DomUtils.getAttributeText(callBackNode,
+					REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM));
+			setCallbackPayload(callBackNode.getTextContent());
+		}
 
 	}
 
@@ -196,6 +248,14 @@ public class RestCrawlItem extends
 				Integer.toString(getBufferSize()));
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
+		xmlWriter.endElement();
+		xmlWriter.startElement(REST_CRAWL_NODE_CALLBACK,
+				REST_CRAWL_CALLBACK_ATTR_METHOD, callbackMethod,
+				REST_CRAWL_CALLBACK_ATTR_MODE, callbackMode.name(),
+				REST_CRAWL_CALLBACK_ATTR_URL, callbackUrl,
+				REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM, callbackQueryParameter);
+		if (!StringUtils.isEmpty(callbackPayload))
+			xmlWriter.textNode(callbackPayload);
 		xmlWriter.endElement();
 		xmlWriter.writeSubTextNodeIfAny(REST_CRAWL_NODE_DOC_PATH,
 				xmlWriter.escapeXml(getPathDocument()));
@@ -241,6 +301,81 @@ public class RestCrawlItem extends
 	 */
 	public void setPathDocument(String pathDocument) {
 		this.pathDocument = pathDocument;
+	}
+
+	/**
+	 * @return the callbackMethod
+	 */
+	public String getCallbackMethod() {
+		return callbackMethod;
+	}
+
+	/**
+	 * @param callbackMethod
+	 *            the callbackMethod to set
+	 */
+	public void setCallbackMethod(String callbackMethod) {
+		this.callbackMethod = callbackMethod;
+	}
+
+	/**
+	 * @return the callbackUrl
+	 */
+	public String getCallbackUrl() {
+		return callbackUrl;
+	}
+
+	/**
+	 * @param callbackUrl
+	 *            the callbackUrl to set
+	 */
+	public void setCallbackUrl(String callbackUrl) {
+		this.callbackUrl = callbackUrl;
+	}
+
+	/**
+	 * @return the callbackMode
+	 */
+	public CallbackMode getCallbackMode() {
+		return callbackMode;
+	}
+
+	/**
+	 * @param callbackMode
+	 *            the callbackMode to set
+	 */
+	public void setCallbackMode(CallbackMode callbackMode) {
+		this.callbackMode = callbackMode;
+	}
+
+	/**
+	 * @return the callbackQueryParameter
+	 */
+	public String getCallbackQueryParameter() {
+		return callbackQueryParameter;
+	}
+
+	/**
+	 * @param callbackQueryParameter
+	 *            the callbackQueryParameter to set
+	 */
+	public void setCallbackQueryParameter(String callbackQueryParameter) {
+		this.callbackQueryParameter = callbackQueryParameter;
+	}
+
+	/**
+	 * @return the callbackPayload
+	 */
+	public String getCallbackPayload() {
+		return callbackPayload;
+	}
+
+	/**
+	 * @param callbackPayload
+	 *            the callbackPayload to set
+	 */
+	public void setCallbackPayload(String callbackPayload) {
+		this.callbackPayload = callbackPayload;
 	}
 
 }
