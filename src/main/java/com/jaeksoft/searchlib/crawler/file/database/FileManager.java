@@ -128,6 +128,15 @@ public class FileManager extends AbstractManager {
 							repository, true, false);
 			}
 
+			if (fileExtension != null) {
+				fileExtension = fileExtension.trim();
+				if (fileExtension.length() > 0)
+					fileItemFieldEnum.fileExtension
+							.addFilterQuery(searchRequest,
+									QueryUtils.escapeQuery(fileExtension),
+									false, false);
+			}
+
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
