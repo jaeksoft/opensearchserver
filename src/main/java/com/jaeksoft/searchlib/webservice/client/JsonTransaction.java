@@ -86,21 +86,21 @@ public class JsonTransaction {
 	public JSONObject put(HttpDownloader downloader)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
-		DownloadItem dlItem = downloader.put(getURI(), null, null, null);
+		DownloadItem dlItem = downloader.put(getURI(), null, null, null, null);
 		return checkJsonResult(dlItem);
 	}
 
 	public JSONObject post(HttpDownloader downloader)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
-		DownloadItem dlItem = downloader.post(getURI(), null, null, null);
+		DownloadItem dlItem = downloader.post(getURI(), null, null, null, null);
 		return checkJsonResult(dlItem);
 	}
 
 	public JSONObject delete(HttpDownloader downloader)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
-		DownloadItem dlItem = downloader.delete(getURI(), null, null);
+		DownloadItem dlItem = downloader.delete(getURI(), null, null, null);
 		return checkJsonResult(dlItem);
 	}
 
