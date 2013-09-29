@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -136,7 +135,25 @@ public class RestCrawlThread extends
 		return "";
 	}
 
-	private final boolean index(List<IndexDocument> indexDocumentList, int limit)
+	private final void callback(HttpDownloader downloader) {
+	}
+
+	private final void doCallBack(HttpDownloader downloader,
+			List<IndexDocument> indexDocumentList) {
+		switch (restCrawlItem.getCallbackMode()) {
+		case NO_CALL:
+			return;
+		case ONE_CALL_PER_DOCUMENT:
+			restCrawlItem.getCredential();
+			break;
+		case ONE_CALL_FOR_ALL_DOCUMENTS:
+			break;
+		}
+
+	}
+
+	private final boolean index(HttpDownloader downloader,
+			List<IndexDocument> indexDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
@@ -145,6 +162,7 @@ public class RestCrawlThread extends
 			return false;
 		setStatus(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
+		doCallBack(downloader, indexDocumentList);
 		rwl.w.lock();
 		try {
 			pendingIndexDocumentCount -= i;
@@ -161,15 +179,15 @@ public class RestCrawlThread extends
 
 	@Override
 	public void runner() throws Exception {
-		setStatus(CrawlStatus.STARTING);
 		HttpDownloader downloader = null;
+		setStatus(CrawlStatus.STARTING);
 		try {
 			URI uri = new URI(restCrawlItem.getUrl());
-			CredentialItem credentialItem = restCrawlItem.getCredential();
 			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader(
 					true);
 			setStatus(CrawlStatus.CRAWL);
-			DownloadItem dlItem = downloader.get(uri, credentialItem);
+			DownloadItem dlItem = downloader.get(uri,
+					restCrawlItem.getCredential());
 			JsonPath path = JsonPath.compile(restCrawlItem.getPathDocument());
 			RestFieldMap restFieldMap = restCrawlItem.getFieldMap();
 			LanguageEnum lang = restCrawlItem.getLang();
@@ -192,9 +210,9 @@ public class RestCrawlThread extends
 				} finally {
 					rwl.w.unlock();
 				}
-				index(indexDocumentList, limit);
+				index(downloader, indexDocumentList, limit);
 			}
-			index(indexDocumentList, 0);
+			index(downloader, indexDocumentList, 0);
 
 		} finally {
 			if (downloader != null)

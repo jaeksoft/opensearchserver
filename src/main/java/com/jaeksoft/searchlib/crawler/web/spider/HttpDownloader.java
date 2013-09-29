@@ -31,10 +31,14 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -45,21 +49,25 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 
 public class HttpDownloader extends HttpAbstract {
 
-	public HttpDownloader(String userAgent, boolean bFollowRedirect,
-			ProxyHandler proxyHandler) {
+	public static enum Method {
+		GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS;
+	}
+
+	public HttpDownloader(final String userAgent,
+			final boolean bFollowRedirect, final ProxyHandler proxyHandler) {
 		super(userAgent, bFollowRedirect, proxyHandler);
 	}
 
-	private void addHeader(HttpUriRequest httpUriRequest,
+	private final void addHeader(HttpRequest httpRequest,
 			List<Header> additionalHeaders) {
 		if (additionalHeaders == null)
 			return;
 		for (Header header : additionalHeaders)
-			httpUriRequest.addHeader(header);
+			httpRequest.addHeader(header);
 	}
 
-	private DownloadItem getDownloadItem(URI uri) throws IllegalStateException,
-			IOException, SearchLibException {
+	private final DownloadItem getDownloadItem(final URI uri)
+			throws IllegalStateException, IOException, SearchLibException {
 		DownloadItem downloadItem = new DownloadItem(uri);
 		downloadItem.setRedirectLocation(getRedirectLocation());
 		downloadItem.setContentLength(getContentLength());
@@ -76,17 +84,72 @@ public class HttpDownloader extends HttpAbstract {
 		return downloadItem;
 	}
 
+	private final DownloadItem request(final HttpUriRequest httpUriRequest,
+			final CredentialItem credentialItem,
+			final List<Header> additionalHeaders,
+			final List<CookieItem> cookies, final HttpEntity entity)
+			throws ClientProtocolException, IOException, URISyntaxException,
+			IllegalStateException, SearchLibException {
+		synchronized (this) {
+			reset();
+			if (entity != null)
+				((HttpEntityEnclosingRequest) httpUriRequest).setEntity(entity);
+			addHeader(httpUriRequest, additionalHeaders);
+			execute(httpUriRequest, credentialItem, cookies);
+			return getDownloadItem(httpUriRequest.getURI());
+		}
+	}
+
+	public final DownloadItem request(final URI uri, final Method method,
+			final CredentialItem credentialItem,
+			final List<Header> additionalHeaders,
+			final List<CookieItem> cookies, final HttpEntity entity)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			URISyntaxException, SearchLibException {
+		HttpUriRequest httpUriRequest;
+		switch (method) {
+		case GET:
+			httpUriRequest = new HttpGet(uri);
+			break;
+		case POST:
+			httpUriRequest = new HttpPost(uri);
+			break;
+		case PUT:
+			httpUriRequest = new HttpPut(uri);
+			break;
+		case DELETE:
+			httpUriRequest = new HttpDelete(uri);
+			break;
+		case OPTIONS:
+			httpUriRequest = new HttpOptions(uri);
+			break;
+		case PATCH:
+			httpUriRequest = new HttpPatch(uri);
+			break;
+		case HEAD:
+			httpUriRequest = new HttpHead(uri);
+			break;
+		default:
+			throw new SearchLibException("Unkown method: " + method);
+		}
+		return request(httpUriRequest, credentialItem, additionalHeaders,
+				cookies, entity);
+	}
+
+	public DownloadItem patch(URI uri, CredentialItem credentialItem,
+			List<Header> additionalHeaders, List<CookieItem> cookies,
+			HttpEntity entity) throws ClientProtocolException, IOException,
+			URISyntaxException, IllegalStateException, SearchLibException {
+		return request(uri, Method.PATCH, credentialItem, additionalHeaders,
+				cookies, entity);
+	}
+
 	public DownloadItem get(URI uri, CredentialItem credentialItem,
 			List<Header> additionalHeaders, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, IllegalStateException,
 			SearchLibException, URISyntaxException {
-		synchronized (this) {
-			reset();
-			HttpGet httpGet = new HttpGet(uri);
-			addHeader(httpGet, additionalHeaders);
-			execute(httpGet, credentialItem, cookies);
-			return getDownloadItem(uri);
-		}
+		return request(uri, Method.GET, credentialItem, additionalHeaders,
+				cookies, null);
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem)
@@ -99,13 +162,8 @@ public class HttpDownloader extends HttpAbstract {
 			List<Header> additionalHeaders, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, IllegalStateException,
 			SearchLibException, URISyntaxException {
-		synchronized (this) {
-			reset();
-			HttpHead httpHead = new HttpHead(uri);
-			addHeader(httpHead, additionalHeaders);
-			execute(httpHead, credentialItem, cookies);
-			return getDownloadItem(uri);
-		}
+		return request(uri, Method.HEAD, credentialItem, additionalHeaders,
+				cookies, null);
 	}
 
 	public DownloadItem head(URI uri, CredentialItem credentialItem)
@@ -115,43 +173,34 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem post(URI uri, CredentialItem credentialItem,
-			List<CookieItem> cookies, HttpEntity entity)
+			List<Header> additionalHeaders, List<CookieItem> cookies,
+			HttpEntity entity) throws ClientProtocolException, IOException,
+			IllegalStateException, SearchLibException, URISyntaxException {
+		return request(uri, Method.POST, credentialItem, additionalHeaders,
+				cookies, entity);
+	}
+
+	public DownloadItem options(URI uri, CredentialItem credentialItem,
+			List<Header> additionalHeaders, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, IllegalStateException,
 			SearchLibException, URISyntaxException {
-		synchronized (this) {
-			reset();
-			HttpPost httpPost = new HttpPost(uri);
-			if (entity != null)
-				httpPost.setEntity(entity);
-			execute(httpPost, credentialItem, cookies);
-			return getDownloadItem(uri);
-		}
+		return request(uri, Method.OPTIONS, credentialItem, additionalHeaders,
+				cookies, null);
 	}
 
 	public DownloadItem delete(URI uri, CredentialItem credentialItem,
-			List<CookieItem> cookies) throws ClientProtocolException,
-			IOException, IllegalStateException, SearchLibException,
-			URISyntaxException {
-		synchronized (this) {
-			reset();
-			HttpDelete httpDelete = new HttpDelete(uri);
-			execute(httpDelete, credentialItem, cookies);
-			return getDownloadItem(uri);
-		}
+			List<Header> additionalHeaders, List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, IllegalStateException,
+			SearchLibException, URISyntaxException {
+		return request(uri, Method.DELETE, credentialItem, additionalHeaders,
+				cookies, null);
 	}
 
 	public DownloadItem put(URI uri, CredentialItem credentialItem,
-			List<CookieItem> cookies, HttpEntity entity)
-			throws ClientProtocolException, IOException, IllegalStateException,
-			SearchLibException, URISyntaxException {
-		synchronized (this) {
-			reset();
-			HttpPut httpPut = new HttpPut(uri);
-			if (entity != null)
-				httpPut.setEntity(entity);
-			execute(httpPut, credentialItem, cookies);
-			return getDownloadItem(uri);
-		}
-
+			List<Header> additionalHeaders, List<CookieItem> cookies,
+			HttpEntity entity) throws ClientProtocolException, IOException,
+			IllegalStateException, SearchLibException, URISyntaxException {
+		return request(uri, Method.PUT, credentialItem, additionalHeaders,
+				cookies, null);
 	}
 }
