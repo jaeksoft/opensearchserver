@@ -22,6 +22,7 @@
 				<tab id="tabCrawlGeneral" label="General settings"
 					selected="true" />
 				<tab id="tabCrawlFieldMap" label="FieldMap" />
+				<tab id="tabCrawlCallback" label="Callback" />
 			</tabs>
 			<tabpanels>
 				<tabpanel>
@@ -31,6 +32,10 @@
 				<tabpanel>
 					<include
 						src="/WEB-INF/zul/crawler/rest/crawl_edit_fieldmap.zul" />
+				</tabpanel>
+				<tabpanel>
+					<include
+						src="/WEB-INF/zul/crawler/rest/crawl_edit_callback.zul" />
 				</tabpanel>
 			</tabpanels>
 		</tabbox>
