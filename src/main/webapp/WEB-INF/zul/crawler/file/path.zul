@@ -20,98 +20,99 @@
 	<listbox model="@load(searchPath.fileList)" multiple="false"
 		checkmark="false" sizedByContent="true">
 		<listhead sizable="true">
-			<listheader label="File" />
-			<listheader label="Index Date" />
-			<listheader label="Modified date" />
-			<listheader label="Type" />
-			<listheader label="Extension" />
-			<listheader label="Size" />
-			<listheader label="Lang" />
-			<listheader label="Fetch" />
-			<listheader label="Parsing" />
-			<listheader label="Index" />
-			<listheader label="Repository" />
-			<listheader hflex="true" />
-		</listhead>
-		<auxhead>
-			<auxheader>
-				<textbox width="90%" value="@bind(searchPath.fileName)" />
-			</auxheader>
-			<auxheader>
+			<listheader label="File">
+				<vbox width="100%">
+					<textbox width="90%"
+						value="@bind(searchPath.fileName)" />
+					<button label="Search"
+						onClick="@command('onSearch')" />
+				</vbox>
+			</listheader>
+			<listheader label="Index Date">
 				<vbox>
 					<datebox compact="true"
 						value="@bind(searchPath.crawlDateStart)" />
 					<datebox compact="true"
 						value="@bind(searchPath.crawlDateEnd)" />
 				</vbox>
-			</auxheader>
-			<auxheader>
+			</listheader>
+			<listheader label="Modified date">
 				<vbox>
 					<datebox compact="true"
 						value="@bind(searchPath.dateModifiedStart)" />
 					<datebox compact="true"
 						value="@bind(searchPath.dateModifiedEnd)" />
 				</vbox>
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="100%"
-					model="@load(searchPath.fileTypeList)"
-					selectedItem="@bind(searchPath.fileType)">
-					<template name="model">
-						<listitem label="@load(each)" />
-					</template>
-				</listbox>
-			</auxheader>
-			<auxheader />
-			<auxheader />
-			<auxheader>
-				<textbox cols="4" value="@bind(searchPath.lang)" />
-			</auxheader>
-
-			<auxheader>
-				<listbox mold="select" width="100%"
-					model="@load(searchPath.fetchStatusList)"
-					selectedItem="@bind(searchPath.fetchStatus)">
-					<template name="model">
-						<listitem label="@load(each.name)" />
-					</template>
-				</listbox>
-			</auxheader>
-
-			<auxheader>
-				<listbox mold="select" width="100%"
-					model="@load(searchPath.parserStatusList)"
-					selectedItem="@bind(searchPath.parserStatus)">
-					<template name="model">
-						<listitem label="@load(each.name)" />
-					</template>
-				</listbox>
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="100%"
-					model="@load(searchPath.indexStatusList)"
-					selectedItem="@bind(searchPath.indexStatus)">
-					<template name="model">
-						<listitem label="@load(each.name)" />
-					</template>
-				</listbox>
-			</auxheader>
-			<auxheader>
-				<listbox mold="select" width="100%"
-					model="@load(searchPath.repositoryList)"
-					selectedItem="@bind(searchPath.repository)">
-					<template name="model">
-						<listitem label="@load(each)" />
-					</template>
-				</listbox>
-			</auxheader>
-			<auxheader />
-		</auxhead>
-		<auxhead>
-			<auxheader colspan="12" align="left">
-				<button label="Search" onClick="@command('onSearch')" />
-			</auxheader>
-		</auxhead>
+			</listheader>
+			<listheader label="Type">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.fileTypeList)"
+						selectedItem="@bind(searchPath.fileType)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Extension">
+				<vbox>
+					<textbox cols="5"
+						value="@bind(searchPath.extension)" />
+				</vbox>
+			</listheader>
+			<listheader label="Size" />
+			<listheader label="Lang">
+				<vbox>
+					<textbox cols="4" value="@bind(searchPath.lang)" />
+				</vbox>
+			</listheader>
+			<listheader label="Fetch">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.fetchStatusList)"
+						selectedItem="@bind(searchPath.fetchStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Parsing">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.parserStatusList)"
+						selectedItem="@bind(searchPath.parserStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Index">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.indexStatusList)"
+						selectedItem="@bind(searchPath.indexStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Repository">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.repositoryList)"
+						selectedItem="@bind(searchPath.repository)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader hflex="true" />
+		</listhead>
 		<template name="model" var="file">
 			<listitem>
 				<listcell label="@load(file.fileName)"

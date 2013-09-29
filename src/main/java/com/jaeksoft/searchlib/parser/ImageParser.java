@@ -28,7 +28,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.sanselan.ImageInfo;
@@ -90,14 +91,14 @@ public class ImageParser extends Parser {
 		}
 	}
 
-	private void doMetaData(ParserResultItem result, StreamLimiter streamLimiter)
-			throws IOException {
-		ImageInfo info;
+	private ImageInfo doMetaData(ParserResultItem result,
+			StreamLimiter streamLimiter) throws IOException {
 		try {
-			info = Sanselan.getImageInfo(streamLimiter.getNewInputStream(),
+			ImageInfo info = Sanselan.getImageInfo(
+					streamLimiter.getNewInputStream(),
 					streamLimiter.getOriginalFileName());
 			if (info == null)
-				return;
+				return null;
 			int width = info.getWidth();
 			int height = info.getHeight();
 			long area_size = (long) width * height;
@@ -107,45 +108,54 @@ public class ImageParser extends Parser {
 			result.addField(ParserFieldEnum.image_number,
 					info.getNumberOfImages());
 			result.addField(ParserFieldEnum.image_format, info.getFormatName());
+			return info;
 		} catch (ImageReadException e) {
 			throw new IOException(e);
 		}
 	}
 
-	private void doPHash(ParserResultItem result, StreamLimiter streamLimiter)
-			throws IOException {
-		if (!getFieldMap().isMapped(ParserFieldEnum.image_phash))
+	private void image_phash(ImagePHash imgPhash, Object image,
+			ParserResultItem result) {
+		if (!(image instanceof BufferedImage))
 			return;
-		try {
-			ArrayList<?> images = Sanselan.getAllBufferedImages(
-					streamLimiter.getNewInputStream(),
-					streamLimiter.getOriginalFileName());
-			if (images == null)
-				return;
-			ImagePHash imgPhash = new ImagePHash();
+		BufferedImage bimage = (BufferedImage) image;
+		String phash = imgPhash.getHash(bimage);
+		result.addField(ParserFieldEnum.image_phash, phash);
+	}
 
-			for (Object image : images) {
-				if (!(image instanceof BufferedImage))
-					continue;
-				BufferedImage bimage = (BufferedImage) image;
-				String phash = imgPhash.getHash(bimage);
-				result.addField(ParserFieldEnum.image_phash, phash);
-			}
-		} catch (ImageReadException e) {
-			throw new IOException(e);
-		}
+	/*
+	 * private boolean try_sanselan_phash(ImagePHash imgPhash, ImageInfo info,
+	 * ParserResultItem result, StreamLimiter streamLimiter) { if
+	 * (info.getFormat() == ImageFormat.IMAGE_FORMAT_JPEG) return false; try {
+	 * ArrayList<?> images = Sanselan.getAllBufferedImages(
+	 * streamLimiter.getNewInputStream(), streamLimiter.getOriginalFileName());
+	 * if (images == null) return false; for (Object image : images)
+	 * image_phash(imgPhash, image, result); return true; } catch
+	 * (ImageReadException e) { Logging.warn(e); return false; } catch
+	 * (IOException e) { Logging.warn(e); return false; } }
+	 */
+
+	private void try_imageio_phash(ImagePHash imgPhash,
+			ParserResultItem result, StreamLimiter streamLimiter)
+			throws IOException {
+		BufferedImage image = ImageIO.read(streamLimiter.getNewInputStream());
+		if (image == null)
+			return;
+		image_phash(imgPhash, image, result);
 	}
 
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 		try {
+			ImagePHash imgPhash = new ImagePHash();
 			ParserResultItem resultItem = getNewParserResultItem();
 			resultItem.addField(ParserFieldEnum.file_name,
 					streamLimiter.getOriginalFileName());
 			doMetaData(resultItem, streamLimiter);
 			doOCR(resultItem, streamLimiter, lang);
-			doPHash(resultItem, streamLimiter);
+			if (getFieldMap().isMapped(ParserFieldEnum.image_phash))
+				try_imageio_phash(imgPhash, resultItem, streamLimiter);
 			if (getFieldMap().isMapped(ParserFieldEnum.md5))
 				resultItem.addField(ParserFieldEnum.md5,
 						streamLimiter.getMD5Hash());
