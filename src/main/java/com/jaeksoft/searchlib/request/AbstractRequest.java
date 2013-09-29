@@ -115,6 +115,13 @@ public abstract class AbstractRequest {
 		this.timerMaxDepth = request.timerMaxDepth;
 	}
 
+	public AbstractRequest duplicate() throws InstantiationException,
+			IllegalAccessException {
+		AbstractRequest newRequest = getClass().newInstance();
+		newRequest.copyFrom(this);
+		return newRequest;
+	}
+
 	protected void setDefaultValues() {
 		withLogReport = false;
 		customLogs = null;
