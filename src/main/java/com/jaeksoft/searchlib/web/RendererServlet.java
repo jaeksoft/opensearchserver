@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -104,8 +103,8 @@ public class RendererServlet extends AbstractServlet {
 									searchRequest.getQueryString()));
 				}
 				if (searchRequest.isFacet()) {
-					AbstractSearchRequest facetRequest = new SearchPatternRequest();
-					facetRequest.copyFrom(searchRequest);
+					AbstractSearchRequest facetRequest = (AbstractSearchRequest) searchRequest
+							.duplicate();
 					facetRequest
 							.removeFilterSource(FilterAbstract.Source.REQUEST);
 					AbstractResultSearch facetResult = (AbstractResultSearch) client
