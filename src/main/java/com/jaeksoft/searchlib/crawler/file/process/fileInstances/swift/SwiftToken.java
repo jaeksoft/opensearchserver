@@ -147,7 +147,7 @@ public class SwiftToken {
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
 		return httpDownloader
-				.post(uri, null, null, new StringEntity(json.toString(),
+				.post(uri, null, null, null, new StringEntity(json.toString(),
 						ContentType.APPLICATION_JSON));
 	}
 
