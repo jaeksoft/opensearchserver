@@ -31,6 +31,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.ClientProtocolException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -135,7 +138,17 @@ public class RestCrawlThread extends
 		return "";
 	}
 
-	private final void callback(HttpDownloader downloader) {
+	private final void callback(HttpDownloader downloader)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			URISyntaxException, SearchLibException {
+		URI uri = null;
+		String url = restCrawlItem.getCallbackUrl();
+		String qp = restCrawlItem.getCallbackQueryParameter();
+		if (!StringUtils.isEmpty(qp)) {
+		}
+		DownloadItem dlItem = downloader.request(uri,
+				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
+				null, null);
 	}
 
 	private final void doCallBack(HttpDownloader downloader,
@@ -144,7 +157,6 @@ public class RestCrawlThread extends
 		case NO_CALL:
 			return;
 		case ONE_CALL_PER_DOCUMENT:
-			restCrawlItem.getCredential();
 			break;
 		case ONE_CALL_FOR_ALL_DOCUMENTS:
 			break;
@@ -186,8 +198,9 @@ public class RestCrawlThread extends
 			downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader(
 					true);
 			setStatus(CrawlStatus.CRAWL);
-			DownloadItem dlItem = downloader.get(uri,
-					restCrawlItem.getCredential());
+			DownloadItem dlItem = downloader.request(uri,
+					restCrawlItem.getMethod(), restCrawlItem.getCredential(),
+					null, null, null);
 			JsonPath path = JsonPath.compile(restCrawlItem.getPathDocument());
 			RestFieldMap restFieldMap = restCrawlItem.getFieldMap();
 			LanguageEnum lang = restCrawlItem.getLang();
