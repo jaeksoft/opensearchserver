@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
@@ -80,6 +81,10 @@ public class RestCrawlController
 
 	public CallbackMode[] getCallbackModes() {
 		return CallbackMode.values();
+	}
+
+	public HttpDownloader.Method[] getHttpMethods() {
+		return HttpDownloader.Method.values();
 	}
 
 	@Command
