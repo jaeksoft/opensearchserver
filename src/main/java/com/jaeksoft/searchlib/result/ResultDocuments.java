@@ -61,10 +61,10 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 		this.reader = reader;
 		this.fieldNameSet = fieldNameSet == null ? new TreeSet<String>()
 				: fieldNameSet;
-		if (fieldNameSet.size() == 0
+		if (this.fieldNameSet.size() == 0
 				&& request instanceof RequestInterfaces.ReturnedFieldInterface)
 			((RequestInterfaces.ReturnedFieldInterface) request)
-					.getReturnFieldList().populate(fieldNameSet);
+					.getReturnFieldList().populate(this.fieldNameSet);
 		this.docList = new ArrayList<Integer>(docList);
 	}
 
