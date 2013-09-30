@@ -50,9 +50,11 @@ public class Selectors {
 		public final boolean screenshotHighlight;
 		public final boolean clickCapture;
 		public final String custom;
+		public final String flashVarsLink;
 
 		public Selector(Type type, String query, boolean disableScript,
-				boolean screenshotHighlight, boolean clickCapture, String custom) {
+				boolean screenshotHighlight, boolean clickCapture,
+				String custom, String flashVarsLink) {
 			this.type = type;
 			// Avoid null value in query part (for comparison)
 			this.query = query == null ? "" : query;
@@ -60,10 +62,11 @@ public class Selectors {
 			this.screenshotHighlight = screenshotHighlight;
 			this.clickCapture = clickCapture;
 			this.custom = custom;
+			this.flashVarsLink = flashVarsLink;
 		}
 
 		public Selector(Type type, String query) {
-			this(type, query, false, false, false, null);
+			this(type, query, false, false, false, null, null);
 		}
 
 		public final By getBy() {
@@ -112,12 +115,15 @@ public class Selectors {
 				.compile("screenshot_highlight", Pattern.CASE_INSENSITIVE);
 		public final static Pattern PARAM_CLICK_CAPTURE = Pattern.compile(
 				"click_capture\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
+		public final static Pattern PARAM_FLASHVARS_LINK = Pattern.compile(
+				"flashvars_link\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
 
 		protected Selector newSelector(Type type) throws ScriptException {
 			boolean disableScript = false;
 			boolean screenshotHighlight = false;
 			boolean clickCapture = false;
 			String custom = null;
+			String flashVarsLink = null;
 			for (int i = 1; i < getParameterCount(); i++) {
 				String param = getParameterString(i);
 				if (param == null)
@@ -135,11 +141,17 @@ public class Selectors {
 						if (matcher.groupCount() > 0)
 							custom = matcher.group(1);
 					clickCapture = true;
+				} else if (RegExpUtils.find(PARAM_FLASHVARS_LINK, param)) {
+					Matcher matcher = RegExpUtils.matcher(PARAM_FLASHVARS_LINK,
+							param);
+					if (matcher.matches())
+						if (matcher.groupCount() > 0)
+							flashVarsLink = matcher.group(1);
 				} else
 					throw new ScriptException("Unknown parameter: " + param);
 			}
 			return new Selector(type, getParameterString(0), disableScript,
-					screenshotHighlight, clickCapture, custom);
+					screenshotHighlight, clickCapture, custom, flashVarsLink);
 		}
 	}
 

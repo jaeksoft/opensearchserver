@@ -275,14 +275,15 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		List<String> urls = new ArrayList<String>(0);
 		String old = getCurrentWindow();
 		Iterator<String> iterator = driver.getWindowHandles().iterator();
+		int i = 0;
 		while (iterator.hasNext()) {
 			String window = iterator.next();
 			driver.switchTo().window(window);
 			String url = driver.getCurrentUrl();
 			urls.add(url);
-			System.out.println(window + " => " + url);
+			System.out.println((++i) + " " + window + " " + url);
 		}
-		switchToWindow(old);
+		driver.switchTo().window(old);
 		return urls;
 	}
 
@@ -297,7 +298,18 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	public void switchToWindow(String window) {
 		if (window == null)
 			window = driver.getWindowHandles().iterator().next();
+		// getUrlList();
 		driver.switchTo().window(window);
+		System.out.println("Switch to " + window);
+	}
+
+	public String openNewWindow() throws IOException, SearchLibException {
+		javascript("window.open()", true);
+		String window = null;
+		Iterator<String> iterator = driver.getWindowHandles().iterator();
+		while (iterator.hasNext())
+			window = iterator.next();
+		return window;
 	}
 
 	public String getCurrentUrl() {
