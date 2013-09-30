@@ -28,9 +28,13 @@
 			<label value="The URL of the callback" />
 		</row>
 		<row>
-			<label value="Method: " />
-			<combobox cols="8"
-				value="@bind(restCrawl.currentCrawl.callbackMethod)" />
+			<label value="HTTP Method: " />
+			<listbox mold="select" model="@load(restCrawl.httpMethods)"
+				selectedItem="@bind(restCrawl.currentCrawl.callbackMethod)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
 			<label value="Enter the HTTP method" />
 		</row>
 		<row>

@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -48,6 +49,8 @@ public class RestCrawlItem extends
 
 	private String url;
 
+	private HttpDownloader.Method method;
+
 	private CredentialItem credential;
 
 	private LanguageEnum lang;
@@ -56,7 +59,7 @@ public class RestCrawlItem extends
 
 	private String pathDocument;
 
-	private String callbackMethod;
+	private HttpDownloader.Method callbackMethod;
 
 	private String callbackUrl;
 
@@ -81,11 +84,12 @@ public class RestCrawlItem extends
 		super(crawlMaster, new RestFieldMap());
 		name = null;
 		url = null;
+		method = HttpDownloader.Method.GET;
 		credential = new CredentialItem();
 		pathDocument = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
-		callbackMethod = "GET";
+		callbackMethod = HttpDownloader.Method.GET;
 		callbackUrl = null;
 		callbackMode = CallbackMode.NO_CALL;
 		callbackQueryParameter = null;
@@ -119,6 +123,7 @@ public class RestCrawlItem extends
 		super.copyTo(crawl);
 		crawl.setName(this.getName());
 		crawl.url = this.url;
+		crawl.method = this.method;
 		crawl.pathDocument = this.pathDocument;
 		this.credential.copyTo(crawl.credential);
 		crawl.lang = this.lang;
@@ -195,6 +200,7 @@ public class RestCrawlItem extends
 	protected final static String REST_CRAWL_NODE_CREDENTIAL = "credential";
 	protected final static String REST_CRAWL_ATTR_URL = "url";
 	protected final static String REST_CRAWL_ATTR_LANG = "lang";
+	protected final static String REST_CRAWL_ATTR_METHOD = "method";
 	protected final static String REST_CRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String REST_CRAWL_NODE_NAME_MAP = "map";
 	protected final static String REST_CRAWL_NODE_DOC_PATH = "documentPath";
@@ -210,6 +216,9 @@ public class RestCrawlItem extends
 		this(crawlMaster);
 		setName(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_NAME));
 		setUrl(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_URL));
+		setMethod(HttpDownloader.Method.find(
+				DomUtils.getAttributeText(item, REST_CRAWL_ATTR_METHOD),
+				HttpDownloader.Method.GET));
 		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(item,
 				REST_CRAWL_ATTR_LANG)));
 		setBufferSize(XPathParser.getAttributeValue(item,
@@ -227,8 +236,10 @@ public class RestCrawlItem extends
 		Node callBackNode = DomUtils.getFirstNode(item,
 				REST_CRAWL_NODE_CALLBACK);
 		if (callBackNode != null) {
-			setCallbackMethod(DomUtils.getAttributeText(callBackNode,
-					REST_CRAWL_CALLBACK_ATTR_METHOD));
+			setCallbackMethod(HttpDownloader.Method.find(DomUtils
+					.getAttributeText(callBackNode,
+							REST_CRAWL_CALLBACK_ATTR_METHOD),
+					HttpDownloader.Method.GET));
 			setCallbackUrl(DomUtils.getAttributeText(callBackNode,
 					REST_CRAWL_CALLBACK_ATTR_URL));
 			setCallbackMode(CallbackMode.find(DomUtils.getAttributeText(
@@ -243,14 +254,15 @@ public class RestCrawlItem extends
 	public void writeXml(XmlWriter xmlWriter) throws SAXException,
 			UnsupportedEncodingException {
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME, REST_CRAWL_ATTR_NAME,
-				getName(), REST_CRAWL_ATTR_URL, getUrl(), REST_CRAWL_ATTR_LANG,
+				getName(), REST_CRAWL_ATTR_URL, getUrl(),
+				REST_CRAWL_ATTR_METHOD, method.name(), REST_CRAWL_ATTR_LANG,
 				getLang().getCode(), REST_CRAWL_ATTR_BUFFER_SIZE,
 				Integer.toString(getBufferSize()));
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
 		xmlWriter.startElement(REST_CRAWL_NODE_CALLBACK,
-				REST_CRAWL_CALLBACK_ATTR_METHOD, callbackMethod,
+				REST_CRAWL_CALLBACK_ATTR_METHOD, callbackMethod.name(),
 				REST_CRAWL_CALLBACK_ATTR_MODE, callbackMode.name(),
 				REST_CRAWL_CALLBACK_ATTR_URL, callbackUrl,
 				REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM, callbackQueryParameter);
@@ -304,9 +316,24 @@ public class RestCrawlItem extends
 	}
 
 	/**
+	 * @return the method
+	 */
+	public HttpDownloader.Method getMethod() {
+		return method;
+	}
+
+	/**
+	 * @param method
+	 *            the method to set
+	 */
+	public void setMethod(HttpDownloader.Method method) {
+		this.method = method;
+	}
+
+	/**
 	 * @return the callbackMethod
 	 */
-	public String getCallbackMethod() {
+	public HttpDownloader.Method getCallbackMethod() {
 		return callbackMethod;
 	}
 
@@ -314,7 +341,7 @@ public class RestCrawlItem extends
 	 * @param callbackMethod
 	 *            the callbackMethod to set
 	 */
-	public void setCallbackMethod(String callbackMethod) {
+	public void setCallbackMethod(HttpDownloader.Method callbackMethod) {
 		this.callbackMethod = callbackMethod;
 	}
 
