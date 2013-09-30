@@ -211,7 +211,8 @@ public class JobItem extends ExecutionAbstract {
 
 	public void run(Client client, Variables variables) {
 		if (!runningRequest()) {
-			Logging.warn("The job " + name + "  is already running");
+			Logging.warn("The job " + name + " is already running ("
+					+ client.getIndexName() + ")");
 			return;
 		}
 		currentTaskLog = null;
@@ -230,7 +231,7 @@ public class JobItem extends ExecutionAbstract {
 				currentTaskLog.end();
 				if (task.isAbort()) {
 					abort();
-					Logging.warn("The job " + name + "  is aborted");
+					Logging.warn("The job " + name + " is aborted");
 				}
 				if (!indexHasChanged)
 					if (client.getIndex().getVersion() != originalVersion)
