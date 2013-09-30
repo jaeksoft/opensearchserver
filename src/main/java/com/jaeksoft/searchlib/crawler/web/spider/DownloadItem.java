@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -383,13 +384,16 @@ public class DownloadItem {
 		if (contentInputStream == null)
 			return;
 		FileOutputStream fos = null;
+		BufferedOutputStream bos = null;
 		try {
 			fos = new FileOutputStream(file);
-			IOUtils.copy(contentInputStream, fos);
+			bos = new BufferedOutputStream(fos);
+			IOUtils.copy(contentInputStream, bos);
 		} finally {
+			if (bos != null)
+				IOUtils.closeQuietly(bos);
 			if (fos != null)
 				IOUtils.closeQuietly(fos);
 		}
 	}
-
 }
