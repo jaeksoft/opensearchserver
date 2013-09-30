@@ -51,8 +51,9 @@ public class CommonListResult extends CommonResult {
 	}
 
 	public CommonListResult(String[] items) {
-		super(true, items.length + " item(s) found");
-		this.items = Arrays.asList(items);
+		super(true, items == null ? "No items" : items.length
+				+ " item(s) found");
+		this.items = items == null ? null : Arrays.asList(items);
 	}
 
 	public CommonListResult(List<String> items) {
