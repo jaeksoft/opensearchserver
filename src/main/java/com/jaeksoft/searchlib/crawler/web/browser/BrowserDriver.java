@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +56,8 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriver.Timeouts;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.interactions.Actions;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Charsets;
@@ -251,22 +255,52 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	/**
-	 * Click on the given WebElement. If the current URL change, return the new
-	 * URL. If the current URL does not change, return NULL;
+	 * Click on the given WebElement using Actions
 	 * 
 	 * @param element
 	 * @return
 	 */
-	public String click(WebElement element) {
-		String lastURL = driver.getCurrentUrl();
-		element.click();
-		String newURL = driver.getCurrentUrl();
-		if (lastURL != null && newURL != null && lastURL.equals(newURL))
-			return null;
-		return newURL;
+	public void click(WebElement element) {
+		Actions builder = new Actions(driver);
+		Action click = builder.moveToElement(element).click(element).build();
+		click.perform();
+	}
+
+	/**
+	 * Return the list of URL/Windows
+	 * 
+	 * @return
+	 */
+	public List<String> getUrlList() {
+		List<String> urls = new ArrayList<String>(0);
+		String old = getCurrentWindow();
+		Iterator<String> iterator = driver.getWindowHandles().iterator();
+		while (iterator.hasNext()) {
+			String window = iterator.next();
+			driver.switchTo().window(window);
+			String url = driver.getCurrentUrl();
+			urls.add(url);
+			System.out.println(window + " => " + url);
+		}
+		switchToWindow(old);
+		return urls;
 	}
 
 	public void back() {
 		driver.navigate().back();
+	}
+
+	public String getCurrentWindow() {
+		return driver.getWindowHandle();
+	}
+
+	public void switchToWindow(String window) {
+		if (window == null)
+			window = driver.getWindowHandles().iterator().next();
+		driver.switchTo().window(window);
+	}
+
+	public String getCurrentUrl() {
+		return driver.getCurrentUrl();
 	}
 }
