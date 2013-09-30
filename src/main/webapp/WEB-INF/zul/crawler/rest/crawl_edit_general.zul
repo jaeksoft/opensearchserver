@@ -83,6 +83,16 @@
 			<label value="Enter the URL of the HTTP/REST call" />
 		</row>
 		<row>
+			<label value="HTTP Method: " />
+			<listbox mold="select" model="@load(restCrawl.httpMethods)"
+				selectedItem="@bind(restCrawl.currentCrawl.method)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<label value="Enter the HTTP method" />
+		</row>
+		<row>
 			<label value="Path to documents: " />
 			<textbox value="@bind(restCrawl.currentCrawl.pathDocument)"
 				cols="120" />

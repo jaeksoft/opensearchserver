@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,7 +50,29 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 public class HttpDownloader extends HttpAbstract {
 
 	public static enum Method {
-		GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS;
+		GET(false), POST(true), PUT(false), DELETE(false), HEAD(false), PATCH(
+				true), OPTIONS(false);
+
+		private final boolean acceptPayload;
+
+		private Method(boolean payload) {
+			this.acceptPayload = payload;
+		}
+
+		/**
+		 * @return the acceptPayload
+		 */
+		public boolean isAcceptPayload() {
+			return acceptPayload;
+		}
+
+		public final static Method find(String text, Method defaultMethod) {
+			for (Method method : values())
+				if (method.name().equalsIgnoreCase(text))
+					return method;
+			return defaultMethod;
+		}
+
 	}
 
 	public HttpDownloader(final String userAgent,
