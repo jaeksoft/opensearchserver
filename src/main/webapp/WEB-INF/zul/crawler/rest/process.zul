@@ -36,7 +36,7 @@
 				<template name="model" var="thread">
 					<listitem>
 						<listcell
-							label="@load(thread.databaseCrawl.name)" />
+							label="@load(thread.restCrawlItem.name)" />
 						<listcell label="@load(thread.statusInfo)" />
 						<listcell
 							label="@load(thread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
