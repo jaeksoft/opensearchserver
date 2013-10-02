@@ -43,6 +43,7 @@ import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Tab;
 
 import com.jaeksoft.searchlib.Client;
@@ -198,8 +199,11 @@ public abstract class CommonController implements EventInterface {
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
+		if (component != null) {
+			Clients.resize(component);
+		}
 		if (Logging.isDebug)
-			Logging.debug("reload " + this);
+			Logging.debug("reload " + this + " " + component);
 	}
 
 	@Command
