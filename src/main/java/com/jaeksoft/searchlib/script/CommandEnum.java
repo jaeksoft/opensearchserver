@@ -49,7 +49,7 @@ public enum CommandEnum {
 
 	ON_ERROR(ExecutionCommands.OnErrorCommand.class),
 
-	SEARCH(SearchCommands.Search.class),
+	SEARCH_TEMPLATE(SearchCommands.SearchTemplate.class),
 
 	WEBDRIVER_OPEN(WebDriverCommands.Open.class),
 

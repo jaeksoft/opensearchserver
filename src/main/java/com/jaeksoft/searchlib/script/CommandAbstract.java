@@ -56,9 +56,9 @@ public abstract class CommandAbstract {
 				throwError("The parameter is empty: " + (i + 1));
 	}
 
-	protected String findPatternFunction(Pattern pattern) {
+	protected String findPatternFunction(int from, Pattern pattern) {
 		String functionParam = null;
-		for (int i = 1; i < getParameterCount(); i++) {
+		for (int i = from; i < getParameterCount(); i++) {
 			String param = getParameterString(i);
 			if (StringUtils.isEmpty(param))
 				continue;

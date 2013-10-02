@@ -24,30 +24,33 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class SearchCommands {
 
-	public static class Search extends CommandAbstract {
+	public static class SearchTemplate extends CommandAbstract {
 
-		public Search() {
-			super(CommandEnum.SEARCH);
+		public SearchTemplate() {
+			super(CommandEnum.SEARCH_TEMPLATE);
 		}
 
-		protected Search(CommandEnum command) {
+		protected SearchTemplate(CommandEnum command) {
 			super(command);
 		}
-
-		public final static Pattern PARAM_TEMPLATE = Pattern.compile(
-				"template\\(\\[([^\\]]*)\\]\\)", Pattern.CASE_INSENSITIVE);
-
-		public final static Pattern PARAM_QUERY = Pattern.compile(
-				"query\\(\\[([^\\]]*)\\]\\)", Pattern.CASE_INSENSITIVE);
 
 		public final static Pattern PARAM_SQL_BY_DOC = Pattern.compile(
 				"sql_by_doc\\(\\[([^\\]]*)\\]\\)", Pattern.CASE_INSENSITIVE);
@@ -55,12 +58,43 @@ public class SearchCommands {
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
-			checkParameters(0, parameters);
-			String template = findPatternFunction(PARAM_TEMPLATE);
-			String query = findPatternFunction(PARAM_QUERY);
-			String sqlByDoc = findPatternFunction(PARAM_SQL_BY_DOC);
-			System.out.println("SEARCH " + template + " - " + query + " - "
-					+ sqlByDoc);
+			checkParameters(2, parameters);
+			String template = parameters[0];
+			String query = parameters[1];
+			String sqlByDoc = findPatternFunction(2, PARAM_SQL_BY_DOC);
+			Client client = (Client) context.getConfig();
+			try {
+				AbstractRequest request = client.getNewRequest(template);
+				if (!(request instanceof AbstractSearchRequest))
+					throw new ScriptException("Wrong type of search request: "
+							+ request.getNameType());
+				AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
+				if (!query.isEmpty())
+					searchRequest.setQueryString(query);
+				AbstractResultSearch result = (AbstractResultSearch) client
+						.request(searchRequest);
+				int pos = searchRequest.getStart();
+				for (ResultDocument document : result) {
+					String sql = sqlByDoc;
+					for (FieldValue fieldValue : document.getReturnFields()
+							.values()) {
+						if (fieldValue.getValuesCount() == 0)
+							continue;
+						sql = StringUtils.replace(
+								sql,
+								StringUtils.fastConcat("{",
+										fieldValue.getName(), "}"),
+								fieldValue.getValueArray()[0].getValue());
+					}
+					sql = StringUtils.replace(sql, "{score}",
+							Float.toString(result.getScore(pos++)));
+					context.executeSqlUpdate(sql);
+				}
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			} catch (SQLException e) {
+				throw new ScriptException(e);
+			}
 		}
 	}
 
