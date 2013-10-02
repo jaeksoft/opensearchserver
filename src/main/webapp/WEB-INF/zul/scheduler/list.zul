@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -74,6 +74,9 @@
 							<button label="Execute"
 								visible="@load(job.notRunning)"
 								onClick="@command('doExecute', jobentry=job)" />
+							<button label="Clone"
+								visible="@load(job.notRunning)"
+								onClick="@command('doClone', jobentry=job)" />
 						</listcell>
 					</listitem>
 				</template>

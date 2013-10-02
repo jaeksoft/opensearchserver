@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.script;
 
 import com.jaeksoft.searchlib.script.commands.ExecutionCommands;
+import com.jaeksoft.searchlib.script.commands.SearchCommands;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.WebDriverCommands;
 
@@ -47,6 +48,8 @@ public enum CommandEnum {
 	SLEEP(ExecutionCommands.SleepCommand.class),
 
 	ON_ERROR(ExecutionCommands.OnErrorCommand.class),
+
+	SEARCH_TEMPLATE(SearchCommands.SearchTemplate.class),
 
 	WEBDRIVER_OPEN(WebDriverCommands.Open.class),
 
