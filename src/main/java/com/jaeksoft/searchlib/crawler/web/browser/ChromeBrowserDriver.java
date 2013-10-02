@@ -32,5 +32,4 @@ public class ChromeBrowserDriver extends BrowserDriver<ChromeDriver> {
 	public ChromeDriver initialize() {
 		return new ChromeDriver();
 	}
-
 }
