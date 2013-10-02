@@ -283,4 +283,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return array;
 	}
 
+	public final static String fastConcat(final CharSequence... charSeqs) {
+		if (charSeqs == null)
+			return null;
+		StringBuilder sb = new StringBuilder();
+		for (CharSequence charSeq : charSeqs)
+			sb.append(charSeq);
+		return sb.toString();
+	}
+
 }

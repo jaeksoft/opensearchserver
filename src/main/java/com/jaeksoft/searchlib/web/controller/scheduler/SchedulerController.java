@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import java.util.Date;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 
@@ -34,6 +35,7 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
+@AfterCompose(superclass = true)
 public class SchedulerController extends CommonController {
 
 	public SchedulerController() throws SearchLibException {

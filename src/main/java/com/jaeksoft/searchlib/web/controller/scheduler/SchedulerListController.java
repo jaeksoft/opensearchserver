@@ -91,11 +91,25 @@ public class SchedulerListController extends SchedulerController {
 		reload();
 	}
 
+	private void doNew(JobItem newJob) {
+		setJobItemEdit(newJob);
+		setJobItemSelected(null);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void doClone(@BindingParam("jobentry") JobItem job) {
+		JobItem newJob = new JobItem("");
+		newJob.copyFrom(job);
+		newJob.setName("New job");
+		newJob.setActive(false);
+		doNew(newJob);
+	}
+
 	@Command
 	@NotifyChange("*")
 	public void onNewJob() throws SearchLibException {
-		setJobItemEdit(new JobItem("New job"));
-		setJobItemSelected(null);
+		doNew(new JobItem("New job"));
 	}
 
 	@Command
