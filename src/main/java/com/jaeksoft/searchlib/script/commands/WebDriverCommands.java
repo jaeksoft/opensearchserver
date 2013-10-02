@@ -377,7 +377,8 @@ public class WebDriverCommands {
 				String... parameters) throws ScriptException {
 			HttpDownloader httpDownloader = null;
 			checkParameters(1, parameters);
-			String clickCaptureSql = findPatternFunction(PARAM_CLICK_CAPTURE_SQL);
+			String clickCaptureSql = findPatternFunction(1,
+					PARAM_CLICK_CAPTURE_SQL);
 			BrowserDriver<?> browserDriver = checkBrowserDriver(context);
 			File destFile = checkDestFile();
 			try {
