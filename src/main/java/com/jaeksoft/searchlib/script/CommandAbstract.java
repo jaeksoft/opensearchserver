@@ -24,6 +24,13 @@
 
 package com.jaeksoft.searchlib.script;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.jaeksoft.searchlib.util.RegExpUtils;
+
 public abstract class CommandAbstract {
 
 	private final CommandEnum commandEnum;
@@ -37,9 +44,9 @@ public abstract class CommandAbstract {
 
 	protected void checkParameters(int count, String... parameters)
 			throws ScriptException {
+		this.parameters = parameters;
 		if (count == 0)
 			return;
-		this.parameters = parameters;
 		if (parameters == null)
 			throwError("Missing parameters");
 		if (parameters.length < count)
@@ -47,6 +54,20 @@ public abstract class CommandAbstract {
 		for (int i = 0; i < count; i++)
 			if (parameters[i] == null)
 				throwError("The parameter is empty: " + (i + 1));
+	}
+
+	protected String findPatternFunction(Pattern pattern) {
+		String functionParam = null;
+		for (int i = 1; i < getParameterCount(); i++) {
+			String param = getParameterString(i);
+			if (StringUtils.isEmpty(param))
+				continue;
+			Matcher matcher = RegExpUtils.matcher(pattern, param);
+			if (matcher.find())
+				if (matcher.groupCount() > 0)
+					functionParam = matcher.group(1);
+		}
+		return functionParam;
 	}
 
 	protected int getParameterCount() {
