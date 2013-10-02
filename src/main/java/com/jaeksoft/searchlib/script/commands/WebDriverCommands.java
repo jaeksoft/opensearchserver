@@ -39,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -68,7 +67,6 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class WebDriverCommands {
 
@@ -374,27 +372,12 @@ public class WebDriverCommands {
 				"click_capture_sql\\(\\[([^\\]]*)\\]\\)",
 				Pattern.CASE_INSENSITIVE);
 
-		private String getClickCaptureSql() throws ScriptException {
-			String clickCaptureSql = null;
-			for (int i = 1; i < getParameterCount(); i++) {
-				String param = getParameterString(i);
-				if (StringUtils.isEmpty(param))
-					continue;
-				Matcher matcher = RegExpUtils.matcher(PARAM_CLICK_CAPTURE_SQL,
-						param);
-				if (matcher.find())
-					if (matcher.groupCount() > 0)
-						clickCaptureSql = matcher.group(1);
-			}
-			return clickCaptureSql;
-		}
-
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			HttpDownloader httpDownloader = null;
 			checkParameters(1, parameters);
-			String clickCaptureSql = getClickCaptureSql();
+			String clickCaptureSql = findPatternFunction(PARAM_CLICK_CAPTURE_SQL);
 			BrowserDriver<?> browserDriver = checkBrowserDriver(context);
 			File destFile = checkDestFile();
 			try {
