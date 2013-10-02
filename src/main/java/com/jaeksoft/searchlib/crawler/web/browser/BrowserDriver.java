@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -266,53 +265,21 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		click.perform();
 	}
 
-	/**
-	 * Return the list of URL/Windows
-	 * 
-	 * @return
-	 */
-	public List<String> getUrlList() {
-		List<String> urls = new ArrayList<String>(0);
-		String old = getCurrentWindow();
-		Iterator<String> iterator = driver.getWindowHandles().iterator();
-		int i = 0;
-		while (iterator.hasNext()) {
-			String window = iterator.next();
-			driver.switchTo().window(window);
-			String url = driver.getCurrentUrl();
-			urls.add(url);
-			System.out.println((++i) + " " + window + " " + url);
-		}
-		driver.switchTo().window(old);
-		return urls;
-	}
-
 	public void back() {
 		driver.navigate().back();
 	}
 
-	public String getCurrentWindow() {
-		return driver.getWindowHandle();
-	}
-
-	public void switchToWindow(String window) {
-		if (window == null)
-			window = driver.getWindowHandles().iterator().next();
-		// getUrlList();
-		driver.switchTo().window(window);
-		System.out.println("Switch to " + window);
-	}
-
-	public String openNewWindow() throws IOException, SearchLibException {
+	public void openNewWindow() throws IOException, SearchLibException {
 		javascript("window.open()", true);
 		String window = null;
 		Iterator<String> iterator = driver.getWindowHandles().iterator();
 		while (iterator.hasNext())
 			window = iterator.next();
-		return window;
+		driver.switchTo().window(window);
 	}
 
 	public String getCurrentUrl() {
 		return driver.getCurrentUrl();
 	}
+
 }

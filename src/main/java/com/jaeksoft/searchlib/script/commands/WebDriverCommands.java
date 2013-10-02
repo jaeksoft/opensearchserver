@@ -56,6 +56,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
@@ -230,40 +231,23 @@ public class WebDriverCommands {
 		}
 
 		private String performClickGetUrl(BrowserDriver<?> browserDriver,
-				WebElement element) {
-			String newURL = null;
-			String lastURL = browserDriver.getCurrentUrl();
-			List<String> lastUrls = browserDriver.getUrlList();
-			browserDriver.click(element);
-			List<String> newUrls = browserDriver.getUrlList();
-			// Check if a new URL has been created
-			if (newUrls.size() > lastUrls.size())
-				newURL = newUrls.get(lastUrls.size());
-			else
-				newURL = browserDriver.getCurrentUrl();
-			// If the main windows has moved, back to the original content
-			if (!newURL.equals(lastURL))
-				browserDriver.back();
-			if (lastURL.equals(newURL))
-				newURL = null;
-			return newURL;
-		}
-
-		private String performClickGetUrl(BrowserDriver<?> browserDriver,
 				String url) throws IOException, SearchLibException {
 			if (url == null)
 				return null;
-			String window = browserDriver.openNewWindow();
-			browserDriver.switchToWindow(window);
-			browserDriver.get(url);
-			return browserDriver.getCurrentUrl();
+			try {
+				browserDriver.openNewWindow();
+				browserDriver.get(url);
+				return browserDriver.getCurrentUrl();
+			} catch (org.openqa.selenium.TimeoutException e) {
+				Logging.warn(e);
+				return null;
+			}
 		}
 
 		private void locateAimgClickCapture(BrowserDriver<?> browserDriver,
 				Selectors.Selector selector, WebElement webElement,
-				HashMap<ClickCaptureResult, WebElement> aElementsMap,
-				HtmlArchiver htmlArchiver) throws SearchLibException,
-				IOException {
+				Collection<ClickCaptureResult> results)
+				throws SearchLibException, IOException {
 
 			List<WebElement> aElements = browserDriver.locateBy(webElement,
 					By.cssSelector("a"), true);
@@ -272,7 +256,6 @@ public class WebDriverCommands {
 			for (WebElement aElement : aElements) {
 				if (!aElement.isDisplayed())
 					continue;
-				System.out.println("FOUND " + aElement);
 				ClickCaptureResult result = new ClickCaptureResult(selector);
 				result.anchorHref = aElement.getAttribute("href");
 				List<WebElement> imgElements = browserDriver.locateBy(aElement,
@@ -282,25 +265,21 @@ public class WebDriverCommands {
 						if (!imgElement.isDisplayed())
 							continue;
 						result.imgSrc = imgElement.getAttribute("src");
-						result.filename = htmlArchiver == null ? null
-								: htmlArchiver.getUrlFileName(result.imgSrc);
 					}
 				}
-				aElementsMap.put(result, aElement);
+				results.add(result);
 			}
 		}
 
 		private void locateEmbedClickCapture(BrowserDriver<?> browserDriver,
 				Selectors.Selector selector, WebElement webElement,
-				HashMap<ClickCaptureResult, WebElement> embedElementsMap,
-				HtmlArchiver htmlArchiver) throws SearchLibException,
-				IOException {
+				Collection<ClickCaptureResult> clickCaptureResults)
+				throws SearchLibException, IOException {
 			List<WebElement> embedElements = browserDriver.locateBy(webElement,
 					By.cssSelector("embed"), true);
 			if (embedElements == null)
 				return;
 			for (WebElement embedElement : embedElements) {
-				System.out.println("FOUND " + embedElement);
 				if (!embedElement.isDisplayed())
 					continue;
 				String flashVars = embedElement.getAttribute("flashvars");
@@ -317,23 +296,19 @@ public class WebDriverCommands {
 				ClickCaptureResult result = new ClickCaptureResult(selector);
 				result.embedSrc = embedElement.getAttribute("src");
 				result.anchorHref = paramMap.get(selector.flashVarsLink);
-				embedElementsMap.put(result, embedElement);
+				clickCaptureResults.add(result);
 			}
 
 		}
 
-		private void doClickCaptures(
+		private void locateClickCaptures(
 				BrowserDriver<?> browserDriver,
 				HashMap<Selectors.Selector, HashSet<WebElement>> selectorsClickCapture,
-				Collection<ClickCaptureResult> results,
-				HtmlArchiver htmlArchiver) throws SearchLibException,
-				IOException {
+				Collection<ClickCaptureResult> results)
+				throws SearchLibException, IOException {
 			if (MapUtils.isEmpty(selectorsClickCapture))
 				return;
-			HashMap<ClickCaptureResult, WebElement> aElementsMap = new HashMap<ClickCaptureResult, WebElement>();
-			HashMap<ClickCaptureResult, WebElement> embedElementsMap = new HashMap<ClickCaptureResult, WebElement>();
 
-			browserDriver.getUrlList();
 			for (Map.Entry<Selectors.Selector, HashSet<WebElement>> entry : selectorsClickCapture
 					.entrySet()) {
 				HashSet<WebElement> webElements = entry.getValue();
@@ -342,30 +317,25 @@ public class WebDriverCommands {
 					continue;
 				for (WebElement webElement : webElements) {
 					locateAimgClickCapture(browserDriver, selector, webElement,
-							aElementsMap, htmlArchiver);
+							results);
 					locateEmbedClickCapture(browserDriver, selector,
-							webElement, embedElementsMap, htmlArchiver);
+							webElement, results);
 				}
 			}
+		}
+
+		private void clickClickCapture(BrowserDriver<?> browserDriver,
+				Collection<ClickCaptureResult> results,
+				HtmlArchiver htmlArchiver) throws IOException,
+				SearchLibException {
 
 			// Collect the final URL
-			String window = browserDriver.getCurrentWindow();
-			for (Map.Entry<ClickCaptureResult, WebElement> entry : embedElementsMap
-					.entrySet()) {
-				ClickCaptureResult result = entry.getKey();
+			for (ClickCaptureResult result : results) {
+				result.filename = htmlArchiver == null || result.imgSrc == null ? null
+						: htmlArchiver.getUrlFileName(result.imgSrc);
 				result.finalUrl = performClickGetUrl(browserDriver,
 						result.anchorHref);
-				results.add(result);
 			}
-			for (Map.Entry<ClickCaptureResult, WebElement> entry : aElementsMap
-					.entrySet()) {
-				ClickCaptureResult result = entry.getKey();
-				browserDriver.switchToWindow(window);
-				result.finalUrl = performClickGetUrl(browserDriver,
-						entry.getValue());
-				results.add(result);
-			}
-			browserDriver.switchToWindow(window);
 		}
 
 		public final static Pattern PARAM_CLICK_CAPTURE_SQL = Pattern.compile(
@@ -410,14 +380,17 @@ public class WebDriverCommands {
 				httpDownloader = context.getConfig().getWebCrawlMaster()
 						.getNewHttpDownloader(true, null);
 
+				List<ClickCaptureResult> clickCaptures = new ArrayList<ClickCaptureResult>(
+						0);
+				locateClickCaptures(browserDriver, selectorsClickCapture,
+						clickCaptures);
+
 				HtmlArchiver htmlArchiver = browserDriver.saveArchive(
 						httpDownloader, destFile, context.getSelectors());
 
-				List<ClickCaptureResult> clickCaptures = new ArrayList<WebDriverCommands.Capture.ClickCaptureResult>(
-						0);
-				doClickCaptures(browserDriver, selectorsClickCapture,
-						clickCaptures, htmlArchiver);
 				if (clickCaptures.size() > 0) {
+					clickClickCapture(browserDriver, clickCaptures,
+							htmlArchiver);
 					JsonUtils.jsonToFile(clickCaptures, new File(destFile,
 							"clickCapture.json"));
 					for (ClickCaptureResult clickCapture : clickCaptures) {
