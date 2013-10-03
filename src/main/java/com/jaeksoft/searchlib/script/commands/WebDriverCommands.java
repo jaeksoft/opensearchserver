@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.script.commands;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -44,6 +45,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
@@ -66,6 +68,7 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.ImagePHash;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
 
@@ -194,6 +197,8 @@ public class WebDriverCommands {
 			public String embedSrc = null;
 			public String imgSrc = null;
 			public String filename = null;
+			public String file_md5 = null;
+			public String file_phash = null;
 
 			private ClickCaptureResult(Selectors.Selector selector) {
 				this.selector = selector;
@@ -226,6 +231,15 @@ public class WebDriverCommands {
 				sql = StringUtils.replace(sql, "{filename}",
 						filename == null ? StringUtils.EMPTY
 								: StringEscapeUtils.escapeEcmaScript(filename));
+				sql = StringUtils.replace(sql, "{file_md5}",
+						file_md5 == null ? StringUtils.EMPTY
+								: StringEscapeUtils.escapeEcmaScript(file_md5));
+				sql = StringUtils.replace(
+						sql,
+						"{file_phash}",
+						file_phash == null ? StringUtils.EMPTY
+								: StringEscapeUtils
+										.escapeEcmaScript(file_phash));
 				return sql;
 			}
 		}
@@ -324,15 +338,47 @@ public class WebDriverCommands {
 			}
 		}
 
+		private String computeMd5(File file) {
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(file);
+				return DigestUtils.md5Hex(fis);
+			} catch (IOException e) {
+				Logging.warn(e);
+				return null;
+			} finally {
+				if (fis != null)
+					IOUtils.closeQuietly(fis);
+			}
+		}
+
+		private String computePHash(File file) {
+			ImagePHash imgPhash = new ImagePHash();
+			try {
+				BufferedImage image = ImageIO.read(file);
+				return imgPhash.getHash(image);
+			} catch (IOException e) {
+				Logging.warn(e);
+				return null;
+			}
+		}
+
 		private void clickClickCapture(BrowserDriver<?> browserDriver,
 				Collection<ClickCaptureResult> results,
-				HtmlArchiver htmlArchiver) throws IOException,
-				SearchLibException {
+				HtmlArchiver htmlArchiver) throws SearchLibException,
+				IOException {
 
 			// Collect the final URL
 			for (ClickCaptureResult result : results) {
 				result.filename = htmlArchiver == null || result.imgSrc == null ? null
 						: htmlArchiver.getUrlFileName(result.imgSrc);
+				if (result.filename != null) {
+					File file = htmlArchiver.getLocalFile(result.filename);
+					if (file.exists()) {
+						result.file_md5 = computeMd5(file);
+						result.file_phash = computePHash(file);
+					}
+				}
 				result.finalUrl = performClickGetUrl(browserDriver,
 						result.anchorHref);
 			}
