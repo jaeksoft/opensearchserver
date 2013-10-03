@@ -15,7 +15,7 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('pattern') @init('com.jaeksoft.searchlib.web.controller.query.GeneralController')">
+	viewModel="@id('pattern') @init('com.jaeksoft.searchlib.web.controller.query.PatternController')">
 	<grid>
 		<columns>
 			<column align="right" />

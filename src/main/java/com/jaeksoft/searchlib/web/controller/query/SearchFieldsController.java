@@ -34,6 +34,7 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchField;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
@@ -46,7 +47,7 @@ public class SearchFieldsController extends AbstractQueryController {
 	private transient List<String> searchableFields;
 
 	public SearchFieldsController() throws SearchLibException {
-		super();
+		super(RequestTypeEnum.SearchFieldRequest);
 	}
 
 	@Override
