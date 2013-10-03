@@ -125,6 +125,10 @@ public class HtmlArchiver {
 		return sb.toString();
 	}
 
+	final public File getLocalFile(String fileName) {
+		return new File(filesDir, fileName);
+	}
+
 	final public String getUrlFileName(String src) {
 		if (urlFileMap == null)
 			return null;
