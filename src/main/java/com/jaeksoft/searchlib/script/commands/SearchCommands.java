@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class SearchCommands {
 
@@ -74,21 +75,22 @@ public class SearchCommands {
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(searchRequest);
 				int pos = searchRequest.getStart();
-				for (ResultDocument document : result) {
-					String sql = sqlByDoc;
-					for (FieldValue fieldValue : document.getReturnFields()
-							.values()) {
-						if (fieldValue.getValuesCount() == 0)
-							continue;
-						sql = StringUtils.replace(
-								sql,
-								StringUtils.fastConcat("{",
-										fieldValue.getName(), "}"),
-								fieldValue.getValueArray()[0].getValue());
+				if (!StringUtils.isEmpty(sqlByDoc)) {
+					for (ResultDocument document : result) {
+						Variables searchVars = new Variables(
+								context.getVariables());
+						for (FieldValue fieldValue : document.getReturnFields()
+								.values()) {
+							if (fieldValue.getValuesCount() == 0)
+								continue;
+							searchVars.put(StringUtils.fastConcat("search:",
+									fieldValue.getName()), fieldValue
+									.getValueArray()[0].getValue());
+						}
+						searchVars.put("search:score",
+								Float.toString(result.getScore(pos++)));
+						context.executeSqlUpdate(searchVars.replace(sqlByDoc));
 					}
-					sql = StringUtils.replace(sql, "{score}",
-							Float.toString(result.getScore(pos++)));
-					context.executeSqlUpdate(sql);
 				}
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
