@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.utils;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.util.StringUtils;
+
 public class Variables {
 
 	public Map<String, String> map;
@@ -37,6 +39,12 @@ public class Variables {
 
 	public Variables(Map<String, String> variables) {
 		put(variables);
+	}
+
+	public Variables(Variables vars) {
+		if (vars == null)
+			return;
+		put(vars.map);
 	}
 
 	private final void checkMap() {
@@ -56,11 +64,7 @@ public class Variables {
 		if (name == null || value == null)
 			return;
 		checkMap();
-		StringBuffer sb = new StringBuffer();
-		sb.append('{');
-		sb.append(name);
-		sb.append('}');
-		map.put(sb.toString(), value);
+		map.put(StringUtils.fastConcat("{", name, "}"), value);
 	}
 
 	public final String replace(String text) {

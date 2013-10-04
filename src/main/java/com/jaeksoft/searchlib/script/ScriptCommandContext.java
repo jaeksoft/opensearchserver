@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class ScriptCommandContext implements Closeable {
 
@@ -58,6 +59,8 @@ public class ScriptCommandContext implements Closeable {
 
 	private Transaction transaction;
 
+	private Variables variables;
+
 	public static enum OnError {
 		FAILURE, RESUME, NEXT_COMMAND;
 	}
@@ -70,6 +73,7 @@ public class ScriptCommandContext implements Closeable {
 		onError = OnError.FAILURE;
 		onErrorNextCommands = null;
 		transaction = null;
+		variables = null;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -93,6 +97,14 @@ public class ScriptCommandContext implements Closeable {
 
 	public Config getConfig() {
 		return config;
+	}
+
+	public void setVariables(Variables variables) {
+		this.variables = variables;
+	}
+
+	public Variables getVariables() {
+		return variables;
 	}
 
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
