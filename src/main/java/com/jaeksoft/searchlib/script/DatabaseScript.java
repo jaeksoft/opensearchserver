@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseScript implements Closeable {
@@ -120,7 +121,7 @@ public class DatabaseScript implements Closeable {
 					variables.put(resultSet.getString(varColumnName),
 							resultSet.getString(varColumnValue));
 			}
-
+			scriptCommandContext.setVariables(variables);
 			String sqlU = variables.replace(sqlUpdate);
 			String sqlS = variables.replace(sqlSelect);
 			Query query = transaction.prepare(sqlS);
@@ -141,6 +142,11 @@ public class DatabaseScript implements Closeable {
 			CommandEnum[] commandFinder = null;
 			String lastScriptError = null;
 			while (resultSet.next()) {
+				for (int i = 1; i <= columnCount; i++)
+					variables.put(
+							StringUtils.fastConcat("sql:",
+									metaData.getColumnLabel(i)),
+							resultSet.getString(i));
 				String currentScriptError = null;
 				String id = resultSet.getString(COLUMN_ID);
 				if (pkList != null)
