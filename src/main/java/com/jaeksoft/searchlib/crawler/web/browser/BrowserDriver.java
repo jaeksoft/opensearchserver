@@ -63,9 +63,9 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.ClickCaptureResult;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
@@ -173,19 +173,22 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		timeOuts.setScriptTimeout(script, TimeUnit.SECONDS);
 	}
 
-	final public int locateBy(Selectors.Selector selector,
-			Collection<WebElement> elements, boolean faultTolerant)
-			throws SearchLibException {
+	final public List<WebElement> locateBy(By by) throws SearchLibException {
+		return driver.findElements(by);
+	}
+
+	final public int locateBy(By by, Collection<WebElement> elements,
+			boolean faultTolerant) throws SearchLibException {
 		try {
-			List<WebElement> list = driver.findElements(selector.getBy());
+			List<WebElement> list = driver.findElements(by);
 			if (list == null)
 				return 0;
 			elements.addAll(list);
 			return list.size();
 		} catch (Exception e) {
 			if (!faultTolerant)
-				throw new SearchLibException(selector.type.name() + " failed: "
-						+ selector.query, e);
+				throw new SearchLibException("Web element location failed: "
+						+ by);
 			Logging.warn(e);
 			return 0;
 		}
@@ -207,7 +210,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader,
-			File parentDirectory, Collection<Selector> selectors)
+			File parentDirectory, Collection<Selector> selectors,
+			List<ClickCaptureResult> clickCaptureResults)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, SAXException,
 			ParserConfigurationException, ClassCastException,
@@ -224,13 +228,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			if (selectors != null)
 				for (Selector selector : selectors)
 					if (selector.disableScript)
-						locateBy(selector, disableScriptWebElements, true);
+						locateBy(selector.getBy(), disableScriptWebElements,
+								true);
 			for (WebElement webElement : disableScriptWebElements) {
 				String xPath = getXPath(webElement, true);
 				if (xPath != null)
 					xPathDisableScriptSet.add(xPath);
 			}
-			archiver.archive(this, xPathDisableScriptSet);
+			archiver.archive(this, xPathDisableScriptSet, clickCaptureResults);
 			return archiver;
 		} finally {
 			if (reader != null)
@@ -238,11 +243,20 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		}
 	}
 
-	final public String getFrameSource(WebElement frameWebelement) {
+	final public String getWindow() {
+		return driver.getWindowHandle();
+	}
+
+	final public void switchToWindow(String window) {
+		driver.switchTo().window(window);
+	}
+
+	final public void switchToFrame(WebElement frameWebelement) {
 		driver.switchTo().frame(frameWebelement);
-		String source = driver.getPageSource();
+	}
+
+	final public void switchToMain() {
 		driver.switchTo().defaultContent();
-		return source;
 	}
 
 	final public void getFrameSource(WebElement frameWebelement,
@@ -250,7 +264,9 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		if (!captureDirectory.exists())
 			captureDirectory.mkdir();
 		File sourceFile = new File(captureDirectory, "source.html");
-		FileUtils.write(sourceFile, getFrameSource(frameWebelement));
+		switchToFrame(frameWebelement);
+		FileUtils.write(sourceFile, getSourceCode());
+		switchToMain();
 	}
 
 	/**
@@ -265,12 +281,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		click.perform();
 	}
 
-	public void back() {
-		driver.navigate().back();
-	}
-
 	public void openNewWindow() throws IOException, SearchLibException {
-		javascript("window.open()", true);
+		javascript("window.open()", false);
 		String window = null;
 		Iterator<String> iterator = driver.getWindowHandles().iterator();
 		while (iterator.hasNext())

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,11 +25,16 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import com.jaeksoft.searchlib.Logging;
 
 public class FilesUtils {
 
@@ -84,6 +89,20 @@ public class FilesUtils {
 			parent = parent.getParentFile();
 		}
 		return false;
+	}
+
+	public final static String computeMd5(File file) {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			return DigestUtils.md5Hex(fis);
+		} catch (IOException e) {
+			Logging.warn(e);
+			return null;
+		} finally {
+			if (fis != null)
+				IOUtils.closeQuietly(fis);
+		}
 	}
 
 }
