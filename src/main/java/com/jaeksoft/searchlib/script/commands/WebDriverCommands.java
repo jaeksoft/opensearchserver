@@ -309,7 +309,8 @@ public class WebDriverCommands {
 				}
 				ClickCaptureResult result = new ClickCaptureResult(selector);
 				result.embedSrc = embedElement.getAttribute("src");
-				result.anchorHref = paramMap.get(selector.flashVarsLink);
+				if (selector.flashVarsLink != null)
+					result.anchorHref = paramMap.get(selector.flashVarsLink);
 				clickCaptureResults.add(result);
 			}
 
