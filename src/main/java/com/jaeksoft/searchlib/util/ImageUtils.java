@@ -37,6 +37,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -220,4 +222,14 @@ public class ImageUtils {
 		return image.getSubimage(x, y, width, height);
 	}
 
+	public static String computePHash(File file) {
+		ImagePHash imgPhash = new ImagePHash();
+		try {
+			BufferedImage image = ImageIO.read(file);
+			return imgPhash.getHash(image);
+		} catch (IOException e) {
+			Logging.warn(e);
+			return null;
+		}
+	}
 }
