@@ -27,48 +27,35 @@ package com.jaeksoft.searchlib.script.commands;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.XPatherException;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.crawler.web.spider.ClickCaptureResult;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
-import com.jaeksoft.searchlib.util.ImagePHash;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
 
@@ -187,203 +174,6 @@ public class WebDriverCommands {
 			return browserDriver;
 		}
 
-		@JsonInclude(Include.NON_NULL)
-		public final static class ClickCaptureResult {
-
-			private final Selectors.Selector selector;
-
-			public String anchorHref = null;
-			public String finalUrl = null;
-			public String embedSrc = null;
-			public String imgSrc = null;
-			public String filename = null;
-			public String file_md5 = null;
-			public String file_phash = null;
-
-			private ClickCaptureResult(Selectors.Selector selector) {
-				this.selector = selector;
-			}
-
-			private String sql(String sql) {
-				sql = StringUtils.replace(
-						sql,
-						"{custom}",
-						selector.custom == null ? StringUtils.EMPTY
-								: StringEscapeUtils
-										.escapeEcmaScript(selector.custom));
-				sql = StringUtils.replace(
-						sql,
-						"{anchor_href}",
-						anchorHref == null ? StringUtils.EMPTY
-								: StringEscapeUtils
-										.escapeEcmaScript(anchorHref));
-				sql = StringUtils.replace(sql, "{final_url}",
-						finalUrl == null ? StringUtils.EMPTY
-								: StringEscapeUtils.escapeEcmaScript(finalUrl));
-				sql = StringUtils.replace(sql, "{embed_src}",
-						embedSrc == null ? StringUtils.EMPTY
-								: StringEscapeUtils.escapeEcmaScript(embedSrc));
-				sql = StringUtils.replace(
-						sql,
-						"{img_src}",
-						imgSrc == null ? StringUtils.EMPTY : StringEscapeUtils
-								.escapeEcmaScript(imgSrc));
-				sql = StringUtils.replace(sql, "{filename}",
-						filename == null ? StringUtils.EMPTY
-								: StringEscapeUtils.escapeEcmaScript(filename));
-				sql = StringUtils.replace(sql, "{file_md5}",
-						file_md5 == null ? StringUtils.EMPTY
-								: StringEscapeUtils.escapeEcmaScript(file_md5));
-				sql = StringUtils.replace(
-						sql,
-						"{file_phash}",
-						file_phash == null ? StringUtils.EMPTY
-								: StringEscapeUtils
-										.escapeEcmaScript(file_phash));
-				return sql;
-			}
-		}
-
-		private String performClickGetUrl(BrowserDriver<?> browserDriver,
-				String url) throws IOException, SearchLibException {
-			if (url == null)
-				return null;
-			try {
-				browserDriver.openNewWindow();
-				browserDriver.get(url);
-				return browserDriver.getCurrentUrl();
-			} catch (org.openqa.selenium.TimeoutException e) {
-				Logging.warn(e);
-				return null;
-			}
-		}
-
-		private void locateAimgClickCapture(BrowserDriver<?> browserDriver,
-				Selectors.Selector selector, WebElement webElement,
-				Collection<ClickCaptureResult> results)
-				throws SearchLibException, IOException {
-
-			List<WebElement> aElements = browserDriver.locateBy(webElement,
-					By.cssSelector("a"), true);
-			if (aElements == null)
-				return;
-			for (WebElement aElement : aElements) {
-				if (!aElement.isDisplayed())
-					continue;
-				ClickCaptureResult result = new ClickCaptureResult(selector);
-				result.anchorHref = aElement.getAttribute("href");
-				List<WebElement> imgElements = browserDriver.locateBy(aElement,
-						By.cssSelector("img"), true);
-				if (imgElements != null) {
-					for (WebElement imgElement : imgElements) {
-						if (!imgElement.isDisplayed())
-							continue;
-						result.imgSrc = imgElement.getAttribute("src");
-					}
-				}
-				results.add(result);
-			}
-		}
-
-		private void locateEmbedClickCapture(BrowserDriver<?> browserDriver,
-				Selectors.Selector selector, WebElement webElement,
-				Collection<ClickCaptureResult> clickCaptureResults)
-				throws SearchLibException, IOException {
-			List<WebElement> embedElements = browserDriver.locateBy(webElement,
-					By.cssSelector("embed"), true);
-			if (embedElements == null)
-				return;
-			for (WebElement embedElement : embedElements) {
-				if (!embedElement.isDisplayed())
-					continue;
-				String flashVars = embedElement.getAttribute("flashvars");
-				String[] params = StringUtils.split(flashVars, '&');
-				Map<String, String> paramMap = new TreeMap<String, String>();
-				if (params != null) {
-					for (String param : params) {
-						String[] keyValue = StringUtils.split(param, '=');
-						if (keyValue != null && keyValue.length == 2)
-							paramMap.put(keyValue[0].toLowerCase(),
-									URLDecoder.decode(keyValue[1], "UTF-8"));
-					}
-				}
-				ClickCaptureResult result = new ClickCaptureResult(selector);
-				result.embedSrc = embedElement.getAttribute("src");
-				result.anchorHref = paramMap.get(selector.flashVarsLink);
-				clickCaptureResults.add(result);
-			}
-
-		}
-
-		private void locateClickCaptures(
-				BrowserDriver<?> browserDriver,
-				HashMap<Selectors.Selector, HashSet<WebElement>> selectorsClickCapture,
-				Collection<ClickCaptureResult> results)
-				throws SearchLibException, IOException {
-			if (MapUtils.isEmpty(selectorsClickCapture))
-				return;
-
-			for (Map.Entry<Selectors.Selector, HashSet<WebElement>> entry : selectorsClickCapture
-					.entrySet()) {
-				HashSet<WebElement> webElements = entry.getValue();
-				Selectors.Selector selector = entry.getKey();
-				if (CollectionUtils.isEmpty(webElements))
-					continue;
-				for (WebElement webElement : webElements) {
-					locateAimgClickCapture(browserDriver, selector, webElement,
-							results);
-					locateEmbedClickCapture(browserDriver, selector,
-							webElement, results);
-				}
-			}
-		}
-
-		private String computeMd5(File file) {
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(file);
-				return DigestUtils.md5Hex(fis);
-			} catch (IOException e) {
-				Logging.warn(e);
-				return null;
-			} finally {
-				if (fis != null)
-					IOUtils.closeQuietly(fis);
-			}
-		}
-
-		private String computePHash(File file) {
-			ImagePHash imgPhash = new ImagePHash();
-			try {
-				BufferedImage image = ImageIO.read(file);
-				return imgPhash.getHash(image);
-			} catch (IOException e) {
-				Logging.warn(e);
-				return null;
-			}
-		}
-
-		private void clickClickCapture(BrowserDriver<?> browserDriver,
-				Collection<ClickCaptureResult> results,
-				HtmlArchiver htmlArchiver) throws SearchLibException,
-				IOException {
-
-			// Collect the final URL
-			for (ClickCaptureResult result : results) {
-				result.filename = htmlArchiver == null || result.imgSrc == null ? null
-						: htmlArchiver.getUrlFileName(result.imgSrc);
-				if (result.filename != null) {
-					File file = htmlArchiver.getLocalFile(result.filename);
-					if (file.exists()) {
-						result.file_md5 = computeMd5(file);
-						result.file_phash = computePHash(file);
-					}
-				}
-				result.finalUrl = performClickGetUrl(browserDriver,
-						result.anchorHref);
-			}
-		}
-
 		public final static Pattern PARAM_CLICK_CAPTURE_SQL = Pattern.compile(
 				"click_capture_sql\\(\\[([^\\]]*)\\]\\)",
 				Pattern.CASE_INSENSITIVE);
@@ -407,7 +197,8 @@ public class WebDriverCommands {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors) {
 						HashSet<WebElement> elements = new HashSet<WebElement>();
-						browserDriver.locateBy(selector, elements, true);
+						browserDriver
+								.locateBy(selector.getBy(), elements, true);
 						elementSet.addAll(elements);
 						if (selector.clickCapture)
 							selectorsClickCapture.put(selector, elements);
@@ -428,15 +219,16 @@ public class WebDriverCommands {
 
 				List<ClickCaptureResult> clickCaptures = new ArrayList<ClickCaptureResult>(
 						0);
-				locateClickCaptures(browserDriver, selectorsClickCapture,
-						clickCaptures);
+				ClickCaptureResult.locateClickCaptures(browserDriver,
+						selectorsClickCapture, clickCaptures);
 
 				HtmlArchiver htmlArchiver = browserDriver.saveArchive(
-						httpDownloader, destFile, context.getSelectors());
+						httpDownloader, destFile, context.getSelectors(),
+						clickCaptures);
 
 				if (clickCaptures.size() > 0) {
-					clickClickCapture(browserDriver, clickCaptures,
-							htmlArchiver);
+					ClickCaptureResult.clickClickCapture(browserDriver,
+							clickCaptures, htmlArchiver);
 					JsonUtils.jsonToFile(clickCaptures, new File(destFile,
 							"clickCapture.json"));
 					for (ClickCaptureResult clickCapture : clickCaptures) {
@@ -525,7 +317,8 @@ public class WebDriverCommands {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
 						if (selector.screenshotHighlight)
-							browserDriver.locateBy(selector, elementSet, true);
+							browserDriver.locateBy(selector.getBy(),
+									elementSet, true);
 					List<Rectangle> boxes = new ArrayList<Rectangle>(
 							elementSet.size());
 					int i = 1;

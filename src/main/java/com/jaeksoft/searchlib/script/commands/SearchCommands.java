@@ -74,6 +74,8 @@ public class SearchCommands {
 					searchRequest.setQueryString(query);
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(searchRequest);
+				context.getVariables().put("search:numfound",
+						Integer.toString(result.getNumFound()));
 				int pos = searchRequest.getStart();
 				if (!StringUtils.isEmpty(sqlByDoc)) {
 					for (ResultDocument document : result) {

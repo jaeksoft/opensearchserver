@@ -122,7 +122,6 @@ public class DatabaseScript implements Closeable {
 							resultSet.getString(varColumnValue));
 			}
 			scriptCommandContext.setVariables(variables);
-			String sqlU = variables.replace(sqlUpdate);
 			String sqlS = variables.replace(sqlSelect);
 			Query query = transaction.prepare(sqlS);
 			ResultSet resultSet = query.getResultSet();
@@ -175,8 +174,8 @@ public class DatabaseScript implements Closeable {
 							}
 						}
 						if (!bFind) {
-							doSqlUpdateOneCall(sqlU, id,
-									"ignored due to previous error");
+							doSqlUpdateOneCall(variables.replace(sqlUpdate),
+									id, "ignored due to previous error");
 							continue;
 						}
 						commandFinder = null;
@@ -202,12 +201,13 @@ public class DatabaseScript implements Closeable {
 						break;
 					}
 				}
-				doSqlUpdateOneCall(sqlU, id, currentScriptError);
+				doSqlUpdateOneCall(variables.replace(sqlUpdate), id,
+						currentScriptError);
 			}
 			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
 					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)
 				DatabaseUtils.update(transaction, pkList, lastScriptError,
-						sqlUpdateMode, sqlU);
+						sqlUpdateMode, variables.replace(sqlUpdate));
 		} finally {
 			IOUtils.closeQuietly(this);
 		}
