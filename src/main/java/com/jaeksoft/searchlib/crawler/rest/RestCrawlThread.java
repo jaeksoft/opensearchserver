@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem.CallbackMode;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.utils.Variables;
@@ -139,30 +140,58 @@ public class RestCrawlThread extends
 		return "";
 	}
 
-	private final void callback(HttpDownloader downloader, URI uri,
-			String queryPrefix, IndexDocument indexDocument)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			URISyntaxException, SearchLibException {
+	private void callback(HttpDownloader downloader, URI uri, String query)
+			throws URISyntaxException, ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException {
+		uri = new URI(uri.getScheme(), uri.getHost(), uri.getPath(), query,
+				uri.getFragment());
 		DownloadItem dlItem = downloader.request(uri,
 				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
 				null, null);
-
+		dlItem.checkNoError(200, 201, 202, 203);
 	}
 
-	private final void callback(HttpDownloader downloader, URI uri,
-			String queryPrefix, List<IndexDocument> indexDocumentList)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			URISyntaxException, SearchLibException {
+	private final void callbackPerDoc(HttpDownloader downloader, URI uri,
+			String queryPrefix, String key) throws ClientProtocolException,
+			IllegalStateException, IOException, URISyntaxException,
+			SearchLibException {
+		StringBuilder queryString = new StringBuilder();
+		String query = uri.getQuery();
+		if (query != null)
+			queryString.append(query);
 		if (!StringUtils.isEmpty(queryPrefix)) {
-
+			if (queryString.length() != 0)
+				queryString.append('&');
+			queryString.append(queryPrefix);
+			if (!StringUtils.isEmpty(key)) {
+				queryString.append('=');
+				queryString.append(key);
+			}
 		}
-		DownloadItem dlItem = downloader.request(uri,
-				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
-				null, null);
+		callback(downloader, uri, queryString.toString());
 	}
 
-	private final void doCallBack(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList)
+	private final void callbackAllDocs(HttpDownloader downloader, URI uri,
+			String queryPrefix, List<String> pkList)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			URISyntaxException, SearchLibException {
+		StringBuilder queryString = new StringBuilder();
+		String query = uri.getQuery();
+		if (query != null)
+			queryString.append(query);
+		if (!StringUtils.isEmpty(queryPrefix)) {
+			for (String key : pkList) {
+				if (queryString.length() != 0)
+					queryString.append('&');
+				queryString.append(queryPrefix);
+				queryString.append('=');
+				queryString.append(key);
+			}
+		}
+		callback(downloader, uri, queryString.toString());
+	}
+
+	private final void doCallBack(HttpDownloader downloader, List<String> pkList)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			URISyntaxException, SearchLibException {
 		CallbackMode mode = restCrawlItem.getCallbackMode();
@@ -173,11 +202,11 @@ public class RestCrawlThread extends
 		URI uri = new URI(url);
 		switch (mode) {
 		case ONE_CALL_PER_DOCUMENT:
-			for (IndexDocument indexDocument : indexDocumentList)
-				callback(downloader, uri, qp, indexDocument);
+			for (String key : pkList)
+				callbackPerDoc(downloader, uri, qp, key);
 			break;
 		case ONE_CALL_FOR_ALL_DOCUMENTS:
-			callback(downloader, uri, qp, indexDocumentList);
+			callbackAllDocs(downloader, uri, qp, pkList);
 			break;
 		default:
 			break;
@@ -195,7 +224,16 @@ public class RestCrawlThread extends
 			return false;
 		setStatus(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
-		doCallBack(downloader, indexDocumentList);
+		SchemaField uniqueField = client.getSchema().getFieldList()
+				.getUniqueField();
+		List<String> pkList = null;
+		if (uniqueField != null) {
+			pkList = new ArrayList<String>(indexDocumentList.size());
+			String fieldName = uniqueField.getName();
+			for (IndexDocument indexDocument : indexDocumentList)
+				pkList.add(indexDocument.getFieldValueString(fieldName, 0));
+		}
+		doCallBack(downloader, pkList);
 		rwl.w.lock();
 		try {
 			pendingIndexDocumentCount -= i;
