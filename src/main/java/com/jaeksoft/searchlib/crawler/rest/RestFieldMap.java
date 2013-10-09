@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.crawler.rest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import net.minidev.json.JSONArray;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -83,11 +85,19 @@ public class RestFieldMap extends
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			String jsonPath = link.getSource().getUniqueName();
 			try {
-				Object content = JsonPath.read(jsonObject, jsonPath);
-				if (content == null)
+				Object jsonContent = JsonPath.read(jsonObject, jsonPath);
+				if (jsonContent == null)
 					continue;
-				this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
-						link.getTarget(), content.toString(), target);
+				if (jsonContent instanceof JSONArray) {
+					JSONArray jsonArray = (JSONArray) jsonContent;
+					for (Object content : jsonArray) {
+						this.mapFieldTarget(webCrawlMaster, parserSelector,
+								lang, link.getTarget(), content.toString(),
+								target);
+					}
+				} else
+					this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
+							link.getTarget(), jsonContent.toString(), target);
 			} catch (PathNotFoundException e) {
 				continue;
 			} catch (IllegalArgumentException e) {

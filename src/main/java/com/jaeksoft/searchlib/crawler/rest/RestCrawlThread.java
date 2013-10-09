@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem.CallbackMode;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -138,13 +139,22 @@ public class RestCrawlThread extends
 		return "";
 	}
 
-	private final void callback(HttpDownloader downloader)
+	private final void callback(HttpDownloader downloader, URI uri,
+			String queryPrefix, IndexDocument indexDocument)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			URISyntaxException, SearchLibException {
-		URI uri = null;
-		String url = restCrawlItem.getCallbackUrl();
-		String qp = restCrawlItem.getCallbackQueryParameter();
-		if (!StringUtils.isEmpty(qp)) {
+		DownloadItem dlItem = downloader.request(uri,
+				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
+				null, null);
+
+	}
+
+	private final void callback(HttpDownloader downloader, URI uri,
+			String queryPrefix, List<IndexDocument> indexDocumentList)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			URISyntaxException, SearchLibException {
+		if (!StringUtils.isEmpty(queryPrefix)) {
+
 		}
 		DownloadItem dlItem = downloader.request(uri,
 				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
@@ -152,13 +162,24 @@ public class RestCrawlThread extends
 	}
 
 	private final void doCallBack(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList) {
-		switch (restCrawlItem.getCallbackMode()) {
-		case NO_CALL:
+			List<IndexDocument> indexDocumentList)
+			throws ClientProtocolException, IllegalStateException, IOException,
+			URISyntaxException, SearchLibException {
+		CallbackMode mode = restCrawlItem.getCallbackMode();
+		if (mode == CallbackMode.NO_CALL)
 			return;
+		String url = restCrawlItem.getCallbackUrl();
+		String qp = restCrawlItem.getCallbackQueryParameter();
+		URI uri = new URI(url);
+		switch (mode) {
 		case ONE_CALL_PER_DOCUMENT:
+			for (IndexDocument indexDocument : indexDocumentList)
+				callback(downloader, uri, qp, indexDocument);
 			break;
 		case ONE_CALL_FOR_ALL_DOCUMENTS:
+			callback(downloader, uri, qp, indexDocumentList);
+			break;
+		default:
 			break;
 		}
 
