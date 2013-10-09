@@ -271,6 +271,8 @@ public class CredentialItem {
 	public void setUpCredentials(HttpParams params,
 			AuthSchemeRegistry authSchemesRegistry,
 			CredentialsProvider credentialProvider) {
+		if (StringUtils.isEmpty(username))
+			return;
 		Credentials credentials = null;
 		switch (type) {
 		case BASIC_DIGEST:
