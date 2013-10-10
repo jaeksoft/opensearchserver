@@ -124,6 +124,13 @@
 				<filter class="SnowballNorwegianFilter" />
 			</analyzer>
 
+			<!-- Polish -->
+			<analyzer name="TextAnalyzer" lang="pl"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="PolishStemFilter" />
+			</analyzer>
+
 			<!-- Portuguese -->
 			<analyzer name="TextAnalyzer" lang="pt"
 				tokenizer="LetterOrDigitTokenizerFactory">

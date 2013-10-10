@@ -90,14 +90,14 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.get(sUrl);
 	}
 
-	public String javascript(String javascript, boolean faultTolerant,
+	public Object javascript(String javascript, boolean faultTolerant,
 			Object... objects) throws IOException, SearchLibException {
 		try {
 			if (!(driver instanceof JavascriptExecutor))
 				throw new IOException(
 						"The Web driver don't support javascript execution");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-			return (String) js.executeScript(javascript, objects);
+			return js.executeScript(javascript, objects);
 		} catch (IOException e) {
 			if (!faultTolerant)
 				throw e;
@@ -108,6 +108,23 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			Logging.warn(e);
 		}
 		return null;
+	}
+
+	public List<?> getElementByTag(String tag, boolean faultTolerant)
+			throws IOException, SearchLibException {
+		List<?> result = (List<?>) javascript(
+				"return document.getElementsByTagName(arguments[0])",
+				faultTolerant, tag);
+		System.out.println(result);
+		return result;
+	}
+
+	public String getJavascriptInnerHtml() throws IOException,
+			SearchLibException {
+		String source = (String) javascript(
+				"document.getElementsByTagName('body')[0].innerHTML", false);
+		System.out.println(source);
+		return source;
 	}
 
 	private static String XPATH_SCRIPT = null;
@@ -130,7 +147,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	public String getXPath(WebElement webElement, boolean faultTolerant)
 			throws IOException, SearchLibException {
-		String xPath = javascript(getXPath(), faultTolerant, webElement);
+		String xPath = (String) javascript(getXPath(), faultTolerant,
+				webElement);
 		if (xPath == null)
 			Logging.warn("XPATH extraction failed on " + webElement);
 		return xPath;
@@ -253,6 +271,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public void switchToFrame(WebElement frameWebelement) {
 		driver.switchTo().frame(frameWebelement);
+		driver.switchTo().activeElement();
 	}
 
 	final public void switchToMain() {
