@@ -91,9 +91,10 @@ public class RestFieldMap extends
 				if (jsonContent instanceof JSONArray) {
 					JSONArray jsonArray = (JSONArray) jsonContent;
 					for (Object content : jsonArray) {
-						this.mapFieldTarget(webCrawlMaster, parserSelector,
-								lang, link.getTarget(), content.toString(),
-								target);
+						if (content != null)
+							this.mapFieldTarget(webCrawlMaster, parserSelector,
+									lang, link.getTarget(), content.toString(),
+									target);
 					}
 				} else
 					this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
