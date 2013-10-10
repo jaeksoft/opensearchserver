@@ -76,6 +76,8 @@ public enum FilterEnum {
 
 	PhoneticFilter("A filter that encode words using phonetic algorithms."),
 
+	PolishStemFilter("Stems Polish words"),
+
 	PrefixSuffixStopFilter(
 			"This filter removes words which match with prefixes or suffixes of a given term list."),
 

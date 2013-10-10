@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,8 @@ public enum LanguageEnum {
 	KOREAN("Korean", "kr"),
 
 	NORWEGIAN("Norwegian", "no"),
+
+	POLISH("Polish", "pl"),
 
 	PORTUGUESE("Portuguese", "pt"),
 
