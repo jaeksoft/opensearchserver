@@ -241,6 +241,9 @@ public final class ClickCaptureResult implements Comparable<ClickCaptureResult> 
 				List<WebElement> embedElements = webElement.findElements(By
 						.cssSelector("embed"));
 				locateEmbedClickCapture(selector, embedElements, results);
+				List<WebElement> objectElements = webElement.findElements(By
+						.cssSelector("object > object"));
+				locateEmbedClickCapture(selector, objectElements, results);
 				locateIFrame(browserDriver, selector, webElement, results);
 			}
 		}
@@ -264,6 +267,9 @@ public final class ClickCaptureResult implements Comparable<ClickCaptureResult> 
 			List<WebElement> embedElements = browserDriver.locateBy(By
 					.cssSelector("embed"));
 			locateEmbedClickCapture(result.selector, embedElements, newResults);
+			List<WebElement> objectElements = browserDriver.locateBy(By
+					.cssSelector("object > object"));
+			locateEmbedClickCapture(result.selector, objectElements, results);
 		}
 		results.addAll(newResults);
 	}
