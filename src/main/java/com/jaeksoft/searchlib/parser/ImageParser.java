@@ -76,6 +76,8 @@ public class ImageParser extends Parser {
 
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerize(streamLimiter.getFile(), hocrFile, lang, true);
+			if (!hocrFile.exists() || hocrFile.length() == 0)
+				return;
 			HocrDocument hocrDoc = new HocrDocument(hocrFile);
 			if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 				hocrDoc.putTextToParserField(result,
