@@ -292,6 +292,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"Hunspell dictionary path",
 			"The path to the files containing the dictionnary, without the extension (.aff, .dic)");
 
+	public static final ClassPropertyEnum MIN_LENGTH = new ClassPropertyEnum(
+			true, "minLength", "Minimum length", "The minimum length");
+
 	private boolean isUser;
 
 	private String label;

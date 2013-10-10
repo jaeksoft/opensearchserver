@@ -403,6 +403,11 @@
 			<artifactId>httpcore-nio</artifactId>
 			<version>${httpcore.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-stempel</artifactId>
+			<version>${lucene.version}</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

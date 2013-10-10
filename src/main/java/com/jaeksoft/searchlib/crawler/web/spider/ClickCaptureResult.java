@@ -267,6 +267,9 @@ public final class ClickCaptureResult implements Comparable<ClickCaptureResult> 
 			List<WebElement> embedElements = browserDriver.locateBy(By
 					.cssSelector("embed"));
 			locateEmbedClickCapture(result.selector, embedElements, newResults);
+			List<WebElement> objectElements = browserDriver.locateBy(By
+					.cssSelector("object > object"));
+			locateEmbedClickCapture(result.selector, objectElements, results);
 		}
 		results.addAll(newResults);
 	}
