@@ -50,6 +50,7 @@ import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -313,4 +314,19 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return driver.getCurrentUrl();
 	}
 
+	public WebElement getParent(String tagName, WebElement element) {
+		try {
+			WebElement parent = element.findElement(By.xpath(".."));
+			if (parent == null)
+				return null;
+			if (tagName == null)
+				return parent;
+			if (tagName.equalsIgnoreCase(parent.getTagName()))
+				return parent;
+			return getParent(tagName, parent);
+		} catch (NoSuchElementException e) {
+			Logging.warn(e);
+			return null;
+		}
+	}
 }

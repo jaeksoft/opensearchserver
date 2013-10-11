@@ -153,26 +153,30 @@ public final class ClickCaptureResult implements Comparable<ClickCaptureResult> 
 	}
 
 	private static void locateAimgClickCapture(Selectors.Selector selector,
+			WebElement aElement, Collection<ClickCaptureResult> results) {
+		if (!aElement.isDisplayed())
+			return;
+		ClickCaptureResult result = new ClickCaptureResult(selector, null);
+		result.anchorHref = aElement.getAttribute("href");
+		List<WebElement> imgElements = aElement.findElements(By
+				.cssSelector("img"));
+		if (imgElements != null) {
+			for (WebElement imgElement : imgElements) {
+				if (!imgElement.isDisplayed())
+					continue;
+				result.imgSrc = imgElement.getAttribute("src");
+			}
+		}
+		results.add(result);
+	}
+
+	private static void locateAimgClickCapture(Selectors.Selector selector,
 			List<WebElement> aElements, Collection<ClickCaptureResult> results)
 			throws SearchLibException, IOException {
 		if (aElements == null)
 			return;
-		for (WebElement aElement : aElements) {
-			if (!aElement.isDisplayed())
-				continue;
-			ClickCaptureResult result = new ClickCaptureResult(selector, null);
-			result.anchorHref = aElement.getAttribute("href");
-			List<WebElement> imgElements = aElement.findElements(By
-					.cssSelector("img"));
-			if (imgElements != null) {
-				for (WebElement imgElement : imgElements) {
-					if (!imgElement.isDisplayed())
-						continue;
-					result.imgSrc = imgElement.getAttribute("src");
-				}
-			}
-			results.add(result);
-		}
+		for (WebElement aElement : aElements)
+			locateAimgClickCapture(selector, aElement, results);
 	}
 
 	private static void locateEmbedClickCapture(Selectors.Selector selector,
@@ -235,6 +239,11 @@ public final class ClickCaptureResult implements Comparable<ClickCaptureResult> 
 			if (CollectionUtils.isEmpty(webElements))
 				continue;
 			for (WebElement webElement : webElements) {
+				if ("img".equalsIgnoreCase(webElement.getTagName())) {
+					webElement = browserDriver.getParent("a", webElement);
+					if (webElement != null)
+						locateAimgClickCapture(selector, webElement, results);
+				}
 				List<WebElement> aElements = webElement.findElements(By
 						.cssSelector("a"));
 				locateAimgClickCapture(selector, aElements, results);
