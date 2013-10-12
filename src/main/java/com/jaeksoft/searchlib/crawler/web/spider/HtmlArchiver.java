@@ -459,6 +459,11 @@ public class HtmlArchiver {
 		String type = node.getAttributeByName("type");
 		if (type == null && node.getName().equalsIgnoreCase("script"))
 			type = "text/javascript";
+		if (type == null
+				&& node.getName().equalsIgnoreCase("link")
+				&& "stylesheet"
+						.equalsIgnoreCase(node.getAttributeByName("rel")))
+			type = "text/css";
 		if (type == null)
 			return false;
 		src = downloadObject(baseUrl, src, type);
