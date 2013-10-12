@@ -465,7 +465,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 					continue;
 				FieldContent fieldContent = fields.get(copyOf);
 				if (fieldContent != null)
-					setSameValueItems(fname, fieldContent.getValues());
+					add(fname, fieldContent);
 			}
 		}
 

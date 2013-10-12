@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
-			<version>1.9.18</version>
+			<version>1.9.19</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ccil.cowan.tagsoup</groupId>
@@ -154,11 +154,6 @@
 			<groupId>jcifs</groupId>
 			<artifactId>jcifs</artifactId>
 			<version>1.3.17</version>
-		</dependency>
-		<dependency>
-			<groupId>org.knallgrau.utils</groupId>
-			<artifactId>textcat</artifactId>
-			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -412,6 +407,11 @@
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-stempel</artifactId>
 			<version>${lucene.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.cybozu.labs</groupId>
+			<artifactId>langdetect</artifactId>
+			<version>1.1-20120112</version>
 		</dependency>
 	</dependencies>
 	<properties>

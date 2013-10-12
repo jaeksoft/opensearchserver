@@ -174,10 +174,13 @@ public class PdfParser extends Parser {
 		Map<String, PDXObjectImage> images = resources.getImages();
 		if (images == null)
 			return 0;
+		int count = 0;
 		for (PDXObjectImage image : images.values())
 			if (image.getRGBImage() == null)
-				throw new IOException("RGB image is null");
-		return images.size();
+				Logging.warn("RGB image is null");
+			else
+				count++;
+		return count;
 	}
 
 	private void extractImagesForOCR(ParserResultItem result, PDDocument pdf,
