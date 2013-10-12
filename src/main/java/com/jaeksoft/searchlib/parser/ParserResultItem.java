@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import org.knallgrau.utils.textcat.TextCategorizer;
-
+import com.cybozu.labs.langdetect.LangDetectException;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -127,9 +127,12 @@ public class ParserResultItem {
 		if (text == null)
 			return null;
 		langMethod = "ngram recognition";
-		String textcat = new TextCategorizer().categorize(text, text.length());
-		lang = Lang.findLocaleDescription(textcat);
-
+		try {
+			lang = Lang.langDetection(text, text.length());
+		} catch (LangDetectException e) {
+			Logging.warn(e);
+			return null;
+		}
 		if (lang == null)
 			return null;
 
