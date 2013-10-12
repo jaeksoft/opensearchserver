@@ -30,7 +30,7 @@ public enum LanguageEnum {
 
 	ARABIC("Arabic", "ar"),
 
-	CHINESE("Chinese", "zh"),
+	CHINESE("Chinese", "zh", "zh-cn"),
 
 	DANISH("Danish", "da"),
 
@@ -50,7 +50,7 @@ public enum LanguageEnum {
 
 	JAPANESE("Japanese", "ja"),
 
-	KOREAN("Korean", "kr"),
+	KOREAN("Korean", "kr", "ko"),
 
 	NORWEGIAN("Norwegian", "no"),
 
@@ -68,13 +68,20 @@ public enum LanguageEnum {
 
 	TURKISH("Turkish", "tr");
 
-	private String name;
+	private final String name;
 
-	private String code;
+	private final String code;
 
-	private LanguageEnum(String name, String code) {
+	private final String alternativeCode;
+
+	private LanguageEnum(String name, String code, String alternativeCode) {
 		this.name = name;
 		this.code = code;
+		this.alternativeCode = alternativeCode;
+	}
+
+	private LanguageEnum(String name, String code) {
+		this(name, code, null);
 	}
 
 	public String getName() {
@@ -83,6 +90,10 @@ public enum LanguageEnum {
 
 	public String getCode() {
 		return code;
+	}
+
+	public String getAlternativeCode() {
+		return alternativeCode;
 	}
 
 	public static LanguageEnum findByCode(String code) {

@@ -24,7 +24,18 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import org.apache.cxf.helpers.IOUtils;
+
+import com.cybozu.labs.langdetect.Detector;
+import com.cybozu.labs.langdetect.DetectorFactory;
+import com.cybozu.labs.langdetect.LangDetectException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
 public class Lang {
 
@@ -42,10 +53,13 @@ public class Lang {
 		return null;
 	}
 
-	public static Locale findLocaleDescription(String language) {
-		if (language == null)
+	public static final Locale findLocaleDescription(String language) {
+		if (StringUtils.isEmpty(language))
 			return null;
 		Locale[] locales = Locale.getAvailableLocales();
+		for (Locale locale : locales)
+			if (locale.getLanguage().equalsIgnoreCase(language))
+				return locale;
 		for (Locale locale : locales)
 			if (locale.getDisplayName(Locale.ENGLISH)
 					.equalsIgnoreCase(language))
@@ -61,6 +75,49 @@ public class Lang {
 			if (locale.getDisplayLanguage().equalsIgnoreCase(language))
 				return locale;
 		return null;
+	}
 
+	static {
+		try {
+			List<String> profiles = new ArrayList<String>(0);
+			for (LanguageEnum le : LanguageEnum.values()) {
+				if (le == LanguageEnum.UNDEFINED)
+					continue;
+				InputStream is = com.cybozu.labs.langdetect.Detector.class
+						.getResourceAsStream("/profiles/" + le.getCode());
+				if (is == null && le.getAlternativeCode() != null)
+					is = com.cybozu.labs.langdetect.Detector.class
+							.getResourceAsStream("/profiles/"
+									+ le.getAlternativeCode());
+				if (is == null) {
+					System.err.println("Not profile for lang " + le.getName());
+					continue;
+				}
+				profiles.add(IOUtils.readStringFromStream(is));
+				is.close();
+			}
+			DetectorFactory.loadProfile(profiles);
+		} catch (LangDetectException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static final Locale langDetection(String text, int length)
+			throws LangDetectException {
+		if (StringUtils.isEmpty(text))
+			return null;
+		Detector detector = DetectorFactory.create();
+		detector.setMaxTextLength(length);
+		detector.append(text);
+		String lang = detector.detect();
+		return Lang.findLocaleDescription(lang);
+	}
+
+	private final static String HU_TEST = "OpenSearchServer documentation Spaces People Quick Search Help Online Help Keyboard Shortcuts Feed Builder What’s new Available Gadgets Log In Sign Up Settings Popular Labels All Labels Popular Labels Skip to Recently Updated userguide Powered by a free Atlassian Confluence Open Source Project License granted to OpenSearchServer. Evaluate Confluence today . Powered by Atlassian Confluence 5.1.3 , Team Collaboration Software Printed by Atlassian Confluence 5.1.3, Team Collaboration Software. Report a bug Atlassian News";
+
+	public final static void main(String[] args) throws LangDetectException {
+		System.out.println(langDetection(HU_TEST, 10000));
 	}
 }
