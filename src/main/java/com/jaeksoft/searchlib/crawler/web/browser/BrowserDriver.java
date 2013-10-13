@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.browser;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -64,7 +65,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.spider.ClickCaptureResult;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
@@ -164,6 +164,15 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return ImageIO.read(new ByteArrayInputStream(data));
 	}
 
+	final public Rectangle getRectangle(WebElement element) {
+		if (element == null)
+			return null;
+		Rectangle box = new Rectangle(element.getLocation().x,
+				element.getLocation().y, element.getSize().width,
+				element.getSize().height);
+		return box;
+	}
+
 	public String getSourceCode() {
 		return driver.getPageSource();
 	}
@@ -229,8 +238,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	}
 
 	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader,
-			File parentDirectory, Collection<Selector> selectors,
-			List<ClickCaptureResult> clickCaptureResults)
+			File parentDirectory, Collection<Selector> selectors)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, SAXException,
 			ParserConfigurationException, ClassCastException,
@@ -254,7 +262,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				if (xPath != null)
 					xPathDisableScriptSet.add(xPath);
 			}
-			archiver.archive(this, xPathDisableScriptSet, clickCaptureResults);
+			archiver.archive(this, xPathDisableScriptSet);
 			return archiver;
 		} finally {
 			if (reader != null)
@@ -272,7 +280,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public void switchToFrame(WebElement frameWebelement) {
 		driver.switchTo().frame(frameWebelement);
-		driver.switchTo().activeElement();
 	}
 
 	final public void switchToMain() {
