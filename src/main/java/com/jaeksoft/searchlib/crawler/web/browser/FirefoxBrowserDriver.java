@@ -33,7 +33,7 @@ public class FirefoxBrowserDriver extends BrowserDriver<FirefoxDriver> {
 	public FirefoxDriver initialize() {
 		FirefoxProfile profile = new FirefoxProfile();
 		profile.setPreference("network.http.phishy-userpass-length", 255);
-		profile.setEnableNativeEvents(true);
+		profile.setEnableNativeEvents(false);
 		return new FirefoxDriver(profile);
 	}
 
