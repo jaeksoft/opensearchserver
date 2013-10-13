@@ -30,10 +30,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -41,6 +39,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
@@ -49,7 +48,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
-import com.jaeksoft.searchlib.crawler.web.spider.ClickCaptureResult;
+import com.jaeksoft.searchlib.crawler.web.spider.ClickCapture;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.CommandAbstract;
@@ -191,50 +190,34 @@ public class WebDriverCommands {
 
 				Collection<Selectors.Selector> selectors = context
 						.getSelectors();
-				HashMap<Selectors.Selector, HashSet<WebElement>> selectorsClickCapture = null;
+				Collection<ClickCapture> clickCaptures = null;
+				BufferedImage screenshot = null;
 				if (selectors != null) {
-					selectorsClickCapture = new HashMap<Selectors.Selector, HashSet<WebElement>>();
-					HashSet<WebElement> elementSet = new HashSet<WebElement>();
+					clickCaptures = new ArrayList<ClickCapture>(0);
 					for (Selectors.Selector selector : selectors) {
-						HashSet<WebElement> elements = new HashSet<WebElement>();
+						List<WebElement> elements = new ArrayList<WebElement>(0);
 						browserDriver
 								.locateBy(selector.getBy(), elements, true);
-						elementSet.addAll(elements);
 						if (selector.clickCapture)
-							selectorsClickCapture.put(selector, elements);
+							clickCaptures.add(new ClickCapture(browserDriver,
+									selector, elements));
 					}
-					int i = 1;
-					File captureFile = new File(destFile, "capture");
-					for (WebElement element : elementSet) {
-						if ("iframe".equals(element.getTagName())) {
-							if (!captureFile.exists())
-								captureFile.mkdir();
-							browserDriver.getFrameSource(element, new File(
-									captureFile, Integer.toString(i)));
-						}
-					}
+					if (!CollectionUtils.isEmpty(clickCaptures))
+						screenshot = browserDriver.getScreenshot();
 				}
 				httpDownloader = context.getConfig().getWebCrawlMaster()
 						.getNewHttpDownloader(true, null);
 
-				List<ClickCaptureResult> clickCaptures = new ArrayList<ClickCaptureResult>(
-						0);
-				ClickCaptureResult.locateClickCaptures(browserDriver,
-						selectorsClickCapture, clickCaptures);
-
 				HtmlArchiver htmlArchiver = browserDriver.saveArchive(
-						httpDownloader, destFile, context.getSelectors(),
-						clickCaptures);
+						httpDownloader, destFile, context.getSelectors());
 
-				if (clickCaptures.size() > 0) {
-					ClickCaptureResult.clickClickCapture(browserDriver,
-							clickCaptures, htmlArchiver);
+				if (!CollectionUtils.isEmpty(clickCaptures)) {
+					ClickCapture.locate(browserDriver, clickCaptures);
+					ClickCapture.click(browserDriver, clickCaptures,
+							htmlArchiver, screenshot);
 					JsonUtils.jsonToFile(clickCaptures, new File(destFile,
 							"clickCapture.json"));
-					for (ClickCaptureResult clickCapture : clickCaptures) {
-						String sql = clickCapture.sql(clickCaptureSql);
-						context.executeSqlUpdate(sql);
-					}
+					ClickCapture.sql(context, clickCaptureSql, clickCaptures);
 				}
 
 			} catch (IOException e) {
@@ -244,8 +227,6 @@ public class WebDriverCommands {
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			} catch (ClassCastException e) {
-				throw new ScriptException(e);
-			} catch (SQLException e) {
 				throw new ScriptException(e);
 			} catch (URISyntaxException e) {
 				throw new ScriptException(e);
@@ -323,10 +304,7 @@ public class WebDriverCommands {
 							elementSet.size());
 					int i = 1;
 					for (WebElement element : elementSet) {
-						Rectangle box = new Rectangle(element.getLocation().x,
-								element.getLocation().y,
-								element.getSize().width,
-								element.getSize().height);
+						Rectangle box = browserDriver.getRectangle(element);
 						boxes.add(box);
 						ImageUtils.yellowHighlight(image, boxes);
 						String area = HTML_AREA.replace(SUBST_COORD,
