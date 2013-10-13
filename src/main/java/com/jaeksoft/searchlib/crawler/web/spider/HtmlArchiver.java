@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -80,7 +79,6 @@ public class HtmlArchiver {
 	private final HttpDownloader downloader;
 	private final RecursiveTracker recursiveSecurity;
 	private URL baseUrl;
-	private BufferedImage screenshot = null;
 
 	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir,
 			HttpDownloader httpDownloader, URL url) {
