@@ -35,7 +35,6 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -137,14 +136,15 @@ public class HtmlArchiver {
 		return urlFileMap.get(url);
 	}
 
-	final private File getAndRegisterDestFile(String urlString,
-			String baseName, String extension) {
+	final public File getAndRegisterDestFile(String urlString, String baseName,
+			String extension) {
 		String fileName = buildFileName(baseName, extension, null);
 		Integer fileCount = fileCountMap.get(fileName);
 		fileCount = fileCount == null ? new Integer(0) : fileCount + 1;
 		fileCountMap.put(fileName, fileCount);
 		fileName = buildFileName(baseName, extension, fileCount);
-		urlFileMap.put(urlString, fileName);
+		if (urlString != null)
+			urlFileMap.put(urlString, fileName);
 		return new File(filesDir, fileName);
 	}
 
@@ -383,8 +383,7 @@ public class HtmlArchiver {
 	}
 
 	final private String downloadIframe(URL parentUrl, TagNode node,
-			Map<TagNode, WebElement> iframeNodeMap,
-			List<ClickCaptureResult> clickCaptureResults) throws IOException,
+			Map<TagNode, WebElement> iframeNodeMap) throws IOException,
 			ParserConfigurationException, SAXException, IllegalStateException,
 			SearchLibException, URISyntaxException {
 		if (iframeNodeMap == null) {
@@ -406,32 +405,25 @@ public class HtmlArchiver {
 		else
 			urlFileMapKey = Integer.toString(node.hashCode());
 		File destFile = getAndRegisterDestFile(urlFileMapKey, "iframe", "html");
-		String iFrameXPath = browserDriver.getXPath(webElement, true);
 		browserDriver.switchToFrame(webElement);
 		String frameSource = browserDriver.getSourceCode();
-		if (clickCaptureResults != null)
-			ClickCaptureResult.locateIFrame(clickCaptureResults, browserDriver,
-					iFrameXPath);
-		browserDriver.switchToMain();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(frameSource);
-		recursiveArchive(htmlCleanerParser.getTagNode(), null, iframeNodeMap,
-				clickCaptureResults);
+		recursiveArchive(htmlCleanerParser.getTagNode(), null, iframeNodeMap);
 		htmlCleanerParser.writeHtmlToFile(destFile);
 		baseUrl = oldBaseUrl;
+		browserDriver.switchToMain();
 		return getLocalPath(parentUrl, destFile.getName());
 	}
 
 	final private boolean downloadObjectIframe(TagNode node,
-			Map<TagNode, WebElement> iframeNodeMap,
-			List<ClickCaptureResult> clickCaptureResults)
+			Map<TagNode, WebElement> iframeNodeMap)
 			throws IllegalStateException, IOException,
 			ParserConfigurationException, SAXException, SearchLibException,
 			URISyntaxException {
 		if (!"iframe".equalsIgnoreCase(node.getName()))
 			return false;
-		String src = downloadIframe(baseUrl, node, iframeNodeMap,
-				clickCaptureResults);
+		String src = downloadIframe(baseUrl, node, iframeNodeMap);
 		if (src != null)
 			node.addAttribute("src", src);
 		return true;
@@ -491,15 +483,14 @@ public class HtmlArchiver {
 
 	final private void recursiveArchive(TagNode node,
 			Set<TagNode> disableScriptNodeSet,
-			Map<TagNode, WebElement> iframeNodeMap,
-			List<ClickCaptureResult> clickCaptureResults)
+			Map<TagNode, WebElement> iframeNodeMap)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException,
 			ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
 		checkBaseHref(node);
-		if (!downloadObjectIframe(node, iframeNodeMap, clickCaptureResults))
+		if (!downloadObjectIframe(node, iframeNodeMap))
 			if (!downloadObjectSrc(node))
 				downloadObjectLink(node);
 		checkStyleCSS(node);
@@ -509,13 +500,11 @@ public class HtmlArchiver {
 		if (nodes == null)
 			return;
 		for (TagNode n : nodes)
-			recursiveArchive(n, disableScriptNodeSet, iframeNodeMap,
-					clickCaptureResults);
+			recursiveArchive(n, disableScriptNodeSet, iframeNodeMap);
 	}
 
 	final public void archive(BrowserDriver<?> browserDriver,
-			Set<String> xPathDisableScriptSet,
-			List<ClickCaptureResult> clickCaptureResults) throws IOException,
+			Set<String> xPathDisableScriptSet) throws IOException,
 			ParserConfigurationException, SAXException, IllegalStateException,
 			SearchLibException, URISyntaxException, XPatherException {
 		String pageSource = browserDriver.getSourceCode();
@@ -552,7 +541,7 @@ public class HtmlArchiver {
 							+ xPath);
 		}
 		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet,
-				iframeNodeMap, clickCaptureResults);
+				iframeNodeMap);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)

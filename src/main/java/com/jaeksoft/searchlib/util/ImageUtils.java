@@ -213,8 +213,8 @@ public class ImageUtils {
 		return reduceImage(image, (int) newWidth, (int) newHeight);
 	}
 
-	public static BufferedImage getSubimage(BufferedImage image, int x, int y,
-			int width, int height) {
+	public final static BufferedImage getSubimage(BufferedImage image, int x,
+			int y, int width, int height) {
 		if (width > image.getWidth() - x)
 			width = image.getWidth() - x;
 		if (height > image.getHeight() - y)
@@ -222,7 +222,13 @@ public class ImageUtils {
 		return image.getSubimage(x, y, width, height);
 	}
 
-	public static String computePHash(File file) {
+	public final static BufferedImage getSubImage(BufferedImage image,
+			Rectangle rectangle) {
+		return image.getSubimage(rectangle.x, rectangle.y, rectangle.width,
+				rectangle.height);
+	}
+
+	public final static String computePHash(File file) {
 		ImagePHash imgPhash = new ImagePHash();
 		try {
 			BufferedImage image = ImageIO.read(file);
@@ -232,4 +238,5 @@ public class ImageUtils {
 			return null;
 		}
 	}
+
 }
