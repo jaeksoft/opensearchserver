@@ -68,7 +68,7 @@ public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
 
 	@Override
 	public CommonResult run(String index, String login, String key,
-			String crawl_name, Map<String, String> variables) {
+			String crawl_name, Boolean returnIds, Map<String, String> variables) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(index, login, key,
@@ -78,7 +78,10 @@ public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
 			if (restCrawlItem == null)
 				throw new CommonServiceException(Status.NOT_FOUND,
 						"Crawl item not found: " + crawl_name);
-			CommonResult result = new CommonResult(true, null);
+			if (returnIds == null)
+				returnIds = false;
+			CommonResult result = returnIds ? new CommonListResult(
+					new ArrayList<String>(0)) : new CommonResult(true, null);
 			RestCrawlThread restCrawlThread = client
 					.getRestCrawlMaster()
 					.execute(
@@ -89,6 +92,8 @@ public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
 							result);
 			if (restCrawlThread.getStatus() == CrawlStatus.ERROR)
 				throw new CommonServiceException(restCrawlThread.getException());
+			if (result instanceof CommonListResult)
+				((CommonListResult) result).computeInfos();
 			return result;
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -99,5 +104,4 @@ public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
 		}
 
 	}
-
 }

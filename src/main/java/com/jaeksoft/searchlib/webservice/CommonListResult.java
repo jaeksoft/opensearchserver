@@ -67,4 +67,8 @@ public class CommonListResult extends CommonResult {
 		for (AutoCompletionItem item : items)
 			this.items.add(item.getName());
 	}
+
+	public void computeInfos() {
+		setInfo(items == null ? "No items" : items.size() + " item(s) found");
+	}
 }

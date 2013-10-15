@@ -42,6 +42,7 @@ public interface SoapRestCrawler {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "crawl_name") String name,
+			@WebParam(name = "returnd_ids") Boolean return_ids,
 			@WebParam(name = "variables") Map<String, String> variables);
 
 }
