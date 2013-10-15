@@ -53,6 +53,7 @@ public interface RestRestCrawler {
 	public CommonResult run(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("crawl_name") String crawlName,
+			@QueryParam("return_ids") Boolean returnIds,
 			Map<String, String> variables);
 
 }
