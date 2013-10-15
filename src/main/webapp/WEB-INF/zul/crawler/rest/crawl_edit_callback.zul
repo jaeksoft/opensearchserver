@@ -38,20 +38,22 @@
 			<label value="Enter the HTTP method" />
 		</row>
 		<row>
-			<label value="Query parameter: " />
+			<label value="Query string parameter: " />
 			<textbox
 				value="@bind(restCrawl.currentCrawl.callbackQueryParameter)"
 				cols="20" />
 			<label
-				value="Enter the name of the optional query parameter" />
+				value="Enter the name of the optional query string parameter" />
 		</row>
-		<row>
+		<!-- 
+			<row>
 			<label value="Payload: " />
 			<textbox
-				value="@bind(restCrawl.currentCrawl.callbackPayload)" rows="8"
-				cols="80" />
+			value="@bind(restCrawl.currentCrawl.callbackPayload)" rows="8"
+			cols="80" />
 			<label value="Enter the optional payload" />
-		</row>
+			</row>
+		-->
 		<row>
 			<label value="Mode: " />
 			<listbox mold="select"
