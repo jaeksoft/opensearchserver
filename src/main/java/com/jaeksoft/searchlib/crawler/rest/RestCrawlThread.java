@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jayway.jsonpath.JsonPath;
 
 public class RestCrawlThread extends
@@ -68,6 +70,8 @@ public class RestCrawlThread extends
 
 	protected final InfoCallback infoCallback;
 
+	private final Collection<String> idsCallback;
+
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
 			RestCrawlItem restCrawlItem, Variables variables,
 			InfoCallback infoCallback) {
@@ -80,6 +84,9 @@ public class RestCrawlThread extends
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		this.infoCallback = infoCallback;
+		this.idsCallback = infoCallback != null
+				&& infoCallback instanceof CommonListResult ? ((CommonListResult) infoCallback).items
+				: null;
 	}
 
 	public String getCountInfo() {
@@ -143,11 +150,11 @@ public class RestCrawlThread extends
 	private void callback(HttpDownloader downloader, URI uri, String query)
 			throws URISyntaxException, ClientProtocolException,
 			IllegalStateException, IOException, SearchLibException {
-		uri = new URI(uri.getScheme(), uri.getHost(), uri.getPath(), query,
-				uri.getFragment());
+		uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(),
+				uri.getPath(), query, uri.getFragment());
 		DownloadItem dlItem = downloader.request(uri,
-				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
-				null, null);
+				restCrawlItem.getCallbackMethod(),
+				restCrawlItem.getCredential(), null, null, null);
 		dlItem.checkNoError(200, 201, 202, 203);
 	}
 
@@ -179,7 +186,7 @@ public class RestCrawlThread extends
 		String query = uri.getQuery();
 		if (query != null)
 			queryString.append(query);
-		if (!StringUtils.isEmpty(queryPrefix)) {
+		if (!StringUtils.isEmpty(queryPrefix) && pkList != null) {
 			for (String key : pkList) {
 				if (queryString.length() != 0)
 					queryString.append('&');
@@ -202,8 +209,9 @@ public class RestCrawlThread extends
 		URI uri = new URI(url);
 		switch (mode) {
 		case ONE_CALL_PER_DOCUMENT:
-			for (String key : pkList)
-				callbackPerDoc(downloader, uri, qp, key);
+			if (pkList != null)
+				for (String key : pkList)
+					callbackPerDoc(downloader, uri, qp, key);
 			break;
 		case ONE_CALL_FOR_ALL_DOCUMENTS:
 			callbackAllDocs(downloader, uri, qp, pkList);
@@ -232,6 +240,8 @@ public class RestCrawlThread extends
 			String fieldName = uniqueField.getName();
 			for (IndexDocument indexDocument : indexDocumentList)
 				pkList.add(indexDocument.getFieldValueString(fieldName, 0));
+			if (idsCallback != null)
+				idsCallback.addAll(pkList);
 		}
 		doCallBack(downloader, pkList);
 		rwl.w.lock();
@@ -242,9 +252,10 @@ public class RestCrawlThread extends
 			rwl.w.unlock();
 		}
 		indexDocumentList.clear();
-		if (infoCallback != null)
+		if (infoCallback != null) {
 			infoCallback.setInfo(updatedIndexDocumentCount
 					+ " document(s) indexed");
+		}
 		return true;
 	}
 
