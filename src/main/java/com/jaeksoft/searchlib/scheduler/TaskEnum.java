@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.scheduler.task.TaskPullTerms;
 import com.jaeksoft.searchlib.scheduler.task.TaskQueryCheck;
 import com.jaeksoft.searchlib.scheduler.task.TaskReplicationRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskReportLoadLogFile;
+import com.jaeksoft.searchlib.scheduler.task.TaskRestCrawlerRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskSleep;
 import com.jaeksoft.searchlib.scheduler.task.TaskUploadMonitor;
 import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
@@ -73,6 +74,8 @@ public class TaskEnum extends ExtensibleEnum<TaskEnumItem> {
 		new TaskEnumItem(this, TaskOtherScheduler.class);
 
 		new TaskEnumItem(this, TaskReplicationRun.class);
+
+		new TaskEnumItem(this, TaskRestCrawlerRun.class);
 
 		new TaskEnumItem(this, TaskSleep.class);
 
