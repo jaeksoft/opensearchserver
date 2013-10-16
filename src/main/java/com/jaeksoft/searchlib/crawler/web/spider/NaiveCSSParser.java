@@ -106,6 +106,8 @@ public class NaiveCSSParser {
 
 		@Override
 		public void write(PrintWriter pw) {
+			if (StringUtils.isEmpty(selector))
+				return;
 			pw.print(selector);
 			pw.print("{");
 			boolean first = true;
@@ -174,21 +176,25 @@ public class NaiveCSSParser {
 
 	public class CSSImportRule extends CSSRule {
 
-		private String href;
+		private String href = null;
 
-		private final String media;
+		private List<String> medias = null;
 
 		protected CSSImportRule(int pos, String atRule, String atProperty) {
 			super(pos);
-			StringUtils.split(atProperty);
-			Matcher matcher = findUrl(atProperty);
-			if (matcher.find()) {
-				href = matcher.group(1);
-				media = matcher.replaceFirst("");
-			} else {
-				href = null;
-				media = atProperty;
-			}
+			String[] parms = StringUtils.split(atProperty);
+			if (parms == null)
+				return;
+			if (parms.length == 0)
+				return;
+			href = parms[0];
+			if (href.startsWith("\"") && href.endsWith("\""))
+				href = href.substring(1, href.length() - 1);
+			if (parms.length == 1)
+				return;
+			medias = new ArrayList<String>(parms.length - 1);
+			for (int i = 1; i < parms.length; i++)
+				medias.add(parms[i]);
 		}
 
 		public String getHref() {
@@ -207,9 +213,9 @@ public class NaiveCSSParser {
 				pw.print(href);
 				pw.print("')");
 			}
-			if (media != null && media.length() > 0) {
+			if (medias != null && medias.size() > 0) {
 				pw.print(" ");
-				pw.print(media);
+				pw.print(StringUtils.join(medias, ' '));
 			}
 			pw.println(';');
 		}
