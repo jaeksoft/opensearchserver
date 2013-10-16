@@ -92,11 +92,17 @@ public class TaskUrlManagerAction extends TaskAbstract {
 		optimize = true;
 	}
 
+	public void setsynchronize() {
+		synchronize = true;
+	}
+
 	private AbstractSearchRequest selectionRequest = null;
 
 	private boolean doSiteMaps;
 
 	private boolean deleteSelection;
+
+	private boolean synchronize;
 
 	private FetchStatus setToFetchStatus;
 
@@ -104,11 +110,12 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	public void setSelection(boolean doSiteMaps,
 			AbstractSearchRequest selectionRequest, boolean deleteSelection,
-			FetchStatus setToFetchStatus, int bufferSize) {
+			FetchStatus setToFetchStatus, boolean synchronize, int bufferSize) {
 		this.doSiteMaps = doSiteMaps;
 		this.selectionRequest = selectionRequest;
 		this.setToFetchStatus = setToFetchStatus;
 		this.deleteSelection = deleteSelection;
+		this.synchronize = synchronize;
 		this.bufferSize = bufferSize;
 	}
 
@@ -130,6 +137,10 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			} else if (deleteSelection) {
 				taskLog.setInfo("URL manager: delete selection");
 				urlManager.deleteUrls(selectionRequest, bufferSize, taskLog);
+			} else if (synchronize) {
+				taskLog.setInfo("URL manager: synchronize");
+				urlManager.synchronizeIndex(selectionRequest, bufferSize,
+						taskLog);
 			}
 		}
 		if (doSiteMaps || CommandLoadSitemap.equals(command)) {

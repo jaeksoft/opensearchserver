@@ -347,8 +347,9 @@ public class FileManager extends AbstractManager {
 		fileDbClient.deleteDocuments(fileItemFieldEnum.uri.getName(),
 				rowToDelete);
 
-		String targetField = findIndexedFieldOfTargetIndex(fileItemFieldEnum.uri
-				.getName());
+		String targetField = findIndexedFieldOfTargetIndex(
+				targetClient.getFileCrawlerFieldMap(),
+				fileItemFieldEnum.uri.getName());
 		if (targetField != null)
 			targetClient.deleteDocuments(targetField, rowToDelete);
 		return true;
@@ -461,8 +462,9 @@ public class FileManager extends AbstractManager {
 			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
 			if (documentsToDelete.size() > 0) {
-				String targetField = findIndexedFieldOfTargetIndex(fileItemFieldEnum.uri
-						.getName());
+				String targetField = findIndexedFieldOfTargetIndex(
+						targetClient.getFileCrawlerFieldMap(),
+						fileItemFieldEnum.uri.getName());
 				if (targetField != null)
 					targetClient
 							.deleteDocuments(targetField, documentsToDelete);
