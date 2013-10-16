@@ -30,6 +30,9 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
@@ -45,15 +48,40 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			TaskPropertyType.comboBox, "Command", "Command",
 			"Select the command to execute", 30);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCommand };
+	final private TaskPropertyDef propRobotsTxtStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Robots.txt status", "Robots.txt status",
+			"Filter on the Robots.txt status", 20);
 
-	final private static String CommandDoNothing = "Do nothing";
-	final private static String CommandDeleteAll = "Delete all";
-	final private static String CommandLoadSitemap = "Load Sitemap(s)";
-	final private static String CommandOptimize = "Optimize";
+	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Fetch status", "Fetch status",
+			"Filter on the fetch status", 20);
+
+	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Parser status", "Parser status",
+			"Filter on the Parser status", 20);
+
+	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Index status", "Index status",
+			"Filter on the index status", 20);
+
+	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Buffer size", "Buffer size",
+			"Buffer size", 10);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand,
+			propRobotsTxtStatus, propFetchStatus, propParserStatus,
+			propIndexStatus, propBufferSize };
+
+	final public static String CommandDoNothing = "Do nothing";
+	final public static String CommandDeleteAll = "Delete all";
+	final public static String CommandDeleteSelection = "Delete selection";
+	final public static String CommandLoadSitemap = "Load Sitemap(s)";
+	final public static String CommandOptimize = "Optimize";
+	final public static String CommandSynchronize = "Synchronize";
 
 	final private static String[] CommandList = { CommandDoNothing,
-			CommandDeleteAll, CommandLoadSitemap, CommandOptimize };
+			CommandDeleteSelection, CommandDeleteAll, CommandLoadSitemap,
+			CommandSynchronize, CommandOptimize };
 
 	@Override
 	public String getName() {
@@ -70,6 +98,14 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propCommand)
 			return CommandList;
+		else if (propertyDef == propRobotsTxtStatus)
+			return RobotsTxtStatus.getNames();
+		else if (propertyDef == propFetchStatus)
+			return FetchStatus.getNames();
+		else if (propertyDef == propParserStatus)
+			return ParserStatus.getNames();
+		else if (propertyDef == propIndexStatus)
+			return IndexStatus.getNames();
 		return null;
 	}
 
@@ -77,46 +113,33 @@ public class TaskUrlManagerAction extends TaskAbstract {
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propCommand)
 			return CommandList[0];
+		else if (propertyDef == propRobotsTxtStatus)
+			return RobotsTxtStatus.ALL.name;
+		else if (propertyDef == propFetchStatus)
+			return FetchStatus.ALL.name;
+		else if (propertyDef == propParserStatus)
+			return ParserStatus.ALL.name;
+		else if (propertyDef == propIndexStatus)
+			return IndexStatus.ALL.name;
+		else if (propertyDef == propBufferSize)
+			return "10000";
 		return null;
-	}
-
-	private boolean deleteAll = false;
-
-	public void setDeleteAll() {
-		deleteAll = true;
-	}
-
-	private boolean optimize = false;
-
-	public void setOptimize() {
-		optimize = true;
-	}
-
-	public void setsynchronize() {
-		synchronize = true;
 	}
 
 	private AbstractSearchRequest selectionRequest = null;
 
-	private boolean doSiteMaps;
+	private FetchStatus setToFetchStatus = null;
 
-	private boolean deleteSelection;
+	private String manualCommand = null;
 
-	private boolean synchronize;
+	private Integer manualBufferSize = null;
 
-	private FetchStatus setToFetchStatus;
-
-	private int bufferSize = 10000;
-
-	public void setSelection(boolean doSiteMaps,
-			AbstractSearchRequest selectionRequest, boolean deleteSelection,
-			FetchStatus setToFetchStatus, boolean synchronize, int bufferSize) {
-		this.doSiteMaps = doSiteMaps;
+	public void setManual(AbstractSearchRequest selectionRequest,
+			FetchStatus setToFetchStatus, String manualCommand, int bufferSize) {
 		this.selectionRequest = selectionRequest;
 		this.setToFetchStatus = setToFetchStatus;
-		this.deleteSelection = deleteSelection;
-		this.synchronize = synchronize;
-		this.bufferSize = bufferSize;
+		this.manualCommand = manualCommand;
+		this.manualBufferSize = bufferSize;
 	}
 
 	@Override
@@ -126,34 +149,47 @@ public class TaskUrlManagerAction extends TaskAbstract {
 		UrlManager urlManager = client.getUrlManager();
 		taskLog.setInfo("URL manager Action started");
 
-		String command = properties.getValue(propCommand);
+		String command = manualCommand != null ? manualCommand : properties
+				.getValue(propCommand);
+		int bufferSize = manualBufferSize != null ? manualBufferSize : Integer
+				.parseInt(properties.getValue(propBufferSize));
 
-		if (selectionRequest != null) {
-			if (setToFetchStatus != null) {
-				taskLog.setInfo("URL manager: set selection to: "
-						+ setToFetchStatus.getName());
-				urlManager.updateFetchStatus(selectionRequest,
-						setToFetchStatus, bufferSize, taskLog);
-			} else if (deleteSelection) {
-				taskLog.setInfo("URL manager: delete selection");
-				urlManager.deleteUrls(selectionRequest, bufferSize, taskLog);
-			} else if (synchronize) {
-				taskLog.setInfo("URL manager: synchronize");
-				urlManager.synchronizeIndex(selectionRequest, bufferSize,
-						taskLog);
-			}
+		if (selectionRequest != null && setToFetchStatus != null) {
+			taskLog.setInfo("URL manager: set selection to: "
+					+ setToFetchStatus.getName());
+			urlManager.updateFetchStatus(selectionRequest, setToFetchStatus,
+					bufferSize, taskLog);
+			return;
 		}
-		if (doSiteMaps || CommandLoadSitemap.equals(command)) {
+		RobotsTxtStatus robotsTxtStatus = RobotsTxtStatus.findByName(properties
+				.getValue(propRobotsTxtStatus));
+		FetchStatus fetchStatus = FetchStatus.findByName(properties
+				.getValue(propFetchStatus));
+		ParserStatus parserStatus = ParserStatus.findByName(properties
+				.getValue(propParserStatus));
+		IndexStatus indexStatus = IndexStatus.findByName(properties
+				.getValue(propIndexStatus));
+		selectionRequest = urlManager.getSearchRequest(
+				UrlManager.SearchTemplate.urlSearch, null, null, false, null,
+				null, null, null, null, null, null, robotsTxtStatus,
+				fetchStatus, null, parserStatus, indexStatus, null, null, null,
+				null);
+		if (CommandLoadSitemap.equals(command)) {
 			taskLog.setInfo("URL manager: Handle SiteMaps");
 			urlManager.updateSiteMap(taskLog);
 		}
-		if (deleteAll || CommandDeleteAll.equals(command)) {
+		if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("URL manager: Delete All");
 			urlManager.deleteAll(taskLog);
-		}
-		if (optimize || CommandOptimize.equals(command)) {
+		} else if (CommandDeleteSelection.equals(command)) {
+			taskLog.setInfo("URL manager: Delete selection");
+			urlManager.deleteUrls(selectionRequest, bufferSize, taskLog);
+		} else if (CommandOptimize.equals(command)) {
 			taskLog.setInfo("URL manager: optimize");
 			urlManager.reload(true, taskLog);
+		} else if (CommandSynchronize.equals(command)) {
+			taskLog.setInfo("URL manager: synchronize");
+			urlManager.synchronizeIndex(selectionRequest, bufferSize, taskLog);
 		}
 	}
 }

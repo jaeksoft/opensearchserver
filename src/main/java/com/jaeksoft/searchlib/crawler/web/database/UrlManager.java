@@ -84,7 +84,7 @@ public class UrlManager extends AbstractManager {
 
 	protected Client urlDbClient;
 
-	public enum SearchTemplate {
+	public static enum SearchTemplate {
 		urlSearch, urlExport, hostFacet;
 	}
 
