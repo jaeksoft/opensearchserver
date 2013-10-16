@@ -72,4 +72,23 @@ public enum ParserStatus {
 		return null;
 	}
 
+	public static ParserStatus findByName(String name) {
+		for (ParserStatus status : values())
+			if (status.name.equalsIgnoreCase(name))
+				return status;
+		return null;
+	}
+
+	private static String[] names = null;
+
+	public final static String[] getNames() {
+		if (names != null)
+			return names;
+		int i = 0;
+		names = new String[values().length];
+		for (ParserStatus status : values())
+			names[i++] = status.name;
+		return names;
+	}
+
 }

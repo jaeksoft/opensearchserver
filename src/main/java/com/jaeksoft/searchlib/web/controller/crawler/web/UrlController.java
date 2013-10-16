@@ -610,9 +610,9 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.UN_FETCHED, false, getBufferSize());
-			// taskUrlManagerAction.setOptimize();
+			taskUrlManagerAction.setManual(searchRequest,
+					FetchStatus.UN_FETCHED,
+					TaskUrlManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -622,9 +622,9 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.FETCH_FIRST, false, getBufferSize());
-			taskUrlManagerAction.setOptimize();
+			taskUrlManagerAction.setManual(searchRequest,
+					FetchStatus.FETCH_FIRST,
+					TaskUrlManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -632,9 +632,8 @@ public class UrlController extends CommonController {
 	public void onLoadSitemap() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(true, null, false,
-					FetchStatus.FETCH_FIRST, false, getBufferSize());
-			taskUrlManagerAction.setOptimize();
+			taskUrlManagerAction.setManual(null, null,
+					TaskUrlManagerAction.CommandLoadSitemap, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -643,9 +642,9 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(false, searchRequest, true, null,
-					false, getBufferSize());
-			taskUrlManagerAction.setOptimize();
+			taskUrlManagerAction.setManual(searchRequest, null,
+					TaskUrlManagerAction.CommandDeleteSelection,
+					getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -655,8 +654,8 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					null, true, getBufferSize());
+			taskUrlManagerAction.setManual(searchRequest, null,
+					TaskUrlManagerAction.CommandSynchronize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 
@@ -665,7 +664,8 @@ public class UrlController extends CommonController {
 	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setOptimize();
+			taskUrlManagerAction.setManual(null, null,
+					TaskUrlManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -673,7 +673,8 @@ public class UrlController extends CommonController {
 	public void onDeleteAll() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setDeleteAll();
+			taskUrlManagerAction.setManual(null, null,
+					TaskUrlManagerAction.CommandDeleteAll, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
