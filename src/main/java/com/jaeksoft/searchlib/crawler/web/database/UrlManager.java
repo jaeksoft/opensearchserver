@@ -65,7 +65,8 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.index.IndexStatistics;
+import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -83,7 +84,7 @@ public class UrlManager extends AbstractManager {
 
 	protected Client urlDbClient;
 
-	public enum SearchTemplate {
+	public static enum SearchTemplate {
 		urlSearch, urlExport, hostFacet;
 	}
 
@@ -112,8 +113,9 @@ public class UrlManager extends AbstractManager {
 
 	public void deleteUrls(Collection<String> workDeleteUrlList)
 			throws SearchLibException {
-		String targetField = findIndexedFieldOfTargetIndex(urlItemFieldEnum.url
-				.getName());
+		String targetField = findIndexedFieldOfTargetIndex(
+				targetClient.getWebCrawlerFieldMap(),
+				urlItemFieldEnum.url.getName());
 		if (targetField != null)
 			targetClient.deleteDocuments(targetField, workDeleteUrlList);
 		urlDbClient.deleteDocuments(urlItemFieldEnum.url.getName(),
@@ -330,9 +332,6 @@ public class UrlManager extends AbstractManager {
 
 	public long getSize() throws SearchLibException {
 		try {
-			IndexStatistics stats = urlDbClient.getStatistics();
-			if (stats == null)
-				return 0;
 			return urlDbClient.getStatistics().getNumDocs();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -664,8 +663,9 @@ public class UrlManager extends AbstractManager {
 			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
 			if (documentsToDelete.size() > 0) {
-				String targetField = findIndexedFieldOfTargetIndex(urlItemFieldEnum.url
-						.getName());
+				String targetField = findIndexedFieldOfTargetIndex(
+						targetClient.getWebCrawlerFieldMap(),
+						urlItemFieldEnum.url.getName());
 				if (targetField != null)
 					targetClient
 							.deleteDocuments(targetField, documentsToDelete);
@@ -798,6 +798,78 @@ public class UrlManager extends AbstractManager {
 				ThreadUtils.sleepMs(100);
 			}
 			return total;
+		} finally {
+			resetCurrentTaskLog();
+		}
+	}
+
+	public class SynchronizedOuterCollector implements OuterCollector {
+
+		private long total;
+
+		private final String field;
+
+		private final int buffer;
+
+		private final List<String> deletionList;
+
+		private final TaskLog taskLog;
+
+		private SynchronizedOuterCollector(String field, int buffer,
+				TaskLog taskLog) {
+			this.total = 0;
+			this.field = field;
+			this.buffer = buffer;
+			this.taskLog = taskLog;
+			this.deletionList = new ArrayList<String>(buffer);
+		}
+
+		@Override
+		final public void collect(final int id, final String value) {
+			deletionList.add(value);
+			if (deletionList.size() >= buffer)
+				delete();
+		}
+
+		final private void delete() {
+			if (deletionList.isEmpty())
+				return;
+			try {
+				total += targetClient.deleteDocuments(field, deletionList);
+			} catch (SearchLibException e) {
+				taskLog.setError(e);
+			}
+			taskLog.setInfo(total + " document(s) deleted");
+			deletionList.clear();
+		}
+	}
+
+	public long synchronizeIndex(AbstractSearchRequest searchRequest,
+			int bufferSize, TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			String targetField = findIndexedFieldOfTargetIndex(
+					targetClient.getWebCrawlerFieldMap(),
+					urlItemFieldEnum.url.getName());
+			if (targetField == null)
+				throw new SearchLibException(
+						"The URL field has not been mapped");
+			SynchronizedOuterCollector outerCollector = new SynchronizedOuterCollector(
+					targetField, bufferSize, taskLog);
+			searchRequest = (AbstractSearchRequest) searchRequest.duplicate();
+			JoinItem joinItem = new JoinItem();
+			joinItem.setIndexName(targetClient.getIndexName());
+			joinItem.setForeignField(urlItemFieldEnum.url.getName());
+			joinItem.setLocalField(targetField);
+			joinItem.setOuterCollector(outerCollector);
+			searchRequest.getJoinList().add(joinItem);
+			urlDbClient.request(searchRequest);
+			outerCollector.delete();
+			return outerCollector.total;
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
 		} finally {
 			resetCurrentTaskLog();
 		}
