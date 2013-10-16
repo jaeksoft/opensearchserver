@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -70,6 +70,25 @@ public enum IndexStatus {
 			if (status.value == v)
 				return status;
 		return null;
+	}
+
+	public static IndexStatus findByName(String name) {
+		for (IndexStatus status : values())
+			if (status.name.equalsIgnoreCase(name))
+				return status;
+		return null;
+	}
+
+	private static String[] names = null;
+
+	public final static String[] getNames() {
+		if (names != null)
+			return names;
+		int i = 0;
+		names = new String[values().length];
+		for (IndexStatus status : values())
+			names[i++] = status.name;
+		return names;
 	}
 
 }
