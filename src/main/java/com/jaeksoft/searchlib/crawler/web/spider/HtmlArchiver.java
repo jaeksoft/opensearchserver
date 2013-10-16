@@ -64,6 +64,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
 
@@ -305,11 +306,11 @@ public class HtmlArchiver {
 		if (!("style".equalsIgnoreCase(node.getName())))
 			return;
 		String attr = node.getAttributeByName("type");
-		if (attr != null && attr.length() > 0
-				&& !"text/css".equalsIgnoreCase(attr))
+		if (!StringUtils.isEmpty(attr) && !"text/css".equalsIgnoreCase(attr))
 			return;
 		attr = node.getAttributeByName("media");
-		if (attr != null && attr.length() > 0 && !"screen".equals(attr))
+		if (!StringUtils.isEmpty(attr) && !"screen".equalsIgnoreCase(attr)
+				&& !"all".equalsIgnoreCase(attr))
 			return;
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
