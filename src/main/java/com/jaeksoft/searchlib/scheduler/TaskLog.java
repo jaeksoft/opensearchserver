@@ -146,7 +146,7 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 		}
 	}
 
-	protected void setError(SearchLibException error) {
+	public void setError(SearchLibException error) {
 		rwl.w.lock();
 		try {
 			this.error = error;
