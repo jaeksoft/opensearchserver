@@ -188,8 +188,13 @@ public class NaiveCSSParser {
 			if (parms.length == 0)
 				return;
 			href = parms[0];
-			if (href.startsWith("\"") && href.endsWith("\""))
-				href = href.substring(1, href.length() - 1);
+			Matcher matcher = findUrl(href);
+			if (matcher.find())
+				href = matcher.group(1);
+			else {
+				if (href.startsWith("\"") && href.endsWith("\""))
+					href = href.substring(1, href.length() - 1);
+			}
 			if (parms.length == 1)
 				return;
 			medias = new ArrayList<String>(parms.length - 1);
