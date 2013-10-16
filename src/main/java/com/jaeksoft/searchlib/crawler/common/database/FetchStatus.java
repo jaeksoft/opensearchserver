@@ -86,6 +86,25 @@ public enum FetchStatus {
 		return null;
 	}
 
+	public static FetchStatus findByName(String name) {
+		for (FetchStatus status : values())
+			if (status.name.equalsIgnoreCase(name))
+				return status;
+		return null;
+	}
+
+	private static String[] names = null;
+
+	public final static String[] getNames() {
+		if (names != null)
+			return names;
+		int i = 0;
+		names = new String[values().length];
+		for (FetchStatus status : values())
+			names[i++] = status.name;
+		return names;
+	}
+
 	public String getName() {
 		return name;
 	}

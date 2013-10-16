@@ -32,6 +32,7 @@ import java.util.Set;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.schema.Indexed;
@@ -70,11 +71,11 @@ public abstract class AbstractManager {
 		}
 	}
 
-	protected final String findIndexedFieldOfTargetIndex(String sourceField)
-			throws SearchLibException {
+	protected final String findIndexedFieldOfTargetIndex(FieldMap fieldMap,
+			String sourceField) throws SearchLibException {
 
-		List<TargetField> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(new SourceField(sourceField));
+		List<TargetField> mappedPath = fieldMap.getLinks(new SourceField(
+				sourceField));
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return null;
