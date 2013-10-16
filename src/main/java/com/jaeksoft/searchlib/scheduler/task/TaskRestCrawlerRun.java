@@ -24,6 +24,12 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -41,9 +47,14 @@ public class TaskRestCrawlerRun extends TaskAbstract {
 
 	final private TaskPropertyDef propCrawlName = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "crawl name", "crawl name",
-			"The name of the REST crawl item", 50);
+			"The name of the REST crawl item", 40);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName };
+	final private TaskPropertyDef propJsonVariables = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "Variables (JSON)",
+			"json_variables", "Variables passed to the crawler", 40, 5);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName,
+			propJsonVariables };
 
 	@Override
 	public String getName() {
@@ -90,9 +101,21 @@ public class TaskRestCrawlerRun extends TaskAbstract {
 			taskLog.setInfo("Crawl not found: " + crawlName);
 			return;
 		}
+		String jsonVars = properties.getValue(propJsonVariables);
 		try {
+			if (!StringUtils.isEmpty(jsonVars)) {
+				Variables jsonVariables = new Variables(jsonVars);
+				jsonVariables.put(variables);
+				variables = jsonVariables;
+			}
 			crawlMaster.execute(client, crawl, true, variables, taskLog);
 		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		} catch (JsonParseException e) {
+			throw new SearchLibException(e);
+		} catch (JsonMappingException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
 	}
