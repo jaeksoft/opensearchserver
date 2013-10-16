@@ -24,9 +24,14 @@
 
 package com.jaeksoft.searchlib.utils;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class Variables {
@@ -47,9 +52,24 @@ public class Variables {
 		put(vars.map);
 	}
 
+	public Variables(String json) throws JsonParseException,
+			JsonMappingException, IOException {
+		Map<String, String> jsonMap = JsonUtils.getObject(json,
+				new TypeReference<Map<String, String>>() {
+				});
+		for (Map.Entry<String, String> entry : jsonMap.entrySet())
+			put(entry.getKey(), entry.getValue());
+	}
+
 	private final void checkMap() {
 		if (map == null)
 			map = new TreeMap<String, String>();
+	}
+
+	public final void put(Variables variables) {
+		if (variables == null)
+			return;
+		put(variables.map);
 	}
 
 	public final void put(Map<String, String> variables) {
