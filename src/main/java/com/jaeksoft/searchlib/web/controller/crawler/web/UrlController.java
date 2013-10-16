@@ -74,6 +74,8 @@ public class UrlController extends CommonController {
 
 		OPTIMIZE("Optimize URL database"),
 
+		SYNCHRONIZE_INDEX("Synchronize the selected URLs with the index"),
+
 		DELETE_ALL("Delete all URLs");
 
 		private final String label;
@@ -609,7 +611,7 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.UN_FETCHED, getBufferSize());
+					FetchStatus.UN_FETCHED, false, getBufferSize());
 			// taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -621,7 +623,7 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, false,
-					FetchStatus.FETCH_FIRST, getBufferSize());
+					FetchStatus.FETCH_FIRST, false, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -631,7 +633,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(true, null, false,
-					FetchStatus.FETCH_FIRST, getBufferSize());
+					FetchStatus.FETCH_FIRST, false, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
@@ -642,10 +644,22 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setSelection(false, searchRequest, true, null,
-					getBufferSize());
+					false, getBufferSize());
 			taskUrlManagerAction.setOptimize();
 			onTask(taskUrlManagerAction);
 		}
+	}
+
+	public void onSynchronizedIndex() throws SearchLibException,
+			InterruptedException {
+		synchronized (this) {
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
+			taskUrlManagerAction.setSelection(false, searchRequest, false,
+					null, true, getBufferSize());
+			onTask(taskUrlManagerAction);
+		}
+
 	}
 
 	public void onOptimize() throws SearchLibException, InterruptedException {
@@ -716,6 +730,9 @@ public class UrlController extends CommonController {
 				break;
 			case LOAD_SITEMAP:
 				onLoadSitemap();
+				break;
+			case SYNCHRONIZE_INDEX:
+				onSynchronizedIndex();
 				break;
 			}
 			batchCommand = BatchCommandEnum.NOTHING;
