@@ -32,6 +32,7 @@ import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
+import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
@@ -199,10 +200,13 @@ public class JoinDocCollector implements JoinDocInterface {
 
 	final private static void innerJoin(JoinDocInterface docs1,
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
-			FieldCacheIndex doc2StringIndex, float scores2[], int joinResultPos) {
+			FieldCacheIndex doc2StringIndex, float scores2[],
+			int joinResultPos, OuterCollector outerCollector) {
 		float score2 = 1.0F;
 		int i1 = 0;
 		int i2 = 0;
+		int lastOuter = -1;
+		int lastInner = -1;
 		int[] ids1 = docs1.getIds();
 		int[] ids2 = docs2.getIds();
 		while (i1 != ids1.length) {
@@ -214,7 +218,17 @@ public class JoinDocCollector implements JoinDocInterface {
 			if (c < 0) {
 				ids1[i1] = -1;
 				i1++;
+				if (outerCollector != null && lastOuter != id2
+						&& lastInner != id2) {
+					outerCollector.collect(id2, t2);
+					lastOuter = id2;
+				}
 			} else if (c > 0) {
+				if (outerCollector != null && lastOuter != id2
+						&& lastInner != id2) {
+					outerCollector.collect(id2, t2);
+					lastOuter = id2;
+				}
 				i2++;
 				if (i2 == ids2.length)
 					while (i1 != ids1.length)
@@ -223,6 +237,7 @@ public class JoinDocCollector implements JoinDocInterface {
 				if (scores2 != null)
 					score2 = scores2[i2];
 				docs1.setForeignDocId(i1, joinResultPos, id2, score2);
+				lastInner = id2;
 				i1++;
 			}
 		}
@@ -262,7 +277,7 @@ public class JoinDocCollector implements JoinDocInterface {
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
 			FieldCacheIndex doc2StringIndex, int joinResultSize,
 			int joinResultPos, Timer timer, boolean factorScore,
-			JoinType joinType) {
+			JoinType joinType, OuterCollector outerCollector) {
 
 		DocIdInterface emptyDocs = docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
 				: JoinDocCollector.EMPTY;
@@ -296,7 +311,7 @@ public class JoinDocCollector implements JoinDocInterface {
 		switch (joinType) {
 		case INNER:
 			innerJoin(docs1, doc1StringIndex, docs2, doc2StringIndex, scores2,
-					joinResultPos);
+					joinResultPos, outerCollector);
 			break;
 		case OUTER:
 			outerJoin(docs1, doc1StringIndex, docs2, doc2StringIndex, scores2,

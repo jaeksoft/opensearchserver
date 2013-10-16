@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
@@ -50,6 +52,10 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
 public class JoinItem implements Comparable<JoinItem> {
+
+	public interface OuterCollector {
+		public void collect(final int id, final String value);
+	}
 
 	public static enum JoinType {
 		INNER, OUTER;
@@ -90,6 +96,8 @@ public class JoinItem implements Comparable<JoinItem> {
 
 	private JoinType type;
 
+	private transient OuterCollector outerCollector;
+
 	public JoinItem() {
 		indexName = null;
 		queryTemplate = null;
@@ -102,6 +110,7 @@ public class JoinItem implements Comparable<JoinItem> {
 		returnFacets = false;
 		type = JoinType.INNER;
 		filterList = new FilterList();
+		outerCollector = null;
 	}
 
 	public JoinItem(JoinItem source) {
@@ -120,6 +129,7 @@ public class JoinItem implements Comparable<JoinItem> {
 		target.returnFacets = returnFacets;
 		target.type = type;
 		target.filterList = new FilterList(filterList);
+		target.outerCollector = outerCollector;
 	}
 
 	public JoinItem(XPathParser xpp, Node node) throws XPathExpressionException {
@@ -238,6 +248,10 @@ public class JoinItem implements Comparable<JoinItem> {
 		this.foreignField = foreignField;
 	}
 
+	public void setOuterCollector(OuterCollector outerCollector) {
+		this.outerCollector = outerCollector;
+	}
+
 	@Override
 	public int compareTo(JoinItem o) {
 		int c = 0;
@@ -328,14 +342,15 @@ public class JoinItem implements Comparable<JoinItem> {
 			int joinResultSize, JoinResult joinResult,
 			List<JoinFacet> joinFacets, Timer timer) throws SearchLibException {
 		try {
-			Client client = ClientCatalog.getClient(indexName);
-			if (client == null)
+			Client foreignClient = ClientCatalog.getClient(indexName);
+			if (foreignClient == null)
 				throw new SearchLibException("No client found: " + indexName);
-			AbstractRequest request = client.getNewRequest(queryTemplate);
-			if (request == null)
+			AbstractRequest foreignRequest = StringUtils.isEmpty(queryTemplate) ? new SearchFieldRequest(
+					foreignClient) : foreignClient.getNewRequest(queryTemplate);
+			if (foreignRequest == null)
 				throw new SearchLibException(
 						"The request template was not found: " + queryTemplate);
-			if (!(request instanceof AbstractSearchRequest))
+			if (!(foreignRequest instanceof AbstractSearchRequest))
 				throw new SearchLibException(
 						"The request template is not a Search request: "
 								+ queryTemplate);
@@ -345,7 +360,7 @@ public class JoinItem implements Comparable<JoinItem> {
 				throw new SearchLibException(
 						"No string index found for the local field: "
 								+ localField);
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) foreignRequest;
 			// TODO Why ??
 			if (searchRequest.getRows() == 0)
 				searchRequest.setRows(1);
@@ -354,7 +369,7 @@ public class JoinItem implements Comparable<JoinItem> {
 				searchRequest.getFilterList().add(filter);
 			String joinResultName = "join " + joinResult.getParamPosition();
 			Timer t = new Timer(timer, joinResultName + " foreign search");
-			ResultSearchSingle resultSearch = (ResultSearchSingle) client
+			ResultSearchSingle resultSearch = (ResultSearchSingle) foreignClient
 					.request(searchRequest);
 			t.getDuration();
 			joinResult.setForeignResult(resultSearch);
@@ -375,7 +390,7 @@ public class JoinItem implements Comparable<JoinItem> {
 			DocIdInterface joinDocs = JoinDocCollector.join(docs,
 					localStringIndex, resultSearch.getDocs(),
 					foreignFieldIndex, joinResultSize, joinResult.joinPosition,
-					t, returnScores, type);
+					t, returnScores, type, outerCollector);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {
