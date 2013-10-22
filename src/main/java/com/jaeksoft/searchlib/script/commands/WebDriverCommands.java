@@ -279,6 +279,8 @@ public class WebDriverCommands {
 			File destFile = checkDestFile();
 			FileWriter writer = null;
 			Integer count = getParameterInt(1);
+			boolean bNoHighLight = "NO_HIGHLIGHT"
+					.equalsIgnoreCase(getParameterString(2));
 			String destname = count == null ? "screenshot" : "screenshot"
 					+ count;
 			try {
@@ -294,7 +296,7 @@ public class WebDriverCommands {
 				StringBuffer sbHtml = new StringBuffer(html);
 				Collection<Selectors.Selector> selectors = context
 						.getSelectors();
-				if (selectors != null) {
+				if (selectors != null && !bNoHighLight) {
 					HashSet<WebElement> elementSet = new HashSet<WebElement>();
 					for (Selectors.Selector selector : selectors)
 						if (selector.screenshotHighlight)
