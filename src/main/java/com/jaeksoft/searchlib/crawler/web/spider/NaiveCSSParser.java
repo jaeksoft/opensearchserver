@@ -192,7 +192,8 @@ public class NaiveCSSParser {
 			if (matcher.find())
 				href = matcher.group(1);
 			else {
-				if (href.startsWith("\"") && href.endsWith("\""))
+				if ((href.startsWith("\"") && href.endsWith("\""))
+						|| (href.startsWith("'") && href.endsWith("'")))
 					href = href.substring(1, href.length() - 1);
 			}
 			if (parms.length == 1)
@@ -228,15 +229,15 @@ public class NaiveCSSParser {
 
 	// Find At Rule with ;
 	private static Pattern atRuleLocator = Pattern
-			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*);");
+			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9\\~,\\^\\*\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*);");
 
 	// Find At Rule followed by block
 	private static Pattern atRuleBlockLocator = Pattern
-			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9,\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*)[^;]*$");
+			.compile("(?s)\\s*[\\};]*\\s*(@[a-zA-Z0-9\\~,\\^\\*\\-_\\.#:\\(\\)\\s]*)\\s+([^;]*)[^;]*$");
 
 	// Find Styled Rule followed by block
 	private static Pattern ruleLocator = Pattern
-			.compile("(?s)\\s*([a-zA-Z0-9,\\*\\-\\+_\\.#:\\(\\)\\s\"=\\[\\]<>]*)\\s*$");
+			.compile("(?s)\\s*([a-zA-Z0-9\\~,\\^\\*\\-\\+_\\.#:\\(\\)\\s\"=\\[\\]<>]*)\\s*$");
 
 	private class Block {
 
