@@ -303,12 +303,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
 			indexWriter = close(indexWriter);
 			indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -347,13 +347,13 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
 			indexWriter = close(indexWriter);
 			if (terms.length > 0)
 				indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -414,12 +414,12 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexSingle.getStatistics().getNumDeletedDocs();
+			int l = indexSingle.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
 			indexWriter = close(indexWriter);
 			indexSingle.reload();
-			l = indexSingle.getStatistics().getNumDeletedDocs() - l;
+			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
