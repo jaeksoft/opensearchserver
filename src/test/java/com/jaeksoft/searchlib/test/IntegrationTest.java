@@ -29,6 +29,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.jaeksoft.searchlib.test.rest.RestDeleteIndexTest;
+import com.jaeksoft.searchlib.test.rest.RestDeleteTest;
 import com.jaeksoft.searchlib.test.rest.RestFacetTest;
 import com.jaeksoft.searchlib.test.rest.RestIndexCreateExistsListTest;
 import com.jaeksoft.searchlib.test.rest.RestSchemaTest;
@@ -37,8 +38,8 @@ import com.jaeksoft.searchlib.test.rest.RestUpdateTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class,
-		RestUpdateTest.class, RestSearchTest.class, RestFacetTest.class,
-		RestDeleteIndexTest.class })
+		RestUpdateTest.class, RestSearchTest.class, RestDeleteTest.class,
+		RestFacetTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
