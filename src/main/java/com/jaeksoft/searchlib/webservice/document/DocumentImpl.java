@@ -52,6 +52,9 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class DocumentImpl extends CommonServices implements SoapDocument,
 		RestDocument {
 
+	private final static String UPDATED_COUNT = "updatedCount";
+	private final static String DELETED_COUNT = "deletedCount";
+
 	@Override
 	public CommonResult deleteByQuery(String index, String login, String key,
 			String query) {
@@ -62,7 +65,8 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			AbstractSearchRequest request = new SearchPatternRequest(client);
 			request.setQueryString(query);
 			int count = client.deleteDocuments(request);
-			return new CommonResult(true, count + " document(s) deleted");
+			return new CommonResult(true, count + " document(s) deleted")
+					.addDetail(DELETED_COUNT, count);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -89,7 +93,7 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			if (!CollectionUtils.isEmpty(values))
 				count = client.deleteDocuments(schemaField.getName(), values);
 			return new CommonResult(true, count + " document(s) deleted by "
-					+ schemaField.getName());
+					+ schemaField.getName()).addDetail(DELETED_COUNT, count);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -131,7 +135,8 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			int count = updateDocument(client, documents);
-			return new CommonResult(true, count + " document(s) updated");
+			return new CommonResult(true, count + " document(s) updated")
+					.addDetail(UPDATED_COUNT, count);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (NoSuchAlgorithmException e) {
@@ -161,9 +166,9 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			ClientFactory.INSTANCE.properties.checkApi();
 			CommonResult result = new CommonResult(true, null);
 			StreamSource streamSource = new StreamSource(inputStream);
-			client.updateTextDocuments(streamSource, charset, bufferSize,
-					capturePattern, langPosition, fields, result);
-			return result;
+			int count = client.updateTextDocuments(streamSource, charset,
+					bufferSize, capturePattern, langPosition, fields, result);
+			return result.addDetail(UPDATED_COUNT, count);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
