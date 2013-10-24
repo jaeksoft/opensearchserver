@@ -23,6 +23,9 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -44,9 +47,13 @@ public class CommonResult implements InfoCallback {
 	@XmlElement
 	public String info;
 
+	@XmlElement
+	public Map<String, String> details;
+
 	public CommonResult() {
 		successful = null;
 		info = null;
+		details = null;
 	}
 
 	public CommonResult(Boolean successful, String info) {
@@ -57,6 +64,13 @@ public class CommonResult implements InfoCallback {
 	@Override
 	public void setInfo(String info) {
 		this.info = info;
+	}
+
+	public CommonResult addDetail(String key, Object value) {
+		if (details == null)
+			details = new TreeMap<String, String>();
+		details.put(key, value.toString());
+		return this;
 	}
 
 }
