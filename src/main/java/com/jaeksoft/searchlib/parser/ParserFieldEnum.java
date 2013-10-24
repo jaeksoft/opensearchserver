@@ -146,7 +146,21 @@ public enum ParserFieldEnum {
 
 	rss_mode,
 
-	md5;
+	md5,
+
+	email_display_from,
+
+	email_display_to,
+
+	email_display_cc,
+
+	email_display_bcc,
+
+	email_recipient_name,
+
+	email_recipient_address,
+
+	email_conversation_topic;
 
 	public static ParserFieldEnum find(String fieldName) {
 		for (ParserFieldEnum pfe : values())
