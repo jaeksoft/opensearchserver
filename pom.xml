@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>51.2</version>
+			<version>52.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.api.client</groupId>
@@ -415,7 +415,7 @@
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.2.6</httpclient.version>
 		<poi.version>3.9</poi.version>
-		<selenium.version>2.35.0</selenium.version>
+		<selenium.version>2.37.1</selenium.version>
 		<zk.version>6.5.3</zk.version>
 		<httpcore.version>4.2.5</httpcore.version>
 	</properties>

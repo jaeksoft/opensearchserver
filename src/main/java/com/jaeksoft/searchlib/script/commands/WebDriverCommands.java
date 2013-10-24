@@ -271,6 +271,8 @@ public class WebDriverCommands {
 			super(CommandEnum.WEBDRIVER_SCREENSHOT);
 		}
 
+		private final static String NO_HIGHLIGHT_PARAM = "NO_HIGHLIGHT";
+
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
@@ -279,8 +281,7 @@ public class WebDriverCommands {
 			File destFile = checkDestFile();
 			FileWriter writer = null;
 			Integer count = getParameterInt(1);
-			boolean bNoHighLight = "NO_HIGHLIGHT"
-					.equalsIgnoreCase(getParameterString(2));
+			boolean bNoHighLight = findParameter(2, NO_HIGHLIGHT_PARAM);
 			String destname = count == null ? "screenshot" : "screenshot"
 					+ count;
 			try {
