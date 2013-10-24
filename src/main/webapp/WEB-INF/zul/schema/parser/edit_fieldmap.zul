@@ -66,7 +66,7 @@
 				</hbox>
 			</auxheader>
 		</auxhead>
-		<listhead hflex="true">
+		<listhead sizable="true">
 			<listheader label="Parser field" hflex="min" />
 			<listheader label="Index field" hflex="min" />
 			<listheader label="Capture Reg.Exp." />
@@ -75,7 +75,7 @@
 			<listheader label="Action" hflex="min" />
 		</listhead>
 		<template name="model" var="fieldmapitem">
-			<listitem hflex="true">
+			<listitem>
 				<listcell label="@load(fieldmapitem.source.uniqueName)" />
 				<listcell label="@load(fieldmapitem.target.name)" />
 				<listcell
