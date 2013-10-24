@@ -143,6 +143,9 @@
 			<link source="body" target="content" />
 			<link source="body" target="contentExact" />
 			<link source="body" target="contentPhonetic" />
+			<link source="body" target="full" />
+			<link source="body" target="fullExact" />
+			<link source="body" target="fullPhonetic" />
 			<link source="meta_description" target="metaDescription" />
 			<link source="meta_keywords" target="metaKeywords" />
 			<link source="title" target="title" />
@@ -152,6 +155,42 @@
 			<link source="title" target="fullExact" />
 			<link source="title" target="fullPhonetic" />
 			<link source="title" target="autocomplete" />
+		</map>
+	</parser>
+	<parser name="MSG parser" class="com.jaeksoft.searchlib.parser.MapiMsgParser">
+		<contentType>application/vnd.ms-outlook</contentType>
+		<extension>msg</extension>
+		<map>
+			<link source="content" target="content" />
+			<link source="content" target="contentExact" />
+			<link source="content" target="contentPhonetic" />
+			<link source="content" target="full" />
+			<link source="content" target="fullExact" />
+			<link source="content" target="fullPhonetic" />
+			<link source="htmlSource" target="content">
+				<removeTag />
+			</link>
+			<link source="htmlSource" target="contentExact">
+				<removeTag />
+			</link>
+			<link source="htmlSource" target="contentPhonetic">
+				<removeTag />
+			</link>
+			<link source="htmlSource" target="full">
+				<removeTag />
+			</link>
+			<link source="htmlSource" target="fullExact">
+				<removeTag />
+			</link>
+			<link source="htmlSource" target="fullPhonetic">
+				<removeTag />
+			</link>
+			<link source="subject" target="title" />
+			<link source="subject" target="titleExact" />
+			<link source="subject" target="titlePhonetic" />
+			<link source="subject" target="full" />
+			<link source="subject" target="fullExact" />
+			<link source="subject" target="fullPhonetic" />
 		</map>
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
