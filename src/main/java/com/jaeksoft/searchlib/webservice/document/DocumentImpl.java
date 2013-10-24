@@ -34,6 +34,7 @@ import java.util.List;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
@@ -84,7 +85,9 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			if (schemaField == null)
 				throw new CommonServiceException(Status.NOT_FOUND,
 						"Field not found: " + field);
-			int count = client.deleteDocuments(schemaField.getName(), values);
+			int count = 0;
+			if (!CollectionUtils.isEmpty(values))
+				count = client.deleteDocuments(schemaField.getName(), values);
 			return new CommonResult(true, count + " document(s) deleted by "
 					+ schemaField.getName());
 		} catch (SearchLibException e) {

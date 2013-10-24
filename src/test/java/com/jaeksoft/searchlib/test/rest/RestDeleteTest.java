@@ -23,15 +23,23 @@
  **/
 package com.jaeksoft.searchlib.test.rest;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import com.jaeksoft.searchlib.test.IntegrationTest;
+import com.jaeksoft.searchlib.webservice.CommonResult;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class RestUpdateTest extends CommonRestAPI {
+public class RestDeleteTest extends CommonRestAPI {
 
 	@Test
 	public void testA_RestAPIUpdateDocument() throws ClientProtocolException,
@@ -40,4 +48,27 @@ public class RestUpdateTest extends CommonRestAPI {
 		updateDocuments(json);
 	}
 
+	@Test
+	public void testB_RestAPIDeleteByField() throws ClientProtocolException,
+			IOException {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document/id/1/2",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON).delete();
+		String info = checkCommonResult(response, CommonResult.class, 200).info;
+		assertTrue("Wrong info: " + info, info.startsWith("2 document"));
+	}
+
+	@Test
+	public void testC_RestAPIDeleteByJson() {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/document/id",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON)
+				.invoke("DELETE", "[\"2\",\"3\"]");
+		String info = checkCommonResult(response, CommonResult.class, 200).info;
+		// TODO Resolve: DELETE invokation does not pass the body
+		// assertTrue("Wrong info: " + info, info.startsWith("1 document"));
+	}
 }
