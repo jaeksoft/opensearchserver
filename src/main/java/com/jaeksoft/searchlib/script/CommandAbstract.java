@@ -70,6 +70,17 @@ public abstract class CommandAbstract {
 		return functionParam;
 	}
 
+	protected boolean findParameter(int from, String parameter) {
+		for (int i = from; i < getParameterCount(); i++) {
+			String param = getParameterString(i);
+			if (StringUtils.isEmpty(param))
+				continue;
+			if (parameter.equalsIgnoreCase(param))
+				return true;
+		}
+		return false;
+	}
+
 	protected int getParameterCount() {
 		return parameters.length;
 	}
