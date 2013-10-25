@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +55,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -256,11 +256,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult crawl(String use, String login, String key, URL url) {
+	public CommonResult crawl(String use, String login, String key, String url) {
 		try {
 			WebCrawlMaster crawlMaster = getCrawlMaster(use, login, key);
-			WebCrawlThread webCrawlThread = crawlMaster.manualCrawl(url,
-					HostUrlList.ListType.MANUAL);
+			WebCrawlThread webCrawlThread = crawlMaster.manualCrawl(
+					LinkUtils.newEncodedURL(url), HostUrlList.ListType.MANUAL);
 			if (!webCrawlThread.waitForStart(120))
 				throw new WebServiceException("Time out reached (120 seconds)");
 			if (!webCrawlThread.waitForEnd(3600))
@@ -270,7 +270,18 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 					+ urlItem.getFetchStatus() + " - "
 					+ urlItem.getParserStatus() + " - "
 					+ urlItem.getIndexStatus() : null;
-			return new CommonResult(true, message);
+			CommonResult cr = new CommonResult(true, message);
+			cr.addDetail("URL", urlItem.getUrl());
+			cr.addDetail("HttpResponseCode", urlItem.getResponseCode());
+			cr.addDetail("RobotsTxtStatus", urlItem.getRobotsTxtStatus());
+			cr.addDetail("FetchStatus", urlItem.getFetchStatus());
+			cr.addDetail("ParserStatus", urlItem.getParserStatus());
+			cr.addDetail("IndexStatus", urlItem.getIndexStatus());
+			cr.addDetail("RedirectionURL", urlItem.getRedirectionUrl());
+			cr.addDetail("ContentBaseType", urlItem.getContentBaseType());
+			cr.addDetail("ContentTypeCharset", urlItem.getContentTypeCharset());
+			cr.addDetail("ContentLength", urlItem.getContentLength());
+			return cr;
 		} catch (MalformedURLException e) {
 			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
@@ -295,8 +306,14 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
+	public CommonResult crawlPost(String use, String login, String key,
+			String url) {
+		return crawl(use, login, key, url);
+	}
+
+	@Override
 	public CommonResult captureScreenshot(String use, String login, String key,
-			URL url) {
+			String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
 					Role.GROUP_WEB_CRAWLER);
@@ -305,7 +322,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			CredentialManager credentialManager = client
 					.getWebCredentialManager();
 			ScreenshotServlet.doCapture(null, screenshotManager,
-					credentialManager, url);
+					credentialManager, LinkUtils.newEncodedURL(url));
 			String message = "Captured URL " + url;
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
@@ -323,13 +340,14 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	@Override
 	public CommonResult checkScreenshot(String use, String login, String key,
-			URL url) {
+			String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
 					Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
-			String message = ScreenshotServlet.doCheck(screenshotManager, url);
+			String message = ScreenshotServlet.doCheck(screenshotManager,
+					LinkUtils.newEncodedURL(url));
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
 			throw new CommonServiceException(e);
@@ -338,6 +356,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
 	}

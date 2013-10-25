@@ -67,6 +67,8 @@ public class CommonResult implements InfoCallback {
 	}
 
 	public CommonResult addDetail(String key, Object value) {
+		if (value == null)
+			return this;
 		if (details == null)
 			details = new TreeMap<String, String>();
 		details.put(key, value.toString());
