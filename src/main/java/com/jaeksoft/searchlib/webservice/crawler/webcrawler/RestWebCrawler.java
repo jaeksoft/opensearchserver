@@ -23,12 +23,13 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
-import java.net.URL;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -118,7 +119,14 @@ public interface RestWebCrawler {
 	@Path("/crawl")
 	public CommonResult crawl(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") URL url);
+			@QueryParam("url") String url);
+
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/crawl")
+	public CommonResult crawlPost(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@FormParam("url") String url);
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

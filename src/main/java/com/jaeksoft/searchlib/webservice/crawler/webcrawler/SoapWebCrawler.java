@@ -23,7 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
-import java.net.URL;
 import java.util.List;
 
 import javax.jws.WebParam;
@@ -80,13 +79,16 @@ public interface SoapWebCrawler {
 
 	public CommonResult captureScreenshot(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key, @WebParam(name = "url") URL url);
+			@WebParam(name = "key") String key,
+			@WebParam(name = "url") String url);
 
 	public CommonResult checkScreenshot(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key, @WebParam(name = "url") URL url);
+			@WebParam(name = "key") String key,
+			@WebParam(name = "url") String url);
 
 	public CommonResult crawl(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key, @WebParam(name = "url") URL url);
+			@WebParam(name = "key") String key,
+			@WebParam(name = "url") String url);
 }
