@@ -12,7 +12,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<version>1.5-beta3</version>
+	<version>1.5-SNAPSHOT</version>
 	<scm>
 		<connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
 		<developerConnection>scm:git:git@github.com:jaeksoft/opensearchserver.git</developerConnection>
