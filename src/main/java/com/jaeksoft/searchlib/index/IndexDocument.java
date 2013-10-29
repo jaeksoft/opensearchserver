@@ -235,8 +235,6 @@ public class IndexDocument implements Iterable<FieldContent> {
 		} catch (Exception e) {
 			throw new SearchLibException(
 					"Parser error while getting binary from URL: " + url, e);
-		} finally {
-			httpDownloader.release();
 		}
 	}
 
