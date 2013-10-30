@@ -30,7 +30,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public abstract class AbstractScriptRunner implements Closeable {
@@ -57,7 +57,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 	}
 
 	protected AbstractScriptRunner(Config config, Variables variables,
-			TaskLog taskLog) {
+			InfoCallback taskLog) {
 		this.context = new ScriptCommandContext(config, taskLog);
 		this.variables = variables != null ? variables : new Variables();
 	}

@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
 import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
 import com.jaeksoft.searchlib.webservice.screenshot.ScreenshotImpl;
+import com.jaeksoft.searchlib.webservice.script.ScriptImpl;
 import com.jaeksoft.searchlib.webservice.stopwords.StopWordsImpl;
 import com.jaeksoft.searchlib.webservice.synonyms.SynonymsImpl;
 
@@ -70,6 +71,8 @@ public enum WebServiceEnum {
 	Scheduler(SchedulerImpl.class, "/scheduler"),
 
 	Screenshot(ScreenshotImpl.class, "/screenshot"),
+
+	Script(ScriptImpl.class, "/script"),
 
 	Search(SearchImpl.class, "/search"),
 
