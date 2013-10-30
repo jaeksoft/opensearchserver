@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptCommandContext.OnError;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
 
 public class ExecutionCommands {
 
@@ -46,8 +47,11 @@ public class ExecutionCommands {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			ThreadUtils.waitUntil(Integer.parseInt(parameters[0].toString()),
-					context.taskLog);
+			int sec = Integer.parseInt(parameters[0].toString());
+			if (context.callback instanceof WaitInterface)
+				ThreadUtils.waitUntil(sec, (WaitInterface) context.callback);
+			else
+				ThreadUtils.sleepMs(sec * 1000);
 		}
 	}
 
