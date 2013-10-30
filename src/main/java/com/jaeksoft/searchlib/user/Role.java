@@ -52,6 +52,8 @@ public enum Role {
 
 	SCHEDULER_RUN("Run a scheduler"),
 
+	SCRIPT_RUN("Run a script"),
+
 	MAILBOX_CRAWLER_EDIT("Mail crawler: edit"),
 
 	MAILBOX_CRAWLER_EXECUTE("Mail crawler: execute"),
