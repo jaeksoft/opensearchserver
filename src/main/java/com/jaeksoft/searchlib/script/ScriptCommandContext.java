@@ -39,15 +39,15 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public class ScriptCommandContext implements Closeable {
 
 	public final Config config;
 
-	public final TaskLog taskLog;
+	public final InfoCallback callback;
 
 	private BrowserDriver<?> currentWebDriver;
 
@@ -65,9 +65,9 @@ public class ScriptCommandContext implements Closeable {
 		FAILURE, RESUME, NEXT_COMMAND;
 	}
 
-	public ScriptCommandContext(Config config, TaskLog taskLog) {
+	public ScriptCommandContext(Config config, InfoCallback callback) {
 		this.config = config;
-		this.taskLog = taskLog;
+		this.callback = callback;
 		currentWebDriver = null;
 		selectors = null;
 		onError = OnError.FAILURE;
@@ -150,8 +150,8 @@ public class ScriptCommandContext implements Closeable {
 		return selectors;
 	}
 
-	public TaskLog getTaskLog() {
-		return taskLog;
+	public InfoCallback getInfoCallback() {
+		return callback;
 	}
 
 	@Override
