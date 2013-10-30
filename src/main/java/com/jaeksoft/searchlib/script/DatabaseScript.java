@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.script;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -33,13 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
@@ -48,7 +42,7 @@ import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 
-public class DatabaseScript implements Closeable {
+public class DatabaseScript extends AbstractScriptRunner {
 
 	private final static String COLUMN_ID = "id";
 	private final static String COLUMN_COMMAND = "command";
@@ -70,11 +64,17 @@ public class DatabaseScript implements Closeable {
 
 	private final SqlUpdateMode sqlUpdateMode;
 
-	private final ScriptCommandContext scriptCommandContext;
-
 	private Transaction transaction;
 
-	private Variables variables;
+	private ResultSet resultSet;
+
+	private int paramCount;
+
+	private List<String> pkList;
+
+	private ResultSetMetaData metaData;
+
+	private int columnCount;
 
 	public DatabaseScript(Config config, String driverClass, String jdbcURL,
 			String username, String password,
@@ -83,6 +83,7 @@ public class DatabaseScript implements Closeable {
 			String sqlUpdate, SqlUpdateMode sqlUpdateMode, Variables variables,
 			TaskLog taskLog) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		super(config, variables, taskLog);
 		connectionManager = new JDBCConnection();
 		connectionManager.setDriver(driverClass);
 		connectionManager.setUrl(jdbcURL);
@@ -95,9 +96,12 @@ public class DatabaseScript implements Closeable {
 		this.sqlSelect = sqlSelect;
 		this.sqlUpdate = sqlUpdate;
 		this.sqlUpdateMode = sqlUpdateMode;
-		scriptCommandContext = new ScriptCommandContext(config, taskLog);
 		transaction = null;
-		this.variables = variables != null ? variables : new Variables();
+		resultSet = null;
+		paramCount = 0;
+		pkList = null;
+		metaData = null;
+		columnCount = 0;
 	}
 
 	private void doSqlUpdateOneCall(String sqlU, String id,
@@ -107,12 +111,13 @@ public class DatabaseScript implements Closeable {
 					sqlUpdateMode, sqlU);
 	}
 
-	public void run() throws SQLException, ScriptException {
+	@Override
+	protected void beforeRun(final ScriptCommandContext context,
+			final Variables variables) throws ScriptException {
 		try {
 			transaction = connectionManager.getNewTransaction(false,
 					isolationLevel.value);
-
-			scriptCommandContext.setSql(transaction);
+			context.setSql(transaction);
 			// Load variables
 			if (sqlVariable != null && sqlVariable.length() > 0) {
 				Query query = transaction.prepare(sqlVariable);
@@ -121,105 +126,89 @@ public class DatabaseScript implements Closeable {
 					variables.put(resultSet.getString(varColumnName),
 							resultSet.getString(varColumnValue));
 			}
-			scriptCommandContext.setVariables(variables);
+			context.setVariables(variables);
 			String sqlS = variables.replace(sqlSelect);
 			Query query = transaction.prepare(sqlS);
-			ResultSet resultSet = query.getResultSet();
+			resultSet = query.getResultSet();
 
-			ResultSetMetaData metaData = resultSet.getMetaData();
+			metaData = resultSet.getMetaData();
 			TreeSet<String> columns = new TreeSet<String>();
-			int paramCount = 0;
-			int columnCount = metaData.getColumnCount();
+			paramCount = 0;
+			columnCount = metaData.getColumnCount();
 			for (int i = 1; i <= columnCount; i++)
 				columns.add(metaData.getColumnLabel(i));
 			for (int i = 1; i <= columnCount; i++)
 				if (columns.contains(COLUMN_PARAM + i))
 					paramCount = i;
-			List<String> pkList = sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST
+			pkList = sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST
 					|| sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST ? new ArrayList<String>(
 					0) : null;
-			CommandEnum[] commandFinder = null;
-			String lastScriptError = null;
-			while (resultSet.next()) {
-				for (int i = 1; i <= columnCount; i++)
-					variables.put(
-							StringUtils.fastConcat("sql:",
-									metaData.getColumnLabel(i)),
-							resultSet.getString(i));
-				String currentScriptError = null;
-				String id = resultSet.getString(COLUMN_ID);
-				if (pkList != null)
-					pkList.add(id);
-				String command = resultSet.getString(COLUMN_COMMAND);
-				String[] parameters = null;
-				if (paramCount > 0) {
-					parameters = new String[paramCount];
-					for (int i = 0; i < paramCount; i++) {
-						Object o = resultSet.getObject(COLUMN_PARAM + (i + 1));
-						if (o == null)
-							continue;
-						parameters[i] = variables.replace(o.toString());
-					}
-				}
-				try {
-					CommandEnum commandEnum = CommandEnum.find(command);
-					if (commandFinder != null) {
-						// On error next_command is active, looking for next
-						// statement
-						boolean bFind = false;
-						for (CommandEnum cmd : commandFinder) {
-							if (cmd == commandEnum) {
-								bFind = true;
-								break;
-							}
-						}
-						if (!bFind) {
-							doSqlUpdateOneCall(variables.replace(sqlUpdate),
-									id, "ignored due to previous error");
-							continue;
-						}
-						commandFinder = null;
-					}
-					CommandAbstract commandAbstract = commandEnum
-							.getNewInstance();
-					commandAbstract.run(scriptCommandContext, id, parameters);
-				} catch (Exception e) {
-					Throwable t = ExceptionUtils.getRootCause(e);
-					currentScriptError = t != null ? ExceptionUtils
-							.getMessage(t) : ExceptionUtils.getMessage(e);
-					lastScriptError = currentScriptError;
-					switch (scriptCommandContext.getOnError()) {
-					case FAILURE:
-						throw new ScriptException(e);
-					case RESUME:
-						Logging.warn(e);
-						break;
-					case NEXT_COMMAND:
-						Logging.warn(e);
-						commandFinder = scriptCommandContext
-								.getOnErrorNextCommands();
-						break;
-					}
-				}
-				doSqlUpdateOneCall(variables.replace(sqlUpdate), id,
-						currentScriptError);
-			}
-			if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
-					&& sqlUpdateMode != SqlUpdateMode.NO_CALL)
-				DatabaseUtils.update(transaction, pkList, lastScriptError,
-						sqlUpdateMode, variables.replace(sqlUpdate));
-		} finally {
-			IOUtils.closeQuietly(this);
+		} catch (SQLException e) {
+			throw new ScriptException(e);
 		}
 	}
 
 	@Override
-	public void close() throws IOException {
+	protected ScriptLine nextScriptLine(final Variables variables)
+			throws ScriptException {
+		try {
+			if (!resultSet.next())
+				return null;
+			for (int i = 1; i <= columnCount; i++)
+				variables.put(
+						StringUtils.fastConcat("sql:",
+								metaData.getColumnLabel(i)),
+						resultSet.getString(i));
+			String id = resultSet.getString(COLUMN_ID);
+			if (pkList != null)
+				pkList.add(id);
+			String[] parameters = null;
+			if (paramCount > 0) {
+				parameters = new String[paramCount];
+				for (int i = 0; i < paramCount; i++) {
+					Object o = resultSet.getObject(COLUMN_PARAM + (i + 1));
+					parameters[i] = o == null ? null : o.toString();
+				}
+			}
+			return new ScriptLine(id, resultSet.getString(COLUMN_COMMAND),
+					parameters);
+		} catch (SQLException e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	@Override
+	protected void updateScriptLine(final ScriptLine scriptLine,
+			final Variables variables, String errorMsg) throws ScriptException {
+		try {
+			doSqlUpdateOneCall(variables.replace(sqlUpdate), scriptLine.id,
+					errorMsg);
+		} catch (SQLException e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	@Override
+	public void afterRun(final String lastScriptError, final Variables variables)
+			throws ScriptException {
+		if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
+				|| sqlUpdateMode == SqlUpdateMode.NO_CALL)
+			return;
+		try {
+			DatabaseUtils.update(transaction, pkList, lastScriptError,
+					sqlUpdateMode, variables.replace(sqlUpdate));
+		} catch (SQLException e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	@Override
+	public void close() {
 		if (transaction != null) {
 			transaction.close();
 			transaction = null;
 		}
-		if (scriptCommandContext != null)
-			scriptCommandContext.close();
+		super.close();
 	}
+
 }

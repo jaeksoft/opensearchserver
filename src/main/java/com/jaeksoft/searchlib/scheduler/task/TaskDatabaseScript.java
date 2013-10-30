@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import java.sql.SQLException;
-
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
@@ -163,8 +161,6 @@ public class TaskDatabaseScript extends TaskAbstract {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (SQLException e) {
 			throw new SearchLibException(e);
 		} catch (ScriptException e) {
 			throw new SearchLibException(e);
