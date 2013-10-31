@@ -46,10 +46,13 @@ public class ScriptImpl extends CommonServices implements RestScript {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.SCRIPT_RUN);
 			ClientFactory.INSTANCE.properties.checkApi();
-			ScriptResult result = new ScriptResult();
+			CommonResult result = new CommonResult(true, null);
 			jsonScript = new JsonScript(client, null, result, scriptLines);
 			jsonScript.run();
-			return result;
+			result.addDetail("Script lines", jsonScript.getLineCount());
+			result.addDetail("Error lines", jsonScript.getErrorCount());
+			result.addDetail("Ignored lines", jsonScript.getIgnoredCount());
+			return new ScriptResult(result, jsonScript.getScriptLineResults());
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

@@ -56,6 +56,13 @@ public class CommonResult implements InfoCallback {
 		details = null;
 	}
 
+	protected CommonResult(CommonResult result) {
+		successful = result.successful;
+		info = result.info;
+		details = result.details == null ? null : new TreeMap<String, String>(
+				result.details);
+	}
+
 	public CommonResult(Boolean successful, String info) {
 		this.info = info;
 		this.successful = successful;
