@@ -24,11 +24,14 @@
 
 package com.jaeksoft.searchlib.script;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
@@ -40,26 +43,34 @@ public class JsonScript extends AbstractScriptRunner {
 		public String id;
 		public String command;
 		public String[] parameters;
-
 	}
 
+	private final static SimpleDateFormat FORMAT_ISO8601 = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ssz");
+
+	@JsonInclude(Include.NON_NULL)
 	public static class JsonScriptLineResult {
 
+		public final int lineNumber;
 		public final String id;
-		public final Date date;
+		public final String date;
 		public final String error;
 
-		public JsonScriptLineResult(ScriptLine scriptLine, String errorMsg) {
+		public JsonScriptLineResult(int lineNumber, ScriptLine scriptLine,
+				String errorMsg) {
+			this.lineNumber = lineNumber;
 			this.id = scriptLine.id;
-			this.date = new Date();
+			synchronized (FORMAT_ISO8601) {
+				this.date = FORMAT_ISO8601.format(new Date());
+			}
 			this.error = errorMsg;
 		}
-
 	}
 
 	private final List<JsonScriptLine> scriptLines;
 	private final List<JsonScriptLineResult> scriptLineResults;
 	private Iterator<JsonScriptLine> lineIterator;
+	private int lineNumber;
 
 	public JsonScript(Config config, Variables variables,
 			InfoCallback callback, List<JsonScriptLine> scriptLines) {
@@ -67,6 +78,11 @@ public class JsonScript extends AbstractScriptRunner {
 		this.scriptLines = scriptLines;
 		this.scriptLineResults = scriptLines == null ? null
 				: new ArrayList<JsonScriptLineResult>(scriptLines.size());
+		lineNumber = 0;
+	}
+
+	public List<JsonScriptLineResult> getScriptLineResults() {
+		return scriptLineResults;
 	}
 
 	@Override
@@ -91,7 +107,8 @@ public class JsonScript extends AbstractScriptRunner {
 	protected void updateScriptLine(final ScriptLine scriptLine,
 			final Variables variables, final String errorMsg)
 			throws ScriptException {
-		scriptLineResults.add(new JsonScriptLineResult(scriptLine, errorMsg));
+		scriptLineResults.add(new JsonScriptLineResult(++lineNumber,
+				scriptLine, errorMsg));
 	}
 
 	@Override

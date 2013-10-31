@@ -37,6 +37,9 @@ public abstract class AbstractScriptRunner implements Closeable {
 
 	private final ScriptCommandContext context;
 	private final Variables variables;
+	private int errorCount;
+	private int ignoredCount;
+	private int lineCount;
 
 	public class ScriptLine {
 
@@ -75,11 +78,15 @@ public abstract class AbstractScriptRunner implements Closeable {
 	public final void run() throws ScriptException {
 		try {
 			beforeRun(context, variables);
+			errorCount = 0;
+			ignoredCount = 0;
+			lineCount = 0;
 			CommandEnum[] commandFinder = null;
 			String lastScriptError = null;
 			ScriptLine scriptLine = null;
 			while ((scriptLine = nextScriptLine(variables)) != null) {
 				String currentScriptError = null;
+				lineCount++;
 				try {
 					CommandEnum commandEnum = CommandEnum
 							.find(scriptLine.command);
@@ -94,6 +101,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 							}
 						}
 						if (!bFind) {
+							ignoredCount++;
 							updateScriptLine(scriptLine, variables,
 									"ignored due to previous error");
 							continue;
@@ -109,6 +117,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 					currentScriptError = t != null ? ExceptionUtils
 							.getMessage(t) : ExceptionUtils.getMessage(e);
 					lastScriptError = currentScriptError;
+					errorCount++;
 					switch (context.getOnError()) {
 					case FAILURE:
 						throw new ScriptException(e);
@@ -131,6 +140,18 @@ public abstract class AbstractScriptRunner implements Closeable {
 
 	protected abstract void afterRun(final String lastScriptError,
 			final Variables variables) throws ScriptException;
+
+	public int getErrorCount() {
+		return errorCount;
+	}
+
+	public int getIgnoredCount() {
+		return ignoredCount;
+	}
+
+	public int getLineCount() {
+		return lineCount;
+	}
 
 	@Override
 	public void close() {
