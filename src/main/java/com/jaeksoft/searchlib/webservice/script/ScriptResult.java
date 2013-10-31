@@ -42,8 +42,9 @@ public class ScriptResult extends CommonResult {
 		scriptLines = null;
 	}
 
-	public ScriptResult(List<JsonScriptLineResult> scriptLines) {
-		super(true, null);
+	public ScriptResult(CommonResult result,
+			List<JsonScriptLineResult> scriptLines) {
+		super(result);
 		this.scriptLines = scriptLines;
 	}
 }
