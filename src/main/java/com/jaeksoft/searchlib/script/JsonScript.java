@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.config.Config;
@@ -49,14 +51,14 @@ public class JsonScript extends AbstractScriptRunner {
 			"yyyy-MM-dd'T'HH:mm:ssz");
 
 	@JsonInclude(Include.NON_NULL)
-	public static class JsonScriptLineResult {
+	public static class JsonScriptLineError {
 
 		public final int lineNumber;
 		public final String id;
 		public final String date;
 		public final String error;
 
-		public JsonScriptLineResult(int lineNumber, ScriptLine scriptLine,
+		public JsonScriptLineError(int lineNumber, ScriptLine scriptLine,
 				String errorMsg) {
 			this.lineNumber = lineNumber;
 			this.id = scriptLine.id;
@@ -68,7 +70,7 @@ public class JsonScript extends AbstractScriptRunner {
 	}
 
 	private final List<JsonScriptLine> scriptLines;
-	private final List<JsonScriptLineResult> scriptLineResults;
+	private final List<JsonScriptLineError> scriptLineErrors;
 	private Iterator<JsonScriptLine> lineIterator;
 	private int lineNumber;
 
@@ -76,13 +78,13 @@ public class JsonScript extends AbstractScriptRunner {
 			InfoCallback callback, List<JsonScriptLine> scriptLines) {
 		super(config, variables, callback);
 		this.scriptLines = scriptLines;
-		this.scriptLineResults = scriptLines == null ? null
-				: new ArrayList<JsonScriptLineResult>(scriptLines.size());
+		this.scriptLineErrors = scriptLines == null ? null
+				: new ArrayList<JsonScriptLineError>(0);
 		lineNumber = 0;
 	}
 
-	public List<JsonScriptLineResult> getScriptLineResults() {
-		return scriptLineResults;
+	public List<JsonScriptLineError> getScriptLineErrors() {
+		return scriptLineErrors;
 	}
 
 	@Override
@@ -107,8 +109,10 @@ public class JsonScript extends AbstractScriptRunner {
 	protected void updateScriptLine(final ScriptLine scriptLine,
 			final Variables variables, final String errorMsg)
 			throws ScriptException {
-		scriptLineResults.add(new JsonScriptLineResult(++lineNumber,
-				scriptLine, errorMsg));
+		if (StringUtils.isEmpty(errorMsg))
+			return;
+		scriptLineErrors.add(new JsonScriptLineError(++lineNumber, scriptLine,
+				errorMsg));
 	}
 
 	@Override

@@ -29,22 +29,24 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.script.JsonScript.JsonScriptLineResult;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.script.JsonScript.JsonScriptLineError;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_EMPTY)
 public class ScriptResult extends CommonResult {
 
-	public final List<JsonScriptLineResult> scriptLines;
+	public final List<JsonScriptLineError> errors;
 
 	public ScriptResult() {
-		scriptLines = null;
+		errors = null;
 	}
 
-	public ScriptResult(CommonResult result,
-			List<JsonScriptLineResult> scriptLines) {
+	public ScriptResult(CommonResult result, List<JsonScriptLineError> errors) {
 		super(result);
-		this.scriptLines = scriptLines;
+		this.errors = errors;
 	}
 }
