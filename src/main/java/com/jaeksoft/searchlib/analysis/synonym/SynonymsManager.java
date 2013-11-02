@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,11 +29,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
+import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager.DirectoryTextContentManager;
 import com.jaeksoft.searchlib.config.Config;
 
-public class SynonymsManager extends AbstractDirectoryManager {
+public class SynonymsManager extends DirectoryTextContentManager {
 
 	private TreeMap<String, SynonymMap> synonymMaps;
 
@@ -42,18 +41,15 @@ public class SynonymsManager extends AbstractDirectoryManager {
 		synonymMaps = new TreeMap<String, SynonymMap>();
 	}
 
-	private SynonymMap getNewSynonymMap(String listname)
-			throws SearchLibException {
+	private SynonymMap getNewSynonymMap(String listname) throws IOException {
 		try {
 			return new SynonymMap(getFile(listname));
 		} catch (FileNotFoundException e) {
 			return null;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
-	public SynonymMap getSynonyms(String listname) throws SearchLibException {
+	public SynonymMap getSynonyms(String listname) throws IOException {
 		rwl.r.lock();
 		try {
 			SynonymMap synonymMap = synonymMaps.get(listname);
@@ -88,15 +84,9 @@ public class SynonymsManager extends AbstractDirectoryManager {
 	}
 
 	@Override
-	public void saveContent(String name, String content) throws IOException,
-			SearchLibException {
-		rwl.w.lock();
-		try {
-			super.saveContent(name, content);
-			synonymMaps.remove(name);
-			synonymMaps.put(name, getSynonyms(name));
-		} finally {
-			rwl.w.unlock();
-		}
+	public void saveContent(File file, String content) throws IOException {
+		super.saveContent(file, content);
+		synonymMaps.remove(file.getName());
+		synonymMaps.put(file.getName(), getSynonyms(file.getName()));
 	}
 }

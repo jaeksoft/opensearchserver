@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,8 @@
  **/
 
 package com.jaeksoft.searchlib.analysis.filter;
+
+import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -51,7 +53,11 @@ public class SynonymFilter extends FilterFactory {
 			return;
 		if (value == null || value.length() == 0)
 			return;
-		synonyms = config.getSynonymsManager().getSynonyms(value);
+		try {
+			synonyms = config.getSynonymsManager().getSynonyms(value);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override

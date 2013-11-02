@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.script.JsonScript.JsonScriptLineError;
+import com.jaeksoft.searchlib.script.ScriptLinesRunner.ScriptLineError;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
@@ -39,13 +39,13 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @JsonInclude(Include.NON_EMPTY)
 public class ScriptResult extends CommonResult {
 
-	public final List<JsonScriptLineError> errors;
+	public final List<ScriptLineError> errors;
 
 	public ScriptResult() {
 		errors = null;
 	}
 
-	public ScriptResult(CommonResult result, List<JsonScriptLineError> errors) {
+	public ScriptResult(CommonResult result, List<ScriptLineError> errors) {
 		super(result);
 		this.errors = errors;
 	}
