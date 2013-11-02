@@ -36,13 +36,19 @@ public enum CommandEnum {
 
 	CSS_SELECTOR_RESET(Selectors.CSS_Reset.class),
 
+	CSS_SELECTOR_INDEX_FIELD(Selectors.CSS_IndexField.class),
+
 	XPATH_SELECTOR_ADD(Selectors.XPATH_Add.class),
 
 	XPATH_SELECTOR_RESET(Selectors.XPATH_Reset.class),
 
+	XPATH_SELECTOR_INDEX_FIELD(Selectors.XPATH_IndexField.class),
+
 	ID_SELECTOR_ADD(Selectors.ID_Add.class),
 
 	ID_SELECTOR_RESET(Selectors.ID_Reset.class),
+
+	ID_SELECTOR_INDEX_FIELD(Selectors.ID_IndexField.class),
 
 	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
