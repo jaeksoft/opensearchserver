@@ -153,6 +153,10 @@ public abstract class AbstractScriptRunner implements Closeable {
 		return lineCount;
 	}
 
+	public int getUpdatedDocumentCount() {
+		return context == null ? 0 : context.getUpdatedDocumentCount();
+	}
+
 	@Override
 	public void close() {
 		if (context != null)
