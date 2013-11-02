@@ -41,24 +41,6 @@ public abstract class AbstractScriptRunner implements Closeable {
 	private int ignoredCount;
 	private int lineCount;
 
-	public class ScriptLine {
-
-		public final String id;
-		public final String command;
-		public final String[] parameters;
-
-		public ScriptLine(final String id, final String command,
-				final String[] parameters) {
-			this.id = id;
-			this.command = command;
-			if (parameters != null)
-				for (int i = 0; i < parameters.length; i++)
-					parameters[i] = variables.replace(parameters[i]);
-			this.parameters = parameters;
-		}
-
-	}
-
 	protected AbstractScriptRunner(Config config, Variables variables,
 			InfoCallback taskLog) {
 		this.context = new ScriptCommandContext(config, taskLog);
