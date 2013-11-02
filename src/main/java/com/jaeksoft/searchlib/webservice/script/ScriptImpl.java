@@ -52,7 +52,9 @@ public class ScriptImpl extends CommonServices implements RestScript {
 			result.addDetail("Script lines", jsonScript.getLineCount());
 			result.addDetail("Error lines", jsonScript.getErrorCount());
 			result.addDetail("Ignored lines", jsonScript.getIgnoredCount());
-			return new ScriptResult(result, jsonScript.getScriptLineResults());
+			result.addDetail("Updated documents",
+					jsonScript.getUpdatedDocumentCount());
+			return new ScriptResult(result, jsonScript.getScriptLineErrors());
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

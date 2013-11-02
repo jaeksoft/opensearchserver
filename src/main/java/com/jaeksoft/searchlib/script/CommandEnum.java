@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.script;
 
 import com.jaeksoft.searchlib.script.commands.ExecutionCommands;
+import com.jaeksoft.searchlib.script.commands.IndexDocumentCommands;
 import com.jaeksoft.searchlib.script.commands.SearchCommands;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.WebDriverCommands;
@@ -64,7 +65,13 @@ public enum CommandEnum {
 
 	WEBDRIVER_CLOSE(WebDriverCommands.Close.class),
 
-	WEBDRIVER_JAVASCRIPT(WebDriverCommands.Javascript.class);
+	WEBDRIVER_JAVASCRIPT(WebDriverCommands.Javascript.class),
+
+	INDEX_DOCUMENT_NEW(IndexDocumentCommands.New.class),
+
+	INDEX_DOCUMENT_ADD_VALUE(IndexDocumentCommands.AddValue.class),
+
+	INDEX_DOCUMENT_UPDATE(IndexDocumentCommands.Update.class);
 
 	private final Class<? extends CommandAbstract> commandClass;
 
