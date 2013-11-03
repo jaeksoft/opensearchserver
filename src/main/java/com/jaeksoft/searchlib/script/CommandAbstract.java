@@ -82,10 +82,12 @@ public abstract class CommandAbstract {
 	}
 
 	protected int getParameterCount() {
-		return parameters.length;
+		return parameters == null ? 0 : parameters.length;
 	}
 
 	protected String getParameterString(int pos) {
+		if (parameters == null)
+			return null;
 		if (pos >= parameters.length)
 			return null;
 		String p = parameters[pos];
@@ -96,11 +98,16 @@ public abstract class CommandAbstract {
 
 	protected Integer getParameterInt(int pos) {
 		String s = getParameterString(pos);
-		if (s == null)
-			return null;
-		if (s.length() == 0)
+		if (StringUtils.isEmpty(s))
 			return null;
 		return new Integer(s);
+	}
+
+	protected Float getParameterFloat(int pos) {
+		String s = getParameterString(pos);
+		if (StringUtils.isEmpty(s))
+			return null;
+		return new Float(s);
 	}
 
 	protected void throwError(String message) throws ScriptException {

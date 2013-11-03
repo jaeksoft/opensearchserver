@@ -24,18 +24,30 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.pagefactory.ByAll;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class Selectors {
 
@@ -52,9 +64,9 @@ public class Selectors {
 		public final String custom;
 		public final String flashVarsLink;
 
-		public Selector(Type type, String query, boolean disableScript,
+		private Selector(Type type, String query, boolean disableScript,
 				boolean screenshotHighlight, boolean clickCapture,
-				String custom, String flashVarsLink) {
+				String custom, String flashVarsLink, String indexField) {
 			this.type = type;
 			// Avoid null value in query part (for comparison)
 			this.query = query == null ? "" : query;
@@ -66,7 +78,7 @@ public class Selectors {
 		}
 
 		public Selector(Type type, String query) {
-			this(type, query, false, false, false, null, null);
+			this(type, query, false, false, false, null, null, null);
 		}
 
 		public final By getBy() {
@@ -105,8 +117,12 @@ public class Selectors {
 	public static abstract class SelectorCommandAbstract extends
 			CommandAbstract {
 
-		protected SelectorCommandAbstract(CommandEnum commandEnum) {
+		protected final Type selectorType;
+
+		protected SelectorCommandAbstract(CommandEnum commandEnum,
+				Type selectorType) {
 			super(commandEnum);
+			this.selectorType = selectorType;
 		}
 
 		public final static Pattern PARAM_DISABLE_SCRIPT = Pattern.compile(
@@ -118,54 +134,78 @@ public class Selectors {
 		public final static Pattern PARAM_FLASHVARS_LINK = Pattern.compile(
 				"flashvars_link\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
 
-		protected Selector newSelector(Type type) throws ScriptException {
+		protected List<WebElement> runSelector(ScriptCommandContext context)
+				throws ScriptException {
+			Selector selector = new Selector(selectorType,
+					getParameterString(1));
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver == null)
+				throwError("No browser driver is available");
+			try {
+				return driver.locateBy(selector.getBy());
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			}
+		}
+
+		protected Selector newSelector() throws ScriptException {
 			boolean disableScript = false;
 			boolean screenshotHighlight = false;
 			boolean clickCapture = false;
 			String custom = null;
 			String flashVarsLink = null;
+			String indexField = null;
 			for (int i = 1; i < getParameterCount(); i++) {
 				String param = getParameterString(i);
 				if (param == null)
 					continue;
 				if (param.length() == 0)
 					continue;
-				if (RegExpUtils.find(PARAM_DISABLE_SCRIPT, param))
+				if (RegExpUtils.find(PARAM_DISABLE_SCRIPT, param)) {
 					disableScript = true;
-				else if (RegExpUtils.find(PARAM_SCREENSHOT_HIGHLIGHT, param))
+					continue;
+				}
+				if (RegExpUtils.find(PARAM_SCREENSHOT_HIGHLIGHT, param)) {
 					screenshotHighlight = true;
-				else if (RegExpUtils.find(PARAM_CLICK_CAPTURE, param)) {
+					continue;
+				}
+				if (RegExpUtils.find(PARAM_CLICK_CAPTURE, param)) {
 					Matcher matcher = RegExpUtils.matcher(PARAM_CLICK_CAPTURE,
 							param);
 					if (matcher.matches())
 						if (matcher.groupCount() > 0)
 							custom = matcher.group(1);
 					clickCapture = true;
-				} else if (RegExpUtils.find(PARAM_FLASHVARS_LINK, param)) {
+					continue;
+				}
+				if (RegExpUtils.find(PARAM_FLASHVARS_LINK, param)) {
 					Matcher matcher = RegExpUtils.matcher(PARAM_FLASHVARS_LINK,
 							param);
 					if (matcher.matches())
 						if (matcher.groupCount() > 0)
 							flashVarsLink = matcher.group(1);
-				} else
-					throw new ScriptException("Unknown parameter: " + param);
+					continue;
+				}
+				throw new ScriptException("Unknown parameter: " + param);
 			}
-			return new Selector(type, getParameterString(0), disableScript,
-					screenshotHighlight, clickCapture, custom, flashVarsLink);
+			return new Selector(selectorType, getParameterString(0),
+					disableScript, screenshotHighlight, clickCapture, custom,
+					flashVarsLink, indexField);
 		}
+
 	}
 
 	public static class CSS_Add extends SelectorCommandAbstract {
 
 		public CSS_Add() {
-			super(CommandEnum.CSS_SELECTOR_ADD);
+			super(CommandEnum.CSS_SELECTOR_ADD, Type.CSS_SELECTOR);
 		}
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(newSelector(Type.CSS_SELECTOR));
+			context.addSelector(newSelector());
 		}
 	}
 
@@ -180,20 +220,51 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			context.resetSelector(Type.CSS_SELECTOR);
 		}
+	}
+
+	public abstract static class IndexFieldCommandAbstract extends
+			SelectorCommandAbstract {
+
+		protected IndexFieldCommandAbstract(CommandEnum commandEnum,
+				Type selectorType) {
+			super(commandEnum, selectorType);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			IndexDocument indexDocument = context.getIndexDocument();
+			if (indexDocument == null)
+				throwError("No index document available. Call INDEX_DOCUMENT_NEW before");
+			String field = getParameterString(0);
+			List<WebElement> elements = runSelector(context);
+			if (CollectionUtils.isEmpty(elements))
+				return;
+			for (WebElement element : elements)
+				indexDocument.add(field, element.getText(), null);
+		}
+	}
+
+	public static class CSS_IndexField extends IndexFieldCommandAbstract {
+
+		public CSS_IndexField() {
+			super(CommandEnum.CSS_SELECTOR_INDEX_FIELD, Type.CSS_SELECTOR);
+		}
 
 	}
 
 	public static class XPATH_Add extends SelectorCommandAbstract {
 
 		public XPATH_Add() {
-			super(CommandEnum.XPATH_SELECTOR_ADD);
+			super(CommandEnum.XPATH_SELECTOR_ADD, Type.XPATH_SELECTOR);
 		}
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(newSelector(Type.XPATH_SELECTOR));
+			context.addSelector(newSelector());
 		}
 	}
 
@@ -208,20 +279,27 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			context.resetSelector(Type.XPATH_SELECTOR);
 		}
+	}
+
+	public static class XPATH_IndexField extends IndexFieldCommandAbstract {
+
+		public XPATH_IndexField() {
+			super(CommandEnum.XPATH_SELECTOR_INDEX_FIELD, Type.XPATH_SELECTOR);
+		}
 
 	}
 
 	public static class ID_Add extends SelectorCommandAbstract {
 
 		public ID_Add() {
-			super(CommandEnum.ID_SELECTOR_ADD);
+			super(CommandEnum.ID_SELECTOR_ADD, Type.ID_SELECTOR);
 		}
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			context.addSelector(newSelector(Type.ID_SELECTOR));
+			context.addSelector(newSelector());
 		}
 	}
 
@@ -238,6 +316,13 @@ public class Selectors {
 		}
 	}
 
+	public static class ID_IndexField extends IndexFieldCommandAbstract {
+
+		public ID_IndexField() {
+			super(CommandEnum.ID_SELECTOR_INDEX_FIELD, Type.ID_SELECTOR);
+		}
+	}
+
 	public static class ALL_Reset extends CommandAbstract {
 
 		public ALL_Reset() {
@@ -250,6 +335,75 @@ public class Selectors {
 			context.resetSelector(null);
 		}
 
+	}
+
+	public abstract static class SubScriptCommandAbstract extends
+			SelectorCommandAbstract {
+
+		protected SubScriptCommandAbstract(CommandEnum commandEnum,
+				Type selectorType) {
+			super(commandEnum, selectorType);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			String scriptName = getParameterString(0);
+			List<WebElement> elements = runSelector(context);
+			if (CollectionUtils.isEmpty(elements))
+				return;
+			URL currentURL = null;
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver != null) {
+				String u = driver.getCurrentUrl();
+				if (u != null)
+					try {
+						currentURL = new URL(u);
+					} catch (MalformedURLException e) {
+						Logging.warn(e);
+
+					}
+			}
+			List<URL> urls = new ArrayList<URL>(elements.size());
+			for (WebElement element : elements) {
+				if (currentURL != null) {
+					String href = element.getAttribute("href");
+					if (href != null)
+						urls.add(LinkUtils.getLink(currentURL, href, null,
+								false));
+				}
+			}
+			if (CollectionUtils.isEmpty(urls))
+				context.subscript(scriptName, null);
+			else
+				for (URL url : urls) {
+					Variables variables = new Variables();
+					variables.put("url", url.toExternalForm());
+					context.subscript(scriptName, variables);
+				}
+		}
+	}
+
+	public static class CSS_SubScript extends SubScriptCommandAbstract {
+
+		public CSS_SubScript() {
+			super(CommandEnum.CSS_SELECTOR_SUBSCRIPT, Type.CSS_SELECTOR);
+		}
+	}
+
+	public static class XPATH_SubScript extends SubScriptCommandAbstract {
+
+		public XPATH_SubScript() {
+			super(CommandEnum.XPATH_SELECTOR_SUBSCRIPT, Type.XPATH_SELECTOR);
+		}
+	}
+
+	public static class ID_SubScript extends SubScriptCommandAbstract {
+
+		public ID_SubScript() {
+			super(CommandEnum.ID_SELECTOR_SUBSCRIPT, Type.ID_SELECTOR);
+		}
 	}
 
 }

@@ -35,33 +35,24 @@ import com.jaeksoft.searchlib.utils.Variables;
 
 public abstract class AbstractScriptRunner implements Closeable {
 
+	private final boolean externalContext;
 	private final ScriptCommandContext context;
 	private final Variables variables;
 	private int errorCount;
 	private int ignoredCount;
 	private int lineCount;
 
-	public class ScriptLine {
-
-		public final String id;
-		public final String command;
-		public final String[] parameters;
-
-		public ScriptLine(final String id, final String command,
-				final String[] parameters) {
-			this.id = id;
-			this.command = command;
-			if (parameters != null)
-				for (int i = 0; i < parameters.length; i++)
-					parameters[i] = variables.replace(parameters[i]);
-			this.parameters = parameters;
-		}
-
-	}
-
 	protected AbstractScriptRunner(Config config, Variables variables,
 			InfoCallback taskLog) {
+		this.externalContext = false;
 		this.context = new ScriptCommandContext(config, taskLog);
+		this.variables = variables != null ? variables : new Variables();
+	}
+
+	protected AbstractScriptRunner(ScriptCommandContext context,
+			Variables variables) {
+		this.externalContext = true;
+		this.context = context;
 		this.variables = variables != null ? variables : new Variables();
 	}
 
@@ -153,9 +144,13 @@ public abstract class AbstractScriptRunner implements Closeable {
 		return lineCount;
 	}
 
+	public int getUpdatedDocumentCount() {
+		return context == null ? 0 : context.getUpdatedDocumentCount();
+	}
+
 	@Override
 	public void close() {
-		if (context != null)
+		if (context != null && !externalContext)
 			context.close();
 	}
 }

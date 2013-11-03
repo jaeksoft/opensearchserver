@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.script;
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -36,9 +37,11 @@ import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
@@ -61,6 +64,12 @@ public class ScriptCommandContext implements Closeable {
 
 	private Variables variables;
 
+	private List<IndexDocument> indexDocuments;
+
+	private IndexDocument currentIndexDocument;
+
+	private int updatedDocumentCount;
+
 	public static enum OnError {
 		FAILURE, RESUME, NEXT_COMMAND;
 	}
@@ -74,6 +83,9 @@ public class ScriptCommandContext implements Closeable {
 		onErrorNextCommands = null;
 		transaction = null;
 		variables = null;
+		indexDocuments = null;
+		currentIndexDocument = null;
+		updatedDocumentCount = 0;
 	}
 
 	private void releaseCurrentWebDriver(boolean quietly)
@@ -192,7 +204,54 @@ public class ScriptCommandContext implements Closeable {
 
 	public void setSql(Transaction transaction) {
 		this.transaction = transaction;
+	}
 
+	public void addIndexDocument(IndexDocument indexDocument) {
+		if (indexDocuments == null)
+			indexDocuments = new ArrayList<IndexDocument>(1);
+		indexDocuments.add(indexDocument);
+		currentIndexDocument = indexDocument;
+	}
+
+	public IndexDocument getIndexDocument() {
+		return currentIndexDocument;
+	}
+
+	public List<IndexDocument> getIndexDocuments() {
+		return indexDocuments;
+	}
+
+	public void clearIndexDocuments(int updatedCount) {
+		if (indexDocuments == null)
+			return;
+		indexDocuments.clear();
+		this.updatedDocumentCount += updatedCount;
+	}
+
+	public int getUpdatedDocumentCount() {
+		return updatedDocumentCount;
+	}
+
+	public void subscript(String scriptName, Variables variables)
+			throws ScriptException {
+		ScriptLinesRunner runner = null;
+		Variables oldVars = variables;
+		try {
+			List<ScriptLine> scriptLines = config.getScriptManager()
+					.getContent(scriptName);
+			if (scriptLines == null)
+				return;
+			runner = new ScriptLinesRunner(this, variables, scriptLines);
+			runner.run();
+		} catch (IOException e) {
+			throw new ScriptException(e);
+		} catch (SearchLibException e) {
+			throw new ScriptException(e);
+		} finally {
+			variables = oldVars;
+			if (runner != null)
+				IOUtils.closeQuietly(runner);
+		}
 	}
 
 }

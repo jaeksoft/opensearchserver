@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,11 +37,11 @@ import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-public abstract class CommonDirectoryController extends CommonController {
+public abstract class CommonDirectoryController<T> extends CommonController {
 
 	private transient String editName;
 
-	private transient String content;
+	private transient T content;
 
 	private transient String currentName;
 
@@ -69,7 +69,7 @@ public abstract class CommonDirectoryController extends CommonController {
 		super();
 	}
 
-	public abstract AbstractDirectoryManager getManager()
+	public abstract AbstractDirectoryManager<T> getManager()
 			throws SearchLibException;
 
 	@Command
@@ -79,7 +79,7 @@ public abstract class CommonDirectoryController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		AbstractDirectoryManager manager = getManager();
+		AbstractDirectoryManager<?> manager = getManager();
 		if (manager == null)
 			return;
 		if (editName == null || editName.length() == 0) {
@@ -97,7 +97,7 @@ public abstract class CommonDirectoryController extends CommonController {
 	@NotifyChange("*")
 	public void onEdit(@BindingParam("listname") String listname)
 			throws SearchLibException, IOException {
-		AbstractDirectoryManager manager = getManager();
+		AbstractDirectoryManager<T> manager = getManager();
 		if (manager == null)
 			return;
 		currentName = listname;
@@ -124,11 +124,9 @@ public abstract class CommonDirectoryController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		AbstractDirectoryManager manager = getManager();
+		AbstractDirectoryManager<T> manager = getManager();
 		if (manager == null)
 			return;
-		if (!manager.exists(currentName))
-			manager.create(currentName);
 		manager.saveContent(currentName, content);
 		client.getSchema().recompileAnalyzers();
 		client.reload();
@@ -178,14 +176,14 @@ public abstract class CommonDirectoryController extends CommonController {
 	 * @param content
 	 *            the content to set
 	 */
-	public void setContent(String content) {
+	public void setContent(T content) {
 		this.content = content;
 	}
 
 	/**
 	 * @return the content
 	 */
-	public String getContent() {
+	public T getContent() {
 		return content;
 	}
 }

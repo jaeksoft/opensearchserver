@@ -29,6 +29,10 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 
 public class FirefoxBrowserDriver extends BrowserDriver<FirefoxDriver> {
 
+	public FirefoxBrowserDriver() {
+		super(BrowserDriverEnum.FIREFOX);
+	}
+
 	@Override
 	public FirefoxDriver initialize() {
 		FirefoxProfile profile = new FirefoxProfile();
