@@ -71,9 +71,11 @@ import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
+	protected final BrowserDriverEnum type;
 	protected T driver = null;
 
-	public BrowserDriver() {
+	protected BrowserDriver(BrowserDriverEnum type) {
+		this.type = type;
 		driver = initialize();
 	}
 
@@ -89,6 +91,10 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public void get(String sUrl) {
 		driver.get(sUrl);
+	}
+
+	public BrowserDriverEnum getType() {
+		return type;
 	}
 
 	public Object javascript(String javascript, boolean faultTolerant,
@@ -315,6 +321,10 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		while (iterator.hasNext())
 			window = iterator.next();
 		driver.switchTo().window(window);
+	}
+
+	public void closeWindow() {
+		driver.close();
 	}
 
 	public String getCurrentUrl() {

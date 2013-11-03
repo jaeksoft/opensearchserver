@@ -41,6 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
@@ -57,6 +58,7 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class WebDriverCommands {
 
@@ -75,6 +77,9 @@ public class WebDriverCommands {
 			if (browserDriverEnum == null)
 				throw new ScriptException("Web driver not found: "
 						+ parameters[0]);
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver != null && driver.getType() == browserDriverEnum)
+				return;
 			context.setBrowserDriver(browserDriverEnum);
 		}
 	}
@@ -135,8 +140,11 @@ public class WebDriverCommands {
 			if (browserDriver == null)
 				throwError("No browser open");
 			String url = getParameterString(0);
-			if (url == null)
+			if (StringUtils.isEmpty(url))
 				throwError("No URL given");
+			Variables vars = context.getVariables();
+			if (vars != null)
+				url = vars.replace(url);
 			browserDriver.get(url);
 		}
 
@@ -400,6 +408,44 @@ public class WebDriverCommands {
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			}
+		}
+	}
+
+	public static class NewWindow extends CommandAbstract {
+
+		public NewWindow() {
+			super(CommandEnum.WEBDRIVER_NEW_WINDOW);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver == null)
+				throwError("No WebDriver open");
+			try {
+				driver.openNewWindow();
+			} catch (IOException e) {
+				throw new ScriptException(e);
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			}
+		}
+	}
+
+	public static class CloseWindow extends CommandAbstract {
+
+		public CloseWindow() {
+			super(CommandEnum.WEBDRIVER_CLOSE_WINDOW);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver == null)
+				throwError("No WebDriver open");
+			driver.closeWindow();
 		}
 	}
 

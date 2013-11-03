@@ -25,7 +25,9 @@ package com.jaeksoft.searchlib.webservice.script;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,6 +38,7 @@ import com.jaeksoft.searchlib.script.ScriptLine;
 import com.jaeksoft.searchlib.script.ScriptLinesRunner;
 import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.utils.Variables;
 import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -51,38 +54,81 @@ public class ScriptImpl extends CommonServices implements RestScript {
 				throws SearchLibException {
 			return client.getScriptManager();
 		}
+
+		private CommonResult run(List<ScriptLine> scriptLines,
+				Variables variables) {
+			CommonResult result = new CommonResult(true, null);
+			ScriptLinesRunner scriptLinesRunner = null;
+			try {
+				scriptLinesRunner = new ScriptLinesRunner(client, variables,
+						result, scriptLines);
+				scriptLinesRunner.run();
+				result.addDetail("Script lines",
+						scriptLinesRunner.getLineCount());
+				result.addDetail("Error lines",
+						scriptLinesRunner.getErrorCount());
+				result.addDetail("Ignored lines",
+						scriptLinesRunner.getIgnoredCount());
+				result.addDetail("Updated documents",
+						scriptLinesRunner.getUpdatedDocumentCount());
+				return new ScriptResult(result,
+						scriptLinesRunner.getScriptLineErrors());
+			} catch (ScriptException e) {
+				throw new CommonServiceException(e);
+			} finally {
+				if (scriptLinesRunner != null)
+					IOUtils.closeQuietly(scriptLinesRunner);
+			}
+		}
+
+		protected CommonResult run(String index, String login, String key,
+				List<ScriptLine> scriptLines) {
+			try {
+				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				ClientFactory.INSTANCE.properties.checkApi();
+				return run(scriptLines, null);
+			} catch (InterruptedException e) {
+				throw new CommonServiceException(e);
+			} catch (IOException e) {
+				throw new CommonServiceException(e);
+			}
+		}
+
+		protected CommonResult run(String index, String login, String key,
+				String name, Map<String, String> vars) {
+			try {
+				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				ClientFactory.INSTANCE.properties.checkApi();
+				Variables variables = MapUtils.isEmpty(vars) ? null
+						: new Variables(vars);
+				return run(get(name), variables);
+			} catch (InterruptedException e) {
+				throw new CommonServiceException(e);
+			} catch (IOException e) {
+				throw new CommonServiceException(e);
+			} catch (SearchLibException e) {
+				throw new CommonServiceException(e);
+			}
+		}
 	}
 
 	@Override
-	public CommonResult script(String use, String login, String key,
+	public CommonResult run(String index, String login, String key,
 			List<ScriptLine> scriptLines) {
-		ScriptLinesRunner scriptLinesRunner = null;
-		try {
-			Client client = getLoggedClient(use, login, key, Role.SCRIPT_RUN);
-			ClientFactory.INSTANCE.properties.checkApi();
-			CommonResult result = new CommonResult(true, null);
-			scriptLinesRunner = new ScriptLinesRunner(client, null, result,
-					scriptLines);
-			scriptLinesRunner.run();
-			result.addDetail("Script lines", scriptLinesRunner.getLineCount());
-			result.addDetail("Error lines", scriptLinesRunner.getErrorCount());
-			result.addDetail("Ignored lines",
-					scriptLinesRunner.getIgnoredCount());
-			result.addDetail("Updated documents",
-					scriptLinesRunner.getUpdatedDocumentCount());
-			return new ScriptResult(result,
-					scriptLinesRunner.getScriptLineErrors());
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (ScriptException e) {
-			throw new CommonServiceException(e);
-		} finally {
-			if (scriptLinesRunner != null)
-				IOUtils.closeQuietly(scriptLinesRunner);
-		}
+		return new ScriptDirectoryImpl().run(index, login, key, scriptLines);
 
+	}
+
+	@Override
+	public CommonResult run(String index, String login, String key, String name) {
+		return new ScriptDirectoryImpl().run(index, login, key, name, null);
+	}
+
+	@Override
+	public CommonResult run(String index, String login, String key,
+			String name, Map<String, String> variables) {
+		return new ScriptDirectoryImpl()
+				.run(index, login, key, name, variables);
 	}
 
 	@Override

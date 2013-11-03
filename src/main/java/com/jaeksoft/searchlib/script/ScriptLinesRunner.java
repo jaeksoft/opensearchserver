@@ -76,6 +76,15 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 		lineNumber = 0;
 	}
 
+	public ScriptLinesRunner(ScriptCommandContext context, Variables variables,
+			List<ScriptLine> scriptLines) {
+		super(context, variables);
+		this.scriptLines = scriptLines;
+		this.scriptLineErrors = scriptLines == null ? null
+				: new ArrayList<ScriptLineError>(0);
+		lineNumber = 0;
+	}
+
 	public List<ScriptLineError> getScriptLineErrors() {
 		return scriptLineErrors;
 	}
@@ -84,6 +93,7 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 	protected void beforeRun(final ScriptCommandContext context,
 			final Variables variables) throws ScriptException {
 		lineIterator = scriptLines.iterator();
+		context.setVariables(variables);
 	}
 
 	@Override

@@ -28,6 +28,10 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class HtmlUnitBrowserDriver extends BrowserDriver<HtmlUnitDriver> {
 
+	public HtmlUnitBrowserDriver() {
+		super(BrowserDriverEnum.HTML_UNIT);
+	}
+
 	@Override
 	public HtmlUnitDriver initialize() {
 		return new HtmlUnitDriver();
