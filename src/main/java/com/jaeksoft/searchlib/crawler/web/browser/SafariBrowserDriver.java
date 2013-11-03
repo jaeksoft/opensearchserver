@@ -28,6 +28,10 @@ import org.openqa.selenium.safari.SafariDriver;
 
 public class SafariBrowserDriver extends BrowserDriver<SafariDriver> {
 
+	public SafariBrowserDriver() {
+		super(BrowserDriverEnum.SAFARI);
+	}
+
 	@Override
 	public SafariDriver initialize() {
 		return new SafariDriver();

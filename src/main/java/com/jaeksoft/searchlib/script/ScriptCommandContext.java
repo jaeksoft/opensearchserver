@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
@@ -203,7 +204,6 @@ public class ScriptCommandContext implements Closeable {
 
 	public void setSql(Transaction transaction) {
 		this.transaction = transaction;
-
 	}
 
 	public void addIndexDocument(IndexDocument indexDocument) {
@@ -230,6 +230,28 @@ public class ScriptCommandContext implements Closeable {
 
 	public int getUpdatedDocumentCount() {
 		return updatedDocumentCount;
+	}
+
+	public void subscript(String scriptName, Variables variables)
+			throws ScriptException {
+		ScriptLinesRunner runner = null;
+		Variables oldVars = variables;
+		try {
+			List<ScriptLine> scriptLines = config.getScriptManager()
+					.getContent(scriptName);
+			if (scriptLines == null)
+				return;
+			runner = new ScriptLinesRunner(this, variables, scriptLines);
+			runner.run();
+		} catch (IOException e) {
+			throw new ScriptException(e);
+		} catch (SearchLibException e) {
+			throw new ScriptException(e);
+		} finally {
+			variables = oldVars;
+			if (runner != null)
+				IOUtils.closeQuietly(runner);
+		}
 	}
 
 }

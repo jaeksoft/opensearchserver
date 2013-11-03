@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.utils.Variables;
 
 public class IndexDocumentCommands {
 
@@ -70,9 +71,13 @@ public class IndexDocumentCommands {
 			IndexDocument indexDocument = context.getIndexDocument();
 			if (indexDocument == null)
 				throwError("No index document has been created. Call INDEX_DOCUMENT_NEW.");
+			String field = getParameterString(0);
+			String value = getParameterString(1);
+			Variables variables = context.getVariables();
+			if (variables != null)
+				value = variables.replace(value);
 			Float boost = getParameterFloat(2);
-			indexDocument.add(getParameterString(0), getParameterString(1),
-					boost == null ? 1.0F : boost);
+			indexDocument.add(field, value, boost == null ? 1.0F : boost);
 		}
 	}
 

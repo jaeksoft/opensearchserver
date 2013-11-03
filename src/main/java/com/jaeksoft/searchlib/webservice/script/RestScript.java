@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.script;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,7 +48,7 @@ public interface RestScript {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/")
-	public CommonResult script(@PathParam("index_name") String use,
+	public CommonResult run(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<ScriptLine> scriptLines);
 
@@ -63,6 +64,21 @@ public interface RestScript {
 	public List<ScriptLine> get(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name);
+
+	@GET
+	@Path("/{script_name}/run")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public CommonResult run(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("script_name") String name);
+
+	@POST
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{script_name}/run")
+	public CommonResult run(@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("script_name") String name, Map<String, String> variables);
 
 	@HEAD
 	@Path("/{script_name}")

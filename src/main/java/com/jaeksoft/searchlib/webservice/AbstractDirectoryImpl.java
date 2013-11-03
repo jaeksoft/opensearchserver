@@ -33,9 +33,6 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
 import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.webservice.CommonListResult;
-import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManager<V>>
 		extends CommonServices {
@@ -79,15 +76,19 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 		}
 	}
 
+	protected V get(String name) throws SearchLibException, IOException {
+		AbstractDirectoryManager<V> manager = getManager(client);
+		if (!manager.exists(name))
+			throw new CommonServiceException(Status.NOT_FOUND, "The item "
+					+ name + " does not exist");
+		return manager.getContent(name);
+	}
+
 	public V get(String index, String login, String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AbstractDirectoryManager<V> manager = getManager(client);
-			if (!manager.exists(name))
-				throw new CommonServiceException(Status.NOT_FOUND, "The item "
-						+ name + " does not exist");
-			return manager.getContent(name);
+			return get(name);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

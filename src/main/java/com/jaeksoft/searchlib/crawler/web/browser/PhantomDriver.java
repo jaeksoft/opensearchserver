@@ -28,6 +28,10 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 public class PhantomDriver extends BrowserDriver<PhantomJSDriver> {
 
+	public PhantomDriver() {
+		super(BrowserDriverEnum.PHANTOM_JS);
+	}
+
 	@Override
 	public PhantomJSDriver initialize() {
 		return new PhantomJSDriver();

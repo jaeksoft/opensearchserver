@@ -28,6 +28,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ChromeBrowserDriver extends BrowserDriver<ChromeDriver> {
 
+	public ChromeBrowserDriver() {
+		super(BrowserDriverEnum.CHROME);
+	}
+
 	@Override
 	public ChromeDriver initialize() {
 		return new ChromeDriver();
