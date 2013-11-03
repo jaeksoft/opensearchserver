@@ -38,27 +38,20 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
 
-public class JsonScript extends AbstractScriptRunner {
-
-	public static class JsonScriptLine {
-
-		public String id;
-		public String command;
-		public String[] parameters;
-	}
+public class ScriptLinesRunner extends AbstractScriptRunner {
 
 	private final static SimpleDateFormat FORMAT_ISO8601 = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssz");
 
 	@JsonInclude(Include.NON_NULL)
-	public static class JsonScriptLineError {
+	public static class ScriptLineError {
 
 		public final int lineNumber;
 		public final String id;
 		public final String date;
 		public final String error;
 
-		public JsonScriptLineError(int lineNumber, ScriptLine scriptLine,
+		public ScriptLineError(int lineNumber, ScriptLine scriptLine,
 				String errorMsg) {
 			this.lineNumber = lineNumber;
 			this.id = scriptLine.id;
@@ -69,21 +62,30 @@ public class JsonScript extends AbstractScriptRunner {
 		}
 	}
 
-	private final List<JsonScriptLine> scriptLines;
-	private final List<JsonScriptLineError> scriptLineErrors;
-	private Iterator<JsonScriptLine> lineIterator;
+	private final List<ScriptLine> scriptLines;
+	private final List<ScriptLineError> scriptLineErrors;
+	private Iterator<ScriptLine> lineIterator;
 	private int lineNumber;
 
-	public JsonScript(Config config, Variables variables,
-			InfoCallback callback, List<JsonScriptLine> scriptLines) {
+	public ScriptLinesRunner(Config config, Variables variables,
+			InfoCallback callback, List<ScriptLine> scriptLines) {
 		super(config, variables, callback);
 		this.scriptLines = scriptLines;
 		this.scriptLineErrors = scriptLines == null ? null
-				: new ArrayList<JsonScriptLineError>(0);
+				: new ArrayList<ScriptLineError>(0);
 		lineNumber = 0;
 	}
 
-	public List<JsonScriptLineError> getScriptLineErrors() {
+	public ScriptLinesRunner(ScriptCommandContext context, Variables variables,
+			List<ScriptLine> scriptLines) {
+		super(context, variables);
+		this.scriptLines = scriptLines;
+		this.scriptLineErrors = scriptLines == null ? null
+				: new ArrayList<ScriptLineError>(0);
+		lineNumber = 0;
+	}
+
+	public List<ScriptLineError> getScriptLineErrors() {
 		return scriptLineErrors;
 	}
 
@@ -91,6 +93,7 @@ public class JsonScript extends AbstractScriptRunner {
 	protected void beforeRun(final ScriptCommandContext context,
 			final Variables variables) throws ScriptException {
 		lineIterator = scriptLines.iterator();
+		context.setVariables(variables);
 	}
 
 	@Override
@@ -100,7 +103,7 @@ public class JsonScript extends AbstractScriptRunner {
 			return null;
 		if (!lineIterator.hasNext())
 			return null;
-		JsonScriptLine jsonScriptLine = lineIterator.next();
+		ScriptLine jsonScriptLine = lineIterator.next();
 		return new ScriptLine(jsonScriptLine.id, jsonScriptLine.command,
 				jsonScriptLine.parameters);
 	}
@@ -111,7 +114,7 @@ public class JsonScript extends AbstractScriptRunner {
 			throws ScriptException {
 		if (StringUtils.isEmpty(errorMsg))
 			return;
-		scriptLineErrors.add(new JsonScriptLineError(++lineNumber, scriptLine,
+		scriptLineErrors.add(new ScriptLineError(++lineNumber, scriptLine,
 				errorMsg));
 	}
 

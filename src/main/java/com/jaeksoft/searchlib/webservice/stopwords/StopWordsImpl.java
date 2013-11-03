@@ -27,14 +27,14 @@ package com.jaeksoft.searchlib.webservice.stopwords;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
+import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.synonyms.AbstractDirectoryImpl;
 
 public class StopWordsImpl implements RestStopWords, SoapStopWords {
 
 	private class StopWordsDirectoryImpl extends
-			AbstractDirectoryImpl<StopWordsManager> {
+			AbstractDirectoryImpl<String, StopWordsManager> {
 
 		@Override
 		protected StopWordsManager getManager(Client client)

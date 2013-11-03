@@ -27,13 +27,14 @@ package com.jaeksoft.searchlib.webservice.synonyms;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
+import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
 
 	private class SynonymsDirectoryImpl extends
-			AbstractDirectoryImpl<SynonymsManager> {
+			AbstractDirectoryImpl<String, SynonymsManager> {
 
 		@Override
 		protected SynonymsManager getManager(Client client)

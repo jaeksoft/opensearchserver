@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,13 +30,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.stop.PrefixArray;
 import com.jaeksoft.searchlib.analysis.filter.stop.SuffixArray;
 import com.jaeksoft.searchlib.analysis.filter.stop.WordArray;
+import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager.DirectoryTextContentManager;
 import com.jaeksoft.searchlib.config.Config;
 
-public class StopWordsManager extends AbstractDirectoryManager {
+public class StopWordsManager extends DirectoryTextContentManager {
 
 	private Map<String, WordArray> wordArrayMap;
 	private Map<String, PrefixArray> prefixArrayMap;
@@ -156,16 +156,10 @@ public class StopWordsManager extends AbstractDirectoryManager {
 	}
 
 	@Override
-	public void saveContent(String name, String content) throws IOException,
-			SearchLibException {
-		rwl.w.lock();
-		try {
-			super.saveContent(name, content);
-			wordArrayMap.clear();
-			prefixArrayMap.clear();
-			suffixArrayMap.clear();
-		} finally {
-			rwl.w.unlock();
-		}
+	public void saveContent(File file, String content) throws IOException {
+		super.saveContent(file, content);
+		wordArrayMap.clear();
+		prefixArrayMap.clear();
+		suffixArrayMap.clear();
 	}
 }

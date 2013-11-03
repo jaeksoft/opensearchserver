@@ -102,6 +102,7 @@ import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.scheduler.JobList;
 import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
@@ -205,6 +206,8 @@ public abstract class Config implements ThreadFactory {
 	private ClassifierManager classifierManager = null;
 
 	private LearnerManager learnerManager = null;
+
+	private ScriptManager scriptManager = null;
 
 	private ReportsManager reportsManager = null;
 
@@ -1366,6 +1369,25 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public ScriptManager getScriptManager() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (scriptManager != null)
+				return scriptManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (scriptManager != null)
+				return scriptManager;
+			return scriptManager = new ScriptManager(this, new File(indexDir,
+					"scripts"));
 		} finally {
 			rwl.w.unlock();
 		}

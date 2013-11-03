@@ -38,17 +38,23 @@ public enum CommandEnum {
 
 	CSS_SELECTOR_INDEX_FIELD(Selectors.CSS_IndexField.class),
 
+	CSS_SELECTOR_SUBSCRIPT(Selectors.CSS_SubScript.class),
+
 	XPATH_SELECTOR_ADD(Selectors.XPATH_Add.class),
 
 	XPATH_SELECTOR_RESET(Selectors.XPATH_Reset.class),
 
 	XPATH_SELECTOR_INDEX_FIELD(Selectors.XPATH_IndexField.class),
 
+	XPATH_SELECTOR_SUBSCRIPT(Selectors.XPATH_SubScript.class),
+
 	ID_SELECTOR_ADD(Selectors.ID_Add.class),
 
 	ID_SELECTOR_RESET(Selectors.ID_Reset.class),
 
 	ID_SELECTOR_INDEX_FIELD(Selectors.ID_IndexField.class),
+
+	ID_SELECTOR_SUBSCRIPT(Selectors.ID_SubScript.class),
 
 	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
@@ -66,12 +72,17 @@ public enum CommandEnum {
 
 	WEBDRIVER_CAPTURE(WebDriverCommands.Capture.class),
 
-	WEBDRIVER_SCREENSHOT(WebDriverCommands.Screenshot.class), WEBDRIVER_SET_TIMEOUTS(
-			WebDriverCommands.SetTimeOuts.class),
+	WEBDRIVER_SCREENSHOT(WebDriverCommands.Screenshot.class),
+
+	WEBDRIVER_SET_TIMEOUTS(WebDriverCommands.SetTimeOuts.class),
 
 	WEBDRIVER_CLOSE(WebDriverCommands.Close.class),
 
 	WEBDRIVER_JAVASCRIPT(WebDriverCommands.Javascript.class),
+
+	WEBDRIVER_NEW_WINDOW(WebDriverCommands.NewWindow.class),
+
+	WEBDRIVER_CLOSE_WINDOW(WebDriverCommands.CloseWindow.class),
 
 	INDEX_DOCUMENT_NEW(IndexDocumentCommands.New.class),
 

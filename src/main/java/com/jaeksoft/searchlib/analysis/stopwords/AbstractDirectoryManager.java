@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
-public class AbstractDirectoryManager {
+public abstract class AbstractDirectoryManager<T> {
 
 	final protected ReadWriteLock rwl = new ReadWriteLock();
 
@@ -97,20 +97,6 @@ public class AbstractDirectoryManager {
 		}
 	}
 
-	public void create(String name) throws IOException {
-		rwl.w.lock();
-		try {
-			if (!directory.exists())
-				directory.mkdir();
-			File createFile = getFile(name);
-			if (createFile.exists())
-				return;
-			createFile.createNewFile();
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	public void delete(String name) {
 		rwl.w.lock();
 		try {
@@ -123,22 +109,49 @@ public class AbstractDirectoryManager {
 		}
 	}
 
-	public String getContent(String name) throws IOException {
+	protected abstract T getContent(File file) throws IOException;
+
+	public final T getContent(String name) throws IOException {
 		rwl.r.lock();
 		try {
-			return FileUtils.readFileToString(getFile(name));
+			return getContent(getFile(name));
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public void saveContent(String name, String content) throws IOException,
+	protected abstract void saveContent(File file, T content)
+			throws IOException;
+
+	public final void saveContent(String name, T content) throws IOException,
 			SearchLibException {
 		rwl.w.lock();
 		try {
-			FileUtils.writeStringToFile(getFile(name), content);
+			if (!directory.exists())
+				directory.mkdir();
+			saveContent(getFile(name), content);
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	public static class DirectoryTextContentManager extends
+			AbstractDirectoryManager<String> {
+
+		public DirectoryTextContentManager(Config config, File directory) {
+			super(config, directory);
+		}
+
+		@Override
+		protected String getContent(File file) throws IOException {
+			return FileUtils.readFileToString(file);
+		}
+
+		@Override
+		protected void saveContent(File file, String content)
+				throws IOException {
+			FileUtils.writeStringToFile(file, content);
+		}
+
 	}
 }

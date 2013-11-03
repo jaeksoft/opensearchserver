@@ -29,6 +29,10 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 public class InternetExplorerBrowserDriver extends
 		BrowserDriver<InternetExplorerDriver> {
 
+	public InternetExplorerBrowserDriver() {
+		super(BrowserDriverEnum.INTERNET_EXPLORER);
+	}
+
 	@Override
 	public InternetExplorerDriver initialize() {
 		return new InternetExplorerDriver();
