@@ -177,8 +177,7 @@ public class TaskUrlManagerAction extends TaskAbstract {
 		if (CommandLoadSitemap.equals(command)) {
 			taskLog.setInfo("URL manager: Handle SiteMaps");
 			urlManager.updateSiteMap(taskLog);
-		}
-		if (CommandDeleteAll.equals(command)) {
+		} else if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("URL manager: Delete All");
 			urlManager.deleteAll(taskLog);
 		} else if (CommandDeleteSelection.equals(command)) {
