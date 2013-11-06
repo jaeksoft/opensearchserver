@@ -863,8 +863,13 @@ public class UrlManager extends AbstractManager {
 			joinItem.setLocalField(targetField);
 			joinItem.setOuterCollector(outerCollector);
 			searchRequest.getJoinList().add(joinItem);
-			urlDbClient.request(searchRequest);
+			AbstractResultSearch result = (AbstractResultSearch) urlDbClient
+					.request(searchRequest);
 			outerCollector.delete();
+			if (taskLog != null) {
+				taskLog.setInfo("URLs: (Found / Deleted: "
+						+ result.getNumFound() + " / " + outerCollector.total);
+			}
 			return outerCollector.total;
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
