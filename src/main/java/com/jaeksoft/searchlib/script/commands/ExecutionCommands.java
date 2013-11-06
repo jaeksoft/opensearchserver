@@ -55,6 +55,21 @@ public class ExecutionCommands {
 		}
 	}
 
+	public static class ScriptCommand extends CommandAbstract {
+
+		public ScriptCommand() {
+			super(CommandEnum.SCRIPT);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			String scriptName = getParameterString(0);
+			context.subscript(scriptName, null);
+		}
+	}
+
 	public static class OnErrorCommand extends CommandAbstract {
 
 		public OnErrorCommand() {

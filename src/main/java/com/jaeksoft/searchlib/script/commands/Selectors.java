@@ -47,6 +47,7 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public class Selectors {
@@ -134,10 +135,10 @@ public class Selectors {
 		public final static Pattern PARAM_FLASHVARS_LINK = Pattern.compile(
 				"flashvars_link\\(([^)]*)\\)", Pattern.CASE_INSENSITIVE);
 
-		protected List<WebElement> runSelector(ScriptCommandContext context)
-				throws ScriptException {
+		protected List<WebElement> runSelector(ScriptCommandContext context,
+				int paramPosition) throws ScriptException {
 			Selector selector = new Selector(selectorType,
-					getParameterString(1));
+					getParameterString(paramPosition));
 			BrowserDriver<?> driver = context.getBrowserDriver();
 			if (driver == null)
 				throwError("No browser driver is available");
@@ -238,7 +239,7 @@ public class Selectors {
 			if (indexDocument == null)
 				throwError("No index document available. Call INDEX_DOCUMENT_NEW before");
 			String field = getParameterString(0);
-			List<WebElement> elements = runSelector(context);
+			List<WebElement> elements = runSelector(context, 1);
 			if (CollectionUtils.isEmpty(elements))
 				return;
 			for (WebElement element : elements)
@@ -350,7 +351,7 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			checkParameters(2, parameters);
 			String scriptName = getParameterString(0);
-			List<WebElement> elements = runSelector(context);
+			List<WebElement> elements = runSelector(context, 1);
 			if (CollectionUtils.isEmpty(elements))
 				return;
 			URL currentURL = null;
@@ -406,4 +407,51 @@ public class Selectors {
 		}
 	}
 
+	public abstract static class ClickAndScriptCommandAbstract extends
+			SelectorCommandAbstract {
+
+		protected ClickAndScriptCommandAbstract(CommandEnum commandEnum,
+				Type selectorType) {
+			super(commandEnum, selectorType);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			String scriptName = getParameterString(1);
+			Integer waitSec = getParameterInt(2);
+			List<WebElement> elements = runSelector(context, 0);
+			if (CollectionUtils.isEmpty(elements))
+				return;
+			elements.get(0).click();
+			if (waitSec != null)
+				ThreadUtils.sleepMs(waitSec * 1000);
+			context.subscript(scriptName, null);
+		}
+	}
+
+	public static class CSS_ClickAndScript extends
+			ClickAndScriptCommandAbstract {
+
+		public CSS_ClickAndScript() {
+			super(CommandEnum.CSS_SELECTOR_CLICK_AND_SCRIPT, Type.CSS_SELECTOR);
+		}
+	}
+
+	public static class XPATH_ClickAndScript extends
+			ClickAndScriptCommandAbstract {
+
+		public XPATH_ClickAndScript() {
+			super(CommandEnum.XPATH_SELECTOR_CLICK_AND_SCRIPT,
+					Type.XPATH_SELECTOR);
+		}
+	}
+
+	public static class ID_ClickAndScript extends ClickAndScriptCommandAbstract {
+
+		public ID_ClickAndScript() {
+			super(CommandEnum.ID_SELECTOR_CLICK_AND_SCRIPT, Type.ID_SELECTOR);
+		}
+	}
 }
