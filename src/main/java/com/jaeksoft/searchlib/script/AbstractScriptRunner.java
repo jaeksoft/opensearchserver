@@ -37,7 +37,6 @@ public abstract class AbstractScriptRunner implements Closeable {
 
 	private final boolean externalContext;
 	private final ScriptCommandContext context;
-	private final Variables variables;
 	private int errorCount;
 	private int ignoredCount;
 	private int lineCount;
@@ -46,36 +45,34 @@ public abstract class AbstractScriptRunner implements Closeable {
 			InfoCallback taskLog) {
 		this.externalContext = false;
 		this.context = new ScriptCommandContext(config, taskLog);
-		this.variables = variables != null ? variables : new Variables();
+		this.context.addVariables(variables);
 	}
 
-	protected AbstractScriptRunner(ScriptCommandContext context,
-			Variables variables) {
+	protected AbstractScriptRunner(ScriptCommandContext context) {
 		this.externalContext = true;
 		this.context = context;
-		this.variables = variables != null ? variables : new Variables();
 	}
 
-	protected abstract void beforeRun(final ScriptCommandContext context,
-			final Variables variables) throws ScriptException;
-
-	protected abstract ScriptLine nextScriptLine(final Variables variables)
+	protected abstract void beforeRun(final ScriptCommandContext context)
 			throws ScriptException;
 
-	protected abstract void updateScriptLine(final ScriptLine scriptLine,
-			final Variables variables, final String errorMsg)
-			throws ScriptException;
+	protected abstract ScriptLine nextScriptLine(
+			final ScriptCommandContext context) throws ScriptException;
+
+	protected abstract void updateScriptLine(
+			final ScriptCommandContext context, final ScriptLine scriptLine,
+			final String errorMsg) throws ScriptException;
 
 	public final void run() throws ScriptException {
 		try {
-			beforeRun(context, variables);
+			beforeRun(context);
 			errorCount = 0;
 			ignoredCount = 0;
 			lineCount = 0;
 			CommandEnum[] commandFinder = null;
 			String lastScriptError = null;
 			ScriptLine scriptLine = null;
-			while ((scriptLine = nextScriptLine(variables)) != null) {
+			while ((scriptLine = nextScriptLine(context)) != null) {
 				String currentScriptError = null;
 				lineCount++;
 				try {
@@ -93,7 +90,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 						}
 						if (!bFind) {
 							ignoredCount++;
-							updateScriptLine(scriptLine, variables,
+							updateScriptLine(context, scriptLine,
 									"ignored due to previous error");
 							continue;
 						}
@@ -121,16 +118,16 @@ public abstract class AbstractScriptRunner implements Closeable {
 						break;
 					}
 				}
-				updateScriptLine(scriptLine, variables, currentScriptError);
+				updateScriptLine(context, scriptLine, currentScriptError);
 			}
-			afterRun(lastScriptError, variables);
+			afterRun(context, lastScriptError);
 		} finally {
 			close();
 		}
 	}
 
-	protected abstract void afterRun(final String lastScriptError,
-			final Variables variables) throws ScriptException;
+	protected abstract void afterRun(final ScriptCommandContext context,
+			final String lastScriptError) throws ScriptException;
 
 	public int getErrorCount() {
 		return errorCount;
