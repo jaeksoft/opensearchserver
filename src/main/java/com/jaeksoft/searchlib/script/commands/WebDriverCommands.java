@@ -448,8 +448,9 @@ public class WebDriverCommands {
 				String... parameters) throws ScriptException {
 			BrowserDriver<?> driver = context.getBrowserDriver();
 			if (driver == null)
-				throwError("No WebDriver open");
+				throwError("Nothing to close. No WebDriver open");
 			driver.closeWindow();
+			driver.switchToLastWindow();
 		}
 	}
 
