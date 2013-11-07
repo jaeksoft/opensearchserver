@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
@@ -62,7 +64,7 @@ public class ScriptCommandContext implements Closeable {
 
 	private Transaction transaction;
 
-	private Variables variables;
+	private final Set<Variables> variablesSet;
 
 	private List<IndexDocument> indexDocuments;
 
@@ -82,7 +84,7 @@ public class ScriptCommandContext implements Closeable {
 		onError = OnError.FAILURE;
 		onErrorNextCommands = null;
 		transaction = null;
-		variables = null;
+		variablesSet = new HashSet<Variables>();
 		indexDocuments = null;
 		currentIndexDocument = null;
 		updatedDocumentCount = 0;
@@ -111,12 +113,30 @@ public class ScriptCommandContext implements Closeable {
 		return config;
 	}
 
-	public void setVariables(Variables variables) {
-		this.variables = variables;
+	public void addVariables(final Variables... variablesList) {
+		if (variablesList == null)
+			return;
+		if (variablesList.length == 0)
+			return;
+		for (Variables variables : variablesList)
+			if (variables != null)
+				variablesSet.add(variables);
 	}
 
-	public Variables getVariables() {
-		return variables;
+	public void removeVariables(final Variables... variablesList) {
+		if (variablesList == null)
+			return;
+		if (variablesList.length == 0)
+			return;
+		for (Variables variables : variablesList)
+			if (variables != null)
+				variablesSet.remove(variables);
+	}
+
+	public String replaceVariables(String text) {
+		for (Variables variables : variablesSet)
+			text = variables.replace(text);
+		return text;
 	}
 
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
@@ -235,20 +255,22 @@ public class ScriptCommandContext implements Closeable {
 	public void subscript(String scriptName, Variables variables)
 			throws ScriptException {
 		ScriptLinesRunner runner = null;
-		Variables oldVars = variables;
 		try {
 			List<ScriptLine> scriptLines = config.getScriptManager()
 					.getContent(scriptName);
 			if (scriptLines == null)
 				return;
-			runner = new ScriptLinesRunner(this, variables, scriptLines);
+			if (variables != null)
+				variablesSet.add(variables);
+			runner = new ScriptLinesRunner(this, scriptLines);
 			runner.run();
 		} catch (IOException e) {
 			throw new ScriptException(e);
 		} catch (SearchLibException e) {
 			throw new ScriptException(e);
 		} finally {
-			variables = oldVars;
+			if (variables != null)
+				variablesSet.remove(variables);
 			if (runner != null)
 				IOUtils.closeQuietly(runner);
 		}

@@ -58,7 +58,6 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.utils.Variables;
 
 public class WebDriverCommands {
 
@@ -142,9 +141,7 @@ public class WebDriverCommands {
 			String url = getParameterString(0);
 			if (StringUtils.isEmpty(url))
 				throwError("No URL given");
-			Variables vars = context.getVariables();
-			if (vars != null)
-				url = vars.replace(url);
+			url = context.replaceVariables(url);
 			browserDriver.get(url);
 		}
 
@@ -402,9 +399,7 @@ public class WebDriverCommands {
 			if (browserDriver == null)
 				throwError("No browser open");
 			String js = getParameterString(0);
-			Variables variables = context.getVariables();
-			if (variables != null)
-				js = variables.replace(js);
+			js = context.replaceVariables(js);
 			try {
 				browserDriver.javascript(js, faultTolerant);
 			} catch (IOException e) {

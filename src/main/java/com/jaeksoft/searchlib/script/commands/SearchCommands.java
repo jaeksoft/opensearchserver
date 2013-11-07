@@ -64,6 +64,9 @@ public class SearchCommands {
 			String query = parameters[1];
 			String sqlByDoc = findPatternFunction(2, PARAM_SQL_BY_DOC);
 			Client client = (Client) context.getConfig();
+			Variables searchVariables = new Variables();
+			Variables documentVariables = new Variables();
+			context.addVariables(searchVariables, documentVariables);
 			try {
 				AbstractRequest request = client.getNewRequest(template);
 				if (!(request instanceof AbstractSearchRequest))
@@ -74,30 +77,32 @@ public class SearchCommands {
 					searchRequest.setQueryString(query);
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(searchRequest);
-				context.getVariables().put("search:numfound",
+				searchVariables.put("search:numfound",
 						Integer.toString(result.getNumFound()));
 				int pos = searchRequest.getStart();
 				if (!StringUtils.isEmpty(sqlByDoc)) {
 					for (ResultDocument document : result) {
-						Variables searchVars = new Variables(
-								context.getVariables());
+						documentVariables.clear();
 						for (FieldValue fieldValue : document.getReturnFields()
 								.values()) {
 							if (fieldValue.getValuesCount() == 0)
 								continue;
-							searchVars.put(StringUtils.fastConcat("search:",
-									fieldValue.getName()), fieldValue
-									.getValueArray()[0].getValue());
+							documentVariables.put(StringUtils.fastConcat(
+									"search:", fieldValue.getName()),
+									fieldValue.getValueArray()[0].getValue());
 						}
-						searchVars.put("search:score",
+						documentVariables.put("search:score",
 								Float.toString(result.getScore(pos++)));
-						context.executeSqlUpdate(searchVars.replace(sqlByDoc));
+						context.executeSqlUpdate(context
+								.replaceVariables(sqlByDoc));
 					}
 				}
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			} catch (SQLException e) {
 				throw new ScriptException(e);
+			} finally {
+				context.removeVariables(searchVariables, documentVariables);
 			}
 		}
 	}
