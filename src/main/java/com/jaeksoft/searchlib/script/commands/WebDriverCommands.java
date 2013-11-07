@@ -401,8 +401,12 @@ public class WebDriverCommands {
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();
 			if (browserDriver == null)
 				throwError("No browser open");
+			String js = getParameterString(0);
+			Variables variables = context.getVariables();
+			if (variables != null)
+				js = variables.replace(js);
 			try {
-				browserDriver.javascript(getParameterString(0), faultTolerant);
+				browserDriver.javascript(js, faultTolerant);
 			} catch (IOException e) {
 				throw new ScriptException(e);
 			} catch (SearchLibException e) {
