@@ -94,4 +94,10 @@ public class Variables {
 			text = text.replace(entry.getKey(), entry.getValue());
 		return text;
 	}
+
+	public void clear() {
+		if (map == null)
+			return;
+		map.clear();
+	}
 }
