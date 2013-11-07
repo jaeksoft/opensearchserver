@@ -314,13 +314,17 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		click.perform();
 	}
 
-	public void openNewWindow() throws IOException, SearchLibException {
-		javascript("window.open()", false);
+	public void switchToLastWindow() {
 		String window = null;
 		Iterator<String> iterator = driver.getWindowHandles().iterator();
 		while (iterator.hasNext())
 			window = iterator.next();
 		driver.switchTo().window(window);
+	}
+
+	public void openNewWindow() throws IOException, SearchLibException {
+		javascript("window.open()", false);
+		switchToLastWindow();
 	}
 
 	public void closeWindow() {
