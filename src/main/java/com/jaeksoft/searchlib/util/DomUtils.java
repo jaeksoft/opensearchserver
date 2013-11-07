@@ -154,8 +154,13 @@ public class DomUtils {
 	}
 
 	final public static double getAttributeDouble(Node node, String name) {
+		return getAttributeDouble(node, name, 0);
+	}
+
+	final public static double getAttributeDouble(Node node, String name,
+			double defaultValue) {
 		String value = getAttributeText(node, name);
-		return value == null ? 0 : Double.parseDouble(value);
+		return value == null ? defaultValue : Double.parseDouble(value);
 	}
 
 	final public static void updateAttributeText(Node node, String name,
