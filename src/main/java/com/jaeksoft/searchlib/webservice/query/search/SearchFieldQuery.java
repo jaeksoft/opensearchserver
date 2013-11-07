@@ -52,12 +52,14 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 
 		final public String field;
 		final public Boolean phrase;
-		final public Float boost;
+		final public Double boost;
+		final public Double phraseBoost;
 
 		public SearchField() {
 			field = null;
 			phrase = null;
 			boost = null;
+			phraseBoost = null;
 		}
 
 		public SearchField(
@@ -65,12 +67,13 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 			field = searchField.getField();
 			phrase = searchField.isPhrase();
 			boost = searchField.getBoost();
+			phraseBoost = searchField.getPhraseBoost();
 		}
 
 		@JsonIgnore
 		protected com.jaeksoft.searchlib.request.SearchField newSearchField() {
 			return new com.jaeksoft.searchlib.request.SearchField(field,
-					phrase, boost);
+					phrase, boost, phraseBoost);
 		}
 	}
 
