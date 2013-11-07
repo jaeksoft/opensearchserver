@@ -76,6 +76,8 @@ public class DatabaseScript extends AbstractScriptRunner {
 
 	private int columnCount;
 
+	private final Variables scriptVariables;
+
 	public DatabaseScript(Config config, String driverClass, String jdbcURL,
 			String username, String password,
 			IsolationLevelEnum isolationLevel, String sqlVariable,
@@ -102,6 +104,7 @@ public class DatabaseScript extends AbstractScriptRunner {
 		pkList = null;
 		metaData = null;
 		columnCount = 0;
+		scriptVariables = new Variables();
 	}
 
 	private void doSqlUpdateOneCall(String sqlU, String id,
@@ -112,22 +115,22 @@ public class DatabaseScript extends AbstractScriptRunner {
 	}
 
 	@Override
-	protected void beforeRun(final ScriptCommandContext context,
-			final Variables variables) throws ScriptException {
+	protected void beforeRun(final ScriptCommandContext context)
+			throws ScriptException {
 		try {
 			transaction = connectionManager.getNewTransaction(false,
 					isolationLevel.value);
 			context.setSql(transaction);
+			context.addVariables(scriptVariables);
 			// Load variables
 			if (sqlVariable != null && sqlVariable.length() > 0) {
 				Query query = transaction.prepare(sqlVariable);
 				ResultSet resultSet = query.getResultSet();
 				while (resultSet.next())
-					variables.put(resultSet.getString(varColumnName),
+					scriptVariables.put(resultSet.getString(varColumnName),
 							resultSet.getString(varColumnValue));
 			}
-			context.setVariables(variables);
-			String sqlS = variables.replace(sqlSelect);
+			String sqlS = context.replaceVariables(sqlSelect);
 			Query query = transaction.prepare(sqlS);
 			resultSet = query.getResultSet();
 
@@ -149,13 +152,13 @@ public class DatabaseScript extends AbstractScriptRunner {
 	}
 
 	@Override
-	protected ScriptLine nextScriptLine(final Variables variables)
+	protected ScriptLine nextScriptLine(final ScriptCommandContext context)
 			throws ScriptException {
 		try {
 			if (!resultSet.next())
 				return null;
 			for (int i = 1; i <= columnCount; i++)
-				variables.put(
+				scriptVariables.put(
 						StringUtils.fastConcat("sql:",
 								metaData.getColumnLabel(i)),
 						resultSet.getString(i));
@@ -178,25 +181,26 @@ public class DatabaseScript extends AbstractScriptRunner {
 	}
 
 	@Override
-	protected void updateScriptLine(final ScriptLine scriptLine,
-			final Variables variables, String errorMsg) throws ScriptException {
+	protected void updateScriptLine(final ScriptCommandContext context,
+			final ScriptLine scriptLine, String errorMsg)
+			throws ScriptException {
 		try {
-			doSqlUpdateOneCall(variables.replace(sqlUpdate), scriptLine.id,
-					errorMsg);
+			doSqlUpdateOneCall(context.replaceVariables(sqlUpdate),
+					scriptLine.id, errorMsg);
 		} catch (SQLException e) {
 			throw new ScriptException(e);
 		}
 	}
 
 	@Override
-	public void afterRun(final String lastScriptError, final Variables variables)
-			throws ScriptException {
+	public void afterRun(final ScriptCommandContext context,
+			final String lastScriptError) throws ScriptException {
 		if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY
 				|| sqlUpdateMode == SqlUpdateMode.NO_CALL)
 			return;
 		try {
 			DatabaseUtils.update(transaction, pkList, lastScriptError,
-					sqlUpdateMode, variables.replace(sqlUpdate));
+					sqlUpdateMode, context.replaceVariables(sqlUpdate));
 		} catch (SQLException e) {
 			throw new ScriptException(e);
 		}

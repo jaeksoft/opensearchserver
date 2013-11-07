@@ -76,9 +76,9 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 		lineNumber = 0;
 	}
 
-	public ScriptLinesRunner(ScriptCommandContext context, Variables variables,
+	public ScriptLinesRunner(ScriptCommandContext context,
 			List<ScriptLine> scriptLines) {
-		super(context, variables);
+		super(context);
 		this.scriptLines = scriptLines;
 		this.scriptLineErrors = scriptLines == null ? null
 				: new ArrayList<ScriptLineError>(0);
@@ -90,14 +90,13 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 	}
 
 	@Override
-	protected void beforeRun(final ScriptCommandContext context,
-			final Variables variables) throws ScriptException {
+	protected void beforeRun(final ScriptCommandContext context)
+			throws ScriptException {
 		lineIterator = scriptLines.iterator();
-		context.setVariables(variables);
 	}
 
 	@Override
-	protected ScriptLine nextScriptLine(final Variables variables)
+	protected ScriptLine nextScriptLine(final ScriptCommandContext context)
 			throws ScriptException {
 		if (lineIterator == null)
 			return null;
@@ -109,8 +108,8 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 	}
 
 	@Override
-	protected void updateScriptLine(final ScriptLine scriptLine,
-			final Variables variables, final String errorMsg)
+	protected void updateScriptLine(final ScriptCommandContext context,
+			final ScriptLine scriptLine, final String errorMsg)
 			throws ScriptException {
 		if (StringUtils.isEmpty(errorMsg))
 			return;
@@ -119,8 +118,8 @@ public class ScriptLinesRunner extends AbstractScriptRunner {
 	}
 
 	@Override
-	public void afterRun(final String lastScriptError, final Variables variables)
-			throws ScriptException {
+	public void afterRun(final ScriptCommandContext context,
+			final String lastScriptError) throws ScriptException {
 	}
 
 }

@@ -20,7 +20,8 @@
 		<columns>
 			<column label="Field" />
 			<column label="Phrase" />
-			<column label="Boost" />
+			<column label="Term boost" />
+			<column label="Phrase Boost" />
 			<column label="Action" />
 		</columns>
 		<rows>
@@ -29,13 +30,14 @@
 					<label value="@load(each.field)" />
 					<checkbox checked="@bind(each.phrase)" />
 					<doublebox value="@bind(each.boost)" />
+					<doublebox value="@bind(each.phraseBoost)" />
 					<button image="images/action_delete.png"
 						onClick="@command('onSearchFieldRemove', searchfield=each)" />
 				</row>
 			</template>
 		</rows>
 		<foot>
-			<footer span="4">
+			<footer span="5">
 				<listbox mold="select"
 					selectedItem="@bind(searchfields.selectedSearchField)"
 					model="@load(searchfields.searchableFields)">

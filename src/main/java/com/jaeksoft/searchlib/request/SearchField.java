@@ -50,21 +50,26 @@ public class SearchField implements Cloneable {
 	public final static String SEARCHFIELD_ATTRIBUTE_FIELD_NAME = "field";
 	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE = "phrase";
 	public final static String SEARCHFIELD_ATTRIBUTE_BOOST = "boost";
+	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST = "phraseBoost";
 
 	private String field;
 	private boolean phrase;
-	private float boost;
+	private double boost;
+	private double phraseBoost;
 
 	private SearchField(SearchField searchField) {
 		this.field = searchField.field;
 		this.phrase = searchField.phrase;
 		this.boost = searchField.boost;
+		this.phraseBoost = searchField.phraseBoost;
 	}
 
-	public SearchField(String field, boolean phrase, float boost) {
+	public SearchField(String field, boolean phrase, double boost,
+			double phraseBoost) {
 		this.field = field;
 		this.phrase = phrase;
 		this.boost = boost;
+		this.phraseBoost = phraseBoost;
 	}
 
 	public SearchField(Node fieldNode) {
@@ -72,8 +77,10 @@ public class SearchField implements Cloneable {
 				SEARCHFIELD_ATTRIBUTE_FIELD_NAME);
 		this.phrase = Boolean.parseBoolean(DomUtils.getAttributeText(fieldNode,
 				SEARCHFIELD_ATTRIBUTE_PHRASE));
-		this.boost = Float.parseFloat(DomUtils.getAttributeText(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_BOOST));
+		this.boost = DomUtils.getAttributeDouble(fieldNode,
+				SEARCHFIELD_ATTRIBUTE_BOOST, 1.0);
+		this.phraseBoost = DomUtils.getAttributeDouble(fieldNode,
+				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, 1.0);
 	}
 
 	@Override
@@ -114,7 +121,7 @@ public class SearchField implements Cloneable {
 	/**
 	 * @return the boost
 	 */
-	public float getBoost() {
+	public double getBoost() {
 		return boost;
 	}
 
@@ -122,15 +129,32 @@ public class SearchField implements Cloneable {
 	 * @param boost
 	 *            the boost to set
 	 */
-	public void setBoost(float boost) {
+	public void setBoost(double boost) {
 		this.boost = boost;
+	}
+
+	/**
+	 * @return the phrase boost
+	 */
+	public double getPhraseBoost() {
+		return phraseBoost;
+	}
+
+	/**
+	 * @param phrase
+	 *            boost the phrase boost to set
+	 */
+	public void setPhraseBoost(double phraseBoost) {
+		this.phraseBoost = phraseBoost;
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(SEARCHFIELD_NODE_NAME,
 				SEARCHFIELD_ATTRIBUTE_FIELD_NAME, field,
 				SEARCHFIELD_ATTRIBUTE_PHRASE, Boolean.toString(phrase),
-				SEARCHFIELD_ATTRIBUTE_BOOST, Float.toString(boost));
+				SEARCHFIELD_ATTRIBUTE_BOOST, Double.toString(boost),
+				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST,
+				Double.toString(phraseBoost));
 		xmlWriter.endElement();
 
 	}
@@ -142,6 +166,8 @@ public class SearchField implements Cloneable {
 		sb.append(phrase);
 		sb.append(" - ");
 		sb.append(boost);
+		sb.append("/");
+		sb.append(phraseBoost);
 		return sb.toString();
 	}
 
@@ -162,7 +188,7 @@ public class SearchField implements Cloneable {
 
 		// Extract terms
 		TokenQueryFilter.TermQueryFilter tqf = new TermQueryFilter(
-				compiledAnalyzer, field, boost, ts);
+				compiledAnalyzer, field, (float) boost, ts);
 		while (tqf.incrementToken())
 			;
 		ts.end();
@@ -190,7 +216,7 @@ public class SearchField implements Cloneable {
 			for (TermQueryItem termQueryItem : tqf.termQueryItems)
 				if (termQueryItem.children == null)
 					phraseQuery.add(new Term(field, termQueryItem.term));
-			phraseQuery.setBoost(boost);
+			phraseQuery.setBoost((float) phraseBoost);
 			complexQuery.add(phraseQuery, Occur.SHOULD);
 		}
 		tqf.close();
