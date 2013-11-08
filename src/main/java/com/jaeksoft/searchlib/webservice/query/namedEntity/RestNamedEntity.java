@@ -57,6 +57,15 @@ public interface RestNamedEntity {
 			@PathParam("template_name") String template);
 
 	@POST
+	@Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{template_name}")
+	public NamedEntityResult namedEntityTemplate(
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("template_name") String template, String text);
+
+	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")

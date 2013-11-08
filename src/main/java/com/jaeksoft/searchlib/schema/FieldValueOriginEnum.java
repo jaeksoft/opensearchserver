@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,5 +26,17 @@ package com.jaeksoft.searchlib.schema;
 
 public enum FieldValueOriginEnum {
 
-	EXTERNAL, STORAGE, STRING_INDEX, TERM_VECTOR, TERM_ENUM, SNIPPET;
+	EXTERNAL,
+
+	STORAGE,
+
+	STRING_INDEX,
+
+	TERM_VECTOR,
+
+	TERM_ENUM,
+
+	SNIPPET,
+
+	ENTITY_EXTRACTION;
 }
