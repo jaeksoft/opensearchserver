@@ -81,6 +81,15 @@ public abstract class CommandAbstract {
 		return false;
 	}
 
+	protected String findKeyword(String text, String... keywords) {
+		if (keywords == null)
+			return null;
+		for (String k : keywords)
+			if (k.equalsIgnoreCase(text))
+				return k;
+		return null;
+	}
+
 	protected int getParameterCount() {
 		return parameters == null ? 0 : parameters.length;
 	}

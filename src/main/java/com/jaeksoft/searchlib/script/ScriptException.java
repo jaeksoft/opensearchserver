@@ -42,4 +42,14 @@ public class ScriptException extends Exception {
 	public ScriptException(Exception e) {
 		super(e);
 	}
+
+	public static class ExitException extends ScriptException {
+
+		private static final long serialVersionUID = -2964160037418663922L;
+
+		public ExitException() {
+			super("Exit");
+		}
+
+	}
 }

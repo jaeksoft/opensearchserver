@@ -72,6 +72,8 @@ public enum CommandEnum {
 
 	SEARCH_TEMPLATE(SearchCommands.SearchTemplate.class),
 
+	SEARCH_TEMPLATE_JSON(SearchCommands.SearchTemplateJson.class),
+
 	WEBDRIVER_OPEN(WebDriverCommands.Open.class),
 
 	WEBDRIVER_RESIZE(WebDriverCommands.Resize.class),
