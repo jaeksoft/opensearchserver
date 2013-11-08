@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
@@ -65,7 +65,23 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 			if (query != null)
 				query.apply(request);
 			return new NamedEntityResult(
-					(ResultDocuments) client.request(request));
+					(ResultNamedEntityExtraction) client.request(request));
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public NamedEntityResult namedEntityTemplate(String index, String login,
+			String key, String template, String text) {
+		try {
+			NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) super
+					.queryTemplateGet(index, login, key, template,
+							RequestTypeEnum.NamedEntityExtractionRequest);
+			if (text != null)
+				request.setText(text);
+			return new NamedEntityResult(
+					(ResultNamedEntityExtraction) client.request(request));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -93,7 +109,7 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 			if (query != null)
 				query.apply(request);
 			return new NamedEntityResult(
-					(ResultDocuments) client.request(request));
+					(ResultNamedEntityExtraction) client.request(request));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

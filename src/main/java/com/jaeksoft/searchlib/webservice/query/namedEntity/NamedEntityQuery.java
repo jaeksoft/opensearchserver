@@ -69,6 +69,7 @@ public class NamedEntityQuery extends QueryAbstract {
 			request.setSearchRequest(searchRequest);
 		if (namedEntityField != null)
 			request.setNamedEntityField(namedEntityField);
-		// TODO returnFieldList
+		if (returnedFields != null)
+			request.setReturnedFields(returnedFields);
 	}
 }

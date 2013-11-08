@@ -25,12 +25,14 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -49,7 +51,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -62,6 +64,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	private String searchRequest;
 
 	private String namedEntityField;
+
+	private Set<String> returnedFields;
 
 	public NamedEntityExtractionRequest() {
 		super(null, RequestTypeEnum.NamedEntityExtractionRequest);
@@ -77,6 +81,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.text = null;
 		this.searchRequest = null;
 		this.namedEntityField = null;
+		this.returnedFields = null;
 	}
 
 	@Override
@@ -86,6 +91,34 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.text = neeRequest.text;
 		this.searchRequest = neeRequest.searchRequest;
 		this.namedEntityField = neeRequest.namedEntityField;
+		this.returnedFields = neeRequest.returnedFields == null ? null
+				: new TreeSet<String>(neeRequest.returnedFields);
+	}
+
+	public void addReturnedField(String returnedField) {
+		if (StringUtils.isEmpty(returnedField))
+			return;
+		if (returnedFields == null)
+			returnedFields = new TreeSet<String>();
+		returnedFields.add(returnedField);
+	}
+
+	public void removeReturnedField(String returnedField) {
+		if (StringUtils.isEmpty(returnedField))
+			return;
+		if (returnedFields == null)
+			return;
+		returnedFields.remove(returnedField);
+	}
+
+	public Collection<String> getReturnedFields() {
+		return returnedFields;
+	}
+
+	public void setReturnedFields(List<String> returnedFields) {
+		this.returnedFields.clear();
+		for (String returnedField : returnedFields)
+			addReturnedField(returnedField);
 	}
 
 	@Override
@@ -93,16 +126,34 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		return null;
 	}
 
+	private final static String ATTR_SEARCH_REQUEST = "searchRequest";
+	private final static String ATTR_NAMED_ENTITY_FIELD = "namedEntityField";
+	private final static String NODE_TEXT = "text";
+	private final static String NODE_RETURNED_FIELD = "returnedField";
+	private final static String ATTR_NAME_FIELD = "name";
+
 	@Override
 	public void fromXmlConfigNoLock(Config config, XPathParser xpp,
 			Node requestNode) throws XPathExpressionException, DOMException,
 			ParseException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
-		searchRequest = DomUtils.getAttributeText(requestNode, "searchRequest");
+		searchRequest = DomUtils.getAttributeText(requestNode,
+				ATTR_SEARCH_REQUEST);
 		namedEntityField = DomUtils.getAttributeText(requestNode,
-				"namedEntityField");
-		text = DomUtils.getText(requestNode);
+				ATTR_NAMED_ENTITY_FIELD);
+		Node textNode = DomUtils.getFirstNode(requestNode, NODE_TEXT);
+		if (textNode == null)
+			text = DomUtils.getText(requestNode);
+		else
+			text = DomUtils.getText(textNode);
+		List<Node> returnedNodes = DomUtils.getNodes(requestNode,
+				NODE_RETURNED_FIELD);
+		if (returnedNodes != null)
+			for (Node returnedNode : returnedNodes)
+				addReturnedField(DomUtils.getAttributeText(returnedNode,
+						ATTR_NAME_FIELD));
+
 	}
 
 	@Override
@@ -111,9 +162,19 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		try {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
 					getRequestName(), XML_ATTR_TYPE, getType().name(),
-					"searchRequest", searchRequest, "namedEntityField",
-					namedEntityField);
-			xmlWriter.textNode(text);
+					ATTR_SEARCH_REQUEST, searchRequest,
+					ATTR_NAMED_ENTITY_FIELD, namedEntityField);
+			if (returnedFields != null)
+				for (String returnedField : returnedFields) {
+					xmlWriter.startElement(NODE_RETURNED_FIELD,
+							ATTR_NAME_FIELD, returnedField);
+					xmlWriter.endElement();
+				}
+			if (!StringUtils.isEmpty(text)) {
+				xmlWriter.startElement(NODE_TEXT);
+				xmlWriter.textNode(text);
+				xmlWriter.endElement();
+			}
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -158,17 +219,19 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 					DeduplicateTokenFilter.class));
 			IndexLookupFilter ilf = FilterFactory.create(config,
 					IndexLookupFilter.class);
+			addReturnedField(namedEntityField);
 			ilf.setProperties(config.getIndexName(), searchRequest,
-					namedEntityField, namedEntityField);
+					namedEntityField, StringUtils.join(returnedFields, '|'));
 			analyzer.add(ilf);
 			RemoveIncludedTermFilter ritf = FilterFactory.create(config,
 					RemoveIncludedTermFilter.class);
 			ritf.setProperties(namedEntityField, true);
 			analyzer.add(ritf);
 			CompiledAnalyzer compiledAnalyzer = analyzer.getQueryAnalyzer();
-			List<Integer> docs = new ArrayList<Integer>(0);
-			compiledAnalyzer.extractFlags(text, docs);
-			return new ResultDocuments(reader, this, fieldNameSet, docs);
+			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
+					this);
+			compiledAnalyzer.populate(text, result);
+			return result;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -234,6 +297,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	 */
 	public void setNamedEntityField(String namedEntityField) {
 		this.namedEntityField = namedEntityField;
+		addReturnedField(namedEntityField);
 	}
 
 }

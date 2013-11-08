@@ -23,22 +23,36 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.namedEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
 import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class NamedEntityResult extends DocumentResult {
+@JsonInclude(Include.NON_EMPTY)
+public class NamedEntityResult {
+
+	@XmlElement(name = "document")
+	final public List<DocumentResult> documents;
 
 	public NamedEntityResult() {
-
+		documents = null;
 	}
 
-	public NamedEntityResult(ResultDocuments result) {
+	public NamedEntityResult(ResultNamedEntityExtraction result)
+			throws SearchLibException {
+		documents = new ArrayList<DocumentResult>(0);
+		DocumentResult.populateDocumentList(result, documents);
 	}
 
 }

@@ -34,11 +34,36 @@
 			<row>
 				<label>Named entity field:</label>
 				<combobox model="@load(named.indexedFieldList)"
-					cols="25" value="@bind(named.request.namedEntityField)">
+					onChange="@command('reload')" cols="25"
+					value="@bind(named.request.namedEntityField)">
 					<template name="model">
 						<comboitem label="@load(each)" />
 					</template>
 				</combobox>
+			</row>
+			<row>
+				<label>Returned fields:</label>
+				<listbox model="@load(named.request.returnedFields)"
+					hflex="min">
+					<listhead>
+						<listheader>
+							<textbox id="returnedField" cols="25" />
+						</listheader>
+						<listheader>
+							<image src="/images/action_add.png"
+								onClick="@command('onReturnedFieldAdd', field=returnedField.value)" />
+						</listheader>
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell label="@load(each)" />
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onReturnedFieldDelete', field=each)" />
+							</listcell>
+						</listitem>
+					</template>
+				</listbox>
 			</row>
 			<row>
 				<label>Enter the text:</label>
