@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -96,7 +96,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 	}
 
 	@Override
-	public void apply(AbstractSearchRequest request) {
+	public void apply(AbstractRequest request) {
 		super.apply(request);
 		SearchFieldRequest fieldRequest = (SearchFieldRequest) request;
 		if (searchFields != null)
