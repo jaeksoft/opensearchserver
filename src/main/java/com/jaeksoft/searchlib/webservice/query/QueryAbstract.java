@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,22 +21,12 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.webservice.query;
 
-package com.jaeksoft.searchlib.schema;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 
-public enum FieldValueOriginEnum {
+public abstract class QueryAbstract {
 
-	EXTERNAL,
+	protected abstract void apply(AbstractRequest request);
 
-	STORAGE,
-
-	STRING_INDEX,
-
-	TERM_VECTOR,
-
-	TERM_ENUM,
-
-	SNIPPET,
-
-	ENTITY_EXTRACTION;
 }

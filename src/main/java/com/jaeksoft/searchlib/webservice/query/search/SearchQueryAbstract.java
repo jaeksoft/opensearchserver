@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.geo.GeoParameters.CoordUnit;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinList;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
@@ -70,10 +71,11 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
+import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
 
 @JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class SearchQueryAbstract {
+public abstract class SearchQueryAbstract extends QueryAbstract {
 
 	final public String query;
 	final public Integer start;
@@ -786,8 +788,10 @@ public abstract class SearchQueryAbstract {
 		}
 	}
 
-	protected void apply(AbstractSearchRequest request) {
+	@Override
+	protected void apply(AbstractRequest req) {
 		try {
+			AbstractSearchRequest request = (AbstractSearchRequest) req;
 			if (query != null)
 				request.setQueryString(query);
 			request.setEmptyReturnsAll(emptyReturnsAll);

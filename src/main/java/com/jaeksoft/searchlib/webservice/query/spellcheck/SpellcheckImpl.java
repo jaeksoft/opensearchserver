@@ -30,13 +30,23 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
+import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
 public class SpellcheckImpl extends CommonQuery implements RestSpellCheck,
 		SoapSpellCheck {
+
+	@Override
+	public QueryTemplateResultList spellcheckTemplateList(String index,
+			String login, String key) {
+		return super.queryTemplateList(index, login, key,
+				RequestTypeEnum.SpellCheckRequest);
+	}
 
 	@Override
 	public SpellcheckResult spellcheck(String index, String login, String key,
@@ -70,4 +80,10 @@ public class SpellcheckImpl extends CommonQuery implements RestSpellCheck,
 		return spellcheck(index, login, key, template, lang, query);
 	}
 
+	@Override
+	public CommonResult spellcheckTemplateDelete(String index, String login,
+			String key, String template) {
+		return queryTemplateDelete(index, login, key, template,
+				RequestTypeEnum.SpellCheckRequest);
+	}
 }

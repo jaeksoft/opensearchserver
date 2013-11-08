@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.RequestMap;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
@@ -53,6 +54,7 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
@@ -88,7 +90,64 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected AbstractRequest searchTemplateGet(String index, String login,
+	protected CommonResult queryTemplateSet(Client client, String index,
+			String login, String key, String template, QueryAbstract query,
+			AbstractRequest request) {
+		try {
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (query == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"The query is missing");
+			request.setRequestName(template);
+			query.apply(request);
+			client.getRequestMap().put(request);
+			client.saveRequests();
+			return new CommonResult(true, "Template updated: " + template);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	protected CommonResult queryTemplateDelete(String index, String login,
+			String key, String template, RequestTypeEnum... types) {
+		try {
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (template == null)
+				throw new CommonServiceException(Status.BAD_REQUEST,
+						"Not template given");
+			RequestMap requestMap = client.getRequestMap();
+			AbstractRequest request = requestMap.get(template);
+			if (request == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Template not found: " + template);
+
+			RequestTypeEnum typeFound = null;
+			for (RequestTypeEnum type : types)
+				if (request.getType() == type)
+					typeFound = type;
+			if (typeFound == null)
+				throw new CommonServiceException(Status.NOT_FOUND,
+						"Wrong deletion API for this type: "
+								+ request.getType());
+			requestMap.remove(template);
+			client.saveRequests();
+			return new CommonResult(true, "Template deleted: " + template);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	protected AbstractRequest queryTemplateGet(String index, String login,
 			String key, String template, RequestTypeEnum... types) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,

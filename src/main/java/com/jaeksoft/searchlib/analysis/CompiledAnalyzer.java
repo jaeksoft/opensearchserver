@@ -39,6 +39,7 @@ import org.apache.lucene.search.BooleanQuery;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
 
 public class CompiledAnalyzer extends AbstractAnalyzer {
 
@@ -145,13 +146,13 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		IOUtils.closeQuietly(ts);
 	}
 
-	public void extractFlags(String text, Collection<Integer> flags)
+	public void populate(String text, ResultNamedEntityExtraction result)
 			throws IOException {
 		if (text == null)
 			return;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
-		ts = new FlagsTokenFilter(flags, ts);
+		ts = new NamedEntityPopulateFilter(result, ts);
 		while (ts.incrementToken())
 			;
 		IOUtils.closeQuietly(ts);

@@ -27,8 +27,13 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
 public class NamedEntityExtractionController extends AbstractQueryController {
@@ -50,6 +55,26 @@ public class NamedEntityExtractionController extends AbstractQueryController {
 				RequestTypeEnum.SearchFieldRequest,
 				RequestTypeEnum.SearchRequest);
 		return nameList;
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onReturnedFieldAdd(@BindingParam("field") String field)
+			throws SearchLibException {
+		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) getRequest();
+		if (request == null)
+			return;
+		request.addReturnedField(field);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onReturnedFieldDelete(@BindingParam("field") String field)
+			throws SearchLibException {
+		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) getRequest();
+		if (request == null)
+			return;
+		request.removeReturnedField(field);
 	}
 
 }

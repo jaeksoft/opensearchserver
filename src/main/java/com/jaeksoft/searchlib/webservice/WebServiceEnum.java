@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
 import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
+import com.jaeksoft.searchlib.webservice.query.namedEntity.NamedEntityImpl;
 import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
 import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerImpl;
@@ -65,6 +66,8 @@ public enum WebServiceEnum {
 	Learner(LearnerImpl.class, "/learner"),
 
 	Monitor(MonitorImpl.class, "/monitor"),
+
+	NamedEntity(NamedEntityImpl.class, "/namedentity"),
 
 	RestCrawler(RestCrawlerImpl.class, "/crawler/rest"),
 

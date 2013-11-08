@@ -85,12 +85,8 @@ public class FieldValue extends AbstractField<FieldValue> {
 		valueArray = values;
 	}
 
-	public void addValues(FieldValueItem[] values) {
-		if (valueArray == null) {
-			setValues(values);
-			return;
-		}
-		valueArray = ArrayUtils.addAll(valueArray, values);
+	public void addValues(FieldValueItem... value) {
+		valueArray = ArrayUtils.addAll(valueArray, value);
 	}
 
 	public void addIfStringDoesNotExist(FieldValueItem value) {
