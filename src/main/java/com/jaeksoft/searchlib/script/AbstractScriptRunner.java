@@ -100,6 +100,8 @@ public abstract class AbstractScriptRunner implements Closeable {
 							.getNewInstance();
 					commandAbstract.run(context, scriptLine.id,
 							scriptLine.parameters);
+				} catch (ScriptException.ExitException e) {
+					break;
 				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);
 					currentScriptError = t != null ? ExceptionUtils

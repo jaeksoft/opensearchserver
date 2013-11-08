@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.script.commands;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -38,12 +39,41 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
 public class SearchCommands {
 
-	public static class SearchTemplate extends CommandAbstract {
+	private static abstract class SearchTemplateAbstract extends
+			CommandAbstract {
+
+		protected SearchTemplateAbstract(CommandEnum commandEnum) {
+			super(commandEnum);
+		}
+
+		protected AbstractResultSearch search(ScriptCommandContext context,
+				String template, String query) throws ScriptException {
+			try {
+				Client client = (Client) context.getConfig();
+				AbstractRequest request = client.getNewRequest(template);
+				if (!(request instanceof AbstractSearchRequest))
+					throw new ScriptException("Wrong type of search request: "
+							+ request.getNameType());
+				AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
+				if (!query.isEmpty())
+					searchRequest.setQueryString(query);
+				return (AbstractResultSearch) client.request(searchRequest);
+			} catch (SearchLibException e) {
+				throw new ScriptException(e);
+			}
+		}
+	}
+
+	public static class SearchTemplate extends SearchTemplateAbstract {
 
 		public SearchTemplate() {
 			super(CommandEnum.SEARCH_TEMPLATE);
@@ -63,23 +93,16 @@ public class SearchCommands {
 			String template = parameters[0];
 			String query = parameters[1];
 			String sqlByDoc = findPatternFunction(2, PARAM_SQL_BY_DOC);
-			Client client = (Client) context.getConfig();
 			Variables searchVariables = new Variables();
 			Variables documentVariables = new Variables();
 			context.addVariables(searchVariables, documentVariables);
 			try {
-				AbstractRequest request = client.getNewRequest(template);
-				if (!(request instanceof AbstractSearchRequest))
-					throw new ScriptException("Wrong type of search request: "
-							+ request.getNameType());
-				AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
-				if (!query.isEmpty())
-					searchRequest.setQueryString(query);
-				AbstractResultSearch result = (AbstractResultSearch) client
-						.request(searchRequest);
+				AbstractResultSearch result = this.search(context, template,
+						query);
 				searchVariables.put("search:numfound",
 						Integer.toString(result.getNumFound()));
-				int pos = searchRequest.getStart();
+				int pos = ((AbstractSearchRequest) result.getRequest())
+						.getStart();
 				if (!StringUtils.isEmpty(sqlByDoc)) {
 					for (ResultDocument document : result) {
 						documentVariables.clear();
@@ -97,8 +120,6 @@ public class SearchCommands {
 								.replaceVariables(sqlByDoc));
 					}
 				}
-			} catch (SearchLibException e) {
-				throw new ScriptException(e);
 			} catch (SQLException e) {
 				throw new ScriptException(e);
 			} finally {
@@ -107,4 +128,36 @@ public class SearchCommands {
 		}
 	}
 
+	public static class SearchTemplateJson extends SearchTemplateAbstract {
+
+		public SearchTemplateJson() {
+			super(CommandEnum.SEARCH_TEMPLATE_JSON);
+		}
+
+		public final static String ACTION_EXIT = "EXIT_IF_NOT_FOUND";
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(4, parameters);
+			String template = parameters[0];
+			String query = parameters[1];
+			JsonPath jsonPath = JsonPath.compile(parameters[2]);
+			String action = findKeyword(parameters[3], ACTION_EXIT);
+			AbstractResultSearch result = this.search(context, template, query);
+			SearchResult searchResult = new SearchResult(result);
+			try {
+				Object object = jsonPath.read(JsonUtils
+						.toJsonString(searchResult));
+				if (object == null)
+					if (action == ACTION_EXIT)
+						throw new ScriptException.ExitException();
+			} catch (PathNotFoundException e) {
+				if (action == ACTION_EXIT)
+					throw new ScriptException.ExitException();
+			} catch (JsonProcessingException e) {
+				throw new ScriptException(e);
+			}
+		}
+	}
 }
