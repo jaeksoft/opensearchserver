@@ -46,9 +46,11 @@ import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
 import com.jaeksoft.searchlib.webservice.query.document.FunctionFieldValue;
 
 public class ResultDocument {
@@ -57,6 +59,7 @@ public class ResultDocument {
 	final private Map<String, SnippetFieldValue> snippetFields;
 	final private int docId;
 	final private List<FunctionFieldValue> functionFieldValue;
+	final private List<Position> positions;
 
 	public ResultDocument(AbstractSearchRequest searchRequest,
 			TreeSet<String> fieldSet, int docId, ReaderInterface reader,
@@ -68,6 +71,7 @@ public class ResultDocument {
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
+		positions = new ArrayList<Position>(0);
 
 		if (docId < 0)
 			return;
@@ -103,6 +107,15 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		positions = new ArrayList<Position>(0);
+		functionFieldValue = null;
+	}
+
+	public ResultDocument(Integer docId) {
+		this.docId = docId;
+		returnFields = new TreeMap<String, FieldValue>();
+		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		positions = new ArrayList<Position>(0);
 		functionFieldValue = null;
 	}
 
@@ -218,6 +231,20 @@ public class ResultDocument {
 		}
 	}
 
+	public void addReturnedField(FieldValueOriginEnum origin, String field,
+			String value) {
+		FieldValue fieldValue = returnFields.get(field);
+		if (fieldValue == null) {
+			fieldValue = new FieldValue(field);
+			returnFields.put(field, fieldValue);
+		}
+		fieldValue.addValues(new FieldValueItem(origin, value));
+	}
+
+	public void addPosition(Position position) {
+		positions.add(position);
+	}
+
 	public void addFunctionField(CollapseFunctionField functionField,
 			int[] collapsedDocs, ReaderLocal reader, Timer timer)
 			throws IOException, java.text.ParseException,
@@ -254,6 +281,10 @@ public class ResultDocument {
 
 	public int getDocId() {
 		return docId;
+	}
+
+	public List<Position> getPositions() {
+		return positions;
 	}
 
 }

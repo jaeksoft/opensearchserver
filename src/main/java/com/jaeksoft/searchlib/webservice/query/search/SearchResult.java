@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
@@ -100,15 +99,8 @@ public class SearchResult extends CommonResult {
 			collapsedDocCount = result.getCollapsedDocCount();
 			time = result.getTimer().tempDuration();
 			maxScore = result.getMaxScore();
-			int end = result.getDocumentCount() + searchRequest.getStart();
-			for (int i = start; i < end; i++) {
-				ResultDocument resultDocument = result.getDocument(i);
-				int collapseDocCount = result.getCollapseCount(i);
-				float docScore = result.getScore(i);
-				DocumentResult documentResult = new DocumentResult(
-						resultDocument, collapseDocCount, i, docScore);
-				documents.add(documentResult);
-			}
+
+			DocumentResult.populateDocumentList(result, documents);
 
 			if (searchRequest.getFacetFieldList().size() > 0)
 				for (FacetField FacetField : searchRequest.getFacetFieldList())

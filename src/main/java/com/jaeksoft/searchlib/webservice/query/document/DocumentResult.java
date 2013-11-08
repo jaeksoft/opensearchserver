@@ -33,12 +33,14 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class DocumentResult {
 
 	@XmlAttribute
@@ -59,10 +61,29 @@ public class DocumentResult {
 	@XmlElement(name = "function")
 	public final List<FunctionFieldValue> functions;
 
+	@XmlElement(name = "position")
+	public final List<Position> positions;
+
+	public static class Position {
+		public final int start;
+		public final int end;
+
+		public Position() {
+			start = 0;
+			end = 0;
+		}
+
+		public Position(int start, int end) {
+			this.start = start;
+			this.end = end;
+		}
+	}
+
 	public DocumentResult() {
 		fields = null;
 		snippets = null;
 		functions = null;
+		positions = null;
 		collapseCount = 0;
 		pos = 0;
 		score = 0;
@@ -81,9 +102,24 @@ public class DocumentResult {
 			snippets.add(new SnippetValueList(highlighted, snippetFiedValue));
 		}
 		functions = resultDocument.getFunctionFieldValues();
+		positions = resultDocument.getPositions();
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;
 	}
 
+	public final static void populateDocumentList(
+			ResultDocumentsInterface<?> result, List<DocumentResult> documents)
+			throws SearchLibException {
+		int start = result.getRequestStart();
+		int end = result.getDocumentCount() + result.getRequestStart();
+		for (int i = start; i < end; i++) {
+			ResultDocument resultDocument = result.getDocument(i, null);
+			int collapseDocCount = result.getCollapseCount(i);
+			float docScore = result.getScore(i);
+			DocumentResult documentResult = new DocumentResult(resultDocument,
+					collapseDocCount, i, docScore);
+			documents.add(documentResult);
+		}
+	}
 }
