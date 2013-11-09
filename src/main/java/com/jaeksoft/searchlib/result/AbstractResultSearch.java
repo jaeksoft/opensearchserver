@@ -161,7 +161,7 @@ public abstract class AbstractResultSearch extends
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(numFound);
 		sb.append(" founds.");
 		if (docs != null) {

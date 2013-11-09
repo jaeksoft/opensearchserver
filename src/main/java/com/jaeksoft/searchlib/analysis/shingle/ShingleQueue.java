@@ -59,7 +59,7 @@ public class ShingleQueue {
 	}
 
 	public final String getTerm() {
-		StringBuffer sb = new StringBuffer(tokens[0].term);
+		StringBuilder sb = new StringBuilder(tokens[0].term);
 		for (int i = 1; i < currentSize; i++) {
 			sb.append(tokenSeparator);
 			sb.append(tokens[i].term);

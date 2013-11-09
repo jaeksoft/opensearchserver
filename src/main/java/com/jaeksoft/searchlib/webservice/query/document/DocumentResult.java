@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -76,6 +78,11 @@ public class DocumentResult {
 		public Position(int start, int end) {
 			this.start = start;
 			this.end = end;
+		}
+
+		public Position(OffsetAttribute offsetAtt) {
+			this.start = offsetAtt.startOffset();
+			this.end = offsetAtt.endOffset();
 		}
 	}
 

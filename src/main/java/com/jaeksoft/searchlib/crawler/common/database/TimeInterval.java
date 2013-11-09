@@ -155,7 +155,7 @@ public class TimeInterval {
 	}
 
 	public final String getByText() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(interval);
 		if (unit != null) {
 			sb.append(' ');

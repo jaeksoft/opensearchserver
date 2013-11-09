@@ -61,7 +61,7 @@ public abstract class DatabaseCrawlThread extends
 	}
 
 	public String getCountInfo() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(getUpdatedIndexDocumentCount());
 		sb.append(" (");
 		sb.append(getPendingIndexDocumentCount());

@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -47,13 +45,14 @@ public class ResultNamedEntityExtraction extends
 
 	final private Map<Integer, ResultDocument> docMap;
 	final private List<ResultDocument> docList;
-	final private String text;
+	final private StringBuilder enrichedText;
 
-	public ResultNamedEntityExtraction(NamedEntityExtractionRequest request) {
+	public ResultNamedEntityExtraction(
+			final NamedEntityExtractionRequest request) {
 		super(request);
 		this.docMap = new TreeMap<Integer, ResultDocument>();
 		this.docList = new ArrayList<ResultDocument>(0);
-		this.text = request.getText();
+		this.enrichedText = new StringBuilder();
 	}
 
 	public void addFieldValue(Integer docId, String field, String value) {
@@ -65,16 +64,6 @@ public class ResultNamedEntityExtraction extends
 		}
 		doc.addReturnedField(FieldValueOriginEnum.ENTITY_EXTRACTION, field,
 				value);
-		// Locate position of the entity in the original text
-		// First using exact string
-		int i = 0;
-		for (;;) {
-			i = StringUtils.indexOf(text, value, i);
-			if (i == StringUtils.INDEX_NOT_FOUND)
-				break;
-			doc.addPosition(new Position(i, i + value.length()));
-			i++;
-		}
 	}
 
 	@Override
@@ -83,6 +72,50 @@ public class ResultNamedEntityExtraction extends
 		if (docList == null || pos < 0 || pos > docList.size())
 			return null;
 		return docList.get(pos);
+	}
+
+	private static class PositionDocument {
+
+		private final Position position;
+		private final ResultDocument document;
+
+		private PositionDocument(Position position, ResultDocument document) {
+			this.position = position;
+			this.document = document;
+		}
+	}
+
+	public void resolvePositions(String namedEntityField,
+			Map<String, List<Position>> tokenMap, String text) {
+		Map<Integer, PositionDocument> mapPositions = new TreeMap<Integer, PositionDocument>();
+		for (ResultDocument document : docList) {
+			String entity = document.getValueContent(namedEntityField, 0);
+			if (entity == null)
+				continue;
+			List<Position> positions = tokenMap.get(entity);
+			document.addPositions(positions);
+			if (positions != null)
+				for (Position position : positions)
+					mapPositions.put(position.start, new PositionDocument(
+							position, document));
+		}
+		int lastPos = 0;
+		for (PositionDocument posDoc : mapPositions.values()) {
+			if (posDoc.position.start > lastPos)
+				enrichedText.append(text.substring(lastPos,
+						posDoc.position.start));
+			enrichedText.append("<strong>");
+			enrichedText.append(text.substring(posDoc.position.start,
+					posDoc.position.end));
+			enrichedText.append("</strong>");
+			lastPos = posDoc.position.end;
+		}
+		if (lastPos < text.length())
+			enrichedText.append(text.substring(lastPos));
+	}
+
+	public CharSequence getEnrichedText() {
+		return enrichedText;
 	}
 
 	@Override

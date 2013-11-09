@@ -103,7 +103,7 @@ public class IcePdfParser extends Parser {
 				List<LineText> lineTextArray = pageText.getPageLines();
 				if (lineTextArray != null)
 					for (LineText lineText : lineTextArray) {
-						StringBuffer sb = new StringBuffer();
+						StringBuilder sb = new StringBuilder();
 						List<WordText> words = lineText.getWords();
 						if (words != null)
 							for (WordText word : words)

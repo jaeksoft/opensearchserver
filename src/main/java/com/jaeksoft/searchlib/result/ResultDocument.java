@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -285,6 +286,11 @@ public class ResultDocument {
 
 	public List<Position> getPositions() {
 		return positions;
+	}
+
+	public void addPositions(Collection<Position> positions) {
+		if (positions != null)
+			this.positions.addAll(positions);
 	}
 
 }

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.query.namedEntity;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -63,7 +64,8 @@ public interface RestNamedEntity {
 	public NamedEntityResult namedEntityTemplate(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("template_name") String template, String text);
+			@PathParam("template_name") String template,
+			@FormParam("text") String text);
 
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

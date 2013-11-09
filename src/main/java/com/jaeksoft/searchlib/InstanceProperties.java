@@ -371,7 +371,7 @@ public class InstanceProperties {
 			String[] parts = StringUtils.split(apiKey, '_');
 			if (parts.length < 2)
 				throw new WebApplicationException(Status.FORBIDDEN);
-			StringBuffer sbKey = new StringBuffer("apiAccountService.");
+			StringBuilder sbKey = new StringBuilder("apiAccountService.");
 			sbKey.append(parts[1]);
 			sbKey.append('.');
 			sbKey.append(apiId);
@@ -427,7 +427,7 @@ public class InstanceProperties {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(super.toString());
+		StringBuilder sb = new StringBuilder(super.toString());
 		sb.append(" - maxDocumentLimit: ");
 		sb.append(maxDocumentLimit);
 		sb.append(" - maxStorage: ");

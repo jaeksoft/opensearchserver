@@ -50,7 +50,7 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 
 	public String getStatusInfo() {
 		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(status);
 			String info = getInfo();
 			if (info != null) {
@@ -72,7 +72,7 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 
 	public String getDebugInfo() {
 		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(getThreadStatus());
 			sb.append(' ');
 			sb.append(getCurrentInfo());

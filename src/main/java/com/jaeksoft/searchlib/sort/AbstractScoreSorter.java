@@ -46,7 +46,7 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 
 	@Override
 	final public String toString(int pos) {
-		StringBuffer sb = new StringBuffer("Score: ");
+		StringBuilder sb = new StringBuilder("Score: ");
 		sb.append(scores[pos]);
 		return sb.toString();
 	}

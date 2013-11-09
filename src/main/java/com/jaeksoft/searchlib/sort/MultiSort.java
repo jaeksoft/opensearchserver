@@ -55,7 +55,7 @@ public class MultiSort extends SorterAbstract {
 
 	@Override
 	public String toString(int pos) {
-		StringBuffer sb = new StringBuffer('[');
+		StringBuilder sb = new StringBuilder('[');
 		for (SorterAbstract sorter : sorters) {
 			sb.append(sorter.toString(pos));
 			sb.append(' ');

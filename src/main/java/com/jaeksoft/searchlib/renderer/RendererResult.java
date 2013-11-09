@@ -61,7 +61,7 @@ public class RendererResult {
 	private final long creationTime;
 
 	private Client client;
-	private StringBuffer sbUrl;
+	private StringBuilder sbUrl;
 	private String keywords;
 	private List<Item> items;
 	private String contentTypeField;
@@ -75,7 +75,7 @@ public class RendererResult {
 		this.contentTypeField = renderer.getContentTypeField();
 		this.filenameField = renderer.getFilenameField();
 		this.hocrField = renderer.getHocrField();
-		sbUrl = new StringBuffer(serverBaseUrl);
+		sbUrl = new StringBuilder(serverBaseUrl);
 		sbUrl.append("/viewer.zul?h=");
 		sbUrl.append(hashCode());
 		sbUrl.append("&p=");

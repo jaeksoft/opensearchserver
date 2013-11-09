@@ -79,7 +79,7 @@ public class SourceField implements Comparable<SourceField> {
 	final public String toXmlAttribute() {
 		if (names.length == 1)
 			return names[0];
-		StringBuffer sb = new StringBuffer(names[0]);
+		StringBuilder sb = new StringBuilder(names[0]);
 		for (int i = 1; i < names.length; i++) {
 			sb.append(separator);
 			sb.append(names[i]);
@@ -105,7 +105,7 @@ public class SourceField implements Comparable<SourceField> {
 
 	final public String getConcatString(IndexDocument source,
 			IndexDocument target) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (String name : names) {
 			FieldValueItem fvi = source.getFieldValue(name, 0);
 			if (fvi == null)
@@ -123,7 +123,7 @@ public class SourceField implements Comparable<SourceField> {
 	}
 
 	public String getConcatString(ResultDocument source, IndexDocument target) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (String name : names) {
 			String value = source.getValueContent(name, 0);
 			if (value == null) {

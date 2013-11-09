@@ -93,7 +93,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	@Override
 	public String getDescription() {
-		StringBuffer sb = new StringBuffer("Query filter: ");
+		StringBuilder sb = new StringBuilder("Query filter: ");
 		sb.append(queryString);
 		return sb.toString();
 	}

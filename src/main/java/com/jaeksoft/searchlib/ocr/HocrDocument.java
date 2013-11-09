@@ -50,12 +50,12 @@ import com.jaeksoft.searchlib.util.DomUtils;
 
 public class HocrDocument {
 
-	private final List<StringBuffer> paragraphList;
+	private final List<StringBuilder> paragraphList;
 
 	private final Map<String, List<HocrBox>> boxMap;
 
 	private HocrDocument() {
-		paragraphList = new ArrayList<StringBuffer>(0);
+		paragraphList = new ArrayList<StringBuilder>(0);
 		boxMap = new TreeMap<String, List<HocrBox>>();
 	}
 
@@ -82,7 +82,7 @@ public class HocrDocument {
 						if (!"ocr_par"
 								.equals(parNode.getAttributeText("class")))
 							continue;
-						StringBuffer currentParagraph = new StringBuffer();
+						StringBuilder currentParagraph = new StringBuilder();
 						for (HtmlNodeAbstract<?> lineNode : parNode
 								.getNodes("span")) {
 							if (!"ocr_line".equals(lineNode
@@ -148,7 +148,7 @@ public class HocrDocument {
 
 	public void putTextToParserField(ParserResultItem result,
 			ParserFieldEnum parserField) {
-		for (StringBuffer paragraph : paragraphList)
+		for (StringBuilder paragraph : paragraphList)
 			result.addField(parserField, paragraph.toString().trim());
 	}
 

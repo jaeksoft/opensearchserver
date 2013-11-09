@@ -68,7 +68,7 @@ public class TorrentParser extends Parser {
 
 		String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
 				"A", "B", "C", "D", "E", "F" };
-		StringBuffer out = new StringBuffer(in.length * 2);
+		StringBuilder out = new StringBuilder(in.length * 2);
 
 		while (i < in.length) {
 			// First check to see if we need ASCII or HEX

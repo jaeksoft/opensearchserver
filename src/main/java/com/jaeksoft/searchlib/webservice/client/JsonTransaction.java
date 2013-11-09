@@ -39,14 +39,14 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class JsonTransaction {
 
-	private final StringBuffer sb;
+	private final StringBuilder sb;
 
 	private boolean firstParam;
 
 	public JsonTransaction(RestJsonClient restJsonClient, String path,
 			String indexName) throws UnsupportedEncodingException {
 		firstParam = true;
-		sb = new StringBuffer();
+		sb = new StringBuilder();
 		if (restJsonClient.oss_url != null)
 			sb.append(restJsonClient.oss_url);
 		if (indexName != null)

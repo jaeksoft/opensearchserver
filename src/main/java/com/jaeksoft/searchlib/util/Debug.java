@@ -101,7 +101,7 @@ public class Debug {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(dtdf.format(new Date(startTime)));
 		sb.append(" elapsed:");
 		sb.append(elapsedTime);

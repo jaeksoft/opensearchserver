@@ -179,7 +179,7 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	public String getFullLang() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (lang != null)
 			sb.append(lang);
 		if (langMethod != null) {

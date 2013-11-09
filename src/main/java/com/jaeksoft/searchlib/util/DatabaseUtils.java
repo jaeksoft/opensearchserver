@@ -40,7 +40,7 @@ public class DatabaseUtils {
 	public final static String ERROR_VARIABLE_NAME = "$ERR";
 
 	final private static String toIdList(List<String> pkList, boolean quote) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		boolean b = false;
 		for (String uk : pkList) {
 			if (b)
@@ -60,7 +60,7 @@ public class DatabaseUtils {
 	public final static String escapeSqlChar(String error) {
 		if (error == null)
 			return "null";
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append('\'');
 		sb.append(StringEscapeUtils.escapeEcmaScript(error));
 		sb.append('\'');

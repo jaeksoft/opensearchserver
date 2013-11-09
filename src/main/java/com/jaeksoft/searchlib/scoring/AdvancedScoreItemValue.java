@@ -54,7 +54,7 @@ public class AdvancedScoreItemValue {
 	}
 
 	public final Explanation getExplanation(int doc) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("maxValue=");
 		sb.append(maxValue);
 		sb.append(", weight=");

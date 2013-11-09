@@ -89,9 +89,9 @@ public abstract class CommonController implements EventInterface {
 		return Executions.getCurrent().getSession();
 	}
 
-	final protected static StringBuffer getBaseUrl(Execution exe) {
+	final protected static StringBuilder getBaseUrl(Execution exe) {
 		int port = exe.getServerPort();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(exe.getScheme());
 		sb.append("://");
 		sb.append(exe.getServerName());
@@ -104,15 +104,15 @@ public abstract class CommonController implements EventInterface {
 
 	}
 
-	final public static StringBuffer getBaseUrl() {
+	final public static StringBuilder getBaseUrl() {
 		Execution exe = Executions.getCurrent();
 		return getBaseUrl(exe);
 	}
 
-	final public static StringBuffer getApiUrl(String servletPathName)
+	final public static StringBuilder getApiUrl(String servletPathName)
 			throws UnsupportedEncodingException {
 		Execution exe = Executions.getCurrent();
-		StringBuffer sb = getBaseUrl();
+		StringBuilder sb = getBaseUrl();
 		Client client = (Client) exe.getSession().getAttribute(
 				ScopeAttribute.CURRENT_CLIENT.name());
 		User user = (User) exe.getSession().getAttribute(
