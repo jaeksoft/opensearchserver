@@ -25,40 +25,56 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
 
-public class DeduplicateTokenFilter extends FilterFactory {
+public class DeduplicateTokenPositionsFilter extends FilterFactory {
 
-	public static class DedupAllTokenFilter extends AbstractTermFilter {
+	public static class DedupAllTokenPositionsFilter extends AbstractTermFilter {
 
-		private final Set<String> tokens;
+		private final Map<String, List<Position>> tokens;
 
-		protected DedupAllTokenFilter(TokenStream input) {
+		protected DedupAllTokenPositionsFilter(TokenStream input) {
 			super(input);
-			tokens = new TreeSet<String>();
+			this.tokens = new TreeMap<String, List<Position>>();
 		}
 
 		@Override
 		public final boolean incrementToken() throws IOException {
 			while (input.incrementToken()) {
 				String term = termAtt.toString();
-				if (tokens.contains(term))
-					continue;
-				tokens.add(term);
-				createToken(term);
-				return true;
+				List<Position> positions = tokens.get(term);
+				if (positions == null) {
+					positions = new ArrayList<Position>(1);
+					positions.add(new Position(offsetAtt));
+					tokens.put(term, positions);
+					createToken(term);
+					return true;
+				}
+				positions.add(new Position(offsetAtt));
 			}
 			return false;
 		}
 	}
 
+	private Map<String, List<Position>> lastTokenMap = null;
+
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new DedupAllTokenFilter(tokenStream);
+		DedupAllTokenPositionsFilter tokenFilter = new DedupAllTokenPositionsFilter(
+				tokenStream);
+		lastTokenMap = tokenFilter.tokens;
+		return tokenFilter;
+	}
+
+	public Map<String, List<Position>> getLastTokenMap() {
+		return lastTokenMap;
 	}
 }
