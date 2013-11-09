@@ -137,7 +137,7 @@ public class Monitor {
 	}
 
 	public final String getRequestPerMonthLabel() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(getRequestPerMonthCount());
 		sb.append(" / ");
 		sb.append(ClientFactory.INSTANCE.properties.getRequestPerMonth());

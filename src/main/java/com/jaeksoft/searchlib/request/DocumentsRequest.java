@@ -226,7 +226,7 @@ public class DocumentsRequest extends AbstractRequest implements
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("Fields:");
 			sb.append(returnFieldList.toString());
 			sb.append(" - Document id(s):");

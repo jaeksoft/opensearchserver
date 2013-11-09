@@ -126,7 +126,7 @@ public class SearchServlet extends AbstractServlet {
 		return use;
 	}
 
-	public static StringBuffer getOpenSearchApiUrl(StringBuffer sb,
+	public static StringBuilder getOpenSearchApiUrl(StringBuilder sb,
 			String servletPathName, Client client, User user)
 			throws UnsupportedEncodingException {
 		String q = null;

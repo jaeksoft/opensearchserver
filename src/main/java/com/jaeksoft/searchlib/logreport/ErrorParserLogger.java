@@ -106,7 +106,7 @@ public class ErrorParserLogger {
 		}
 
 		public String toString(CharSequence separator) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(errorMessage);
 			if (causeMessage != null && !causeMessage.equals(errorMessage)) {
 				sb.append(separator);
@@ -127,7 +127,7 @@ public class ErrorParserLogger {
 
 	public final static void log(String url, String filename, String filePath,
 			Throwable t) throws SearchLibException {
-		StringBuffer sb = new StringBuffer('\t');
+		StringBuilder sb = new StringBuilder('\t');
 		if (url != null)
 			sb.append(url);
 		else if (filePath != null)

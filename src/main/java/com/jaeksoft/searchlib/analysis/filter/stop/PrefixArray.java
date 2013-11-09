@@ -45,7 +45,7 @@ public class PrefixArray extends WordArray {
 	}
 
 	protected String putWord(String word) {
-		StringBuffer sb = new StringBuffer(word);
+		StringBuilder sb = new StringBuilder(word);
 		if (tokenSeparator != null && tokenSeparator.length() > 0)
 			sb.append(tokenSeparator);
 		return sb.toString();

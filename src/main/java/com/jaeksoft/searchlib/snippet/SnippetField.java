@@ -281,7 +281,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	private final void appendSubString(String text, int start, int end,
-			StringBuffer sb) {
+			StringBuilder sb) {
 		if (text == null)
 			return;
 		int l = text.length();
@@ -298,7 +298,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 			Fragment fragment) {
 		if (currentVector == null)
 			return null;
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		String originalText = fragment.getOriginalText();
 		int originalTextLength = originalText.length();
 		int endOffset = startOffset + originalTextLength;

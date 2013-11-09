@@ -38,7 +38,7 @@ public class QueryUtils {
 
 	final public static String escapeQuery(String query, String[] escapeChars) {
 		for (String s : escapeChars) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < s.length(); i++) {
 				sb.append('\\');
 				sb.append(s.charAt(i));

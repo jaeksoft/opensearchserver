@@ -115,6 +115,8 @@
 		<separator />
 		<include src="WEB-INF/zul/query/resultSearch.zul"
 			visible="@load(query.resultSearch)" />
+		<include src="WEB-INF/zul/query/resultNamedEntity.zul"
+			visible="@load(query.resultNamedEntity)" />
 		<include src="WEB-INF/zul/query/resultSpellCheck.zul"
 			visible="@load(query.resultSpellCheck)" />
 		<include src="WEB-INF/zul/query/resultMoreLikeThis.zul"

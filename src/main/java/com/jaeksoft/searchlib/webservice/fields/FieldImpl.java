@@ -138,7 +138,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			ClientFactory.INSTANCE.properties.checkApi();
 			SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
 
-			StringBuffer msg = new StringBuffer();
+			StringBuilder msg = new StringBuilder();
 
 			if (defaultField != null) {
 				if (defaultField.length() > 0)

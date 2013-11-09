@@ -110,7 +110,7 @@ public class DomUtils {
 		return nodes.get(0);
 	}
 
-	final private static void getText(Node parent, StringBuffer sb) {
+	final private static void getText(Node parent, StringBuilder sb) {
 		if (parent.getNodeType() == Node.TEXT_NODE)
 			sb.append(parent.getNodeValue());
 		NodeList childrens = parent.getChildNodes();
@@ -120,7 +120,7 @@ public class DomUtils {
 	}
 
 	final public static String getText(Node node) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		getText(node, sb);
 		return sb.toString();
 	}

@@ -118,7 +118,7 @@ public class RendererServlet extends AbstractServlet {
 			String[] hiddenParameterList = { "use", "name", "login", "key" };
 			transaction.setRequestAttribute("hiddenParameterList",
 					hiddenParameterList);
-			StringBuffer getUrl = new StringBuffer("?query=");
+			StringBuilder getUrl = new StringBuilder("?query=");
 			if (query != null)
 				getUrl.append(URLEncoder.encode(query, "UTF-8"));
 			for (String p : hiddenParameterList) {
@@ -131,7 +131,7 @@ public class RendererServlet extends AbstractServlet {
 				}
 			}
 			transaction.setRequestAttribute("getUrl", getUrl.toString());
-			StringBuffer autocompUrl = new StringBuffer("autocompletion?use=");
+			StringBuilder autocompUrl = new StringBuilder("autocompletion?use=");
 			autocompUrl
 					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
 			if (user != null)
@@ -190,7 +190,7 @@ public class RendererServlet extends AbstractServlet {
 
 	public static String doRenderer(String name, String query)
 			throws UnsupportedEncodingException {
-		StringBuffer sb = CommonController.getApiUrl("/renderer");
+		StringBuilder sb = CommonController.getApiUrl("/renderer");
 		if (name != null) {
 			sb.append("&name=");
 			sb.append(URLEncoder.encode(name, "UTF-8"));

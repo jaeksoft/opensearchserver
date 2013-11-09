@@ -102,7 +102,7 @@ public class HtmlArchiver {
 			baseName = baseName.substring(0, 160);
 		if (extension.length() > 32)
 			extension = extension.substring(0, 32);
-		StringBuffer sb = new StringBuffer(baseName);
+		StringBuilder sb = new StringBuilder(baseName);
 		if (fileCount != null && fileCount > 0) {
 			sb.append('_');
 			sb.append(fileCount);
@@ -118,7 +118,7 @@ public class HtmlArchiver {
 		if (parentUrl == null
 				|| urlFileMap.get(parentUrl.toExternalForm()) != null)
 			return fileName;
-		StringBuffer sb = new StringBuffer("./");
+		StringBuilder sb = new StringBuilder("./");
 		sb.append(filesDir.getName());
 		sb.append('/');
 		sb.append(fileName);

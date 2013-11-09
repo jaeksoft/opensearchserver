@@ -66,7 +66,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 
 	public class Document {
 		final int pos;
-		StringBuffer title;
+		StringBuilder title;
 		ResultDocument resultDocument;
 
 		private Document(int pos) {
@@ -79,7 +79,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 			synchronized (this) {
 				if (title != null)
 					return title.toString();
-				title = new StringBuffer();
+				title = new StringBuilder();
 				title.append('#');
 				title.append(getPos());
 				float score = getScore();

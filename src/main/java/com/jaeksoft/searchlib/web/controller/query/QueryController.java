@@ -83,7 +83,7 @@ public final class QueryController extends AbstractQueryController {
 		AbstractRequest request = getAbstractRequest();
 		if (request == null)
 			return null;
-		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/select",
+		StringBuilder sb = AbstractServlet.getApiUrl(getBaseUrl(), "/select",
 				client, getLoggedUser());
 		String requestName = request.getRequestName();
 		if (requestName != null && requestName.length() > 0) {

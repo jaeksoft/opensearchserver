@@ -140,7 +140,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public String getDescription() {
-		StringBuffer sb = new StringBuffer("Geo filter: ");
+		StringBuilder sb = new StringBuilder("Geo filter: ");
 		sb.append(type);
 		sb.append(" - ");
 		sb.append(distance);
@@ -223,7 +223,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		double dist = distance / unit.div;
 		Geospatial.Location[] bound = Geospatial.boundingCoordinates(loc, dist,
 				unit.radius);
-		StringBuffer sb = new StringBuffer(geoParams.getLatitudeField());
+		StringBuilder sb = new StringBuilder(geoParams.getLatitudeField());
 		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
 		sb.append(":[");
 		sb.append(nf.format(bound[0].latitude));

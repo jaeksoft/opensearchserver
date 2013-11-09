@@ -93,8 +93,8 @@ public class GroupExpression extends Expression {
 			if (expression instanceof OperatorExpression)
 				operator = (OperatorExpression) expression;
 			else {
-				value = operator.newValue(value, expression.getValue(
-						subQueryScore, valSrcScore));
+				value = operator.newValue(value,
+						expression.getValue(subQueryScore, valSrcScore));
 			}
 		}
 		return value;
@@ -108,8 +108,8 @@ public class GroupExpression extends Expression {
 			if (expression instanceof OperatorExpression)
 				operator = (OperatorExpression) expression;
 			else {
-				value = operator.newValue(value, expression.getValue(
-						subQueryScore, valSrcScores));
+				value = operator.newValue(value,
+						expression.getValue(subQueryScore, valSrcScores));
 			}
 		}
 		return value;
@@ -117,7 +117,7 @@ public class GroupExpression extends Expression {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		for (Expression expression : expressions)
 			sb.append(expression.toString());

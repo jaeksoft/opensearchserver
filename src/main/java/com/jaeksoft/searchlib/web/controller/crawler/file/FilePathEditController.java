@@ -250,7 +250,7 @@ public class FilePathEditController extends FileCrawlerController {
 	@Command
 	public void onDropboxConfirmAuth() throws SearchLibException,
 			InterruptedException {
-		StringBuffer uid = new StringBuffer();
+		StringBuilder uid = new StringBuilder();
 		String atp = DropboxFileInstance.retrieveAccessToken(webAuthInfo, uid);
 		if (uid.length() == 0) {
 			new AlertController("The Dropbox authentication process failed");

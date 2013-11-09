@@ -70,7 +70,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	public static String retrieveAccessToken(DbxWebAuth webAuth,
-			StringBuffer sbUid) throws SearchLibException {
+			StringBuilder sbUid) throws SearchLibException {
 		// TODO do the implementation
 		throw new SearchLibException("Not yet implemented");
 	}

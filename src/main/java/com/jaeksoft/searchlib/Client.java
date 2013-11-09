@@ -117,7 +117,7 @@ public class Client extends Config {
 		checkMaxStorageLimit();
 		checkMaxDocumentLimit();
 		docCount += updateDocuments(docList);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(docCount);
 		if (totalCount > 0) {
 			sb.append(" / ");
@@ -239,7 +239,7 @@ public class Client extends Config {
 			Collection<String> deleteList, InfoCallback infoCallBack)
 			throws SearchLibException {
 		docCount += deleteDocuments(null, deleteList);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(docCount);
 		sb.append(" / ");
 		sb.append(totalCount);

@@ -134,7 +134,7 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 	}
 
 	private String computeName() {
-		StringBuffer sb = new StringBuffer("advscore(");
+		StringBuilder sb = new StringBuilder("advscore(");
 		for (AdvancedScoreItem scoreItem : scoreItems) {
 			if (sb.length() > 9)
 				sb.append('+');

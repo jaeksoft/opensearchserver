@@ -132,7 +132,7 @@ public class Aggregate implements Externalizable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(startTime);
 		sb.append(" - Count:");
 		sb.append(count);

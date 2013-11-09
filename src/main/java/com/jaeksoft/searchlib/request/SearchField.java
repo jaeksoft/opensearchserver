@@ -161,7 +161,7 @@ public class SearchField implements Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(field);
+		StringBuilder sb = new StringBuilder(field);
 		sb.append(" - ");
 		sb.append(phrase);
 		sb.append(" - ");

@@ -42,7 +42,7 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 
 	@Override
 	public String toString(int pos) {
-		StringBuffer sb = new StringBuffer("DocId: ");
+		StringBuilder sb = new StringBuilder("DocId: ");
 		sb.append(ids[pos]);
 		return sb.toString();
 	}

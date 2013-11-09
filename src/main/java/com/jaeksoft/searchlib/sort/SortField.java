@@ -117,7 +117,7 @@ public class SortField extends AbstractField<SortField> implements
 	}
 
 	@Override
-	public void toString(StringBuffer sb) {
+	public void toString(StringBuilder sb) {
 		if (desc)
 			sb.append('-');
 		else
@@ -127,7 +127,7 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		toString(sb);
 		return sb.toString();
 	}

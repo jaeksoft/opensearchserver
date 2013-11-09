@@ -342,7 +342,7 @@ public class DownloadItem {
 			return;
 		this.headers = new ArrayList<String>(headers.length);
 		for (Header header : headers) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(header.getName());
 			sb.append(": ");
 			sb.append(header.getValue());

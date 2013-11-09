@@ -60,7 +60,7 @@ public class HocrBox {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(x0);
 		sb.append(' ');
 		sb.append(y0);

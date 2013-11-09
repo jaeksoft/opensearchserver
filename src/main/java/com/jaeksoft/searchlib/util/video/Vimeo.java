@@ -63,7 +63,7 @@ public class Vimeo {
 				Logging.debug("Vimeo cache");
 			return vimeoItem;
 		}
-		StringBuffer videoApiURL = new StringBuffer();
+		StringBuilder videoApiURL = new StringBuilder();
 		videoApiURL.append(API_URL);
 		videoApiURL.append(videoId);
 		videoApiURL.append(".json");

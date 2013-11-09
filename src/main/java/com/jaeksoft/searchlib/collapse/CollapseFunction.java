@@ -129,7 +129,7 @@ public class CollapseFunction {
 		@Override
 		String execute(final FieldCacheIndex stringIndex, final int doc,
 				final int[] collapsedDocs) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(stringIndex.lookup[stringIndex.order[doc]]);
 			for (int id : collapsedDocs) {
 				sb.append('|');
@@ -143,7 +143,7 @@ public class CollapseFunction {
 				final FieldCacheIndex stringIndexLatitude,
 				final FieldCacheIndex stringIndexLongitude, final int doc,
 				final int[] collapsedDocs) throws ParseException {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(getDistance(location, stringIndexLatitude,
 					stringIndexLongitude, doc, radius));
 			for (int id : collapsedDocs) {

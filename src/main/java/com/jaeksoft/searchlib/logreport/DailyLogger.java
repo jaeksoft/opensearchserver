@@ -76,7 +76,7 @@ public class DailyLogger {
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
 			cal.set(Calendar.MILLISECOND, 0);
-			StringBuffer sb = new StringBuffer(filePrefix);
+			StringBuilder sb = new StringBuilder(filePrefix);
 			sb.append('.');
 			sb.append(dailyFormat.format(cal.getTime()));
 			currentLogFileName = sb.toString();

@@ -61,7 +61,7 @@ public class RobotsTxt {
 	 */
 	protected static URL getRobotsUrl(URL url) throws MalformedURLException,
 			URISyntaxException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(url.getProtocol());
 		sb.append("://");
 		sb.append(url.getHost());

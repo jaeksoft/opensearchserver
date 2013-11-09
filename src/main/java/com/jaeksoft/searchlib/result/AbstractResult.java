@@ -36,7 +36,7 @@ public abstract class AbstractResult<T extends AbstractRequest> {
 
 	protected Timer timer;
 
-	protected AbstractResult(T request) {
+	protected AbstractResult(final T request) {
 		this.request = request;
 		this.timer = new Timer(request.getNameType());
 	}

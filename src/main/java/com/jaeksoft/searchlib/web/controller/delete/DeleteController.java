@@ -131,7 +131,7 @@ public class DeleteController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		StringBuffer sb = AbstractServlet.getApiUrl(getBaseUrl(), "/delete",
+		StringBuilder sb = AbstractServlet.getApiUrl(getBaseUrl(), "/delete",
 				client, getLoggedUser());
 		String q = request.getQueryString();
 		if (q == null)

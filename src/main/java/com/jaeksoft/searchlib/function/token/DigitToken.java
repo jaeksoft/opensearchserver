@@ -40,7 +40,7 @@ public class DigitToken extends Token {
 	}
 
 	@Override
-	protected void set(StringBuffer token) {
+	protected void set(StringBuilder token) {
 		value = Float.parseFloat(token.toString());
 	}
 

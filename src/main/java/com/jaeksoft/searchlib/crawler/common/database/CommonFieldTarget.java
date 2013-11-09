@@ -173,7 +173,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	public String getFilePath(String content) {
-		StringBuffer path = new StringBuffer();
+		StringBuilder path = new StringBuilder();
 		if (filePathPrefix != null)
 			path.append(filePathPrefix);
 		path.append(content);

@@ -22,7 +22,7 @@ public class NaiveCSSParser {
 	private static String removeComments(String css) {
 		Matcher matcher = commentLocator.matcher(css);
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		int pos = 0;
 		while (matcher.find()) {
 			sb.append(css.substring(pos, matcher.start()));
@@ -75,7 +75,7 @@ public class NaiveCSSParser {
 			}
 		}
 
-		public void write(StringBuffer sb) {
+		public void write(StringBuilder sb) {
 			sb.append(name);
 			sb.append(":");
 			sb.append(value);
@@ -122,7 +122,7 @@ public class NaiveCSSParser {
 		}
 
 		public String getPropertyString() {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (CSSProperty property : properties)
 				property.write(sb);
 			return sb.toString();
@@ -168,7 +168,8 @@ public class NaiveCSSParser {
 
 	public final static String replaceUrl(String value, Matcher matcher,
 			String url) {
-		StringBuffer sb = new StringBuffer(value.substring(0, matcher.start(1)));
+		StringBuilder sb = new StringBuilder(value.substring(0,
+				matcher.start(1)));
 		sb.append(url);
 		sb.append(value.substring(matcher.end(1)));
 		return sb.toString();

@@ -35,7 +35,7 @@ public class SuffixArray extends PrefixArray {
 
 	@Override
 	protected String putWord(String word) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (tokenSeparator != null && tokenSeparator.length() > 0)
 			sb.append(tokenSeparator);
 		sb.append(word);

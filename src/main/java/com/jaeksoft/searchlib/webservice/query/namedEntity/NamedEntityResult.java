@@ -44,15 +44,18 @@ public class NamedEntityResult {
 
 	@XmlElement(name = "document")
 	final public List<DocumentResult> documents;
+	final public CharSequence enrichedText;
 
 	public NamedEntityResult() {
 		documents = null;
+		enrichedText = null;
 	}
 
 	public NamedEntityResult(ResultNamedEntityExtraction result)
 			throws SearchLibException {
 		documents = new ArrayList<DocumentResult>(0);
 		DocumentResult.populateDocumentList(result, documents);
+		enrichedText = result.getEnrichedText();
 	}
 
 }

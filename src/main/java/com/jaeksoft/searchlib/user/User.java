@@ -355,7 +355,7 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public void appendApiCallParameters(StringBuffer sb)
+	public void appendApiCallParameters(StringBuilder sb)
 			throws UnsupportedEncodingException {
 		sb.append("&login=");
 		sb.append(URLEncoder.encode(name, "UTF-8"));

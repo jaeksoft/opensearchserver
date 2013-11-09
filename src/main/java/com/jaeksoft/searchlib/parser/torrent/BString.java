@@ -33,7 +33,7 @@ public class BString extends BValue {
 
 	public BString(int i, InputStream input) throws IOException {
 		string = null;
-		StringBuffer length = new StringBuffer();
+		StringBuilder length = new StringBuilder();
 		if (i != 0) {
 			length.append((char) i);
 			byteArray.write(i);

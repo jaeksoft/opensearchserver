@@ -34,7 +34,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 public class Md5Spliter {
 
 	final private static String generateHash(byte[] result) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < result.length; i++) {
 			String s = Integer.toHexString(result[i]);
 			int length = s.length();

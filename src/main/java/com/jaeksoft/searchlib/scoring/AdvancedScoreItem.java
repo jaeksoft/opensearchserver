@@ -135,7 +135,7 @@ public class AdvancedScoreItem {
 	}
 
 	public String name() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (ascending)
 			sb.append("ord(");
 		else

@@ -37,14 +37,14 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 
 	public void addFilterQuery(AbstractSearchRequest request, Object value,
 			boolean quote, boolean negative) throws ParseException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		addQuery(sb, value, quote);
 		request.addFilter(sb.toString(), negative);
 	}
 
 	public void addFilterRange(AbstractSearchRequest request, Object from,
 			Object to, boolean quote, boolean negative) throws ParseException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		addQueryRange(sb, from, to, quote);
 		request.addFilter(sb.toString(), negative);
 	}
@@ -53,7 +53,7 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 		request.addSort(name, desc);
 	}
 
-	public final static void addQuery(StringBuffer sb, String field,
+	public final static void addQuery(StringBuilder sb, String field,
 			Object value, boolean quote) {
 		sb.append(" ");
 		sb.append(field);
@@ -65,18 +65,18 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 			sb.append('"');
 	}
 
-	public void addQuery(StringBuffer sb, Object value, boolean quote) {
+	public void addQuery(StringBuilder sb, Object value, boolean quote) {
 		addQuery(sb, name, value, quote);
 	}
 
 	public void setQuery(AbstractSearchRequest request, Object value,
 			boolean quote) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		addQuery(sb, value, quote);
 		request.setQueryString(sb.toString());
 	}
 
-	public void addQueryRange(StringBuffer sb, Object from, Object to,
+	public void addQueryRange(StringBuilder sb, Object from, Object to,
 			boolean quote) {
 		sb.append(" ");
 		sb.append(name);

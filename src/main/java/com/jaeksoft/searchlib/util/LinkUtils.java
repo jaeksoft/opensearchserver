@@ -78,7 +78,7 @@ public class LinkUtils {
 	}
 
 	public final static String concatPath(String path1, String path2) {
-		StringBuffer sb = new StringBuffer(path1);
+		StringBuilder sb = new StringBuilder(path1);
 		if (!path1.endsWith("/") && !path2.startsWith("/"))
 			sb.append('/');
 		sb.append(path2);

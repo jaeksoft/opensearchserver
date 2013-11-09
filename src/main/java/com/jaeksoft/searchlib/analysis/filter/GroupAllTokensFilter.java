@@ -36,7 +36,7 @@ public class GroupAllTokensFilter extends FilterFactory {
 
 	public class GroupAllTokenFilter extends AbstractTermFilter {
 
-		private StringBuffer buffer;
+		private StringBuilder buffer;
 
 		private Integer startOffset = null;
 
@@ -44,7 +44,7 @@ public class GroupAllTokensFilter extends FilterFactory {
 
 		protected GroupAllTokenFilter(TokenStream input) {
 			super(input);
-			buffer = new StringBuffer();
+			buffer = new StringBuilder();
 		}
 
 		@Override
