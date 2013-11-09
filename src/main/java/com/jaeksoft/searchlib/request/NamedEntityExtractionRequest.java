@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenFilter;
+import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenPositionsFilter;
 import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
 import com.jaeksoft.searchlib.analysis.filter.RemoveIncludedTermFilter;
 import com.jaeksoft.searchlib.analysis.filter.ShingleFilter;
@@ -215,8 +215,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 					ShingleFilter.class);
 			shingleFilter.setProperties(" ", 1, 5);
 			analyzer.add(shingleFilter);
-			analyzer.add(FilterFactory.create(config,
-					DeduplicateTokenFilter.class));
+			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
+					DeduplicateTokenPositionsFilter.class);
+			analyzer.add(dtpf);
 			IndexLookupFilter ilf = FilterFactory.create(config,
 					IndexLookupFilter.class);
 			addReturnedField(namedEntityField);
@@ -231,6 +232,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
 					this);
 			compiledAnalyzer.populate(text, result);
+			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap());
 			return result;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
