@@ -89,7 +89,7 @@ public class SwiftProtocol {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer(pathName);
+			StringBuilder sb = new StringBuilder(pathName);
 			sb.append(' ');
 			sb.append(contentType);
 			sb.append(' ');

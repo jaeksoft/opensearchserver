@@ -113,7 +113,7 @@ public class FileManager extends AbstractManager {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 					.getNewRequest(searchTemplate.name());
 
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 
 			if (fileName != null) {
 				fileName = fileName.trim();
@@ -223,7 +223,7 @@ public class FileManager extends AbstractManager {
 			UnsupportedEncodingException, URISyntaxException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		fileItemFieldEnum.uri.addQuery(sb, uriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
@@ -240,7 +240,7 @@ public class FileManager extends AbstractManager {
 			UnsupportedEncodingException, URISyntaxException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) fileDbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		String parentUriString = parentDirectory.toASCIIString();
 		fileItemFieldEnum.directory.addQuery(sb, parentUriString, true);
 		searchRequest.setQueryString(sb.toString());

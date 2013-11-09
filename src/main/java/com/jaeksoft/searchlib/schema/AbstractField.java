@@ -73,7 +73,7 @@ public abstract class AbstractField<T extends AbstractField<?>> implements
 		this.name = name;
 	}
 
-	public void toString(StringBuffer sb) {
+	public void toString(StringBuilder sb) {
 		sb.append(name);
 	}
 

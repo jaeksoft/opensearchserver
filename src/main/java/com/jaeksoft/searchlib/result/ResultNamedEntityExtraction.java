@@ -45,12 +45,14 @@ public class ResultNamedEntityExtraction extends
 
 	final private Map<Integer, ResultDocument> docMap;
 	final private List<ResultDocument> docList;
+	final private StringBuilder enrichedText;
 
 	public ResultNamedEntityExtraction(
 			final NamedEntityExtractionRequest request) {
 		super(request);
 		this.docMap = new TreeMap<Integer, ResultDocument>();
 		this.docList = new ArrayList<ResultDocument>(0);
+		this.enrichedText = new StringBuilder();
 	}
 
 	public void addFieldValue(Integer docId, String field, String value) {
@@ -72,14 +74,48 @@ public class ResultNamedEntityExtraction extends
 		return docList.get(pos);
 	}
 
+	private static class PositionDocument {
+
+		private final Position position;
+		private final ResultDocument document;
+
+		private PositionDocument(Position position, ResultDocument document) {
+			this.position = position;
+			this.document = document;
+		}
+	}
+
 	public void resolvePositions(String namedEntityField,
-			Map<String, List<Position>> tokenMap) {
+			Map<String, List<Position>> tokenMap, String text) {
+		Map<Integer, PositionDocument> mapPositions = new TreeMap<Integer, PositionDocument>();
 		for (ResultDocument document : docList) {
 			String entity = document.getValueContent(namedEntityField, 0);
 			if (entity == null)
 				continue;
-			document.addPositions(tokenMap.get(entity));
+			List<Position> positions = tokenMap.get(entity);
+			document.addPositions(positions);
+			if (positions != null)
+				for (Position position : positions)
+					mapPositions.put(position.start, new PositionDocument(
+							position, document));
 		}
+		int lastPos = 0;
+		for (PositionDocument posDoc : mapPositions.values()) {
+			if (posDoc.position.start > lastPos)
+				enrichedText.append(text.substring(lastPos,
+						posDoc.position.start));
+			enrichedText.append("<strong>");
+			enrichedText.append(text.substring(posDoc.position.start,
+					posDoc.position.end));
+			enrichedText.append("</strong>");
+			lastPos = posDoc.position.end;
+		}
+		if (lastPos < text.length())
+			enrichedText.append(text.substring(lastPos));
+	}
+
+	public CharSequence getEnrichedText() {
+		return enrichedText;
 	}
 
 	@Override

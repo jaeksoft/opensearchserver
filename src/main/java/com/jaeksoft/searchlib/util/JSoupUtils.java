@@ -81,7 +81,7 @@ public class JSoupUtils {
 		return nodes;
 	}
 
-	final private static void getText(Node parent, StringBuffer sb) {
+	final private static void getText(Node parent, StringBuilder sb) {
 		if (parent instanceof TextNode)
 			sb.append(((TextNode) parent).text());
 		List<Node> childrens = parent.childNodes();
@@ -91,7 +91,7 @@ public class JSoupUtils {
 	}
 
 	final public static String getText(Node node) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		getText(node, sb);
 		return sb.toString();
 	}

@@ -156,7 +156,7 @@ public class SwiftToken {
 			throws URISyntaxException, ClientProtocolException, IOException,
 			IllegalStateException, SearchLibException {
 		username = LinkUtils.UTF8_URL_Encode(username);
-		StringBuffer u = new StringBuffer(authUrl);
+		StringBuilder u = new StringBuilder(authUrl);
 		u.append("/users/");
 		u.append(username);
 		u.append("/credentials/openstack?tenantname=");
@@ -171,7 +171,7 @@ public class SwiftToken {
 
 	public URI getURI(String container, String path, boolean prefixAndDelimiter)
 			throws URISyntaxException, UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer(internalURL != null ? internalURL
+		StringBuilder sb = new StringBuilder(internalURL != null ? internalURL
 				: publicURL);
 		if (!container.startsWith("/"))
 			sb.append('/');

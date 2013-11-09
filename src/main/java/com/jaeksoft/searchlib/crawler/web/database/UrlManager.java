@@ -195,20 +195,20 @@ public class UrlManager extends AbstractManager {
 			FetchStatus fetchStatus, Date before, Date after)
 			throws ParseException {
 		if (fetchStatus != null) {
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 			query.append("fetchStatus:");
 			query.append(fetchStatus.value);
 			request.addFilter(query.toString(), false);
 		}
 		if (before != null) {
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 			query.append("when:[00000000000000 TO ");
 			query.append(UrlItem.whenDateFormat.format(before));
 			query.append("]");
 			request.addFilter(query.toString(), false);
 		}
 		if (after != null) {
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 			query.append("when:[");
 			query.append(UrlItem.whenDateFormat.format(after));
 			query.append(" TO 99999999999999]");
@@ -348,7 +348,7 @@ public class UrlManager extends AbstractManager {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) urlDbClient
 					.getNewRequest("urlExport");
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			urlItemFieldEnum.inlink.addQuery(sb, url, true);
 			sb.append(" OR");
 			urlItemFieldEnum.outlink.addQuery(sb, url, true);
@@ -377,7 +377,7 @@ public class UrlManager extends AbstractManager {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) urlDbClient
 					.getNewRequest(urlSearchTemplate.name());
-			StringBuffer query = new StringBuffer();
+			StringBuilder query = new StringBuilder();
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {

@@ -96,7 +96,7 @@ public class ViewerServlet extends AbstractServlet {
 
 	public static String doViewer(String renderer, String uri, String url)
 			throws UnsupportedEncodingException {
-		StringBuffer sb = CommonController.getApiUrl("/renderer");
+		StringBuilder sb = CommonController.getApiUrl("/renderer");
 		if (renderer != null) {
 			sb.append("&renderer=");
 			sb.append(URLEncoder.encode(renderer, "UTF-8"));

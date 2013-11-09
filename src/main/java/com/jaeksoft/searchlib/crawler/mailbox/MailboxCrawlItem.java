@@ -77,7 +77,7 @@ public class MailboxCrawlItem
 	}
 
 	public String getInfo() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(user);
 		sb.append(" - ");
 		sb.append(serverName);

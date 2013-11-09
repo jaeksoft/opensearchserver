@@ -648,7 +648,7 @@ public class Renderer implements Comparable<Renderer> {
 			throws UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("<iframe src=\"");
 			sb.append(getApiUrl());
 			sb.append("\" scrolling=\"auto\" frameborder=\"1\" width=\"");
@@ -729,7 +729,7 @@ public class Renderer implements Comparable<Renderer> {
 			case 1:
 				return oneResultFoundText;
 			default:
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				sb.append(resultsCount);
 				sb.append(' ');
 				sb.append(resultsFoundText);
@@ -1106,7 +1106,7 @@ public class Renderer implements Comparable<Renderer> {
 			if (user != null)
 				groups = authPlugin.authGetGroups(this, user);
 
-		StringBuffer sbPositiveFilter = new StringBuffer();
+		StringBuilder sbPositiveFilter = new StringBuilder();
 		if (authUserAllowField != null && authUserAllowField.length() > 0) {
 			if (sbPositiveFilter.length() > 0)
 				sbPositiveFilter.append(" OR ");
@@ -1137,7 +1137,7 @@ public class Renderer implements Comparable<Renderer> {
 			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 
 		if (authUserDenyField != null && authUserDenyField.length() > 0) {
-			StringBuffer sbNegativeFilter = new StringBuffer();
+			StringBuilder sbNegativeFilter = new StringBuilder();
 			sbNegativeFilter.append(authUserDenyField);
 			sbNegativeFilter.append(':');
 			AuthPluginInterface.User.usernamesToFilterQuery(user,
@@ -1147,7 +1147,7 @@ public class Renderer implements Comparable<Renderer> {
 
 		if (authGroupDenyField != null && authGroupDenyField.length() > 0
 				&& groups != null && groups.length > 0) {
-			StringBuffer sbNegativeFilter = new StringBuffer();
+			StringBuilder sbNegativeFilter = new StringBuilder();
 			sbNegativeFilter.append(authGroupDenyField);
 			sbNegativeFilter.append(":(");
 			boolean bOr = false;

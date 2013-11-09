@@ -33,7 +33,7 @@ public class BInteger extends BValue {
 
 	public BInteger(InputStream input) throws IOException {
 		integer = null;
-		StringBuffer integerString = new StringBuffer();
+		StringBuilder integerString = new StringBuilder();
 		byteArray.write('i');
 		for (;;) {
 			int i = input.read();

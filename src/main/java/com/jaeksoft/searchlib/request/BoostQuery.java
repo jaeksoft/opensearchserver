@@ -128,7 +128,7 @@ public class BoostQuery {
 	public final static String getCacheKey(BoostQuery[] boostingQueries) {
 		if (boostingQueries.length == 0)
 			return "";
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (BoostQuery boostQuery : boostingQueries) {
 			sb.append(boostQuery.query);
 			sb.append('/');

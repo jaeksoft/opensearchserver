@@ -57,7 +57,7 @@ public class BList extends BValue {
 	}
 
 	public String getFilePath() throws BException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (BValue v : list) {
 			if (sb.length() != 0)
 				sb.append('/');

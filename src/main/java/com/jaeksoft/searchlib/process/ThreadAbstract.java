@@ -232,7 +232,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	public abstract void release();
 
 	final private String getThreadName() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (config != null) {
 			sb.append("Index: ");
 			sb.append(config.getIndexName());
@@ -306,7 +306,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	public String getThreadStatus() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(this.hashCode());
 			if (thread == null)
 				return sb.toString();

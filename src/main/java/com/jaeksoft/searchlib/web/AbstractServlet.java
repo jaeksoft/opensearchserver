@@ -127,7 +127,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			throws MalformedURLException {
 		serverBaseURL = new URL(request.getScheme(), request.getServerName(),
 				request.getServerPort(), request.getContextPath()).toString();
-		StringBuffer sbUrl = new StringBuffer(request.getRequestURI());
+		StringBuilder sbUrl = new StringBuilder(request.getRequestURI());
 		String qs = request.getQueryString();
 		if (qs != null) {
 			sbUrl.append('?');
@@ -159,10 +159,10 @@ public abstract class AbstractServlet extends HttpServlet {
 	protected static URI buildUri(URI uri, String additionalPath,
 			String indexName, String login, String apiKey,
 			String additionnalQuery) throws URISyntaxException {
-		StringBuffer path = new StringBuffer(uri.getPath());
+		StringBuilder path = new StringBuilder(uri.getPath());
 		if (additionalPath != null)
 			path.append(additionalPath);
-		StringBuffer query = new StringBuffer();
+		StringBuilder query = new StringBuilder();
 		if (indexName != null) {
 			query.append("index=");
 			query.append(indexName);
@@ -272,7 +272,7 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	public final static StringBuffer getApiUrl(StringBuffer sb,
+	public final static StringBuilder getApiUrl(StringBuilder sb,
 			String servletPathName, Client client, User user)
 			throws UnsupportedEncodingException {
 		sb.append(servletPathName);

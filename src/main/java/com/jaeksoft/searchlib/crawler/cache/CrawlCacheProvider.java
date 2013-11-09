@@ -67,7 +67,7 @@ public abstract class CrawlCacheProvider {
 			String separatorChar, String extension, int splitSize)
 			throws UnsupportedEncodingException {
 		String key = StringUtils.base64encode(uri.toASCIIString());
-		StringBuffer sb = new StringBuffer(rootPath);
+		StringBuilder sb = new StringBuilder(rootPath);
 		int l = key.length();
 		if (l > hashDepth)
 			l = hashDepth;

@@ -30,13 +30,13 @@ import java.util.List;
 
 public class SnippetBuilder {
 
-	private final StringBuffer snippet;
+	private final StringBuilder snippet;
 
 	private final List<Fragment> fragments;
 
 	public SnippetBuilder(int maxLength, String separator, String[] tags,
 			Fragment originalFragment) {
-		snippet = new StringBuffer();
+		snippet = new StringBuilder();
 		fragments = new ArrayList<Fragment>(0);
 		if (!leftAppend(originalFragment, maxLength, separator, tags))
 			return;

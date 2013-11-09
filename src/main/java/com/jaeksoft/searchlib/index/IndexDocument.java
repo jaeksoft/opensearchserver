@@ -436,7 +436,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		if (fields != null) {
 			for (String key : fields.keySet()) {
 				FieldContent value = (FieldContent) fields.get(key);

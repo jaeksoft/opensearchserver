@@ -32,7 +32,7 @@ public abstract class Token {
 
 	protected Token(char[] chars, int pos, char[] additionalChars) {
 		this.additionalChars = additionalChars;
-		StringBuffer token = new StringBuffer();
+		StringBuilder token = new StringBuilder();
 		size = 0;
 		while (pos < chars.length) {
 			char ch = chars[pos++];
@@ -53,6 +53,6 @@ public abstract class Token {
 		return false;
 	}
 
-	protected abstract void set(StringBuffer token);
+	protected abstract void set(StringBuilder token);
 
 }

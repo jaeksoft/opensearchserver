@@ -163,7 +163,7 @@ public class HtmlParser extends Parser {
 	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD
 			.length();
 
-	private void getBodyTextContent(ParserResultItem result, StringBuffer sb,
+	private void getBodyTextContent(ParserResultItem result, StringBuilder sb,
 			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields,
 			int recursion) {
 		if (recursion == 0) {
@@ -508,7 +508,7 @@ public class HtmlParser extends Parser {
 			if (nodes == null || nodes.size() == 0)
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024);
 				result.addField(ParserFieldEnum.body, sb);
 			}
@@ -542,7 +542,7 @@ public class HtmlParser extends Parser {
 
 		if (getFieldMap().isMapped(ParserFieldEnum.generated_title)) {
 
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			try {
 				sb.append(new URI(streamLimiter.getOriginURL()).getHost());
 			} catch (URISyntaxException e) {

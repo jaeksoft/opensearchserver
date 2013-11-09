@@ -63,7 +63,7 @@ public class ScreenshotServlet extends AbstractServlet {
 	}
 
 	final private static String getPublicFileName(File file) {
-		StringBuffer sb = new StringBuffer(file.getName());
+		StringBuilder sb = new StringBuilder(file.getName());
 		File p = file.getParentFile();
 		sb.insert(0, p.getName());
 		p = p.getParentFile();
@@ -89,18 +89,19 @@ public class ScreenshotServlet extends AbstractServlet {
 		return getPublicFileName(file);
 	}
 
-	public final static String captureUrl(StringBuffer sbBaseUrl,
+	public final static String captureUrl(StringBuilder sbBaseUrl,
 			Client client, User user, URL screenshotUrl)
 			throws UnsupportedEncodingException {
-		StringBuffer sb = getApiUrl(sbBaseUrl, "/screenshot", client, user);
+		StringBuilder sb = getApiUrl(sbBaseUrl, "/screenshot", client, user);
 		sb.append("&action=capture&url=");
 		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();
 	}
 
-	public final static String imageUrl(StringBuffer sbBbaseUrl, Client client,
-			User user, URL screenshotUrl) throws UnsupportedEncodingException {
-		StringBuffer sb = getApiUrl(sbBbaseUrl, "/screenshot", client, user);
+	public final static String imageUrl(StringBuilder sbBbaseUrl,
+			Client client, User user, URL screenshotUrl)
+			throws UnsupportedEncodingException {
+		StringBuilder sb = getApiUrl(sbBbaseUrl, "/screenshot", client, user);
 		sb.append("&action=image&url=");
 		sb.append(URLEncoder.encode(screenshotUrl.toExternalForm(), "UTF-8"));
 		return sb.toString();

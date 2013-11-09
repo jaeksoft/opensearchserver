@@ -97,7 +97,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	public String getMergedValues(String separator) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (FieldValueItem item : values) {
 			if (first)
@@ -110,7 +110,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	public String getMergedValues(int max, String separator) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (FieldValueItem item : values) {
 			if (first)
@@ -152,7 +152,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
 		sb.append(values.length);
@@ -165,7 +165,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	public String toLabel() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
 		sb.append(values.length);

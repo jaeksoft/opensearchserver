@@ -126,7 +126,7 @@ public class LogReportManager {
 		try {
 			AbstractSearchRequest searchRequest = request instanceof AbstractSearchRequest ? (AbstractSearchRequest) request
 					: null;
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append('\u0009');
 			if (searchRequest != null)
 				sb.append(URLEncoder.encode(searchRequest.getQueryString(),

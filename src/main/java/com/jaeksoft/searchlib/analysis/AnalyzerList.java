@@ -56,7 +56,7 @@ public class AnalyzerList {
 
 	final private static String getAnalyzerLangKey(String analyzerName,
 			LanguageEnum lang) {
-		StringBuffer sb = new StringBuffer(analyzerName);
+		StringBuilder sb = new StringBuilder(analyzerName);
 		sb.append('_');
 		sb.append(lang.getCode());
 		return sb.toString();

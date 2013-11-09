@@ -109,7 +109,7 @@ public class FieldValue extends AbstractField<FieldValue> {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(name);
+		StringBuilder sb = new StringBuilder(name);
 		int c = getValuesCount();
 		if (c > 0) {
 			sb.append('(');
@@ -124,7 +124,7 @@ public class FieldValue extends AbstractField<FieldValue> {
 	}
 
 	public String getLabel() {
-		StringBuffer sb = new StringBuffer(name);
+		StringBuilder sb = new StringBuilder(name);
 		sb.append('(');
 		sb.append(getValuesCount());
 		sb.append(')');

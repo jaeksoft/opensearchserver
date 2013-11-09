@@ -40,7 +40,7 @@ public class LetterOrDigitToken extends Token {
 	}
 
 	@Override
-	protected void set(StringBuffer token) {
+	protected void set(StringBuilder token) {
 		word = token.toString();
 	}
 

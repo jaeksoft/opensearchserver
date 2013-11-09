@@ -64,7 +64,7 @@ public class NamedItem {
 	}
 
 	public String getNameAndCount() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		sb.append(" (");
 		sb.append(count);

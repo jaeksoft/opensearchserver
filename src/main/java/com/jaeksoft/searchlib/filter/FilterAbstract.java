@@ -123,7 +123,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	}
 
 	public void setParamPosition(int position) {
-		StringBuffer sb = new StringBuffer("fq");
+		StringBuilder sb = new StringBuilder("fq");
 		sb.append(position);
 		paramPosition = sb.toString();
 	}

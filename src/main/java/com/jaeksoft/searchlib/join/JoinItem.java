@@ -269,7 +269,7 @@ public class JoinItem implements Comparable<JoinItem> {
 	}
 
 	public void setParamPosition(int position) {
-		StringBuffer sb = new StringBuffer("jq");
+		StringBuilder sb = new StringBuilder("jq");
 		sb.append(position);
 		paramPosition = sb.toString();
 	}

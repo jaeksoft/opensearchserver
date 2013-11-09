@@ -63,7 +63,7 @@ public class Version {
 	}
 
 	public String getUpdateUrl() throws UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer(
+		StringBuilder sb = new StringBuilder(
 				"http://www.open-search-server.com/updatecheck?check");
 		if (version != null) {
 			sb.append("&v=");
@@ -78,7 +78,7 @@ public class Version {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(title == null ? "OpenSearchServer" : title);
 		if (version != null) {
 			sb.append(" v");

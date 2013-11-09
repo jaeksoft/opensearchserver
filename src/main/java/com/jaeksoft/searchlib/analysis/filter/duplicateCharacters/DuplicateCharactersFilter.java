@@ -44,7 +44,7 @@ public class DuplicateCharactersFilter extends AbstractTermFilter {
 	}
 
 	private final String removeConsecutiveCharacters(char[] buffer, int length) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		char lastChar = 0;
 		int i = 0;
 		int l = length;
