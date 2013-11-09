@@ -56,7 +56,7 @@ public class RestApplication extends Application {
 
 	public static String getRestURL(String path, User user, Client client,
 			String... args) throws UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("/services/rest");
 		if (client != null)
 			path = path.replace("{index}",

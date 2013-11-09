@@ -143,7 +143,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 				.getResource("/com/jaeksoft/searchlib/crawler/web/browser/get_xpath.js");
 		String content = Resources.toString(url, Charsets.UTF_8);
 		BufferedReader br = new BufferedReader(new StringReader(content));
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		String line;
 		while ((line = br.readLine()) != null)
 			sb.append(line.trim());

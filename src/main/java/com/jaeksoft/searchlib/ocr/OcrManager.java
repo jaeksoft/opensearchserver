@@ -175,7 +175,7 @@ public class OcrManager implements Closeable {
 			if (!file.exists())
 				throw new SearchLibException("The file don't exist");
 			CommandLine cmdLine = CommandLine.parse(tesseractPath);
-			StringBuffer sbResult = new StringBuffer();
+			StringBuilder sbResult = new StringBuilder();
 			run(cmdLine, 60, 1, sbResult);
 			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
@@ -258,7 +258,7 @@ public class OcrManager implements Closeable {
 	}
 
 	private final int run(CommandLine cmdLine, int secTimeOut,
-			Integer expectedExitValue, StringBuffer returnedText)
+			Integer expectedExitValue, StringBuilder returnedText)
 			throws IOException, SearchLibException {
 		DefaultExecutor executor = new DefaultExecutor();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

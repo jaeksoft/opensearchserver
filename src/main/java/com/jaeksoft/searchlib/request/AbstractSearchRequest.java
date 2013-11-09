@@ -682,7 +682,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	public String toString() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("RequestName: ");
 			sb.append(getRequestName());
 			sb.append(" DefaultOperator: ");

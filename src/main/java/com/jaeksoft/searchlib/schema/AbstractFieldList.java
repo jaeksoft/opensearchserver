@@ -83,7 +83,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	}
 
 	private final void buildCacheKey() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (T f : fieldMap.values()) {
 			sb.append(f.toString());
 			sb.append('|');
@@ -163,7 +163,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	public String toString() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (T f : fieldList) {
 				sb.append('[');
 				sb.append(f.toString());

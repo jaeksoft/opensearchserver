@@ -216,7 +216,7 @@ public class CredentialItem {
 	}
 
 	public String getURLUserInfo() throws UnsupportedEncodingException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(URLEncoder.encode(username, "UTF-8"));
 		sb.append(':');
 		sb.append(URLEncoder.encode(password, "UTF-8"));

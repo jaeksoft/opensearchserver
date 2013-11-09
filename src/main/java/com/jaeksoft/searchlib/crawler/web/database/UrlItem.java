@@ -613,7 +613,7 @@ public class UrlItem {
 	}
 
 	public String getFullLang() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (lang != null)
 			sb.append(lang);
 		if (langMethod != null) {
@@ -696,7 +696,7 @@ public class UrlItem {
 	}
 
 	public void checkUrlWhen() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (when != null)
 			sb.append(whenDateFormat.format(when));
 		if (urlString != null)

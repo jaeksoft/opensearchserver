@@ -106,6 +106,10 @@ public abstract class AbstractQueryController extends CommonController {
 		return false;
 	}
 
+	public boolean isResultNamedEntity() {
+		return isResult(RequestTypeEnum.NamedEntityExtractionRequest);
+	}
+
 	public boolean isResultSearch() {
 		return isResult(RequestTypeEnum.SearchRequest,
 				RequestTypeEnum.SearchFieldRequest);

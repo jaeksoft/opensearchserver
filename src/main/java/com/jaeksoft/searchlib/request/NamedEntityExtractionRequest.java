@@ -232,7 +232,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
 					this);
 			compiledAnalyzer.populate(text, result);
-			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap());
+			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(),
+					text);
 			return result;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -243,7 +244,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("SearchRequest:");
 			if (searchRequest != null)
 				sb.append(searchRequest);

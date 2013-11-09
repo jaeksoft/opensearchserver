@@ -159,7 +159,7 @@ public class ImageUtils {
 	}
 
 	public static final String rectToCoordString(Rectangle box, char separator) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(Integer.toString(box.x));
 		sb.append(separator);
 		sb.append(Integer.toString(box.y));

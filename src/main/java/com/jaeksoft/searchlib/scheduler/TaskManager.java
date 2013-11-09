@@ -275,7 +275,7 @@ public class TaskManager {
 	public String getStatus() throws SchedulerException {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			if (scheduler == null)
 				sb.append("No scheduler. ");
 			else {

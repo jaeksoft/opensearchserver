@@ -696,7 +696,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			if (docQuery != null) {
 				sb.append(docQuery);
 				sb.append(' ');

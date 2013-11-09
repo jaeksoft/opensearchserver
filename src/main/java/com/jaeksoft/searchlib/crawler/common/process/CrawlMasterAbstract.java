@@ -104,7 +104,7 @@ public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T
 	public String getStatusInfo() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(status);
 			String info = getInfo();
 			if (info != null) {

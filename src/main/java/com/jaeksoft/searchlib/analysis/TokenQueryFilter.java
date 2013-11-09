@@ -75,7 +75,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(term);
 			sb.append(" (");
 			sb.append(start);

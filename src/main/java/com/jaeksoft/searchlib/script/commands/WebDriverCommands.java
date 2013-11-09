@@ -299,7 +299,7 @@ public class WebDriverCommands {
 						Integer.toString(image.getWidth()));
 				html = html.replace(SUBST_HEIGHT,
 						Integer.toString(image.getHeight()));
-				StringBuffer sbHtml = new StringBuffer(html);
+				StringBuilder sbHtml = new StringBuilder(html);
 				Collection<Selectors.Selector> selectors = context
 						.getSelectors();
 				if (selectors != null && !bNoHighLight) {

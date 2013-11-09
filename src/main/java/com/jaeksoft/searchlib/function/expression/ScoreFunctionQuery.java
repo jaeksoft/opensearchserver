@@ -89,7 +89,7 @@ public class ScoreFunctionQuery extends CustomScoreQuery {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer("score(");
+		StringBuilder sb = new StringBuilder("score(");
 		if (subQuery != null)
 			sb.append(subQuery.toString());
 		sb.append(')');

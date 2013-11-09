@@ -202,7 +202,7 @@ public class TaskCronExpression {
 	}
 
 	public String getStringExpression() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append(seconds);
 		sb.append(' ');
 		sb.append(minutes);

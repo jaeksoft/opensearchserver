@@ -66,7 +66,7 @@ public interface AuthPluginInterface {
 		}
 
 		public final static void usernamesToFilterQuery(User user,
-				StringBuffer sbQuery) {
+				StringBuilder sbQuery) {
 			if (user == null || user.usernames.size() == 0) {
 				sbQuery.append("\"\"");
 				return;

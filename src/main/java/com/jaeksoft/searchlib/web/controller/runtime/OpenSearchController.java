@@ -188,7 +188,7 @@ public class OpenSearchController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		StringBuffer sb = SearchServlet.getOpenSearchApiUrl(getBaseUrl(),
+		StringBuilder sb = SearchServlet.getOpenSearchApiUrl(getBaseUrl(),
 				"/opensearch", client, getLoggedUser());
 		return sb.toString();
 

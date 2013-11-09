@@ -93,7 +93,7 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 
 	private String getQueryString() {
 		long l = System.currentTimeMillis();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (field != null && field.length() > 0) {
 			sb.append(field);
 			sb.append(':');
@@ -132,7 +132,7 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 
 	@Override
 	public String getDescription() {
-		StringBuffer sb = new StringBuffer("Date query filter: ");
+		StringBuilder sb = new StringBuilder("Date query filter: ");
 		sb.append(getQueryString());
 		return sb.toString();
 	}

@@ -81,7 +81,7 @@ public class SynonymTokenFilter extends AbstractTermFilter {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("Create token: " + this);
 		return sb.toString();
 	}

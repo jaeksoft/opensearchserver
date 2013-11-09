@@ -158,7 +158,7 @@ public class UrlFilterList {
 		int i = uriString.indexOf('?');
 		if (i == -1)
 			return uriString;
-		StringBuffer newUrl = new StringBuffer(uriString.substring(0, i++));
+		StringBuilder newUrl = new StringBuilder(uriString.substring(0, i++));
 		String queryString = uriString.substring(i);
 
 		String[] queryParts = queryString.split("\\" + '&');
@@ -212,7 +212,7 @@ public class UrlFilterList {
 		}
 		if (!bReplace)
 			return uriString;
-		StringBuffer newUrl = new StringBuffer(uriString.substring(0, i1 - 1));
+		StringBuilder newUrl = new StringBuilder(uriString.substring(0, i1 - 1));
 		if (i2 != -1)
 			newUrl.append(uriString.substring(i2));
 		return newUrl.toString();

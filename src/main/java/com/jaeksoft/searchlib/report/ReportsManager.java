@@ -132,7 +132,7 @@ public class ReportsManager {
 	private SearchPatternRequest addDateFilter(
 			SearchPatternRequest searchRequest, String startDate, String endDate)
 			throws ParseException {
-		StringBuffer addDateBuffer = new StringBuffer();
+		StringBuilder addDateBuffer = new StringBuilder();
 		addDateBuffer.append(" ");
 		addDateBuffer.append("datetime:[");
 		addDateBuffer.append(startDate);
@@ -148,7 +148,7 @@ public class ReportsManager {
 			throws ParseException, SearchLibException {
 		SearchPatternRequest searchRequest = getNewSearchRequest("OR", rows);
 		if (!withResult) {
-			StringBuffer addFilterBuffer = new StringBuffer();
+			StringBuilder addFilterBuffer = new StringBuilder();
 			addFilterBuffer.append(" ");
 			addFilterBuffer.append("documentsFound:" + 0);
 			searchRequest.addFilter(addFilterBuffer.toString(), false);

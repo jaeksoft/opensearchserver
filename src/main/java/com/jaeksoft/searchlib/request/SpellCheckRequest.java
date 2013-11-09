@@ -187,7 +187,7 @@ public class SpellCheckRequest extends AbstractRequest {
 	public String getInfo() {
 		rwl.r.lock();
 		try {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (SpellCheckField field : spellCheckFieldList) {
 				if (sb.length() > 0)
 					sb.append(", ");

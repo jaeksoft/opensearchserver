@@ -72,7 +72,7 @@ public class AutoCompletionImpl extends CommonServices implements
 				updateCompItem.save();
 			else
 				manager.add(autoCompItem);
-			StringBuffer sb = new StringBuffer("Autocompletion item ");
+			StringBuilder sb = new StringBuilder("Autocompletion item ");
 			sb.append(name);
 			sb.append(updateCompItem != null ? " updated." : " inserted");
 			return new CommonResult(true, sb.toString());
