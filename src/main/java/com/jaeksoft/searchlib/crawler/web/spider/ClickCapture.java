@@ -28,6 +28,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.List;
@@ -197,7 +199,16 @@ public final class ClickCapture implements Comparable<ClickCapture> {
 		for (WebElement embedElement : embedElements) {
 			if (!embedElement.isDisplayed())
 				continue;
+			embedSrc = embedElement.getAttribute("src");
 			String flashVars = embedElement.getAttribute("flashvars");
+			if (!StringUtils.isEmpty(flashVars)) {
+				try {
+					URI uri = new URI(embedSrc);
+					flashVars = uri.getQuery();
+				} catch (URISyntaxException e) {
+					Logging.warn(e);
+				}
+			}
 			String[] params = StringUtils.split(flashVars, '&');
 			Map<String, String> paramMap = new TreeMap<String, String>();
 			if (params != null) {
@@ -208,7 +219,6 @@ public final class ClickCapture implements Comparable<ClickCapture> {
 								URLDecoder.decode(keyValue[1], "UTF-8"));
 				}
 			}
-			embedSrc = embedElement.getAttribute("src");
 			if (selector.flashVarsLink != null)
 				anchorHref = paramMap.get(selector.flashVarsLink);
 			return true;
