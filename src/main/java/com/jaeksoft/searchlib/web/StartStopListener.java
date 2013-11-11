@@ -66,6 +66,20 @@ public class StartStopListener implements ServletContextListener {
 				+ OPENSEARCHSERVER_DATA_FILE);
 	}
 
+	private static void initDataDir(File data_directory) {
+		if (OPENSEARCHSERVER_DATA_FILE != null)
+			throw new RuntimeException("Data directory already set: "
+					+ OPENSEARCHSERVER_DATA_FILE.getAbsolutePath());
+		if (data_directory.exists()) {
+			if (!data_directory.isDirectory())
+				throw new RuntimeException(data_directory.getAbsolutePath()
+						+ " is not a directory");
+		}
+		OPENSEARCHSERVER_DATA_FILE = data_directory;
+		if (!OPENSEARCHSERVER_DATA_FILE.exists())
+			OPENSEARCHSERVER_DATA_FILE.mkdir();
+	}
+
 	public static void setActive(boolean active) {
 		rwl.w.lock();
 		try {
@@ -97,10 +111,8 @@ public class StartStopListener implements ServletContextListener {
 		}
 	}
 
-	@Override
-	public void contextDestroyed(ServletContextEvent contextEvent) {
+	public final static void shutdown() {
 		setActive(false);
-
 		Logging.info("OSS SHUTDOWN");
 		try {
 			TaskManager.getInstance().stop();
@@ -111,13 +123,18 @@ public class StartStopListener implements ServletContextListener {
 		ErrorParserLogger.close();
 	}
 
+	@Override
+	public void contextDestroyed(ServletContextEvent contextEvent) {
+		shutdown();
+	}
+
 	private static transient Version version = null;
 
 	public static final synchronized Version getVersion() {
 		return version;
 	}
 
-	public class ThreadedLoad implements Runnable {
+	public static class ThreadedLoad implements Runnable {
 
 		public ThreadedLoad() {
 			new Thread(ClientCatalog.getThreadGroup(), this).start();
@@ -132,13 +149,8 @@ public class StartStopListener implements ServletContextListener {
 
 	}
 
-	@Override
-	public void contextInitialized(ServletContextEvent contextEvent) {
-
+	private static final void start() {
 		setActive(true);
-
-		ServletContext servletContext = contextEvent.getServletContext();
-		initDataDir(servletContext);
 
 		Logging.initLogger();
 		Logging.info("OSS IS STARTING ");
@@ -146,18 +158,29 @@ public class StartStopListener implements ServletContextListener {
 		ErrorParserLogger.init();
 
 		try {
-			version = new Version(servletContext);
-		} catch (IOException e) {
-			Logging.error(e);
-		}
-
-		try {
 			ClientFactory.setInstance(new ClientFactory());
 			TaskManager.getInstance().start();
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}
+	}
 
+	public static void start(File data_directory) {
+		initDataDir(data_directory);
+		start();
+	}
+
+	@Override
+	public void contextInitialized(ServletContextEvent contextEvent) {
+		ServletContext servletContext = contextEvent.getServletContext();
+		initDataDir(servletContext);
+		try {
+			version = new Version(servletContext);
+		} catch (IOException e) {
+			Logging.error(e);
+		}
+		start();
 		new ThreadedLoad();
 	}
+
 }
