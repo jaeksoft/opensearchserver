@@ -53,6 +53,7 @@ import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
+import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
@@ -76,6 +77,27 @@ public class ClientCatalog {
 	private static final RendererResults rendererResults = new RendererResults();
 
 	private static final ThreadGroup threadGroup = new ThreadGroup("Catalog");
+
+	/**
+	 * This method should be called first before using any other function of
+	 * OpenSearchServer. It will initialize all internal resources. The
+	 * data_directory is the folder which will contain all the indexes (data and
+	 * configuration).
+	 * 
+	 * @param data_directory
+	 *            The directory which contain the indexes
+	 */
+	public static final void init(File data_directory) {
+		StartStopListener.start(data_directory);
+	}
+
+	/**
+	 * Close OpenSearchServer. This method closes all indexes and stops any
+	 * running task..
+	 */
+	public static final void close() {
+		StartStopListener.shutdown();
+	}
 
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException {
@@ -210,6 +232,19 @@ public class ClientCatalog {
 		return set;
 	}
 
+	/**
+	 * Tests if an index exists
+	 * 
+	 * @param indexName
+	 *            The name of an index
+	 * @return
+	 * @throws SearchLibException
+	 */
+	public static final boolean exists(String indexName)
+			throws SearchLibException {
+		return exists(null, indexName);
+	}
+
 	public static final boolean exists(User user, String indexName)
 			throws SearchLibException {
 		if (user != null && !user.isAdmin())
@@ -269,6 +304,25 @@ public class ClientCatalog {
 		return true;
 	}
 
+	/**
+	 * Create a new index.
+	 * 
+	 * @param indexName
+	 *            The name of the index.
+	 * @param template
+	 *            The name of the template (EMPTY_INDEX, WEB_CRAWLER,
+	 *            FILE_CRAWLER)
+	 * @throws IOException
+	 * @throws SearchLibException
+	 */
+	public static void createIndex(String indexName, String templateName)
+			throws SearchLibException, IOException {
+		TemplateAbstract template = TemplateList.findTemplate(templateName);
+		if (template == null)
+			throw new SearchLibException("Template not found: " + templateName);
+		createIndex(null, indexName, template);
+	}
+
 	public static void createIndex(User user, String indexName,
 			TemplateAbstract template) throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
@@ -289,6 +343,20 @@ public class ClientCatalog {
 			rwl.w.unlock();
 		}
 
+	}
+
+	/**
+	 * Delete an index.
+	 * 
+	 * @param indexName
+	 *            The name of the index
+	 * @throws SearchLibException
+	 * @throws NamingException
+	 * @throws IOException
+	 */
+	public static void eraseIndex(String indexName) throws SearchLibException,
+			NamingException, IOException {
+		eraseIndex(null, indexName);
 	}
 
 	public static void eraseIndex(User user, String indexName)
