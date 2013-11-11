@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.test.LibraryTest;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -50,21 +51,33 @@ public class LibraryIndexFileTest {
 	public void testACreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException, SearchLibException {
+		// Create an index using the FILE_CRAWLER template
 		ClientCatalog.createIndex(LibraryTest.FILE_INDEX_NAME, "FILE_CRAWLER");
 	}
 
 	@Test
 	public void testBIndexPdfDocument() throws SearchLibException, IOException {
+		// Get the client instance
 		Client client = ClientCatalog.getClient(LibraryTest.FILE_INDEX_NAME);
+
+		// Create a document
 		IndexDocument document = new IndexDocument(LanguageEnum.ENGLISH);
 		assertTrue(
 				"File not found: "
 						+ LibraryTest.PDF_TEST_FILE.getAbsolutePath(),
 				LibraryTest.PDF_TEST_FILE.exists());
-		client.getParserSelector().parseFile(document,
-				LibraryTest.PDF_TEST_FILE.getName(), null, null,
-				LibraryTest.PDF_TEST_FILE, LanguageEnum.ENGLISH);
+
+		// Get the parser selector instance
+		ParserSelector parserSelector = client.getParserSelector();
+
+		// Extract full-text information and populate the document
+		parserSelector.parseFile(document, LibraryTest.PDF_TEST_FILE.getName(),
+				null, null, LibraryTest.PDF_TEST_FILE, LanguageEnum.ENGLISH);
+
+		// Add the URI field to the document
 		document.addString("uri", LibraryTest.PDF_TEST_FILE.toURI().toString());
+
+		// Put in in the index
 		client.updateDocument(document);
 	}
 }
