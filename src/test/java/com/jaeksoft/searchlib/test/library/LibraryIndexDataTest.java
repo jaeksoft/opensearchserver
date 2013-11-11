@@ -122,8 +122,8 @@ public class LibraryIndexDataTest {
 		request.setStart(0);
 		request.setRows(10);
 
-		// We only want "Archive" document
-		request.addFilter("category:Archive", false);
+		// We only want "Article" document
+		request.addFilter("category:Article", false);
 
 		// We want facet count on category
 		request.addFacet("category", 1, false, false);
@@ -133,7 +133,7 @@ public class LibraryIndexDataTest {
 				.request(request);
 
 		// Check the number of returned document
-		assertEquals(results.getNumFound(), 2);
+		assertEquals(2, results.getNumFound());
 
 		// Iterate over the documents found
 		for (ResultDocument document : results) {
@@ -158,7 +158,7 @@ public class LibraryIndexDataTest {
 		// Iterate over the facet items
 		for (FacetItem facetItem : facet) {
 			String term = facetItem.getTerm();
-			assertEquals(term, "Archive");
+			assertEquals(term, "Article");
 			int count = facetItem.getCount();
 			assertEquals(count, 2);
 		}
