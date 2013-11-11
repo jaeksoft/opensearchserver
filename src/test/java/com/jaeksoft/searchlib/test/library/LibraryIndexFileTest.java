@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -37,31 +36,35 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.test.LibraryTest;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class LibraryIndexCreateExistsListTest {
+public class LibraryIndexFileTest {
 
 	@Test
 	public void testACreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException, SearchLibException {
-		ClientCatalog.createIndex(LibraryTest.EMPTY_INDEX_NAME, "EMPTY_INDEX");
+		ClientCatalog.createIndex(LibraryTest.FILE_INDEX_NAME, "FILE_CRAWLER");
 	}
 
 	@Test
-	public void testBExistsIndex() throws IllegalStateException, IOException,
-			XPathExpressionException, SAXException,
-			ParserConfigurationException, SearchLibException {
-		assertTrue(ClientCatalog.exists(LibraryTest.EMPTY_INDEX_NAME));
-	}
-
-	@Test
-	public void testCdeleteRemainingIndex() throws SearchLibException,
-			NamingException, IOException {
-		if (ClientCatalog.exists(LibraryTest.EMPTY_INDEX_NAME))
-			ClientCatalog.eraseIndex(LibraryTest.EMPTY_INDEX_NAME);
+	public void testBIndexPdfDocument() throws SearchLibException, IOException {
+		Client client = ClientCatalog.getClient(LibraryTest.FILE_INDEX_NAME);
+		IndexDocument document = new IndexDocument(LanguageEnum.ENGLISH);
+		assertTrue(
+				"File not found: "
+						+ LibraryTest.PDF_TEST_FILE.getAbsolutePath(),
+				LibraryTest.PDF_TEST_FILE.exists());
+		client.getParserSelector().parseFile(document,
+				LibraryTest.PDF_TEST_FILE.getName(), null, null,
+				LibraryTest.PDF_TEST_FILE, LanguageEnum.ENGLISH);
+		document.addString("uri", LibraryTest.PDF_TEST_FILE.toURI().toString());
+		client.updateDocument(document);
 	}
 }

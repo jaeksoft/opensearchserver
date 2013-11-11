@@ -35,19 +35,25 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.test.library.LibraryIndexCreateExistsListTest;
+import com.jaeksoft.searchlib.test.library.LibraryIndexFileTest;
+import com.jaeksoft.searchlib.test.library.LibrarySchemaTest;
 import com.jaeksoft.searchlib.util.FilesUtils;
 
 @RunWith(Suite.class)
-@SuiteClasses({ LibraryIndexCreateExistsListTest.class })
+@SuiteClasses({ LibraryIndexCreateExistsListTest.class,
+		LibraryIndexFileTest.class, LibrarySchemaTest.class })
 public class LibraryTest {
 
-	public static final String INDEX_NAME = "oss_testing_suite";
+	public static final String EMPTY_INDEX_NAME = "oss_testing_empty";
+	public static final String FILE_INDEX_NAME = "oss_testing_file";
 	public static File DATA_DIRECTORY = null;
+	public static File PDF_TEST_FILE = new File("src/test/resources/"
+			+ LibraryTest.class.getPackage().getName().replace('.', '/')
+			+ "/library", "Open Source Search Engine OpenSearchServer.pdf");
 
 	@BeforeClass
 	public static void before() throws IOException {
 		DATA_DIRECTORY = FilesUtils.createTempDirectory("oss_data", "dir");
-		System.out.println("DATADIR is " + DATA_DIRECTORY.getAbsolutePath());
 		ClientCatalog.init(DATA_DIRECTORY);
 	}
 

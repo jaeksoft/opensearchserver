@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -418,19 +417,9 @@ public class FileManager extends AbstractManager {
 				documents.add(indexDocument);
 			}
 			fileDbClient.updateDocuments(documents);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -469,17 +458,7 @@ public class FileManager extends AbstractManager {
 					targetClient
 							.deleteDocuments(targetField, documentsToDelete);
 			}
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -500,17 +479,7 @@ public class FileManager extends AbstractManager {
 			}
 			if (documents.size() > 0)
 				fileDbClient.updateDocuments(documents);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}

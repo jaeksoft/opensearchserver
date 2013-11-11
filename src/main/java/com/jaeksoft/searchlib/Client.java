@@ -76,10 +76,17 @@ public class Client extends Config {
 		this(initFile, false, false);
 	}
 
+	/**
+	 * Insert or update a document in the index. If an unique key is defined in
+	 * the schema, the document is updated if it already exists.
+	 * 
+	 * @param document
+	 * @return
+	 * @throws IOException
+	 * @throws SearchLibException
+	 */
 	public boolean updateDocument(IndexDocument document)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException, IOException {
 		Timer timer = new Timer("Update document " + document.toString());
 		try {
 			checkMaxStorageLimit();
@@ -93,9 +100,7 @@ public class Client extends Config {
 	}
 
 	public int updateDocuments(Collection<IndexDocument> documents)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws IOException, SearchLibException {
 		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
 			checkMaxStorageLimit();
