@@ -45,6 +45,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class Schema {
 
+	private Config config;
+
 	private SchemaFieldList fieldList;
 
 	private AnalyzerList analyzers;
@@ -55,7 +57,8 @@ public class Schema {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
-	private Schema() {
+	private Schema(Config config) {
+		this.config = config;
 		fieldList = null;
 		analyzers = null;
 		langQueryAnalyzers = new TreeMap<String, PerFieldAnalyzer>();
@@ -66,7 +69,7 @@ public class Schema {
 			XPathParser xpp) throws XPathExpressionException,
 			SearchLibException {
 
-		Schema schema = new Schema();
+		Schema schema = new Schema(config);
 
 		schema.analyzers = AnalyzerList.fromXmlConfig(config, xpp,
 				xpp.getNode(parentNode, "analyzers"));
@@ -75,6 +78,92 @@ public class Schema {
 				xpp.getNode(parentNode, "fields"));
 
 		return schema;
+	}
+
+	/**
+	 * Create or update an existing field.
+	 * 
+	 * @param name
+	 *            The name of the field
+	 * @param stored
+	 *            The storage status
+	 * @param indexed
+	 *            The indexed status
+	 * @param termVector
+	 *            The vector status
+	 * @param analyzer
+	 *            The name of an analyzer
+	 * @param copyOf
+	 *            A list of fields
+	 * @throws SearchLibException
+	 */
+	public void setField(String name, Stored stored, Indexed indexed,
+			TermVector termVector, String analyzer, String... copyOf)
+			throws SearchLibException {
+		getFieldList().put(
+				new SchemaField(name, stored, indexed, termVector, analyzer,
+						copyOf));
+		config.saveConfig();
+	}
+
+	/**
+	 * Set the default and the unique field.
+	 * 
+	 * @param defaultField
+	 *            The name of the default field
+	 * @param uniqueField
+	 *            The name of the unique field
+	 * @throws SearchLibException
+	 */
+	public void setDefaultUniqueField(String defaultField, String uniqueField)
+			throws SearchLibException {
+		SchemaFieldList schemaFieldList = getFieldList();
+		schemaFieldList.setDefaultField(defaultField);
+		schemaFieldList.setUniqueField(uniqueField);
+		config.saveConfig();
+	}
+
+	/**
+	 * The unique field is the primary key of an index
+	 * 
+	 * @return the name of the unique field
+	 */
+	public String getUniqueField() {
+		SchemaField field = getFieldList().getUniqueField();
+		return field == null ? null : field.getName();
+	}
+
+	/**
+	 * @return the name of the default field
+	 */
+	public String getDefaultField() {
+		SchemaField field = getFieldList().getDefaultField();
+		return field == null ? null : field.getName();
+	}
+
+	/**
+	 * Remove the field. No error is thrown if the field does not exist.
+	 * 
+	 * @param fieldName
+	 *            The name of the field
+	 * @throws SearchLibException
+	 */
+	public void removeField(String fieldName) throws SearchLibException {
+		SchemaFieldList schemaFieldList = getFieldList();
+		schemaFieldList.remove(fieldName);
+		config.saveConfig();
+	}
+
+	/**
+	 * Retrieve a copy of a field instance.
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public SchemaField getField(String fieldName) {
+		SchemaFieldList schemaFieldList = getFieldList();
+		SchemaField field = schemaFieldList.get(fieldName);
+		return field == null ? null : new SchemaField(field);
 	}
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
@@ -186,4 +275,5 @@ public class Schema {
 			rwl.w.unlock();
 		}
 	}
+
 }

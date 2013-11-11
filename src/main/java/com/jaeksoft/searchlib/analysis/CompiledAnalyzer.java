@@ -93,7 +93,8 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 	}
 
 	@Override
-	public TokenStream tokenStream(final String fieldname, final Reader reader) {
+	public final TokenStream tokenStream(final String fieldname,
+			final Reader reader) {
 		try {
 			TokenStream ts = tokenizer.create(reader);
 			for (FilterFactory filter : filters)

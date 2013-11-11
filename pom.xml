@@ -621,7 +621,7 @@
 						</property>
 					</systemProperties>
 					<includes>
-						<include>**/Test.java</include>
+						<include>**/LibraryTest.java</include>
 					</includes>
 				</configuration>
 				<executions>

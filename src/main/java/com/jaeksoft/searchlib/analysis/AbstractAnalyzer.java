@@ -24,6 +24,11 @@
 
 package com.jaeksoft.searchlib.analysis;
 
+import java.io.IOException;
+import java.io.Reader;
+
+import org.apache.lucene.analysis.TokenStream;
+
 public abstract class AbstractAnalyzer extends
 		org.apache.lucene.analysis.Analyzer {
 
@@ -31,6 +36,12 @@ public abstract class AbstractAnalyzer extends
 
 	public AbstractAnalyzer() {
 		superClosed = false;
+	}
+
+	@Override
+	public final TokenStream reusableTokenStream(final String fieldName,
+			final Reader reader) throws IOException {
+		return tokenStream(fieldName, reader);
 	}
 
 	@Override
