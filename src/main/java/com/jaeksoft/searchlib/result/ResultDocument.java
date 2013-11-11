@@ -192,13 +192,13 @@ public class ResultDocument {
 		return snippetFieldValue.getValueArray();
 	}
 
-	public FieldValueItem[] getSnippetList(AbstractField<?> field) {
+	final public FieldValueItem[] getSnippetList(AbstractField<?> field) {
 		if (field == null)
 			return null;
 		return getSnippetList(field.getName());
 	}
 
-	public FieldValueItem getSnippet(String fieldName, int pos) {
+	final public FieldValueItem getSnippet(String fieldName, int pos) {
 		FieldValueItem[] values = getSnippetArray(fieldName);
 		if (values == null)
 			return null;
@@ -207,7 +207,14 @@ public class ResultDocument {
 		return values[pos];
 	}
 
-	public boolean isHighlighted(String fieldName) {
+	final public String getSnippetContent(String fieldName, int pos) {
+		FieldValueItem fieldValue = getSnippet(fieldName, pos);
+		if (fieldValue == null)
+			return null;
+		return fieldValue.getValue();
+	}
+
+	final public boolean isHighlighted(String fieldName) {
 		return snippetFields.get(fieldName).isHighlighted();
 	}
 
