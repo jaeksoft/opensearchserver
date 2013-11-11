@@ -68,6 +68,17 @@ public class SchemaField extends AbstractField<SchemaField> {
 		copyOf = null;
 	}
 
+	public SchemaField(String name, Stored stored, Indexed indexed,
+			TermVector termVector, String analyzer, String... copyOf) {
+		super(name);
+		this.indexAnalyzer = analyzer;
+		this.stored = stored;
+		this.indexed = indexed;
+		this.termVector = termVector;
+		this.copyOf = copyOf != null && copyOf.length > 0 ? Arrays
+				.asList(copyOf) : null;
+	}
+
 	public SchemaField(SchemaField field) {
 		super();
 		copyFrom(field);
@@ -87,15 +98,12 @@ public class SchemaField extends AbstractField<SchemaField> {
 
 	private SchemaField(String name, String stored, String indexed,
 			String termVector, String indexAnalyzer) {
-		super(name);
-		this.indexAnalyzer = indexAnalyzer;
-		this.stored = Stored.fromValue(stored);
-		this.indexed = Indexed.fromValue(indexed);
-		this.termVector = TermVector.fromValue(termVector);
+		this(name, Stored.fromValue(stored), Indexed.fromValue(indexed),
+				TermVector.fromValue(termVector), indexAnalyzer);
 	}
 
 	private SchemaField(String name, String stored, String indexed,
-			String termVector, String indexAnalyzer, String[] copyOf) {
+			String termVector, String indexAnalyzer, String... copyOf) {
 		this(name, stored, indexed, termVector, indexAnalyzer);
 		this.copyOf = copyOf != null && copyOf.length > 0 ? Arrays
 				.asList(copyOf) : null;

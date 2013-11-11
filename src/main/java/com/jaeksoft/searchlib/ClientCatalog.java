@@ -64,6 +64,11 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
+/**
+ * This class handles a list of indexes stored in a given directory.
+ * 
+ * 
+ */
 public class ClientCatalog {
 
 	private static transient volatile Map<File, Client> CLIENTS = new TreeMap<File, Client>();
