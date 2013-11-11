@@ -70,17 +70,35 @@ public class LibrarySchemaTest {
 		Schema schema = client.getSchema();
 
 		// Create few fields
+		// The ID is the primary key of the index
 		schema.setField("id", Stored.NO, Indexed.YES, TermVector.NO, null);
-		schema.setField("title", Stored.YES, Indexed.YES, TermVector.NO,
-				"TextAnalyzer");
+
+		// The "title" field will index the stemmed version of the title.
+		// Positions and offsets are activated to allow snippets.
+		schema.setField("title", Stored.YES, Indexed.YES,
+				TermVector.POSITIONS_OFFSETS, "TextAnalyzer");
+
+		// The "titleExact" field will index another version of the title
 		schema.setField("titleExact", Stored.NO, Indexed.YES, TermVector.NO,
 				"StandardAnalyzer", "title");
-		schema.setField("content", Stored.YES, Indexed.YES, TermVector.NO,
-				"TextAnalyzer");
+
+		// "Content" will index the stemmed version of the content (with
+		// snippets).
+		schema.setField("content", Stored.YES, Indexed.YES,
+				TermVector.POSITIONS_OFFSETS, "TextAnalyzer");
+
+		// "ContentExact" index the exact match for the content
 		schema.setField("contentExact", Stored.NO, Indexed.YES, TermVector.NO,
 				"StandardAnalyzer", "content");
-		schema.setField("full", Stored.NO, Indexed.NO, TermVector.NO,
+
+		// "Full" will index the stemmed version of both title and content,
+		// let's found document with keywords located on different fields.
+		schema.setField("full", Stored.NO, Indexed.YES, TermVector.NO,
 				"TextAnalyzer", "title", "content");
+
+		// This field will be used for filtering and faceting.
+		schema.setField("category", Stored.NO, Indexed.YES, TermVector.NO, null);
+
 		schema.setField("dummyField", Stored.NO, Indexed.NO, TermVector.NO,
 				null);
 	}

@@ -35,13 +35,15 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.test.library.LibraryIndexCreateExistsListTest;
+import com.jaeksoft.searchlib.test.library.LibraryIndexDataTest;
 import com.jaeksoft.searchlib.test.library.LibraryIndexFileTest;
 import com.jaeksoft.searchlib.test.library.LibrarySchemaTest;
 import com.jaeksoft.searchlib.util.FilesUtils;
 
 @RunWith(Suite.class)
 @SuiteClasses({ LibraryIndexCreateExistsListTest.class,
-		LibraryIndexFileTest.class, LibrarySchemaTest.class })
+		LibraryIndexFileTest.class, LibrarySchemaTest.class,
+		LibraryIndexDataTest.class })
 public class LibraryTest {
 
 	public static final String EMPTY_INDEX_NAME = "oss_testing_empty";
