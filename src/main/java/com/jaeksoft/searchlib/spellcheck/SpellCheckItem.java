@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ public class SpellCheckItem {
 
 	private String word;
 	private SuggestionItem[] suggestions;
+	private SuggestionItem higher;
 
 	public SpellCheckItem(String word, SuggestionItem[] suggestions) {
 		this.word = word;
@@ -46,12 +47,23 @@ public class SpellCheckItem {
 		return suggestions;
 	}
 
+	public String getHigher() {
+		if (higher == null)
+			return null;
+		return higher.getTerm();
+	}
+
 	public void computeFrequency(ReaderLocal reader, String fieldName)
 			throws IOException {
 		if (suggestions == null)
 			return;
-		for (SuggestionItem suggestionItem : suggestions)
+		for (SuggestionItem suggestionItem : suggestions) {
 			suggestionItem.computeFrequency(reader, fieldName);
+			if (higher == null)
+				higher = suggestionItem;
+			else if (suggestionItem.getFreq() > higher.getFreq())
+				higher = suggestionItem;
+		}
 
 	}
 }

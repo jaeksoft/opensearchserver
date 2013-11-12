@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.spell.SpellChecker;
 
@@ -45,6 +46,8 @@ public class SpellCheck implements Iterable<SpellCheckItem> {
 	private List<SpellCheckItem> spellCheckItems;
 
 	private String fieldName;
+
+	private String suggestion;
 
 	public SpellCheck(ReaderLocal reader, SpellCheckRequest request,
 			SpellCheckField spellCheckField) throws ParseException,
@@ -81,8 +84,14 @@ public class SpellCheck implements Iterable<SpellCheckItem> {
 				}
 			}
 		}
-		for (SpellCheckItem spellcheckItem : spellCheckItems)
+		List<String> highers = new ArrayList<String>(spellCheckItems.size());
+		for (SpellCheckItem spellcheckItem : spellCheckItems) {
 			spellcheckItem.computeFrequency(reader, fieldName);
+			String higher = spellcheckItem.getHigher();
+			if (higher != null)
+				highers.add(higher);
+		}
+		suggestion = StringUtils.join(highers, ' ');
 	}
 
 	public String getFieldName() {
@@ -91,6 +100,10 @@ public class SpellCheck implements Iterable<SpellCheckItem> {
 
 	public List<SpellCheckItem> getList() {
 		return spellCheckItems;
+	}
+
+	public String getSuggestion() {
+		return suggestion;
 	}
 
 	@Override

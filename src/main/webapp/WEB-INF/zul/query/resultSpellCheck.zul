@@ -14,9 +14,9 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window apply="org.zkoss.bind.BindComposer"
+<window apply="org.zkoss.bind.BindComposer" contentStyle="overflow:auto"
 	viewModel="@id('resultSpellCheck') @init('com.jaeksoft.searchlib.web.controller.query.ResultSpellCheckController')">
-	<panel title="Summary"
+	<panel title="Summary" hflex="min"
 		visible="@load(resultSpellCheck.resultSpellCheck)" collapsible="true"
 		border="normal">
 		<caption>
@@ -24,63 +24,62 @@
 				href="@load(query.requestApiCall)" />
 		</caption>
 		<panelchildren>
-			<listbox
+			<listbox hflex="min"
 				model="@load(resultSpellCheck.result.spellCheckList)">
 				<template name="model" var="spellCheck">
 					<listitem>
 						<listcell>
 							<separator />
-							<panel title="" collapsible="true">
+							<panel collapsible="true" border="normal">
 								<caption>
 									<hbox width="100%">
 										<label value="Field: " />
 										<label
 											value="@load(spellCheck.fieldName)" />
+										<space />
+										<label value="Suggestion: " />
+										<label
+											value="@load(spellCheck.suggestion)" />
 									</hbox>
 								</caption>
 								<panelchildren>
-									<listbox
-										model="@load(spellCheck.list)">
-										<template name="model"
+									<hlayout
+										children="@load(spellCheck.list)">
+										<template name="children"
 											var="item">
-											<listitem>
-												<listcell>
-													<panel title="">
-														<caption>
-															<hbox
-																width="100%">
-																<label
-																	value="Query term: " />
-																<label
-																	value="@load(item.word)" />
-															</hbox>
-														</caption>
-														<panelchildren>
-															<listbox
-																sizedByContent="true" model="@load(item.suggestions)">
-																<listhead>
-																	<listheader
-																		label="Suggested term" />
-																	<listheader
-																		label="Frequency" />
-																</listhead>
-																<template
-																	name="model" var="suggestItem">
-																	<listitem
-																		label="@load(suggestItem)">
-																		<listcell
-																			label="@load(suggestItem.term)" />
-																		<listcell
-																			label="@load(suggestItem.freq)" />
-																	</listitem>
-																</template>
-															</listbox>
-														</panelchildren>
-													</panel>
-												</listcell>
-											</listitem>
+											<panel title="">
+												<caption>
+													<hlayout>
+														<label
+															value="Query term: " />
+														<label
+															value="@load(item.word)" />
+													</hlayout>
+												</caption>
+												<panelchildren>
+													<listbox hflex="min"
+														model="@load(item.suggestions)">
+														<listhead>
+															<listheader
+																label="Suggested term" />
+															<listheader
+																label="Frequency" />
+														</listhead>
+														<template
+															name="model" var="suggestItem">
+															<listitem
+																label="@load(suggestItem)">
+																<listcell
+																	label="@load(suggestItem.term)" />
+																<listcell
+																	label="@load(suggestItem.freq)" />
+															</listitem>
+														</template>
+													</listbox>
+												</panelchildren>
+											</panel>
 										</template>
-									</listbox>
+									</hlayout>
 								</panelchildren>
 							</panel>
 						</listcell>
