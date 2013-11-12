@@ -330,7 +330,7 @@ public class ClientCatalog {
 		TemplateAbstract template = TemplateList.findTemplate(templateName);
 		if (template == null)
 			throw new SearchLibException("Template not found: " + templateName);
-		createIndex(null, indexName, template);
+		createIndex(null, indexName, template, IndexType.LUCENE);
 	}
 
 	public static void createIndex(User user, String indexName,
