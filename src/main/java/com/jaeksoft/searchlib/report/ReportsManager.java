@@ -32,9 +32,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,17 +89,7 @@ public class ReportsManager {
 
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}

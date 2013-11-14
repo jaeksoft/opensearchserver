@@ -98,9 +98,14 @@ public class SnippetField extends AbstractField<SnippetField> {
 		return fragmenterTemplate.getClass().getSimpleName();
 	}
 
-	public void setFragmenter(String fragmenterName)
-			throws InstantiationException, IllegalAccessException {
-		fragmenterTemplate = FragmenterAbstract.newInstance(fragmenterName);
+	public void setFragmenter(String fragmenterName) throws SearchLibException {
+		try {
+			fragmenterTemplate = FragmenterAbstract.newInstance(fragmenterName);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	/**

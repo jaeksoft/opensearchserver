@@ -43,12 +43,15 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
 
 public class SearchFieldRequest extends AbstractSearchRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
@@ -161,6 +164,27 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		}
 	}
 
+	/**
+	 * Add a new search field to the request
+	 * 
+	 * @param fieldName
+	 *            The name of the field
+	 * @param phrase
+	 *            Activate the phrase search
+	 * @param boost
+	 *            Set the boost for the term search
+	 * @param phraseBoost
+	 *            Set the boost for the phrase search
+	 */
+	public void addSearchField(String fieldName, boolean phrase,
+			double termBoost, double phraseBoost) {
+		add(new SearchField(fieldName, phrase, termBoost, phraseBoost));
+	}
+
+	public void addSearchField(String fieldName, double termBoost) {
+		add(new SearchField(fieldName, false, termBoost, 1.0));
+	}
+
 	public void remove(SearchField searchField) {
 		rwl.w.lock();
 		try {
@@ -169,6 +193,51 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	/**
+	 * Add a snippet field
+	 * 
+	 * @param fieldName
+	 *            The name of the field
+	 * @param fragmenter
+	 *            The fragmentation method
+	 * @param maxSize
+	 *            The maximum size of the snippet in character
+	 * @param separator
+	 *            The string sequence used to highlight keywords
+	 * @param maxNumber
+	 *            The maximum number of snippet
+	 * @throws SearchLibException
+	 */
+	public void addSnippetField(String fieldName, FragmenterEnum fragmenter,
+			int maxSize, String separator, int maxNumber)
+			throws SearchLibException {
+		SnippetField field = new SnippetField(fieldName);
+		field.setFragmenter(fragmenter.className);
+		field.setMaxSnippetSize(maxSize);
+		field.setSeparator(separator);
+		field.setMaxSnippetNumber(maxNumber);
+		this.getSnippetFieldList().put(field);
+	}
+
+	/**
+	 * Add facet
+	 * 
+	 * @param fieldName
+	 *            The name of the field
+	 * @param minCount
+	 *            The minimum number of document
+	 * @param multivalued
+	 *            The field can contains several values
+	 * @param postCollapsing
+	 *            The number is calculated after collapsing
+	 */
+	public void addFacet(String fieldName, int minCount, boolean multivalued,
+			boolean postCollapsing) {
+		FacetField facetField = new FacetField(fieldName, minCount,
+				multivalued, postCollapsing);
+		getFacetFieldList().put(facetField);
 	}
 
 }

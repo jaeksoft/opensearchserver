@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -161,17 +160,9 @@ public class UrlManager extends AbstractManager {
 			if (infoCallback != null)
 				infoCallback.setInfo("Injected: " + injected + " - Already: "
 						+ already);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -582,17 +573,9 @@ public class UrlManager extends AbstractManager {
 			IndexDocument indexDocument = new IndexDocument();
 			urlItem.populate(indexDocument, urlItemFieldEnum);
 			urlDbClient.updateDocument(indexDocument);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -613,17 +596,9 @@ public class UrlManager extends AbstractManager {
 			}
 			if (documents.size() > 0)
 				urlDbClient.updateDocuments(documents);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -671,17 +646,9 @@ public class UrlManager extends AbstractManager {
 							.deleteDocuments(targetField, documentsToDelete);
 				targetClient.getScreenshotManager().delete(documentsToDelete);
 			}
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
 	}

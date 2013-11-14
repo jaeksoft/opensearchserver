@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -67,6 +67,8 @@ public class SpellcheckResult extends CommonResult {
 		@XmlElement(name = "word")
 		public List<Word> words;
 
+		public String suggestion;
+
 		public Field() {
 			words = null;
 			fieldName = null;
@@ -80,6 +82,7 @@ public class SpellcheckResult extends CommonResult {
 			words = new ArrayList<Word>(spellCheckItems.size());
 			for (SpellCheckItem spellCheckItem : spellCheckItems)
 				words.add(new Word(spellCheckItem));
+			suggestion = spellCheck.getSuggestion();
 		}
 	}
 

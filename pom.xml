@@ -461,6 +461,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
+					<archiveClasses>true</archiveClasses>
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -626,7 +627,7 @@
 						</property>
 					</systemProperties>
 					<includes>
-						<include>**/Test.java</include>
+						<include>**/LibraryTest.java</include>
 					</includes>
 				</configuration>
 				<executions>

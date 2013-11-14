@@ -42,6 +42,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
@@ -576,8 +577,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 
 		@JsonIgnore
-		protected SnippetField newSnippetField() throws InstantiationException,
-				IllegalAccessException {
+		protected SnippetField newSnippetField() throws SearchLibException {
 			SnippetField snippetField = new SnippetField(field);
 			if (tag != null)
 				snippetField.setTag(tag);
@@ -599,7 +599,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		SENTENCE(SentenceFragmenter.class.getSimpleName());
 
-		private final String className;
+		public final String className;
 
 		private FragmenterEnum(String className) {
 			this.className = className;
@@ -832,9 +832,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			if (customLogs != null)
 				for (String customLog : customLogs)
 					request.getCustomLogs().add(customLog);
-		} catch (InstantiationException e) {
-			throw new CommonServiceException(e);
-		} catch (IllegalAccessException e) {
+		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}

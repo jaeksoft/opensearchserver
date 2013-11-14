@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.script.commands;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -94,19 +92,9 @@ public class IndexDocumentCommands {
 			try {
 				context.clearIndexDocuments(client
 						.updateDocuments(indexDocuments));
-			} catch (NoSuchAlgorithmException e) {
-				throw new ScriptException(e);
 			} catch (IOException e) {
 				throw new ScriptException(e);
-			} catch (URISyntaxException e) {
-				throw new ScriptException(e);
 			} catch (SearchLibException e) {
-				throw new ScriptException(e);
-			} catch (InstantiationException e) {
-				throw new ScriptException(e);
-			} catch (IllegalAccessException e) {
-				throw new ScriptException(e);
-			} catch (ClassNotFoundException e) {
 				throw new ScriptException(e);
 			}
 		}
