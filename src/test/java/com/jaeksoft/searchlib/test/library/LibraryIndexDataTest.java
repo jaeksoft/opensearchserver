@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.test.LibraryTest;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LibraryIndexDataTest {
@@ -117,6 +118,7 @@ public class LibraryIndexDataTest {
 
 		// We search the expression "open source"
 		request.setQueryString("open source");
+		request.setDefaultOperator(OperatorEnum.AND);
 
 		// We want the first 10 documents found
 		request.setStart(0);
