@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -66,6 +66,8 @@ public class ScriptCommandContext implements Closeable {
 
 	private final Set<Variables> variablesSet;
 
+	private final Variables variables;
+
 	private List<IndexDocument> indexDocuments;
 
 	private IndexDocument currentIndexDocument;
@@ -84,7 +86,8 @@ public class ScriptCommandContext implements Closeable {
 		onError = OnError.FAILURE;
 		onErrorNextCommands = null;
 		transaction = null;
-		variablesSet = new HashSet<Variables>();
+		variablesSet = new LinkedHashSet<Variables>();
+		variables = new Variables();
 		indexDocuments = null;
 		currentIndexDocument = null;
 		updatedDocumentCount = 0;
@@ -113,14 +116,21 @@ public class ScriptCommandContext implements Closeable {
 		return config;
 	}
 
+	private void buildVariables() {
+		variables.clear();
+		for (Variables vars : variablesSet)
+			variables.merge(vars);
+	}
+
 	public void addVariables(final Variables... variablesList) {
 		if (variablesList == null)
 			return;
 		if (variablesList.length == 0)
 			return;
-		for (Variables variables : variablesList)
-			if (variables != null)
-				variablesSet.add(variables);
+		for (Variables vars : variablesList)
+			if (vars != null)
+				variablesSet.add(vars);
+		buildVariables();
 	}
 
 	public void removeVariables(final Variables... variablesList) {
@@ -128,15 +138,14 @@ public class ScriptCommandContext implements Closeable {
 			return;
 		if (variablesList.length == 0)
 			return;
-		for (Variables variables : variablesList)
-			if (variables != null)
-				variablesSet.remove(variables);
+		for (Variables vars : variablesList)
+			if (vars != null)
+				variablesSet.remove(vars);
+		buildVariables();
 	}
 
 	public String replaceVariables(String text) {
-		for (Variables variables : variablesSet)
-			text = variables.replace(text);
-		return text;
+		return variables.replace(text);
 	}
 
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
@@ -260,8 +269,7 @@ public class ScriptCommandContext implements Closeable {
 					.getContent(scriptName);
 			if (scriptLines == null)
 				return;
-			if (variables != null)
-				variablesSet.add(variables);
+			addVariables(variables);
 			runner = new ScriptLinesRunner(this, scriptLines);
 			runner.run();
 		} catch (IOException e) {
@@ -269,8 +277,7 @@ public class ScriptCommandContext implements Closeable {
 		} catch (SearchLibException e) {
 			throw new ScriptException(e);
 		} finally {
-			if (variables != null)
-				variablesSet.remove(variables);
+			removeVariables(variables);
 			if (runner != null)
 				IOUtils.closeQuietly(runner);
 		}

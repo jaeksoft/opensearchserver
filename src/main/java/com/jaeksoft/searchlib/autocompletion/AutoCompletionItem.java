@@ -64,7 +64,7 @@ public class AutoCompletionItem implements Closeable,
 
 	private String searchRequest;
 
-	private final static String autoCompletionConfigPath = "/autocompletion_config.xml";
+	private final static String autoCompletionConfigPath = "/com/jaeksoft/searchlib/autocompletion_config.xml";
 	private final static String autoCompletionPropertyField = "field";
 	private final static String autoCompletionPropertyRows = "rows";
 	private final static String autoCompletionPropertyRowsDefault = "10";
