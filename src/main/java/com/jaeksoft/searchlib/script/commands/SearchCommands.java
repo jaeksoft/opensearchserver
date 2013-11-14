@@ -170,7 +170,7 @@ public class SearchCommands {
 				String... parameters) throws ScriptException {
 			checkParameters(5, parameters);
 			String template = parameters[0];
-			String query = parameters[1];
+			String query = context.replaceVariables(parameters[1]);
 			JsonPath jsonPath = JsonPath.compile(parameters[2]);
 			Action_Trigger trigger = Action_Trigger.valueOf(parameters[3]);
 			Action_Option option = Action_Option.valueOf(parameters[4]);
