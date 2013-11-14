@@ -42,6 +42,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
 import org.xml.sax.SAXException;
@@ -145,6 +146,27 @@ public class WebDriverCommands {
 			browserDriver.get(url);
 		}
 
+	}
+
+	public static class Download extends CommandAbstract {
+
+		public Download() {
+			super(CommandEnum.WEBDRIVER_DOWNLOAD);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			String url = browserDriver.getCurrentUrl();
+			List<BasicClientCookie> cookies = browserDriver.getCookies();
+			String filePath = getParameterString(0);
+			if (StringUtils.isEmpty(filePath))
+				throwError("No PATH given");
+		}
 	}
 
 	public static class Capture extends CommandAbstract {

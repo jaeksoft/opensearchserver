@@ -134,7 +134,8 @@ public class SearchCommands {
 			super(CommandEnum.SEARCH_TEMPLATE_JSON);
 		}
 
-		public final static String ACTION_EXIT = "EXIT_IF_NOT_FOUND";
+		public final static String ACTION_EXIT_IF_NOT_FOUND = "EXIT_IF_NOT_FOUND";
+		public final static String ACTION_EXIT_IF_FOUND = "EXIT_IF_FOUND";
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
@@ -143,17 +144,22 @@ public class SearchCommands {
 			String template = parameters[0];
 			String query = parameters[1];
 			JsonPath jsonPath = JsonPath.compile(parameters[2]);
-			String action = findKeyword(parameters[3], ACTION_EXIT);
+			String action = findKeyword(parameters[3], ACTION_EXIT_IF_FOUND,
+					ACTION_EXIT_IF_NOT_FOUND);
 			AbstractResultSearch result = this.search(context, template, query);
 			SearchResult searchResult = new SearchResult(result);
 			try {
 				Object object = jsonPath.read(JsonUtils
 						.toJsonString(searchResult));
-				if (object == null)
-					if (action == ACTION_EXIT)
+				if (object == null) {
+					if (action == ACTION_EXIT_IF_NOT_FOUND)
 						throw new ScriptException.ExitException();
+				} else {
+					if (action == ACTION_EXIT_IF_FOUND)
+						throw new ScriptException.ExitException();
+				}
 			} catch (PathNotFoundException e) {
-				if (action == ACTION_EXIT)
+				if (action == ACTION_EXIT_IF_NOT_FOUND)
 					throw new ScriptException.ExitException();
 			} catch (JsonProcessingException e) {
 				throw new ScriptException(e);

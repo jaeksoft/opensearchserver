@@ -80,6 +80,8 @@ public enum CommandEnum {
 
 	WEBDRIVER_GET(WebDriverCommands.Get.class),
 
+	WEBDRIVER_DOWNLOAD(WebDriverCommands.Download.class),
+
 	WEBDRIVER_CAPTURE(WebDriverCommands.Capture.class),
 
 	WEBDRIVER_SCREENSHOT(WebDriverCommands.Screenshot.class),
