@@ -99,7 +99,8 @@ public class UrlManager extends AbstractManager {
 		dataDir = new File(dataDir, "web_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
-		this.urlDbClient = new Client(dataDir, "/url_config.xml", true);
+		this.urlDbClient = new Client(dataDir,
+				"/com/jaeksoft/searchlib/url_config.xml", true);
 	}
 
 	public void free() {
