@@ -75,7 +75,8 @@ public class StandardLearner implements LearnerInterface {
 			return;
 		if (!indexDir.exists())
 			indexDir.mkdir();
-		learnerClient = new Client(indexDir, "/learner_config.xml", true);
+		learnerClient = new Client(indexDir,
+				"/com/jaeksoft/searchlib/learner_config.xml", true);
 	}
 
 	@Override

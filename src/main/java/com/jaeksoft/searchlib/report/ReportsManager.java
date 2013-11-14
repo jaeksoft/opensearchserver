@@ -61,7 +61,8 @@ public class ReportsManager {
 	public ReportsManager(Config config, File directory)
 			throws SearchLibException {
 		this.client = (Client) config;
-		this.reportsClient = new Client(directory, "/report_config.xml", true);
+		this.reportsClient = new Client(directory,
+				"/com/jaeksoft/searchlib/report_config.xml", true);
 	}
 
 	private class ReportFileFilter implements FilenameFilter {

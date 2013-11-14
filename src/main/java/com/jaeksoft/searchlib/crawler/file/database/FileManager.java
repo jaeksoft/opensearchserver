@@ -74,7 +74,8 @@ public class FileManager extends AbstractManager {
 		if (!dataDir.exists())
 			dataDir.mkdir();
 
-		this.fileDbClient = new Client(dataDir, "/file_config.xml", true);
+		this.fileDbClient = new Client(dataDir,
+				"/com/jaeksoft/searchlib/file_config.xml", true);
 	}
 
 	public Client getFileDbClient() {
