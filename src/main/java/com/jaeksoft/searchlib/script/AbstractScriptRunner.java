@@ -90,8 +90,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 						}
 						if (!bFind) {
 							ignoredCount++;
-							updateScriptLine(context, scriptLine,
-									"ignored due to previous error");
+							updateScriptLine(context, scriptLine, "ignored");
 							continue;
 						}
 						commandFinder = null;
@@ -102,6 +101,8 @@ public abstract class AbstractScriptRunner implements Closeable {
 							scriptLine.parameters);
 				} catch (ScriptException.ExitException e) {
 					break;
+				} catch (ScriptException.NextCommandException e) {
+					commandFinder = e.nextCommands;
 				} catch (Exception e) {
 					Throwable t = ExceptionUtils.getRootCause(e);
 					currentScriptError = t != null ? ExceptionUtils
