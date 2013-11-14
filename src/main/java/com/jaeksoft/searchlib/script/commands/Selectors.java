@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.script.commands;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -194,6 +195,37 @@ public class Selectors {
 					flashVarsLink, indexField);
 		}
 
+		protected List<URL> getUrlList(ScriptCommandContext context)
+				throws ScriptException {
+			List<WebElement> elements = runSelector(context, 1);
+			if (CollectionUtils.isEmpty(elements))
+				return null;
+			URL currentURL = null;
+			BrowserDriver<?> driver = context.getBrowserDriver();
+			if (driver != null) {
+				String u = driver.getCurrentUrl();
+				if (u != null)
+					try {
+						currentURL = new URL(u);
+					} catch (MalformedURLException e) {
+						Logging.warn(e);
+
+					}
+			}
+			List<URL> urls = new ArrayList<URL>(elements.size());
+			for (WebElement element : elements) {
+				if (currentURL != null) {
+					String href = element.getAttribute("href");
+					if (href == null)
+						href = element.getAttribute("src");
+					if (href != null)
+						urls.add(LinkUtils.getLink(currentURL, href, null,
+								false));
+				}
+			}
+			return urls;
+		}
+
 	}
 
 	public static class CSS_Add extends SelectorCommandAbstract {
@@ -351,30 +383,7 @@ public class Selectors {
 				String... parameters) throws ScriptException {
 			checkParameters(2, parameters);
 			String scriptName = getParameterString(0);
-			List<WebElement> elements = runSelector(context, 1);
-			if (CollectionUtils.isEmpty(elements))
-				return;
-			URL currentURL = null;
-			BrowserDriver<?> driver = context.getBrowserDriver();
-			if (driver != null) {
-				String u = driver.getCurrentUrl();
-				if (u != null)
-					try {
-						currentURL = new URL(u);
-					} catch (MalformedURLException e) {
-						Logging.warn(e);
-
-					}
-			}
-			List<URL> urls = new ArrayList<URL>(elements.size());
-			for (WebElement element : elements) {
-				if (currentURL != null) {
-					String href = element.getAttribute("href");
-					if (href != null)
-						urls.add(LinkUtils.getLink(currentURL, href, null,
-								false));
-				}
-			}
+			List<URL> urls = getUrlList(context);
 			if (CollectionUtils.isEmpty(urls))
 				context.subscript(scriptName, null);
 			else
@@ -404,6 +413,52 @@ public class Selectors {
 
 		public ID_SubScript() {
 			super(CommandEnum.ID_SELECTOR_SUBSCRIPT, Type.ID_SELECTOR);
+		}
+	}
+
+	public abstract static class DownloadCommandAbstract extends
+			SelectorCommandAbstract {
+
+		public DownloadCommandAbstract(CommandEnum commandEnum,
+				Type selectorType) {
+			super(commandEnum, selectorType);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			String filePath = getParameterString(0);
+			List<URL> urls = getUrlList(context);
+			if (CollectionUtils.isEmpty(urls))
+				return;
+			int i = 0;
+			for (URL url : urls) {
+				File file = new File(filePath, Integer.toString(i));
+				context.download(url, file);
+			}
+
+		}
+	}
+
+	public static class CSS_Download extends DownloadCommandAbstract {
+
+		public CSS_Download() {
+			super(CommandEnum.CSS_SELECTOR_DOWNLOAD, Type.CSS_SELECTOR);
+		}
+	}
+
+	public static class XPATH_Download extends DownloadCommandAbstract {
+
+		public XPATH_Download() {
+			super(CommandEnum.XPATH_SELECTOR_DOWNLOAD, Type.XPATH_SELECTOR);
+		}
+	}
+
+	public static class ID_Download extends DownloadCommandAbstract {
+
+		public ID_Download() {
+			super(CommandEnum.ID_SELECTOR_DOWNLOAD, Type.ID_SELECTOR);
 		}
 	}
 

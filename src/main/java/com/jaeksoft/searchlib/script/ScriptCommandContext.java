@@ -25,7 +25,12 @@
 package com.jaeksoft.searchlib.script;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +41,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.Logging;
@@ -43,6 +49,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.util.InfoCallback;
@@ -281,6 +290,51 @@ public class ScriptCommandContext implements Closeable {
 			if (runner != null)
 				IOUtils.closeQuietly(runner);
 		}
+	}
+
+	public void download(URI uri, File file) throws ScriptException {
+		if (currentWebDriver == null)
+			throw new ScriptException("No browser open");
+		List<CookieItem> cookies = currentWebDriver.getCookies();
+		HttpDownloader downloader = null;
+		try {
+			downloader = config.getWebCrawlMaster().getNewHttpDownloader(true);
+			DownloadItem downloadItem = downloader
+					.get(uri, null, null, cookies);
+			FileOutputStream fos = new FileOutputStream(file);
+			IOUtils.copy(downloadItem.getContentInputStream(), fos);
+			fos.close();
+		} catch (SearchLibException e) {
+			throw new ScriptException(e);
+		} catch (ClientProtocolException e) {
+			throw new ScriptException(e);
+		} catch (IllegalStateException e) {
+			throw new ScriptException(e);
+		} catch (IOException e) {
+			throw new ScriptException(e);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		} finally {
+			if (downloader != null)
+				downloader.release();
+		}
+	}
+
+	public void download(URL url, File file) throws ScriptException {
+		try {
+			download(url.toURI(), file);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	public void download(String url, File file) throws ScriptException {
+		try {
+			download(new URI(url), file);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		}
+
 	}
 
 }
