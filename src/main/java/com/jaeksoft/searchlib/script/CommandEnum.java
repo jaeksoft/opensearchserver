@@ -42,6 +42,8 @@ public enum CommandEnum {
 
 	CSS_SELECTOR_CLICK_AND_SCRIPT(Selectors.CSS_ClickAndScript.class),
 
+	CSS_SELECTOR_DOWNLOAD(Selectors.CSS_Download.class),
+
 	XPATH_SELECTOR_ADD(Selectors.XPATH_Add.class),
 
 	XPATH_SELECTOR_RESET(Selectors.XPATH_Reset.class),
@@ -52,6 +54,8 @@ public enum CommandEnum {
 
 	XPATH_SELECTOR_CLICK_AND_SCRIPT(Selectors.XPATH_ClickAndScript.class),
 
+	XPATH_SELECTOR_DOWNLOAD(Selectors.XPATH_Download.class),
+
 	ID_SELECTOR_ADD(Selectors.ID_Add.class),
 
 	ID_SELECTOR_RESET(Selectors.ID_Reset.class),
@@ -61,6 +65,8 @@ public enum CommandEnum {
 	ID_SELECTOR_SUBSCRIPT(Selectors.ID_SubScript.class),
 
 	ID_SELECTOR_CLICK_AND_SCRIPT(Selectors.ID_ClickAndScript.class),
+
+	ID_SELECTOR_DOWNLOAD(Selectors.ID_Download.class),
 
 	ALL_SELECTOR_RESET(Selectors.ALL_Reset.class),
 
