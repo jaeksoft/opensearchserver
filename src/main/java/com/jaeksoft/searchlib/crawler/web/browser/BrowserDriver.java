@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,11 +45,14 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.lucene.util.IOUtils;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
@@ -122,7 +126,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		List<?> result = (List<?>) javascript(
 				"return document.getElementsByTagName(arguments[0])",
 				faultTolerant, tag);
-		System.out.println(result);
 		return result;
 	}
 
@@ -130,7 +133,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			SearchLibException {
 		String source = (String) javascript(
 				"document.getElementsByTagName('body')[0].innerHTML", false);
-		System.out.println(source);
 		return source;
 	}
 
@@ -333,6 +335,22 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	public String getCurrentUrl() {
 		return driver.getCurrentUrl();
+	}
+
+	public List<BasicClientCookie> getCookies() {
+		Set<Cookie> cookies = driver.manage().getCookies();
+		if (CollectionUtils.isEmpty(cookies))
+			return null;
+		List<BasicClientCookie> cookieList = new ArrayList<BasicClientCookie>(
+				cookies.size());
+		for (Cookie cookie : cookies) {
+			BasicClientCookie basicCookie = new BasicClientCookie(
+					cookie.getName(), cookie.getValue());
+			basicCookie.setDomain(cookie.getDomain());
+			basicCookie.setExpiryDate(cookie.getExpiry());
+			basicCookie.setPath(cookie.getPath());
+		}
+		return cookieList;
 	}
 
 	public WebElement getParent(String tagName, WebElement element) {
