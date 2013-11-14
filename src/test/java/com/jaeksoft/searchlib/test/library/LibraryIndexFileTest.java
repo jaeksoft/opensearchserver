@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.test.library;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -41,7 +43,13 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.test.LibraryTest;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -60,8 +68,7 @@ public class LibraryIndexFileTest {
 		// Get the client instance
 		Client client = ClientCatalog.getClient(LibraryTest.FILE_INDEX_NAME);
 
-		// Create a document
-		IndexDocument document = new IndexDocument(LanguageEnum.ENGLISH);
+		// Check that the PDF test file exixts
 		assertTrue(
 				"File not found: "
 						+ LibraryTest.PDF_TEST_FILE.getAbsolutePath(),
@@ -70,14 +77,64 @@ public class LibraryIndexFileTest {
 		// Get the parser selector instance
 		ParserSelector parserSelector = client.getParserSelector();
 
-		// Extract full-text information and populate the document
-		parserSelector.parseFile(document, LibraryTest.PDF_TEST_FILE.getName(),
-				null, null, LibraryTest.PDF_TEST_FILE, LanguageEnum.ENGLISH);
+		// Extract full-text information
+		Parser parser = parserSelector.parseFile(LibraryTest.PDF_TEST_FILE,
+				LanguageEnum.ENGLISH);
 
-		// Add the URI field to the document
-		document.addString("uri", LibraryTest.PDF_TEST_FILE.toURI().toString());
+		int count = 0;
 
-		// Put in in the index
-		client.updateDocument(document);
+		// The parser may returns several documents
+		for (ParserResultItem parserResultItem : parser.getParserResults()) {
+
+			// Create a document
+			IndexDocument document = new IndexDocument(LanguageEnum.ENGLISH);
+
+			// Populate the document with the full-text fields
+			parserResultItem.populate(document);
+
+			// Add the URI field to the document (building a unique URI)
+			count++;
+			document.addString("uri", LibraryTest.PDF_TEST_FILE.toURI()
+					.toString() + "#" + count);
+
+			// Put in in the index
+			client.updateDocument(document);
+		}
+
+	}
+
+	@Test
+	public void testC_SearchData() throws SearchLibException, ParseException {
+
+		// Get the client instance
+		Client client = ClientCatalog.getClient(LibraryTest.FILE_INDEX_NAME);
+
+		// Get the default search template
+		AbstractSearchRequest request = (AbstractSearchRequest) client
+				.getNewRequest("search");
+
+		// We search the expression "open"
+		request.setQueryString("open source");
+
+		// We want the first 10 documents found
+		request.setStart(0);
+		request.setRows(10);
+
+		// Let's execute the search request
+		AbstractResultSearch results = (AbstractResultSearch) client
+				.request(request);
+
+		// Check the number of returned document
+		assertEquals(1, results.getNumFound());
+
+		// Iterate over the documents found
+		for (ResultDocument document : results) {
+
+			// Get and check snippet of the content
+			String content = document.getSnippetContent("content", 0);
+			assertNotNull(content);
+			assertTrue(content.trim().length() > 0);
+		}
+
 	}
 }
