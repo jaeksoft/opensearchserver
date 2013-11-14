@@ -427,6 +427,11 @@ public class ParserSelector {
 		return parserLoop(sourceDocument, streamLimiter, lang, parser);
 	}
 
+	public final Parser parseFile(File file, LanguageEnum lang)
+			throws SearchLibException, IOException {
+		return parseFile(null, file.getName(), null, null, file, lang);
+	}
+
 	public final Parser parseFile(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url, File file,
 			LanguageEnum lang) throws SearchLibException, IOException {

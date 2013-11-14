@@ -32,7 +32,6 @@ import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -52,6 +51,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class SearchFieldRequest extends AbstractSearchRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
@@ -90,7 +90,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			ParseException, SyntaxError, SearchLibException {
 		BooleanQuery complexQuery = new BooleanQuery();
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
-		Occur occur = defaultOperator == QueryParser.Operator.AND ? Occur.MUST
+		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
 		for (SearchField searchField : searchFields)
 			if (snippetFieldList.get(searchField.getField()) != null)
@@ -102,7 +102,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	@Override
 	public Query newComplexQuery(String queryString) throws ParseException,
 			SyntaxError, SearchLibException, IOException {
-		Occur occur = defaultOperator == QueryParser.Operator.AND ? Occur.MUST
+		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
 		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
 			return new MatchAllDocsQuery();
