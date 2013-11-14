@@ -35,6 +35,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.lucene.queryParser.QueryParser.Operator;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -121,7 +123,23 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	}
 
 	public enum OperatorEnum {
-		AND, OR;
+
+		AND(Operator.AND), OR(Operator.OR);
+
+		@XmlTransient
+		public final Operator lucop;
+
+		private OperatorEnum(Operator operator) {
+			lucop = operator;
+		}
+
+		public final static OperatorEnum find(String value) {
+			for (OperatorEnum operator : values())
+				if (value.equalsIgnoreCase(operator.name()))
+					return operator;
+			return null;
+		}
+
 	}
 
 	@JsonInclude(Include.NON_NULL)

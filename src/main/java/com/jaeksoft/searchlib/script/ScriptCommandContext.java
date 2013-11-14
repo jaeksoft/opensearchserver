@@ -25,17 +25,23 @@
 package com.jaeksoft.searchlib.script;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.Logging;
@@ -43,6 +49,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.util.InfoCallback;
@@ -66,6 +75,8 @@ public class ScriptCommandContext implements Closeable {
 
 	private final Set<Variables> variablesSet;
 
+	private final Variables variables;
+
 	private List<IndexDocument> indexDocuments;
 
 	private IndexDocument currentIndexDocument;
@@ -84,7 +95,8 @@ public class ScriptCommandContext implements Closeable {
 		onError = OnError.FAILURE;
 		onErrorNextCommands = null;
 		transaction = null;
-		variablesSet = new HashSet<Variables>();
+		variablesSet = new LinkedHashSet<Variables>();
+		variables = new Variables();
 		indexDocuments = null;
 		currentIndexDocument = null;
 		updatedDocumentCount = 0;
@@ -113,14 +125,21 @@ public class ScriptCommandContext implements Closeable {
 		return config;
 	}
 
+	private void buildVariables() {
+		variables.clear();
+		for (Variables vars : variablesSet)
+			variables.merge(vars);
+	}
+
 	public void addVariables(final Variables... variablesList) {
 		if (variablesList == null)
 			return;
 		if (variablesList.length == 0)
 			return;
-		for (Variables variables : variablesList)
-			if (variables != null)
-				variablesSet.add(variables);
+		for (Variables vars : variablesList)
+			if (vars != null)
+				variablesSet.add(vars);
+		buildVariables();
 	}
 
 	public void removeVariables(final Variables... variablesList) {
@@ -128,15 +147,14 @@ public class ScriptCommandContext implements Closeable {
 			return;
 		if (variablesList.length == 0)
 			return;
-		for (Variables variables : variablesList)
-			if (variables != null)
-				variablesSet.remove(variables);
+		for (Variables vars : variablesList)
+			if (vars != null)
+				variablesSet.remove(vars);
+		buildVariables();
 	}
 
 	public String replaceVariables(String text) {
-		for (Variables variables : variablesSet)
-			text = variables.replace(text);
-		return text;
+		return variables.replace(text);
 	}
 
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
@@ -260,8 +278,7 @@ public class ScriptCommandContext implements Closeable {
 					.getContent(scriptName);
 			if (scriptLines == null)
 				return;
-			if (variables != null)
-				variablesSet.add(variables);
+			addVariables(variables);
 			runner = new ScriptLinesRunner(this, scriptLines);
 			runner.run();
 		} catch (IOException e) {
@@ -269,11 +286,55 @@ public class ScriptCommandContext implements Closeable {
 		} catch (SearchLibException e) {
 			throw new ScriptException(e);
 		} finally {
-			if (variables != null)
-				variablesSet.remove(variables);
+			removeVariables(variables);
 			if (runner != null)
 				IOUtils.closeQuietly(runner);
 		}
+	}
+
+	public void download(URI uri, File file) throws ScriptException {
+		if (currentWebDriver == null)
+			throw new ScriptException("No browser open");
+		List<CookieItem> cookies = currentWebDriver.getCookies();
+		HttpDownloader downloader = null;
+		try {
+			downloader = config.getWebCrawlMaster().getNewHttpDownloader(true);
+			DownloadItem downloadItem = downloader
+					.get(uri, null, null, cookies);
+			FileOutputStream fos = new FileOutputStream(file);
+			IOUtils.copy(downloadItem.getContentInputStream(), fos);
+			fos.close();
+		} catch (SearchLibException e) {
+			throw new ScriptException(e);
+		} catch (ClientProtocolException e) {
+			throw new ScriptException(e);
+		} catch (IllegalStateException e) {
+			throw new ScriptException(e);
+		} catch (IOException e) {
+			throw new ScriptException(e);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		} finally {
+			if (downloader != null)
+				downloader.release();
+		}
+	}
+
+	public void download(URL url, File file) throws ScriptException {
+		try {
+			download(url.toURI(), file);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	public void download(String url, File file) throws ScriptException {
+		try {
+			download(new URI(url), file);
+		} catch (URISyntaxException e) {
+			throw new ScriptException(e);
+		}
+
 	}
 
 }

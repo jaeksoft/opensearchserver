@@ -130,31 +130,62 @@ public class SearchCommands {
 
 	public static class SearchTemplateJson extends SearchTemplateAbstract {
 
+		private static enum Action_Trigger {
+			IF_NOT_FOUND, IF_FOUND
+		};
+
+		private static enum Action_Option {
+			NEXT_COMMAND, EXIT
+		};
+
 		public SearchTemplateJson() {
 			super(CommandEnum.SEARCH_TEMPLATE_JSON);
 		}
 
-		public final static String ACTION_EXIT = "EXIT_IF_NOT_FOUND";
+		public final static String ACTION_EXIT_IF_NOT_FOUND = "EXIT_IF_NOT_FOUND";
+		public final static String ACTION_EXIT_IF_FOUND = "IF_FOUND";
+
+		private void checkAction(Action_Trigger trigger, Action_Option option,
+				CommandEnum command, boolean bFound) throws ScriptException {
+			switch (trigger) {
+			case IF_FOUND:
+				if (!bFound)
+					return;
+				break;
+			case IF_NOT_FOUND:
+				if (bFound)
+					return;
+				break;
+			}
+			switch (option) {
+			case EXIT:
+				throw new ScriptException.ExitException();
+			case NEXT_COMMAND:
+				throw new ScriptException.NextCommandException(command);
+			}
+		}
 
 		@Override
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
-			checkParameters(4, parameters);
+			checkParameters(5, parameters);
 			String template = parameters[0];
-			String query = parameters[1];
+			String query = context.replaceVariables(parameters[1]);
 			JsonPath jsonPath = JsonPath.compile(parameters[2]);
-			String action = findKeyword(parameters[3], ACTION_EXIT);
+			Action_Trigger trigger = Action_Trigger.valueOf(parameters[3]);
+			Action_Option option = Action_Option.valueOf(parameters[4]);
+			String cmd = getParameterString(5);
+			CommandEnum command = StringUtils.isEmpty(cmd) ? null : CommandEnum
+					.find(cmd);
+
 			AbstractResultSearch result = this.search(context, template, query);
 			SearchResult searchResult = new SearchResult(result);
 			try {
 				Object object = jsonPath.read(JsonUtils
 						.toJsonString(searchResult));
-				if (object == null)
-					if (action == ACTION_EXIT)
-						throw new ScriptException.ExitException();
+				checkAction(trigger, option, command, object != null);
 			} catch (PathNotFoundException e) {
-				if (action == ACTION_EXIT)
-					throw new ScriptException.ExitException();
+				checkAction(trigger, option, command, false);
 			} catch (JsonProcessingException e) {
 				throw new ScriptException(e);
 			}

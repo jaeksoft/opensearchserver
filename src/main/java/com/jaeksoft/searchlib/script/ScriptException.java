@@ -52,4 +52,20 @@ public class ScriptException extends Exception {
 		}
 
 	}
+
+	public static class NextCommandException extends ScriptException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4512211245318562826L;
+
+		public final CommandEnum[] nextCommands;
+
+		public NextCommandException(CommandEnum... nextCommands) {
+			super("Next command");
+			this.nextCommands = nextCommands;
+		}
+	}
+
 }

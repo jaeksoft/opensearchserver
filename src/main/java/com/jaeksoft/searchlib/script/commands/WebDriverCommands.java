@@ -147,6 +147,26 @@ public class WebDriverCommands {
 
 	}
 
+	public static class Download extends CommandAbstract {
+
+		public Download() {
+			super(CommandEnum.WEBDRIVER_DOWNLOAD);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(1, parameters);
+			String filePath = getParameterString(0);
+			if (StringUtils.isEmpty(filePath))
+				throwError("No PATH given");
+			BrowserDriver<?> browserDriver = context.getBrowserDriver();
+			if (browserDriver == null)
+				throwError("No browser open");
+			context.download(browserDriver.getCurrentUrl(), new File(filePath));
+		}
+	}
+
 	public static class Capture extends CommandAbstract {
 
 		public Capture() {

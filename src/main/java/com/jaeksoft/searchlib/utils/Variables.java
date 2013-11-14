@@ -66,6 +66,13 @@ public class Variables {
 			map = new TreeMap<String, String>();
 	}
 
+	public final void merge(Variables variables) {
+		if (variables == null)
+			return;
+		checkMap();
+		map.putAll(variables.map);
+	}
+
 	public final void put(Variables variables) {
 		if (variables == null)
 			return;

@@ -34,7 +34,6 @@ import java.util.Set;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.queryParser.QueryParser.Operator;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
@@ -76,6 +75,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public abstract class AbstractSearchRequest extends AbstractRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
@@ -92,7 +92,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private JoinList joinList;
 	private boolean allowLeadingWildcard;
 	protected int phraseSlop;
-	protected QueryParser.Operator defaultOperator;
+	protected OperatorEnum defaultOperator;
 	private SnippetFieldList snippetFieldList;
 	private ReturnFieldList returnFieldList;
 	private FacetFieldList facetFieldList;
@@ -126,7 +126,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.joinList = new JoinList(this.config);
 		this.allowLeadingWildcard = false;
 		this.phraseSlop = 10;
-		this.defaultOperator = Operator.OR;
+		this.defaultOperator = OperatorEnum.OR;
 		this.snippetFieldList = new SnippetFieldList();
 		this.returnFieldList = new ReturnFieldList();
 		this.sortFieldList = new SortFieldList();
@@ -337,7 +337,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				checkAnalyzer());
 		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
 		queryParser.setPhraseSlop(phraseSlop);
-		queryParser.setDefaultOperator(defaultOperator);
+		queryParser.setDefaultOperator(defaultOperator.lucop);
 		queryParser.setLowercaseExpandedTerms(false);
 		return queryParser;
 	}
@@ -726,12 +726,13 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	public void setDefaultOperator(String value) {
+		setDefaultOperator(OperatorEnum.find(value));
+	}
+
+	public void setDefaultOperator(OperatorEnum operator) {
 		rwl.w.lock();
 		try {
-			if ("and".equalsIgnoreCase(value))
-				defaultOperator = Operator.AND;
-			else if ("or".equalsIgnoreCase(value))
-				defaultOperator = Operator.OR;
+			defaultOperator = operator;
 		} finally {
 			rwl.w.unlock();
 		}

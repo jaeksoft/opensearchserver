@@ -48,16 +48,26 @@ public class CookieItem {
 
 	private String value;
 
+	private BasicClientCookie basicClientCookie;
+
 	public CookieItem() {
 		pattern = null;
 		name = null;
 		value = null;
+		basicClientCookie = null;
 	}
 
 	public CookieItem(String pattern, String name, String value) {
 		this.pattern = pattern;
 		this.name = name;
 		this.value = value;
+	}
+
+	public CookieItem(BasicClientCookie basicClientCookie) {
+		this.pattern = null;
+		this.name = name;
+		this.value = value;
+		this.basicClientCookie = basicClientCookie;
 	}
 
 	public static CookieItem fromXml(Node node) {
@@ -146,16 +156,18 @@ public class CookieItem {
 
 	public BasicClientCookie getCookie() throws MalformedURLException,
 			URISyntaxException {
-		BasicClientCookie stdCookie = new BasicClientCookie(name, value);
-		stdCookie.setVersion(1);
+		if (basicClientCookie != null)
+			return basicClientCookie;
+		basicClientCookie = new BasicClientCookie(name, value);
+		basicClientCookie.setVersion(1);
 		String domain_attr = "."
 				+ InternetDomainName.from(extractUrl().getHost()).name();
-		stdCookie.setDomain(domain_attr);
-		stdCookie.setPath("/");
-		stdCookie.setSecure(true);
-		stdCookie.setAttribute(ClientCookie.VERSION_ATTR, "1");
-		stdCookie.setAttribute(ClientCookie.DOMAIN_ATTR, domain_attr);
-		return stdCookie;
+		basicClientCookie.setDomain(domain_attr);
+		basicClientCookie.setPath("/");
+		basicClientCookie.setSecure(true);
+		basicClientCookie.setAttribute(ClientCookie.VERSION_ATTR, "1");
+		basicClientCookie.setAttribute(ClientCookie.DOMAIN_ATTR, domain_attr);
+		return basicClientCookie;
 	}
 
 }
