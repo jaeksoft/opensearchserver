@@ -69,6 +69,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
@@ -337,18 +338,19 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return driver.getCurrentUrl();
 	}
 
-	public List<BasicClientCookie> getCookies() {
+	public List<CookieItem> getCookies() {
 		Set<Cookie> cookies = driver.manage().getCookies();
 		if (CollectionUtils.isEmpty(cookies))
 			return null;
-		List<BasicClientCookie> cookieList = new ArrayList<BasicClientCookie>(
-				cookies.size());
+		List<CookieItem> cookieList = new ArrayList<CookieItem>(cookies.size());
 		for (Cookie cookie : cookies) {
 			BasicClientCookie basicCookie = new BasicClientCookie(
 					cookie.getName(), cookie.getValue());
 			basicCookie.setDomain(cookie.getDomain());
 			basicCookie.setExpiryDate(cookie.getExpiry());
 			basicCookie.setPath(cookie.getPath());
+			basicCookie.setSecure(cookie.isSecure());
+			cookieList.add(new CookieItem(basicCookie));
 		}
 		return cookieList;
 	}
