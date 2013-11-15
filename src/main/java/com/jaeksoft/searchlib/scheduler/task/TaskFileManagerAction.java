@@ -45,11 +45,24 @@ public class TaskFileManagerAction extends TaskAbstract {
 			TaskPropertyType.comboBox, "Command", "Command",
 			"Select the command to execute", 30);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCommand };
+	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Buffer size", "Buffer size",
+			"Buffer size", 10);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand,
+			propBufferSize };
+
+	final public static String CommandDoNothing = "Do nothing";
+	final public static String CommandDeleteAll = "Delete all";
+	final public static String CommandOptimize = "Optimize";
+	final public static String CommandSynchronize = "Synchronize";
+
+	final private static String[] CommandList = { CommandDoNothing,
+			CommandDeleteAll, CommandSynchronize, CommandOptimize };
 
 	@Override
 	public String getName() {
-		return "File crawler - Action on selected URLs";
+		return "File crawler - URI Database";
 	}
 
 	@Override
@@ -60,37 +73,34 @@ public class TaskFileManagerAction extends TaskAbstract {
 	@Override
 	public String[] getPropertyValues(Config config,
 			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
+		if (propertyDef == propCommand)
+			return CommandList;
 		return null;
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propCommand)
+			return CommandList[0];
+		else if (propertyDef == propBufferSize)
+			return "10000";
 		return null;
-	}
-
-	private boolean deleteAll = false;
-
-	public void setDeleteAll() {
-		deleteAll = true;
-	}
-
-	private boolean optimize = false;
-
-	public void setOptimize() {
-		optimize = true;
 	}
 
 	private AbstractSearchRequest selectionRequest = null;
 
-	private boolean deleteSelection;
+	private FetchStatus setToFetchStatus = null;
 
-	private boolean setToUnfetched;
+	private String manualCommand = null;
 
-	public void setSelection(AbstractSearchRequest selectionRequest,
-			boolean deleteSelection, boolean setToUnfetched) {
+	private Integer manualBufferSize = null;
+
+	public void setManual(AbstractSearchRequest selectionRequest,
+			FetchStatus setToFetchStatus, String manualCommand, int bufferSize) {
 		this.selectionRequest = selectionRequest;
-		this.setToUnfetched = setToUnfetched;
-		this.deleteSelection = deleteSelection;
+		this.setToFetchStatus = setToFetchStatus;
+		this.manualCommand = manualCommand;
+		this.manualBufferSize = bufferSize;
 	}
 
 	@Override
@@ -99,23 +109,30 @@ public class TaskFileManagerAction extends TaskAbstract {
 			IOException {
 		FileManager fileManager = client.getFileManager();
 		taskLog.setInfo("File manager Action started");
+
+		String command = manualCommand != null ? manualCommand : properties
+				.getValue(propCommand);
+
+		int bufferSize = manualBufferSize != null ? manualBufferSize : Integer
+				.parseInt(properties.getValue(propBufferSize));
+
 		if (selectionRequest != null) {
-			if (setToUnfetched) {
+			if (setToFetchStatus != null) {
 				taskLog.setInfo("File manager: set selection to unfetched");
 				fileManager.updateFetchStatus(selectionRequest,
-						FetchStatus.UN_FETCHED, taskLog);
-			} else if (deleteSelection) {
-				taskLog.setInfo("File manager: delete selection");
-				fileManager.delete(selectionRequest, taskLog);
+						setToFetchStatus, bufferSize, taskLog);
 			}
+			if (CommandDeleteAll.equals(command))
+				taskLog.setInfo("File manager: delete selection");
+			fileManager.delete(selectionRequest, taskLog);
+			return;
 		}
-		if (deleteAll) {
+		if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("File manager: Delete All");
 			fileManager.deleteAll(taskLog);
-		}
-		if (optimize) {
+		} else if (CommandOptimize.equals(command)) {
 			taskLog.setInfo("File manager: optimize");
-			fileManager.optimize(taskLog);
+			fileManager.reload(true, taskLog);
 		}
 		taskLog.setInfo("File manager Action done");
 	}

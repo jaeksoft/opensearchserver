@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +35,10 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.schema.Indexed;
@@ -44,6 +50,7 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 public abstract class AbstractManager {
 
 	protected Client targetClient;
+	protected Client dbClient;
 
 	private Set<TaskAbstract> taskToCheck;
 	private TaskLog currentTaskLog;
@@ -51,11 +58,24 @@ public abstract class AbstractManager {
 	protected AbstractManager() {
 		currentTaskLog = null;
 		targetClient = null;
+		dbClient = null;
 		taskToCheck = new HashSet<TaskAbstract>(0);
 	}
 
-	protected void init(Client client) {
-		targetClient = client;
+	final protected void init(Client targetClient, Client dbClient) {
+		this.targetClient = targetClient;
+		this.dbClient = dbClient;
+	}
+
+	final public void free() {
+		if (dbClient != null) {
+			dbClient.close();
+			dbClient = null;
+		}
+	}
+
+	final public Client getDbClient() {
+		return dbClient;
 	}
 
 	public void setCurrentTaskLog(TaskLog taskLog) throws SearchLibException {
@@ -134,6 +154,112 @@ public abstract class AbstractManager {
 	public static Date getPastDate(long fetchInterval, String intervalUnit) {
 		return new TimeInterval(intervalUnit, fetchInterval).getPastDate(System
 				.currentTimeMillis());
+	}
+
+	private class SynchronizedOuterCollector implements OuterCollector {
+
+		private long total;
+
+		private final String field;
+
+		private final int buffer;
+
+		private final List<String> deletionList;
+
+		private final TaskLog taskLog;
+
+		private SynchronizedOuterCollector(String field, int buffer,
+				TaskLog taskLog) {
+			this.total = 0;
+			this.field = field;
+			this.buffer = buffer;
+			this.taskLog = taskLog;
+			this.deletionList = new ArrayList<String>(buffer);
+		}
+
+		@Override
+		final public void collect(final int id, final String value) {
+			deletionList.add(value);
+			if (deletionList.size() >= buffer)
+				delete();
+		}
+
+		final public void delete() {
+			if (deletionList.isEmpty())
+				return;
+			try {
+				total += targetClient.deleteDocuments(field, deletionList);
+			} catch (SearchLibException e) {
+				taskLog.setError(e);
+			}
+			taskLog.setInfo(total + " document(s) deleted");
+			deletionList.clear();
+		}
+
+	}
+
+	protected long synchronizeIndex(AbstractSearchRequest searchRequest,
+			String targetField, String dbField, int bufferSize, TaskLog taskLog)
+			throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			if (targetField == null)
+				throw new SearchLibException("The primary field is not mapped");
+			SynchronizedOuterCollector outerCollector = new SynchronizedOuterCollector(
+					targetField, bufferSize, taskLog);
+			searchRequest = (AbstractSearchRequest) searchRequest.duplicate();
+			JoinItem joinItem = new JoinItem();
+			joinItem.setIndexName(targetClient.getIndexName());
+			joinItem.setForeignField(dbField);
+			joinItem.setLocalField(targetField);
+			joinItem.setOuterCollector(outerCollector);
+			searchRequest.getJoinList().add(joinItem);
+			AbstractResultSearch result = (AbstractResultSearch) dbClient
+					.request(searchRequest);
+			outerCollector.delete();
+			if (taskLog != null) {
+				taskLog.setInfo("URLs: (Found / Deleted: "
+						+ result.getNumFound() + " / " + outerCollector.total);
+			}
+			return outerCollector.total;
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} finally {
+			resetCurrentTaskLog();
+		}
+	}
+
+	final public void reload(boolean optimize, TaskLog taskLog)
+			throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			if (optimize) {
+				dbClient.reload();
+				dbClient.optimize();
+			}
+			targetClient.reload();
+		} finally {
+			resetCurrentTaskLog();
+		}
+	}
+
+	final public long getSize() throws SearchLibException {
+		try {
+			return dbClient.getStatistics().getNumDocs();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	final public void deleteAll(TaskLog taskLog) throws SearchLibException {
+		setCurrentTaskLog(taskLog);
+		try {
+			dbClient.deleteAll();
+		} finally {
+			resetCurrentTaskLog();
+		}
 	}
 
 }

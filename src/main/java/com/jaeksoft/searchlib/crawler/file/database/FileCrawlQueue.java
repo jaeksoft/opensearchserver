@@ -143,7 +143,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		if (updateCrawls(workingUpdateCrawlList, sessionStats))
 			needReload = true;
 		if (needReload)
-			fileManager.reload(null);
+			fileManager.reload(false, null);
 	}
 
 	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList,

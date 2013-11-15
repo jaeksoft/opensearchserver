@@ -54,13 +54,38 @@ import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 public class FileController extends CrawlerController {
 
+	public static enum BatchCommandEnum {
+
+		NOTHING("Select an action"),
+
+		SET_TO_UNFETCHED("Set selection to Unfetched"),
+
+		OPTIMIZE("Optimize database"),
+
+		SYNCHRONIZE_INDEX("Synchronize the main index"),
+
+		DELETE_SELECTION("Delete selection"),
+
+		DELETE_ALL("Delete all");
+
+		private final String label;
+
+		private BatchCommandEnum(String label) {
+			this.label = label;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+	}
+
 	private transient List<FileItem> fileList;
 
 	private transient int totalSize;
 
 	private transient int activePage;
 
-	private transient String batchCommand;
+	private transient BatchCommandEnum batchCommand;
 
 	public FileController() throws SearchLibException {
 		super();
@@ -71,7 +96,7 @@ public class FileController extends CrawlerController {
 		fileList = null;
 		totalSize = 0;
 		activePage = 0;
-		batchCommand = null;
+		batchCommand = BatchCommandEnum.NOTHING;
 	}
 
 	public FileManager getFileManager() throws SearchLibException {
@@ -189,6 +214,19 @@ public class FileController extends CrawlerController {
 			if (status == null)
 				return IndexStatus.ALL;
 			return status;
+		}
+	}
+
+	public void setBufferSize(int v) {
+		synchronized (this) {
+			setAttribute(ScopeAttribute.SEARCH_FILE_BUFFER_SIZE, new Integer(v));
+		}
+	}
+
+	public int getBufferSize() {
+		synchronized (this) {
+			Integer v = (Integer) getAttribute(ScopeAttribute.SEARCH_FILE_BUFFER_SIZE);
+			return v == null ? 10000 : v;
 		}
 	}
 
@@ -399,13 +437,15 @@ public class FileController extends CrawlerController {
 			AbstractSearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileSearch);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
-			taskFileManagerAction.setSelection(searchRequest, false, true);
+			taskFileManagerAction.setManual(searchRequest,
+					FetchStatus.UN_FETCHED, null, getBufferSize());
 			onTask(taskFileManagerAction);
 		}
 	}
 
 	@Command
-	public void onDelete() throws SearchLibException, InterruptedException {
+	public void onDeleteSelection() throws SearchLibException,
+			InterruptedException {
 		synchronized (this) {
 			FileManager fileManager = getFileManager();
 			if (fileManager == null)
@@ -413,7 +453,8 @@ public class FileController extends CrawlerController {
 			AbstractSearchRequest searchRequest = getSearchRequest(fileManager,
 					SearchTemplate.fileExport);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
-			taskFileManagerAction.setSelection(searchRequest, true, false);
+			taskFileManagerAction.setManual(searchRequest, null,
+					TaskFileManagerAction.CommandDeleteAll, getBufferSize());
 			onTask(taskFileManagerAction);
 		}
 	}
@@ -422,17 +463,43 @@ public class FileController extends CrawlerController {
 	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
-			taskFileManagerAction.setOptimize();
+			taskFileManagerAction.setManual(null, null,
+					TaskFileManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskFileManagerAction);
 		}
 	}
 
-	public String getBatchCommand() {
+	@Command
+	public void onDeleteAll() throws SearchLibException, InterruptedException {
+		synchronized (this) {
+			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
+			taskFileManagerAction.setManual(null, null,
+					TaskFileManagerAction.CommandDeleteAll, getBufferSize());
+			onTask(taskFileManagerAction);
+		}
+	}
+
+	@Command
+	public void onSynchronizeIndex() throws SearchLibException,
+			InterruptedException {
+		synchronized (this) {
+			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
+			taskFileManagerAction.setManual(null, null,
+					TaskFileManagerAction.CommandSynchronize, getBufferSize());
+			onTask(taskFileManagerAction);
+		}
+	}
+
+	public BatchCommandEnum getBatchCommand() {
 		return batchCommand;
 	}
 
-	public void setBatchCommand(String cmd) {
-		batchCommand = cmd;
+	public void setBatchCommand(BatchCommandEnum batchCommand) {
+		this.batchCommand = batchCommand;
+	}
+
+	public BatchCommandEnum[] getBatchCommandEnum() {
+		return BatchCommandEnum.values();
 	}
 
 	@Command
@@ -447,26 +514,36 @@ public class FileController extends CrawlerController {
 				new AlertController("Please stop the File crawler first.");
 				return;
 			}
-			if ("setToUnfetched".equalsIgnoreCase(batchCommand))
+
+			if (batchCommand == null)
+				return;
+			switch (batchCommand) {
+			case NOTHING:
+				break;
+			case SET_TO_UNFETCHED:
 				onSetToUnfetched();
-			else if ("delete".equalsIgnoreCase(batchCommand))
-				onDelete();
-			else if ("optimize".equalsIgnoreCase(batchCommand))
+				break;
+			case DELETE_ALL:
+				onDeleteAll();
+				break;
+			case OPTIMIZE:
 				onOptimize();
-			batchCommand = null;
+				break;
+			case DELETE_SELECTION:
+				onDeleteSelection();
+				break;
+			case SYNCHRONIZE_INDEX:
+				onSynchronizeIndex();
+				break;
+			}
+			batchCommand = BatchCommandEnum.NOTHING;
+			reload();
 		}
 	}
 
-	@Override
-	@NotifyChange("currentTaskLog")
-	public void onTimer() {
+	@Command
+	@NotifyChange("fileManager")
+	public void onRefreshCurrentTaskLog() {
 	}
 
-	@Override
-	public boolean isRefresh() throws SearchLibException {
-		FileManager fileManager = getFileManager();
-		if (fileManager == null)
-			return false;
-		return fileManager.isCurrentTaskLogExists();
-	}
 }
