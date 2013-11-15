@@ -143,23 +143,31 @@
 					constraint="no negative, no zero, no negative"
 					value="@bind(searchPath.pageSize)" onChange="@command('onSearch')" />
 				<space width="50px" />
+
+				<label value="Commands: " />
 				<listbox mold="select"
-					selectedItem="@bind(searchPath.batchCommand)">
-					<listitem label="Select an action" value="nothing"
-						selected="true" />
-					<listitem label="Update to Unfetched (re-crawl)"
-						value="setToUnfetched" />
-					<listitem label="Delete" value="delete" />
-					<listitem label="Optimize database"
-						value="optimize" />
+					model="@load(searchPath.batchCommandEnum)"
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)"
+					selectedItem="@bind(searchPath.batchCommand)"
+					disabled="@load(searchPath.fileManager.currentTaskLogExists)">
+					<template name="model" var="command">
+						<listitem label="@load(command.label)" />
+					</template>
 				</listbox>
 				<button label="Go" onClick="@command('onGo')"
-					disabled="@load(searchPath.fileManager.currentTaskLog)" />
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)" />
+				<label value="Buffer size" />
+				<intbox value="@bind(searchPath.bufferSize)"
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)" />
+				<image src="/images/ajax-loader.gif"
+					visible="@load(searchPath.fileManager.currentTaskLogExists)" />
 				<label
-					visible="@load(searchPath.fileManager.currentTaskLog)"
+					visible="@load(searchPath.fileManager.currentTaskLogExists)"
 					value="@load(searchPath.fileManager.currentTaskLog.info)" />
 				<timer delay="5000" repeats="true"
-					onTimer="@command('onTimer')" running="@load(searchPath.refresh)" />
+					onTimer="@command('onRefreshCurrentTaskLog')"
+					running="@load(searchPath.fileManager.currentTaskLogExists)" />
+
 			</listfooter>
 		</listfoot>
 	</listbox>

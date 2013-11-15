@@ -104,7 +104,7 @@ public class CrawlFileMaster extends
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
 			if (fileCrawlQueue.hasContainedData())
-				config.getFileManager().reload(null);
+				config.getFileManager().reload(false, null);
 
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);

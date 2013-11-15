@@ -64,7 +64,7 @@ public class MappingFileController extends CrawlerController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			List<SchemaField> list = client.getFileManager().getFileDbClient()
+			List<SchemaField> list = client.getFileManager().getDbClient()
 					.getSchema().getFieldList().getList();
 			if (list.size() > 0 && selectedUrlField == null)
 				selectedUrlField = list.get(0);
