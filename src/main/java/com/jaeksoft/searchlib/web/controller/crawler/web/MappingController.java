@@ -64,7 +64,7 @@ public class MappingController extends CrawlerController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			List<SchemaField> list = client.getUrlManager().getUrlDbClient()
+			List<SchemaField> list = client.getUrlManager().getDbClient()
 					.getSchema().getFieldList().getList();
 			if (list.size() > 0 && selectedUrlField == null)
 				selectedUrlField = list.get(0);
