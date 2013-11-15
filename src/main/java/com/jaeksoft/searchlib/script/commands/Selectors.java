@@ -428,16 +428,14 @@ public class Selectors {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(2, parameters);
-			String filePath = getParameterString(0);
+			String directoryPath = context
+					.replaceVariables(getParameterString(0));
 			List<URL> urls = getUrlList(context);
 			if (CollectionUtils.isEmpty(urls))
 				return;
-			int i = 0;
-			for (URL url : urls) {
-				File file = new File(filePath, Integer.toString(i));
-				context.download(url, file);
-			}
-
+			File directory = new File(directoryPath);
+			for (URL url : urls)
+				context.download(url, directory);
 		}
 	}
 

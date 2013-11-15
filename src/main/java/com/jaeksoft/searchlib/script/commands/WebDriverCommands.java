@@ -157,7 +157,7 @@ public class WebDriverCommands {
 		public void run(ScriptCommandContext context, String id,
 				String... parameters) throws ScriptException {
 			checkParameters(1, parameters);
-			String filePath = getParameterString(0);
+			String filePath = context.replaceVariables(getParameterString(0));
 			if (StringUtils.isEmpty(filePath))
 				throwError("No PATH given");
 			BrowserDriver<?> browserDriver = context.getBrowserDriver();

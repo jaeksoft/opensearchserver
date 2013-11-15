@@ -292,15 +292,32 @@ public class ScriptCommandContext implements Closeable {
 		}
 	}
 
-	public void download(URI uri, File file) throws ScriptException {
+	public void download(URI uri, File directory) throws ScriptException {
 		if (currentWebDriver == null)
 			throw new ScriptException("No browser open");
+		if (directory == null)
+			throw new ScriptException("No directory path given");
+		if (directory.exists()) {
+			if (!directory.isDirectory())
+				throw new ScriptException("The path is not a directory: "
+						+ directory.getAbsolutePath());
+		} else {
+			directory.mkdir();
+			if (!directory.exists())
+				throw new ScriptException("Unable to create the directory: "
+						+ directory.getAbsolutePath());
+		}
 		List<CookieItem> cookies = currentWebDriver.getCookies();
 		HttpDownloader downloader = null;
 		try {
 			downloader = config.getWebCrawlMaster().getNewHttpDownloader(true);
 			DownloadItem downloadItem = downloader
 					.get(uri, null, null, cookies);
+			String fileName = downloadItem.getFileName();
+			File file = new File(directory, fileName);
+			int i = 0;
+			while (file.exists() && i < 1024)
+				file = new File(directory, fileName + '.' + i);
 			FileOutputStream fos = new FileOutputStream(file);
 			IOUtils.copy(downloadItem.getContentInputStream(), fos);
 			fos.close();
@@ -320,17 +337,17 @@ public class ScriptCommandContext implements Closeable {
 		}
 	}
 
-	public void download(URL url, File file) throws ScriptException {
+	public void download(URL url, File directory) throws ScriptException {
 		try {
-			download(url.toURI(), file);
+			download(url.toURI(), directory);
 		} catch (URISyntaxException e) {
 			throw new ScriptException(e);
 		}
 	}
 
-	public void download(String url, File file) throws ScriptException {
+	public void download(String url, File directory) throws ScriptException {
 		try {
-			download(new URI(url), file);
+			download(new URI(url), directory);
 		} catch (URISyntaxException e) {
 			throw new ScriptException(e);
 		}
