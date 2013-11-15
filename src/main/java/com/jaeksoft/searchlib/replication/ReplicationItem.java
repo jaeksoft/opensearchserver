@@ -308,9 +308,9 @@ public class ReplicationItem extends
 			case BACKUP_INDEX:
 				return config.getDirectory();
 			case WEB_CRAWLER_URL_DATABASE:
-				return config.getUrlManager().getUrlDbClient().getDirectory();
+				return config.getUrlManager().getDbClient().getDirectory();
 			case FILE_CRAWLER_URI_DATABASE:
-				return config.getFileManager().getFileDbClient().getDirectory();
+				return config.getFileManager().getDbClient().getDirectory();
 			default:
 				throw new SearchLibException("Unsupported replication");
 			}
