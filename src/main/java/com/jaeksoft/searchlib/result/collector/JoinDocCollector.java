@@ -218,11 +218,6 @@ public class JoinDocCollector implements JoinDocInterface {
 			if (c < 0) {
 				ids1[i1] = -1;
 				i1++;
-				if (outerCollector != null && lastOuter != id2
-						&& lastInner != id2) {
-					outerCollector.collect(id2, t2);
-					lastOuter = id2;
-				}
 			} else if (c > 0) {
 				if (outerCollector != null && lastOuter != id2
 						&& lastInner != id2) {
@@ -239,6 +234,14 @@ public class JoinDocCollector implements JoinDocInterface {
 				docs1.setForeignDocId(i1, joinResultPos, id2, score2);
 				lastInner = id2;
 				i1++;
+			}
+		}
+		if (outerCollector != null) {
+			while (i2 != ids2.length) {
+				int id2 = ids2[i2++];
+				if (id2 != lastInner)
+					outerCollector.collect(id2,
+							doc2StringIndex.lookup[doc2StringIndex.order[id2]]);
 			}
 		}
 	}
@@ -282,7 +285,7 @@ public class JoinDocCollector implements JoinDocInterface {
 		DocIdInterface emptyDocs = docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
 				: JoinDocCollector.EMPTY;
 
-		if (docs.getSize() == 0 || docs2.getSize() == 0)
+		if (docs.getSize() == 0 && outerCollector == null)
 			return emptyDocs;
 
 		if (docs2.getSize() == 0)

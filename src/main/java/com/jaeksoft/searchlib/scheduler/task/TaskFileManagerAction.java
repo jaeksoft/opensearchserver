@@ -30,6 +30,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
@@ -45,15 +47,28 @@ public class TaskFileManagerAction extends TaskAbstract {
 			TaskPropertyType.comboBox, "Command", "Command",
 			"Select the command to execute", 30);
 
+	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Fetch status", "Fetch status",
+			"Filter on the fetch status", 20);
+
+	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Parser status", "Parser status",
+			"Filter on the Parser status", 20);
+
+	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(
+			TaskPropertyType.listBox, "Index status", "Index status",
+			"Filter on the index status", 20);
+
 	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Buffer size", "Buffer size",
 			"Buffer size", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propCommand,
-			propBufferSize };
+			propFetchStatus, propParserStatus, propIndexStatus, propBufferSize };
 
 	final public static String CommandDoNothing = "Do nothing";
 	final public static String CommandDeleteAll = "Delete all";
+	final public static String CommandDeleteSelection = "Delete selection";
 	final public static String CommandOptimize = "Optimize";
 	final public static String CommandSynchronize = "Synchronize";
 
@@ -75,6 +90,12 @@ public class TaskFileManagerAction extends TaskAbstract {
 			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propCommand)
 			return CommandList;
+		else if (propertyDef == propFetchStatus)
+			return FetchStatus.getNames();
+		else if (propertyDef == propParserStatus)
+			return ParserStatus.getNames();
+		else if (propertyDef == propIndexStatus)
+			return IndexStatus.getNames();
 		return null;
 	}
 
@@ -82,6 +103,12 @@ public class TaskFileManagerAction extends TaskAbstract {
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propCommand)
 			return CommandList[0];
+		else if (propertyDef == propFetchStatus)
+			return FetchStatus.ALL.name;
+		else if (propertyDef == propParserStatus)
+			return ParserStatus.ALL.name;
+		else if (propertyDef == propIndexStatus)
+			return IndexStatus.ALL.name;
 		else if (propertyDef == propBufferSize)
 			return "10000";
 		return null;
@@ -112,28 +139,38 @@ public class TaskFileManagerAction extends TaskAbstract {
 
 		String command = manualCommand != null ? manualCommand : properties
 				.getValue(propCommand);
-
 		int bufferSize = manualBufferSize != null ? manualBufferSize : Integer
 				.parseInt(properties.getValue(propBufferSize));
 
-		if (selectionRequest != null) {
-			if (setToFetchStatus != null) {
-				taskLog.setInfo("File manager: set selection to unfetched");
-				fileManager.updateFetchStatus(selectionRequest,
-						setToFetchStatus, bufferSize, taskLog);
-			}
-			if (CommandDeleteAll.equals(command))
-				taskLog.setInfo("File manager: delete selection");
-			fileManager.delete(selectionRequest, taskLog);
-			return;
+		if (selectionRequest == null) {
+			FetchStatus fetchStatus = FetchStatus.findByName(properties
+					.getValue(propFetchStatus));
+			ParserStatus parserStatus = ParserStatus.findByName(properties
+					.getValue(propParserStatus));
+			IndexStatus indexStatus = IndexStatus.findByName(properties
+					.getValue(propIndexStatus));
+			selectionRequest = fileManager.fileQuery(
+					FileManager.SearchTemplate.fileSearch, null, null, null,
+					null, null, null, null, fetchStatus, parserStatus,
+					indexStatus, null, null, null, null, null, null);
 		}
-		if (CommandDeleteAll.equals(command)) {
+
+		if (setToFetchStatus != null) {
+			taskLog.setInfo("File manager: set selection to unfetched");
+			fileManager.updateFetchStatus(selectionRequest, setToFetchStatus,
+					bufferSize, taskLog);
+		} else if (CommandDeleteSelection.equals(command)) {
+			taskLog.setInfo("File manager: delete selection");
+			fileManager.delete(selectionRequest, taskLog);
+		} else if (CommandSynchronize.equals(command)) {
+			taskLog.setInfo("File manager: synchronize");
+			fileManager.synchronizeIndex(selectionRequest, bufferSize, taskLog);
+		} else if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("File manager: Delete All");
 			fileManager.deleteAll(taskLog);
 		} else if (CommandOptimize.equals(command)) {
 			taskLog.setInfo("File manager: optimize");
 			fileManager.reload(true, taskLog);
 		}
-		taskLog.setInfo("File manager Action done");
 	}
 }
