@@ -454,7 +454,8 @@ public class FileController extends CrawlerController {
 					SearchTemplate.fileExport);
 			TaskFileManagerAction taskFileManagerAction = new TaskFileManagerAction();
 			taskFileManagerAction.setManual(searchRequest, null,
-					TaskFileManagerAction.CommandDeleteAll, getBufferSize());
+					TaskFileManagerAction.CommandDeleteSelection,
+					getBufferSize());
 			onTask(taskFileManagerAction);
 		}
 	}
