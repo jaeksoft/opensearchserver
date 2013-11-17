@@ -94,7 +94,7 @@ public class PushServlet extends AbstractServlet {
 				transaction.addXmlResponse(CALL_XML_KEY_EXISTS,
 						Boolean.toString(exist));
 				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
-						XML_CALL_KEY_STATUS);
+						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
 			transaction.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_FILEPATH);
@@ -132,7 +132,7 @@ public class PushServlet extends AbstractServlet {
 	private final static String CALL_XML_CMD_FILEPATH = "filePath";
 
 	private static String getPushTargetUrl(Client client,
-			ReplicationItem replicationItem, File sourceFile)
+			ReplicationItem replicationItem, String cmd, File sourceFile)
 			throws UnsupportedEncodingException, SearchLibException,
 			MalformedURLException, URISyntaxException {
 		String dataPath = replicationItem.getDirectory(client)
@@ -142,6 +142,10 @@ public class PushServlet extends AbstractServlet {
 			throw new SearchLibException("Bad file path " + filePath);
 		filePath = filePath.substring(dataPath.length());
 		StringBuilder sb = new StringBuilder(replicationItem.getCachedUrl());
+		if (cmd != null) {
+			sb.append("&cmd=");
+			sb.append(cmd);
+		}
 		sb.append("&filePath=");
 		sb.append(URLEncoder.encode(FilesUtils.systemPathToUnix(filePath),
 				"UTF-8"));
@@ -161,17 +165,21 @@ public class PushServlet extends AbstractServlet {
 				+ URLEncoder.encode(cmd, "UTF-8");
 	}
 
-	private static void call(URI uri, String cmd) throws SearchLibException {
+	private static XPathParser call(URI uri, String cmd)
+			throws SearchLibException {
 		XPathParser xpp = AbstractServlet.call(uri);
+		if (xpp == null)
+			throw new SearchLibException("No XML response");
 		checkCallError(xpp);
 		checkCallStatusOK(xpp);
 		checkCallKey(xpp, CALL_XML_KEY_CMD, cmd);
+		return xpp;
 	}
 
-	private static void call(ReplicationItem replicationItem, String cmd)
+	private static XPathParser call(ReplicationItem replicationItem, String cmd)
 			throws SearchLibException {
 		try {
-			call(new URI(getPushTargetUrl(replicationItem, cmd)), cmd);
+			return call(new URI(getPushTargetUrl(replicationItem, cmd)), cmd);
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -191,12 +199,33 @@ public class PushServlet extends AbstractServlet {
 		call(replicationItem, CALL_XML_CMD_SWITCH);
 	}
 
+	public static boolean call_file_exist(Client client,
+			ReplicationItem replicationItem, File file)
+			throws SearchLibException {
+		try {
+			String url = getPushTargetUrl(client, replicationItem,
+					CALL_XML_CMD_EXISTS, file);
+			XPathParser xpp = call(new URI(url), CALL_XML_CMD_EXISTS);
+			String result = getCallKeyValue(xpp, CALL_XML_KEY_EXISTS);
+			if (result == null)
+				throw new SearchLibException("Cannot check if file exists: "
+						+ file.getPath());
+			return Boolean.parseBoolean(result);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
 	public static void call_file(Client client,
 			ReplicationItem replicationItem, File file)
 			throws SearchLibException {
 		UriWriteStream uriWriteStream = null;
 		try {
-			String url = getPushTargetUrl(client, replicationItem, file);
+			String url = getPushTargetUrl(client, replicationItem, null, file);
 			URI uri = new URI(url);
 			uriWriteStream = new UriWriteStream(uri, file);
 			XPathParser xpp = uriWriteStream.getXmlContent();
@@ -225,7 +254,7 @@ public class PushServlet extends AbstractServlet {
 			ReplicationItem replicationItem, File file)
 			throws SearchLibException {
 		try {
-			call(new URI(getPushTargetUrl(client, replicationItem, file)),
+			call(new URI(getPushTargetUrl(client, replicationItem, null, file)),
 					CALL_XML_CMD_FILEPATH);
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);

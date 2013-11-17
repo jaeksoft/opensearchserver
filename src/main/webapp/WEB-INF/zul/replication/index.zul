@@ -90,13 +90,10 @@
 	<separator height="10" />
 	<panel title="List of replications - click on the line to edit"
 		border="normal">
-		<toolbar>
-			<button label="Refresh" onClick="@command('onListRefresh')" />
-		</toolbar>
 		<panelchildren>
 			<listbox selectedItem="@bind(replication.selectedItem)"
 				model="@load(replication.replicationList.array)">
-				<listhead>
+				<listhead sizable="true">
 					<listheader label="Instance URL" />
 					<listheader label="Replication type" hflex="min" />
 					<listheader label="Index Name" hflex="min" />
@@ -124,7 +121,8 @@
 								visible="@load(item.lastThread.running)"
 								value="@load(item.lastThread.progress)" />
 						</listcell>
-						<listcell label="@load(item.lastThread.info)" />
+						<listcell label="@load(item.lastThread.info)"
+							tooltiptext="@load(item.lastThread.statInfo)" />
 						<listcell>
 							<button tooltiptext="Start the replication"
 								disabled="@load(item.thread)" image="/images/action_check.png"
