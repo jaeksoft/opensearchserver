@@ -145,16 +145,18 @@ public class StandardLearner implements LearnerInterface {
 					if (docScore < minScore)
 						break;
 					ResultDocument document = result.getDocument(pos);
-					FieldValue fieldValue = document.getReturnFields().get(
-							"name");
-					if (fieldValue == null)
+					FieldValue customFieldValues = document.getReturnFields()
+							.get("custom");
+					FieldValue nameFieldValues = document.getReturnFields()
+							.get("name");
+					if (nameFieldValues == null)
 						continue;
-					for (FieldValueItem fvi : fieldValue.getValueArray()) {
+					for (FieldValueItem fvi : nameFieldValues.getValueArray()) {
 						String value = fvi.getValue();
 						if (value == null)
 							continue;
 						collector.add(new LearnerResultItem(docScore, pos,
-								null, value, 1));
+								null, value, 1, customFieldValues));
 						break;
 					}
 				}
@@ -206,7 +208,7 @@ public class StandardLearner implements LearnerInterface {
 								.get(value);
 						if (learnerResultItem == null) {
 							learnerResultItem = new LearnerResultItem(0, -1,
-									value, null, 0);
+									value, null, 0, null);
 							targetMap.put(value, learnerResultItem);
 						}
 						learnerResultItem.addScoreInstance(docScore, 1);
@@ -280,7 +282,7 @@ public class StandardLearner implements LearnerInterface {
 		}
 	}
 
-	private final String[] SOURCE_FIELDS = { "data", "target", "name" };
+	private final String[] SOURCE_FIELDS = { "data", "target", "name", "custom" };
 
 	@Override
 	public String[] getSourceFieldList() {

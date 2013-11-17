@@ -23,6 +23,7 @@
 			<field name="data" indexed="yes" stored="no" termVector="yes"
 				analyzer="StandardAnalyzer" />
 			<field name="target" indexed="yes" stored="no" termVector="no" />
+			<field name="custom" indexed="yes" stored="no" termVector="yes" />
 		</fields>
 		<analyzers>
 			<analyzer name="StandardAnalyzer">
@@ -36,7 +37,7 @@
 			allowLeadingWildcard="no">
 			<query></query>
 			<returnFields>
-				name,target
+				name,target,custom
 			</returnFields>
 		</request>
 	</requests>
