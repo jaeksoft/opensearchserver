@@ -31,6 +31,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
@@ -51,7 +53,11 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private volatile double totalSize;
 
-	private volatile double sendSize;
+	private volatile int filesSent;
+
+	private volatile long bytesSent;
+
+	private volatile double checkedSize;
 
 	private volatile InfoCallback infoCallback;
 
@@ -69,7 +75,8 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.client = client;
 		totalSize = 0;
-		sendSize = 0;
+		filesSent = 0;
+		checkedSize = 0;
 		filesNotPushed = null;
 		dirsNotPushed = null;
 		this.infoCallback = infoCallback;
@@ -78,12 +85,40 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	public int getProgress() {
 		rwl.r.lock();
 		try {
-			if (sendSize == 0 || totalSize == 0)
+			if (checkedSize == 0 || totalSize == 0)
 				return 0;
-			int p = (int) ((sendSize / totalSize) * 100);
+			int p = (int) (checkedSize / totalSize) * 100;
 			return p;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public int getFilesSent() {
+		rwl.r.lock();
+		try {
+			return filesSent;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public long getBytesSent() {
+		rwl.r.lock();
+		try {
+			return bytesSent;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private void incFilesSent(long bytesSent) {
+		rwl.w.lock();
+		try {
+			filesSent++;
+			this.bytesSent += bytesSent;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -121,7 +156,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 			URISyntaxException {
 		ReplicationItem replicationItem = getReplicationItem();
 		setTotalSize(new LastModifiedAndSize(sourceDirectory, false).getSize());
-		addSendSize(sourceDirectory);
+		addCheckedSize(sourceDirectory.length());
 		PushServlet.call_init(getReplicationItem());
 		new RecursiveDirectoryBrowser(sourceDirectory, this);
 		PushServlet.call_switch(replicationItem);
@@ -136,10 +171,10 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		}
 	}
 
-	private void addSendSize(File file) {
+	private void addCheckedSize(long length) {
 		rwl.w.lock();
 		try {
-			sendSize += file.length();
+			checkedSize += length;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -164,20 +199,32 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		return true;
 	}
 
+	public String getStatInfo() {
+		return getProgress() + "% completed - " + getFilesSent()
+				+ " file(s) sent - "
+				+ FileUtils.byteCountToDisplaySize(getBytesSent()) + " sent";
+	}
+
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
 			ReplicationItem replicationItem = getReplicationItem();
+			long length = file.length();
 			if (file.isFile()) {
-				if (checkFilePush(file))
-					PushServlet.call_file(client, replicationItem, file);
+				if (checkFilePush(file)) {
+					if (!PushServlet.call_file_exist(client, replicationItem,
+							file)) {
+						PushServlet.call_file(client, replicationItem, file);
+						incFilesSent(length);
+					}
+				}
 			} else {
 				if (checkDirPush(file))
 					PushServlet.call_directory(client, replicationItem, file);
 			}
-			addSendSize(file);
+			addCheckedSize(length);
 			if (infoCallback != null) {
-				infoCallback.setInfo(getProgress() + "% transfered");
+				infoCallback.setInfo(getStatInfo());
 				if (infoCallback instanceof TaskLog)
 					if (((TaskLog) infoCallback).isAbortRequested())
 						throw new SearchLibException.AbortException();
