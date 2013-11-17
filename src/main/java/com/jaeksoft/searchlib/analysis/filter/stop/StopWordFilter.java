@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,6 +43,8 @@ public class StopWordFilter extends AbstractTermFilter {
 	}
 
 	private final boolean keepTerm(String term) {
+		if (wordArray == null)
+			return true;
 		if (ignoreCase)
 			term = term.toLowerCase();
 		return !wordArray.match(term);

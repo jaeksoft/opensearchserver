@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenPositionsFilter;
 import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
 import com.jaeksoft.searchlib.analysis.filter.RemoveIncludedTermFilter;
 import com.jaeksoft.searchlib.analysis.filter.ShingleFilter;
+import com.jaeksoft.searchlib.analysis.filter.StopFilter;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -67,6 +68,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private Set<String> returnedFields;
 
+	private String stopWordList;
+
 	public NamedEntityExtractionRequest() {
 		super(null, RequestTypeEnum.NamedEntityExtractionRequest);
 	}
@@ -82,6 +85,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.searchRequest = null;
 		this.namedEntityField = null;
 		this.returnedFields = null;
+		this.stopWordList = null;
 	}
 
 	@Override
@@ -93,6 +97,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.namedEntityField = neeRequest.namedEntityField;
 		this.returnedFields = neeRequest.returnedFields == null ? null
 				: new TreeSet<String>(neeRequest.returnedFields);
+		this.stopWordList = neeRequest.stopWordList;
 	}
 
 	public void addReturnedField(String returnedField) {
@@ -128,6 +133,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private final static String ATTR_SEARCH_REQUEST = "searchRequest";
 	private final static String ATTR_NAMED_ENTITY_FIELD = "namedEntityField";
+	private final static String ATTR_NAME_STOPWORD_LIST = "stopWordList";
 	private final static String NODE_TEXT = "text";
 	private final static String NODE_RETURNED_FIELD = "returnedField";
 	private final static String ATTR_NAME_FIELD = "name";
@@ -142,6 +148,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 				ATTR_SEARCH_REQUEST);
 		namedEntityField = DomUtils.getAttributeText(requestNode,
 				ATTR_NAMED_ENTITY_FIELD);
+		stopWordList = DomUtils.getAttributeText(requestNode,
+				ATTR_NAME_STOPWORD_LIST);
 		Node textNode = DomUtils.getFirstNode(requestNode, NODE_TEXT);
 		if (textNode == null)
 			text = DomUtils.getText(requestNode);
@@ -163,7 +171,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
 					getRequestName(), XML_ATTR_TYPE, getType().name(),
 					ATTR_SEARCH_REQUEST, searchRequest,
-					ATTR_NAMED_ENTITY_FIELD, namedEntityField);
+					ATTR_NAMED_ENTITY_FIELD, namedEntityField,
+					ATTR_NAME_STOPWORD_LIST, stopWordList);
 			if (returnedFields != null)
 				for (String returnedField : returnedFields) {
 					xmlWriter.startElement(NODE_RETURNED_FIELD,
@@ -190,7 +199,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			searchRequest = value;
 		if ((value = transaction.getParameterString("namedEntityField")) != null)
 			namedEntityField = value;
-
+		if ((value = transaction.getParameterString("stopWordList")) != null)
+			stopWordList = value;
 	}
 
 	@Override
@@ -218,6 +228,12 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
 					DeduplicateTokenPositionsFilter.class);
 			analyzer.add(dtpf);
+			if (!StringUtils.isEmpty(stopWordList)) {
+				StopFilter stopFilter = FilterFactory.create(config,
+						StopFilter.class);
+				stopFilter.setProperties(stopWordList, false);
+				analyzer.add(stopFilter);
+			}
 			IndexLookupFilter ilf = FilterFactory.create(config,
 					IndexLookupFilter.class);
 			addReturnedField(namedEntityField);
@@ -251,6 +267,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			sb.append(" - NamedEntityField:");
 			if (namedEntityField != null)
 				sb.append(namedEntityField);
+			sb.append(" - StopWordsList:");
+			if (stopWordList != null)
+				sb.append(stopWordList);
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();
@@ -301,6 +320,21 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	public void setNamedEntityField(String namedEntityField) {
 		this.namedEntityField = namedEntityField;
 		addReturnedField(namedEntityField);
+	}
+
+	/**
+	 * @return the stopWordList
+	 */
+	public String getStopWordList() {
+		return stopWordList;
+	}
+
+	/**
+	 * @param stopWordList
+	 *            the stopWordList to set
+	 */
+	public void setStopWordList(String stopWordList) {
+		this.stopWordList = stopWordList;
 	}
 
 }

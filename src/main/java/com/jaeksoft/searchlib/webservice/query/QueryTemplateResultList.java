@@ -49,7 +49,7 @@ public class QueryTemplateResultList extends CommonResult {
 	public QueryTemplateResultList(
 			Set<Entry<String, AbstractRequest>> requests,
 			RequestTypeEnum[] types) {
-		super(true, requests.size() + " template(s)");
+		super(true, null);
 		templates = requests == null ? null : new ArrayList<QueryTemplate>(
 				requests.size());
 		if (requests != null)
@@ -57,6 +57,8 @@ public class QueryTemplateResultList extends CommonResult {
 				for (RequestTypeEnum type : types)
 					if (entry.getValue().requestType == type)
 						templates.add(new QueryTemplate(entry.getValue()));
+		int n = templates == null ? 0 : templates.size();
+		setInfo(n + " template(s)");
 	}
 
 	public class QueryTemplate {
