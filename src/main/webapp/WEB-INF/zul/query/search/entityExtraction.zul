@@ -42,6 +42,11 @@
 				</combobox>
 			</row>
 			<row>
+				<label value="Stop words: " />
+				<combobox model="@load(named.stopWordsList)"
+					value="@bind(named.request.stopWordList)" />
+			</row>
+			<row>
 				<label>Returned fields:</label>
 				<listbox model="@load(named.request.returnedFields)"
 					hflex="min">
