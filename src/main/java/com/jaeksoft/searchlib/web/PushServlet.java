@@ -81,10 +81,23 @@ public class PushServlet extends AbstractServlet {
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
-
-			transaction.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_FILEPATH);
 			String filePath = transaction
 					.getParameterString(CALL_XML_CMD_FILEPATH);
+			Long lastModified = transaction
+					.getParameterLong("lastModified", 0L);
+			Long length = transaction.getParameterLong("length", 0L);
+			if (CALL_XML_CMD_EXISTS.equals(cmd)) {
+				transaction.addXmlResponse(CALL_XML_KEY_CMD,
+						CALL_XML_CMD_EXISTS);
+				boolean exist = ClientCatalog.receive_file_exists(client,
+						filePath, lastModified, length);
+				transaction.addXmlResponse(CALL_XML_KEY_EXISTS,
+						Boolean.toString(exist));
+				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
+						XML_CALL_KEY_STATUS);
+				return;
+			}
+			transaction.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_FILEPATH);
 			if (FilenameUtils.getName(filePath).startsWith(".")) {
 				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 						XML_CALL_KEY_STATUS_OK);
@@ -94,12 +107,10 @@ public class PushServlet extends AbstractServlet {
 			if (transaction.getParameterBoolean("type", "dir", false))
 				ClientCatalog.receive_dir(client, filePath);
 			else
-				ClientCatalog.receive_file(client, filePath,
+				ClientCatalog.receive_file(client, filePath, lastModified,
 						transaction.getInputStream());
-
 			transaction.addXmlResponse(XML_CALL_KEY_STATUS,
 					XML_CALL_KEY_STATUS_OK);
-
 		} catch (SearchLibException e) {
 			throw new ServletException(e);
 		} catch (NamingException e) {
@@ -112,9 +123,12 @@ public class PushServlet extends AbstractServlet {
 
 	}
 
+	private final static String CALL_XML_KEY_EXISTS = "exist";
+
 	private final static String CALL_XML_KEY_CMD = "cmd";
 	private final static String CALL_XML_CMD_INIT = "init";
 	private final static String CALL_XML_CMD_SWITCH = "switch";
+	private final static String CALL_XML_CMD_EXISTS = "exists";
 	private final static String CALL_XML_CMD_FILEPATH = "filePath";
 
 	private static String getPushTargetUrl(Client client,
@@ -127,11 +141,17 @@ public class PushServlet extends AbstractServlet {
 		if (!filePath.startsWith(dataPath))
 			throw new SearchLibException("Bad file path " + filePath);
 		filePath = filePath.substring(dataPath.length());
-		return replicationItem.getCachedUrl()
-				+ "&filePath="
-				+ URLEncoder.encode(FilesUtils.systemPathToUnix(filePath),
-						"UTF-8")
-				+ (sourceFile.isDirectory() ? "&type=dir" : "");
+		StringBuilder sb = new StringBuilder(replicationItem.getCachedUrl());
+		sb.append("&filePath=");
+		sb.append(URLEncoder.encode(FilesUtils.systemPathToUnix(filePath),
+				"UTF-8"));
+		if (sourceFile.isDirectory())
+			sb.append("&type=dir");
+		else {
+			sb.append("&lastModified=" + sourceFile.lastModified());
+			sb.append("&length=" + sourceFile.length());
+		}
+		return sb.toString();
 	}
 
 	private static String getPushTargetUrl(ReplicationItem replicationItem,
