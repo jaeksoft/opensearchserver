@@ -90,28 +90,22 @@ public class ReaderLocal extends ReaderAbstract {
 	private FieldCache fieldCache;
 	private SpellCheckerCache spellCheckerCache;
 
-	private String similarityClass;
-
 	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory)
-			throws IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws IOException, SearchLibException {
 		super(indexConfig);
 		indexSearcher = null;
 		indexReader = null;
-		this.similarityClass = indexConfig.getSimilarityClass();
 		this.indexDirectory = indexDirectory;
 		init();
 	}
 
-	private void init() throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException {
+	private void init() throws IOException, SearchLibException {
 		this.indexReader = IndexReader.open(indexDirectory.getDirectory());
 		indexSearcher = new IndexSearcher(indexReader);
-		if (similarityClass != null) {
-			Similarity similarity = (Similarity) Class.forName(similarityClass)
-					.newInstance();
+
+		Similarity similarity = indexConfig.getNewSimilarityInstance();
+		if (similarity != null)
 			indexSearcher.setSimilarity(similarity);
-		}
 		this.searchCache = new SearchCache(indexConfig);
 		this.filterCache = new FilterCache(indexConfig);
 		this.fieldCache = new FieldCache(indexConfig);
@@ -396,12 +390,6 @@ public class ReaderLocal extends ReaderAbstract {
 			init();
 			resetCache();
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.w.unlock();

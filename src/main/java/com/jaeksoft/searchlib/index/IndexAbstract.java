@@ -68,9 +68,7 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	private volatile boolean online;
 
 	protected IndexAbstract(File configDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			boolean createIfNotExists) throws IOException, SearchLibException {
 		this.indexConfig = indexConfig;
 		this.online = true;
 		boolean bCreate = false;
@@ -109,11 +107,10 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	protected abstract void closeIndexDirectory();
 
 	protected abstract ReaderInterface getNewReader(IndexConfig indexConfig)
-			throws IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException;
+			throws IOException, SearchLibException;
 
 	protected abstract WriterInterface getNewWriter(IndexConfig indexConfig,
-			boolean bCreate) throws IOException;
+			boolean bCreate) throws IOException, SearchLibException;
 
 	public final IndexConfig getIndexConfig() {
 		return indexConfig;

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.OsseIndex;
 
@@ -36,9 +37,7 @@ public class IndexOsse extends IndexAbstract {
 	private OsseErrorHandler ossErrorHandler = null;
 
 	protected IndexOsse(File configDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			boolean createIfNotExists) throws IOException, SearchLibException {
 		super(configDir, indexConfig, createIfNotExists);
 		// TODO Auto-generated constructor stub
 	}
@@ -58,8 +57,7 @@ public class IndexOsse extends IndexAbstract {
 
 	@Override
 	protected ReaderInterface getNewReader(IndexConfig indexConfig)
-			throws IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}

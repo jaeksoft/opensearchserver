@@ -28,14 +28,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.SearchLibException;
+
 public class IndexLucene extends IndexAbstract {
 
 	private IndexDirectory indexDirectory = null;
 
 	public IndexLucene(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			SearchLibException {
 		super(configDir, indexConfig, createIfNotExists);
 
 	}
@@ -54,14 +55,13 @@ public class IndexLucene extends IndexAbstract {
 
 	@Override
 	protected ReaderInterface getNewReader(IndexConfig indexConfig)
-			throws IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws IOException, SearchLibException {
 		return new ReaderLocal(indexConfig, indexDirectory);
 	}
 
 	@Override
 	protected WriterInterface getNewWriter(IndexConfig indexConfig,
-			boolean bCreate) throws IOException {
+			boolean bCreate) throws IOException, SearchLibException {
 		WriterLucene writer = new WriterLucene(indexConfig, this,
 				indexDirectory);
 		if (bCreate)
