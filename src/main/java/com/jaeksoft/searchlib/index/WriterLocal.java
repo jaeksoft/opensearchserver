@@ -38,6 +38,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
@@ -90,7 +91,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	public final void create() throws CorruptIndexException,
-			LockObtainFailedException, IOException {
+			LockObtainFailedException, IOException, SearchLibException {
 		IndexWriter indexWriter = null;
 		lock.rl.lock();
 		try {
@@ -104,26 +105,26 @@ public class WriterLocal extends WriterAbstract {
 
 	private final IndexWriter open(boolean create)
 			throws CorruptIndexException, LockObtainFailedException,
-			IOException {
+			IOException, SearchLibException {
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36,
 				null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
+		Similarity similarity = indexConfig.getNewSimilarityInstance();
+		if (similarity != null)
+			config.setSimilarity(similarity);
 		Logging.debug("WriteLocal open " + indexDirectory.getDirectory());
-		return new IndexWriter(indexDirectory.getDirectory(),
-				new IndexWriterConfig(Version.LUCENE_36, null));
+		return new IndexWriter(indexDirectory.getDirectory(), config);
 	}
 
-	private IndexWriter open() throws IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	private IndexWriter open() throws IOException, SearchLibException {
 		IndexWriter indexWriter = open(false);
 		return indexWriter;
 	}
 
 	@Deprecated
 	public void addDocument(Document document) throws IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			SearchLibException {
 		IndexWriter indexWriter = null;
 		lock.rl.lock();
 		try {
@@ -131,8 +132,8 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.addDocument(document);
 			indexWriter = close(indexWriter);
 		} finally {
-			close(indexWriter);
 			lock.rl.unlock();
+			close(indexWriter);
 		}
 	}
 
@@ -176,12 +177,6 @@ public class WriterLocal extends WriterAbstract {
 			return updated;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -214,12 +209,6 @@ public class WriterLocal extends WriterAbstract {
 				indexSingle.reload();
 			return count;
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
@@ -276,12 +265,6 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = close(indexWriter);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
 		}
@@ -311,12 +294,6 @@ public class WriterLocal extends WriterAbstract {
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
@@ -356,12 +333,6 @@ public class WriterLocal extends WriterAbstract {
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
@@ -423,12 +394,6 @@ public class WriterLocal extends WriterAbstract {
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
@@ -462,12 +427,6 @@ public class WriterLocal extends WriterAbstract {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
 		}
@@ -492,12 +451,6 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = close(indexWriter);
 			indexSingle.reload();
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);

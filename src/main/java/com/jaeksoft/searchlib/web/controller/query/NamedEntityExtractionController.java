@@ -46,6 +46,13 @@ public class NamedEntityExtractionController extends AbstractQueryController {
 	protected void reset() throws SearchLibException {
 	}
 
+	public String[] getStopWordsList() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getStopWordsManager().getList();
+	}
+
 	public List<String> getSearchRequests() throws SearchLibException {
 		Client client = getClient();
 		if (client == null)

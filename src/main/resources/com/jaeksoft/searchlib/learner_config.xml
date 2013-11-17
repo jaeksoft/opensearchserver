@@ -14,7 +14,8 @@
 	<http://www.gnu.org/licenses/>. -->
 <configuration>
 	<indices>
-		<index name="name" searchCache="0" filterCache="0" fieldCache="0" />
+		<index name="name" searchCache="0" filterCache="0" fieldCache="0"
+			similarityClass="com.jaeksoft.searchlib.schema.FairSimilarity" />
 	</indices>
 	<schema>
 		<fields default="data" unique="name">
@@ -22,10 +23,12 @@
 			<field name="data" indexed="yes" stored="no" termVector="yes"
 				analyzer="StandardAnalyzer" />
 			<field name="target" indexed="yes" stored="no" termVector="no" />
+			<field name="custom" indexed="yes" stored="no" termVector="yes" />
 		</fields>
 		<analyzers>
 			<analyzer name="StandardAnalyzer">
 				<tokenizer class="StandardTokenizer" />
+				<filter class="DeduplicateTokenFilter" scope="QUERY_INDEX" />
 			</analyzer>
 		</analyzers>
 	</schema>
@@ -34,7 +37,7 @@
 			allowLeadingWildcard="no">
 			<query></query>
 			<returnFields>
-				name,target
+				name,target,custom
 			</returnFields>
 		</request>
 	</requests>

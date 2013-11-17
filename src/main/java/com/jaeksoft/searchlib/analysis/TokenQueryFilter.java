@@ -229,8 +229,8 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		public boolean incrementToken() throws IOException {
 			if (!input.incrementToken())
 				return false;
-			TermQuery termQuery = new TermQuery(new Term(field,
-					termAtt.toString()));
+			String term = termAtt.toString();
+			TermQuery termQuery = new TermQuery(new Term(field, term));
 			termQuery.setBoost(boost);
 			booleanQuery.add(termQuery, occur);
 			return true;

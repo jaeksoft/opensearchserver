@@ -23,10 +23,14 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.namedEntity;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -44,6 +48,8 @@ public class NamedEntityQuery extends QueryAbstract {
 
 	final public String namedEntityField;
 
+	final public String stopWordList;
+
 	final public List<String> returnedFields;
 
 	public NamedEntityQuery() {
@@ -51,13 +57,17 @@ public class NamedEntityQuery extends QueryAbstract {
 		searchRequest = null;
 		namedEntityField = null;
 		returnedFields = null;
+		stopWordList = null;
 	}
 
 	public NamedEntityQuery(NamedEntityExtractionRequest request) {
 		text = request.getText();
 		searchRequest = request.getSearchRequest();
 		namedEntityField = request.getNamedEntityField();
-		returnedFields = null;
+		Collection<String> rfList = request.getReturnedFields();
+		returnedFields = CollectionUtils.isEmpty(rfList) ? null
+				: new ArrayList<String>(rfList);
+		stopWordList = request.getStopWordList();
 	}
 
 	@Override
@@ -71,5 +81,7 @@ public class NamedEntityQuery extends QueryAbstract {
 			request.setNamedEntityField(namedEntityField);
 		if (returnedFields != null)
 			request.setReturnedFields(returnedFields);
+		if (stopWordList != null)
+			request.setStopWordList(stopWordList);
 	}
 }

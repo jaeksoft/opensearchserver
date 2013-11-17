@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,15 @@ public class StopFilter extends FilterFactory {
 		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
 				ClassPropertyEnum.BOOLEAN_LIST);
 		stopWordsManager = config.getStopWordsManager();
+	}
+
+	public void setProperties(String wordList, Boolean ignoreCase)
+			throws SearchLibException {
+		if (wordList != null)
+			getProperty(ClassPropertyEnum.FILE_LIST).setValue(wordList);
+		if (ignoreCase != null)
+			getProperty(ClassPropertyEnum.IGNORE_CASE).setValue(
+					ignoreCase.toString());
 	}
 
 	@Override

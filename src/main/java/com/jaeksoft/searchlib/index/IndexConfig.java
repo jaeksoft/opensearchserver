@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.index;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.lucene.search.Similarity;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -199,6 +201,20 @@ public class IndexConfig {
 	 */
 	public void setMaxNumSegments(int maxNumSegments) {
 		this.maxNumSegments = maxNumSegments;
+	}
+
+	public Similarity getNewSimilarityInstance() throws SearchLibException {
+		if (similarityClass == null)
+			return null;
+		try {
+			return (Similarity) Class.forName(similarityClass).newInstance();
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 }
