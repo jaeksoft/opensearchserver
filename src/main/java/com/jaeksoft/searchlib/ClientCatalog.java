@@ -480,17 +480,17 @@ public class ClientCatalog {
 		}
 	}
 
-	private static File getTempReceiveDir(Client client) {
+	private static final File getTempReceiveDir(Client client) {
 		File clientDir = client.getDirectory();
 		return new File(clientDir.getParentFile(), '.' + clientDir.getName());
 	}
 
-	private static File getTrashReceiveDir(Client client) {
+	private static final File getTrashReceiveDir(Client client) {
 		File clientDir = client.getDirectory();
 		return new File(clientDir.getParentFile(), "._" + clientDir.getName());
 	}
 
-	public static void receive_init(Client client) throws IOException,
+	public static final void receive_init(Client client) throws IOException,
 			SearchLibException {
 		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
 		File rootDir = getTempReceiveDir(client);
@@ -521,15 +521,30 @@ public class ClientCatalog {
 		FileUtils.deleteDirectory(trashDir);
 	}
 
-	public static void receive_dir(Client client, String filePath)
+	public static final void receive_dir(Client client, String filePath)
 			throws IOException {
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.mkdir();
 	}
 
-	public static void receive_file(Client client, String filePath,
-			InputStream is) throws IOException {
+	public static final boolean receive_file_exists(Client client,
+			String filePath, long lastModified, long length) throws IOException {
+		File existsFile = new File(client.getDirectory(), filePath);
+		if (!existsFile.exists())
+			return false;
+		if (existsFile.lastModified() != lastModified)
+			return false;
+		if (existsFile.length() != length)
+			return false;
+		File rootDir = getTempReceiveDir(client);
+		File targetFile = new File(rootDir, filePath);
+		FileUtils.copyFile(existsFile, targetFile);
+		return true;
+	}
+
+	public static final void receive_file(Client client, String filePath,
+			long lastModified, InputStream is) throws IOException {
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.createNewFile();
@@ -546,6 +561,7 @@ public class ClientCatalog {
 			if (fos != null)
 				IOUtils.closeQuietly(fos);
 		}
+		targetFile.setLastModified(lastModified);
 	}
 
 	public static int getMaxClauseCount() {

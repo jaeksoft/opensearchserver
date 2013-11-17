@@ -290,10 +290,6 @@ public class ServletTransaction {
 		return getParameterInteger(name, null);
 	}
 
-	public final int getParameterLong(String name, int defaultValue) {
-		return getParameterLong(name, new Integer(defaultValue));
-	}
-
 	public final Integer getParameterInteger(String name, Integer defaultValue) {
 		String p = request.getParameter(name);
 		if (p == null || p.length() == 0)
@@ -303,10 +299,6 @@ public class ServletTransaction {
 
 	public final Long getParameterLong(String name) {
 		return getParameterLong(name, null);
-	}
-
-	public final long getParameterLong(String name, long defaultValue) {
-		return getParameterLong(name, new Long(defaultValue));
 	}
 
 	public final Long getParameterLong(String name, Long defaultValue) {
