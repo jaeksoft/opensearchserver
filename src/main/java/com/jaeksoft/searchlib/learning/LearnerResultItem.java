@@ -30,23 +30,28 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.schema.FieldValue;
 
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class LearnerResultItem {
 
 	public double score;
 	public int rank;
 	public final String target;
 	public final String name;
+	public final String[] custom;
+
 	public int count;
 
 	public LearnerResultItem(double score, int rank, String target,
-			String name, int count) {
+			String name, int count, FieldValue customFields) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
 		this.name = name;
 		this.count = count;
+		this.custom = customFields == null ? null : customFields
+				.getNewStringArray();
 	}
 
 	public double getScore() {
