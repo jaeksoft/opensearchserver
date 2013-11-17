@@ -14,7 +14,8 @@
 	<http://www.gnu.org/licenses/>. -->
 <configuration>
 	<indices>
-		<index name="name" searchCache="0" filterCache="0" fieldCache="0" />
+		<index name="name" searchCache="0" filterCache="0" fieldCache="0"
+			similarityClass="com.jaeksoft.searchlib.schema.FairSimilarity" />
 	</indices>
 	<schema>
 		<fields default="data" unique="name">
@@ -26,6 +27,7 @@
 		<analyzers>
 			<analyzer name="StandardAnalyzer">
 				<tokenizer class="StandardTokenizer" />
+				<filter class="DeduplicateTokenFilter" scope="QUERY_INDEX" />
 			</analyzer>
 		</analyzers>
 	</schema>
