@@ -269,12 +269,6 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
@@ -445,8 +439,7 @@ public abstract class Config implements ThreadFactory {
 
 	private IndexAbstract newIndex(File indexDir, XPathParser xpp,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
-			IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IOException, URISyntaxException, SearchLibException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
 		switch (nodeList.getLength()) {
 		default:

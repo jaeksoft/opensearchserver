@@ -186,7 +186,7 @@ public abstract class AbstractServlet extends HttpServlet {
 
 	}
 
-	private static String getCallKeyValue(XPathParser xpp, String key)
+	public static String getCallKeyValue(XPathParser xpp, String key)
 			throws SearchLibException {
 		try {
 			return xpp.getNodeString("/response/entry[@key='" + key + "']");

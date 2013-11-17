@@ -72,6 +72,18 @@ public class FieldValue extends AbstractField<FieldValue> {
 		return valueArray;
 	}
 
+	public String[] getNewStringArray() {
+		if (valueArray == null)
+			return null;
+		if (valueArray.length == 0)
+			return null;
+		String[] values = new String[valueArray.length];
+		int i = 0;
+		for (FieldValueItem value : valueArray)
+			values[i++] = value.getValue();
+		return values;
+	}
+
 	public void setValues(List<FieldValueItem> values) {
 		if (values == null || values.size() == 0) {
 			valueArray = FieldValueItem.emptyArray;
@@ -130,4 +142,5 @@ public class FieldValue extends AbstractField<FieldValue> {
 		sb.append(')');
 		return sb.toString();
 	}
+
 }
