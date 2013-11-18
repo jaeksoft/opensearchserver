@@ -26,9 +26,10 @@ package com.jaeksoft.searchlib.learning;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.BeforeUpdateInterface;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -48,7 +50,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
-	private TreeSet<Learner> learnerSet;
+	private TreeMap<String, Learner> learnerMap;
 
 	private Learner[] learnerArray;
 
@@ -62,7 +64,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 		this.client = client;
 		learnerArray = null;
 		activeLearnerArray = null;
-		learnerSet = new TreeSet<Learner>();
+		learnerMap = new TreeMap<String, Learner>();
 		for (File f : directory.listFiles())
 			if (f.isFile()) {
 				String fname = f.getName();
@@ -77,8 +79,8 @@ public class LearnerManager implements BeforeUpdateInterface {
 	}
 
 	private void buildLearnerArray() {
-		learnerArray = new Learner[learnerSet.size()];
-		learnerSet.toArray(learnerArray);
+		learnerArray = new Learner[learnerMap.size()];
+		learnerMap.values().toArray(learnerArray);
 		List<Learner> activeList = new ArrayList<Learner>(0);
 		for (Learner learner : learnerArray)
 			if (learner.isActive())
@@ -96,34 +98,43 @@ public class LearnerManager implements BeforeUpdateInterface {
 		}
 	}
 
-	public void add(Learner item) throws SearchLibException {
+	public void add(Learner item) throws SearchLibException,
+			UnsupportedEncodingException {
 		rwl.w.lock();
 		try {
-			if (learnerSet.contains(item))
+			if (learnerMap.get(item.getName()) != null)
 				throw new SearchLibException("This item already exists");
-			learnerSet.add(item);
+			learnerMap.put(item.getName(), item);
 			buildLearnerArray();
+			client.saveLearner(item);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public void replace(Learner oldItem, Learner newItem) {
+	public void set(Learner item) throws SearchLibException,
+			UnsupportedEncodingException {
 		rwl.w.lock();
 		try {
-			learnerSet.remove(oldItem);
-			learnerSet.add(newItem);
+			if (learnerMap.get(item.getName()) == null)
+				throw new SearchLibException("This item does not exist");
+			learnerMap.put(item.getName(), item);
 			buildLearnerArray();
+			client.saveLearner(item);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public void remove(Learner item) {
+	public void remove(String name) throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
-			learnerSet.remove(item);
+			Learner learner = learnerMap.remove(name);
 			buildLearnerArray();
+			if (learner != null) {
+				learner.reset();
+				client.deleteLearner(learner);
+			}
 		} finally {
 			rwl.w.unlock();
 		}
@@ -139,7 +150,7 @@ public class LearnerManager implements BeforeUpdateInterface {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement("learner");
-			for (Learner learner : learnerSet)
+			for (Learner learner : learnerMap.values())
 				learner.writeXml(xmlWriter);
 			xmlWriter.endElement();
 		} finally {
@@ -159,17 +170,26 @@ public class LearnerManager implements BeforeUpdateInterface {
 	public Learner get(String name) {
 		rwl.r.lock();
 		try {
-			Learner searchLearner = new Learner(client);
-			searchLearner.setName(name);
-			Learner find = learnerSet.ceiling(searchLearner);
-			if (find == null)
-				return null;
-			if (find.getName().equals(name))
-				return find;
-			return null;
+			return learnerMap.get(name);
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public void learn(String learnerName, InfoCallback callback)
+			throws SearchLibException {
+		Learner learner = get(learnerName);
+		if (learner == null)
+			throw new SearchLibException("Learner not found: " + learnerName);
+		learner.learn(callback);
+	}
+
+	public void reset(String learnerName) throws SearchLibException,
+			IOException {
+		Learner learner = get(learnerName);
+		if (learner == null)
+			throw new SearchLibException("Learner not found: " + learnerName);
+		learner.reset();
 	}
 
 }

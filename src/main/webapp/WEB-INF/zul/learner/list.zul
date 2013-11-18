@@ -10,26 +10,50 @@
 <panel title="List of existing learning machine" border="normal">
 	<panelchildren>
 		<listbox model="@load(learning.learners)" mold="paging"
-			selectedItem="@bind(learning.selectedLearner)" pageSize="10">
+			pageSize="10">
 			<auxhead>
-				<auxheader colspan="2">
+				<auxheader colspan="5">
 					<button label="New learner..."
 						onClick="@command('onNewLearner')" />
 				</auxheader>
 			</auxhead>
-			<listhead>
-				<listheader label="Name" />
+			<listhead sizable="true">
+				<listheader label="Name" hflex="min" />
 				<listheader tooltiptext="Active" label="A" hflex="min" />
+				<listheader label="Action" hflex="min" />
+				<listheader label="Status" hflex="min" />
+				<listheader label="Info" />
 			</listhead>
 			<template name="model" var="item">
 				<listitem>
-					<listcell label="@load(item.name)" />
+					<listcell label="@load(item.name)"
+						onDoubleClick="@command('onEdit', learner=item.name)" />
 					<listcell>
 						<image src="images/action_check.png"
 							visible="@load(item.active)" />
 					</listcell>
+					<listcell>
+						<button label="Edit"
+							disabled="@load(item.running)"
+							onClick="@command('onEdit', learner=item.name)" />
+						<button label="Reset"
+							disabled="@load(item.running)"
+							onClick="@command('onReset', learner=item.name)" />
+						<button label="Learn"
+							disabled="@load(item.running)"
+							onClick="@command('onLearn', learner=item.name)" />
+					</listcell>
+					<listcell>
+						<label value="@load(item.runningStatus)" />
+					</listcell>
+					<listcell>
+						<label value="@load(item.lastRunInfo)" />
+					</listcell>
 				</listitem>
 			</template>
 		</listbox>
+		<timer delay="5000" repeats="true"
+			onTimer="@command('onRefreshList')"
+			running="@load(learning.running)" />
 	</panelchildren>
 </panel>
