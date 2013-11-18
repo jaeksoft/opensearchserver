@@ -45,6 +45,14 @@ public interface LearnerInterface {
 	void init(File instancesFile) throws SearchLibException;
 
 	/**
+	 * Close the learner (free resource in memory)
+	 * 
+	 * @throws SearchLibException
+	 * 
+	 */
+	public void close() throws SearchLibException;
+
+	/**
 	 * Remove any data in the learner
 	 * 
 	 * @throws SearchLibException

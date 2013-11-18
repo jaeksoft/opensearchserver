@@ -112,5 +112,4 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 			throw new CommonServiceException(e);
 		}
 	}
-
 }

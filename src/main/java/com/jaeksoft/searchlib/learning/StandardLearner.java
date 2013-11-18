@@ -62,8 +62,17 @@ public class StandardLearner implements LearnerInterface {
 
 	@Override
 	public void init(File instancesDir) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (instancesDir != null && indexDir != null)
+				if (instancesDir.compareTo(indexDir) == 0)
+					return;
+		} finally {
+			rwl.r.unlock();
+		}
 		rwl.w.lock();
 		try {
+			closeNoLock();
 			this.indexDir = instancesDir;
 		} finally {
 			rwl.w.unlock();
@@ -73,10 +82,29 @@ public class StandardLearner implements LearnerInterface {
 	private void checkIndex() throws SearchLibException {
 		if (learnerClient != null)
 			return;
+		if (indexDir == null)
+			throw new SearchLibException("Index directory not set");
 		if (!indexDir.exists())
 			indexDir.mkdir();
 		learnerClient = new Client(indexDir,
 				"/com/jaeksoft/searchlib/learner_config.xml", true);
+	}
+
+	private void closeNoLock() {
+		if (learnerClient == null)
+			return;
+		learnerClient.close();
+		learnerClient = null;
+	}
+
+	@Override
+	public void close() {
+		rwl.w.lock();
+		try {
+			closeNoLock();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	@Override
