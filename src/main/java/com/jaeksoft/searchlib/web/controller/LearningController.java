@@ -45,19 +45,18 @@ import com.jaeksoft.searchlib.learning.Learner;
 import com.jaeksoft.searchlib.learning.LearnerManager;
 import com.jaeksoft.searchlib.learning.LearnerResultItem;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
+import com.jaeksoft.searchlib.scheduler.TaskItem;
+import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.scheduler.task.TaskLearnerRun;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
-public class LearningController extends CommonController implements
-		InfoCallback {
+public class LearningController extends CommonController {
 
 	private Learner selectedLearner;
 	private Learner currentLearner;
-
-	private String info;
 
 	private transient String selectedSourceIndexField;
 	private transient String selectedSourceLearnerField;
@@ -190,11 +189,10 @@ public class LearningController extends CommonController implements
 		if (client == null)
 			return;
 		LearnerManager lm = client.getLearnerManager();
-		if (selectedLearner != null) {
-			lm.replace(selectedLearner, currentLearner);
-		} else
+		if (selectedLearner != null)
+			lm.set(currentLearner);
+		else
 			lm.add(currentLearner);
-		client.saveLearner(currentLearner);
 		onCancel();
 	}
 
@@ -204,8 +202,7 @@ public class LearningController extends CommonController implements
 		Client client = getClient();
 		if (client == null)
 			return;
-		client.getLearnerManager().remove(selectedLearner);
-		client.deleteLearner(selectedLearner);
+		client.getLearnerManager().remove(selectedLearner.getName());
 		onCancel();
 	}
 
@@ -227,18 +224,6 @@ public class LearningController extends CommonController implements
 
 	public Learner getCurrentLearner() {
 		return currentLearner;
-	}
-
-	public Learner getSelectedLearner() {
-		return selectedLearner;
-	}
-
-	public void setSelectedLearner(Learner learner) throws SearchLibException {
-		if (learner == null)
-			return;
-		selectedLearner = learner;
-		currentLearner = new Learner(learner);
-		reload();
 	}
 
 	public int getPageSize() {
@@ -292,18 +277,40 @@ public class LearningController extends CommonController implements
 
 	@Command
 	@NotifyChange("*")
-	public void onReset() throws SearchLibException, IOException {
-		if (currentLearner == null)
+	public void onReset(@BindingParam("learner") String learnerName)
+			throws SearchLibException, IOException {
+		Client client = getClient();
+		if (client == null)
 			return;
-		currentLearner.reset();
+		client.getLearnerManager().reset(learnerName);
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onLearn() throws SearchLibException {
-		if (currentLearner == null)
+	public void onLearn(@BindingParam("learner") String learnerName)
+			throws SearchLibException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
 			return;
-		currentLearner.learn(this);
+		TaskLearnerRun taskLearnerRun = new TaskLearnerRun();
+		taskLearnerRun.setManualLearn(learnerName);
+		TaskItem taskItem = new TaskItem(client, taskLearnerRun);
+		TaskManager.executeTask(client, taskItem, null);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onEdit(@BindingParam("learner") String learnerName)
+			throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		selectedLearner = client.getLearnerManager().get(learnerName);
+		if (selectedLearner.isRunning())
+			throw new SearchLibException("Learning is running");
+		if (selectedLearner == null)
+			throw new SearchLibException("Learner not found: " + learnerName);
+		currentLearner = new Learner(selectedLearner);
 	}
 
 	@Command
@@ -358,6 +365,11 @@ public class LearningController extends CommonController implements
 		fieldMap.remove(link);
 	}
 
+	@Command
+	@NotifyChange({ "learners", "running" })
+	public void onRefreshList() {
+	}
+
 	/**
 	 * @return the testText
 	 */
@@ -373,13 +385,14 @@ public class LearningController extends CommonController implements
 		this.testText = testText;
 	}
 
-	@Override
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
-	public String getInfo() {
-		return info;
+	public boolean isRunning() throws SearchLibException {
+		Learner[] learners = getLearners();
+		if (learners == null)
+			return false;
+		for (Learner learner : learners)
+			if (learner.isRunning())
+				return true;
+		return false;
 	}
 
 }
