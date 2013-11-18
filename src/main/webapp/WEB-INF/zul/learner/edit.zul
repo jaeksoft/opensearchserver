@@ -133,17 +133,6 @@
 						checked="@bind(learning.currentLearner.active)" />
 				</row>
 				<row>
-					<label value="Learn" />
-					<cell>
-						<button label="Reset"
-							onClick="@command('onReset')" />
-						<button label="Learn"
-							onClick="@command('onLearn')" />
-						<space />
-						<label value="@load(learning.info)" />
-					</cell>
-				</row>
-				<row>
 					<label value="Max rank: " />
 					<intbox
 						value="@bind(learning.currentLearner.maxRank)" />

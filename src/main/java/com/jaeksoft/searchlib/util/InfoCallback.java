@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.util;
 
 public interface InfoCallback {
+
+	public String getInfo();
 
 	public void setInfo(String info);
 }

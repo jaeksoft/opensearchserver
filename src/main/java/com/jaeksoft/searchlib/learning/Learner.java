@@ -49,7 +49,7 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Learner implements Comparable<Learner> {
+public class Learner implements InfoCallback {
 
 	private final static String LEARNER_ITEM_ROOT_NODE_NAME = "learner";
 	private final static String LEARNER_ITEM_ROOT_ATTR_NAME = "name";
@@ -83,6 +83,16 @@ public class Learner implements Comparable<Learner> {
 
 	private Client client;
 
+	private final ReadWriteLock rwlStatusLock = new ReadWriteLock();
+
+	public static enum RunningStatus {
+		Learning, Error, Idle;
+	}
+
+	private RunningStatus runningStatus;
+
+	private String lastRunInfo;
+
 	public Learner(Client client) {
 		this.client = client;
 		this.name = null;
@@ -94,6 +104,8 @@ public class Learner implements Comparable<Learner> {
 		maxRank = 1;
 		minScore = 0;
 		buffer = 1000;
+		runningStatus = RunningStatus.Idle;
+		lastRunInfo = null;
 	}
 
 	public Learner(Learner source) {
@@ -115,6 +127,8 @@ public class Learner implements Comparable<Learner> {
 				targetFieldMap.copyTo(target.targetFieldMap);
 				target.maxRank = maxRank;
 				target.minScore = minScore;
+				target.setRunningStatus(this.getRunningStatus(),
+						this.getLastRunInfo());
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -224,16 +238,6 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	@Override
-	public int compareTo(Learner o) {
-		rwl.r.lock();
-		try {
-			return name.compareTo(o.name);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
@@ -276,14 +280,18 @@ public class Learner implements Comparable<Learner> {
 	}
 
 	private final File getInstancesDataFile() {
+		if (name == null)
+			return null;
 		return new File(client.getLearnerDirectory(), name + ".data");
 	}
 
 	public LearnerInterface getInstance() throws SearchLibException {
 		rwl.r.lock();
 		try {
-			if (learnerInstance != null)
+			if (learnerInstance != null) {
+				learnerInstance.init(getInstancesDataFile());
 				return learnerInstance;
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -354,20 +362,34 @@ public class Learner implements Comparable<Learner> {
 		}
 	}
 
-	public void learn(InfoCallback infoCallback) throws SearchLibException {
+	public void learn(InfoCallback callback) throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
+			if (isRunning())
+				throw new SearchLibException("The learner is already running: "
+						+ name);
+			if (callback == null)
+				callback = this;
+			setRunningStatus(RunningStatus.Learning, "");
 			instance.learn(client, searchRequest, sourceFieldMap, buffer,
-					infoCallback);
+					callback);
+			setRunningStatus(RunningStatus.Idle, callback.getInfo());
 		} catch (IOException e) {
+			setRunningStatus(RunningStatus.Error, e.getMessage());
 			throw new SearchLibException(e);
+		} catch (SearchLibException e) {
+			setRunningStatus(RunningStatus.Error, e.getMessage());
+			throw e;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	public void reset() throws SearchLibException, IOException {
+		if (isRunning())
+			throw new SearchLibException(
+					"Cannot reset the learner while running: " + name);
 		LearnerInterface instance = getInstance();
 		instance.reset();
 		File f = getInstancesDataFile();
@@ -454,4 +476,60 @@ public class Learner implements Comparable<Learner> {
 			rwl.w.unlock();
 		}
 	}
+
+	/**
+	 * @return the running status
+	 */
+	public RunningStatus getRunningStatus() {
+		rwlStatusLock.r.lock();
+		try {
+			return runningStatus;
+		} finally {
+			rwlStatusLock.r.unlock();
+		}
+	}
+
+	/**
+	 * @param RunningStatus
+	 *            the RunningStatus to set
+	 */
+	protected void setRunningStatus(RunningStatus runningStatus,
+			String lastRunInfo) {
+		rwlStatusLock.w.lock();
+		try {
+			if (runningStatus != null)
+				this.runningStatus = runningStatus;
+			if (lastRunInfo != null)
+				this.lastRunInfo = lastRunInfo;
+		} finally {
+			rwlStatusLock.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the lastRunInfo
+	 */
+	public String getLastRunInfo() {
+		rwlStatusLock.r.lock();
+		try {
+			return lastRunInfo;
+		} finally {
+			rwlStatusLock.r.unlock();
+		}
+	}
+
+	@Override
+	public String getInfo() {
+		return getLastRunInfo();
+	}
+
+	@Override
+	public void setInfo(String info) {
+		setRunningStatus(null, info);
+	}
+
+	public boolean isRunning() {
+		return getRunningStatus() == RunningStatus.Learning;
+	}
+
 }

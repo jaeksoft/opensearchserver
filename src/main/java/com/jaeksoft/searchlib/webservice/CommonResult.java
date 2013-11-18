@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -71,6 +72,12 @@ public class CommonResult implements InfoCallback {
 	@Override
 	public void setInfo(String info) {
 		this.info = info;
+	}
+
+	@Override
+	@XmlTransient
+	public String getInfo() {
+		return info;
 	}
 
 	public CommonResult addDetail(String key, Object value) {
