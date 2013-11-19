@@ -77,6 +77,8 @@ public class ScriptCommandContext implements Closeable {
 
 	private final Variables variables;
 
+	private final Variables contextVariables;
+
 	private List<IndexDocument> indexDocuments;
 
 	private IndexDocument currentIndexDocument;
@@ -97,6 +99,7 @@ public class ScriptCommandContext implements Closeable {
 		transaction = null;
 		variablesSet = new LinkedHashSet<Variables>();
 		variables = new Variables();
+		contextVariables = new Variables();
 		indexDocuments = null;
 		currentIndexDocument = null;
 		updatedDocumentCount = 0;
@@ -127,6 +130,7 @@ public class ScriptCommandContext implements Closeable {
 
 	private void buildVariables() {
 		variables.clear();
+		variables.merge(contextVariables);
 		for (Variables vars : variablesSet)
 			variables.merge(vars);
 	}
@@ -139,6 +143,14 @@ public class ScriptCommandContext implements Closeable {
 		for (Variables vars : variablesList)
 			if (vars != null)
 				variablesSet.add(vars);
+		buildVariables();
+	}
+
+	public void addContextVariables(String name, String value) {
+		if (value == null)
+			contextVariables.clear(name);
+		else
+			contextVariables.put(name, value);
 		buildVariables();
 	}
 
