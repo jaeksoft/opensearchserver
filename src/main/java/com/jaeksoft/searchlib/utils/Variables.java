@@ -70,7 +70,8 @@ public class Variables {
 		if (variables == null)
 			return;
 		checkMap();
-		map.putAll(variables.map);
+		if (variables.map != null)
+			map.putAll(variables.map);
 	}
 
 	public final void put(Variables variables) {
@@ -92,6 +93,13 @@ public class Variables {
 			return;
 		checkMap();
 		map.put(StringUtils.fastConcat("{", name, "}"), value);
+	}
+
+	public final void clear(String name) {
+		if (name == null)
+			return;
+		checkMap();
+		map.remove(name);
 	}
 
 	public final String replace(String text) {
