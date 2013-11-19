@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
 import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentsImpl;
 import com.jaeksoft.searchlib.webservice.query.namedEntity.NamedEntityImpl;
 import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
 import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
@@ -56,6 +57,8 @@ public enum WebServiceEnum {
 	Database(DatabaseImpl.class, "/crawler/database"),
 
 	Document(DocumentImpl.class, "/document"),
+
+	Documents(DocumentsImpl.class, "/documents"),
 
 	Field(FieldImpl.class, "/field"),
 

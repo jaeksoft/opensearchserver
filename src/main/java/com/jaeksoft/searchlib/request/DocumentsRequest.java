@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -99,8 +100,31 @@ public class DocumentsRequest extends AbstractRequest implements
 	public void addReturnField(String fieldName) {
 		rwl.w.lock();
 		try {
-			returnFieldList.put(new ReturnField(config.getSchema()
-					.getFieldList().get(fieldName).getName()));
+			returnFieldList.put(new ReturnField(fieldName));
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void addReturnFields(Collection<String> returnFields) {
+		if (returnFields == null)
+			return;
+		rwl.w.lock();
+		try {
+			for (String returnField : returnFields)
+				returnFieldList.put(new ReturnField(returnField));
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void addUniqueKeys(Collection<String> uniqueKeys) {
+		if (uniqueKeys == null)
+			return;
+		rwl.w.lock();
+		try {
+			for (String uniqueKey : uniqueKeys)
+				uniqueKeyList.add(uniqueKey);
 		} finally {
 			rwl.w.unlock();
 		}
