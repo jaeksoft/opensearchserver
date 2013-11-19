@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,13 +21,13 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.document;
 
-import java.io.InputStream;
-import java.util.List;
+package com.jaeksoft.searchlib.webservice.query.document;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -36,52 +36,60 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-@Path("/index/{index_name}/document")
-public interface RestDocument {
+@Path("/index/{index_name}/documents")
+public interface RestDocuments {
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public QueryTemplateResultList documentsTemplateList(
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{template_name}")
+	public DocumentsTemplateResult documentsTemplateGet(
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("template_name") String template);
+
+	@POST
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{template_name}")
+	public DocumentsResult documentsTemplate(
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("template_name") String template, DocumentsQuery query);
 
 	@PUT
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public CommonResult update(@PathParam("index_name") String index,
+	@Path("/{template_name}")
+	public CommonResult documentsTemplateSet(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			List<DocumentUpdate> documents);
+			@PathParam("template_name") String template, DocumentsQuery query);
 
-	@PUT
-	@Consumes(MediaType.TEXT_PLAIN)
+	@POST
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult update(@PathParam("index_name") String index,
+	public DocumentsResult documentsSearch(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("pattern") String pattern,
-			@QueryParam("field") List<String> fields,
-			@QueryParam("langpos") Integer langPosition,
-			@QueryParam("charset") String charset,
-			@QueryParam("buffersize") Integer bufferSize,
-			InputStream inputStream);
-
-	@DELETE
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{field_name}/{values:.+}")
-	public CommonResult deleteByValue(@PathParam("index_name") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("field_name") String field,
-			@PathParam("values") String values);
+			DocumentsQuery query);
 
 	@DELETE
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{field_name}/")
-	public CommonResult deleteByValue(@PathParam("index_name") String index,
+	@Path("/{template_name}")
+	public CommonResult documentsTemplateDelete(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@PathParam("field_name") String field, List<String> values);
-
-	@DELETE
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
-	public CommonResult deleteByQuery(@PathParam("index_name") String index,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("query") String query);
+			@PathParam("template_name") String template);
 
 }

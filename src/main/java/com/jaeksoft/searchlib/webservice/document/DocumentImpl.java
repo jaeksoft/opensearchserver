@@ -109,7 +109,6 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 		String[] valueArray = StringUtils.split(values, '/');
 		return deleteByValue(index, login, key, field,
 				Arrays.asList(valueArray));
-
 	}
 
 	private int updateDocument(Client client, List<DocumentUpdate> documents)
