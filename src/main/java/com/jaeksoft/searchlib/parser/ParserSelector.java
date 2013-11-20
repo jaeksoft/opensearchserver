@@ -243,6 +243,14 @@ public class ParserSelector {
 		}
 	}
 
+	final public Parser getNewParserByName(String parserName)
+			throws SearchLibException {
+		ParserFactory parserFactory = getParserByName(parserName);
+		if (parserFactory == null)
+			return null;
+		return getParser(parserFactory);
+	}
+
 	private Parser getParserFromExtension(String extension)
 			throws SearchLibException {
 		rwl.r.lock();

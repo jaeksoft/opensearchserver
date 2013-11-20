@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.script;
 
 import com.jaeksoft.searchlib.script.commands.ExecutionCommands;
 import com.jaeksoft.searchlib.script.commands.IndexDocumentCommands;
+import com.jaeksoft.searchlib.script.commands.ParserCommands;
 import com.jaeksoft.searchlib.script.commands.SearchCommands;
 import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.script.commands.VarCommands;
@@ -111,7 +112,9 @@ public enum CommandEnum {
 
 	VAR_NEW_REGEX(VarCommands.VarNewRegEx.class),
 
-	VAR_CLEAR(VarCommands.VarClear.class);
+	VAR_CLEAR(VarCommands.VarClear.class),
+
+	PARSER_MERGE(ParserCommands.ParserMerge.class);
 
 	private final Class<? extends CommandAbstract> commandClass;
 
