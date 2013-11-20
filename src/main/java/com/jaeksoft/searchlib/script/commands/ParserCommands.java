@@ -51,14 +51,16 @@ public class ParserCommands {
 						.getNewParserByName(parserName);
 				if (parser == null)
 					throw new ScriptException("Parser not found: " + parserName);
-				String dirPath = getParameterString(1);
+				String dirPath = context
+						.replaceVariables(getParameterString(1));
 				File fileDir = new File(dirPath);
 				if (!fileDir.exists())
 					throw new ScriptException("Directory not found: " + dirPath);
 				if (!fileDir.isDirectory())
 					throw new ScriptException("The path is not a directory: "
 							+ dirPath);
-				File destFile = new File(getParameterString(2));
+				File destFile = new File(
+						context.replaceVariables(getParameterString(2)));
 				parser.mergeFiles(fileDir, destFile);
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
