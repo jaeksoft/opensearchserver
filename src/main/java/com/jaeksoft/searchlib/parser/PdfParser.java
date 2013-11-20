@@ -34,12 +34,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
+import org.apache.pdfbox.util.PDFMergerUtility;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
@@ -218,5 +222,29 @@ public class PdfParser extends Parser {
 					ParserFieldEnum.image_ocr_boxes);
 		if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 			hocrPdf.putTextToParserField(result, ParserFieldEnum.ocr_content);
+	}
+
+	@Override
+	public void mergeFiles(File fileDir, File destFile)
+			throws SearchLibException {
+		PDFMergerUtility pdfMerger = new PDFMergerUtility();
+		File[] files = new LastModifiedFileComparator().sort(fileDir
+				.listFiles());
+		for (File file : files) {
+			String ext = FilenameUtils.getExtension(file.getName());
+			if (!"pdf".equalsIgnoreCase(ext))
+				continue;
+			pdfMerger.addSource(file);
+		}
+		if (destFile.exists())
+			destFile.delete();
+		pdfMerger.setDestinationFileName(destFile.getAbsolutePath());
+		try {
+			pdfMerger.mergeDocuments();
+		} catch (COSVisitorException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 }

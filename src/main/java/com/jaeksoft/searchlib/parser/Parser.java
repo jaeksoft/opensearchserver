@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -146,5 +147,11 @@ public abstract class Parser extends ParserFactory {
 				return value;
 		}
 		return null;
+	}
+
+	public void mergeFiles(File fileDir, File destFile)
+			throws SearchLibException {
+		throw new SearchLibException(
+				"This parser does not support file merge feature");
 	}
 }

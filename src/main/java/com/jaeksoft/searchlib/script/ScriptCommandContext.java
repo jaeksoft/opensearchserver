@@ -314,7 +314,7 @@ public class ScriptCommandContext implements Closeable {
 				throw new ScriptException("The path is not a directory: "
 						+ directory.getAbsolutePath());
 		} else {
-			directory.mkdir();
+			directory.mkdirs();
 			if (!directory.exists())
 				throw new ScriptException("Unable to create the directory: "
 						+ directory.getAbsolutePath());
