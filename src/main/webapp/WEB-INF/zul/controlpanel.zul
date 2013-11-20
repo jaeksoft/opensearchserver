@@ -40,6 +40,8 @@
 				label="Reports" />
 			<tab id="tabReplication"
 				visible="@bind(index.replicationRights)" label="Replication" />
+			<tab id="tabScript" visible="@bind(index.schemaRights)"
+				label="Scripts" />
 			<tab id="tabPrivileges"
 				visible="@bind(index.privilegeRights)" label="Privileges" />
 		</tabs>
@@ -82,6 +84,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabReplication.onSelect">
 				<include src="WEB-INF/zul/replication/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabScript.onSelect">
+				<include src="WEB-INF/zul/script/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabPrivileges.onSelect">
 				<include src="WEB-INF/zul/privileges/index.zul" />

@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer" border="none"
+	viewModel="@id('scripting') @init('com.jaeksoft.searchlib.web.controller.ScriptingController')">
+	<hbox>
+		<groupbox mold="3d" closable="false" hflex="min">
+			<caption label="Scripts">
+				<toolbar>
+					<toolbarbutton label="API"
+						href="@load(scripting.apiList)" target="_blank" />
+				</toolbar>
+			</caption>
+			<listbox model="@load(scripting.scripts)" hflex="min"
+				selectedItem="@bind(scripting.selectedScript)">
+				<template name="model" var="script">
+					<listitem label="@load(script)" />
+				</template>
+			</listbox>
+		</groupbox>
+		<groupbox mold="3d" closable="false">
+			<caption label="Script content">
+				<toolbar>
+					<toolbarbutton label="API"
+						href="@load(scripting.scriptApi)" target="_blank" />
+				</toolbar>
+			</caption>
+			<grid id="scriptlines" width="100%"
+				model="@load(scripting.scriptLines)">
+				<columns>
+					<column label="id" hflex="min" />
+					<column label="command" hflex="min" />
+					<column label="parameters" />
+				</columns>
+				<rows>
+					<template name="model" var="line">
+						<row>
+							<label value="@load(line.id)" />
+							<label value="@load(line.command)" />
+							<cell>
+								<vlayout
+									children="@load(line.parameters)">
+									<template name="children"
+										var="parameter">
+										<label value="@load(parameter)" />
+									</template>
+								</vlayout>
+							</cell>
+						</row>
+					</template>
+				</rows>
+			</grid>
+		</groupbox>
+		<space />
+	</hbox>
+</window>

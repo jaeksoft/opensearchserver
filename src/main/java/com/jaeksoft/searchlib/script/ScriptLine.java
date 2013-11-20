@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -62,6 +63,21 @@ public class ScriptLine {
 			for (int i = 0; i < parameters.length; i++)
 				parameters[i] = variables.replace(parameters[i]);
 		this.parameters = parameters;
+	}
+
+	@XmlTransient
+	public String getId() {
+		return id;
+	}
+
+	@XmlTransient
+	public String getCommand() {
+		return command;
+	}
+
+	@XmlTransient
+	public String[] getParameters() {
+		return parameters;
 	}
 
 	public static class XmlScript {
