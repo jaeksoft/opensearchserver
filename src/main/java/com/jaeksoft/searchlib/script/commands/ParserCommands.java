@@ -55,7 +55,7 @@ public class ParserCommands {
 						.replaceVariables(getParameterString(1));
 				File fileDir = new File(dirPath);
 				if (!fileDir.exists())
-					throw new ScriptException("Directory not found: " + dirPath);
+					return;
 				if (!fileDir.isDirectory())
 					throw new ScriptException("The path is not a directory: "
 							+ dirPath);
