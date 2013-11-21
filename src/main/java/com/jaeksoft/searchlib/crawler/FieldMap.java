@@ -71,8 +71,10 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				String source = cols[0];
 				String target = cols[1];
 				String analyzer = cols.length > 2 ? cols[2] : null;
+				Float boost = cols.length > 3 ? Float.parseFloat(cols[3])
+						: null;
 				add(new SourceField(source, concatSeparator), new TargetField(
-						target, analyzer));
+						target, analyzer, boost));
 			}
 		} finally {
 			IOUtils.closeQuietly(br);
@@ -154,4 +156,13 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		}
 	}
 
+	public boolean contains(String source, String target) {
+		if (source == null || target == null)
+			return false;
+		for (GenericLink<SourceField, TargetField> link : getList())
+			if (target.equals(link.getTarget().getName()))
+				if (link.getSource().contains(source))
+					return true;
+		return false;
+	}
 }

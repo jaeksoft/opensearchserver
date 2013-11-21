@@ -30,7 +30,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @JsonInclude(Include.NON_EMPTY)
 public class LearnerResultItem {
@@ -39,19 +40,23 @@ public class LearnerResultItem {
 	public int rank;
 	public final String target;
 	public final String name;
-	public final String[] custom;
+	public final DocumentResult document;
 
 	public int count;
 
 	public LearnerResultItem(double score, int rank, String target,
-			String name, int count, FieldValue customFields) {
+			String name, int count, DocumentResult document) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
 		this.name = name;
 		this.count = count;
-		this.custom = customFields == null ? null : customFields
-				.getNewStringArray();
+		this.document = document;
+	}
+
+	public LearnerResultItem(LearnerResultItem result, ResultDocument document) {
+		this(result.score, result.rank, result.target, result.name,
+				result.count, new DocumentResult(document, null, null, null));
 	}
 
 	public double getScore() {

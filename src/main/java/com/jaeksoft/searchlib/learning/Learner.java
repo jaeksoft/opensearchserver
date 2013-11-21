@@ -43,6 +43,9 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -353,9 +356,34 @@ public class Learner implements InfoCallback {
 				min_score = minScore;
 			List<LearnerResultItem> list = new ArrayList<LearnerResultItem>(0);
 			instance.similar(text, max_rank, min_score, list);
-			LearnerResultItem[] result = LearnerResultItem.sortArray(list);
-			return LearnerResultItem.maxRank(result, max_rank);
+			LearnerResultItem[] results = LearnerResultItem.sortArray(list);
+			results = LearnerResultItem.maxRank(results, max_rank);
+			String uniqueField = client.getSchema().getUniqueField();
+			if (uniqueField == null)
+				return results;
+			if (!getSourceFieldMap().contains(uniqueField, "name"))
+				return results;
+			AbstractSearchRequest request = (AbstractSearchRequest) client
+					.getNewRequest(searchRequest);
+			LearnerResultItem[] newResults = new LearnerResultItem[results.length];
+			int i = 0;
+			for (LearnerResultItem result : results) {
+				request.reset();
+				StringBuilder sb = new StringBuilder();
+				sb.append(uniqueField);
+				sb.append(":\"");
+				sb.append(result.getName());
+				sb.append("\"");
+				request.addFilter(sb.toString(), true);
+				AbstractResultSearch searchResult = (AbstractResultSearch) client
+						.request(request);
+				newResults[i++] = new LearnerResultItem(result,
+						searchResult.getDocument(0));
+			}
+			return newResults;
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
