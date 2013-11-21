@@ -56,6 +56,9 @@
 									<listitem label="@load(each)" />
 								</template>
 							</listbox>
+							<label value="boost " />
+							<doublebox
+								value="@bind(learning.selectedSourceLearnerFieldBoost)" />
 							<button label="add"
 								onClick="@command('onSourceLinkAdd')" />
 						</hbox>
@@ -64,6 +67,7 @@
 							<listhead>
 								<listheader label="Index field" />
 								<listheader label="Learner field" />
+								<listheader label="Boost" />
 								<listheader label="Action" />
 							</listhead>
 							<template name="model" var="link">
@@ -72,6 +76,8 @@
 										label="@load(link.source.uniqueName)" />
 									<listcell
 										label="@load(link.target.name)" />
+									<listcell
+										label="@load(link.target.boost)" />
 									<listcell>
 										<image
 											src="/images/action_delete.png"

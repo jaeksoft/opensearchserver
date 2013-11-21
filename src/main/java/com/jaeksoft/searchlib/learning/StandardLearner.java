@@ -173,8 +173,6 @@ public class StandardLearner implements LearnerInterface {
 					if (docScore < minScore)
 						break;
 					ResultDocument document = result.getDocument(pos);
-					FieldValue customFieldValues = document.getReturnFields()
-							.get("custom");
 					FieldValue nameFieldValues = document.getReturnFields()
 							.get("name");
 					if (nameFieldValues == null)
@@ -184,7 +182,7 @@ public class StandardLearner implements LearnerInterface {
 						if (value == null)
 							continue;
 						collector.add(new LearnerResultItem(docScore, pos,
-								null, value, 1, customFieldValues));
+								null, value, 1, null));
 						break;
 					}
 				}
@@ -310,7 +308,7 @@ public class StandardLearner implements LearnerInterface {
 		}
 	}
 
-	private final String[] SOURCE_FIELDS = { "data", "target", "name", "custom" };
+	private final String[] SOURCE_FIELDS = { "data", "target", "name" };
 
 	@Override
 	public String[] getSourceFieldList() {
