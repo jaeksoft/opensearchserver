@@ -60,6 +60,7 @@ public class LearningController extends CommonController {
 
 	private transient String selectedSourceIndexField;
 	private transient String selectedSourceLearnerField;
+	private transient Float selectedSourceLearnerFieldBoost;
 	private transient SchemaField selectedTargetIndexField;
 	private transient String selectedTargetLearnerField;
 
@@ -82,6 +83,7 @@ public class LearningController extends CommonController {
 		selectedSourceLearnerField = null;
 		selectedTargetIndexField = null;
 		selectedTargetLearnerField = null;
+		selectedSourceLearnerFieldBoost = null;
 		totalSize = 0;
 		activePage = 0;
 		testText = null;
@@ -323,7 +325,8 @@ public class LearningController extends CommonController {
 			return;
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
 		fieldMap.add(new SourceField(selectedSourceIndexField),
-				new TargetField(selectedSourceLearnerField));
+				new TargetField(selectedSourceLearnerField, null,
+						selectedSourceLearnerFieldBoost));
 	}
 
 	@Command
@@ -393,6 +396,22 @@ public class LearningController extends CommonController {
 			if (learner.isRunning())
 				return true;
 		return false;
+	}
+
+	/**
+	 * @return the selectedSourceLearnerFieldBoost
+	 */
+	public Float getSelectedSourceLearnerFieldBoost() {
+		return selectedSourceLearnerFieldBoost;
+	}
+
+	/**
+	 * @param selectedSourceLearnerFieldBoost
+	 *            the selectedSourceLearnerFieldBoost to set
+	 */
+	public void setSelectedSourceLearnerFieldBoost(
+			Float selectedSourceLearnerFieldBoost) {
+		this.selectedSourceLearnerFieldBoost = selectedSourceLearnerFieldBoost;
 	}
 
 }

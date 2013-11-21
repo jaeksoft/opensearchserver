@@ -163,6 +163,11 @@ public class DomUtils {
 		return value == null ? defaultValue : Double.parseDouble(value);
 	}
 
+	public static Float getAttributeFloat(Node node, String name) {
+		String value = getAttributeText(node, name);
+		return StringUtils.isEmpty(value) ? null : Float.parseFloat(value);
+	}
+
 	final public static void updateAttributeText(Node node, String name,
 			String value) {
 		NamedNodeMap nnm = node.getAttributes();

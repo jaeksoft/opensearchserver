@@ -46,13 +46,13 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 public class DocumentResult {
 
 	@XmlAttribute
-	public final int pos;
+	public final Integer pos;
 
 	@XmlAttribute
-	public final float score;
+	public final Float score;
 
 	@XmlAttribute
-	public final int collapseCount;
+	public final Integer collapseCount;
 
 	@XmlElement(name = "field")
 	public final List<FieldValueList> fields;
@@ -91,13 +91,13 @@ public class DocumentResult {
 		snippets = null;
 		functions = null;
 		positions = null;
-		collapseCount = 0;
-		pos = 0;
-		score = 0;
+		collapseCount = null;
+		pos = null;
+		score = null;
 	}
 
-	public DocumentResult(ResultDocument resultDocument, int collapseDocCount,
-			int position, float docScore) {
+	public DocumentResult(ResultDocument resultDocument,
+			Integer collapseDocCount, Integer position, Float docScore) {
 		fields = new ArrayList<FieldValueList>(0);
 		for (FieldValue fiedValue : resultDocument.getReturnFields().values())
 			fields.add(new FieldValueList(fiedValue));
