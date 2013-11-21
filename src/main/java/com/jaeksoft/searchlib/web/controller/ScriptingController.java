@@ -31,8 +31,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.util.Clients;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -80,10 +78,9 @@ public class ScriptingController extends CommonController {
 				+ URLEncoder.encode(selectedScript, "UTF-8"));
 	}
 
-	@NotifyChange("*")
-	public void setSelectedScript(String scriptName) {
+	public void setSelectedScript(String scriptName) throws SearchLibException {
 		selectedScript = scriptName;
-		Clients.resize(component);
+		reload();
 	}
 
 	public String getSelectedScript() {
