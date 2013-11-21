@@ -16,30 +16,19 @@
 -->
 <window apply="org.zkoss.bind.BindComposer" border="none"
 	viewModel="@id('scripting') @init('com.jaeksoft.searchlib.web.controller.ScriptingController')">
-	<hbox>
-		<groupbox mold="3d" closable="false" hflex="min">
-			<caption label="Scripts">
-				<toolbar>
-					<toolbarbutton label="API"
-						href="@load(scripting.apiList)" target="_blank" />
-				</toolbar>
-			</caption>
-			<listbox model="@load(scripting.scripts)" hflex="min"
+	<borderlayout vflex="min">
+		<west title="Scripts" width="150px" vflex="min" minsize="150"
+			splittable="true">
+			<listbox model="@load(scripting.scripts)" width="100%"
 				selectedItem="@bind(scripting.selectedScript)">
 				<template name="model" var="script">
 					<listitem label="@load(script)" />
 				</template>
 			</listbox>
-		</groupbox>
-		<groupbox mold="3d" closable="false">
-			<caption label="Script content">
-				<toolbar>
-					<toolbarbutton label="API"
-						href="@load(scripting.scriptApi)" target="_blank" />
-				</toolbar>
-			</caption>
-			<grid id="scriptlines" width="100%"
-				model="@load(scripting.scriptLines)">
+		</west>
+		<center title="Script content" vflex="min">
+			<grid width="100%" model="@load(scripting.scriptLines)"
+				emptyMessage="No script selected">
 				<columns>
 					<column label="id" hflex="min" />
 					<column label="command" hflex="min" />
@@ -63,7 +52,18 @@
 					</template>
 				</rows>
 			</grid>
-		</groupbox>
-		<space />
-	</hbox>
+		</center>
+		<south title="API">
+			<hlayout>
+				<button label="List scripts"
+					href="@load(scripting.apiList)" tooltiptext="@load(self.href)"
+					target="_blank" />
+				<space />
+				<button label="Get script"
+					visible="@load(not empty scripting.selectedScript)"
+					tooltiptext="@load(self.href)" href="@load(scripting.scriptApi)"
+					target="_blank" />
+			</hlayout>
+		</south>
+	</borderlayout>
 </window>
