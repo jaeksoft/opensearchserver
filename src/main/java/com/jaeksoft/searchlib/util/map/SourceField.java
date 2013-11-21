@@ -63,6 +63,15 @@ public class SourceField implements Comparable<SourceField> {
 		return true;
 	}
 
+	final public boolean contains(String source) {
+		if (names == null || source == null)
+			return false;
+		for (String name : names)
+			if (source.equals(name))
+				return true;
+		return false;
+	}
+
 	@Override
 	final public int compareTo(SourceField o) {
 		int l = names.length;

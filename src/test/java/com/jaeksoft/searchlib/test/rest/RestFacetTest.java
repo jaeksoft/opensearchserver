@@ -76,8 +76,6 @@ public class RestFacetTest extends CommonRestAPI {
 		for (FacetFieldItem facetFieldItem : facetCategory.terms) {
 			Long res = facetValues.get(facetFieldItem.term);
 			assertNotNull("Unexpected facet: " + facetFieldItem.term, res);
-			if (res == null)
-				continue;
 			assertEquals("Facet count is wrong", (long) res,
 					facetFieldItem.count);
 			facetValues.remove(facetFieldItem.term);

@@ -49,18 +49,22 @@ public class TargetField implements Comparable<TargetField> {
 
 	private CompiledAnalyzer cachedAnalyzer;
 
-	public TargetField(String name, String analyzer) {
+	private Float boost;
+
+	public TargetField(String name, String analyzer, Float boost) {
 		this.name = name;
 		this.analyzer = analyzer;
 		this.cachedAnalyzer = null;
+		this.boost = boost;
 	}
 
 	public TargetField(String name) {
-		this(name, (String) null);
+		this(name, (String) null, null);
 	}
 
 	public TargetField(String name, Node node) {
-		this(name, DomUtils.getAttributeText(node, "analyzer"));
+		this(name, DomUtils.getAttributeText(node, "analyzer"), DomUtils
+				.getAttributeFloat(node, "boost"));
 	}
 
 	/**
@@ -118,6 +122,21 @@ public class TargetField implements Comparable<TargetField> {
 		this.cachedAnalyzer = null;
 	}
 
+	/**
+	 * @return the boost
+	 */
+	public Float getBoost() {
+		return boost;
+	}
+
+	/**
+	 * @param boost
+	 *            the boost to set
+	 */
+	public void setBoost(Float boost) {
+		this.boost = boost;
+	}
+
 	final public void setCachedAnalyzer(AnalyzerList analyzerList,
 			LanguageEnum lang) throws SearchLibException {
 		cachedAnalyzer = null;
@@ -150,7 +169,8 @@ public class TargetField implements Comparable<TargetField> {
 			return;
 		FieldContent fc = document.getFieldContent(name);
 		if (cachedAnalyzer == null)
-			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
+			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
+					boost));
 		else
 			cachedAnalyzer.populate(value, fc);
 	}
@@ -162,7 +182,8 @@ public class TargetField implements Comparable<TargetField> {
 		FieldContent fc = document.getFieldContent(name);
 		if (cachedAnalyzer == null) {
 			for (String value : values)
-				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
+				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
+						boost));
 		} else {
 			for (String value : values)
 				cachedAnalyzer.populate(value, fc);
