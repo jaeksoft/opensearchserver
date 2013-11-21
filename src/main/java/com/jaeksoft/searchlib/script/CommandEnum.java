@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.script;
 
 import com.jaeksoft.searchlib.script.commands.ExecutionCommands;
 import com.jaeksoft.searchlib.script.commands.IndexDocumentCommands;
+import com.jaeksoft.searchlib.script.commands.ParserCommands;
 import com.jaeksoft.searchlib.script.commands.SearchCommands;
 import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.script.commands.VarCommands;
 import com.jaeksoft.searchlib.script.commands.WebDriverCommands;
 
 public enum CommandEnum {
@@ -106,7 +108,13 @@ public enum CommandEnum {
 
 	INDEX_DOCUMENT_ADD_VALUE(IndexDocumentCommands.AddValue.class),
 
-	INDEX_DOCUMENT_UPDATE(IndexDocumentCommands.Update.class);
+	INDEX_DOCUMENT_UPDATE(IndexDocumentCommands.Update.class),
+
+	VAR_NEW_REGEX(VarCommands.VarNewRegEx.class),
+
+	VAR_CLEAR(VarCommands.VarClear.class),
+
+	PARSER_MERGE(ParserCommands.ParserMerge.class);
 
 	private final Class<? extends CommandAbstract> commandClass;
 

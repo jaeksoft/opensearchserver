@@ -1,0 +1,69 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer" border="none"
+	viewModel="@id('scripting') @init('com.jaeksoft.searchlib.web.controller.ScriptingController')">
+	<borderlayout vflex="min">
+		<west title="Scripts" width="150px" vflex="min" minsize="150"
+			splittable="true">
+			<listbox model="@load(scripting.scripts)" width="100%"
+				selectedItem="@bind(scripting.selectedScript)">
+				<template name="model" var="script">
+					<listitem label="@load(script)" />
+				</template>
+			</listbox>
+		</west>
+		<center title="Script content" vflex="min">
+			<grid width="100%" model="@load(scripting.scriptLines)"
+				emptyMessage="No script selected">
+				<columns>
+					<column label="id" hflex="min" />
+					<column label="command" hflex="min" />
+					<column label="parameters" />
+				</columns>
+				<rows>
+					<template name="model" var="line">
+						<row>
+							<label value="@load(line.id)" />
+							<label value="@load(line.command)" />
+							<cell>
+								<vlayout
+									children="@load(line.parameters)">
+									<template name="children"
+										var="parameter">
+										<label value="@load(parameter)" />
+									</template>
+								</vlayout>
+							</cell>
+						</row>
+					</template>
+				</rows>
+			</grid>
+		</center>
+		<south title="API">
+			<hlayout>
+				<button label="List scripts"
+					href="@load(scripting.apiList)" tooltiptext="@load(self.href)"
+					target="_blank" />
+				<space />
+				<button label="Get script"
+					visible="@load(not empty scripting.selectedScript)"
+					tooltiptext="@load(self.href)" href="@load(scripting.scriptApi)"
+					target="_blank" />
+			</hlayout>
+		</south>
+	</borderlayout>
+</window>

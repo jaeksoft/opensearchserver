@@ -120,6 +120,23 @@ public abstract class CommonController implements EventInterface {
 		return AbstractServlet.getApiUrl(sb, servletPathName, client, user);
 	}
 
+	final public static String getRestApiUrl(String path)
+			throws UnsupportedEncodingException {
+		Execution exe = Executions.getCurrent();
+		StringBuilder sb = getBaseUrl();
+		Client client = (Client) exe.getSession().getAttribute(
+				ScopeAttribute.CURRENT_CLIENT.name());
+		sb.append("/services/rest");
+		sb.append(StringUtils.replace(path, "{index_name}",
+				URLEncoder.encode(client.getIndexName(), "UTF-8")));
+		sb.append("?_type=json");
+		User user = (User) exe.getSession().getAttribute(
+				ScopeAttribute.LOGGED_USER.name());
+		if (user != null)
+			user.appendApiCallParameters(sb);
+		return sb.toString();
+	}
+
 	protected Object getAttribute(ScopeAttribute scopeAttribute,
 			Object defaultValue) {
 		Object o = scopeAttribute.get(getSession());
