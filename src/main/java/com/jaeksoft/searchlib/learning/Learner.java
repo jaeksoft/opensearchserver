@@ -363,18 +363,17 @@ public class Learner implements InfoCallback {
 				return results;
 			if (!getSourceFieldMap().contains(uniqueField, "name"))
 				return results;
-			AbstractSearchRequest request = (AbstractSearchRequest) client
-					.getNewRequest(searchRequest);
 			LearnerResultItem[] newResults = new LearnerResultItem[results.length];
 			int i = 0;
 			for (LearnerResultItem result : results) {
-				request.reset();
+				AbstractSearchRequest request = (AbstractSearchRequest) client
+						.getNewRequest(searchRequest);
 				StringBuilder sb = new StringBuilder();
 				sb.append(uniqueField);
 				sb.append(":\"");
 				sb.append(result.getName());
 				sb.append("\"");
-				request.addFilter(sb.toString(), true);
+				request.addFilter(sb.toString(), false);
 				AbstractResultSearch searchResult = (AbstractResultSearch) client
 						.request(request);
 				newResults[i++] = new LearnerResultItem(result,
