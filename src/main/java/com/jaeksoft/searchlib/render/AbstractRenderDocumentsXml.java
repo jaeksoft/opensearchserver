@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -39,9 +40,11 @@ import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
+import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 extends AbstractResult<T1>>
 		extends AbstractRenderXml<T1, T2> {
@@ -95,10 +98,21 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		}
 		if (returnFieldList != null)
 			for (ReturnField field : returnFieldList)
-				renderField(doc, field);
+				renderField(doc, field.getName());
 		if (snippetFieldList != null)
 			for (SnippetField field : snippetFieldList)
-				renderSnippetValue(doc, field);
+				renderSnippetValue(doc, field.getName());
+	}
+
+	final protected void renderDocument(ResultDocument doc) throws IOException {
+		Map<String, FieldValue> returnFields = doc.getReturnFields();
+		if (returnFields != null)
+			for (String fieldName : returnFields.keySet())
+				renderField(doc, fieldName);
+		Map<String, SnippetFieldValue> snippetFields = doc.getSnippetFields();
+		if (snippetFields != null)
+			for (String fieldName : snippetFields.keySet())
+				renderSnippetValue(doc, fieldName);
 	}
 
 	final protected void renderDocumentPrefix(int pos, ResultDocument doc) {
@@ -133,10 +147,9 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		renderDocumentSuffix();
 	}
 
-	private void renderField(ResultDocument doc, ReturnField field)
+	private void renderField(ResultDocument doc, String fieldName)
 			throws IOException {
-		String fieldName = field.getName();
-		FieldValueItem[] values = doc.getValueArray(field);
+		FieldValueItem[] values = doc.getValueArray(fieldName);
 		if (ArrayUtils.isEmpty(values)) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
@@ -159,17 +172,16 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		}
 	}
 
-	private void renderSnippetValue(ResultDocument doc, SnippetField field)
+	private void renderSnippetValue(ResultDocument doc, String fieldName)
 			throws IOException {
-		String fieldName = field.getName();
-		FieldValueItem[] snippets = doc.getSnippetArray(field);
+		FieldValueItem[] snippets = doc.getSnippetArray(fieldName);
 		if (snippets == null || snippets.length == 0) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
 			writer.print("\"/>");
 			return;
 		}
-		boolean highlighted = doc.isHighlighted(field.getName());
+		boolean highlighted = doc.isHighlighted(fieldName);
 		for (FieldValueItem snippet : snippets) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);

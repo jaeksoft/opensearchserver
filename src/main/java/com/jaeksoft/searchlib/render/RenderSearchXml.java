@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -34,13 +35,10 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 
 public class RenderSearchXml extends
 		AbstractRenderDocumentsXml<AbstractSearchRequest, AbstractResultSearch> {
@@ -49,30 +47,26 @@ public class RenderSearchXml extends
 		super(result);
 	}
 
-	private void renderJoinResult(JoinResult joinResult, JoinDocInterface docs,
-			int pos) throws IOException, SearchLibException {
-		if (joinResult == null)
-			return;
-		if (!joinResult.isReturnFields())
+	private void renderJoinResult(ResultDocument joinResultDocument)
+			throws IOException, SearchLibException {
+		if (joinResultDocument == null)
 			return;
 		writer.print("\t\t<join paramPosition=\"");
-		writer.print(joinResult.getParamPosition());
+		writer.print(joinResultDocument.getJoinParameter());
 		writer.println("\">");
-		renderDocument(joinResult.getForeignResult().getRequest(),
-				joinResult.getDocument(docs, pos, renderingTimer));
+		renderDocument(joinResultDocument);
 		writer.println("\t\t</join>");
 
 	}
 
-	private void renderJoinResults(JoinResult[] joinResults,
-			DocIdInterface docs, int pos) throws IOException,
+	private void renderJoinResults(int pos) throws IOException,
 			SearchLibException {
-		if (joinResults == null)
+		List<ResultDocument> joinResultDocuments = result.getJoinDocumentList(
+				pos, renderingTimer);
+		if (joinResultDocuments == null)
 			return;
-		if (!(docs instanceof JoinDocInterface))
-			return;
-		for (JoinResult joinResult : joinResults)
-			renderJoinResult(joinResult, (JoinDocInterface) docs, pos);
+		for (ResultDocument joinDocument : joinResultDocuments)
+			renderJoinResult(joinDocument);
 	}
 
 	@Override
@@ -80,7 +74,7 @@ public class RenderSearchXml extends
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 		renderDocumentPrefix(pos, doc);
 		renderDocumentContent(pos, doc);
-		renderJoinResults(result.getJoinResult(), result.getDocs(), pos);
+		renderJoinResults(pos);
 		renderDocumentSuffix();
 	}
 

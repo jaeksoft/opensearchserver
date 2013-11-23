@@ -24,7 +24,9 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
@@ -131,8 +133,16 @@ public abstract class AbstractResultSearch extends
 		return end - start;
 	}
 
-	public JoinResult[] getJoinResult() {
-		return joinResults;
+	public List<ResultDocument> getJoinDocumentList(int pos, Timer timer)
+			throws SearchLibException {
+		if (joinResults == null)
+			return null;
+		List<ResultDocument> joinResultDocuments = new ArrayList<ResultDocument>(
+				joinResults.length);
+		for (JoinResult joinResult : joinResults)
+			if (joinResult.isReturnFields())
+				joinResultDocuments.add(joinResult.getDocument(pos, timer));
+		return joinResultDocuments;
 	}
 
 	@Override
