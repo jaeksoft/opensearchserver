@@ -84,7 +84,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 			return null;
 		try {
 			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader,
-					timer);
+					null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

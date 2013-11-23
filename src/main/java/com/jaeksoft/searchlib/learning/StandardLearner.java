@@ -40,11 +40,9 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -237,7 +235,8 @@ public class StandardLearner implements LearnerInterface {
 									value, null, 0, null);
 							targetMap.put(value, learnerResultItem);
 						}
-						learnerResultItem.addScoreInstance(docScore, 1);
+						learnerResultItem.addScoreInstance(docScore, 1,
+								document.getValueContent("name", 0));
 					}
 				}
 				searchRequest.reset();
@@ -283,15 +282,12 @@ public class StandardLearner implements LearnerInterface {
 					IndexDocument target = new IndexDocument();
 					sourceFieldMap.mapIndexDocument(result.getDocument(pos),
 							target);
-					JoinResult[] joinResults = result.getJoinResult();
-					if (joinResults != null)
-						for (JoinResult joinResult : joinResults)
-							sourceFieldMap
-									.mapIndexDocument(
-											joinResult.getDocument(
-													(JoinDocInterface) result
-															.getDocs(), pos,
-													null), target);
+					List<ResultDocument> joinResultDocuments = result
+							.getJoinDocumentList(pos, null);
+					if (joinResultDocuments != null)
+						for (ResultDocument joinResultDocument : joinResultDocuments)
+							sourceFieldMap.mapIndexDocument(joinResultDocument,
+									target);
 					indexDocumentList.add(target);
 				}
 				learnerClient.updateDocuments(indexDocumentList);

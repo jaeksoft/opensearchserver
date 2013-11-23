@@ -25,17 +25,21 @@ package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
@@ -54,6 +58,9 @@ public class DocumentResult {
 	@XmlAttribute
 	public final Integer collapseCount;
 
+	@XmlAttribute
+	public final String joinParameter;
+
 	@XmlElement(name = "field")
 	public final List<FieldValueList> fields;
 
@@ -65,6 +72,9 @@ public class DocumentResult {
 
 	@XmlElement(name = "position")
 	public final List<Position> positions;
+
+	@XmlElement(name = "join")
+	public final List<DocumentResult> joins;
 
 	public static class Position {
 		public final int start;
@@ -94,25 +104,46 @@ public class DocumentResult {
 		collapseCount = null;
 		pos = null;
 		score = null;
+		joins = null;
+		joinParameter = null;
 	}
 
 	public DocumentResult(ResultDocument resultDocument,
-			Integer collapseDocCount, Integer position, Float docScore) {
-		fields = new ArrayList<FieldValueList>(0);
-		for (FieldValue fiedValue : resultDocument.getReturnFields().values())
-			fields.add(new FieldValueList(fiedValue));
-		snippets = new ArrayList<SnippetValueList>(0);
-		for (SnippetFieldValue snippetFiedValue : resultDocument
-				.getSnippetFields().values()) {
-			boolean highlighted = resultDocument.isHighlighted(snippetFiedValue
-					.getName());
-			snippets.add(new SnippetValueList(highlighted, snippetFiedValue));
+			Integer collapseDocCount, Integer position, Float docScore,
+			List<ResultDocument> joinResultDocuments) {
+
+		Map<String, FieldValue> returnFields = resultDocument.getReturnFields();
+		fields = MapUtils.isEmpty(returnFields) ? null
+				: new ArrayList<FieldValueList>(returnFields.size());
+		if (returnFields != null)
+			for (FieldValue fiedValue : returnFields.values())
+				fields.add(new FieldValueList(fiedValue));
+
+		Map<String, SnippetFieldValue> snippetFields = resultDocument
+				.getSnippetFields();
+		snippets = MapUtils.isEmpty(snippetFields) ? null
+				: new ArrayList<SnippetValueList>(snippetFields.size());
+		if (snippetFields != null) {
+			for (SnippetFieldValue snippetFiedValue : snippetFields.values()) {
+				boolean highlighted = resultDocument
+						.isHighlighted(snippetFiedValue.getName());
+				snippets.add(new SnippetValueList(highlighted, snippetFiedValue));
+			}
+		}
+		this.joinParameter = resultDocument.getJoinParameter();
+		joins = CollectionUtils.isEmpty(joinResultDocuments) ? null
+				: new ArrayList<DocumentResult>(joinResultDocuments.size());
+		if (joinResultDocuments != null) {
+			for (ResultDocument joinResultDocument : joinResultDocuments)
+				joins.add(new DocumentResult(joinResultDocument, null, null,
+						null, null));
 		}
 		functions = resultDocument.getFunctionFieldValues();
 		positions = resultDocument.getPositions();
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;
+
 	}
 
 	public final static void populateDocumentList(
@@ -120,12 +151,16 @@ public class DocumentResult {
 			throws SearchLibException {
 		int start = result.getRequestStart();
 		int end = result.getDocumentCount() + result.getRequestStart();
+		AbstractResultSearch resultSearch = result instanceof AbstractResultSearch ? (AbstractResultSearch) result
+				: null;
 		for (int i = start; i < end; i++) {
 			ResultDocument resultDocument = result.getDocument(i, null);
 			int collapseDocCount = result.getCollapseCount(i);
 			float docScore = result.getScore(i);
+			List<ResultDocument> joinResultDocuments = resultSearch == null ? null
+					: resultSearch.getJoinDocumentList(i, null);
 			DocumentResult documentResult = new DocumentResult(resultDocument,
-					collapseDocCount, i, docScore);
+					collapseDocCount, i, docScore, joinResultDocuments);
 			documents.add(documentResult);
 		}
 	}

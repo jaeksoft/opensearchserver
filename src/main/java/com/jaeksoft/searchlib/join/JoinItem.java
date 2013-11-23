@@ -367,7 +367,7 @@ public class JoinItem implements Comparable<JoinItem> {
 			searchRequest.setQueryString(queryString);
 			for (FilterAbstract<?> filter : filterList)
 				searchRequest.getFilterList().add(filter);
-			String joinResultName = "join " + joinResult.getParamPosition();
+			String joinResultName = "join " + joinResult.joinPosition;
 			Timer t = new Timer(timer, joinResultName + " foreign search");
 			ResultSearchSingle resultSearch = (ResultSearchSingle) foreignClient
 					.request(searchRequest);
