@@ -39,8 +39,11 @@ public class LearnerResultItem {
 	public double score;
 	public int rank;
 	public final String target;
-	public final String name;
+
+	public String name;
 	public final DocumentResult document;
+
+	public Double highestScore;
 
 	public int count;
 
@@ -52,11 +55,14 @@ public class LearnerResultItem {
 		this.name = name;
 		this.count = count;
 		this.document = document;
+		highestScore = null;
 	}
 
-	public LearnerResultItem(LearnerResultItem result, ResultDocument document) {
+	public LearnerResultItem(LearnerResultItem result, ResultDocument document,
+			List<ResultDocument> joinDocuments) {
 		this(result.score, result.rank, result.target, result.name,
-				result.count, new DocumentResult(document, null, null, null));
+				result.count, new DocumentResult(document, null, null, null,
+						joinDocuments));
 	}
 
 	public double getScore() {
@@ -137,8 +143,14 @@ public class LearnerResultItem {
 		return result;
 	}
 
-	public final void addScoreInstance(double score, int count) {
+	public final void addScoreInstance(final double score, final int count,
+			final String name) {
 		this.score += score;
 		this.count += count;
+		if (highestScore == null || score > highestScore) {
+			highestScore = score;
+			if (name != null)
+				this.name = name;
+		}
 	}
 }

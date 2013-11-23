@@ -45,12 +45,10 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class IndexLookupFilter extends FilterFactory {
@@ -185,13 +183,12 @@ public class IndexLookupFilter extends FilterFactory {
 				ResultDocument resultDoc = result.getDocument(i);
 				int docId = resultDoc.getDocId();
 				extractTokens(mergedTokenTerm, docId, resultDoc);
-				JoinResult[] joinResults = result.getJoinResult();
-				if (joinResults != null)
-					for (JoinResult joinResult : joinResults)
+				List<ResultDocument> joinResultDocuments = result
+						.getJoinDocumentList(i, null);
+				if (joinResultDocuments != null)
+					for (ResultDocument joinResultDocument : joinResultDocuments)
 						extractTokens(mergedTokenTerm, docId,
-								joinResult.getDocument(
-										(JoinDocInterface) result.getDocs(), i,
-										null));
+								joinResultDocument);
 			}
 		}
 

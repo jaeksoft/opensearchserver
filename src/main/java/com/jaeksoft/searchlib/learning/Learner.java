@@ -63,6 +63,7 @@ public class Learner implements InfoCallback {
 	private final static String LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST = "searchRequest";
 	private final static String LEARNER_ITEM_MAP_SRC_NODE_NAME = "sourceFields";
 	private final static String LEARNER_ITEM_MAP_TGT_NODE_NAME = "targetFields";
+	private final static String LEARNER_ITEM_ROOT_ATTR_RETURN_SOURCE_DOCUMENT = "returnSourceDocument";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -75,6 +76,8 @@ public class Learner implements InfoCallback {
 	private final FieldMap targetFieldMap;
 
 	private boolean active;
+
+	private boolean returnSourceDocument;
 
 	private int maxRank;
 
@@ -100,6 +103,7 @@ public class Learner implements InfoCallback {
 		this.client = client;
 		this.name = null;
 		active = false;
+		returnSourceDocument = false;
 		learnerInstance = null;
 		searchRequest = null;
 		sourceFieldMap = new FieldMap();
@@ -124,6 +128,7 @@ public class Learner implements InfoCallback {
 				target.client = client;
 				target.name = name;
 				target.active = active;
+				target.returnSourceDocument = returnSourceDocument;
 				target.searchRequest = searchRequest;
 				target.learnerInstance = learnerInstance;
 				sourceFieldMap.copyTo(target.sourceFieldMap);
@@ -155,6 +160,9 @@ public class Learner implements InfoCallback {
 				LEARNER_ITEM_ROOT_ATTR_NAME));
 		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(
 				rootNode, LEARNER_ITEM_ROOT_ATTR_ACTIVE)));
+		setReturnSourceDocument("yes".equalsIgnoreCase(XPathParser
+				.getAttributeString(rootNode,
+						LEARNER_ITEM_ROOT_ATTR_RETURN_SOURCE_DOCUMENT)));
 		setSearchRequest(XPathParser.getAttributeString(rootNode,
 				LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
 		setMinScore(XPathParser.getAttributeDouble(rootNode,
@@ -241,6 +249,31 @@ public class Learner implements InfoCallback {
 		}
 	}
 
+	/**
+	 * @param returnSourceDocument
+	 *            the returnSourceDocument to set
+	 */
+	public void setReturnSourceDocument(boolean returnSourceDocument) {
+		rwl.w.lock();
+		try {
+			this.returnSourceDocument = returnSourceDocument;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the returnSourceDocument
+	 */
+	public boolean isReturnSourceDocument() {
+		rwl.r.lock();
+		try {
+			return returnSourceDocument;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
@@ -248,6 +281,8 @@ public class Learner implements InfoCallback {
 					LEARNER_ITEM_ROOT_ATTR_NAME, name,
 					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest,
 					LEARNER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no",
+					LEARNER_ITEM_ROOT_ATTR_RETURN_SOURCE_DOCUMENT,
+					returnSourceDocument ? "yes" : "no",
 					LEARNER_ITEM_ROOT_ATTR_MAX_RANK, Integer.toString(maxRank),
 					LEARNER_ITEM_ROOT_ATTR_MIN_SCORE,
 					Double.toString(minScore), LEARNER_ITEM_ROOT_ATTR_BUFFER,
@@ -325,6 +360,36 @@ public class Learner implements InfoCallback {
 		}
 	}
 
+	private LearnerResultItem[] populateNamedDocument(
+			LearnerResultItem[] results) throws SearchLibException,
+			ParseException {
+		if (results == null)
+			return results;
+		String uniqueField = client.getSchema().getUniqueField();
+		if (uniqueField == null)
+			return results;
+		if (!getSourceFieldMap().contains(uniqueField, "name"))
+			return results;
+		LearnerResultItem[] newResults = new LearnerResultItem[results.length];
+		int i = 0;
+		for (LearnerResultItem result : results) {
+			AbstractSearchRequest request = (AbstractSearchRequest) client
+					.getNewRequest(searchRequest);
+			StringBuilder sb = new StringBuilder();
+			sb.append(uniqueField);
+			sb.append(":\"");
+			sb.append(result.getName());
+			sb.append("\"");
+			request.addFilter(sb.toString(), false);
+			AbstractResultSearch searchResult = (AbstractResultSearch) client
+					.request(request);
+			newResults[i++] = new LearnerResultItem(result,
+					searchResult.getDocument(0),
+					searchResult.getJoinDocumentList(0, null));
+		}
+		return newResults;
+	}
+
 	public LearnerResultItem[] classify(Client client, String text,
 			Integer max_rank, Double min_score) throws SearchLibException {
 		LearnerInterface instance = getInstance();
@@ -336,9 +401,14 @@ public class Learner implements InfoCallback {
 				min_score = minScore;
 			List<LearnerResultItem> list = new ArrayList<LearnerResultItem>(0);
 			instance.classify(text, max_rank, min_score, list);
-			LearnerResultItem[] result = LearnerResultItem.sortArray(list);
-			return LearnerResultItem.maxRank(result, max_rank);
+			LearnerResultItem[] results = LearnerResultItem.sortArray(list);
+			results = LearnerResultItem.maxRank(results, max_rank);
+			if (returnSourceDocument)
+				results = populateNamedDocument(results);
+			return results;
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
@@ -358,28 +428,9 @@ public class Learner implements InfoCallback {
 			instance.similar(text, max_rank, min_score, list);
 			LearnerResultItem[] results = LearnerResultItem.sortArray(list);
 			results = LearnerResultItem.maxRank(results, max_rank);
-			String uniqueField = client.getSchema().getUniqueField();
-			if (uniqueField == null)
-				return results;
-			if (!getSourceFieldMap().contains(uniqueField, "name"))
-				return results;
-			LearnerResultItem[] newResults = new LearnerResultItem[results.length];
-			int i = 0;
-			for (LearnerResultItem result : results) {
-				AbstractSearchRequest request = (AbstractSearchRequest) client
-						.getNewRequest(searchRequest);
-				StringBuilder sb = new StringBuilder();
-				sb.append(uniqueField);
-				sb.append(":\"");
-				sb.append(result.getName());
-				sb.append("\"");
-				request.addFilter(sb.toString(), false);
-				AbstractResultSearch searchResult = (AbstractResultSearch) client
-						.request(request);
-				newResults[i++] = new LearnerResultItem(result,
-						searchResult.getDocument(0));
-			}
-			return newResults;
+			if (returnSourceDocument)
+				results = populateNamedDocument(results);
+			return results;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

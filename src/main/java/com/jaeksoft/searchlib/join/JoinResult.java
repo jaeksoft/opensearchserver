@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -51,6 +52,8 @@ public class JoinResult {
 
 	private transient ResultSearchSingle foreignResult;
 
+	private transient JoinDocInterface joinDocInterface;
+
 	private TreeSet<String> fieldNameSet;
 
 	private FacetList facetList;
@@ -64,16 +67,18 @@ public class JoinResult {
 		this.facetList = null;
 	}
 
-	public String getParamPosition() {
-		return paramPosition;
-	}
-
 	public void setForeignResult(ResultSearchSingle foreignResult) {
 		this.foreignResult = foreignResult;
 		fieldNameSet = new TreeSet<String>();
 		AbstractSearchRequest request = foreignResult.getRequest();
 		request.getReturnFieldList().populate(fieldNameSet);
 		request.getSnippetFieldList().populate(fieldNameSet);
+	}
+
+	public void setJoinDocInterface(DocIdInterface docIdInterface) {
+		if (!(docIdInterface instanceof JoinDocInterface))
+			return;
+		this.joinDocInterface = (JoinDocInterface) docIdInterface;
 	}
 
 	public AbstractResultSearch getForeignResult() {
@@ -84,12 +89,14 @@ public class JoinResult {
 		return returnFields;
 	}
 
-	final public ResultDocument getDocument(JoinDocInterface joinDocInterface,
-			int pos, Timer timer) throws SearchLibException {
+	final public ResultDocument getDocument(int pos, Timer timer)
+			throws SearchLibException {
 		try {
+			if (joinDocInterface == null)
+				return null;
 			return new ResultDocument(foreignResult.getRequest(), fieldNameSet,
 					joinDocInterface.getForeignDocIds(pos, joinPosition),
-					foreignResult.getReader(), timer);
+					foreignResult.getReader(), paramPosition, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

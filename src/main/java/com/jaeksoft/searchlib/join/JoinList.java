@@ -112,6 +112,8 @@ public class JoinList implements Iterable<JoinItem> {
 		}
 		for (JoinFacet joinFacet : facetList)
 			joinFacet.apply(collector, timer);
+		for (JoinResult joinResult : joinResults)
+			joinResult.setJoinDocInterface(collector);
 		return collector;
 	}
 
