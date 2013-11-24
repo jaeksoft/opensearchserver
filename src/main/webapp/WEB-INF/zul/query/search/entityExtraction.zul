@@ -42,22 +42,58 @@
 				</combobox>
 			</row>
 			<row>
+				<label>Max number of words:</label>
+				<intbox value="@bind(named.request.maxNumberOfWords)"
+					constraint="no negative, no empty" />
+			</row>
+			<row>
 				<label value="Stop words: " />
-				<combobox model="@load(named.stopWordsList)"
-					value="@bind(named.request.stopWordList)" />
+				<listbox model="@load(named.request.stopWordsMap)">
+					<listhead>
+						<listheader hflex="min">
+							<label value="List name: " />
+							<textbox id="stopWordsListName" />
+						</listheader>
+						<listheader hflex="min">
+							<checkbox id="stopWordsIgnoreCase"
+								label="Ignore case" checked="false" />
+						</listheader>
+						<listheader hflex="min">
+							<image src="/images/action_add.png"
+								onClick="@command('onStopWordsAdd', listName=stopWordsListName.value, ignoreCase=stopWordsIgnoreCase.checked)" />
+						</listheader>
+						<listheader />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell>
+								<label value="@load(each.key)" />
+							</listcell>
+							<listcell>
+								<label value="@load(each.value)" />
+							</listcell>
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onStopWordsDelete', listName=each.key)" />
+							</listcell>
+							<listcell />
+						</listitem>
+					</template>
+				</listbox>
 			</row>
 			<row>
 				<label>Returned fields:</label>
-				<listbox model="@load(named.request.returnedFields)"
-					hflex="min">
+				<listbox model="@load(named.request.returnedFields)">
 					<listhead>
-						<listheader>
+						<listheader hflex="min">
+							<label value="Field name: " />
 							<textbox id="returnedField" cols="25" />
 						</listheader>
-						<listheader>
+						<listheader hflex="min">
 							<image src="/images/action_add.png"
 								onClick="@command('onReturnedFieldAdd', field=returnedField.value)" />
 						</listheader>
+						<listheader />
 					</listhead>
 					<template name="model">
 						<listitem>
@@ -66,6 +102,7 @@
 								<image src="/images/action_delete.png"
 									onClick="@command('onReturnedFieldDelete', field=each)" />
 							</listcell>
+							<listcell />
 						</listitem>
 					</template>
 				</listbox>
