@@ -68,6 +68,9 @@ public enum FilterEnum {
 
 	LowerCaseFilter("This filter normalises text into lower case characters"),
 
+	NamedEntityExtractionFilter(
+			"This filter extracts named entity using a configured NamedEntityRequest"),
+
 	NGramFilter(
 			"This filter tokenizes the input into n-grams of the given size(s)."),
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -226,6 +227,17 @@ public class Analyzer {
 		rwl.w.lock();
 		try {
 			filters.add(filter);
+			queryAnalyzer = null;
+			indexAnalyzer = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void add(Collection<FilterFactory> filters) {
+		rwl.w.lock();
+		try {
+			this.filters.addAll(filters);
 			queryAnalyzer = null;
 			indexAnalyzer = null;
 		} finally {
