@@ -44,11 +44,13 @@ public class Fragment {
 
 	private boolean isEdge;
 
-	private float score;
-
 	private Fragment previousFragment;
 
 	private Fragment nextFragment;
+
+	private double searchScore;
+
+	private double score;
 
 	protected Fragment(Fragment previousFragment, String originalText,
 			int vectorOffset, boolean isEdge) {
@@ -103,7 +105,7 @@ public class Fragment {
 		inSnippet = true;
 		if (finalText != null)
 			return finalText;
-		if (highlightedText != null && score > 0) {
+		if (highlightedText != null && searchScore > 0) {
 			finalText = StringUtils.removeTag(highlightedText, allowedTags);
 		} else
 			finalText = originalText;
@@ -123,18 +125,23 @@ public class Fragment {
 		return text.substring(0, pos);
 	}
 
-	public float score(String fieldName, Analyzer analyzer, Query query,
-			int maxLength) {
+	public final double searchScore(final String fieldName,
+			final Analyzer analyzer, final Query query) {
+		searchScore = 0;
 		if (query == null || analyzer == null)
 			return 0;
 		MemoryIndex index = new MemoryIndex();
 		index.addField(fieldName, originalText, analyzer);
-		float searchScore = index.search(query);
-		float sizeScore = (originalText.length() < maxLength) ? (float) originalText
-				.length() / (float) maxLength
-				: maxLength;
-		score = searchScore * sizeScore;
-		return score;
+		searchScore = index.search(query);
+		return searchScore;
+	}
+
+	private final void finalizeScore(final double maxSearchScore,
+			final int maxLength) {
+		double sizeScore = (originalText.length() < maxLength) ? (double) originalText
+				.length() / (double) maxLength
+				: 1;
+		score = (searchScore / maxSearchScore) * sizeScore;
 	}
 
 	/**
@@ -146,11 +153,12 @@ public class Fragment {
 	 * @return
 	 */
 	public static final Fragment bestScore(Fragment fragment1,
-			Fragment fragment2) {
-		if (fragment1 == null)
-			return fragment2;
+			Fragment fragment2, final double maxSearchScore, final int maxLength) {
 		if (fragment2 == null)
 			return fragment1;
+		fragment2.finalizeScore(maxSearchScore, maxLength);
+		if (fragment1 == null)
+			return fragment2;
 		return fragment2.score > fragment1.score ? fragment2 : fragment1;
 	}
 
