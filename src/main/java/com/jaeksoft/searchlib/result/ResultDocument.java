@@ -61,11 +61,12 @@ public class ResultDocument {
 	final private int docId;
 	final private List<FunctionFieldValue> functionFieldValue;
 	final private List<Position> positions;
+	final private String joinParameter;
 
 	public ResultDocument(AbstractSearchRequest searchRequest,
 			TreeSet<String> fieldSet, int docId, ReaderInterface reader,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException {
+			String joinParameter, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 
 		this.docId = docId;
 
@@ -73,6 +74,8 @@ public class ResultDocument {
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
 		positions = new ArrayList<Position>(0);
+
+		this.joinParameter = joinParameter;
 
 		if (docId < 0)
 			return;
@@ -103,13 +106,14 @@ public class ResultDocument {
 	}
 
 	public ResultDocument(TreeSet<String> fieldSet, int docId,
-			ReaderInterface reader, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+			ReaderInterface reader, String joinParameter, Timer timer)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		positions = new ArrayList<Position>(0);
 		functionFieldValue = null;
+		this.joinParameter = joinParameter;
 	}
 
 	public ResultDocument(Integer docId) {
@@ -118,6 +122,7 @@ public class ResultDocument {
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		positions = new ArrayList<Position>(0);
 		functionFieldValue = null;
+		joinParameter = null;
 	}
 
 	public static <T> List<T> toList(Map<String, T> map) {
@@ -289,6 +294,10 @@ public class ResultDocument {
 
 	public int getDocId() {
 		return docId;
+	}
+
+	public String getJoinParameter() {
+		return joinParameter;
 	}
 
 	public List<Position> getPositions() {

@@ -89,6 +89,11 @@
 					</cell>
 				</row>
 				<row>
+					<label value="Return source document: " />
+					<checkbox label="enabled"
+						checked="@bind(learning.currentLearner.returnSourceDocument)" />
+				</row>
+				<row>
 					<label value="Target Field map" />
 					<cell>
 						<hbox align="center">

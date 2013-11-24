@@ -171,7 +171,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		try {
 			int docId = docs.getIds()[pos];
 			ResultDocument resultDocument = new ResultDocument(request,
-					fieldNameSet, docId, reader, timer);
+					fieldNameSet, docId, reader, null, timer);
 			if (!(docs instanceof CollapseDocInterface))
 				return resultDocument;
 			int[] collapsedDocs = ((CollapseDocInterface) docs)
@@ -187,7 +187,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			if (collapsedDocs != null)
 				for (int doc : collapsedDocs) {
 					ResultDocument rd = new ResultDocument(request,
-							fieldNameSet, doc, reader, timer);
+							fieldNameSet, doc, reader, null, timer);
 					resultDocument.appendIfStringDoesNotExist(rd);
 				}
 			return resultDocument;
