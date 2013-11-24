@@ -47,10 +47,9 @@ public class SnippetValueList extends FieldValueList {
 		highlighted = false;
 	}
 
-	public SnippetValueList(boolean highlighted,
-			SnippetFieldValue snippetFiedValue) {
+	public SnippetValueList(SnippetFieldValue snippetFiedValue) {
 		super(snippetFiedValue);
-		this.highlighted = highlighted;
+		this.highlighted = snippetFiedValue.isHighlighted();
 	}
 
 	protected SnippetValueList(String fieldName) {

@@ -123,13 +123,10 @@ public class DocumentResult {
 				.getSnippetFields();
 		snippets = MapUtils.isEmpty(snippetFields) ? null
 				: new ArrayList<SnippetValueList>(snippetFields.size());
-		if (snippetFields != null) {
-			for (SnippetFieldValue snippetFiedValue : snippetFields.values()) {
-				boolean highlighted = resultDocument
-						.isHighlighted(snippetFiedValue.getName());
-				snippets.add(new SnippetValueList(highlighted, snippetFiedValue));
-			}
-		}
+		if (snippetFields != null)
+			for (SnippetFieldValue snippetFiedValue : snippetFields.values())
+				snippets.add(new SnippetValueList(snippetFiedValue));
+
 		this.joinParameter = resultDocument.getJoinParameter();
 		joins = CollectionUtils.isEmpty(joinResultDocuments) ? null
 				: new ArrayList<DocumentResult>(joinResultDocuments.size());
