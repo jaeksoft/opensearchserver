@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -68,7 +70,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private Set<String> returnedFields;
 
-	private String stopWordList;
+	private Map<String, Boolean> stopWordsMap;
+
+	private int maxNumberOfWords;
 
 	public NamedEntityExtractionRequest() {
 		super(null, RequestTypeEnum.NamedEntityExtractionRequest);
@@ -85,7 +89,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.searchRequest = null;
 		this.namedEntityField = null;
 		this.returnedFields = null;
-		this.stopWordList = null;
+		this.stopWordsMap = null;
+		this.maxNumberOfWords = 5;
 	}
 
 	@Override
@@ -97,7 +102,9 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.namedEntityField = neeRequest.namedEntityField;
 		this.returnedFields = neeRequest.returnedFields == null ? null
 				: new TreeSet<String>(neeRequest.returnedFields);
-		this.stopWordList = neeRequest.stopWordList;
+		this.stopWordsMap = neeRequest.stopWordsMap == null ? null
+				: new TreeMap<String, Boolean>(neeRequest.stopWordsMap);
+		this.maxNumberOfWords = neeRequest.maxNumberOfWords;
 	}
 
 	public void addReturnedField(String returnedField) {
@@ -114,6 +121,22 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		if (returnedFields == null)
 			return;
 		returnedFields.remove(returnedField);
+	}
+
+	public void addStopWords(String listName, boolean ignoreCase) {
+		if (listName == null)
+			return;
+		if (stopWordsMap == null)
+			stopWordsMap = new TreeMap<String, Boolean>();
+		stopWordsMap.put(listName, ignoreCase);
+	}
+
+	public void removeStopWords(String listName) {
+		if (listName == null)
+			return;
+		stopWordsMap.remove(listName);
+		if (stopWordsMap.isEmpty())
+			stopWordsMap = null;
 	}
 
 	public Collection<String> getReturnedFields() {
@@ -133,7 +156,10 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private final static String ATTR_SEARCH_REQUEST = "searchRequest";
 	private final static String ATTR_NAMED_ENTITY_FIELD = "namedEntityField";
-	private final static String ATTR_NAME_STOPWORD_LIST = "stopWordList";
+	private final static String NODE_NAME_STOPWORDS_LIST = "stopWords";
+	private final static String ATTR_MAX_NUMBER_OF_WORDS = "maxNumberOfWords";
+	private final static String ATTR_STOPWORDS_LISTNAME = "listName";
+	private final static String ATTR_STOPWORDS_CASESENSITIVE = "caseSensitive";
 	private final static String NODE_TEXT = "text";
 	private final static String NODE_RETURNED_FIELD = "returnedField";
 	private final static String ATTR_NAME_FIELD = "name";
@@ -148,8 +174,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 				ATTR_SEARCH_REQUEST);
 		namedEntityField = DomUtils.getAttributeText(requestNode,
 				ATTR_NAMED_ENTITY_FIELD);
-		stopWordList = DomUtils.getAttributeText(requestNode,
-				ATTR_NAME_STOPWORD_LIST);
+		maxNumberOfWords = DomUtils.getAttributeInteger(requestNode,
+				ATTR_MAX_NUMBER_OF_WORDS, 5);
 		Node textNode = DomUtils.getFirstNode(requestNode, NODE_TEXT);
 		if (textNode == null)
 			text = DomUtils.getText(requestNode);
@@ -161,6 +187,13 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			for (Node returnedNode : returnedNodes)
 				addReturnedField(DomUtils.getAttributeText(returnedNode,
 						ATTR_NAME_FIELD));
+		List<Node> stopwordsNodes = DomUtils.getNodes(requestNode,
+				NODE_NAME_STOPWORDS_LIST);
+		if (stopwordsNodes != null)
+			for (Node stopwordsNode : stopwordsNodes)
+				addStopWords(DomUtils.getAttributeText(stopwordsNode,
+						ATTR_STOPWORDS_LISTNAME), DomUtils.getAttributeBoolean(
+						stopwordsNode, ATTR_STOPWORDS_CASESENSITIVE, true));
 
 	}
 
@@ -172,13 +205,24 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 					getRequestName(), XML_ATTR_TYPE, getType().name(),
 					ATTR_SEARCH_REQUEST, searchRequest,
 					ATTR_NAMED_ENTITY_FIELD, namedEntityField,
-					ATTR_NAME_STOPWORD_LIST, stopWordList);
-			if (returnedFields != null)
+					ATTR_MAX_NUMBER_OF_WORDS,
+					Integer.toString(maxNumberOfWords));
+			if (returnedFields != null) {
 				for (String returnedField : returnedFields) {
 					xmlWriter.startElement(NODE_RETURNED_FIELD,
 							ATTR_NAME_FIELD, returnedField);
 					xmlWriter.endElement();
 				}
+			}
+			if (stopWordsMap != null) {
+				for (Map.Entry<String, Boolean> entry : stopWordsMap.entrySet()) {
+					xmlWriter.startElement(NODE_NAME_STOPWORDS_LIST,
+							ATTR_STOPWORDS_LISTNAME, entry.getKey(),
+							ATTR_STOPWORDS_CASESENSITIVE, entry.getValue()
+									.toString());
+					xmlWriter.endElement();
+				}
+			}
 			if (!StringUtils.isEmpty(text)) {
 				xmlWriter.startElement(NODE_TEXT);
 				xmlWriter.textNode(text);
@@ -200,7 +244,10 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		if ((value = transaction.getParameterString("namedEntityField")) != null)
 			namedEntityField = value;
 		if ((value = transaction.getParameterString("stopWordList")) != null)
-			stopWordList = value;
+			stopWordsMap.put(value, true);
+		Integer iValue;
+		if ((iValue = transaction.getParameterInteger("maxNumberOfWords")) != null)
+			maxNumberOfWords = iValue;
 	}
 
 	@Override
@@ -209,20 +256,22 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	public List<FilterFactory> getFilterList(
 			DeduplicateTokenPositionsFilter dtpf) throws SearchLibException {
-		List<FilterFactory> filterList = new ArrayList<FilterFactory>(5);
+		List<FilterFactory> filterList = new ArrayList<FilterFactory>(10);
 		ShingleFilter shingleFilter = FilterFactory.create(config,
 				ShingleFilter.class);
-		shingleFilter.setProperties(" ", 1, 5);
+		shingleFilter.setProperties(" ", 1, maxNumberOfWords);
 		filterList.add(shingleFilter);
 		if (dtpf == null)
 			dtpf = FilterFactory.create(config,
 					DeduplicateTokenPositionsFilter.class);
 		filterList.add(dtpf);
-		if (!StringUtils.isEmpty(stopWordList)) {
-			StopFilter stopFilter = FilterFactory.create(config,
-					StopFilter.class);
-			stopFilter.setProperties(stopWordList, false);
-			filterList.add(stopFilter);
+		if (stopWordsMap != null) {
+			for (Map.Entry<String, Boolean> entry : stopWordsMap.entrySet()) {
+				StopFilter stopFilter = FilterFactory.create(config,
+						StopFilter.class);
+				stopFilter.setProperties(entry.getKey(), entry.getValue());
+				filterList.add(stopFilter);
+			}
 		}
 		IndexLookupFilter ilf = FilterFactory.create(config,
 				IndexLookupFilter.class);
@@ -278,8 +327,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			if (namedEntityField != null)
 				sb.append(namedEntityField);
 			sb.append(" - StopWordsList:");
-			if (stopWordList != null)
-				sb.append(stopWordList);
+			if (stopWordsMap != null)
+				sb.append(stopWordsMap.size());
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();
@@ -333,18 +382,25 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	}
 
 	/**
-	 * @return the stopWordList
+	 * @return the stopWordsMap
 	 */
-	public String getStopWordList() {
-		return stopWordList;
+	public Map<String, Boolean> getStopWordsMap() {
+		return stopWordsMap;
 	}
 
 	/**
-	 * @param stopWordList
-	 *            the stopWordList to set
+	 * @return the maxNumberOfWords
 	 */
-	public void setStopWordList(String stopWordList) {
-		this.stopWordList = stopWordList;
+	public int getMaxNumberOfWords() {
+		return maxNumberOfWords;
+	}
+
+	/**
+	 * @param maxNumberOfWords
+	 *            the maxNumberOfWords to set
+	 */
+	public void setMaxNumberOfWords(int maxNumberOfWords) {
+		this.maxNumberOfWords = maxNumberOfWords;
 	}
 
 }
