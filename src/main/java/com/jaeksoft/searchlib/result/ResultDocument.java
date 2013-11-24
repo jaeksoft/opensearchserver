@@ -94,13 +94,13 @@ public class ResultDocument {
 			String fieldName = field.getName();
 			field.initSearchTerms(searchRequest);
 			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
-			boolean isSnippet = false;
+			boolean isHighlighted = false;
 			FieldValue fieldValue = documentFields.get(fieldName);
 			if (fieldValue != null)
-				field.getSnippets(docId, reader, fieldValue.getValueArray(),
-						snippets);
+				isHighlighted = field.getSnippets(docId, reader,
+						fieldValue.getValueArray(), snippets);
 			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
-					fieldName, snippets, isSnippet);
+					fieldName, snippets, isHighlighted);
 			snippetFields.put(fieldName, snippetFieldValue);
 		}
 	}
