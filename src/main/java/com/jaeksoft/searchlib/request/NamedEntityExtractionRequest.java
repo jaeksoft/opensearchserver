@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
-import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.filter.DeduplicateTokenPositionsFilter;
 import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
@@ -207,6 +207,36 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	protected void resetNoLock() {
 	}
 
+	public List<FilterFactory> getFilterList(
+			DeduplicateTokenPositionsFilter dtpf) throws SearchLibException {
+		List<FilterFactory> filterList = new ArrayList<FilterFactory>(5);
+		ShingleFilter shingleFilter = FilterFactory.create(config,
+				ShingleFilter.class);
+		shingleFilter.setProperties(" ", 1, 5);
+		filterList.add(shingleFilter);
+		if (dtpf == null)
+			dtpf = FilterFactory.create(config,
+					DeduplicateTokenPositionsFilter.class);
+		filterList.add(dtpf);
+		if (!StringUtils.isEmpty(stopWordList)) {
+			StopFilter stopFilter = FilterFactory.create(config,
+					StopFilter.class);
+			stopFilter.setProperties(stopWordList, false);
+			filterList.add(stopFilter);
+		}
+		IndexLookupFilter ilf = FilterFactory.create(config,
+				IndexLookupFilter.class);
+		addReturnedField(namedEntityField);
+		ilf.setProperties(config.getIndexName(), searchRequest,
+				namedEntityField, StringUtils.join(returnedFields, '|'));
+		filterList.add(ilf);
+		RemoveIncludedTermFilter ritf = FilterFactory.create(config,
+				RemoveIncludedTermFilter.class);
+		ritf.setProperties(namedEntityField, true);
+		filterList.add(ritf);
+		return filterList;
+	}
+
 	@Override
 	public AbstractResult<AbstractRequest> execute(ReaderInterface reader)
 			throws SearchLibException {
@@ -218,36 +248,16 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 						+ searchRequest);
 			TreeSet<String> fieldNameSet = new TreeSet<String>();
 			abstractSearchRequest.getReturnFieldList().populate(fieldNameSet);
+
+			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
+					this);
+			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
+					DeduplicateTokenPositionsFilter.class);
 			Analyzer analyzer = new Analyzer(config);
 			analyzer.setTokenizer(TokenizerFactory.create(config,
 					"StandardTokenizer"));
-			ShingleFilter shingleFilter = FilterFactory.create(config,
-					ShingleFilter.class);
-			shingleFilter.setProperties(" ", 1, 5);
-			analyzer.add(shingleFilter);
-			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
-					DeduplicateTokenPositionsFilter.class);
-			analyzer.add(dtpf);
-			if (!StringUtils.isEmpty(stopWordList)) {
-				StopFilter stopFilter = FilterFactory.create(config,
-						StopFilter.class);
-				stopFilter.setProperties(stopWordList, false);
-				analyzer.add(stopFilter);
-			}
-			IndexLookupFilter ilf = FilterFactory.create(config,
-					IndexLookupFilter.class);
-			addReturnedField(namedEntityField);
-			ilf.setProperties(config.getIndexName(), searchRequest,
-					namedEntityField, StringUtils.join(returnedFields, '|'));
-			analyzer.add(ilf);
-			RemoveIncludedTermFilter ritf = FilterFactory.create(config,
-					RemoveIncludedTermFilter.class);
-			ritf.setProperties(namedEntityField, true);
-			analyzer.add(ritf);
-			CompiledAnalyzer compiledAnalyzer = analyzer.getQueryAnalyzer();
-			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
-					this);
-			compiledAnalyzer.populate(text, result);
+			analyzer.add(getFilterList(dtpf));
+			analyzer.getQueryAnalyzer().populate(text, result);
 			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(),
 					text);
 			return result;
