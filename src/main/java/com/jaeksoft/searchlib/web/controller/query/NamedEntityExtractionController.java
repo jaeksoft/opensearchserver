@@ -84,4 +84,25 @@ public class NamedEntityExtractionController extends AbstractQueryController {
 		request.removeReturnedField(field);
 	}
 
+	@Command
+	@NotifyChange("*")
+	public void onStopWordsAdd(@BindingParam("listName") String listName,
+			@BindingParam("ignoreCase") boolean ignoreCase)
+			throws SearchLibException {
+		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) getRequest();
+		if (request == null)
+			return;
+		request.addStopWords(listName, ignoreCase);
+	}
+
+	@Command
+	@NotifyChange("*")
+	public void onStopWordsDelete(@BindingParam("listName") String listName)
+			throws SearchLibException {
+		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) getRequest();
+		if (request == null)
+			return;
+		request.removeStopWords(listName);
+	}
+
 }
