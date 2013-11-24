@@ -51,8 +51,8 @@ import org.xml.sax.SAXException;
 
 public class DomUtils {
 
-	final private static void getNodes(Node parent, int pos, String[] path,
-			List<Node> nodes) {
+	final private static void getNodes(final Node parent, final int pos,
+			final String[] path, final List<Node> nodes) {
 		if (pos == path.length) {
 			nodes.add(parent);
 			return;
@@ -73,8 +73,8 @@ public class DomUtils {
 		}
 	}
 
-	final public static void getNodes(List<Node> nodes, Node parent,
-			String... path) {
+	final public static void getNodes(final List<Node> nodes,
+			final Node parent, final String... path) {
 		if (path == null)
 			return;
 		if (path.length == 0)
@@ -82,7 +82,8 @@ public class DomUtils {
 		getNodes(parent, 0, path, nodes);
 	}
 
-	final public static String getFirstTextNode(Node parent, String... path) {
+	final public static String getFirstTextNode(final Node parent,
+			final String... path) {
 		List<Node> nodes = DomUtils.getNodes(parent, path);
 		if (nodes == null)
 			return null;
@@ -91,7 +92,8 @@ public class DomUtils {
 		return DomUtils.getText(nodes.get(0));
 	}
 
-	final public static List<Node> getNodes(Node parent, String... path) {
+	final public static List<Node> getNodes(final Node parent,
+			final String... path) {
 		if (path == null)
 			return null;
 		if (path.length == 0)
@@ -101,7 +103,8 @@ public class DomUtils {
 		return nodes;
 	}
 
-	final public static Node getFirstNode(Node parent, String... path) {
+	final public static Node getFirstNode(final Node parent,
+			final String... path) {
 		List<Node> nodes = getNodes(parent, path);
 		if (nodes == null)
 			return null;
@@ -110,7 +113,7 @@ public class DomUtils {
 		return nodes.get(0);
 	}
 
-	final private static void getText(Node parent, StringBuilder sb) {
+	final private static void getText(final Node parent, final StringBuilder sb) {
 		if (parent.getNodeType() == Node.TEXT_NODE)
 			sb.append(parent.getNodeValue());
 		NodeList childrens = parent.getChildNodes();
@@ -119,13 +122,13 @@ public class DomUtils {
 			getText(childrens.item(i), sb);
 	}
 
-	final public static String getText(Node node) {
+	final public static String getText(final Node node) {
 		StringBuilder sb = new StringBuilder();
 		getText(node, sb);
 		return sb.toString();
 	}
 
-	final public static int countElements(Node parent) {
+	final public static int countElements(final Node parent) {
 		int counter = 0;
 		NodeList childrens = parent.getChildNodes();
 		int l = childrens.getLength();
@@ -143,7 +146,8 @@ public class DomUtils {
 		return counter;
 	}
 
-	final public static String getAttributeText(Node node, String name) {
+	final public static String getAttributeText(final Node node,
+			final String name) {
 		NamedNodeMap nnm = node.getAttributes();
 		if (nnm == null)
 			return null;
@@ -153,23 +157,45 @@ public class DomUtils {
 		return attr.getNodeValue();
 	}
 
-	final public static double getAttributeDouble(Node node, String name) {
+	final public static double getAttributeDouble(final Node node,
+			final String name) {
 		return getAttributeDouble(node, name, 0);
 	}
 
-	final public static double getAttributeDouble(Node node, String name,
-			double defaultValue) {
+	final public static double getAttributeDouble(final Node node,
+			final String name, final double defaultValue) {
 		String value = getAttributeText(node, name);
 		return value == null ? defaultValue : Double.parseDouble(value);
 	}
 
-	public static Float getAttributeFloat(Node node, String name) {
+	final public static Float getAttributeFloat(final Node node,
+			final String name) {
 		String value = getAttributeText(node, name);
 		return StringUtils.isEmpty(value) ? null : Float.parseFloat(value);
 	}
 
-	final public static void updateAttributeText(Node node, String name,
-			String value) {
+	final public static Boolean getAttributeBoolean(final Node node,
+			final String name, final Boolean defaultValue) {
+		String value = getAttributeText(node, name);
+		if (value == null)
+			return defaultValue;
+		if ("yes".equalsIgnoreCase(value))
+			return true;
+		if ("no".equalsIgnoreCase(value))
+			return false;
+		return Boolean.parseBoolean(value);
+	}
+
+	final public static int getAttributeInteger(final Node node,
+			final String name, final Integer defaultValue) {
+		String value = getAttributeText(node, name);
+		if (value == null)
+			return defaultValue;
+		return Integer.parseInt(value);
+	}
+
+	final public static void updateAttributeText(final Node node,
+			final String name, final String value) {
 		NamedNodeMap nnm = node.getAttributes();
 		if (nnm == null)
 			return;
@@ -179,8 +205,8 @@ public class DomUtils {
 		attr.setNodeValue(value);
 	}
 
-	final private static void getAllNodes(Node parent, String[] tags,
-			List<Node> nodes) {
+	final private static void getAllNodes(final Node parent,
+			final String[] tags, final List<Node> nodes) {
 		for (String tag : tags) {
 			if (parent.getNodeName().equals(tag)) {
 				nodes.add(parent);
@@ -194,7 +220,8 @@ public class DomUtils {
 
 	}
 
-	final public static List<Node> getAllNodes(Node parent, String... tags) {
+	final public static List<Node> getAllNodes(final Node parent,
+			final String... tags) {
 		List<Node> nodes = new ArrayList<Node>();
 		getAllNodes(parent, tags, nodes);
 		return nodes;
@@ -202,8 +229,8 @@ public class DomUtils {
 
 	private final static SimpleLock dbfLock = new SimpleLock();
 
-	private static DocumentBuilder getDocumentBuilder(boolean errorSilent)
-			throws ParserConfigurationException {
+	private static final DocumentBuilder getDocumentBuilder(
+			final boolean errorSilent) throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = null;
 		dbfLock.rl.lock();
 		try {
@@ -226,8 +253,9 @@ public class DomUtils {
 		return db;
 	}
 
-	public static Document readXml(StreamSource source, boolean errorSilent)
-			throws SAXException, IOException, ParserConfigurationException {
+	public static final Document readXml(final StreamSource source,
+			final boolean errorSilent) throws SAXException, IOException,
+			ParserConfigurationException {
 
 		InputSource is2 = new InputSource();
 		is2.setSystemId(source.getSystemId());
@@ -237,8 +265,9 @@ public class DomUtils {
 		return getDocumentBuilder(errorSilent).parse(is2);
 	}
 
-	public static Document readXml(InputSource source, boolean errorSilent)
-			throws SAXException, IOException, ParserConfigurationException {
+	public static final Document readXml(final InputSource source,
+			final boolean errorSilent) throws SAXException, IOException,
+			ParserConfigurationException {
 		return getDocumentBuilder(errorSilent).parse(source);
 	}
 
@@ -250,8 +279,8 @@ public class DomUtils {
 		}
 	}
 
-	public final static void xslt(Source xmlSource, String xsl, Result xmlResult)
-			throws TransformerException {
+	public final static void xslt(final Source xmlSource, final String xsl,
+			final Result xmlResult) throws TransformerException {
 		StreamSource xslSource = new StreamSource(new StringReader(xsl));
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer trans = tf.newTransformer(xslSource);
@@ -259,8 +288,8 @@ public class DomUtils {
 		trans.transform(xmlSource, xmlResult);
 	}
 
-	public final static Result xslt(Source xmlSource, String xsl,
-			File destination) throws TransformerException {
+	public final static Result xslt(final Source xmlSource, final String xsl,
+			final File destination) throws TransformerException {
 		StreamResult xmlResult = new StreamResult(destination);
 		xslt(xmlSource, xsl, xmlResult);
 		return xmlResult;
