@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.snippet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -375,13 +376,19 @@ public class SnippetField extends AbstractField<SnippetField> {
 		while (snippetCounter-- != 0) {
 			Fragment bestScoreFragment = null;
 			fragment = Fragment.findNextHighlightedFragment(fragments.first());
+			List<Fragment> scoreFragments = new ArrayList<Fragment>(0);
+			double maxSearchScore = 0;
 			while (fragment != null) {
-				fragment.score(name, analyzer, query, maxSnippetSize);
-				bestScoreFragment = Fragment.bestScore(bestScoreFragment,
-						fragment);
+				double sc = fragment.searchScore(name, analyzer, query);
+				if (sc > maxSearchScore)
+					maxSearchScore = sc;
+				scoreFragments.add(fragment);
 				fragment = Fragment
 						.findNextHighlightedFragment(fragment.next());
 			}
+			for (Fragment frag : scoreFragments)
+				bestScoreFragment = Fragment.bestScore(bestScoreFragment, frag,
+						maxSearchScore, maxSnippetSize);
 
 			if (bestScoreFragment != null) {
 				SnippetBuilder snippetBuilder = new SnippetBuilder(
