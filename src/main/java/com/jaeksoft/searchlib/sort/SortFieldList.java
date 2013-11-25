@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.schema.AbstractFieldList;
 public class SortFieldList extends AbstractFieldList<SortField> {
 
 	public SortFieldList() {
-		super();
+		super(true);
 	}
 
 	public SortFieldList(SortFieldList sortFieldList) {

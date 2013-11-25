@@ -36,6 +36,7 @@ public class SchemaFieldList extends AbstractFieldList<SchemaField> {
 	private SchemaField uniqueField;
 
 	public SchemaFieldList() {
+		super(false);
 		defaultField = null;
 		uniqueField = null;
 	}
