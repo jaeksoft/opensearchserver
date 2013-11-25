@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,7 @@ import com.jaeksoft.searchlib.schema.AbstractFieldList;
 public class SnippetFieldList extends AbstractFieldList<SnippetField> {
 
 	public SnippetFieldList() {
-		super();
+		super(false);
 	}
 
 	public SnippetFieldList(SnippetFieldList snippetFieldList) {
