@@ -1077,6 +1077,13 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				sortFieldList.put(new SortField(value));
 		}
 
+		for (int j = 1; j <= 10; j++) {
+			p = transaction.getParameterString("sort" + j);
+			if (p == null)
+				break;
+			sortFieldList.put(new SortField(p));
+		}
+
 		if ((values = transaction.getParameterValues("facet")) != null) {
 			for (String value : values)
 				facetFieldList.put(FacetField.buildFacetField(value, false,
