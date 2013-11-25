@@ -42,15 +42,17 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	private List<T> fieldList;
 	private Map<String, T> fieldMap;
 	private String cacheKey;
+	private final boolean cacheKeySorted;
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
 	/**
 	 * Basic contructor.
 	 */
-	public AbstractFieldList() {
+	protected AbstractFieldList(boolean cacheKeySorted) {
 		this.fieldMap = new TreeMap<String, T>();
 		this.fieldList = new ArrayList<T>(0);
+		this.cacheKeySorted = cacheKeySorted;
 		buildCacheKey();
 	}
 
@@ -67,7 +69,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	 * @param fl
 	 */
 	public AbstractFieldList(AbstractFieldList<T> fl) {
-		this();
+		this(fl.cacheKeySorted);
 		add(fl);
 	}
 
@@ -84,9 +86,16 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 
 	private final void buildCacheKey() {
 		StringBuilder sb = new StringBuilder();
-		for (T f : fieldMap.values()) {
-			sb.append(f.toString());
-			sb.append('|');
+		if (cacheKeySorted) {
+			for (T f : fieldList) {
+				sb.append(f.toString());
+				sb.append('|');
+			}
+		} else {
+			for (T f : fieldMap.values()) {
+				sb.append(f.toString());
+				sb.append('|');
+			}
 		}
 		cacheKey = sb.toString();
 	}
