@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.streamlimiter;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +87,15 @@ public abstract class StreamLimiter implements Closeable {
 			loadOutputCache();
 		if (outputCache == null)
 			return null;
-		InputStream inputStream = outputCache.getNewInputStream();
+		InputStream inputStream = registerInputStream(outputCache
+				.getNewInputStream());
+		if (inputStream.markSupported())
+			return inputStream;
+		inputStream = registerInputStream(new BufferedInputStream(inputStream));
+		return inputStream;
+	}
+
+	private final InputStream registerInputStream(final InputStream inputStream) {
 		inputStreamList.add(inputStream);
 		return inputStream;
 	}
