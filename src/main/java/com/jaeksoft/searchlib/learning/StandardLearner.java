@@ -29,11 +29,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
@@ -45,10 +49,15 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.Stored;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class StandardLearner implements LearnerInterface {
 
@@ -77,15 +86,34 @@ public class StandardLearner implements LearnerInterface {
 		}
 	}
 
-	private void checkIndex() throws SearchLibException {
+	private Collection<TargetField> checkDataFields(
+			final FieldMap sourceFieldMap) throws SearchLibException {
+		if (learnerClient == null)
+			return null;
+		Schema schema = learnerClient.getSchema();
+		TreeMap<Float, TargetField> boostMap = new TreeMap<Float, TargetField>();
+		sourceFieldMap.populateBoosts("data", boostMap);
+		for (TargetField targetField : boostMap.values()) {
+			String fieldName = targetField.getBoostedName();
+			if (schema.getField(fieldName) != null)
+				continue;
+			schema.setField(fieldName, Stored.NO, Indexed.YES, TermVector.YES,
+					"StandardAnalyzer");
+		}
+		return boostMap.values();
+	}
+
+	private Collection<TargetField> checkIndex(FieldMap sourceFieldMap)
+			throws SearchLibException {
 		if (learnerClient != null)
-			return;
+			return checkDataFields(sourceFieldMap);
 		if (indexDir == null)
 			throw new SearchLibException("Index directory not set");
 		if (!indexDir.exists())
 			indexDir.mkdir();
 		learnerClient = new Client(indexDir,
 				"/com/jaeksoft/searchlib/learner_config.xml", true);
+		return checkDataFields(sourceFieldMap);
 	}
 
 	private void closeNoLock() {
@@ -124,32 +152,31 @@ public class StandardLearner implements LearnerInterface {
 
 	@Override
 	public void classify(IndexDocument source, FieldMap sourceFieldMap,
-			FieldMap targetFieldMap, int maxRank, double minScore)
-			throws IOException {
+			int maxRank, double minScore) throws IOException {
 		// TODO Auto-generated method stub
 
 	}
 
-	private BooleanQuery getBooleanQuery(String data) throws IOException,
-			SearchLibException {
+	private BooleanQuery getBooleanQuery(String fieldName, String data)
+			throws IOException, SearchLibException {
 		BooleanQuery booleanQuery = new BooleanQuery();
 		Schema schema = learnerClient.getSchema();
-		SchemaField schemaField = schema.getFieldList().get("data");
+		SchemaField schemaField = schema.getFieldList().get(fieldName);
 		Analyzer analyzer = schema.getAnalyzer(schemaField,
 				LanguageEnum.UNDEFINED);
-		analyzer.getQueryAnalyzer().toBooleanQuery("data", data, booleanQuery,
-				Occur.SHOULD);
+		analyzer.getQueryAnalyzer().toBooleanQuery(fieldName, data,
+				booleanQuery, Occur.SHOULD);
 		return booleanQuery;
 	}
 
 	@Override
-	public void similar(String data, int maxRank, double minScore,
-			Collection<LearnerResultItem> collector) throws IOException,
-			SearchLibException {
+	public void similar(String data, FieldMap sourceFieldMap, int maxRank,
+			double minScore, Collection<LearnerResultItem> collector)
+			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
-			checkIndex();
-			BooleanQuery booleanQuery = getBooleanQuery(data);
+			checkIndex(sourceFieldMap);
+			BooleanQuery booleanQuery = getBooleanQuery("data", data);
 			if (booleanQuery == null || booleanQuery.getClauses() == null
 					|| booleanQuery.getClauses().length == 0)
 				return;
@@ -192,59 +219,70 @@ public class StandardLearner implements LearnerInterface {
 		}
 	}
 
+	private void fieldClassify(String fieldName, Float boost, String data,
+			TreeMap<String, LearnerResultItem> targetMap)
+			throws SearchLibException, IOException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
+				.getNewRequest("search");
+		BooleanQuery booleanQuery = getBooleanQuery(fieldName, data);
+		if (booleanQuery == null || booleanQuery.getClauses() == null
+				|| booleanQuery.getClauses().length == 0)
+			return;
+		int start = 0;
+		final int rows = 1000;
+		for (;;) {
+			searchRequest.setStart(start);
+			searchRequest.setRows(rows);
+			searchRequest.setBoostedComplexQuery(booleanQuery);
+			AbstractResultSearch result = (AbstractResultSearch) learnerClient
+					.request(searchRequest);
+			if (result.getDocumentCount() == 0)
+				break;
+			for (int i = 0; i < result.getDocumentCount(); i++) {
+				int pos = start + i;
+				double docScore = result.getScore(pos);
+				ResultDocument document = result.getDocument(pos);
+				FieldValue fieldValue = document.getReturnFields()
+						.get("target");
+				if (fieldValue == null)
+					continue;
+				if (boost != null)
+					docScore = docScore * boost;
+				for (FieldValueItem fvi : fieldValue.getValueArray()) {
+					String value = fvi.getValue();
+					if (value == null)
+						continue;
+					LearnerResultItem learnerResultItem = targetMap.get(value);
+					if (learnerResultItem == null) {
+						learnerResultItem = new LearnerResultItem(0, -1, value,
+								null, 0, null);
+						targetMap.put(value, learnerResultItem);
+					}
+					learnerResultItem.addScoreInstance(docScore, 1,
+							document.getValueContent("name", 0));
+				}
+			}
+			searchRequest.reset();
+			start += rows;
+		}
+	}
+
 	@Override
-	public void classify(String data, int maxRank, double minScore,
-			Collection<LearnerResultItem> collector) throws IOException,
-			SearchLibException {
+	public void classify(String data, FieldMap sourceFieldMap, int maxRank,
+			double minScore, Collection<LearnerResultItem> collector)
+			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
-			checkIndex();
+			Collection<TargetField> targetFields = checkIndex(sourceFieldMap);
 			TreeMap<String, LearnerResultItem> targetMap = new TreeMap<String, LearnerResultItem>();
-			BooleanQuery booleanQuery = getBooleanQuery(data);
-			if (booleanQuery == null || booleanQuery.getClauses() == null
-					|| booleanQuery.getClauses().length == 0)
-				return;
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
-					.getNewRequest("search");
-			int start = 0;
-			final int rows = 1000;
-			for (;;) {
-				searchRequest.setStart(start);
-				searchRequest.setRows(rows);
-				searchRequest.setBoostedComplexQuery(booleanQuery);
-				AbstractResultSearch result = (AbstractResultSearch) learnerClient
-						.request(searchRequest);
-				if (result.getDocumentCount() == 0)
-					break;
-				for (int i = 0; i < result.getDocumentCount(); i++) {
-					int pos = start + i;
-					double docScore = result.getScore(pos);
-					ResultDocument document = result.getDocument(pos);
-					FieldValue fieldValue = document.getReturnFields().get(
-							"target");
-					if (fieldValue == null)
-						continue;
-					for (FieldValueItem fvi : fieldValue.getValueArray()) {
-						String value = fvi.getValue();
-						if (value == null)
-							continue;
-						LearnerResultItem learnerResultItem = targetMap
-								.get(value);
-						if (learnerResultItem == null) {
-							learnerResultItem = new LearnerResultItem(0, -1,
-									value, null, 0, null);
-							targetMap.put(value, learnerResultItem);
-						}
-						learnerResultItem.addScoreInstance(docScore, 1,
-								document.getValueContent("name", 0));
-					}
-				}
-				searchRequest.reset();
-				start += rows;
-			}
+			fieldClassify("data", null, data, targetMap);
+			for (TargetField targetField : targetFields)
+				fieldClassify(targetField.getBoostedName(),
+						targetField.getBoost(), data, targetMap);
 			for (LearnerResultItem learnerResultItem : targetMap.values()) {
 				learnerResultItem.score = learnerResultItem.score
-						/ learnerResultItem.count;
+						/ learnerResultItem.count
+						* Math.log1p(learnerResultItem.count);
 				if (learnerResultItem.score > minScore)
 					collector.add(learnerResultItem);
 			}
@@ -259,7 +297,7 @@ public class StandardLearner implements LearnerInterface {
 			throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
-			checkIndex();
+			checkIndex(sourceFieldMap);
 			int count = 0;
 			learnerClient.deleteAll();
 			AbstractSearchRequest request = (AbstractSearchRequest) client
@@ -280,8 +318,10 @@ public class StandardLearner implements LearnerInterface {
 				for (int i = 0; i < result.getDocumentCount(); i++) {
 					int pos = start + i;
 					IndexDocument target = new IndexDocument();
-					sourceFieldMap.mapIndexDocument(result.getDocument(pos),
-							target);
+					ResultDocument resultDocument = result.getDocument(pos);
+					sourceFieldMap.mapIndexDocument(resultDocument, target);
+					sourceFieldMap.mapIndexDocumentJson("custom",
+							resultDocument, target);
 					List<ResultDocument> joinResultDocuments = result
 							.getJoinDocumentList(pos, null);
 					if (joinResultDocuments != null)
@@ -298,13 +338,38 @@ public class StandardLearner implements LearnerInterface {
 				request.reset();
 				start += buffer;
 			}
-			learnerClient.optimize();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final String[] SOURCE_FIELDS = { "data", "target", "name" };
+	@Override
+	public Map<String, List<String>> getCustoms(String name)
+			throws SearchLibException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
+				.getNewRequest("custom");
+		searchRequest.setQueryString(name);
+		AbstractResultSearch result = (AbstractResultSearch) learnerClient
+				.request(searchRequest);
+		if (result.getDocumentCount() == 0)
+			return null;
+		ResultDocument doc = result.getDocument(0);
+		String json = doc.getValueContent("custom", 0);
+		if (StringUtils.isEmpty(json))
+			return null;
+		try {
+			return JsonUtils.getObject(json,
+					JsonUtils.MapStringListStringTypeRef);
+		} catch (JsonParseException e) {
+			throw new SearchLibException(e);
+		} catch (JsonMappingException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	private final String[] SOURCE_FIELDS = { "data", "target", "name", "custom" };
 
 	@Override
 	public String[] getSourceFieldList() {

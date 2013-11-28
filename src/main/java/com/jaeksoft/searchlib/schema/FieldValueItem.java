@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,11 +31,11 @@ import org.apache.lucene.document.Fieldable;
 
 public class FieldValueItem {
 
-	final private String value;
+	final public String value;
 
-	final private Float boost;
+	final public Float boost;
 
-	final private FieldValueOriginEnum origin;
+	final public FieldValueOriginEnum origin;
 
 	final public static FieldValueItem[] emptyArray = new FieldValueItem[0];
 

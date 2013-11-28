@@ -28,6 +28,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -37,13 +41,16 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -74,7 +81,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				Float boost = cols.length > 3 ? Float.parseFloat(cols[3])
 						: null;
 				add(new SourceField(source, concatSeparator), new TargetField(
-						target, analyzer, boost));
+						target, analyzer, boost, null));
 			}
 		} finally {
 			IOUtils.closeQuietly(br);
@@ -95,7 +102,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 
 	@Override
 	protected TargetField loadTarget(String targetName, Node node) {
-		return new TargetField(targetName);
+		return new TargetField(targetName, node);
 	}
 
 	@Override
@@ -145,6 +152,33 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		}
 	}
 
+	public void mapIndexDocumentJson(String target,
+			ResultDocument sourceDocument, IndexDocument targetDocument)
+			throws JsonProcessingException {
+		Map<String, List<String>> map = new TreeMap<String, List<String>>();
+		for (GenericLink<SourceField, TargetField> link : getList()) {
+			TargetField targetField = link.getTarget();
+			if (!target.equals(targetField.getName()))
+				continue;
+			SourceField sourceField = link.getSource();
+			String source = sourceField.getUniqueName();
+			FieldValue fieldValue = sourceDocument.getReturnFields()
+					.get(source);
+			if (fieldValue == null)
+				continue;
+			if (fieldValue.getValuesCount() == 0)
+				continue;
+			List<String> list = map.get(source);
+			if (list == null) {
+				list = new ArrayList<String>(fieldValue.getValuesCount());
+				map.put(source, list);
+			}
+			fieldValue.populate(list);
+		}
+		String json = JsonUtils.toJsonString(map);
+		targetDocument.setString(target, json);
+	}
+
 	public void cacheAnalyzers(AnalyzerList analyzerList, LanguageEnum lang)
 			throws SearchLibException {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
@@ -163,6 +197,34 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			if (target.equals(link.getTarget().getName()))
 				if (link.getSource().contains(source))
 					return true;
+		return false;
+	}
+
+	/**
+	 * Return a map with all different boost for one target name
+	 * 
+	 * @param target
+	 * @param boostMap
+	 */
+	public void populateBoosts(String target, Map<Float, TargetField> boostMap) {
+		if (target == null || boostMap == null)
+			return;
+		for (GenericLink<SourceField, TargetField> link : getList()) {
+			TargetField targetField = link.getTarget();
+			if (target.equals(targetField.getName())) {
+				Float boost = targetField.getBoost();
+				if (boost != null && boost != 1.0F)
+					boostMap.put(boost, targetField);
+			}
+		}
+	}
+
+	public boolean isMapped(String target) {
+		if (target == null)
+			return false;
+		for (GenericLink<SourceField, TargetField> link : getList())
+			if (target.equals(link.getTarget().getName()))
+				return true;
 		return false;
 	}
 }
