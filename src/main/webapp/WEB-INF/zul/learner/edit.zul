@@ -89,57 +89,7 @@
 					</cell>
 				</row>
 				<row>
-					<label value="Return source document: " />
-					<checkbox label="enabled"
-						checked="@bind(learning.currentLearner.returnSourceDocument)" />
-				</row>
-				<row>
-					<label value="Target Field map" />
-					<cell>
-						<hbox align="center">
-							<listbox mold="select"
-								model="@load(learning.currentLearner.instance.targetFieldList)"
-								selectedItem="@bind(learning.selectedTargetLearnerField)">
-								<template name="model">
-									<listitem label="@load(each)" />
-								</template>
-							</listbox>
-							<label value="linked in" />
-							<listbox mold="select"
-								model="@load(learning.indexFieldList)"
-								selectedItem="@bind(learning.selectedTargetIndexField)">
-								<template name="model">
-									<listitem label="@load(each.name)" />
-								</template>
-							</listbox>
-							<button label="add"
-								onClick="@command('onTargetLinkAdd')" />
-						</hbox>
-						<listbox
-							model="@load(learning.currentLearner.targetFieldMap.list)">
-							<listhead>
-								<listheader label="Learner field" />
-								<listheader label="Index field" />
-								<listheader label="Action" />
-							</listhead>
-							<template name="model" var="link">
-								<listitem>
-									<listcell
-										label="@load(link.source.uniqueName)" />
-									<listcell
-										label="@load(link.target.name)" />
-									<listcell>
-										<image
-											src="/images/action_delete.png"
-											onClick="@command('onTargetLinkRemove', link=link)" />
-									</listcell>
-								</listitem>
-							</template>
-						</listbox>
-					</cell>
-				</row>
-				<row>
-					<label value="Active: " />
+					<label value="Enable automatic learn: " />
 					<checkbox label="enabled"
 						checked="@bind(learning.currentLearner.active)" />
 				</row>

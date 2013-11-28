@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,7 @@ public class ReturnFieldList extends AbstractFieldList<ReturnField> {
 	}
 
 	public ReturnFieldList() {
-		super();
+		super(false);
 	}
 
 	public void filterCopy(SchemaFieldList schemaFieldList, String nodeString) {

@@ -425,7 +425,7 @@
 		<cxf.version>2.7.7</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.1</httpclient.version>
-		<poi.version>3.9</poi.version>
+		<poi.version>3.10-beta2</poi.version>
 		<selenium.version>2.37.1</selenium.version>
 		<zk.version>6.5.3</zk.version>
 		<httpcore.version>4.3</httpcore.version>

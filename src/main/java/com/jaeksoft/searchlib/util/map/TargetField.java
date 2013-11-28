@@ -49,22 +49,26 @@ public class TargetField implements Comparable<TargetField> {
 
 	private CompiledAnalyzer cachedAnalyzer;
 
-	private Float boost;
+	private Float queryBoost;
 
-	public TargetField(String name, String analyzer, Float boost) {
+	private String boostedName;
+
+	public TargetField(String name, String analyzer, Float queryBoost,
+			String boostedName) {
 		this.name = name;
 		this.analyzer = analyzer;
 		this.cachedAnalyzer = null;
-		this.boost = boost;
+		this.queryBoost = queryBoost;
+		this.boostedName = boostedName;
 	}
 
 	public TargetField(String name) {
-		this(name, (String) null, null);
+		this(name, (String) null, null, null);
 	}
 
 	public TargetField(String name, Node node) {
 		this(name, DomUtils.getAttributeText(node, "analyzer"), DomUtils
-				.getAttributeFloat(node, "boost"));
+				.getAttributeFloat(node, "boost"), null);
 	}
 
 	/**
@@ -126,7 +130,7 @@ public class TargetField implements Comparable<TargetField> {
 	 * @return the boost
 	 */
 	public Float getBoost() {
-		return boost;
+		return queryBoost;
 	}
 
 	/**
@@ -134,7 +138,8 @@ public class TargetField implements Comparable<TargetField> {
 	 *            the boost to set
 	 */
 	public void setBoost(Float boost) {
-		this.boost = boost;
+		this.queryBoost = boost;
+		this.boostedName = null;
 	}
 
 	final public void setCachedAnalyzer(AnalyzerList analyzerList,
@@ -154,7 +159,7 @@ public class TargetField implements Comparable<TargetField> {
 			throws IOException {
 		if (fieldValueItems == null)
 			return;
-		FieldContent fc = document.getFieldContent(name);
+		FieldContent fc = document.getFieldContent(getBoostedName());
 		if (cachedAnalyzer == null) {
 			for (FieldValueItem fvi : fieldValueItems)
 				fc.add(fvi);
@@ -167,10 +172,10 @@ public class TargetField implements Comparable<TargetField> {
 	public void add(String value, IndexDocument document) throws IOException {
 		if (value == null)
 			return;
-		FieldContent fc = document.getFieldContent(name);
+		FieldContent fc = document.getFieldContent(getBoostedName());
 		if (cachedAnalyzer == null)
 			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
-					boost));
+					null));
 		else
 			cachedAnalyzer.populate(value, fc);
 	}
@@ -179,15 +184,28 @@ public class TargetField implements Comparable<TargetField> {
 			throws IOException {
 		if (values == null)
 			return;
-		FieldContent fc = document.getFieldContent(name);
+		FieldContent fc = document.getFieldContent(getBoostedName());
 		if (cachedAnalyzer == null) {
 			for (String value : values)
 				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
-						boost));
+						null));
 		} else {
 			for (String value : values)
 				cachedAnalyzer.populate(value, fc);
 		}
+	}
+
+	public String getBoostedName() {
+		if (boostedName != null)
+			return boostedName;
+		if (queryBoost == null || queryBoost == 1.0F) {
+			boostedName = name;
+		} else {
+			StringBuilder sb = new StringBuilder("data_");
+			sb.append(queryBoost);
+			boostedName = sb.toString();
+		}
+		return boostedName;
 	}
 
 }

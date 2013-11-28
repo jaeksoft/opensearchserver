@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 
 import org.apache.http.HttpException;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.SimpleLock;
@@ -85,8 +87,19 @@ public abstract class CrawlQueueAbstract {
 		return containedData;
 	}
 
+	private static final long ONE_MB = 100 * 1024 * 1024;
+
 	private boolean weMustIndexNow() {
 		synchronized (this) {
+			Monitor monitor = new Monitor();
+			if (monitor.getFreeMemory() < ONE_MB) {
+				Logging.warn("Low memory free conditions: flushing crawl buffer");
+				return true;
+			}
+			if (monitor.getMemoryRate() < 10) {
+				Logging.warn("Low memory rate conditions: flushing crawl buffer");
+				return true;
+			}
 			if (!shouldWePersist())
 				return false;
 			if (workingInProgress())

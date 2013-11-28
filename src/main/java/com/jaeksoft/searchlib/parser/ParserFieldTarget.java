@@ -51,7 +51,7 @@ public class ParserFieldTarget extends TargetField {
 
 	public ParserFieldTarget(String name, String captureRegexp,
 			String analyzer, boolean removeTag) {
-		super(name, analyzer, null);
+		super(name, analyzer, null, null);
 		this.captureRegexp = captureRegexp;
 		this.removeTag = removeTag;
 		checkRegexpPattern();
