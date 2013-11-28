@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.analysis.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Client;
@@ -41,6 +42,7 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 
 	private String indexName = null;
 	private String requestName = null;
+	private String returnField = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
@@ -50,6 +52,7 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 			values.add(item.getIndexName());
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray());
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null);
+		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null);
 	}
 
 	@Override
@@ -59,6 +62,8 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 			indexName = value;
 		else if (prop == ClassPropertyEnum.SEARCH_REQUEST)
 			requestName = value;
+		else if (prop == ClassPropertyEnum.RETURN_FIELD)
+			returnField = value;
 	}
 
 	@Override
@@ -67,6 +72,8 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 		Client indexClient = ClientCatalog.getClient(indexName);
 		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) indexClient
 				.getNewRequest(requestName);
+		if (!StringUtils.isEmpty(returnField))
+			request.setReturnedFields(StringUtils.split(returnField, '|'));
 		for (FilterFactory filter : request.getFilterList(null))
 			tokenStream = filter.create(tokenStream);
 		return tokenStream;
