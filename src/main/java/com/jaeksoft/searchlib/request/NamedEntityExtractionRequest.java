@@ -143,7 +143,13 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		return returnedFields;
 	}
 
-	public void setReturnedFields(List<String> returnedFields) {
+	public void setReturnedFields(Collection<String> returnedFields) {
+		this.returnedFields.clear();
+		for (String returnedField : returnedFields)
+			addReturnedField(returnedField);
+	}
+
+	public void setReturnedFields(String[] returnedFields) {
 		this.returnedFields.clear();
 		for (String returnedField : returnedFields)
 			addReturnedField(returnedField);
