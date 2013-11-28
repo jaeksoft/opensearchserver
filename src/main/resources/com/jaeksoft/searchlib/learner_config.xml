@@ -22,7 +22,8 @@
 			<field name="name" indexed="yes" stored="no" termVector="no" />
 			<field name="data" indexed="yes" stored="no" termVector="yes"
 				analyzer="StandardAnalyzer" />
-			<field name="target" indexed="yes" stored="no" termVector="no" />
+			<field name="target" indexed="yes" stored="no" termVector="yes" />
+			<field name="custom" indexed="yes" stored="no" termVector="yes" />
 		</fields>
 		<analyzers>
 			<analyzer name="StandardAnalyzer">
@@ -32,11 +33,20 @@
 		</analyzers>
 	</schema>
 	<requests>
-		<request name="search" defaultOperator="or" start="0" rows="0"
+		<request name="search" defaultOperator="OR" start="0" rows="0"
 			allowLeadingWildcard="no">
 			<query></query>
 			<returnFields>
 				name,target
+			</returnFields>
+		</request>
+		<request name="custom" type="SearchFieldRequest"
+			defaultOperator="AND" start="0" rows="1" allowLeadingWildcard="no">
+			<query>
+				<searchField field="name" phrase="false" />
+			</query>
+			<returnFields>
+				custom
 			</returnFields>
 		</request>
 	</requests>

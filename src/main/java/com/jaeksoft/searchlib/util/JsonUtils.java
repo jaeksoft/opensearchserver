@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -57,4 +59,11 @@ public class JsonUtils {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		mapper.writeValue(file, object);
 	}
+
+	public final static TypeReference<Map<String, String>> MapStringStringTypeRef = new TypeReference<Map<String, String>>() {
+	};
+
+	public final static TypeReference<Map<String, List<String>>> MapStringListStringTypeRef = new TypeReference<Map<String, List<String>>>() {
+	};
+
 }
