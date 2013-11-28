@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -82,6 +83,15 @@ public class FieldValue extends AbstractField<FieldValue> {
 		for (FieldValueItem value : valueArray)
 			values[i++] = value.getValue();
 		return values;
+	}
+
+	final public void populate(final Collection<String> list) {
+		if (valueArray == null)
+			return;
+		if (valueArray.length == 0)
+			return;
+		for (FieldValueItem fvi : valueArray)
+			list.add(fvi.value);
 	}
 
 	public void setValues(List<FieldValueItem> values) {

@@ -27,11 +27,10 @@ package com.jaeksoft.searchlib.learning;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @JsonInclude(Include.NON_EMPTY)
 public class LearnerResultItem {
@@ -41,28 +40,28 @@ public class LearnerResultItem {
 	public final String target;
 
 	public String name;
-	public final DocumentResult document;
 
 	public Double highestScore;
 
 	public int count;
 
+	public final Map<String, List<String>> customs;
+
 	public LearnerResultItem(double score, int rank, String target,
-			String name, int count, DocumentResult document) {
+			String name, int count, Map<String, List<String>> customs) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
 		this.name = name;
 		this.count = count;
-		this.document = document;
+		this.customs = customs;
 		highestScore = null;
 	}
 
-	public LearnerResultItem(LearnerResultItem result, ResultDocument document,
-			List<ResultDocument> joinDocuments) {
+	public LearnerResultItem(LearnerResultItem result,
+			Map<String, List<String>> customs) {
 		this(result.score, result.rank, result.target, result.name,
-				result.count, new DocumentResult(document, null, null, null,
-						joinDocuments));
+				result.count, customs);
 	}
 
 	public double getScore() {
@@ -153,4 +152,5 @@ public class LearnerResultItem {
 				this.name = name;
 		}
 	}
+
 }

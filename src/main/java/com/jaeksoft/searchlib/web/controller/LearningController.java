@@ -326,7 +326,7 @@ public class LearningController extends CommonController {
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
 		fieldMap.add(new SourceField(selectedSourceIndexField),
 				new TargetField(selectedSourceLearnerField, null,
-						selectedSourceLearnerFieldBoost));
+						selectedSourceLearnerFieldBoost, null));
 	}
 
 	@Command
@@ -339,32 +339,6 @@ public class LearningController extends CommonController {
 		if (currentLearner == null)
 			return;
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
-		fieldMap.remove(link);
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onTargetLinkAdd() throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
-		if (selectedTargetLearnerField == null
-				|| selectedTargetIndexField == null || currentLearner == null)
-			return;
-		FieldMap fieldMap = currentLearner.getTargetFieldMap();
-		fieldMap.add(new SourceField(selectedTargetLearnerField),
-				new TargetField(selectedTargetIndexField.getName()));
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onTargetLinkRemove(
-			@BindingParam("link") GenericLink<SourceField, TargetField> link)
-			throws SearchLibException, TransformerConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			ParserConfigurationException {
-		if (currentLearner == null)
-			return;
-		FieldMap fieldMap = currentLearner.getTargetFieldMap();
 		fieldMap.remove(link);
 	}
 

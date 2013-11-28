@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.learning;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -71,8 +73,7 @@ public interface LearnerInterface {
 	 * @throws IOException
 	 */
 	public void classify(IndexDocument source, FieldMap sourceFieldMap,
-			FieldMap targetFieldMap, int maxRank, double minScore)
-			throws IOException;
+			int maxRank, double minScore) throws IOException;
 
 	/**
 	 * Classify a block of text passed in parameter
@@ -85,9 +86,9 @@ public interface LearnerInterface {
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
-	public void classify(String data, int maxRank, double minScore,
-			Collection<LearnerResultItem> collector) throws IOException,
-			SearchLibException;
+	public void classify(String data, FieldMap sourceFieldMap, int maxRank,
+			double minScore, Collection<LearnerResultItem> collector)
+			throws IOException, SearchLibException;
 
 	/**
 	 * Return the closest items
@@ -99,9 +100,9 @@ public interface LearnerInterface {
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
-	public void similar(String data, int maxRank, double minScore,
-			Collection<LearnerResultItem> collector) throws IOException,
-			SearchLibException;
+	public void similar(String data, FieldMap sourceFieldMap, int maxRank,
+			double minScore, Collection<LearnerResultItem> collector)
+			throws IOException, SearchLibException;
 
 	/**
 	 * SearchLibException Learn by reading the document returned by the search
@@ -132,4 +133,15 @@ public interface LearnerInterface {
 	 * @return
 	 */
 	public String[] getTargetFieldList();
+
+	/**
+	 * Return a map with the custom fields linked to the provided name
+	 * 
+	 * @param name
+	 * @return
+	 * @throws SearchLibException
+	 */
+	public Map<String, List<String>> getCustoms(String name)
+			throws SearchLibException;
+
 }

@@ -68,8 +68,7 @@ public class JSONParam {
 	}
 
 	public Map<String, String> getVariables() {
-		return getObject(new TypeReference<Map<String, String>>() {
-		});
+		return getObject(JsonUtils.MapStringStringTypeRef);
 	}
 
 }
