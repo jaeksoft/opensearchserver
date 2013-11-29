@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -53,7 +54,8 @@ public class Analyzer {
 	private CompiledAnalyzer queryAnalyzer;
 	private CompiledAnalyzer indexAnalyzer;
 
-	public Analyzer(Config config) throws SearchLibException {
+	public Analyzer(Config config) throws SearchLibException,
+			ClassNotFoundException {
 		name = null;
 		this.config = config;
 		lang = LanguageEnum.UNDEFINED;
@@ -63,7 +65,8 @@ public class Analyzer {
 		indexAnalyzer = null;
 	}
 
-	public void copyFrom(Analyzer source) throws SearchLibException {
+	public void copyFrom(Analyzer source) throws SearchLibException,
+			ClassNotFoundException {
 		rwl.w.lock();
 		try {
 			source.copyTo(this);
@@ -72,7 +75,8 @@ public class Analyzer {
 		}
 	}
 
-	private void copyTo(Analyzer target) throws SearchLibException {
+	private void copyTo(Analyzer target) throws SearchLibException,
+			ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			target.name = this.name;
@@ -133,9 +137,10 @@ public class Analyzer {
 	 * @param tokenizer
 	 *            the tokenizer to set
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	public void setTokenizer(TokenizerFactory tokenizer)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		rwl.w.lock();
 		try {
 			this.tokenizer = TokenizerFactory.create(tokenizer);
@@ -276,9 +281,12 @@ public class Analyzer {
 	 * @return
 	 * @throws SearchLibException
 	 * @throws XPathExpressionException
+	 * @throws ClassNotFoundException
+	 * @throws DOMException
 	 */
 	public static Analyzer fromXmlConfig(Config config, XPathParser xpp,
-			Node node) throws SearchLibException, XPathExpressionException {
+			Node node) throws SearchLibException, XPathExpressionException,
+			DOMException, ClassNotFoundException {
 		if (node == null)
 			return null;
 		Analyzer analyzer = new Analyzer(config, xpp, node);

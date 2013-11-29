@@ -92,8 +92,12 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		values[pos] = value;
 	}
 
-	public FieldValueItem[] getValues() {
+	final public FieldValueItem[] getValues() {
 		return values;
+	}
+
+	final public boolean hasContent() {
+		return values.length > 0;
 	}
 
 	public String getMergedValues(String separator) {

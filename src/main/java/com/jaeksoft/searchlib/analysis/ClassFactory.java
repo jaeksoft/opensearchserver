@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -168,13 +169,14 @@ public abstract class ClassFactory {
 	 * @param className
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	protected static ClassFactory create(Config config, String packageName,
-			String className) throws SearchLibException {
+			String className) throws SearchLibException, ClassNotFoundException {
+		String cl = className;
+		if (className.indexOf('.') == -1)
+			cl = packageName + '.' + cl;
 		try {
-			String cl = className;
-			if (className.indexOf('.') == -1)
-				cl = packageName + '.' + cl;
 			ClassFactory o = (ClassFactory) Class.forName(cl).newInstance();
 			o.setParams(config, packageName, className);
 			o.initProperties();
@@ -182,8 +184,6 @@ public abstract class ClassFactory {
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -219,9 +219,12 @@ public abstract class ClassFactory {
 	 * @param classFactory
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 * @throws DOMException
 	 */
 	protected static ClassFactory create(Config config, String packageName,
-			Node node) throws SearchLibException {
+			Node node) throws SearchLibException, DOMException,
+			ClassNotFoundException {
 		if (node == null)
 			return null;
 		NamedNodeMap nnm = node.getAttributes();
@@ -242,9 +245,10 @@ public abstract class ClassFactory {
 	 * @param classFactory
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	protected static ClassFactory create(ClassFactory classFactory)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		ClassFactory newClassFactory = create(classFactory.config,
 				classFactory.packageName, classFactory.getClassName());
 		for (ClassProperty prop : classFactory.properties.values())

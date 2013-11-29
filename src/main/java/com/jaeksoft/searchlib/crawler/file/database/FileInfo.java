@@ -245,16 +245,16 @@ public class FileInfo {
 			setParserStatusInt(Integer.parseInt(v));
 	}
 
-	public boolean isStatusFull() {
+	final public boolean isStatusFull() {
 		return fetchStatus == FetchStatus.FETCHED
 				&& parserStatus == ParserStatus.PARSED
-				&& indexStatus == IndexStatus.INDEXED;
+				&& (indexStatus == IndexStatus.INDEXED || indexStatus == IndexStatus.NOTHING_TO_INDEX);
 	}
 
 	/**
 	 * Test if a new crawl is needed
 	 */
-	public boolean isNewCrawlNeeded(FileInfo newFileInfo) {
+	final public boolean isNewCrawlNeeded(final FileInfo newFileInfo) {
 		if (!isStatusFull())
 			return true;
 		if (fileSystemDate == null)

@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -67,7 +68,7 @@ public class Schema {
 
 	public static Schema fromXmlConfig(Config config, Node parentNode,
 			XPathParser xpp) throws XPathExpressionException,
-			SearchLibException {
+			SearchLibException, DOMException, ClassNotFoundException {
 
 		Schema schema = new Schema(config);
 
