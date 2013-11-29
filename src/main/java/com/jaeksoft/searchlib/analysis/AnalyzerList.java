@@ -32,6 +32,7 @@ import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -149,7 +150,7 @@ public class AnalyzerList {
 
 	public static AnalyzerList fromXmlConfig(Config config, XPathParser xpp,
 			Node parentNode) throws XPathExpressionException,
-			SearchLibException {
+			SearchLibException, DOMException, ClassNotFoundException {
 		AnalyzerList analyzers = new AnalyzerList();
 		if (parentNode == null)
 			return analyzers;

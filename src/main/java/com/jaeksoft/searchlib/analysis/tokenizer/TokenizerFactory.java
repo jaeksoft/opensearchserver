@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.analysis.tokenizer;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -42,25 +43,25 @@ public abstract class TokenizerFactory extends ClassFactory {
 	public abstract Tokenizer create(Reader reader);
 
 	public static TokenizerFactory getDefaultTokenizer(Config config)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (TokenizerFactory) ClassFactory.create(config,
 				TOKENIZER_PACKAGE, TokenizerEnum.StandardTokenizer.name());
 	}
 
 	public static TokenizerFactory create(Config config, String className)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (TokenizerFactory) ClassFactory.create(config,
 				TOKENIZER_PACKAGE, className);
 	}
 
 	public static TokenizerFactory create(Config config, Node node)
-			throws SearchLibException {
+			throws SearchLibException, DOMException, ClassNotFoundException {
 		return (TokenizerFactory) ClassFactory.create(config,
 				TOKENIZER_PACKAGE, node);
 	}
 
 	public static TokenizerFactory create(TokenizerFactory tokenizer)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (TokenizerFactory) ClassFactory.create(tokenizer);
 	}
 

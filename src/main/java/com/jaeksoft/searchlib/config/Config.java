@@ -270,6 +270,8 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -1718,7 +1720,8 @@ public abstract class Config implements ThreadFactory {
 		return request;
 	}
 
-	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException {
+	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException,
+			ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			if (robotsTxtCache != null)

@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -185,10 +186,12 @@ public class ParserFactory extends ClassFactory implements
 	 * @return a ParserFactory
 	 * @throws SearchLibException
 	 * @throws XPathExpressionException
+	 * @throws ClassNotFoundException
+	 * @throws DOMException
 	 */
 	public static ParserFactory create(Config config, XPathParser xpp,
 			Node parserNode) throws SearchLibException,
-			XPathExpressionException {
+			XPathExpressionException, DOMException, ClassNotFoundException {
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(
 				config, PARSER_PACKAGE, parserNode);
 
@@ -219,7 +222,7 @@ public class ParserFactory extends ClassFactory implements
 	}
 
 	public static ParserFactory create(Config config, String parserName,
-			String className) throws SearchLibException {
+			String className) throws SearchLibException, ClassNotFoundException {
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(null,
 				PARSER_PACKAGE, className);
 		parserFactory.config = config;
@@ -233,9 +236,10 @@ public class ParserFactory extends ClassFactory implements
 	 * @param filter
 	 * @return a FilterFactory
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	public static ParserFactory create(ParserFactory parser)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		ParserFactory newParser = (ParserFactory) ClassFactory.create(parser);
 		newParser.fieldMap = new ParserFieldMap();
 		if (parser.fieldMap != null)

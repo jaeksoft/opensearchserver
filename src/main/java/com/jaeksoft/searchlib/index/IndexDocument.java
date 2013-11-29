@@ -401,8 +401,15 @@ public class IndexDocument implements Iterable<FieldContent> {
 		this.lang = lang;
 	}
 
-	public FieldContent getField(String fieldName) {
+	final public FieldContent getField(final String fieldName) {
 		return fields.get(fieldName);
+	}
+
+	final public boolean hasContent(final String fieldName) {
+		FieldContent fc = getField(fieldName);
+		if (fc == null)
+			return false;
+		return fc.hasContent();
 	}
 
 	public FieldValueItem getFieldValue(String fieldName, int pos) {

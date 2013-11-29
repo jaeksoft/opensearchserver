@@ -97,7 +97,8 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				return;
 			List<Node> nodeList = DomUtils.getNodes(parentNode, "link");
 			for (Node node : nodeList) {
-				String sourceName = DomUtils.getAttributeText(node, "source");
+				String sourceName = StringEscapeUtils.unescapeXml(DomUtils
+						.getAttributeText(node, "source"));
 				S source = loadSource(sourceName);
 				if (source == null)
 					continue;

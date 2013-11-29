@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
@@ -129,7 +130,8 @@ public class ParserSelector {
 		}
 	}
 
-	public Parser getFileCrawlerDefaultParser() throws SearchLibException {
+	public Parser getFileCrawlerDefaultParser() throws SearchLibException,
+			ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			if (fileCrawlerDefaultParserFactory == null)
@@ -232,7 +234,7 @@ public class ParserSelector {
 	}
 
 	final private Parser getParser(ParserFactory parserFactory)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			if (parserFactory == null)
@@ -244,7 +246,7 @@ public class ParserSelector {
 	}
 
 	final public Parser getNewParserByName(String parserName)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		ParserFactory parserFactory = getParserByName(parserName);
 		if (parserFactory == null)
 			return null;
@@ -252,7 +254,7 @@ public class ParserSelector {
 	}
 
 	private Parser getParserFromExtension(String extension)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			ParserFactory parserFactory = null;
@@ -292,7 +294,7 @@ public class ParserSelector {
 	}
 
 	private Parser getParserFromMimeType(String contentBaseType, String url)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			ParserFactory parserFactory = getParserFactoryFromMimeTypeNoLock(
@@ -314,7 +316,8 @@ public class ParserSelector {
 	}
 
 	final private Parser getParser(String filename, String contentBaseType,
-			String url, Parser defaultParser) throws SearchLibException {
+			String url, Parser defaultParser) throws SearchLibException,
+			ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			Parser parser = null;
@@ -346,12 +349,15 @@ public class ParserSelector {
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
 			Node parserNode = parserNodes.item(i);
-			ParserFactory parserFactory = ParserFactory.create(config, xpp,
-					parserNode);
-
-			if (parserFactory != null)
-				parserFactoryMap.put(parserFactory.getParserName(),
-						parserFactory);
+			try {
+				ParserFactory parserFactory = ParserFactory.create(config, xpp,
+						parserNode);
+				if (parserFactory != null)
+					parserFactoryMap.put(parserFactory.getParserName(),
+							parserFactory);
+			} catch (ClassNotFoundException e) {
+				Logging.error(e);
+			}
 		}
 		rebuildParserMap();
 	}
@@ -397,7 +403,7 @@ public class ParserSelector {
 
 	private final Parser parserLoop(IndexDocument sourceDocument,
 			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		try {
 			Set<ParserType> parserSet = new HashSet<ParserType>();
 			while (parser != null) {
@@ -426,7 +432,7 @@ public class ParserSelector {
 	public final Parser parseStream(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			InputStream inputStream, LanguageEnum lang, Parser defaultParser)
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
 		if (parser == null)
 			return null;
@@ -436,13 +442,14 @@ public class ParserSelector {
 	}
 
 	public final Parser parseFile(File file, LanguageEnum lang)
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, ClassNotFoundException {
 		return parseFile(null, file.getName(), null, null, file, lang);
 	}
 
 	public final Parser parseFile(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url, File file,
-			LanguageEnum lang) throws SearchLibException, IOException {
+			LanguageEnum lang) throws SearchLibException, IOException,
+			ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, null);
 		if (parser == null)
 			return null;
@@ -454,7 +461,7 @@ public class ParserSelector {
 	public final Parser parseBase64(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			String base64text, LanguageEnum lang) throws SearchLibException,
-			IOException {
+			IOException, ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, null);
 		if (parser == null)
 			return null;
@@ -466,7 +473,8 @@ public class ParserSelector {
 	public final Parser parseFileInstance(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			FileInstanceAbstract fileInstance, LanguageEnum lang,
-			Parser defaultParser) throws SearchLibException, IOException {
+			Parser defaultParser) throws SearchLibException, IOException,
+			ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
 		if (parser == null)
 			return null;
