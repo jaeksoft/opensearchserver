@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
+import org.apache.commons.net.ftp.FTPReply;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -90,19 +91,40 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 	protected FTPClient ftpConnect() throws SocketException, IOException,
 			NoSuchAlgorithmException {
 		FilePathItem fpi = getFilePathItem();
-		FTPClient f = new FTPClient();
-		f.setControlKeepAliveTimeout(180);
-		f.setConnectTimeout(120000);
-		f.connect(fpi.getHost());
-		f.login(fpi.getUsername(), fpi.getPassword());
-		return f;
+		FTPClient ftp = null;
+		try {
+			ftp = new FTPClient();
+			// For debug
+			// f.addProtocolCommandListener(new PrintCommandListener(
+			// new PrintWriter(System.out)));
+			ftp.setConnectTimeout(120000);
+			ftp.setControlKeepAliveTimeout(180);
+			ftp.connect(fpi.getHost());
+			int reply = ftp.getReplyCode();
+			if (!FTPReply.isPositiveCompletion(reply))
+				throw new IOException("FTP Error Code: " + reply);
+			ftp.login(fpi.getUsername(), fpi.getPassword());
+			if (!FTPReply.isPositiveCompletion(reply))
+				throw new IOException("FTP Error Code: " + reply);
+			if (fpi.isFtpUsePassiveMode())
+				ftp.enterLocalPassiveMode();
+			if (!FTPReply.isPositiveCompletion(reply))
+				throw new IOException("FTP Error Code: " + reply);
+			FTPClient ftpReturn = ftp;
+			ftp = null;
+			return ftpReturn;
+		} finally {
+			if (ftp != null)
+				ftpQuietDisconnect(ftp);
+		}
 	}
 
 	private void ftpQuietDisconnect(FTPClient f) {
 		if (f == null)
 			return;
 		try {
-			f.disconnect();
+			if (f.isConnected())
+				f.disconnect();
 		} catch (IOException e) {
 			Logging.warn(e);
 		}

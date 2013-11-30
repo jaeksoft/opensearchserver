@@ -267,7 +267,8 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 				IOUtils.closeQuietly(inputStream);
 			try {
 				if (ftp != null)
-					ftp.disconnect();
+					if (ftp.isConnected())
+						ftp.disconnect();
 			} catch (IOException e) {
 				Logging.warn(e);
 			}
