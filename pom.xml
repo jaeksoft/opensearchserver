@@ -163,7 +163,7 @@
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox-ant</artifactId>
-			<version>1.8.2</version>
+			<version>1.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
@@ -329,11 +329,6 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>${httpcore.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.detro.ghostdriver</groupId>
 			<artifactId>phantomjsdriver</artifactId>
 			<version>1.0.4</version>
@@ -394,11 +389,6 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore-nio</artifactId>
-			<version>${httpcore.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-stempel</artifactId>
 			<version>${lucene.version}</version>
@@ -423,7 +413,6 @@
 		<poi.version>3.10-beta2</poi.version>
 		<selenium.version>2.37.1</selenium.version>
 		<zk.version>6.5.3</zk.version>
-		<httpcore.version>4.3</httpcore.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>

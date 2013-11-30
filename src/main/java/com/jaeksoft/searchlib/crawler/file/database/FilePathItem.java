@@ -72,6 +72,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	private boolean enabled;
 	private int delay;
 
+	private boolean ftpUsePassiveMode;
+
 	public FilePathItem(Config config) throws SearchLibException {
 		this.type = FileInstanceType.Local;
 		host = null;
@@ -89,6 +91,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		swiftContainer = null;
 		exclusionPatterns = null;
 		exclusionMatchers = null;
+		ftpUsePassiveMode = true;
 	}
 
 	public void copyTo(FilePathItem destFilePath) throws URISyntaxException {
@@ -108,6 +111,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.swiftTenant = swiftTenant;
 		destFilePath.swiftAuthURL = swiftAuthURL;
 		destFilePath.swiftContainer = swiftContainer;
+		destFilePath.ftpUsePassiveMode = ftpUsePassiveMode;
 	}
 
 	/**
@@ -287,6 +291,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 				"swiftContainer"));
 		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node,
 				"exclusionPatterns"));
+		filePathItem.setFtpUsePassiveMode(DomUtils.getAttributeBoolean(node,
+				"ftpUsePassiveMode", true));
 		return filePathItem;
 	}
 
@@ -309,7 +315,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 						.toString(delay), "swiftAuthType",
 				swiftAuthType != null ? swiftAuthType.name() : null,
 				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL,
-				"swiftContainer", swiftContainer);
+				"swiftContainer", swiftContainer, "ftpUsePassiveMode", Boolean
+						.toString(ftpUsePassiveMode));
 		if (path != null) {
 			xmlWriter.startElement("fpath");
 			xmlWriter.textNode(path);
@@ -492,5 +499,20 @@ public class FilePathItem implements Comparable<FilePathItem> {
 
 	public Matcher[] getExclusionMatchers() {
 		return exclusionMatchers;
+	}
+
+	/**
+	 * @return the ftpUsePassiveMode
+	 */
+	public boolean isFtpUsePassiveMode() {
+		return ftpUsePassiveMode;
+	}
+
+	/**
+	 * @param ftpUsePassiveMode
+	 *            the ftpUsePassiveMode to set
+	 */
+	public void setFtpUsePassiveMode(boolean ftpUsePassiveMode) {
+		this.ftpUsePassiveMode = ftpUsePassiveMode;
 	}
 }
