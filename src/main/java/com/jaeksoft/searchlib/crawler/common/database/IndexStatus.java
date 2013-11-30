@@ -30,13 +30,17 @@ public enum IndexStatus {
 
 	NOT_INDEXED(0, "Not indexed", TargetStatus.TARGET_DO_NOTHING),
 
-	INDEXED(1, "Indexed", TargetStatus.TARGET_UPDATE),
+	INDEXED(1, "Indexed", TargetStatus.TARGET_DO_NOTHING),
 
 	META_NOINDEX(2, "Meta No Index", TargetStatus.TARGET_DELETE),
 
 	INDEX_ERROR(3, "Index error", TargetStatus.TARGET_DO_NOTHING),
 
 	PLUGIN_REJECTED(4, "Rejected", TargetStatus.TARGET_DELETE),
+
+	NOTHING_TO_INDEX(5, "Nothing to index", TargetStatus.TARGET_DO_NOTHING),
+
+	TO_INDEX(6, "To index", TargetStatus.TARGET_UPDATE),
 
 	ALL(99, "All", null);
 

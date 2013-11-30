@@ -48,7 +48,7 @@ public class RobotsTxtCache {
 
 	private ParserSelector parserSelector;
 
-	public RobotsTxtCache() throws SearchLibException {
+	public RobotsTxtCache() throws SearchLibException, ClassNotFoundException {
 		robotsTxtList = new TreeMap<String, RobotsTxt>();
 		parserSelector = new ParserSelector(null, ParserFactory.create(null,
 				"RobotsTxt parser", DisallowList.class.getCanonicalName()));

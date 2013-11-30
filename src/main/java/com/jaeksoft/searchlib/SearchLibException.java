@@ -57,4 +57,17 @@ public class SearchLibException extends Exception {
 			super(message);
 		}
 	}
+
+	public static class UniqueKeyMissing extends SearchLibException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8504346848728230027L;
+
+		public UniqueKeyMissing(String uniqueField) {
+			super("The unique key is missing: " + uniqueField);
+		}
+
+	}
 }

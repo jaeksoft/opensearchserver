@@ -182,7 +182,7 @@ public class WebCrawlThread extends
 			if (currentUrlItem.getFetchStatus() == FetchStatus.FETCHED
 					&& currentUrlItem.getParserStatus() == ParserStatus.PARSED
 					&& currentUrlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
-				currentUrlItem.setIndexStatus(IndexStatus.INDEXED);
+				currentUrlItem.setIndexStatus(IndexStatus.TO_INDEX);
 				currentStats.incParsedCount();
 				config.getScreenshotManager().capture(url,
 						crawl.getCredentialItem(), true, 120);
@@ -193,6 +193,9 @@ public class WebCrawlThread extends
 			crawl.setError(e.getMessage());
 			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
 		} catch (URISyntaxException e) {
+			crawl.setError(e.getMessage());
+			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
+		} catch (ClassNotFoundException e) {
 			crawl.setError(e.getMessage());
 			currentUrlItem.setFetchStatus(FetchStatus.URL_ERROR);
 		}

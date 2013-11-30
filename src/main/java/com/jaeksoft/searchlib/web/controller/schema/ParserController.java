@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,7 +66,7 @@ public class ParserController extends CommonController {
 
 	private transient SchemaField selectedIndexField;
 
-	private transient ParserFieldEnum selectedParserField;
+	private transient String selectedParserField;
 
 	private transient ParserType parserType;
 
@@ -254,28 +254,31 @@ public class ParserController extends CommonController {
 		}
 	}
 
-	public ParserFieldEnum[] getParserFieldList()
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
+	public String[] getParserFieldList() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		synchronized (this) {
 			if (currentParser == null)
 				return null;
 			ParserFieldEnum[] parserFieldList = currentParser.getFieldList();
 			if (parserFieldList == null)
 				return null;
+			String[] parserFields = new String[parserFieldList.length];
+			int i = 0;
+			for (ParserFieldEnum parserFieldEnum : parserFieldList)
+				parserFields[i++] = parserFieldEnum.name();
 			if (selectedParserField == null && parserFieldList.length > 0)
-				selectedParserField = parserFieldList[0];
-			return parserFieldList;
+				selectedParserField = parserFields[0];
+			return parserFields;
 		}
 	}
 
-	public void setSelectedParserField(ParserFieldEnum parserField) {
+	public void setSelectedParserField(String parserField) {
 		synchronized (this) {
 			selectedParserField = parserField;
 		}
 	}
 
-	public ParserFieldEnum getSelectedParserField() {
+	public String getSelectedParserField() {
 		synchronized (this) {
 			return selectedParserField;
 		}
@@ -309,7 +312,7 @@ public class ParserController extends CommonController {
 	@Command
 	@NotifyChange("*")
 	public void doEdit(@BindingParam("item") ParserFactory parser)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		selectedParser = parser;
 		currentParser = ParserFactory.create(parser);
 	}
@@ -322,7 +325,7 @@ public class ParserController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onNew() throws SearchLibException {
+	public void onNew() throws SearchLibException, ClassNotFoundException {
 		selectedParser = null;
 		currentParser = ParserFactory.create(getClient(), "New parser",
 				parserType.getParserClass().getCanonicalName());
@@ -344,7 +347,7 @@ public class ParserController extends CommonController {
 		ParserFieldMap fieldMap = getFieldMap();
 		if (selectedFieldMapItem != null)
 			fieldMap.remove(selectedFieldMapItem);
-		fieldMap.add(new SourceField(selectedParserField.name()),
+		fieldMap.add(new SourceField(selectedParserField),
 				new ParserFieldTarget(selectedIndexField.getName(),
 						captureRegexp, analyzer, removeTag));
 		onCancelFieldMapItem();
@@ -564,8 +567,7 @@ public class ParserController extends CommonController {
 			GenericLink<SourceField, ParserFieldTarget> selectedFieldMapItem)
 			throws SearchLibException {
 		this.selectedFieldMapItem = selectedFieldMapItem;
-		selectedParserField = ParserFieldEnum.find(selectedFieldMapItem
-				.getSource().getUniqueName());
+		selectedParserField = selectedFieldMapItem.getSource().getUniqueName();
 		selectedIndexField = getClient().getSchema().getFieldList()
 				.get(selectedFieldMapItem.getTarget().getName());
 		captureRegexp = selectedFieldMapItem.getTarget().getCaptureRegexp();

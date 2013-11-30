@@ -63,7 +63,7 @@ public class RobotsTxtController extends CrawlerController {
 	}
 
 	public RobotsTxt[] getRobotsTxtList() throws SearchLibException,
-			MalformedURLException, URISyntaxException {
+			MalformedURLException, URISyntaxException, ClassNotFoundException {
 		Client client = getClient();
 		if (client == null)
 			return null;

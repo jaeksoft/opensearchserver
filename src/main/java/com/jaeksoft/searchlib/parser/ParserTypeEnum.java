@@ -52,6 +52,7 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 		new ParserType(this, "XLS", XlsParser.class);
 		new ParserType(this, "XLSX", XlsxParser.class);
 		new ParserType(this, "XML", XmlParser.class);
+		new ParserType(this, "XML (XPATH)", XmlXPathParser.class);
 	}
 
 	public ParserType find(Class<? extends ParserFactory> classRef) {

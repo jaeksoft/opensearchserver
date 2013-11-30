@@ -90,10 +90,6 @@ public class XPathParser {
 		return xPath.evaluate(query, parentNode);
 	}
 
-	public Object evaluate(String query) throws XPathExpressionException {
-		return evaluate(rootNode, query);
-	}
-
 	public final Node getNode(Node parentNode, String query)
 			throws XPathExpressionException {
 		return (Node) xPath.evaluate(query, parentNode, XPathConstants.NODE);

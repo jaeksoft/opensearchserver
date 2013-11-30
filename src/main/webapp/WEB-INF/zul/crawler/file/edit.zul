@@ -105,6 +105,11 @@
 							value="@bind(filepathedit.currentFilePath.swiftContainer)"
 							cols="50" />
 					</row>
+					<row visible="@load(filepathedit.ftpFileType)">
+						<label value="Use Passive mode: " />
+						<checkbox
+							checked="@bind(filepathedit.currentFilePath.ftpUsePassiveMode)" />
+					</row>
 					<row>
 						<label value="Path: " />
 						<cell>

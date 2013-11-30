@@ -277,6 +277,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "ignoreNonCanonical", "Ignore non canonical pages",
 			"Ignore documents which have a canonical link reference");
 
+	public static ClassPropertyEnum XPATH_DOCUMENT_SELECTOR = new ClassPropertyEnum(
+			true, "xPathDocumentSelector", "XPATH request for documents",
+			"XPATH request to locate a document to index");
+
 	public final static String[] RSS_METHODS = { "One document for all items",
 			"One document per item" };
 
