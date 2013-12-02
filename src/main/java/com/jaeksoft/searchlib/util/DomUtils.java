@@ -295,4 +295,14 @@ public class DomUtils {
 		return xmlResult;
 	}
 
+	public final static void removeChildren(final Node node) {
+		if (node == null)
+			return;
+		NodeList nodeList = node.getChildNodes();
+		int l = nodeList.getLength();
+		for (int i = 0; i < l; i++)
+			node.removeChild(nodeList.item(i));
+
+	}
+
 }
