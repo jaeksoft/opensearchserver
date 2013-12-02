@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib;
 
+import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
+
 public class SearchLibException extends Exception {
 
 	/**
@@ -70,4 +72,19 @@ public class SearchLibException extends Exception {
 		}
 
 	}
+
+	public static class XPathNotSupported extends SearchLibException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -75701917881887018L;
+
+		public XPathNotSupported(HtmlDocumentProvider hdp) {
+			super("This HTML provider (" + hdp.getName()
+					+ ") does not support XPATH request");
+		}
+
+	}
+
 }

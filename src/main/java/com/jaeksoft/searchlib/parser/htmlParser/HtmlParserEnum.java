@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.XPathNotSupported;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
@@ -70,27 +73,36 @@ public enum HtmlParserEnum {
 	}
 
 	private static HtmlDocumentProvider findBestProvider(String charset,
-			StreamLimiter streamLimiter) throws IOException {
+			StreamLimiter streamLimiter, boolean isXPath) throws IOException,
+			XPathNotSupported {
 
 		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
-				.getHtmlParser(charset, streamLimiter);
+				.getHtmlParser(charset, streamLimiter, isXPath);
 		if (provider.getRootNode() != null)
 			return provider;
 
 		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
 				bestScoreOrder.length);
-		for (HtmlParserEnum htmlParserEnum : bestScoreOrder)
-			providerList.add(htmlParserEnum.getHtmlParser(charset,
-					streamLimiter));
+		for (HtmlParserEnum htmlParserEnum : bestScoreOrder) {
+			try {
+				providerList.add(htmlParserEnum.getHtmlParser(charset,
+						streamLimiter, isXPath));
+			} catch (XPathNotSupported e) {
+				Logging.warn(e);
+			}
+		}
 		return HtmlDocumentProvider.bestScore(providerList);
 	}
 
 	public HtmlDocumentProvider getHtmlParser(String charset,
-			StreamLimiter streamLimiter) throws LimitException, IOException {
+			StreamLimiter streamLimiter, boolean isXPath)
+			throws LimitException, IOException, XPathNotSupported {
 		try {
 			if (this == BestScoreParser)
-				return findBestProvider(charset, streamLimiter);
+				return findBestProvider(charset, streamLimiter, isXPath);
 			HtmlDocumentProvider htmlParser = classDef.newInstance();
+			if (isXPath && !(htmlParser instanceof HtmlDocumentProvider.XPath))
+				throw new SearchLibException.XPathNotSupported(htmlParser);
 			htmlParser.init(charset, streamLimiter);
 			return htmlParser;
 		} catch (InstantiationException e) {

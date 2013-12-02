@@ -32,8 +32,10 @@ import java.net.URL;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -44,6 +46,11 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
 
 public abstract class HtmlDocumentProvider {
+
+	public static interface XPath {
+		public abstract void removeXPath(String xPath)
+				throws XPathExpressionException;
+	}
 
 	private final HtmlParserEnum parserEnum;
 
@@ -216,4 +223,23 @@ public abstract class HtmlDocumentProvider {
 		}
 		return bestProvider;
 	}
+
+	public boolean isXPathSupported() {
+		try {
+			T.class.asSubclass(HtmlDocumentProvider.XPath.class);
+			return true;
+		} catch (ClassCastException e) {
+			return false;
+		}
+	}
+
+	public void removeXPath(String[] xPathes) throws XPathExpressionException {
+		if (rootNode == null)
+			return;
+		if (xPathes == null)
+			return;
+		for (String xPath : xPathes)
+			((HtmlDocumentProvider.XPath) rootNode).removeXPath(xPath);
+	}
+
 }

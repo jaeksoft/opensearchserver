@@ -299,6 +299,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static final ClassPropertyEnum MIN_LENGTH = new ClassPropertyEnum(
 			true, "minLength", "Minimum length", "The minimum length");
 
+	public static final ClassPropertyEnum XPATH_EXCLUSION = new ClassPropertyEnum(
+			true, "xPathExclusion", "XPATH Exclusion",
+			"Exclude matching node from indexation");
+
 	private boolean isUser;
 
 	private String label;

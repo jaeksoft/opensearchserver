@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -56,6 +58,7 @@ import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlParserEnum;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -156,6 +159,7 @@ public class HtmlParser extends Parser {
 		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null);
 		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null);
 		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null);
+		addProperty(ClassPropertyEnum.XPATH_EXCLUSION, "", null);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -283,6 +287,28 @@ public class HtmlParser extends Parser {
 		return first;
 	}
 
+	private HtmlDocumentProvider getHtmlDocumentProvider(
+			HtmlParserEnum htmlParserEnum, String charset,
+			StreamLimiter streamLimiter) throws LimitException, IOException,
+			SearchLibException {
+		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION)
+				.getValue();
+		boolean isXPath = StringUtils.isEmpty(xPathExclusions);
+		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
+				charset, streamLimiter, isXPath);
+		if (htmlProvider == null)
+			return null;
+		if (isXPath) {
+			String[] xPathLines = StringUtils.splitLines(xPathExclusions);
+			try {
+				htmlProvider.removeXPath(xPathLines);
+			} catch (XPathExpressionException e) {
+				throw new SearchLibException(e);
+			}
+		}
+		return htmlProvider;
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum forcedLang) throws IOException, SearchLibException {
@@ -331,8 +357,9 @@ public class HtmlParser extends Parser {
 
 		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(
 				ClassPropertyEnum.HTML_PARSER).getValue());
-		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
-				currentCharset, streamLimiter);
+
+		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(
+				htmlParserEnum, currentCharset, streamLimiter);
 		if (htmlProvider == null)
 			return;
 
@@ -384,8 +411,8 @@ public class HtmlParser extends Parser {
 		if (selectedCharset != null) {
 			if (!selectedCharset.equals(currentCharset)) {
 				currentCharset = selectedCharset;
-				htmlProvider = htmlParserEnum.getHtmlParser(currentCharset,
-						streamLimiter);
+				htmlProvider = getHtmlDocumentProvider(htmlParserEnum,
+						currentCharset, streamLimiter);
 			}
 		}
 
