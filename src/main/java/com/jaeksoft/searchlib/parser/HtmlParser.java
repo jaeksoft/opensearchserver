@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
@@ -48,6 +49,7 @@ import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.util.Version;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -299,8 +301,19 @@ public class HtmlParser extends Parser {
 			Set<Object> xPathExclusionSet) throws LimitException, IOException,
 			SearchLibException {
 
-		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
-				charset, streamLimiter, xPathExclusionSet != null);
+		HtmlDocumentProvider htmlProvider;
+		try {
+			htmlProvider = htmlParserEnum.getHtmlParser(charset, streamLimiter,
+					xPathExclusionSet != null);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		}
 		if (htmlProvider == null)
 			return null;
 		if (xPathExclusionSet != null) {
