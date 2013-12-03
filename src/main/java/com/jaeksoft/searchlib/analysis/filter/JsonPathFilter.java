@@ -123,11 +123,11 @@ public class JsonPathFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.JSON_PATH, "", null);
-		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null);
+		addProperty(ClassPropertyEnum.JSON_PATH, "", null, 30, 1);
+		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

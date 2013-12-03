@@ -67,10 +67,10 @@ public class IndexLookupFilter extends FilterFactory {
 		List<String> values = new ArrayList<String>(0);
 		for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null))
 			values.add(item.getIndexName());
-		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray());
-		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null);
-		addProperty(ClassPropertyEnum.REQUESTED_FIELD, "", null);
-		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null);
+		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray(), 0, 0);
+		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null, 20, 1);
+		addProperty(ClassPropertyEnum.REQUESTED_FIELD, "", null, 20, 1);
+		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null, 30, 1);
 	}
 
 	@Override

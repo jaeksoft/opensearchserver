@@ -40,11 +40,11 @@ public class RemoveDuplicateCharactersFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.REMOVE_DUPLICATE_LETTERS,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.REMOVE_DUPLICATE_DIGITS,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.REMOVE_DUPLICATE_WHITESPACES,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

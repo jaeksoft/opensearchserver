@@ -39,7 +39,7 @@ public class RemoveTokenTypeFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.TOKEN_TYPE, "shingle", null);
+		addProperty(ClassPropertyEnum.TOKEN_TYPE, "shingle", null, 20, 0);
 	}
 
 	@Override

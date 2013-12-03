@@ -60,10 +60,10 @@ public class PhoneticFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.CODEC, BEIDER_MORSE, CODEC_LIST);
-		addProperty(ClassPropertyEnum.MAX_PHONEMES, "10", null);
+		addProperty(ClassPropertyEnum.CODEC, BEIDER_MORSE, CODEC_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.MAX_PHONEMES, "10", null, 10, 1);
 		addProperty(ClassPropertyEnum.BEIDER_MORSE_RULE, RuleType.EXACT.name(),
-				ClassPropertyEnum.BEIDER_MORSE_RULES);
+				ClassPropertyEnum.BEIDER_MORSE_RULES, 0, 0);
 	}
 
 	@Override

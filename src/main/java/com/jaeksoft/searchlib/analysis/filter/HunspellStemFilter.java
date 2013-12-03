@@ -42,7 +42,7 @@ public class HunspellStemFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.HUNSPELL_DICT_PATH, "", null);
+		addProperty(ClassPropertyEnum.HUNSPELL_DICT_PATH, "", null, 30, 1);
 	}
 
 	@Override

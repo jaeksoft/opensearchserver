@@ -50,15 +50,15 @@ public class EdgeNGramTokenizer extends TokenizerFactory {
 		addProperty(
 				ClassPropertyEnum.MIN_GRAM,
 				Integer.toString(org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_MIN_GRAM_SIZE),
-				null);
+				null, 10, 0);
 		addProperty(
 				ClassPropertyEnum.MAX_GRAM,
 				Integer.toString(org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_MAX_GRAM_SIZE),
-				null);
+				null, 10, 0);
 		addProperty(
 				ClassPropertyEnum.SIDE,
 				org.apache.lucene.analysis.ngram.EdgeNGramTokenizer.DEFAULT_SIDE
-						.getLabel(), SIDE_VALUE_LIST);
+						.getLabel(), SIDE_VALUE_LIST, 0, 0);
 	}
 
 	@Override

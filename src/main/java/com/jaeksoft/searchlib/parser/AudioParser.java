@@ -60,7 +60,7 @@ public class AudioParser extends Parser {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
 	}
 
 	private void addFields(ParserResultItem result, Tag tag, FieldKey fieldKey,

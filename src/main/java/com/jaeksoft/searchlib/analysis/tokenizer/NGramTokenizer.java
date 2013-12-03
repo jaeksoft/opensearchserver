@@ -42,12 +42,12 @@ public class NGramTokenizer extends TokenizerFactory {
 		addProperty(
 				ClassPropertyEnum.MIN_GRAM,
 				Integer.toString(org.apache.lucene.analysis.ngram.NGramTokenizer.DEFAULT_MIN_NGRAM_SIZE),
-				null);
+				null, 10, 0);
 		addProperty(
 				ClassPropertyEnum.MAX_GRAM,
 
 				Integer.toString(org.apache.lucene.analysis.ngram.NGramTokenizer.DEFAULT_MAX_NGRAM_SIZE),
-				null);
+				null, 10, 0);
 	}
 
 	@Override

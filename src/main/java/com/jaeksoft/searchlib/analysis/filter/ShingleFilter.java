@@ -42,9 +42,9 @@ public class ShingleFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
-		addProperty(ClassPropertyEnum.MAX_SHINGLE_SIZE, "2", null);
-		addProperty(ClassPropertyEnum.MIN_SHINGLE_SIZE, "1", null);
+		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null, 10, 1);
+		addProperty(ClassPropertyEnum.MAX_SHINGLE_SIZE, "2", null, 10, 1);
+		addProperty(ClassPropertyEnum.MIN_SHINGLE_SIZE, "1", null, 10, 1);
 	}
 
 	@Override

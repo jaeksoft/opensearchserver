@@ -41,10 +41,10 @@ public class VimeoFilter extends FilterFactory {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.VIMEO_DATA,
 				ClassPropertyEnum.VIMEO_DATA_LIST[0],
-				ClassPropertyEnum.VIMEO_DATA_LIST);
+				ClassPropertyEnum.VIMEO_DATA_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

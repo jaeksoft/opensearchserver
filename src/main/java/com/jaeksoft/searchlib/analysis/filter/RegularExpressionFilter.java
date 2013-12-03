@@ -39,7 +39,7 @@ public class RegularExpressionFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.REGULAR_EXPRESSION, "", null);
+		addProperty(ClassPropertyEnum.REGULAR_EXPRESSION, "", null, 20, 1);
 	}
 
 	@Override

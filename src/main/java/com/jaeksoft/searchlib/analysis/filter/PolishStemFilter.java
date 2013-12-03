@@ -54,7 +54,7 @@ public class PolishStemFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.MIN_LENGTH, "3", null);
+		addProperty(ClassPropertyEnum.MIN_LENGTH, "3", null, 10, 1);
 	}
 
 	@Override

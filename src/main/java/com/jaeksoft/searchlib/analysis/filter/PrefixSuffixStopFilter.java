@@ -47,11 +47,11 @@ public class PrefixSuffixStopFilter extends FilterFactory {
 		super.initProperties();
 		String[] values = config.getStopWordsManager().getList(true);
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
+		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null, 5, 1);
 		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
-				ClassPropertyEnum.BOOLEAN_LIST);
-		addProperty(ClassPropertyEnum.PREFIX_FILE_LIST, value, values);
-		addProperty(ClassPropertyEnum.SUFFIX_FILE_LIST, value, values);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.PREFIX_FILE_LIST, value, values, 0, 0);
+		addProperty(ClassPropertyEnum.SUFFIX_FILE_LIST, value, values, 0, 0);
 		stopWordsManager = config.getStopWordsManager();
 	}
 
