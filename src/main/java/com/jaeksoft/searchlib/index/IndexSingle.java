@@ -86,7 +86,7 @@ public class IndexSingle extends IndexAbstract {
 		writer = new WriterLocal(indexConfig, this, indexDirectory);
 		if (bCreate)
 			((WriterLocal) writer).create();
-		reader = new ReaderLocal(indexConfig, indexDirectory);
+		reader = new ReaderLocal(indexConfig, indexDirectory, true);
 	}
 
 	/**
@@ -393,10 +393,23 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void setOnline(boolean v) {
+	public void setOnline(boolean v) throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (v == online)
+				return;
+		} finally {
+			rwl.r.unlock();
+		}
 		rwl.w.lock();
 		try {
+			if (v == online)
+				return;
 			online = v;
+			if (v)
+				reader.reload();
+			else
+				reader.close();
 		} finally {
 			rwl.w.unlock();
 		}

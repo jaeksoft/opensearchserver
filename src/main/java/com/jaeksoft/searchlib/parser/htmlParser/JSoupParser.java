@@ -53,4 +53,9 @@ public class JSoupParser extends HtmlDocumentProvider {
 		Node node = Jsoup.parse(htmlSource);
 		return new JSoupHtmlNode(node);
 	}
+
+	@Override
+	public boolean isXPathSupported() {
+		return false;
+	}
 }

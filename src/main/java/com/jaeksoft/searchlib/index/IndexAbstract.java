@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.index;
 
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
@@ -44,7 +45,7 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	public abstract boolean isOnline();
 
-	public abstract void setOnline(boolean v);
+	public abstract void setOnline(boolean v) throws SearchLibException;
 
 	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
 			throws SAXException;

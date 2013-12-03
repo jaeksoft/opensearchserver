@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.cxf.helpers.DOMUtils;
@@ -98,7 +99,7 @@ public class ParserFieldMap extends
 		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
 			ParserFieldTarget fieldTarget = link.getTarget();
 			Object obj = xpp.evaluate(xmlForXPath, link.getSource()
-					.getUniqueName());
+					.getUniqueName(), XPathConstants.NODESET);
 			if (obj instanceof Node) {
 				fieldTarget.add(DOMUtils.getContent((Node) obj), target);
 			} else if (obj instanceof NodeList) {

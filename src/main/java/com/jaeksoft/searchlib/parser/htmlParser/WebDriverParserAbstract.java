@@ -80,7 +80,7 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 					streamLimiter.getOriginURL());
 
 			HtmlDocumentProvider htmlProvider = HtmlParserEnum.BestScoreParser
-					.getHtmlParser(newCharset, newStreamLimiter);
+					.getHtmlParser(newCharset, newStreamLimiter, true);
 			return htmlProvider.getRootNode();
 		} catch (InstantiationException e) {
 			throw new IOException(e);
@@ -96,4 +96,8 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 		}
 	}
 
+	@Override
+	public boolean isXPathSupported() {
+		return true;
+	}
 }

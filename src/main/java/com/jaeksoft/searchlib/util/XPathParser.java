@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
@@ -85,9 +86,9 @@ public class XPathParser {
 		return currentFile;
 	}
 
-	public Object evaluate(Node parentNode, String query)
+	public Object evaluate(Node parentNode, String query, QName returnType)
 			throws XPathExpressionException {
-		return xPath.evaluate(query, parentNode);
+		return xPath.evaluate(query, parentNode, returnType);
 	}
 
 	public final Node getNode(Node parentNode, String query)

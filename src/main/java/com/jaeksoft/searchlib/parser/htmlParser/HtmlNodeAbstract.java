@@ -29,7 +29,7 @@ import java.util.List;
 
 public abstract class HtmlNodeAbstract<T> {
 
-	protected T node;
+	public final T node;
 
 	private List<HtmlNodeAbstract<?>> childNodes;
 

@@ -90,16 +90,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private FieldCache fieldCache;
 	private SpellCheckerCache spellCheckerCache;
 
-	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory)
-			throws IOException, SearchLibException {
+	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory,
+			boolean bOnline) throws IOException, SearchLibException {
 		super(indexConfig);
 		indexSearcher = null;
 		indexReader = null;
 		this.indexDirectory = indexDirectory;
-		init();
+		if (bOnline)
+			openNoLock();
 	}
 
-	private void init() throws IOException, SearchLibException {
+	private void openNoLock() throws IOException, SearchLibException {
+		if (this.indexReader != null && this.indexSearcher != null)
+			return;
 		this.indexReader = IndexReader.open(indexDirectory.getDirectory());
 		indexSearcher = new IndexSearcher(indexReader);
 
@@ -382,7 +385,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.w.lock();
 		try {
 			closeNoLock();
-			init();
+			openNoLock();
 			resetCache();
 		} catch (IOException e) {
 			throw new SearchLibException(e);

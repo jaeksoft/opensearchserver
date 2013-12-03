@@ -292,4 +292,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb.toString();
 	}
 
+	public final static String LINE_SEPARATOR = System
+			.getProperty("line.separator");
+
+	public final static String[] splitLines(String str) {
+		return split(str, LINE_SEPARATOR);
+	}
+
 }

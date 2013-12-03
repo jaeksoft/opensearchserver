@@ -366,7 +366,7 @@ public class Client extends Config {
 		}
 	}
 
-	public void setOnline(boolean online) {
+	public void setOnline(boolean online) throws SearchLibException {
 		if (online == getIndexAbstract().isOnline())
 			return;
 		getIndexAbstract().setOnline(online);

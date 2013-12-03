@@ -29,9 +29,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
@@ -44,6 +46,11 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
 
 public abstract class HtmlDocumentProvider {
+
+	public static interface XPath {
+		public abstract void xPath(String xPath, Collection<Object> nodes)
+				throws XPathExpressionException;
+	}
 
 	private final HtmlParserEnum parserEnum;
 
@@ -216,4 +223,12 @@ public abstract class HtmlDocumentProvider {
 		}
 		return bestProvider;
 	}
+
+	public abstract boolean isXPathSupported();
+
+	public void xPath(String xPath, Collection<Object> nodes)
+			throws XPathExpressionException {
+		((XPath) rootNode).xPath(xPath, nodes);
+	}
+
 }
