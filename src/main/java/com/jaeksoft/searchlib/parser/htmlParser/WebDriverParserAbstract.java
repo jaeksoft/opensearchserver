@@ -96,4 +96,8 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 		}
 	}
 
+	@Override
+	public boolean isXPathSupported() {
+		return true;
+	}
 }

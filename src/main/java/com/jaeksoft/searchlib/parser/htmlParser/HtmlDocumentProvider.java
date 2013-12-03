@@ -29,13 +29,13 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.util.MimeUtils;
 public abstract class HtmlDocumentProvider {
 
 	public static interface XPath {
-		public abstract void removeXPath(String xPath)
+		public abstract void xPath(String xPath, Collection<Object> nodes)
 				throws XPathExpressionException;
 	}
 
@@ -224,22 +224,11 @@ public abstract class HtmlDocumentProvider {
 		return bestProvider;
 	}
 
-	public boolean isXPathSupported() {
-		try {
-			T.class.asSubclass(HtmlDocumentProvider.XPath.class);
-			return true;
-		} catch (ClassCastException e) {
-			return false;
-		}
-	}
+	public abstract boolean isXPathSupported();
 
-	public void removeXPath(String[] xPathes) throws XPathExpressionException {
-		if (rootNode == null)
-			return;
-		if (xPathes == null)
-			return;
-		for (String xPath : xPathes)
-			((HtmlDocumentProvider.XPath) rootNode).removeXPath(xPath);
+	public void xPath(String xPath, Collection<Object> nodes)
+			throws XPathExpressionException {
+		((XPath) rootNode).xPath(xPath, nodes);
 	}
 
 }

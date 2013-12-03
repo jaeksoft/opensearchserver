@@ -120,7 +120,7 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 		return rootTagNode;
 	}
 
-	public int xpath(String xPathExpression,
+	final public int xpath(String xPathExpression,
 			Collection<TagNode> tagNodeCollection) throws XPatherException {
 		if (xPathExpression.startsWith("/html"))
 			xPathExpression = xPathExpression.substring(5);
@@ -131,4 +131,10 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 			tagNodeCollection.add((TagNode) object);
 		return objects.length;
 	}
+
+	@Override
+	public boolean isXPathSupported() {
+		return true;
+	}
+
 }

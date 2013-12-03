@@ -73,4 +73,9 @@ public class NekoHtmlParser extends HtmlDocumentProvider {
 		return getDomHtmlNode(new InputSource(new StringReader(htmlSource)));
 	}
 
+	@Override
+	public boolean isXPathSupported() {
+		return true;
+	}
+
 }

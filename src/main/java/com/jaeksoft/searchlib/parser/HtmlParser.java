@@ -29,9 +29,11 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -169,11 +171,15 @@ public class HtmlParser extends Parser {
 
 	private void getBodyTextContent(ParserResultItem result, StringBuilder sb,
 			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields,
-			int recursion) {
+			int recursion, Set<Object> nodeExclusionsSet) {
 		if (recursion == 0) {
 			Logging.warn("Max recursion reached (getBodyTextContent)");
 			return;
 		}
+		if (nodeExclusionsSet != null)
+			if (nodeExclusionsSet.contains(node.node))
+				return;
+
 		recursion--;
 		if (node.isComment())
 			return;
@@ -229,7 +235,7 @@ public class HtmlParser extends Parser {
 		if (children != null)
 			for (HtmlNodeAbstract<?> htmlNode : children)
 				getBodyTextContent(result, sb, htmlNode, bAddBlock,
-						directFields, recursion);
+						directFields, recursion, nodeExclusionsSet);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
@@ -287,21 +293,21 @@ public class HtmlParser extends Parser {
 		return first;
 	}
 
-	private HtmlDocumentProvider getHtmlDocumentProvider(
+	private final HtmlDocumentProvider getHtmlDocumentProvider(
 			HtmlParserEnum htmlParserEnum, String charset,
-			StreamLimiter streamLimiter) throws LimitException, IOException,
+			StreamLimiter streamLimiter, String xPathExclusions,
+			Set<Object> xPathExclusionSet) throws LimitException, IOException,
 			SearchLibException {
-		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION)
-				.getValue();
-		boolean isXPath = StringUtils.isEmpty(xPathExclusions);
+
 		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
-				charset, streamLimiter, isXPath);
+				charset, streamLimiter, xPathExclusionSet != null);
 		if (htmlProvider == null)
 			return null;
-		if (isXPath) {
+		if (xPathExclusionSet != null) {
 			String[] xPathLines = StringUtils.splitLines(xPathExclusions);
 			try {
-				htmlProvider.removeXPath(xPathLines);
+				for (String xPath : xPathLines)
+					htmlProvider.xPath(xPath, xPathExclusionSet);
 			} catch (XPathExpressionException e) {
 				throw new SearchLibException(e);
 			}
@@ -355,11 +361,18 @@ public class HtmlParser extends Parser {
 					.getValue();
 		}
 
+		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION)
+				.getValue();
+		Set<Object> xPathExclusionsSet = null;
+		if (!StringUtils.isEmpty(xPathExclusions))
+			xPathExclusionsSet = new HashSet<Object>();
+
 		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(
 				ClassPropertyEnum.HTML_PARSER).getValue());
 
 		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(
-				htmlParserEnum, currentCharset, streamLimiter);
+				htmlParserEnum, currentCharset, streamLimiter, xPathExclusions,
+				xPathExclusionsSet);
 		if (htmlProvider == null)
 			return;
 
@@ -412,7 +425,8 @@ public class HtmlParser extends Parser {
 			if (!selectedCharset.equals(currentCharset)) {
 				currentCharset = selectedCharset;
 				htmlProvider = getHtmlDocumentProvider(htmlParserEnum,
-						currentCharset, streamLimiter);
+						currentCharset, streamLimiter, xPathExclusions,
+						xPathExclusionsSet);
 			}
 		}
 
@@ -536,7 +550,8 @@ public class HtmlParser extends Parser {
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuilder sb = new StringBuilder();
-				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024);
+				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024,
+						xPathExclusionsSet);
 				result.addField(ParserFieldEnum.body, sb);
 			}
 		}

@@ -56,4 +56,9 @@ public class StrictXhtmlParser extends HtmlDocumentProvider {
 				new StringReader(htmlSource)), true));
 	}
 
+	@Override
+	public boolean isXPathSupported() {
+		return true;
+	}
+
 }

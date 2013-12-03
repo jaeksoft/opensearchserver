@@ -56,7 +56,7 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	protected ReaderInterface getNewReader(IndexConfig indexConfig)
 			throws IOException, SearchLibException {
-		return new ReaderLocal(indexConfig, indexDirectory);
+		return new ReaderLocal(indexConfig, indexDirectory, true);
 	}
 
 	@Override

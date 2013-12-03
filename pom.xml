@@ -481,6 +481,8 @@
 				<version>2.1</version>
 				<configuration>
 					<path>/</path>
+					<uriEncoding>UTF-8</uriEncoding>
+					<additionalClasspathDirs>lib</additionalClasspathDirs>
 				</configuration>
 				<executions>
 					<execution>

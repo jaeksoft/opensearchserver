@@ -299,9 +299,14 @@ public class DomUtils {
 		if (node == null)
 			return;
 		NodeList nodeList = node.getChildNodes();
+		if (nodeList == null)
+			return;
 		int l = nodeList.getLength();
-		for (int i = 0; i < l; i++)
-			node.removeChild(nodeList.item(i));
+		for (int i = 0; i < l; i++) {
+			Node n = nodeList.item(i);
+			if (n != null)
+				node.removeChild(n);
+		}
 
 	}
 

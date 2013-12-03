@@ -90,16 +90,24 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 
 	@Override
 	public CommonResult online(String use, String login, String key) {
-		Client client = getClient(use, login, key);
-		client.setOnline(true);
-		return new CommonResult(true, "online");
+		try {
+			Client client = getClient(use, login, key);
+			client.setOnline(true);
+			return new CommonResult(true, "online");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
 	public CommonResult offline(String use, String login, String key) {
-		Client client = getClient(use, login, key);
-		client.setOnline(false);
-		return new CommonResult(true, "offline");
+		try {
+			Client client = getClient(use, login, key);
+			client.setOnline(false);
+			return new CommonResult(true, "offline");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
