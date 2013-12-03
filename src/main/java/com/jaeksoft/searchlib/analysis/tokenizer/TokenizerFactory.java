@@ -57,7 +57,7 @@ public abstract class TokenizerFactory extends ClassFactory {
 	public static TokenizerFactory create(Config config, Node node)
 			throws SearchLibException, DOMException, ClassNotFoundException {
 		return (TokenizerFactory) ClassFactory.create(config,
-				TOKENIZER_PACKAGE, node);
+				TOKENIZER_PACKAGE, node, "attributes");
 	}
 
 	public static TokenizerFactory create(TokenizerFactory tokenizer)
@@ -66,7 +66,8 @@ public abstract class TokenizerFactory extends ClassFactory {
 	}
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("tokenizer", getAttributes());
+		writer.startElement("tokenizer", getXmlAttributes());
+		writeXmlNodeAttributes(writer, "attributes");
 		writer.endElement();
 	}
 }

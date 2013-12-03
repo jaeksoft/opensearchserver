@@ -193,7 +193,7 @@ public class ParserFactory extends ClassFactory implements
 			Node parserNode) throws SearchLibException,
 			XPathExpressionException, DOMException, ClassNotFoundException {
 		ParserFactory parserFactory = (ParserFactory) ClassFactory.create(
-				config, PARSER_PACKAGE, parserNode);
+				config, PARSER_PACKAGE, parserNode, "attributes");
 
 		parserFactory.fieldMap = new ParserFieldMap(xpp.getNode(parserNode,
 				"map"));
@@ -310,7 +310,8 @@ public class ParserFactory extends ClassFactory implements
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 
-		xmlWriter.startElement("parser", getAttributes());
+		xmlWriter.startElement("parser", getXmlAttributes());
+		writeXmlNodeAttributes(xmlWriter, "attributes");
 
 		if (mimeTypeList != null) {
 			for (String mimeType : mimeTypeList) {
