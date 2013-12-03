@@ -53,17 +53,17 @@ public abstract class ClassFactory {
 		config = null;
 		properties = new TreeMap<ClassPropertyEnum, ClassProperty>();
 		userProperties = null;
-		addProperty(ClassPropertyEnum.CLASS, null, null);
+		addProperty(ClassPropertyEnum.CLASS, null, null, 0, 0);
 		packageName = null;
 	}
 
 	final public ClassProperty addProperty(ClassPropertyEnum classPropertyEnum,
-			String defaultValue, Object[] valueList) {
+			String defaultValue, Object[] valueList, int cols, int rows) {
 		ClassProperty classProperty = properties.get(classPropertyEnum);
 		if (classProperty != null)
 			return classProperty;
 		classProperty = new ClassProperty(this, classPropertyEnum,
-				defaultValue, valueList);
+				defaultValue, valueList, cols, rows);
 		properties.put(classPropertyEnum, classProperty);
 		if (classPropertyEnum.isUser()) {
 			if (userProperties == null)

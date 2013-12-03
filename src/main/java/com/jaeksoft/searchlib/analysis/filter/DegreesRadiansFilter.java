@@ -196,10 +196,10 @@ public class DegreesRadiansFilter extends FilterFactory {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.DEGREES_RADIANS_CONVERSION,
 				ClassPropertyEnum.DEGREES_RADIANS_CONVERSION_LIST[0],
-				ClassPropertyEnum.DEGREES_RADIANS_CONVERSION_LIST);
+				ClassPropertyEnum.DEGREES_RADIANS_CONVERSION_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

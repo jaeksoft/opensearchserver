@@ -41,10 +41,10 @@ public class DailymotionFilter extends FilterFactory {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.DAILYMOTION_DATA,
 				ClassPropertyEnum.DAILYMOTION_DATA_LIST[0],
-				ClassPropertyEnum.DAILYMOTION_DATA_LIST);
+				ClassPropertyEnum.DAILYMOTION_DATA_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

@@ -43,7 +43,7 @@ public class SynonymFilter extends FilterFactory {
 		super.initProperties();
 		String[] values = config.getSynonymsManager().getList();
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.FILE_LIST, value, values, 0, 0);
 	}
 
 	@Override

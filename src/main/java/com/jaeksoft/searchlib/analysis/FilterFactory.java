@@ -48,7 +48,7 @@ public abstract class FilterFactory extends ClassFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		addProperty(ClassPropertyEnum.SCOPE, FilterScope.QUERY_INDEX.name(),
-				FilterScope.values());
+				FilterScope.values(), 0, 0);
 	}
 
 	public FilterScope getScope() {

@@ -72,7 +72,7 @@ public class RemoveTagFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.ALLOWED_TAGS, "", null);
+		addProperty(ClassPropertyEnum.ALLOWED_TAGS, "", null, 20, 1);
 	}
 
 	@Override

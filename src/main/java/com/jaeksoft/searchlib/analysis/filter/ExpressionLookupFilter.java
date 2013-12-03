@@ -43,9 +43,9 @@ public class ExpressionLookupFilter extends FilterFactory {
 		super.initProperties();
 		String[] values = config.getStopWordsManager().getList();
 		String value = (values != null && values.length > 0) ? values[0] : null;
-		addProperty(ClassPropertyEnum.FILE_LIST, value, values);
+		addProperty(ClassPropertyEnum.FILE_LIST, value, values, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_CASE, Boolean.FALSE.toString(),
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

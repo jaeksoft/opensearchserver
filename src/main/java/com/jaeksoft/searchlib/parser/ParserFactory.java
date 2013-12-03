@@ -77,8 +77,8 @@ public class ParserFactory extends ClassFactory implements
 
 	@Override
 	protected void initProperties() throws SearchLibException {
-		addProperty(ClassPropertyEnum.PARSER_NAME, "", null);
-		addProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME, "", null);
+		addProperty(ClassPropertyEnum.PARSER_NAME, "", null, 20, 1);
+		addProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME, "", null, 20, 1);
 	}
 
 	public ParserFieldEnum[] getFieldList() {

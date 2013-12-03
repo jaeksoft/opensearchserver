@@ -62,7 +62,7 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.ADDITIONAL_ALLOWED_CHARS, "", null);
+		addProperty(ClassPropertyEnum.ADDITIONAL_ALLOWED_CHARS, "", null, 10, 0);
 	}
 
 	@Override

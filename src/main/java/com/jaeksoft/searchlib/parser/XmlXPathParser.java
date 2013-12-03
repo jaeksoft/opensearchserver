@@ -49,8 +49,8 @@ public class XmlXPathParser extends Parser {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
-		addProperty(ClassPropertyEnum.XPATH_DOCUMENT_SELECTOR, "", null);
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.XPATH_DOCUMENT_SELECTOR, "", null, 30, 1);
 	}
 
 	@Override
