@@ -169,11 +169,12 @@ public class TaskUrlManagerAction extends TaskAbstract {
 				.getValue(propParserStatus));
 		IndexStatus indexStatus = IndexStatus.findByName(properties
 				.getValue(propIndexStatus));
-		selectionRequest = urlManager.getSearchRequest(
-				UrlManager.SearchTemplate.urlSearch, null, null, false, null,
-				null, null, null, null, null, null, robotsTxtStatus,
-				fetchStatus, null, parserStatus, indexStatus, null, null, null,
-				null);
+		if (selectionRequest == null)
+			selectionRequest = urlManager.getSearchRequest(
+					UrlManager.SearchTemplate.urlSearch, null, null, false,
+					null, null, null, null, null, null, null, robotsTxtStatus,
+					fetchStatus, null, parserStatus, indexStatus, null, null,
+					null, null);
 		if (CommandLoadSitemap.equals(command)) {
 			taskLog.setInfo("URL manager: Handle SiteMaps");
 			urlManager.updateSiteMap(taskLog);
