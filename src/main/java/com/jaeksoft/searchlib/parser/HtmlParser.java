@@ -40,7 +40,7 @@ import java.util.TreeSet;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexReader;
@@ -225,7 +225,7 @@ public class HtmlParser extends Parser {
 			text = StringUtils.replaceConsecutiveSpaces(text, " ");
 			text = text.trim();
 			if (text.length() > 0) {
-				text = StringEscapeUtils.unescapeHtml(text);
+				text = StringEscapeUtils.unescapeHtml4(text);
 				if (sb.length() > 0)
 					sb.append(' ');
 				sb.append(text);
@@ -519,8 +519,7 @@ public class HtmlParser extends Parser {
 				if (href != null)
 					if (!href.startsWith("javascript:"))
 						if (currentURL != null) {
-							href = org.apache.commons.lang3.StringEscapeUtils
-									.unescapeXml(href);
+							href = StringEscapeUtils.unescapeXml(href);
 							newUrl = LinkUtils.getLink(currentURL, href,
 									urlFilterList, removeFragment);
 						}
