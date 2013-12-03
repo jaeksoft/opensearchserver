@@ -41,7 +41,8 @@ public abstract class FilterFactory extends ClassFactory {
 			throws SearchLibException;
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("filter", getAttributes());
+		writer.startElement("filter", getXmlAttributes());
+		writeXmlNodeAttributes(writer, "attributes");
 		writer.endElement();
 	}
 
@@ -78,8 +79,8 @@ public abstract class FilterFactory extends ClassFactory {
 	 */
 	public static FilterFactory create(Config config, Node node)
 			throws SearchLibException, DOMException, ClassNotFoundException {
-		return (FilterFactory) ClassFactory
-				.create(config, FILTER_PACKAGE, node);
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
+				node, "attributes");
 	}
 
 	/**
