@@ -63,8 +63,12 @@ public class TagsoupParser extends HtmlDocumentProvider {
 	@Override
 	protected HtmlNodeAbstract<?> getDocument(String htmlSource)
 			throws IOException, ParserConfigurationException, SAXException {
-		// TODO Auto-generated method stub
 		return getDomHtmlNode(new InputSource(new StringReader(htmlSource)));
+	}
+
+	@Override
+	public boolean isXPathSupported() {
+		return true;
 	}
 
 }

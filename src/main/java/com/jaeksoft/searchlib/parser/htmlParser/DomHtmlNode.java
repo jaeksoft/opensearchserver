@@ -24,8 +24,10 @@
 
 package com.jaeksoft.searchlib.parser.htmlParser;
 
+import java.util.Collection;
 import java.util.List;
 
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -110,19 +112,20 @@ public class DomHtmlNode extends HtmlNodeAbstract<Node> implements
 	}
 
 	@Override
-	public void removeXPath(String xPath) throws XPathExpressionException {
+	public void xPath(String xPath, Collection<Object> nodes)
+			throws XPathExpressionException {
 		if (xPathParser == null)
 			xPathParser = new XPathParser(node);
-		Object obj = xPathParser.evaluate(node, xPath);
+		Object obj = xPathParser.evaluate(node, xPath, XPathConstants.NODESET);
 		if (obj == null)
 			return;
 		if (obj instanceof Node) {
-			DomUtils.removeChildren(node);
+			nodes.add(new DomHtmlNode((Node) obj));
 		} else if (obj instanceof NodeList) {
 			NodeList nodeList = (NodeList) obj;
 			int length = nodeList.getLength();
 			for (int i = 0; i < length; i++)
-				DomUtils.removeChildren(nodeList.item(i));
+				nodes.add(nodeList.item(i));
 		}
 	}
 }

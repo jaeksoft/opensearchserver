@@ -38,4 +38,5 @@ public class FirefoxParser extends WebDriverParserAbstract {
 			IllegalAccessException {
 		return BrowserDriverEnum.FIREFOX.getNewInstance();
 	}
+
 }

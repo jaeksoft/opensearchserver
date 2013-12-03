@@ -73,11 +73,11 @@ public enum HtmlParserEnum {
 	}
 
 	private static HtmlDocumentProvider findBestProvider(String charset,
-			StreamLimiter streamLimiter, boolean isXPath) throws IOException,
-			XPathNotSupported {
+			StreamLimiter streamLimiter, boolean requireXPath)
+			throws IOException, XPathNotSupported {
 
 		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
-				.getHtmlParser(charset, streamLimiter, isXPath);
+				.getHtmlParser(charset, streamLimiter, requireXPath);
 		if (provider.getRootNode() != null)
 			return provider;
 
@@ -86,7 +86,7 @@ public enum HtmlParserEnum {
 		for (HtmlParserEnum htmlParserEnum : bestScoreOrder) {
 			try {
 				providerList.add(htmlParserEnum.getHtmlParser(charset,
-						streamLimiter, isXPath));
+						streamLimiter, requireXPath));
 			} catch (XPathNotSupported e) {
 				Logging.warn(e);
 			}
@@ -95,13 +95,13 @@ public enum HtmlParserEnum {
 	}
 
 	public HtmlDocumentProvider getHtmlParser(String charset,
-			StreamLimiter streamLimiter, boolean isXPath)
+			StreamLimiter streamLimiter, boolean requireXPath)
 			throws LimitException, IOException, XPathNotSupported {
 		try {
 			if (this == BestScoreParser)
-				return findBestProvider(charset, streamLimiter, isXPath);
+				return findBestProvider(charset, streamLimiter, requireXPath);
 			HtmlDocumentProvider htmlParser = classDef.newInstance();
-			if (isXPath && !(htmlParser instanceof HtmlDocumentProvider.XPath))
+			if (requireXPath && !htmlParser.isXPathSupported())
 				throw new SearchLibException.XPathNotSupported(htmlParser);
 			htmlParser.init(charset, streamLimiter);
 			return htmlParser;
