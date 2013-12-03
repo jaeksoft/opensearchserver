@@ -35,7 +35,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
@@ -120,10 +120,13 @@ public abstract class HtmlDocumentProvider {
 			return null;
 		String[] p1 = { "html", "head", "title" };
 		String title = rootNode.getFirstTextNode(p1);
-		if (title != null)
-			return title;
-		String[] p2 = { "html", "title" };
-		titleCache = rootNode.getFirstTextNode(p2);
+		if (title == null) {
+			String[] p2 = { "html", "title" };
+			title = rootNode.getFirstTextNode(p2);
+		}
+		if (title == null)
+			return null;
+		titleCache = StringEscapeUtils.unescapeHtml4(title);
 		return titleCache;
 	}
 
@@ -161,11 +164,11 @@ public abstract class HtmlDocumentProvider {
 		return metasCache;
 	}
 
-	final public static String getMetaContent(HtmlNodeAbstract<?> node) {
+	final public static String getMetaContent(final HtmlNodeAbstract<?> node) {
 		String content = node.getAttributeText("content");
 		if (content == null)
 			return null;
-		return StringEscapeUtils.unescapeHtml(content);
+		return StringEscapeUtils.unescapeHtml4(content);
 	}
 
 	final public String getMetaHttpEquiv(String name) {
