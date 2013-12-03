@@ -40,9 +40,11 @@ public class NGramFilter extends FilterFactory {
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.MIN_GRAM,
-				Integer.toString(NGramTokenFilter.DEFAULT_MIN_NGRAM_SIZE), null);
+				Integer.toString(NGramTokenFilter.DEFAULT_MIN_NGRAM_SIZE),
+				null, 10, 1);
 		addProperty(ClassPropertyEnum.MAX_GRAM,
-				Integer.toString(NGramTokenFilter.DEFAULT_MAX_NGRAM_SIZE), null);
+				Integer.toString(NGramTokenFilter.DEFAULT_MAX_NGRAM_SIZE),
+				null, 10, 1);
 	}
 
 	@Override

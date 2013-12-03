@@ -136,32 +136,32 @@ public class HtmlParser extends Parser {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
-		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null, 20, 1);
 		addProperty(ClassPropertyEnum.HTML_PARSER,
 				HtmlParserEnum.BestScoreParser.getLabel(),
-				HtmlParserEnum.getLabelArray());
+				HtmlParserEnum.getLabelArray(), 0, 0);
 		addProperty(ClassPropertyEnum.URL_FRAGMENT,
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
-				ClassPropertyEnum.KEEP_REMOVE_LIST);
+				ClassPropertyEnum.KEEP_REMOVE_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
-		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
-		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null);
-		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null);
-		addProperty(ClassPropertyEnum.H3_BOOST, "1.4", null);
-		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null);
-		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null);
-		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null);
-		addProperty(ClassPropertyEnum.XPATH_EXCLUSION, "", null);
+		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null, 10, 1);
+		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null, 10, 1);
+		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null, 10, 1);
+		addProperty(ClassPropertyEnum.H3_BOOST, "1.4", null, 10, 1);
+		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null, 10, 1);
+		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null, 10, 1);
+		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null, 10, 1);
+		addProperty(ClassPropertyEnum.XPATH_EXCLUSION, "", null, 50, 5);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -307,7 +307,8 @@ public class HtmlParser extends Parser {
 			String[] xPathLines = StringUtils.splitLines(xPathExclusions);
 			try {
 				for (String xPath : xPathLines)
-					htmlProvider.xPath(xPath, xPathExclusionSet);
+					if (!StringUtils.isBlank(xPath))
+						htmlProvider.xPath(xPath, xPathExclusionSet);
 			} catch (XPathExpressionException e) {
 				throw new SearchLibException(e);
 			}

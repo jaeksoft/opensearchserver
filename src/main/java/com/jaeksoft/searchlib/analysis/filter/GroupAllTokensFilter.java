@@ -75,7 +75,7 @@ public class GroupAllTokensFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null);
+		addProperty(ClassPropertyEnum.TOKEN_SEPARATOR, " ", null, 5, 1);
 	}
 
 	@Override

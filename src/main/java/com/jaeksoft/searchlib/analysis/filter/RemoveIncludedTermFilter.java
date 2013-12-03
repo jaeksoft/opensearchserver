@@ -104,10 +104,10 @@ public class RemoveIncludedTermFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.TOKEN_TYPE, "shingle", null);
+		addProperty(ClassPropertyEnum.TOKEN_TYPE, "shingle", null, 20, 1);
 		addProperty(ClassPropertyEnum.REMOVE_MATCHING_FLAGS,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

@@ -28,18 +28,23 @@ import com.jaeksoft.searchlib.SearchLibException;
 
 public class ClassProperty {
 
-	private ClassFactory classFactory;
-	private ClassPropertyEnum classPropertyEnum;
+	private final ClassFactory classFactory;
+	private final ClassPropertyEnum classPropertyEnum;
 	private String value;
-	private Object[] valueList;
+	private final Object[] valueList;
+	private final int cols;
+	private final int rows;
 
 	public ClassProperty(ClassFactory classFactory,
 			ClassPropertyEnum classPropertyEnum, String value,
-			Object[] valueList) {
+			Object[] valueList, int cols, int rows) {
 		this.classPropertyEnum = classPropertyEnum;
 		this.classFactory = classFactory;
 		this.value = value;
 		this.valueList = valueList;
+		this.cols = cols > 1 ? cols : 1;
+		this.rows = rows > 1 ? rows : 1;
+
 	}
 
 	/**
@@ -89,6 +94,30 @@ public class ClassProperty {
 	 * @return true if there is no value list
 	 */
 	public boolean isTextbox() {
-		return !isList();
+		return !isList() && rows <= 1;
+	}
+
+	/**
+	 * 
+	 * @return true if the control should be a multiline textbox
+	 */
+	public boolean isMultilinetextbox() {
+		return !isList() && rows > 1;
+	}
+
+	/**
+	 * 
+	 * @return the number of rows for a textbox control
+	 */
+	public int getRows() {
+		return rows;
+	}
+
+	/**
+	 * 
+	 * @return the number of columns
+	 */
+	public int getCols() {
+		return cols;
 	}
 }
