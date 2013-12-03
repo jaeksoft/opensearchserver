@@ -23,18 +23,27 @@
  **/
 package com.jaeksoft.searchlib.webservice.scheduler;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
+import com.jaeksoft.searchlib.scheduler.JobLog;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_EMPTY)
 public class SchedulerResult extends CommonResult {
 
 	public final boolean isRunning;
@@ -43,13 +52,50 @@ public class SchedulerResult extends CommonResult {
 
 	public final String lastError;
 
+	@JsonFormat(shape = Shape.STRING, pattern = DATE_FORMAT)
 	public final Date lastExecutionDate;
+
+	public final List<TaskInfo> taskInfos;
+
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@JsonInclude(Include.NON_EMPTY)
+	public static class TaskInfo {
+
+		public final String name;
+
+		@JsonFormat(shape = Shape.STRING, pattern = DATE_FORMAT)
+		public final Date startDate;
+
+		@JsonFormat(shape = Shape.STRING, pattern = DATE_FORMAT)
+		public final Date endDate;
+
+		public final int duration;
+
+		public final String infos;
+
+		public TaskInfo() {
+			name = null;
+			startDate = null;
+			endDate = null;
+			duration = 0;
+			infos = null;
+		}
+
+		public TaskInfo(TaskLog taskLog) {
+			name = taskLog.getTask().getName();
+			startDate = taskLog.getStartDate();
+			endDate = taskLog.getEndDate();
+			duration = (int) (taskLog.getDuration() / 1000);
+			infos = taskLog.getInfo();
+		}
+	}
 
 	public SchedulerResult() {
 		isRunning = false;
 		isActive = false;
 		lastError = null;
 		lastExecutionDate = null;
+		taskInfos = null;
 	}
 
 	public SchedulerResult(JobItem jobItem) {
@@ -59,6 +105,14 @@ public class SchedulerResult extends CommonResult {
 		SearchLibException e = jobItem.getLastError();
 		lastError = e != null ? e.getMessage() : null;
 		lastExecutionDate = jobItem.getLastExecution();
-		jobItem.getJobLog();
+		taskInfos = new ArrayList<TaskInfo>();
+		JobLog jobLog = jobItem.getJobLog();
+		if (jobLog == null)
+			return;
+		List<TaskLog> taskLogs = jobLog.getLogs();
+		if (taskLogs == null)
+			return;
+		for (TaskLog taskLog : taskLogs)
+			taskInfos.add(new TaskInfo(taskLog));
 	}
 }

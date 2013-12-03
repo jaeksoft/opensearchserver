@@ -42,6 +42,8 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 @JsonInclude(Include.NON_NULL)
 public class CommonResult implements InfoCallback {
 
+	protected final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+
 	@XmlAttribute
 	final public Boolean successful;
 
