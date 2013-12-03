@@ -51,9 +51,9 @@ public class DomainFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT, Boolean.TRUE.toString(),
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.DOMAIN_EXTRACTION, ALL_DOMAINS,
-				DOMAIN_EXTRACTION_LIST);
+				DOMAIN_EXTRACTION_LIST, 0, 0);
 	}
 
 	@Override

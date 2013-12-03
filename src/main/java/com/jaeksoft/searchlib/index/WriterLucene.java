@@ -46,6 +46,7 @@ import org.apache.lucene.util.Version;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.UniqueKeyMissing;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -141,9 +142,9 @@ public class WriterLucene extends WriterAbstract {
 		}
 	}
 
-	private boolean updateDocNoLock(IndexWriter indexWriter, Schema schema,
-			IndexDocument document) throws IOException,
-			NoSuchAlgorithmException, SearchLibException {
+	private boolean updateDocNoLock(SchemaField uniqueField,
+			IndexWriter indexWriter, Schema schema, IndexDocument document)
+			throws IOException, NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
 
@@ -155,13 +156,11 @@ public class WriterLucene extends WriterAbstract {
 		PerFieldAnalyzer pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());
 
-		SchemaField uniqueField = schema.getFieldList().getUniqueField();
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
 			String uniqueFieldValue = doc.get(uniqueFieldName);
 			if (uniqueFieldValue == null)
-				throw new SearchLibException("The unique value is missing ("
-						+ uniqueFieldName + ")");
+				throw new UniqueKeyMissing(uniqueFieldName);
 			indexWriter.updateDocument(new Term(uniqueFieldName,
 					uniqueFieldValue), doc, pfa);
 		} else
@@ -174,7 +173,9 @@ public class WriterLucene extends WriterAbstract {
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = open();
-			boolean updated = updateDocNoLock(indexWriter, schema, document);
+			SchemaField uniqueField = schema.getFieldList().getUniqueField();
+			boolean updated = updateDocNoLock(uniqueField, indexWriter, schema,
+					document);
 			indexWriter = close(indexWriter);
 			if (updated)
 				indexLucene.reload();
@@ -205,8 +206,9 @@ public class WriterLucene extends WriterAbstract {
 		try {
 			int count = 0;
 			indexWriter = open();
+			SchemaField uniqueField = schema.getFieldList().getUniqueField();
 			for (IndexDocument document : documents)
-				if (updateDocNoLock(indexWriter, schema, document))
+				if (updateDocNoLock(uniqueField, indexWriter, schema, document))
 					count++;
 			indexWriter = close(indexWriter);
 			if (count > 0)

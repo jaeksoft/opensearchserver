@@ -83,7 +83,7 @@ public class XmlWriter {
 		transformerHandler.endDocument();
 	}
 
-	public String escapeXml(String text) {
+	final public String escapeXml(String text) {
 		if (text == null)
 			return null;
 		controlMatcher.reset(text);

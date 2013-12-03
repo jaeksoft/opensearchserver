@@ -34,6 +34,7 @@ import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.AnalyzerList;
@@ -109,8 +110,12 @@ public class AnalyzersController extends CommonController {
 		selectedFilter = null;
 		Client client = getClient();
 		if (client != null) {
-			currentFilter = FilterFactory.getDefaultFilter(client);
-			currentAnalyzer = new Analyzer(client);
+			try {
+				currentFilter = FilterFactory.getDefaultFilter(client);
+				currentAnalyzer = new Analyzer(client);
+			} catch (ClassNotFoundException e) {
+				Logging.error(e);
+			}
 		}
 		testType = "query";
 		testText = null;
@@ -224,13 +229,14 @@ public class AnalyzersController extends CommonController {
 	}
 
 	@NotifyChange({ ".", "currentAnalyzer" })
-	public void setCurrentTokenizer(String className) throws SearchLibException {
+	public void setCurrentTokenizer(String className)
+			throws SearchLibException, ClassNotFoundException {
 		getCurrentAnalyzer().setTokenizer(
 				TokenizerFactory.create(getClient(), className));
 	}
 
 	@Command
-	public void onEdit() throws SearchLibException {
+	public void onEdit() throws SearchLibException, ClassNotFoundException {
 		editAnalyzer = getSelectedLang();
 		if (editAnalyzer != null)
 			currentAnalyzer.copyFrom(editAnalyzer);
@@ -246,7 +252,8 @@ public class AnalyzersController extends CommonController {
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			ClassNotFoundException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -261,7 +268,11 @@ public class AnalyzersController extends CommonController {
 	@Command
 	public void onCancel() throws SearchLibException {
 		editAnalyzer = null;
-		currentAnalyzer = new Analyzer(getClient());
+		try {
+			currentAnalyzer = new Analyzer(getClient());
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
+		}
 		reload();
 	}
 
@@ -288,10 +299,11 @@ public class AnalyzersController extends CommonController {
 	 * @param selectedFilter
 	 *            the selectedFilter to set
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	@NotifyChange({ "filterScopeEnum", "currentFilter" })
 	public void setChoosenFilter(FilterEnum choosenFilter)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		this.choosenFilter = choosenFilter;
 		this.currentFilter = FilterFactory.create(getClient(),
 				choosenFilter.name());
@@ -308,7 +320,7 @@ public class AnalyzersController extends CommonController {
 	@Command
 	@NotifyChange({ "currentAnalyzer", "filterSelected", "choosenFilter",
 			"selectedFilter", "currentFilter" })
-	public void onFilterAdd() throws SearchLibException {
+	public void onFilterAdd() throws SearchLibException, ClassNotFoundException {
 		if (selectedFilter != null)
 			currentAnalyzer.replace(selectedFilter, currentFilter);
 		else
@@ -319,7 +331,8 @@ public class AnalyzersController extends CommonController {
 	@Command
 	@NotifyChange({ "currentAnalyzer", "filterSelected", "choosenFilter",
 			"selectedFilter", "currentFilter" })
-	public void onFilterCancel() throws SearchLibException {
+	public void onFilterCancel() throws SearchLibException,
+			ClassNotFoundException {
 		selectedFilter = null;
 		currentFilter = FilterFactory.create(getClient(), choosenFilter.name());
 	}
@@ -401,11 +414,12 @@ public class AnalyzersController extends CommonController {
 	 * @param selectedFilter
 	 *            the selectedFilter to set
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	@NotifyChange({ "filterSelected", "choosenFilter", "selectedFilter",
 			"currentFilter" })
 	public void setSelectedFilter(FilterFactory selectedFilter)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		this.selectedFilter = selectedFilter;
 		currentFilter = FilterFactory.create(selectedFilter);
 	}

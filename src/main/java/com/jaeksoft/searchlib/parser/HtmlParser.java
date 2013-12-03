@@ -29,14 +29,19 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.index.IndexReader;
@@ -44,6 +49,7 @@ import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.util.Version;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -56,6 +62,7 @@ import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlParserEnum;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -131,31 +138,32 @@ public class HtmlParser extends Parser {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null);
-		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null);
+		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null, 20, 1);
 		addProperty(ClassPropertyEnum.HTML_PARSER,
 				HtmlParserEnum.BestScoreParser.getLabel(),
-				HtmlParserEnum.getLabelArray());
+				HtmlParserEnum.getLabelArray(), 0, 0);
 		addProperty(ClassPropertyEnum.URL_FRAGMENT,
 				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
-				ClassPropertyEnum.KEEP_REMOVE_LIST);
+				ClassPropertyEnum.KEEP_REMOVE_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST);
+				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		if (config != null)
 			urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
-		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null);
-		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null);
-		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null);
-		addProperty(ClassPropertyEnum.H3_BOOST, "1.4", null);
-		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null);
-		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null);
-		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null);
+		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null, 10, 1);
+		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null, 10, 1);
+		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null, 10, 1);
+		addProperty(ClassPropertyEnum.H3_BOOST, "1.4", null, 10, 1);
+		addProperty(ClassPropertyEnum.H4_BOOST, "1.2", null, 10, 1);
+		addProperty(ClassPropertyEnum.H5_BOOST, "1.1", null, 10, 1);
+		addProperty(ClassPropertyEnum.H6_BOOST, "1.1", null, 10, 1);
+		addProperty(ClassPropertyEnum.XPATH_EXCLUSION, "", null, 50, 5);
 	}
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
@@ -165,11 +173,15 @@ public class HtmlParser extends Parser {
 
 	private void getBodyTextContent(ParserResultItem result, StringBuilder sb,
 			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields,
-			int recursion) {
+			int recursion, Set<Object> nodeExclusionsSet) {
 		if (recursion == 0) {
 			Logging.warn("Max recursion reached (getBodyTextContent)");
 			return;
 		}
+		if (nodeExclusionsSet != null)
+			if (nodeExclusionsSet.contains(node.node))
+				return;
+
 		recursion--;
 		if (node.isComment())
 			return;
@@ -215,7 +227,7 @@ public class HtmlParser extends Parser {
 			text = StringUtils.replaceConsecutiveSpaces(text, " ");
 			text = text.trim();
 			if (text.length() > 0) {
-				text = StringEscapeUtils.unescapeHtml(text);
+				text = StringEscapeUtils.unescapeHtml4(text);
 				if (sb.length() > 0)
 					sb.append(' ');
 				sb.append(text);
@@ -225,7 +237,7 @@ public class HtmlParser extends Parser {
 		if (children != null)
 			for (HtmlNodeAbstract<?> htmlNode : children)
 				getBodyTextContent(result, sb, htmlNode, bAddBlock,
-						directFields, recursion);
+						directFields, recursion, nodeExclusionsSet);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
@@ -283,6 +295,40 @@ public class HtmlParser extends Parser {
 		return first;
 	}
 
+	private final HtmlDocumentProvider getHtmlDocumentProvider(
+			HtmlParserEnum htmlParserEnum, String charset,
+			StreamLimiter streamLimiter, String xPathExclusions,
+			Set<Object> xPathExclusionSet) throws LimitException, IOException,
+			SearchLibException {
+
+		HtmlDocumentProvider htmlProvider;
+		try {
+			htmlProvider = htmlParserEnum.getHtmlParser(charset, streamLimiter,
+					xPathExclusionSet != null);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		}
+		if (htmlProvider == null)
+			return null;
+		if (xPathExclusionSet != null) {
+			String[] xPathLines = StringUtils.splitLines(xPathExclusions);
+			try {
+				for (String xPath : xPathLines)
+					if (!StringUtils.isBlank(xPath))
+						htmlProvider.xPath(xPath, xPathExclusionSet);
+			} catch (XPathExpressionException e) {
+				throw new SearchLibException(e);
+			}
+		}
+		return htmlProvider;
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum forcedLang) throws IOException, SearchLibException {
@@ -329,10 +375,18 @@ public class HtmlParser extends Parser {
 					.getValue();
 		}
 
+		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION)
+				.getValue();
+		Set<Object> xPathExclusionsSet = null;
+		if (!StringUtils.isEmpty(xPathExclusions))
+			xPathExclusionsSet = new HashSet<Object>();
+
 		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(
 				ClassPropertyEnum.HTML_PARSER).getValue());
-		HtmlDocumentProvider htmlProvider = htmlParserEnum.getHtmlParser(
-				currentCharset, streamLimiter);
+
+		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(
+				htmlParserEnum, currentCharset, streamLimiter, xPathExclusions,
+				xPathExclusionsSet);
 		if (htmlProvider == null)
 			return;
 
@@ -384,8 +438,9 @@ public class HtmlParser extends Parser {
 		if (selectedCharset != null) {
 			if (!selectedCharset.equals(currentCharset)) {
 				currentCharset = selectedCharset;
-				htmlProvider = htmlParserEnum.getHtmlParser(currentCharset,
-						streamLimiter);
+				htmlProvider = getHtmlDocumentProvider(htmlParserEnum,
+						currentCharset, streamLimiter, xPathExclusions,
+						xPathExclusionsSet);
 			}
 		}
 
@@ -477,8 +532,7 @@ public class HtmlParser extends Parser {
 				if (href != null)
 					if (!href.startsWith("javascript:"))
 						if (currentURL != null) {
-							href = org.apache.commons.lang3.StringEscapeUtils
-									.unescapeXml(href);
+							href = StringEscapeUtils.unescapeXml(href);
 							newUrl = LinkUtils.getLink(currentURL, href,
 									urlFilterList, removeFragment);
 						}
@@ -509,7 +563,8 @@ public class HtmlParser extends Parser {
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuilder sb = new StringBuilder();
-				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024);
+				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024,
+						xPathExclusionsSet);
 				result.addField(ParserFieldEnum.body, sb);
 			}
 		}

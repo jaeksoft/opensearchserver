@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,17 +26,22 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class ClassFactory {
 
@@ -52,17 +57,17 @@ public abstract class ClassFactory {
 		config = null;
 		properties = new TreeMap<ClassPropertyEnum, ClassProperty>();
 		userProperties = null;
-		addProperty(ClassPropertyEnum.CLASS, null, null);
+		addProperty(ClassPropertyEnum.CLASS, null, null, 0, 0);
 		packageName = null;
 	}
 
 	final public ClassProperty addProperty(ClassPropertyEnum classPropertyEnum,
-			String defaultValue, Object[] valueList) {
+			String defaultValue, Object[] valueList, int cols, int rows) {
 		ClassProperty classProperty = properties.get(classPropertyEnum);
 		if (classProperty != null)
 			return classProperty;
 		classProperty = new ClassProperty(this, classPropertyEnum,
-				defaultValue, valueList);
+				defaultValue, valueList, cols, rows);
 		properties.put(classPropertyEnum, classProperty);
 		if (classPropertyEnum.isUser()) {
 			if (userProperties == null)
@@ -118,23 +123,27 @@ public abstract class ClassFactory {
 		return Boolean.parseBoolean(value);
 	}
 
-	final protected void addProperties(NamedNodeMap nnm)
+	final private void addProperty(final String name, final String value)
+			throws SearchLibException {
+		ClassPropertyEnum propEnum = ClassPropertyEnum.valueOf(name);
+		if (propEnum != null) {
+			ClassProperty prop = getProperty(propEnum);
+			if (prop != null)
+				prop.setValue(value);
+		} else {
+			Logging.warn("Property not found: " + name);
+		}
+	}
+
+	final protected void addProperties(final NamedNodeMap nnm)
 			throws SearchLibException {
 		if (nnm == null)
 			return;
 		int l = nnm.getLength();
 		for (int i = 0; i < l; i++) {
 			Node attr = nnm.item(i);
-			ClassPropertyEnum propEnum = ClassPropertyEnum.valueOf(attr
-					.getNodeName());
-			if (propEnum != null) {
-				ClassProperty prop = getProperty(propEnum);
-				if (prop != null)
-					prop.setValue(StringEscapeUtils.unescapeXml(attr
-							.getNodeValue()));
-			} else {
-				Logging.warn("Property not found: " + attr.getNodeName());
-			}
+			addProperty(attr.getNodeName(),
+					StringEscapeUtils.unescapeXml(attr.getNodeValue()));
 		}
 	}
 
@@ -151,14 +160,35 @@ public abstract class ClassFactory {
 	 * 
 	 * @return a string array
 	 */
-	public String[] getAttributes() {
+	public String[] getXmlAttributes() {
 		String[] attributes = new String[properties.size() * 2];
 		int i = 0;
 		for (ClassProperty prop : properties.values()) {
-			attributes[i++] = prop.getClassPropertyEnum().getAttribute();
-			attributes[i++] = prop.getValue();
+			if (!prop.isMultilinetextbox()) {
+				attributes[i++] = prop.getClassPropertyEnum().getAttribute();
+				attributes[i++] = prop.getValue();
+			}
 		}
 		return attributes;
+	}
+
+	public void writeXmlNodeAttributes(XmlWriter writer, String nodeName)
+			throws SAXException {
+		Map<String, String> map = new HashMap<String, String>();
+		for (ClassProperty prop : properties.values()) {
+			if (prop.isMultilinetextbox())
+				map.put(prop.getClassPropertyEnum().getAttribute(),
+						prop.getValue());
+		}
+		if (map.isEmpty())
+			return;
+		writer.startElement(nodeName);
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			writer.startElement("attribute", "name", entry.getKey());
+			writer.textNode(entry.getValue());
+			writer.endElement();
+		}
+		writer.endElement();
 	}
 
 	/**
@@ -168,13 +198,14 @@ public abstract class ClassFactory {
 	 * @param className
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	protected static ClassFactory create(Config config, String packageName,
-			String className) throws SearchLibException {
+			String className) throws SearchLibException, ClassNotFoundException {
+		String cl = className;
+		if (className.indexOf('.') == -1)
+			cl = packageName + '.' + cl;
 		try {
-			String cl = className;
-			if (className.indexOf('.') == -1)
-				cl = packageName + '.' + cl;
 			ClassFactory o = (ClassFactory) Class.forName(cl).newInstance();
 			o.setParams(config, packageName, className);
 			o.initProperties();
@@ -182,8 +213,6 @@ public abstract class ClassFactory {
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -219,9 +248,12 @@ public abstract class ClassFactory {
 	 * @param classFactory
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 * @throws DOMException
 	 */
 	protected static ClassFactory create(Config config, String packageName,
-			Node node) throws SearchLibException {
+			Node node, String attributeNodeName) throws SearchLibException,
+			DOMException, ClassNotFoundException {
 		if (node == null)
 			return null;
 		NamedNodeMap nnm = node.getAttributes();
@@ -234,6 +266,13 @@ public abstract class ClassFactory {
 		ClassFactory newClassFactory = create(config, packageName,
 				classNode.getNodeValue());
 		newClassFactory.addProperties(nnm);
+		List<Node> attrNodes = DomUtils.getNodes(node, attributeNodeName,
+				"attribute");
+		if (attrNodes != null)
+			for (Node attrNode : attrNodes)
+				newClassFactory.addProperty(
+						DomUtils.getAttributeText(attrNode, "name"),
+						attrNode.getTextContent());
 		return newClassFactory;
 	}
 
@@ -242,9 +281,10 @@ public abstract class ClassFactory {
 	 * @param classFactory
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	protected static ClassFactory create(ClassFactory classFactory)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		ClassFactory newClassFactory = create(classFactory.config,
 				classFactory.packageName, classFactory.getClassName());
 		for (ClassProperty prop : classFactory.properties.values())

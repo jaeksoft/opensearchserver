@@ -41,10 +41,10 @@ public class YouTubeFilter extends FilterFactory {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.YOUTUBE_DATA,
 				ClassPropertyEnum.YOUTUBE_DATA_LIST[0],
-				ClassPropertyEnum.YOUTUBE_DATA_LIST);
+				ClassPropertyEnum.YOUTUBE_DATA_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST);
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override

@@ -28,8 +28,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.XPathNotSupported;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public enum HtmlParserEnum {
 
@@ -70,34 +79,56 @@ public enum HtmlParserEnum {
 	}
 
 	private static HtmlDocumentProvider findBestProvider(String charset,
-			StreamLimiter streamLimiter) throws IOException {
+			StreamLimiter streamLimiter, boolean requireXPath)
+			throws LimitException, InstantiationException,
+			IllegalAccessException, IOException, ParserConfigurationException {
 
-		HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
-				.getHtmlParser(charset, streamLimiter);
-		if (provider.getRootNode() != null)
-			return provider;
+		List<Exception> errors = new ArrayList<Exception>();
+
+		try {
+			HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
+					.getHtmlParser(charset, streamLimiter, requireXPath);
+			if (provider.getRootNode() != null)
+				return provider;
+		} catch (Exception e) {
+			errors.add(e);
+		}
 
 		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
 				bestScoreOrder.length);
-		for (HtmlParserEnum htmlParserEnum : bestScoreOrder)
-			providerList.add(htmlParserEnum.getHtmlParser(charset,
-					streamLimiter));
+		for (HtmlParserEnum htmlParserEnum : bestScoreOrder) {
+			try {
+				providerList.add(htmlParserEnum.getHtmlParser(charset,
+						streamLimiter, requireXPath));
+			} catch (XPathNotSupported e) {
+				errors.add(e);
+			} catch (SAXException e) {
+				errors.add(e);
+			} catch (SearchLibException e) {
+				errors.add(e);
+			}
+		}
+		if (CollectionUtils.isEmpty(providerList)) {
+			Logging.error(StringUtils.fastConcat("No HTML provider found for: "
+					+ streamLimiter.getOriginURL()));
+			for (Exception e : errors)
+				Logging.error(e);
+		}
 		return HtmlDocumentProvider.bestScore(providerList);
 	}
 
 	public HtmlDocumentProvider getHtmlParser(String charset,
-			StreamLimiter streamLimiter) throws LimitException, IOException {
-		try {
-			if (this == BestScoreParser)
-				return findBestProvider(charset, streamLimiter);
-			HtmlDocumentProvider htmlParser = classDef.newInstance();
-			htmlParser.init(charset, streamLimiter);
-			return htmlParser;
-		} catch (InstantiationException e) {
-			throw new IOException(e);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		}
+			StreamLimiter streamLimiter, boolean requireXPath)
+			throws LimitException, IOException, InstantiationException,
+			IllegalAccessException, SAXException, ParserConfigurationException,
+			SearchLibException {
+		if (this == BestScoreParser)
+			return findBestProvider(charset, streamLimiter, requireXPath);
+		HtmlDocumentProvider htmlParser = classDef.newInstance();
+		if (requireXPath && !htmlParser.isXPathSupported())
+			throw new SearchLibException.XPathNotSupported(htmlParser);
+		htmlParser.init(charset, streamLimiter);
+		return htmlParser;
 	}
 
 	public static String[] getLabelArray() {

@@ -65,8 +65,8 @@ public class CookieItem {
 
 	public CookieItem(BasicClientCookie basicClientCookie) {
 		this.pattern = null;
-		this.name = name;
-		this.value = value;
+		this.name = basicClientCookie.getName();
+		this.value = basicClientCookie.getValue();
 		this.basicClientCookie = basicClientCookie;
 	}
 
@@ -160,8 +160,8 @@ public class CookieItem {
 			return basicClientCookie;
 		basicClientCookie = new BasicClientCookie(name, value);
 		basicClientCookie.setVersion(1);
-		String domain_attr = "."
-				+ InternetDomainName.from(extractUrl().getHost()).name();
+		String domain_attr = StringUtils.fastConcat(".", InternetDomainName
+				.from(extractUrl().getHost()).name());
 		basicClientCookie.setDomain(domain_attr);
 		basicClientCookie.setPath("/");
 		basicClientCookie.setSecure(true);

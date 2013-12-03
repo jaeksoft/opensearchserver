@@ -49,12 +49,13 @@ public class EdgeNGramFilter extends FilterFactory {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.MIN_GRAM,
 				Integer.toString(EdgeNGramTokenFilter.DEFAULT_MIN_GRAM_SIZE),
-				null);
+				null, 10, 1);
 		addProperty(ClassPropertyEnum.MAX_GRAM,
 				Integer.toString(EdgeNGramTokenFilter.DEFAULT_MAX_GRAM_SIZE),
-				null);
+				null, 10, 1);
 		addProperty(ClassPropertyEnum.SIDE,
-				EdgeNGramTokenFilter.DEFAULT_SIDE.getLabel(), SIDE_VALUE_LIST);
+				EdgeNGramTokenFilter.DEFAULT_SIDE.getLabel(), SIDE_VALUE_LIST,
+				0, 0);
 	}
 
 	@Override

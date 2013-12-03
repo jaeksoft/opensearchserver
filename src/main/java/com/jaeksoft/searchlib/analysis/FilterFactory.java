@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.analysis;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -40,14 +41,15 @@ public abstract class FilterFactory extends ClassFactory {
 			throws SearchLibException;
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("filter", getAttributes());
+		writer.startElement("filter", getXmlAttributes());
+		writeXmlNodeAttributes(writer, "attributes");
 		writer.endElement();
 	}
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		addProperty(ClassPropertyEnum.SCOPE, FilterScope.QUERY_INDEX.name(),
-				FilterScope.values());
+				FilterScope.values(), 0, 0);
 	}
 
 	public FilterScope getScope() {
@@ -60,7 +62,7 @@ public abstract class FilterFactory extends ClassFactory {
 	}
 
 	public static FilterFactory getDefaultFilter(Config config)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
 				FilterEnum.StandardFilter.name());
 	}
@@ -72,11 +74,13 @@ public abstract class FilterFactory extends ClassFactory {
 	 * @param node
 	 * @return a FilterFactory
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 * @throws DOMException
 	 */
 	public static FilterFactory create(Config config, Node node)
-			throws SearchLibException {
-		return (FilterFactory) ClassFactory
-				.create(config, FILTER_PACKAGE, node);
+			throws SearchLibException, DOMException, ClassNotFoundException {
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
+				node, "attributes");
 	}
 
 	/**
@@ -85,9 +89,10 @@ public abstract class FilterFactory extends ClassFactory {
 	 * @param filter
 	 * @return a FilterFactory
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	public static FilterFactory create(FilterFactory filter)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (FilterFactory) ClassFactory.create(filter);
 	}
 
@@ -98,9 +103,10 @@ public abstract class FilterFactory extends ClassFactory {
 	 * @param className
 	 * @return
 	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
 	public static FilterFactory create(Config config, String className)
-			throws SearchLibException {
+			throws SearchLibException, ClassNotFoundException {
 		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
 				className);
 	}

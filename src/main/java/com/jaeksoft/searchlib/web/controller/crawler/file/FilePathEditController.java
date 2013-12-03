@@ -197,6 +197,13 @@ public class FilePathEditController extends FileCrawlerController {
 		return "swift".equals(currentFilePath.getType().getScheme());
 	}
 
+	public boolean isFtpFileType() {
+		if (currentFilePath == null)
+			return false;
+		String scheme = currentFilePath.getType().getScheme();
+		return "ftp".equals(scheme) || "ftps".equals(scheme);
+	}
+
 	public boolean isNotSwiftFileType() {
 		return !isSwiftFileType();
 	}

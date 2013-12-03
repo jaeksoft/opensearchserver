@@ -217,7 +217,7 @@ public class Crawl {
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)
 			throws MalformedURLException, SearchLibException,
-			URISyntaxException {
+			URISyntaxException, ClassNotFoundException {
 		RobotsTxtStatus robotsTxtStatus;
 		if (robotsTxtEnabled) {
 			RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(

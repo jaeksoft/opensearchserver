@@ -318,6 +318,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			return result;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		}
 	}
 

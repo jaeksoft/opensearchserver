@@ -56,7 +56,11 @@
 						value="@load(property.classPropertyEnum.label)" />
 					<vbox>
 						<textbox visible="@load(property.textbox)"
-							value="@bind(property.value)" />
+							value="@bind(property.value)" cols="@load(property.cols)" />
+						<textbox
+							visible="@load(property.multilinetextbox)"
+							value="@bind(property.value)" cols="@load(property.cols)"
+							rows="@load(property.rows)" />
 						<listbox mold="select"
 							visible="@load(property.list)" model="@load(property.valueList)"
 							selectedItem="@bind(property.value)">

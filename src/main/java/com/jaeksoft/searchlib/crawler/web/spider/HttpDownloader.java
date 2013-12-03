@@ -41,7 +41,7 @@ import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
@@ -106,7 +106,7 @@ public class HttpDownloader extends HttpAbstract {
 		return downloadItem;
 	}
 
-	private final DownloadItem request(final HttpUriRequest httpUriRequest,
+	private final DownloadItem request(final HttpRequestBase httpRequestBase,
 			final CredentialItem credentialItem,
 			final List<Header> additionalHeaders,
 			final List<CookieItem> cookies, final HttpEntity entity)
@@ -115,10 +115,11 @@ public class HttpDownloader extends HttpAbstract {
 		synchronized (this) {
 			reset();
 			if (entity != null)
-				((HttpEntityEnclosingRequest) httpUriRequest).setEntity(entity);
-			addHeader(httpUriRequest, additionalHeaders);
-			execute(httpUriRequest, credentialItem, cookies);
-			return getDownloadItem(httpUriRequest.getURI());
+				((HttpEntityEnclosingRequest) httpRequestBase)
+						.setEntity(entity);
+			addHeader(httpRequestBase, additionalHeaders);
+			execute(httpRequestBase, credentialItem, cookies);
+			return getDownloadItem(httpRequestBase.getURI());
 		}
 	}
 
@@ -128,33 +129,33 @@ public class HttpDownloader extends HttpAbstract {
 			final List<CookieItem> cookies, final HttpEntity entity)
 			throws ClientProtocolException, IllegalStateException, IOException,
 			URISyntaxException, SearchLibException {
-		HttpUriRequest httpUriRequest;
+		HttpRequestBase httpRequestBase;
 		switch (method) {
 		case GET:
-			httpUriRequest = new HttpGet(uri);
+			httpRequestBase = new HttpGet(uri);
 			break;
 		case POST:
-			httpUriRequest = new HttpPost(uri);
+			httpRequestBase = new HttpPost(uri);
 			break;
 		case PUT:
-			httpUriRequest = new HttpPut(uri);
+			httpRequestBase = new HttpPut(uri);
 			break;
 		case DELETE:
-			httpUriRequest = new HttpDelete(uri);
+			httpRequestBase = new HttpDelete(uri);
 			break;
 		case OPTIONS:
-			httpUriRequest = new HttpOptions(uri);
+			httpRequestBase = new HttpOptions(uri);
 			break;
 		case PATCH:
-			httpUriRequest = new HttpPatch(uri);
+			httpRequestBase = new HttpPatch(uri);
 			break;
 		case HEAD:
-			httpUriRequest = new HttpHead(uri);
+			httpRequestBase = new HttpHead(uri);
 			break;
 		default:
 			throw new SearchLibException("Unkown method: " + method);
 		}
-		return request(httpUriRequest, credentialItem, additionalHeaders,
+		return request(httpRequestBase, credentialItem, additionalHeaders,
 				cookies, entity);
 	}
 

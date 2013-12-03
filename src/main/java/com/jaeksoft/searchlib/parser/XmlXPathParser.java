@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,29 +21,28 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
 
-import org.apache.poi.hpsf.SummaryInformation;
-import org.apache.poi.hssf.extractor.ExcelExtractor;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.XPathParser;
 
-public class XlsParser extends Parser {
+public class XmlXPathParser extends Parser {
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.title, ParserFieldEnum.author,
-			ParserFieldEnum.subject, ParserFieldEnum.content,
-			ParserFieldEnum.lang };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name };
 
-	public XlsParser() {
+	public XmlXPathParser() {
 		super(fl);
 	}
 
@@ -51,30 +50,37 @@ public class XlsParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.XPATH_DOCUMENT_SELECTOR, "", null, 30, 1);
 	}
 
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 
-		HSSFWorkbook workbook = new HSSFWorkbook(
-				streamLimiter.getNewInputStream());
-		ExcelExtractor excel = new ExcelExtractor(workbook);
-		ParserResultItem result = getNewParserResultItem();
+		String xPathDocumentSelector = getProperty(
+				ClassPropertyEnum.XPATH_DOCUMENT_SELECTOR).getValue();
 
-		SummaryInformation info = excel.getSummaryInformation();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.author, info.getAuthor());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
+		try {
+			XPathParser xPathParser = new XPathParser(streamLimiter.getFile());
+			NodeList nodeList = xPathParser.getNodeList(xPathDocumentSelector);
+			if (nodeList == null)
+				return;
+			int l = nodeList.getLength();
+			if (l == 0)
+				return;
+			for (int i = 0; i < l; i++) {
+				Node documentNode = nodeList.item(i);
+				ParserResultItem parserResultItem = getNewParserResultItem();
+				parserResultItem.setXmlForXPath(xPathParser, documentNode);
+			}
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		} catch (SAXException e) {
+			throw new IOException(e);
+		} catch (SearchLibException e) {
+			throw new IOException(e);
+		} catch (XPathExpressionException e) {
+			throw new IOException(e);
 		}
-
-		String content = excel.getText();
-		result.addField(ParserFieldEnum.content,
-				StringUtils.replaceConsecutiveSpaces(content, " "));
-
-		result.langDetection(10000, ParserFieldEnum.content);
-
 	}
-
 }

@@ -64,7 +64,8 @@ public class LibraryIndexFileTest {
 	}
 
 	@Test
-	public void testBIndexPdfDocument() throws SearchLibException, IOException {
+	public void testBIndexPdfDocument() throws SearchLibException, IOException,
+			ClassNotFoundException {
 		// Get the client instance
 		Client client = ClientCatalog.getClient(LibraryTest.FILE_INDEX_NAME);
 

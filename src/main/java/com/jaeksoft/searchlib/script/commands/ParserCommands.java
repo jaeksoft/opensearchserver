@@ -64,6 +64,8 @@ public class ParserCommands {
 				parser.mergeFiles(fileDir, destFile);
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
+			} catch (ClassNotFoundException e) {
+				throw new ScriptException(e);
 			}
 
 		}

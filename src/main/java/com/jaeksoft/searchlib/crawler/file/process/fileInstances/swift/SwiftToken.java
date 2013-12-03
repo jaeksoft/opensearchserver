@@ -171,8 +171,8 @@ public class SwiftToken {
 
 	public URI getURI(String container, String path, boolean prefixAndDelimiter)
 			throws URISyntaxException, UnsupportedEncodingException {
-		StringBuilder sb = new StringBuilder(internalURL != null ? internalURL
-				: publicURL);
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
+				: internalURL);
 		if (!container.startsWith("/"))
 			sb.append('/');
 		sb.append(container);

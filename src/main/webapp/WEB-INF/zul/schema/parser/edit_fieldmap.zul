@@ -20,15 +20,16 @@
 		<auxhead>
 			<auxheader colspan="6">
 				<hbox align="center">
-					<listbox mold="select"
+					<combobox cols="40"
 						model="@load(parser.parserFieldList)"
-						selectedItem="@bind(parser.selectedParserField)">
-						<template name="model" var="parserField">
-							<listitem label="@load(parserField)"
-								value="@load(parserField)" />
+						value="@bind(parser.selectedParserField)">
+						<template name="model">
+							<comboitem label="@load(each)" />
 						</template>
-					</listbox>
+					</combobox>
+					<space />
 					<label>linked in</label>
+					<space />
 					<listbox mold="select"
 						model="@load(parser.indexFieldList)"
 						selectedItem="@bind(parser.selectedIndexField)">

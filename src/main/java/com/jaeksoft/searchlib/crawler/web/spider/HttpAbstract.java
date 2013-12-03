@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -42,17 +43,18 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParamBean;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
@@ -65,51 +67,65 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
 public abstract class HttpAbstract {
 
-	private DefaultHttpClient httpClient = null;
+	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
 	private ProxyHandler proxyHandler;
 	private HttpResponse httpResponse = null;
 	private HttpContext httpContext = null;
-	private HttpUriRequest httpUriRequest = null;
+	private HttpRequestBase httpBaseRequest = null;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
+	private RequestConfig requestConfig = null;
+	private BasicCookieStore cookieStore;
+	private CredentialsProvider credentialsProvider;
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
 			ProxyHandler proxyHandler) {
+		HttpClientBuilder builder = HttpClients.custom();
+
 		redirectStrategy = new DefaultRedirectStrategy();
-		HttpParams params = new BasicHttpParams();
-		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
+
 		// No more than one 1 minute to establish the connection
-		HttpConnectionParams.setConnectionTimeout(params, 1000 * 60);
-		// No more than 10 minutes without data
-		HttpConnectionParams.setSoTimeout(params, 1000 * 60 * 10);
-		// Checking it the connection stale
-		HttpConnectionParams.setStaleCheckingEnabled(params, true);
-		// paramsBean.setVersion(HttpVersion.HTTP_1_1);
-		// paramsBean.setContentCharset("UTF-8");
+		// No more than 10 minutes to establish the socket
+		// Enable stales connection checking
+		// Cookies uses browser compatibility
+		requestConfig = RequestConfig.custom().setSocketTimeout(1000 * 60 * 10)
+				.setConnectTimeout(1000 * 60)
+				.setStaleConnectionCheckEnabled(true)
+				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build();
 
 		if (userAgent != null) {
 			userAgent = userAgent.trim();
 			if (userAgent.length() > 0)
-				paramsBean.setUserAgent(userAgent);
+				builder.setUserAgent(userAgent);
 			else
 				userAgent = null;
 		}
-		HttpClientParams.setRedirecting(params, bFollowRedirect);
-		HttpClientParams.setCookiePolicy(params,
-				CookiePolicy.BROWSER_COMPATIBILITY);
-		httpClient = new DefaultHttpClient(params);
+		if (!bFollowRedirect)
+			builder.disableRedirectHandling();
+
 		// Support of GZIP and deflate and check headers
-		httpClient.addRequestInterceptor(HttpRequestFilter.INSTANCE);
-		httpClient.addResponseInterceptor(HttpResponseFilter.INSTANCE);
+		// builder.addInterceptorFirst(HttpRequestFilter.INSTANCE)
+		// .addInterceptorFirst(HttpResponseFilter.INSTANCE);
+
+		credentialsProvider = new BasicCredentialsProvider();
+		builder.setDefaultCredentialsProvider(credentialsProvider);
+
+		cookieStore = new BasicCookieStore();
+		builder.setDefaultCookieStore(cookieStore);
 
 		this.proxyHandler = proxyHandler;
-		httpClient.setHttpRequestRetryHandler(HttpRetryHandler.INSTANCE);
+		// httpClient.setHttpRequestRetryHandler(HttpRetryHandler.INSTANCE);
+
+		builder.setDefaultCredentialsProvider(credentialsProvider);
+
+		httpClient = builder.build();
+
 	}
 
 	protected void reset() {
 		httpResponse = null;
-		httpUriRequest = null;
+		httpBaseRequest = null;
 		synchronized (this) {
 			if (httpEntity != null) {
 				try {
@@ -124,31 +140,33 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	protected void execute(HttpUriRequest httpUriRequest,
+	protected void execute(HttpRequestBase httpBaseRequest,
 			CredentialItem credentialItem, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, URISyntaxException {
-		if (cookies != null && cookies.size() > 0) {
-			BasicCookieStore cookieStore = new BasicCookieStore();
-			for (CookieItem cookie : cookies)
-				cookieStore.addCookie(cookie.getCookie());
-			httpClient.setCookieStore(cookieStore);
+
+		if (!CollectionUtils.isEmpty(cookies)) {
+			List<Cookie> cookieList = cookieStore.getCookies();
+			for (CookieItem cookie : cookies) {
+				Cookie newCookie = cookie.getCookie();
+				if (!cookieList.contains(newCookie))
+					cookieStore.addCookie(newCookie);
+			}
 		}
 
-		this.httpUriRequest = httpUriRequest;
-		URI uri = httpUriRequest.getURI();
+		this.httpBaseRequest = httpBaseRequest;
+		httpBaseRequest.setConfig(requestConfig);
+		URI uri = httpBaseRequest.getURI();
 		if (proxyHandler != null)
 			proxyHandler.check(httpClient, uri);
-		CredentialsProvider credentialProvider = httpClient
-				.getCredentialsProvider();
+
 		if (credentialItem == null)
-			credentialProvider.clear();
+			credentialsProvider.clear();
 		else
-			credentialItem.setUpCredentials(httpClient.getParams(),
-					httpClient.getAuthSchemes(), credentialProvider);
+			credentialItem.setUpCredentials(credentialsProvider);
 
 		httpContext = new BasicHttpContext();
 
-		httpResponse = httpClient.execute(httpUriRequest, httpContext);
+		httpResponse = httpClient.execute(httpBaseRequest, httpContext);
 		if (httpResponse == null)
 			return;
 		statusLine = httpResponse.getStatusLine();
@@ -162,11 +180,11 @@ public abstract class HttpAbstract {
 			if (httpContext == null)
 				return null;
 			try {
-				if (!redirectStrategy.isRedirected(httpUriRequest,
+				if (!redirectStrategy.isRedirected(httpBaseRequest,
 						httpResponse, httpContext))
 					return null;
 				HttpUriRequest httpUri = redirectStrategy.getRedirect(
-						httpUriRequest, httpResponse, httpContext);
+						httpBaseRequest, httpResponse, httpContext);
 				if (httpUri == null)
 					return null;
 				return httpUri.getURI();

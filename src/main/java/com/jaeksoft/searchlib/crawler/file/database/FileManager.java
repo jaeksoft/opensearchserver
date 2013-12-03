@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
@@ -409,23 +411,44 @@ public class FileManager extends AbstractManager {
 					crawls.size());
 			List<String> documentsToDelete = new ArrayList<String>(
 					crawls.size());
+			String uniqueField = targetClient.getSchema().getUniqueField();
 			for (CrawlFile crawl : crawls) {
 				if (crawl == null)
 					continue;
+				FileItem currentFileItem = crawl.getFileItem();
 				List<IndexDocument> indexDocuments = crawl
 						.getTargetIndexDocuments();
-				TargetStatus targetStatus = crawl.getFileItem()
-						.getIndexStatus().targetStatus;
+				TargetStatus targetStatus = currentFileItem.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
-					if (indexDocuments != null)
-						for (IndexDocument indexDocument : indexDocuments)
-							if (indexDocument != null)
-								documentsToUpdate.add(indexDocument);
+					if (CollectionUtils.isEmpty(indexDocuments)) {
+						currentFileItem
+								.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
+						continue;
+					}
+					for (IndexDocument indexDocument : indexDocuments) {
+						if (indexDocument == null)
+							continue;
+						if (uniqueField != null
+								&& !indexDocument.hasContent(uniqueField)) {
+							currentFileItem
+									.setIndexStatus(IndexStatus.INDEX_ERROR);
+						} else
+							documentsToUpdate.add(indexDocument);
+					}
 				} else if (targetStatus == TargetStatus.TARGET_DELETE)
-					documentsToDelete.add(crawl.getFileItem().getUri());
+					documentsToDelete.add(currentFileItem.getUri());
 			}
-			if (documentsToUpdate.size() > 0)
+
+			if (documentsToUpdate.size() > 0) {
 				targetClient.updateDocuments(documentsToUpdate);
+				for (CrawlFile crawl : crawls) {
+					FileItem currentFileItem = crawl.getFileItem();
+					IndexStatus indexStatus = currentFileItem.getIndexStatus();
+					if (indexStatus == IndexStatus.TO_INDEX
+							|| indexStatus == IndexStatus.NOT_INDEXED)
+						currentFileItem.setIndexStatus(IndexStatus.INDEXED);
+				}
+			}
 			if (documentsToDelete.size() > 0) {
 				String targetField = findIndexedFieldOfTargetIndex(
 						targetClient.getFileCrawlerFieldMap(),

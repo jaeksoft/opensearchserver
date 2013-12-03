@@ -28,6 +28,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Node;
+
 import com.cybozu.labs.langdetect.LangDetectException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.index.FieldContent;
@@ -35,6 +39,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.Lang;
+import com.jaeksoft.searchlib.util.XPathParser;
 
 public class ParserResultItem {
 
@@ -44,21 +49,39 @@ public class ParserResultItem {
 
 	private IndexDocument directDocument;
 
+	private Node xmlForXPath;
+
+	private XPathParser xpathParser;
+
 	public ParserResultItem(Parser parser) {
 		this.parser = parser;
 		directDocument = null;
 		parserDocument = new IndexDocument();
+		xmlForXPath = null;
 		addField(ParserFieldEnum.parser_name, parser.getParserName());
 	}
 
 	public void populate(IndexDocument indexDocument) throws IOException {
-		parser.getFieldMap().mapIndexDocument(parserDocument, indexDocument);
-		if (directDocument != null)
-			indexDocument.add(directDocument);
+		try {
+			ParserFieldMap parserFieldMap = parser.getFieldMap();
+			if (xmlForXPath != null && xpathParser != null)
+				parserFieldMap.mapXmlXPathDocument(xpathParser, xmlForXPath,
+						indexDocument);
+			parserFieldMap.mapIndexDocument(parserDocument, indexDocument);
+			if (directDocument != null)
+				indexDocument.add(directDocument);
+		} catch (XPathExpressionException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public IndexDocument getParserDocument() {
 		return parserDocument;
+	}
+
+	final public void setXmlForXPath(XPathParser xPathParser, Node xmlForXPath) {
+		this.xpathParser = xPathParser;
+		this.xmlForXPath = xmlForXPath;
 	}
 
 	public void addField(ParserFieldEnum field, String value) {

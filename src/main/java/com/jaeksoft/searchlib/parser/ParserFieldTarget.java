@@ -47,6 +47,8 @@ public class ParserFieldTarget extends TargetField {
 
 	private boolean removeTag;
 
+	private boolean convertHtmlEntities;
+
 	private Pattern captureRegexpPattern;
 
 	public ParserFieldTarget(String name, String captureRegexp,
@@ -54,7 +56,7 @@ public class ParserFieldTarget extends TargetField {
 		super(name, analyzer, null, null);
 		this.captureRegexp = captureRegexp;
 		this.removeTag = removeTag;
-		checkRegexpPattern();
+		this.checkRegexpPattern();
 	}
 
 	public ParserFieldTarget(String name, Node node) {
@@ -64,7 +66,9 @@ public class ParserFieldTarget extends TargetField {
 			captureRegexp = StringEscapeUtils.unescapeXml(nl.get(0)
 					.getTextContent());
 		nl = DomUtils.getNodes(node, "removeTag");
-		removeTag = nl.size() > 0;
+		removeTag = nl != null && nl.size() > 0;
+		nl = DomUtils.getNodes(node, "convertHtmlEntities");
+		convertHtmlEntities = nl != null && nl.size() > 0;
 		checkRegexpPattern();
 	}
 
@@ -76,6 +80,10 @@ public class ParserFieldTarget extends TargetField {
 		}
 		if (removeTag) {
 			xmlWriter.startElement("removeTag");
+			xmlWriter.endElement();
+		}
+		if (convertHtmlEntities) {
+			xmlWriter.startElement("convertHtmlEntities");
 			xmlWriter.endElement();
 		}
 	}
@@ -125,10 +133,15 @@ public class ParserFieldTarget extends TargetField {
 			}
 		}
 
-		if (removeTag) {
+		if (removeTag || convertHtmlEntities) {
 			int pos = 0;
-			for (String value : values)
-				values.set(pos++, StringUtils.removeTag(value));
+			for (String value : values) {
+				if (removeTag)
+					value = StringUtils.removeTag(value);
+				if (convertHtmlEntities)
+					value = StringEscapeUtils.unescapeHtml(value);
+				values.set(pos++, value);
+			}
 		}
 		add(values, targetDocument);
 	}
@@ -147,4 +160,20 @@ public class ParserFieldTarget extends TargetField {
 	public void setRemoveTag(boolean removeTag) {
 		this.removeTag = removeTag;
 	}
+
+	/**
+	 * @param convertHtmlEntities
+	 *            the convertHtmlEntities to set
+	 */
+	public void setConvertHtmlEntities(boolean convertHtmlEntities) {
+		this.convertHtmlEntities = convertHtmlEntities;
+	}
+
+	/**
+	 * @return the convertHtmlEntities
+	 */
+	public boolean isConvertHtmlEntities() {
+		return convertHtmlEntities;
+	}
+
 }

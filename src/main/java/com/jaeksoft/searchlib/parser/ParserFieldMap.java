@@ -27,9 +27,12 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -77,14 +81,35 @@ public class ParserFieldMap extends
 		return list.size() > 0;
 	}
 
-	public void mapIndexDocument(IndexDocument source, IndexDocument target)
-			throws IOException {
+	final public void mapIndexDocument(final IndexDocument source,
+			final IndexDocument target) throws IOException {
 		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
 			FieldContent fc = link.getSource().getUniqueString(source);
 			ParserFieldTarget fieldTarget = link.getTarget();
 			if (fc != null) {
 				FieldValueItem[] values = fc.getValues();
 				fieldTarget.add(values, target);
+			}
+		}
+	}
+
+	final public void mapXmlXPathDocument(final XPathParser xpp,
+			final Node xmlForXPath, final IndexDocument target)
+			throws XPathExpressionException, IOException {
+		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
+			ParserFieldTarget fieldTarget = link.getTarget();
+			Object obj = xpp.evaluate(xmlForXPath, link.getSource()
+					.getUniqueName(), XPathConstants.NODESET);
+			if (obj instanceof Node) {
+				fieldTarget.add(DOMUtils.getContent((Node) obj), target);
+			} else if (obj instanceof NodeList) {
+				NodeList nodeList = (NodeList) obj;
+				int length = nodeList.getLength();
+				for (int i = 0; i < length; i++)
+					fieldTarget.add(DOMUtils.getContent(nodeList.item(i)),
+							target);
+			} else if (obj instanceof String) {
+				fieldTarget.add((String) obj, target);
 			}
 		}
 	}
@@ -96,4 +121,5 @@ public class ParserFieldMap extends
 					LanguageEnum.UNDEFINED);
 		}
 	}
+
 }

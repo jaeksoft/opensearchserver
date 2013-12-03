@@ -62,18 +62,18 @@ public class NumberFormatFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.INPUT_NUMBER_FORMAT,
-				INPUT_DEFAULT_FORMAT, null);
+				INPUT_DEFAULT_FORMAT, null, 20, 1);
 		addProperty(ClassPropertyEnum.INPUT_DECIMAL_SEPARATOR,
-				DEFAULT_DECIMAL_SEP, null);
+				DEFAULT_DECIMAL_SEP, null, 20, 1);
 		addProperty(ClassPropertyEnum.INPUT_GROUP_SEPARATOR, DEFAULT_GROUP_SEP,
-				null);
+				null, 10, 1);
 		addProperty(ClassPropertyEnum.OUTPUT_NUMBER_FORMAT,
-				OUTPUT_DEFAULT_FORMAT, null);
+				OUTPUT_DEFAULT_FORMAT, null, 20, 1);
 		addProperty(ClassPropertyEnum.OUTPUT_DECIMAL_SEPARATOR,
-				DEFAULT_DECIMAL_SEP, null);
+				DEFAULT_DECIMAL_SEP, null, 20, 1);
 		addProperty(ClassPropertyEnum.OUTPUT_GROUP_SEPARATOR,
-				DEFAULT_GROUP_SEP, null);
-		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null);
+				DEFAULT_GROUP_SEP, null, 10, 1);
+		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null, 30, 1);
 	}
 
 	private static Character getSeparatorChar(String value) {
