@@ -40,7 +40,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.MimeUtils;
@@ -71,14 +70,9 @@ public abstract class HtmlDocumentProvider {
 	}
 
 	public void init(String charset, StreamLimiter streamLimiter)
-			throws LimitException {
-		try {
-			rootNode = getDocument(charset, streamLimiter);
-		} catch (LimitException e) {
-			throw e;
-		} catch (Exception e) {
-			Logging.warn(e);
-		}
+			throws SAXException, IOException, ParserConfigurationException,
+			SearchLibException {
+		rootNode = getDocument(charset, streamLimiter);
 	}
 
 	public void init(String htmlSource) throws IOException,

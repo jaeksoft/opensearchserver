@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class Parser extends ParserFactory {
 
@@ -99,6 +100,11 @@ public abstract class Parser extends ParserFactory {
 	protected abstract void parseContent(StreamLimiter streamLimiter,
 			LanguageEnum lang) throws IOException, SearchLibException;
 
+	private final String getErrorText(Throwable t) {
+		return StringUtils.fastConcat("Error while working on URL: ",
+				streamLimiter.getOriginURL(), " : ", t.getMessage());
+	}
+
 	final public void doParserContent(IndexDocument sourceDocument,
 			StreamLimiter streamLimiter, LanguageEnum lang) {
 		if (sourceDocument != null)
@@ -108,13 +114,13 @@ public abstract class Parser extends ParserFactory {
 			parseContent(streamLimiter, lang);
 		} catch (IllegalArgumentException e) {
 			this.error = e;
-			Logging.warn(e);
+			Logging.warn(getErrorText(e), e);
 		} catch (NullPointerException e) {
 			this.error = e;
-			Logging.warn(e);
+			Logging.warn(getErrorText(e), e);
 		} catch (Exception e) {
 			this.error = e;
-			Logging.warn(e);
+			Logging.warn(getErrorText(e), e);
 		}
 	}
 
