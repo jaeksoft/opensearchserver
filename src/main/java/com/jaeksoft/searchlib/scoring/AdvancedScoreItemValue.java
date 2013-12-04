@@ -49,7 +49,7 @@ public class AdvancedScoreItemValue {
 		maxValue = docValues.getMaxValue();
 	}
 
-	public final float getValue(int doc) {
+	public final float getValue(final int doc) {
 		return docValues.floatVal(doc) / maxValue * weight;
 	}
 
