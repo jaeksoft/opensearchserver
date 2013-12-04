@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.Range;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.snippet.SnippetField;
@@ -232,11 +233,13 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	 *            The field can contains several values
 	 * @param postCollapsing
 	 *            The number is calculated after collapsing
+	 * @param ranges
+	 *            An optional list of ranges
 	 */
 	public void addFacet(String fieldName, int minCount, boolean multivalued,
-			boolean postCollapsing) {
+			boolean postCollapsing, List<Range> ranges) {
 		FacetField facetField = new FacetField(fieldName, minCount,
-				multivalued, postCollapsing);
+				multivalued, postCollapsing, ranges);
 		getFacetFieldList().put(facetField);
 	}
 
