@@ -50,6 +50,16 @@ public class JsonUtils {
 		return mapper.readValue(json, typeReference);
 	}
 
+	public static <T> T getObject(File file, Class<T> objectClass)
+			throws JsonParseException, JsonMappingException, IOException {
+		return mapper.readValue(file, objectClass);
+	}
+
+	public static <T> T getObject(File file, TypeReference<T> typeReference)
+			throws JsonParseException, JsonMappingException, IOException {
+		return mapper.readValue(file, typeReference);
+	}
+
 	public static String toJsonString(Object object)
 			throws JsonProcessingException {
 		return mapper.writeValueAsString(object);

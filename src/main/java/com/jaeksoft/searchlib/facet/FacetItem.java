@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,19 +24,7 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import com.jaeksoft.searchlib.util.External;
-
-public class FacetItem implements Externalizable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1293498473522757010L;
+public class FacetItem {
 
 	protected String term;
 
@@ -56,19 +44,6 @@ public class FacetItem implements Externalizable {
 
 	public int getCount() {
 		return count;
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		term = External.readUTF(in);
-		count = in.readInt();
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		External.writeUTF(term, out);
-		out.writeInt(count);
 	}
 
 	@Override
