@@ -113,7 +113,7 @@ public class ReportsManager {
 		searchRequest.addReturnField("datetime");
 		searchRequest.addReturnField("responseTime");
 		searchRequest.getFacetFieldList().put(
-				new FacetField("keywords", 1, false, false));
+				new FacetField("keywords", 1, false, false, null));
 		searchRequest.setLang(LanguageEnum.UNDEFINED);
 		return searchRequest;
 	}

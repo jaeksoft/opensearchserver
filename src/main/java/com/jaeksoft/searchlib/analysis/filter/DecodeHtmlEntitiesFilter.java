@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
@@ -45,7 +45,7 @@ public class DecodeHtmlEntitiesFilter extends FilterFactory {
 			for (;;) {
 				if (!input.incrementToken())
 					return false;
-				createToken(StringEscapeUtils.unescapeHtml(termAtt.toString()));
+				createToken(StringEscapeUtils.unescapeHtml4(termAtt.toString()));
 				return true;
 			}
 		}

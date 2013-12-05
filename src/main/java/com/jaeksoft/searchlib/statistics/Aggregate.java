@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,37 +24,40 @@
 
 package com.jaeksoft.searchlib.statistics;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Date;
 
-import com.jaeksoft.searchlib.util.External;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class Aggregate implements Externalizable {
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Aggregate {
 
-	private volatile Date startTime;
+	@JsonIgnore
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private volatile long count;
+	private Date startTime;
 
-	private volatile long max;
+	private long count;
 
-	private volatile String maxInfo;
+	private long max;
 
-	private volatile long min;
+	private String maxInfo;
 
-	private volatile float avg;
+	private long min;
 
-	protected volatile long nextStart;
+	private float average;
 
-	private volatile long error;
+	protected long nextStart;
 
-	private volatile String lastError;
+	private long error;
+
+	private String lastError;
 
 	protected Aggregate() {
-
 	}
 
 	protected Aggregate(long startTime, long nextStart) {
@@ -64,13 +67,14 @@ public class Aggregate implements Externalizable {
 		error = 0;
 		max = 0;
 		min = Long.MAX_VALUE;
-		avg = 0;
+		average = 0;
 		maxInfo = null;
 		lastError = null;
 	}
 
 	protected void add(Timer timer) {
-		synchronized (this) {
+		rwl.w.lock();
+		try {
 			long duration = timer.getDuration();
 			if (duration > max) {
 				max = duration;
@@ -79,11 +83,11 @@ public class Aggregate implements Externalizable {
 			if (duration < min)
 				min = duration;
 			if (count != 0) {
-				float added = avg + (float) duration / (float) count;
+				float added = average + (float) duration / (float) count;
 				float nn1 = (float) count / (float) ++count;
-				avg = added * nn1;
+				average = added * nn1;
 			} else {
-				avg = duration;
+				average = duration;
 				count++;
 			}
 			String err = timer.getError();
@@ -91,84 +95,110 @@ public class Aggregate implements Externalizable {
 				lastError = err;
 				error++;
 			}
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public long getMin() {
-		return min;
+		rwl.r.lock();
+		try {
+			return min;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public long getMax() {
-		return max;
+		rwl.r.lock();
+		try {
+			return max;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public long getError() {
-		return error;
+		rwl.r.lock();
+		try {
+			return error;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public String getLastError() {
-		return lastError;
+		rwl.r.lock();
+		try {
+			return lastError;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public String getMaxInfo() {
-		return maxInfo;
+		rwl.r.lock();
+		try {
+			return maxInfo;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public long getCount() {
-		return count;
+		rwl.r.lock();
+		try {
+			return count;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public float getAverage() {
-		return avg;
+		rwl.r.lock();
+		try {
+			return average;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public Date getStartTime() {
-		return startTime;
+		rwl.r.lock();
+		try {
+			return startTime;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	public long getNextStart() {
-		return nextStart;
+		rwl.r.lock();
+		try {
+			return nextStart;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(startTime);
-		sb.append(" - Count:");
-		sb.append(count);
-		sb.append(" -  Average:");
-		sb.append(avg);
-		sb.append(" - Min:");
-		sb.append(min);
-		sb.append(" - Max:");
-		sb.append(max);
-		return sb.toString();
+		rwl.r.lock();
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(startTime);
+			sb.append(" - Count:");
+			sb.append(count);
+			sb.append(" -  Average:");
+			sb.append(average);
+			sb.append(" - Min:");
+			sb.append(min);
+			sb.append(" - Max:");
+			sb.append(max);
+			return sb.toString();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		startTime = new Date(in.readLong());
-		count = in.readLong();
-		max = in.readLong();
-		maxInfo = External.readUTF(in);
-		min = in.readLong();
-		avg = in.readFloat();
-		nextStart = in.readLong();
-		error = in.readLong();
-		lastError = External.readUTF(in);
-	}
-
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(startTime.getTime());
-		out.writeLong(count);
-		out.writeLong(max);
-		External.writeUTF(maxInfo, out);
-		out.writeLong(min);
-		out.writeFloat(avg);
-		out.writeLong(nextStart);
-		out.writeLong(error);
-		External.writeUTF(lastError, out);
-	}
 }

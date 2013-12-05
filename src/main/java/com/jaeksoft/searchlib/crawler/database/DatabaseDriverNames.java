@@ -41,6 +41,8 @@ public enum DatabaseDriverNames {
 
 	INGRES("com.ingres.jdbc.IngresDriver"),
 
+	JTDS("net.sourceforge.jtds.jdbc.Driver"),
+
 	MYSQL("com.mysql.jdbc.Driver"),
 
 	ORACLE("oracle.jdbc.driver.OracleDriver"),

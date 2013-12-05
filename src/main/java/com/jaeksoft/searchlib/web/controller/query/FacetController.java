@@ -125,7 +125,7 @@ public class FacetController extends AbstractQueryController {
 			if (selectedFacet == null)
 				return;
 			((AbstractSearchRequest) getRequest()).getFacetFieldList().put(
-					new FacetField(selectedFacet, 0, false, false));
+					new FacetField(selectedFacet, 0, false, false, null));
 			reload();
 		}
 	}
