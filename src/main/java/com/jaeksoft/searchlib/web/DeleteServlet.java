@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -39,7 +38,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.request.DeleteRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -110,15 +108,6 @@ public class DeleteServlet extends AbstractServlet {
 		}
 	}
 
-	public static int delete(URI uri, String indexName, String login,
-			String apikey, Collection<String> uniqueFields) throws IOException,
-			URISyntaxException {
-		String msg = sendObject(
-				buildUri(uri, "/delete", indexName, login, apikey, null),
-				new DeleteRequest<String>(uniqueFields));
-		return Integer.parseInt(msg.trim());
-	}
-
 	public static boolean deleteDocument(URI uri, String indexName,
 			String login, String apikey, int docId) throws SearchLibException {
 		try {
@@ -133,15 +122,6 @@ public class DeleteServlet extends AbstractServlet {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	public static int deleteDocuments(URI uri, String indexName, String login,
-			String apikey, Collection<Integer> docIds) throws IOException,
-			URISyntaxException {
-		String msg = sendObject(
-				buildUri(uri, "/delete", indexName, login, apikey, "byId=yes"),
-				new DeleteRequest<Integer>(docIds));
-		return Integer.parseInt(msg.trim());
 	}
 
 }

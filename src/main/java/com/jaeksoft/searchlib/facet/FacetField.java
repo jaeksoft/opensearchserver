@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -56,6 +57,8 @@ public class FacetField extends AbstractField<FacetField> {
 
 	private boolean postCollapsing;
 
+	private List<Range> ranges;
+
 	public FacetField() {
 	}
 
@@ -64,14 +67,16 @@ public class FacetField extends AbstractField<FacetField> {
 		this.minCount = field.minCount;
 		this.multivalued = field.multivalued;
 		this.postCollapsing = field.postCollapsing;
+		this.ranges = Range.duplicate(field.ranges);
 	}
 
 	public FacetField(String name, int minCount, boolean multivalued,
-			boolean postCollapsing) {
+			boolean postCollapsing, List<Range> ranges) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
 		this.postCollapsing = postCollapsing;
+		this.ranges = ranges;
 	}
 
 	@Override
@@ -161,8 +166,12 @@ public class FacetField extends AbstractField<FacetField> {
 		SchemaField field = source.get(fieldName);
 		if (field == null)
 			return;
+		List<Range> ranges = null;
+		Node rangesNode = DomUtils.getFirstNode(node, "ranges");
+		if (rangesNode != null)
+			ranges = Range.loadList(rangesNode);
 		FacetField facetField = new FacetField(field.getName(), minCount,
-				multivalued, postCollapsing);
+				multivalued, postCollapsing, ranges);
 		target.put(facetField);
 	}
 
@@ -189,15 +198,17 @@ public class FacetField extends AbstractField<FacetField> {
 		} else
 			fieldName = value;
 
-		return new FacetField(fieldName, minCount, multivalued, postCollapsing);
+		return new FacetField(fieldName, minCount, multivalued, postCollapsing,
+				null);
 	}
 
 	@Override
-	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("facetField", "name", name, "minCount", Integer
+	public void writeXmlConfig(XmlWriter writer) throws SAXException {
+		writer.startElement("facetField", "name", name, "minCount", Integer
 				.toString(minCount), "multivalued", multivalued ? "yes" : "no",
 				"postCollapsing", postCollapsing ? "yes" : "no");
-		xmlWriter.endElement();
+		Range.writeXml(ranges, "ranges", writer);
+		writer.endElement();
 	}
 
 	@Override

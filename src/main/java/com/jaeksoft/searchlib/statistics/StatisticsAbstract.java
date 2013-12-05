@@ -24,14 +24,10 @@
 
 package com.jaeksoft.searchlib.statistics;
 
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -39,12 +35,18 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.util.JsonUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class StatisticsAbstract {
+
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private LinkedList<Aggregate> aggregateList;
 
@@ -77,7 +79,7 @@ public abstract class StatisticsAbstract {
 
 	public abstract StatisticPeriodEnum getPeriod();
 
-	private void addAggregate(Aggregate aggregate) {
+	private void addAggregateNoLock(Aggregate aggregate) {
 		aggregateList.addLast(aggregate);
 		if (aggregateList.size() > maxRetention)
 			aggregateList.removeFirst();
@@ -85,7 +87,8 @@ public abstract class StatisticsAbstract {
 	}
 
 	public void add(Timer timer) {
-		synchronized (aggregateList) {
+		rwl.w.lock();
+		try {
 			long startTime = timer.getStartTime();
 			if (currentAggregate == null
 					|| startTime >= currentAggregate.nextStart) {
@@ -93,10 +96,12 @@ public abstract class StatisticsAbstract {
 					Logging.info(type + " - " + getPeriod().getName() + " - "
 							+ currentAggregate);
 				currentAggregate = newAggregate(timer.getStartTime());
-				addAggregate(currentAggregate);
+				addAggregateNoLock(currentAggregate);
 			}
 			currentAggregate.add(timer);
 			hasBeenUpdated = true;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -105,11 +110,14 @@ public abstract class StatisticsAbstract {
 	}
 
 	public Aggregate[] getArray() {
-		synchronized (aggregateList) {
+		rwl.r.lock();
+		try {
 			if (aggregateArray != null)
 				return aggregateArray;
 			aggregateArray = new Aggregate[aggregateList.size()];
 			return aggregateList.toArray(aggregateArray);
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -159,58 +167,42 @@ public abstract class StatisticsAbstract {
 	}
 
 	private File getStatFile(File statDir) {
-		return new File(statDir, type.name().replace(' ', '_') + "_"
-				+ getPeriod().getName().replace(' ', '_'));
+		return new File(statDir, StringUtils.fastConcat(
+				type.name().replace(' ', '_'), "_", getPeriod().getName()
+						.replace(' ', '_'), ".json"));
 	}
+
+	public final static TypeReference<List<Aggregate>> AggregateListTypeRef = new TypeReference<List<Aggregate>>() {
+	};
 
 	public void load(File statDir) throws IOException, ClassNotFoundException {
 		File file = getStatFile(statDir);
 		if (!file.exists())
 			return;
-		FileInputStream fis = null;
-		ObjectInputStream ois = null;
+		List<Aggregate> aggrList = JsonUtils.getObject(file,
+				AggregateListTypeRef);
+		if (aggrList == null)
+			return;
+		rwl.w.lock();
 		try {
-			fis = new FileInputStream(file);
-			ois = new ObjectInputStream(fis);
-			synchronized (aggregateList) {
-				int size = ois.readInt();
-				while (size-- > 0) {
-					Aggregate aggr = new Aggregate();
-					aggr.readExternal(ois);
-					addAggregate(aggr);
-				}
-			}
-		} catch (EOFException e) {
-			Logging.error(e);
+			for (Aggregate aggr : aggrList)
+				addAggregateNoLock(aggr);
 		} finally {
-			if (ois != null)
-				ois.close();
-			if (fis != null)
-				fis.close();
+			rwl.w.unlock();
 		}
 	}
 
 	public void save(File statDir) throws IOException {
-		if (!hasBeenUpdated)
-			return;
-		File file = getStatFile(statDir);
-		if (file.exists())
-			file.delete();
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
+		rwl.r.lock();
 		try {
-			fos = new FileOutputStream(file);
-			oos = new ObjectOutputStream(fos);
-			synchronized (aggregateList) {
-				oos.writeInt(aggregateList.size());
-				for (Aggregate aggr : aggregateList)
-					aggr.writeExternal(oos);
-			}
+			if (!hasBeenUpdated)
+				return;
+			File file = getStatFile(statDir);
+			if (file.exists())
+				file.delete();
+			JsonUtils.jsonToFile(aggregateList, file);
 		} finally {
-			if (oos != null)
-				oos.close();
-			if (fos != null)
-				fos.close();
+			rwl.r.unlock();
 		}
 	}
 }
