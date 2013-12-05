@@ -18,4 +18,4 @@ SERVER_PORT=9090
 #JAVA_OPTS="-Xms1G -Xmx1G"
 
 # Starting the server
-java $JAVA_OPTS -jar opensearchserver.jar -extractDirectory server -httpPort ${SERVER_PORT} -Djava.protocol.handler.pkgs=jcifs
+java $JAVA_OPTS -jar opensearchserver.jar -extractDirectory server -httpPort ${SERVER_PORT} -Djava.protocol.handler.pkgs=jcifs -uriEncoding=UTF-8
