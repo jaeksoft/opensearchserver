@@ -91,6 +91,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 	@XmlElements({
 			@XmlElement(name = "QueryFilter", type = QueryFilter.class),
+			@XmlElement(name = "TermFilter", type = TermFilter.class),
 			@XmlElement(name = "GeoFilter", type = GeoFilter.class),
 			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class) })
 	final public List<Filter> filters;
@@ -299,6 +300,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	@JsonTypeInfo(use = Id.NAME, property = "type")
 	@JsonSubTypes({
 			@JsonSubTypes.Type(value = QueryFilter.class, name = "QueryFilter"),
+			@JsonSubTypes.Type(value = TermFilter.class, name = "TermFilter"),
 			@JsonSubTypes.Type(value = GeoFilter.class, name = "GeoFilter"),
 			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter") })
 	public static abstract class Filter {
@@ -363,25 +365,66 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 	@JsonInclude(Include.NON_NULL)
 	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "TermFilter")
+	@XmlRootElement(name = "TermFilter")
+	@JsonTypeName("TermFilter")
+	public static class TermFilter extends Filter {
+
+		final public String field;
+		final public String term;
+
+		public TermFilter() {
+			field = null;
+			term = null;
+		}
+
+		protected TermFilter(com.jaeksoft.searchlib.filter.TermFilter src) {
+			super(src.isNegative());
+			this.field = src.getField();
+			this.term = src.getTerm();
+		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+			com.jaeksoft.searchlib.filter.TermFilter termFilter = (com.jaeksoft.searchlib.filter.TermFilter) filter;
+			if (field != null)
+				termFilter.setField(field);
+			if (term != null)
+				termFilter.setTerm(term);
+		}
+
+		@Override
+		@JsonIgnore
+		protected FilterAbstract<?> newFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.TermFilter();
+			apply(filter);
+			return filter;
+		}
+
+	}
+
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlType(name = "GeoFilter")
 	@XmlRootElement(name = "GeoFilter")
 	@JsonTypeName("GeoFilter")
 	public static class GeoFilter extends Filter {
 
 		final public Unit unit;
-		final public Type type;
+		final public Type shape;
 		final public Double distance;
 
 		public GeoFilter() {
 			unit = null;
-			type = null;
+			shape = null;
 			distance = null;
 		}
 
 		public GeoFilter(com.jaeksoft.searchlib.filter.GeoFilter src) {
 			super(src.isNegative());
 			unit = src.getUnit();
-			type = src.getType();
+			shape = src.getType();
 			distance = src.getDistance();
 		}
 
@@ -391,8 +434,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			com.jaeksoft.searchlib.filter.GeoFilter geoFilter = (com.jaeksoft.searchlib.filter.GeoFilter) filter;
 			if (unit != null)
 				geoFilter.setUnit(unit);
-			if (type != null)
-				geoFilter.setType(type);
+			if (shape != null)
+				geoFilter.setType(shape);
 			if (distance != null)
 				geoFilter.setDistance(distance);
 		}
@@ -498,6 +541,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			case QUERY_FILTER:
 				filters.add(new QueryFilter(
 						(com.jaeksoft.searchlib.filter.QueryFilter) filterAbstract));
+				break;
+			case TERM_FILTER:
+				filters.add(new TermFilter(
+						(com.jaeksoft.searchlib.filter.TermFilter) filterAbstract));
 				break;
 			case GEO_FILTER:
 				filters.add(new GeoFilter(

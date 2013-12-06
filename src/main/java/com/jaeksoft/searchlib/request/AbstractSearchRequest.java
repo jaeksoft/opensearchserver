@@ -55,6 +55,7 @@ import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.filter.RelativeDateFilter;
+import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -428,6 +429,17 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	public void addTermFilter(String field, String term, boolean negative) {
+		rwl.w.lock();
+		try {
+			this.filterList.add(new TermFilter(field, term, negative,
+					FilterAbstract.Source.REQUEST, null));
+		} finally {
+			rwl.w.unlock();
+		}
+
 	}
 
 	final public void removeFilterSource(FilterAbstract.Source source) {
