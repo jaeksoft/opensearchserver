@@ -63,17 +63,22 @@ public interface LearnerInterface {
 	public void reset() throws SearchLibException;
 
 	/**
-	 * Classify the document passed in parameter
+	 * Learn from the document, and classify it the document if target are set
 	 * 
-	 * @param source
+	 * @param client
+	 * @param requestName
+	 * @param documents
 	 * @param sourceFieldMap
 	 * @param targetFieldMap
 	 * @param maxRank
 	 * @param minScore
 	 * @throws IOException
+	 * @throws SearchLibException
 	 */
-	public void classify(IndexDocument source, FieldMap sourceFieldMap,
-			int maxRank, double minScore) throws IOException;
+	public void learn(Client client, String requestName,
+			List<IndexDocument> documents, FieldMap sourceFieldMap,
+			FieldMap targetFieldMap, int maxRank, double minScore)
+			throws IOException, SearchLibException;
 
 	/**
 	 * Classify a block of text passed in parameter

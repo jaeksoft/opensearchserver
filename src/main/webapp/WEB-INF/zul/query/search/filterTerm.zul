@@ -1,0 +1,13 @@
+<grid visible="@load(filters.current.termFilter)">
+	<columns>
+		<column label="Field" hflex="min" />
+		<column label="Term" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<textbox value="@bind(filters.current.field)" cols="20" />
+			<textbox value="@bind(filters.current.term)" cols="50"
+				multiline="true" rows="2" />
+		</row>
+	</rows>
+</grid>

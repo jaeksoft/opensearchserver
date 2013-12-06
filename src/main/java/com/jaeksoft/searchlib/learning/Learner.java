@@ -60,6 +60,7 @@ public class Learner implements InfoCallback {
 	private final static String LEARNER_ITEM_ROOT_ATTR_MIN_SCORE = "minScore";
 	private final static String LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST = "searchRequest";
 	private final static String LEARNER_ITEM_MAP_SRC_NODE_NAME = "sourceFields";
+	private final static String LEARNER_ITEM_MAP_TGT_NODE_NAME = "targetFields";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -68,6 +69,8 @@ public class Learner implements InfoCallback {
 	private String searchRequest;
 
 	private final FieldMap sourceFieldMap;
+
+	private final FieldMap targetFieldMap;
 
 	private boolean active;
 
@@ -98,6 +101,7 @@ public class Learner implements InfoCallback {
 		learnerInstance = null;
 		searchRequest = null;
 		sourceFieldMap = new FieldMap();
+		targetFieldMap = new FieldMap();
 		maxRank = 1;
 		minScore = 0;
 		buffer = 1000;
@@ -121,6 +125,7 @@ public class Learner implements InfoCallback {
 				target.searchRequest = searchRequest;
 				target.learnerInstance = learnerInstance;
 				sourceFieldMap.copyTo(target.sourceFieldMap);
+				targetFieldMap.copyTo(target.targetFieldMap);
 				target.maxRank = maxRank;
 				target.minScore = minScore;
 				target.setRunningStatus(this.getRunningStatus(),
@@ -158,6 +163,8 @@ public class Learner implements InfoCallback {
 				LEARNER_ITEM_ROOT_ATTR_BUFFER));
 		sourceFieldMap.load(DomUtils.getFirstNode(rootNode,
 				LEARNER_ITEM_MAP_SRC_NODE_NAME));
+		targetFieldMap.load(DomUtils.getFirstNode(rootNode,
+				LEARNER_ITEM_MAP_TGT_NODE_NAME));
 	}
 
 	/**
@@ -168,6 +175,15 @@ public class Learner implements InfoCallback {
 		rwl.r.lock();
 		try {
 			return sourceFieldMap;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FieldMap getTargetFieldMap() {
+		rwl.r.lock();
+		try {
+			return targetFieldMap;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -237,6 +253,9 @@ public class Learner implements InfoCallback {
 			xmlWriter.startElement(LEARNER_ITEM_MAP_SRC_NODE_NAME);
 			sourceFieldMap.store(xmlWriter);
 			xmlWriter.endElement();
+			xmlWriter.startElement(LEARNER_ITEM_MAP_TGT_NODE_NAME);
+			targetFieldMap.store(xmlWriter);
+			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -291,13 +310,24 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	public void classify(IndexDocument document) throws SearchLibException {
+	public void learn(List<IndexDocument> documents) throws SearchLibException {
+		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
-			LearnerInterface instance = getInstance();
-			instance.classify(document, sourceFieldMap, maxRank, minScore);
+			instance.learn(client, searchRequest, documents, sourceFieldMap,
+					targetFieldMap, maxRank, minScore);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	// TODO Implement classify while indexing
+	public void classify(IndexDocument document) throws SearchLibException {
+		LearnerInterface instance = getInstance();
+		rwl.r.lock();
+		try {
 		} finally {
 			rwl.r.unlock();
 		}
