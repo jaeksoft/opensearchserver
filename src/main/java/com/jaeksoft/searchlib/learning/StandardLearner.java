@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -151,10 +152,47 @@ public class StandardLearner implements LearnerInterface {
 	}
 
 	@Override
-	public void classify(IndexDocument source, FieldMap sourceFieldMap,
-			int maxRank, double minScore) throws IOException {
-		// TODO Auto-generated method stub
-
+	public void learn(Client client, String requestName,
+			List<IndexDocument> sources, FieldMap sourceFieldMap,
+			FieldMap targetFieldMap, int maxRank, double minScore)
+			throws IOException, SearchLibException {
+		if (CollectionUtils.isEmpty(sources))
+			return;
+		AbstractResultSearch result = null;
+		List<IndexDocument> learnIndexDocuments = new ArrayList<IndexDocument>(
+				sources.size());
+		rwl.r.lock();
+		try {
+			checkIndex(sourceFieldMap);
+			String uniqueField = client.getSchema().getUniqueField();
+			if (StringUtils.isEmpty(uniqueField))
+				return;
+			for (IndexDocument source : sources) {
+				AbstractSearchRequest request = (AbstractSearchRequest) client
+						.getNewRequest(requestName);
+				request.setStart(0);
+				request.setRows(1);
+				request.setEmptyReturnsAll(true);
+				String uniqueTerm = source.getFieldValueString(uniqueField, 0);
+				if (StringUtils.isEmpty(uniqueTerm))
+					continue;
+				request.addTermFilter(uniqueField, uniqueField, false);
+				result = (AbstractResultSearch) client.request(request);
+				if (result.getDocumentCount() != 1)
+					continue;
+				addNewlearnDocument(sourceFieldMap, result, 0,
+						learnIndexDocuments);
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			checkIndex(sourceFieldMap);
+			learnerClient.updateDocuments(learnIndexDocuments);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	private BooleanQuery getBooleanQuery(String fieldName, String data)
@@ -291,6 +329,24 @@ public class StandardLearner implements LearnerInterface {
 		}
 	}
 
+	private void addNewlearnDocument(FieldMap sourceFieldMap,
+			AbstractResultSearch result, int pos,
+			Collection<IndexDocument> learnIndexDocuments) throws IOException,
+			SearchLibException {
+		ResultDocument resultDocument = result.getDocument(pos);
+		if (resultDocument == null)
+			return;
+		IndexDocument target = new IndexDocument();
+		sourceFieldMap.mapIndexDocument(resultDocument, target);
+		sourceFieldMap.mapIndexDocumentJson("custom", resultDocument, target);
+		List<ResultDocument> joinResultDocuments = result.getJoinDocumentList(
+				pos, null);
+		if (joinResultDocuments != null)
+			for (ResultDocument joinResultDocument : joinResultDocuments)
+				sourceFieldMap.mapIndexDocument(joinResultDocument, target);
+		learnIndexDocuments.add(target);
+	}
+
 	@Override
 	public void learn(Client client, String requestName,
 			FieldMap sourceFieldMap, final int buffer, InfoCallback infoCallback)
@@ -306,30 +362,16 @@ public class StandardLearner implements LearnerInterface {
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
 					buffer);
 			request.setRows(buffer);
-			if (request.getQueryString() == null
-					|| request.getQueryString().length() == 0)
-				request.setQueryString("*:*");
+			request.setEmptyReturnsAll(true);
 			for (;;) {
 				request.setStart(start);
 				AbstractResultSearch result = (AbstractResultSearch) client
 						.request(request);
 				if (result.getDocumentCount() == 0)
 					break;
-				for (int i = 0; i < result.getDocumentCount(); i++) {
-					int pos = start + i;
-					IndexDocument target = new IndexDocument();
-					ResultDocument resultDocument = result.getDocument(pos);
-					sourceFieldMap.mapIndexDocument(resultDocument, target);
-					sourceFieldMap.mapIndexDocumentJson("custom",
-							resultDocument, target);
-					List<ResultDocument> joinResultDocuments = result
-							.getJoinDocumentList(pos, null);
-					if (joinResultDocuments != null)
-						for (ResultDocument joinResultDocument : joinResultDocuments)
-							sourceFieldMap.mapIndexDocument(joinResultDocument,
-									target);
-					indexDocumentList.add(target);
-				}
+				for (int i = 0; i < result.getDocumentCount(); i++)
+					addNewlearnDocument(sourceFieldMap, result, start + i,
+							indexDocumentList);
 				learnerClient.updateDocuments(indexDocumentList);
 				count += indexDocumentList.size();
 				indexDocumentList.clear();

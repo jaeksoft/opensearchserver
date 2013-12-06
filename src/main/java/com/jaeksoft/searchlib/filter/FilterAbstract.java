@@ -57,6 +57,9 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		QUERY_FILTER("Query filter", QueryFilter.class,
 				"/WEB-INF/zul/query/search/filterQuery.zul"),
 
+		TERM_FILTER("Term filter", TermFilter.class,
+				"/WEB-INF/zul/query/search/filterTerm.zul"),
+
 		GEO_FILTER("Geo filter", GeoFilter.class,
 				"/WEB-INF/zul/query/search/filterGeo.zul"),
 
@@ -150,6 +153,10 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public boolean isQueryFilter() {
 		return this instanceof QueryFilter;
+	}
+
+	public boolean isTermFilter() {
+		return this instanceof TermFilter;
 	}
 
 	public boolean isGeoFilter() {

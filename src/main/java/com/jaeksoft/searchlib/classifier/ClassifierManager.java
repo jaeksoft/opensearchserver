@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -98,6 +98,15 @@ public class ClassifierManager implements BeforeUpdateInterface {
 		}
 	}
 
+	public Classifier[] getActiveArray() {
+		rwl.r.lock();
+		try {
+			return activeClassifierArray;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void add(Classifier item) throws SearchLibException {
 		rwl.w.lock();
 		try {
@@ -152,10 +161,11 @@ public class ClassifierManager implements BeforeUpdateInterface {
 	@Override
 	public void update(Schema schema, IndexDocument document)
 			throws SearchLibException {
-		if (classifierArray == null)
+		Classifier[] classifiers = getActiveArray();
+		if (classifiers == null)
 			return;
 		try {
-			for (Classifier classifier : activeClassifierArray)
+			for (Classifier classifier : classifiers)
 				classifier.classification(client, document);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
@@ -164,7 +174,10 @@ public class ClassifierManager implements BeforeUpdateInterface {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
+	}
 
+	@Override
+	public void postUpdate(List<IndexDocument> documents) {
 	}
 
 }

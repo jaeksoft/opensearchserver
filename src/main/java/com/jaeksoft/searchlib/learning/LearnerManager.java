@@ -98,6 +98,15 @@ public class LearnerManager implements BeforeUpdateInterface {
 		}
 	}
 
+	public Learner[] getActiveArray() {
+		rwl.r.lock();
+		try {
+			return activeLearnerArray;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void add(Learner item) throws SearchLibException,
 			UnsupportedEncodingException {
 		rwl.w.lock();
@@ -161,10 +170,21 @@ public class LearnerManager implements BeforeUpdateInterface {
 	@Override
 	public void update(Schema schema, IndexDocument document)
 			throws SearchLibException {
-		if (learnerArray == null)
+		Learner[] learners = getActiveArray();
+		if (learners == null)
 			return;
-		for (Learner learner : activeLearnerArray)
+		for (Learner learner : learners)
 			learner.classify(document);
+	}
+
+	@Override
+	public void postUpdate(List<IndexDocument> documents)
+			throws SearchLibException {
+		Learner[] learners = getActiveArray();
+		if (learners == null)
+			return;
+		for (Learner learner : learners)
+			learner.learn(documents);
 	}
 
 	public Learner get(String name) {
