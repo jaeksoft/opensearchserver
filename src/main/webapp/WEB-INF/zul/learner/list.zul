@@ -12,7 +12,7 @@
 		<listbox model="@load(learning.learners)" mold="paging"
 			pageSize="10">
 			<auxhead>
-				<auxheader colspan="5">
+				<auxheader colspan="7">
 					<button label="New learner..."
 						onClick="@command('onNewLearner')" />
 				</auxheader>
@@ -20,6 +20,8 @@
 			<listhead sizable="true">
 				<listheader label="Name" hflex="min" />
 				<listheader tooltiptext="Active" label="A" hflex="min" />
+				<listheader label="Search request" hflex="min" />
+				<listheader label="Document(s)" hflex="min" />
 				<listheader label="Action" hflex="min" />
 				<listheader label="Status" hflex="min" />
 				<listheader label="Info" />
@@ -32,6 +34,8 @@
 						<image src="images/action_check.png"
 							visible="@load(item.active)" />
 					</listcell>
+					<listcell label="@load(item.searchRequest)" />
+					<listcell label="@load(item.documentCount)" />
 					<listcell>
 						<button label="Edit"
 							disabled="@load(item.running)"

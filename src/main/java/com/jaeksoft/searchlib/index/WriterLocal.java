@@ -144,7 +144,7 @@ public class WriterLocal extends WriterAbstract {
 			return false;
 
 		if (beforeUpdateList != null)
-			for (BeforeUpdateInterface beforeUpdate : beforeUpdateList)
+			for (UpdateInterfaces.Before beforeUpdate : beforeUpdateList)
 				beforeUpdate.update(schema, document);
 
 		Document doc = getLuceneDocument(schema, document);
@@ -173,8 +173,12 @@ public class WriterLocal extends WriterAbstract {
 					document);
 			close(indexWriter);
 			indexWriter = null;
-			if (updated)
+			if (updated) {
 				indexSingle.reload();
+				if (afterUpdateList != null)
+					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
+						afterUpdate.update(document);
+			}
 			return updated;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -208,8 +212,12 @@ public class WriterLocal extends WriterAbstract {
 					count++;
 			close(indexWriter);
 			indexWriter = null;
-			if (count > 0)
+			if (count > 0) {
 				indexSingle.reload();
+				if (afterUpdateList != null)
+					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
+						afterUpdate.update(documents);
+			}
 			return count;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -297,6 +305,10 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter = null;
 			indexSingle.reload();
 			l = l - indexSingle.getStatistics().getNumDocs();
+			if (l > 0)
+				if (afterDeleteList != null)
+					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
+						afterDelete.delete(field, value);
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -325,10 +337,14 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private int deleteDocumentsNoLock(Schema schema, Term[] terms)
+	private int deleteDocumentsNoLock(String field, Collection<String> values)
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
+			Term[] terms = new Term[values.size()];
+			int i = 0;
+			for (String value : values)
+				terms[i++] = new Term(field, value);
 			int l = indexSingle.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
@@ -337,6 +353,10 @@ public class WriterLocal extends WriterAbstract {
 			if (terms.length > 0)
 				indexSingle.reload();
 			l = l - indexSingle.getStatistics().getNumDocs();
+			if (l > 0)
+				if (afterDeleteList != null)
+					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
+						afterDelete.delete(field, values);
 			return l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -373,13 +393,9 @@ public class WriterLocal extends WriterAbstract {
 			}
 			if (termList.size() == 0)
 				continue;
-			Term[] terms = new Term[termList.size()];
-			int i = 0;
-			for (String value : termList)
-				terms[i++] = new Term(field, value);
 			lock.rl.lock();
 			try {
-				count += deleteDocumentsNoLock(schema, terms);
+				count += deleteDocumentsNoLock(field, termList);
 			} finally {
 				lock.rl.unlock();
 			}

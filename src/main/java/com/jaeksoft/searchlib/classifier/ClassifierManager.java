@@ -39,14 +39,14 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.BeforeUpdateInterface;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.UpdateInterfaces;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class ClassifierManager implements BeforeUpdateInterface {
+public class ClassifierManager implements UpdateInterfaces.Before {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -174,10 +174,6 @@ public class ClassifierManager implements BeforeUpdateInterface {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	@Override
-	public void postUpdate(List<IndexDocument> documents) {
 	}
 
 }

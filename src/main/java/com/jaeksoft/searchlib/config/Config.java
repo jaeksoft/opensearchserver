@@ -257,8 +257,8 @@ public abstract class Config implements ThreadFactory {
 			getWebCrawlMaster();
 			getJobList();
 			IndexAbstract indexAbstract = getIndexAbstract();
-			indexAbstract.addBeforeUpdate(getClassifierManager());
-			indexAbstract.addBeforeUpdate(getLearnerManager());
+			indexAbstract.addUpdateInterface(getClassifierManager());
+			indexAbstract.addUpdateInterface(getLearnerManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);

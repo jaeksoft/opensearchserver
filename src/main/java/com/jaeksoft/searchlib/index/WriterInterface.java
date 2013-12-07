@@ -43,7 +43,7 @@ public interface WriterInterface {
 	public int deleteDocuments(AbstractSearchRequest query)
 			throws SearchLibException;
 
-	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
+	public void addUpdateInterface(UpdateInterfaces updateInterface)
 			throws SearchLibException;
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
