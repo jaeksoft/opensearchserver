@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -77,6 +76,7 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Crawl {
@@ -349,9 +349,9 @@ public class Crawl {
 				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
+			} finally {
+				IOUtils.close(is);
 			}
-			if (is != null)
-				IOUtils.closeQuietly(is);
 			return downloadItem;
 		}
 	}

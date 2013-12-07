@@ -35,7 +35,6 @@ import java.util.TreeMap;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -52,6 +51,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiterBase64;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFileInstance;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterInputStream;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -425,7 +425,7 @@ public class ParserSelector {
 			}
 			return parser;
 		} finally {
-			IOUtils.closeQuietly(streamLimiter);
+			IOUtils.close(streamLimiter);
 		}
 	}
 

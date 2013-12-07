@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class XlsParser extends Parser {
@@ -59,21 +60,26 @@ public class XlsParser extends Parser {
 
 		HSSFWorkbook workbook = new HSSFWorkbook(
 				streamLimiter.getNewInputStream());
-		ExcelExtractor excel = new ExcelExtractor(workbook);
-		ParserResultItem result = getNewParserResultItem();
+		ExcelExtractor excel = null;
+		try {
+			excel = new ExcelExtractor(workbook);
+			ParserResultItem result = getNewParserResultItem();
 
-		SummaryInformation info = excel.getSummaryInformation();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.author, info.getAuthor());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
+			SummaryInformation info = excel.getSummaryInformation();
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.author, info.getAuthor());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+			}
+
+			String content = excel.getText();
+			result.addField(ParserFieldEnum.content,
+					StringUtils.replaceConsecutiveSpaces(content, " "));
+
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(excel);
 		}
-
-		String content = excel.getText();
-		result.addField(ParserFieldEnum.content,
-				StringUtils.replaceConsecutiveSpaces(content, " "));
-
-		result.langDetection(10000, ParserFieldEnum.content);
 
 	}
 

@@ -30,7 +30,8 @@ import java.io.InputStream;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class StreamLimiterBase64 extends StreamLimiter {
 
@@ -47,17 +48,15 @@ public class StreamLimiterBase64 extends StreamLimiter {
 
 	@Override
 	protected void loadOutputCache() throws LimitException, IOException {
-		InputStream is = new LargeStringInputString(base64text, 131072);
-		Base64InputStream b64is = new Base64InputStream(is);
+		InputStream is = null;
+		Base64InputStream b64is = null;
 		try {
+			is = new LargeStringInputString(base64text, 131072);
+			b64is = new Base64InputStream(is);
 			loadOutputCache(b64is);
 		} finally {
-			if (b64is != null)
-				IOUtils.closeQuietly(b64is);
-			if (is != null)
-				IOUtils.closeQuietly(is);
+			IOUtils.close(b64is, is);
 		}
-
 	}
 
 	@Override

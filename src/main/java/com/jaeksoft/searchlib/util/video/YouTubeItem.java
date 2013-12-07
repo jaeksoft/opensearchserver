@@ -27,9 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class YouTubeItem {
 

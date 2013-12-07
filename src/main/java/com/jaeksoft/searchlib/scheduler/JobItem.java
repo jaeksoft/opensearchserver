@@ -31,7 +31,6 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.mail.EmailException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.config.Mailer;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -285,8 +285,7 @@ public class JobItem extends ExecutionAbstract {
 		} catch (EmailException e) {
 			Logging.error(e);
 		} finally {
-			if (email != null)
-				IOUtils.closeQuietly(email);
+			IOUtils.close(email);
 		}
 	}
 

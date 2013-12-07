@@ -28,10 +28,11 @@ import java.io.InputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;
 import org.xml.sax.SAXException;
+
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class JSoupParser extends HtmlDocumentProvider {
 

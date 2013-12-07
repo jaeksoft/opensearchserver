@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -47,6 +46,7 @@ import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -245,10 +245,11 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	public void setDefaultCss() throws SearchLibException {
-		InputStream is = getClass()
-				.getResourceAsStream(
-						"/com/jaeksoft/searchlib/template/common/renderers/default.xml");
+		InputStream is = null;
 		try {
+			is = getClass()
+					.getResourceAsStream(
+							"/com/jaeksoft/searchlib/template/common/renderers/default.xml");
 			Renderer r = new Renderer(new XPathParser(is));
 			setCss(r.css);
 		} catch (XPathExpressionException e) {
@@ -260,7 +261,7 @@ public class Renderer implements Comparable<Renderer> {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			IOUtils.closeQuietly(is);
+			IOUtils.close(is);
 		}
 	}
 

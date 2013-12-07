@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.w3c.dom.Node;
@@ -57,6 +56,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -236,7 +236,7 @@ public class Client extends Config {
 		} finally {
 			if (br != null)
 				if (br != reader)
-					IOUtils.closeQuietly(br);
+					IOUtils.close(br);
 		}
 	}
 

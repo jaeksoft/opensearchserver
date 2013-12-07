@@ -49,7 +49,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.lucene.util.IOUtils;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
@@ -73,6 +72,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
@@ -274,8 +274,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			archiver.archive(this, xPathDisableScriptSet);
 			return archiver;
 		} finally {
-			if (reader != null)
-				IOUtils.close(reader);
+			IOUtils.close(reader);
 		}
 	}
 

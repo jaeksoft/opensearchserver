@@ -44,13 +44,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -360,10 +360,7 @@ public class PatternManager {
 			while ((line = br.readLine()) != null)
 				addLine(list, line);
 		} finally {
-			if (br != null)
-				IOUtils.closeQuietly(br);
-			if (sr != null)
-				IOUtils.closeQuietly(sr);
+			IOUtils.close(br, sr);
 		}
 	}
 

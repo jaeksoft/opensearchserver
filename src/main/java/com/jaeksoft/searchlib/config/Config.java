@@ -44,7 +44,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -104,6 +103,7 @@ import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -229,9 +229,11 @@ public abstract class Config implements ThreadFactory {
 			if (configXmlResourceName != null) {
 				InputStream is = getClass().getResourceAsStream(
 						configXmlResourceName);
-				FileUtils.copyInputStreamToFile(is, configFile);
-				if (is != null)
-					IOUtils.closeQuietly(is);
+				try {
+					FileUtils.copyInputStreamToFile(is, configFile);
+				} finally {
+					IOUtils.close(is);
+				}
 			}
 
 			xppConfig = new XPathParser(configFile);

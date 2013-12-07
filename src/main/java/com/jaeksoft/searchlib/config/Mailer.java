@@ -26,7 +26,6 @@ import java.io.Closeable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
@@ -34,6 +33,7 @@ import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
 
 import com.jaeksoft.searchlib.ClientFactory;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class Mailer implements Closeable {
 
@@ -74,22 +74,12 @@ public class Mailer implements Closeable {
 
 	@Override
 	public void close() {
-		if (textPrintWriter != null) {
-			IOUtils.closeQuietly(textPrintWriter);
-			textPrintWriter = null;
-		}
-		if (htmlPrintWriter != null) {
-			IOUtils.closeQuietly(htmlPrintWriter);
-			htmlPrintWriter = null;
-		}
-		if (textStringWriter != null) {
-			IOUtils.closeQuietly(textStringWriter);
-			textStringWriter = null;
-		}
-		if (htmlStringWriter != null) {
-			IOUtils.closeQuietly(htmlStringWriter);
-			htmlStringWriter = null;
-		}
+		IOUtils.close(textPrintWriter, htmlPrintWriter, textStringWriter,
+				htmlStringWriter);
+		textPrintWriter = null;
+		htmlPrintWriter = null;
+		textStringWriter = null;
+		htmlStringWriter = null;
 	}
 
 	private void setupTransport() throws EmailException {

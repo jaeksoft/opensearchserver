@@ -31,12 +31,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class HttpDownloadThread extends ThreadAbstract<HttpDownloadThread> {
@@ -81,12 +80,11 @@ public class HttpDownloadThread extends ThreadAbstract<HttpDownloadThread> {
 				incContentTransfered(l);
 			}
 			fos.flush();
-			IOUtils.closeQuietly(fos);
+			IOUtils.close(fos);
 			fos = null;
 			setDownloadSuccess(true);
 		} finally {
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
+			IOUtils.close(fos);
 		}
 
 	}
