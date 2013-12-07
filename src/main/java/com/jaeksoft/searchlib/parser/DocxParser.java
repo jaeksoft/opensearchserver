@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DocxParser extends Parser {
@@ -62,21 +63,27 @@ public class DocxParser extends Parser {
 
 		XWPFDocument document = new XWPFDocument(
 				streamLimiter.getNewInputStream());
-		XWPFWordExtractor word = new XWPFWordExtractor(document);
+		XWPFWordExtractor word = null;
+		try {
+			word = new XWPFWordExtractor(document);
 
-		CoreProperties info = word.getCoreProperties();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.creator, info.getCreator());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
-			result.addField(ParserFieldEnum.description, info.getDescription());
-			result.addField(ParserFieldEnum.keywords, info.getKeywords());
+			CoreProperties info = word.getCoreProperties();
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.creator, info.getCreator());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+				result.addField(ParserFieldEnum.description,
+						info.getDescription());
+				result.addField(ParserFieldEnum.keywords, info.getKeywords());
+			}
+
+			String content = word.getText();
+			result.addField(ParserFieldEnum.content,
+					StringUtils.replaceConsecutiveSpaces(content, " "));
+
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(word);
 		}
-
-		String content = word.getText();
-		result.addField(ParserFieldEnum.content,
-				StringUtils.replaceConsecutiveSpaces(content, " "));
-
-		result.langDetection(10000, ParserFieldEnum.content);
 	}
 }
