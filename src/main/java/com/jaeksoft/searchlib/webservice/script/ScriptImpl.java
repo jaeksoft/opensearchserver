@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -38,6 +37,7 @@ import com.jaeksoft.searchlib.script.ScriptLine;
 import com.jaeksoft.searchlib.script.ScriptLinesRunner;
 import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
@@ -76,8 +76,7 @@ public class ScriptImpl extends CommonServices implements RestScript {
 			} catch (ScriptException e) {
 				throw new CommonServiceException(e);
 			} finally {
-				if (scriptLinesRunner != null)
-					IOUtils.closeQuietly(scriptLinesRunner);
+				IOUtils.close(scriptLinesRunner);
 			}
 		}
 

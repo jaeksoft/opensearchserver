@@ -30,11 +30,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class DailyLogger {
@@ -96,14 +95,9 @@ public class DailyLogger {
 	final public void close() {
 		lock.rl.lock();
 		try {
-			if (printWriter != null) {
-				IOUtils.closeQuietly(printWriter);
-				printWriter = null;
-			}
-			if (fileWriter != null) {
-				IOUtils.closeQuietly(fileWriter);
-				fileWriter = null;
-			}
+			IOUtils.close(printWriter, fileWriter);
+			printWriter = null;
+			fileWriter = null;
 		} finally {
 			lock.rl.unlock();
 		}

@@ -38,7 +38,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
@@ -58,6 +57,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskFtpXmlFeed extends TaskAbstract {
@@ -263,8 +263,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		} finally {
 			if (xmlTempResult != null)
 				xmlTempResult.delete();
-			if (inputStream != null)
-				IOUtils.closeQuietly(inputStream);
+			IOUtils.close(inputStream);
 			try {
 				if (ftp != null)
 					if (ftp.isConnected())

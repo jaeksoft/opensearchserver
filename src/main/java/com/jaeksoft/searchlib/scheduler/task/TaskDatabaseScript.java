@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -40,6 +38,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.script.DatabaseScript;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.utils.Variables;
 
 public class TaskDatabaseScript extends TaskAbstract {
@@ -165,8 +164,7 @@ public class TaskDatabaseScript extends TaskAbstract {
 		} catch (ScriptException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (dbScript != null)
-				IOUtils.closeQuietly(dbScript);
+			IOUtils.close(dbScript);
 		}
 	}
 }

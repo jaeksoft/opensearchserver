@@ -26,9 +26,6 @@ package com.jaeksoft.searchlib.parser;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -36,6 +33,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class TextParser extends Parser {
 
@@ -56,22 +54,21 @@ public class TextParser extends Parser {
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 		CharsetDetector detector = new CharsetDetector();
-		InputStream is = new BufferedInputStream(
-				streamLimiter.getNewInputStream());
-		detector.setText(is);
-		CharsetMatch match = detector.detect();
-		String content = null;
-		if (match != null)
-			content = match.getString();
-		else {
-			IOUtils.closeQuietly(is);
-			is = streamLimiter.getNewInputStream();
-			content = IOUtils.toString(is);
+		BufferedInputStream bis = null;
+		try {
+			bis = new BufferedInputStream(streamLimiter.getNewInputStream());
+			detector.setText(bis);
+			CharsetMatch match = detector.detect();
+			String content = null;
+			if (match != null)
+				content = match.getString();
+			else
+				content = IOUtils.toString(streamLimiter.getNewInputStream());
+			ParserResultItem result = getNewParserResultItem();
+			result.addField(ParserFieldEnum.content, content);
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(bis);
 		}
-		if (is != null)
-			IOUtils.closeQuietly(is);
-		ParserResultItem result = getNewParserResultItem();
-		result.addField(ParserFieldEnum.content, content);
-		result.langDetection(10000, ParserFieldEnum.content);
 	}
 }

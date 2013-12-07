@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -43,6 +41,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -101,10 +100,7 @@ public class LogReportManager {
 		} finally {
 			if (zos != null)
 				zos.closeEntry();
-			if (fis != null)
-				IOUtils.closeQuietly(fis);
-			if (zos != null)
-				IOUtils.closeQuietly(zos);
+			IOUtils.close(fis, zos);
 		}
 	}
 

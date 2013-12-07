@@ -41,7 +41,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
@@ -57,6 +56,7 @@ import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -558,8 +558,7 @@ public class ClientCatalog {
 		} catch (IOException e) {
 			throw e;
 		} finally {
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
+			IOUtils.close(fos);
 		}
 		targetFile.setLastModified(lastModified);
 	}

@@ -35,7 +35,6 @@ import java.util.TreeMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.xml.sax.InputSource;
@@ -47,6 +46,7 @@ import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.parser.htmlParser.DomHtmlNode;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class HocrDocument {
 
@@ -130,8 +130,7 @@ public class HocrDocument {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (fis != null)
-				IOUtils.closeQuietly(fis);
+			IOUtils.close(fis);
 		}
 	}
 

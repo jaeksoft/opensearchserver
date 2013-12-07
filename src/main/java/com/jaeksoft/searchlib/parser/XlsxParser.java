@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class XlsxParser extends Parser {
@@ -60,27 +61,32 @@ public class XlsxParser extends Parser {
 
 		XSSFWorkbook workbook = new XSSFWorkbook(
 				streamLimiter.getNewInputStream());
-		XSSFExcelExtractor excelExtractor = new XSSFExcelExtractor(workbook);
-		ParserResultItem result = getNewParserResultItem();
+		XSSFExcelExtractor excelExtractor = null;
+		try {
+			excelExtractor = new XSSFExcelExtractor(workbook);
+			ParserResultItem result = getNewParserResultItem();
 
-		CoreProperties info = excelExtractor.getCoreProperties();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.creator, info.getCreator());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
-			result.addField(ParserFieldEnum.description, info.getDescription());
-			result.addField(ParserFieldEnum.keywords, info.getKeywords());
+			CoreProperties info = excelExtractor.getCoreProperties();
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.creator, info.getCreator());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+				result.addField(ParserFieldEnum.description,
+						info.getDescription());
+				result.addField(ParserFieldEnum.keywords, info.getKeywords());
+			}
+
+			excelExtractor.setIncludeCellComments(true);
+			excelExtractor.setIncludeHeadersFooters(true);
+			excelExtractor.setIncludeSheetNames(true);
+			String content = excelExtractor.getText();
+			result.addField(ParserFieldEnum.content,
+					StringUtils.replaceConsecutiveSpaces(content, " "));
+
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(excelExtractor);
 		}
 
-		excelExtractor.setIncludeCellComments(true);
-		excelExtractor.setIncludeHeadersFooters(true);
-		excelExtractor.setIncludeSheetNames(true);
-		String content = excelExtractor.getText();
-		result.addField(ParserFieldEnum.content,
-				StringUtils.replaceConsecutiveSpaces(content, " "));
-
-		result.langDetection(10000, ParserFieldEnum.content);
-
 	}
-
 }

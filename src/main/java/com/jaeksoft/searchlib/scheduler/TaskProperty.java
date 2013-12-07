@@ -31,10 +31,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -96,14 +96,7 @@ public class TaskProperty {
 				pw.println(line);
 			return sw.toString();
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
-			if (br != null)
-				IOUtils.closeQuietly(br);
-			if (sr != null)
-				IOUtils.closeQuietly(sr);
+			IOUtils.close(pw, sw, br, sr);
 		}
 	}
 

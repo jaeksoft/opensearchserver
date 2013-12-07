@@ -29,9 +29,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public abstract class TemplateAbstract {
 
@@ -83,10 +82,7 @@ public abstract class TemplateAbstract {
 				target = new FileWriter(f);
 				IOUtils.copy(is, target);
 			} finally {
-				if (target != null)
-					target.close();
-				if (is != null)
-					is.close();
+				IOUtils.close(target, is);
 			}
 		}
 	}

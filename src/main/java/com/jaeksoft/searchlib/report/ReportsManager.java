@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -52,6 +50,7 @@ import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class ReportsManager {
 
@@ -197,12 +196,14 @@ public class ReportsManager {
 		FileInputStream fstream = null;
 		DataInputStream in = null;
 		BufferedReader br = null;
-		File reportFile = new File(client.getLogReportManager()
-				.getLogDirectory(), filename);
+		InputStreamReader isr = null;
 		try {
+			File reportFile = new File(client.getLogReportManager()
+					.getLogDirectory(), filename);
 			fstream = new FileInputStream(reportFile);
 			in = new DataInputStream(fstream);
-			br = new BufferedReader(new InputStreamReader(in));
+			isr = new InputStreamReader(in);
+			br = new BufferedReader(isr);
 			String strLine;
 			while ((strLine = br.readLine()) != null) {
 				fileList.add(strLine);
@@ -215,12 +216,7 @@ public class ReportsManager {
 			in.close();
 			return count;
 		} finally {
-			if (br != null)
-				IOUtils.closeQuietly(br);
-			if (in != null)
-				IOUtils.closeQuietly(in);
-			if (fstream != null)
-				IOUtils.closeQuietly(fstream);
+			IOUtils.close(br, in, isr, fstream);
 		}
 	}
 

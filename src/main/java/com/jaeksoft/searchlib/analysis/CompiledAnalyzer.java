@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -40,6 +39,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class CompiledAnalyzer extends AbstractAnalyzer {
 
@@ -85,11 +85,14 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 	public void justTokenize(String text, List<TokenTerm> tokenTerms)
 			throws IOException {
 		StringReader reader = new StringReader(text);
-		TokenStream ts = tokenizer.create(reader);
-		ts = new TokenTermPopulateFilter(tokenTerms, ts);
-		while (ts.incrementToken())
-			;
-		IOUtils.closeQuietly(ts);
+		TokenStream ts1 = tokenizer.create(reader);
+		TokenStream ts2 = new TokenTermPopulateFilter(tokenTerms, ts1);
+		try {
+			while (ts2.incrementToken())
+				;
+		} finally {
+			IOUtils.close(ts2, ts1);
+		}
 	}
 
 	@Override
@@ -141,10 +144,13 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 			return;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
-		ts = new TermSetTokenFilter(termSet, ts);
-		while (ts.incrementToken())
-			;
-		IOUtils.closeQuietly(ts);
+		try {
+			ts = new TermSetTokenFilter(termSet, ts);
+			while (ts.incrementToken())
+				;
+		} finally {
+			IOUtils.closeQuietly(ts);
+		}
 	}
 
 	public void populate(String text, ResultNamedEntityExtraction result)
@@ -154,9 +160,12 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new NamedEntityPopulateFilter(result, ts);
-		while (ts.incrementToken())
-			;
-		IOUtils.closeQuietly(ts);
+		try {
+			while (ts.incrementToken())
+				;
+		} finally {
+			IOUtils.closeQuietly(ts);
+		}
 	}
 
 	public void populate(String text, FieldContent fieldContent)
@@ -166,9 +175,12 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new FieldContentPopulateFilter(fieldContent, ts);
-		while (ts.incrementToken())
-			;
-		IOUtils.closeQuietly(ts);
+		try {
+			while (ts.incrementToken())
+				;
+		} finally {
+			IOUtils.closeQuietly(ts);
+		}
 	}
 
 	public void populate(String text, List<TokenTerm> tokenTerms)
@@ -178,9 +190,12 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
 		ts = new TokenTermPopulateFilter(tokenTerms, ts);
-		while (ts.incrementToken())
-			;
-		IOUtils.closeQuietly(ts);
+		try {
+			while (ts.incrementToken())
+				;
+		} finally {
+			IOUtils.closeQuietly(ts);
+		}
 	}
 
 	public int toBooleanQuery(String field, String text, BooleanQuery query,
@@ -190,11 +205,15 @@ public class CompiledAnalyzer extends AbstractAnalyzer {
 		int termCount = 0;
 		StringReader reader = new StringReader(text);
 		TokenStream ts = tokenStream(null, reader);
-		TokenQueryFilter ttqf = new TokenQueryFilter.BooleanQueryFilter(query,
-				occur, field, 1.0F, ts);
-		while (ttqf.incrementToken())
-			termCount++;
-		IOUtils.closeQuietly(ttqf);
+		TokenQueryFilter ttqf = null;
+		try {
+			ttqf = new TokenQueryFilter.BooleanQueryFilter(query, occur, field,
+					1.0F, ts);
+			while (ttqf.incrementToken())
+				termCount++;
+		} finally {
+			IOUtils.close(ttqf, ts);
+		}
 		return termCount;
 	}
 
