@@ -32,13 +32,13 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Dailymotion {
@@ -75,8 +75,7 @@ public class Dailymotion {
 			DailymotionItemCache.addItem(videoId, dailymotionItem);
 			return dailymotionItem;
 		} finally {
-			if (dailymotionResponse != null)
-				IOUtils.closeQuietly(dailymotionResponse);
+			IOUtils.close(dailymotionResponse);
 		}
 	}
 

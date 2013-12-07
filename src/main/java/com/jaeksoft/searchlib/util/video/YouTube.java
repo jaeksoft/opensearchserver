@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONException;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class YouTube {
@@ -67,17 +67,17 @@ public class YouTube {
 
 		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL),
 				null);
-		InputStream inputStream = downloadItem.getContentInputStream();
-		if (inputStream == null)
-			throw new IOException("No respond returned from YouTube API: "
-					+ videoApiURL);
+		InputStream inputStream = null;
 		try {
+			inputStream = downloadItem.getContentInputStream();
+			if (inputStream == null)
+				throw new IOException("No respond returned from YouTube API: "
+						+ videoApiURL);
 			youtubeItem = new YouTubeItem(inputStream, videoId, thumbnail);
 			YouTubeItemCache.addItem(videoId, youtubeItem);
 			return youtubeItem;
 		} finally {
-			if (inputStream != null)
-				IOUtils.closeQuietly(inputStream);
+			IOUtils.close(inputStream);
 		}
 	}
 

@@ -30,13 +30,13 @@ import java.io.StringReader;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterString;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
@@ -87,12 +87,7 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 		} catch (IllegalAccessException e) {
 			throw new IOException(e);
 		} finally {
-			if (webDriver != null)
-				webDriver.close();
-			if (reader != null)
-				IOUtils.closeQuietly(reader);
-			if (newStreamLimiter != null)
-				IOUtils.closeQuietly(newStreamLimiter);
+			IOUtils.close(webDriver, reader, newStreamLimiter);
 		}
 	}
 

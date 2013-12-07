@@ -31,13 +31,13 @@ import java.net.URI;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class ProxyHandler {
 
@@ -56,10 +56,13 @@ public class ProxyHandler {
 			return;
 		proxy = new HttpHost(proxyHost, proxyPort);
 		exclusionSet = new TreeSet<String>();
-		BufferedReader br = new BufferedReader(new StringReader(
-				webPropertyManager.getProxyExclusion().getValue()));
 		String line;
+		StringReader sr = null;
+		BufferedReader br = null;
 		try {
+			sr = new StringReader(webPropertyManager.getProxyExclusion()
+					.getValue());
+			br = new BufferedReader(sr);
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.length() > 0)
@@ -68,7 +71,7 @@ public class ProxyHandler {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			IOUtils.closeQuietly(br);
+			IOUtils.close(br, sr);
 		}
 	}
 

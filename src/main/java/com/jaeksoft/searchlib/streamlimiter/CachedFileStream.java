@@ -31,9 +31,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.streamlimiter.CachedMemoryStream.MaxMemoryException;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class CachedFileStream implements CachedStreamInterface {
 
@@ -71,8 +70,7 @@ public class CachedFileStream implements CachedStreamInterface {
 				tempFile.delete();
 			throw e;
 		} finally {
-			if (output != null)
-				IOUtils.closeQuietly(output);
+			IOUtils.closeQuietly(output);
 		}
 	}
 

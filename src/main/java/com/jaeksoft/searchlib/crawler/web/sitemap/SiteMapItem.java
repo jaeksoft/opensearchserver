@@ -36,7 +36,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -47,6 +46,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SiteMapItem implements Comparable<SiteMapItem> {
@@ -140,8 +140,7 @@ public class SiteMapItem implements Comparable<SiteMapItem> {
 		} catch (CompressorException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (inputStream != null)
-				IOUtils.closeQuietly(inputStream);
+			IOUtils.close(inputStream);
 		}
 	}
 }

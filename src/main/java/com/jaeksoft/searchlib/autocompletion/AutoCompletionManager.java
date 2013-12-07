@@ -33,12 +33,12 @@ import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class AutoCompletionManager implements Closeable {
@@ -79,10 +79,7 @@ public class AutoCompletionManager implements Closeable {
 	public void close() {
 		rwl.w.lock();
 		try {
-			if (autoCompItems == null)
-				return;
-			for (AutoCompletionItem item : autoCompItems)
-				IOUtils.closeQuietly(item);
+			IOUtils.close(autoCompItems);
 		} finally {
 			rwl.w.unlock();
 		}

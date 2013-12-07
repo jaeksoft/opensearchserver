@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
@@ -40,6 +39,7 @@ import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetItemCountComparator;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.report.ReportsManager;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.TopSet;
 
 public class QueryReportsController extends ReportsController {
@@ -109,8 +109,7 @@ public class QueryReportsController extends ReportsController {
 			Filedownload.save(new FileInputStream(tempFile),
 					"text/csv; charset-UTF-8", "OSS_Query_Reports.csv");
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
+			IOUtils.close(pw);
 		}
 	}
 

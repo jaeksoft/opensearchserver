@@ -32,7 +32,7 @@ import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.poi.util.IOUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class WordArray {
 
@@ -66,8 +66,7 @@ public class WordArray {
 				wordSet.add(line);
 			}
 		} finally {
-			if (br != null)
-				IOUtils.closeQuietly(br);
+			IOUtils.close(br);
 		}
 	}
 

@@ -28,12 +28,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -105,8 +104,7 @@ public class RssParser extends Parser {
 		} catch (FeedException e) {
 			throw new IOException(e);
 		} finally {
-			if (reader != null)
-				IOUtils.closeQuietly(reader);
+			IOUtils.close(reader);
 		}
 
 	}

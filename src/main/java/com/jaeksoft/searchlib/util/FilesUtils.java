@@ -32,7 +32,7 @@ import java.util.Comparator;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+
 
 import com.jaeksoft.searchlib.Logging;
 

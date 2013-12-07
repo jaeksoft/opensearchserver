@@ -30,11 +30,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.util.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexType;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public abstract class TemplateAbstract {
 
@@ -96,10 +96,7 @@ public abstract class TemplateAbstract {
 				target = new FileWriter(f);
 				IOUtils.copy(is, target);
 			} finally {
-				if (target != null)
-					target.close();
-				if (is != null)
-					is.close();
+				IOUtils.close(target, is);
 			}
 		}
 	}

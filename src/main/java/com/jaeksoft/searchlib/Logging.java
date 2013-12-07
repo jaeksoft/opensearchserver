@@ -35,12 +35,12 @@ import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -281,14 +281,7 @@ public class Logging {
 				pw.println(StringEscapeUtils.escapeJava(l));
 			return sw.toString();
 		} finally {
-			if (br != null)
-				IOUtils.closeQuietly(br);
-			if (fr != null)
-				IOUtils.closeQuietly(fr);
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
+			IOUtils.close(br, fr, pw, sw);
 		}
 	}
 
