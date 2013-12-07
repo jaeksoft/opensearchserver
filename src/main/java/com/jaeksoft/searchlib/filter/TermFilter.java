@@ -28,13 +28,13 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -103,8 +103,9 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 	}
 
 	@Override
-	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException {
+	public String getCacheKey(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException {
 		return "QueryFilter - " + getQuery().toString();
 	}
 
@@ -118,7 +119,7 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 
 	@Override
 	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer,
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractSearchRequest request, Timer timer) throws ParseException,
 			IOException {
 		Query query = getQuery();
