@@ -239,12 +239,12 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	}
 
 	@Override
-	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate)
+	public void addUpdateInterface(UpdateInterfaces updateInterface)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (writer != null)
-				writer.addBeforeUpdate(beforeUpdate);
+				writer.addUpdateInterface(updateInterface);
 		} finally {
 			rwl.r.unlock();
 		}
