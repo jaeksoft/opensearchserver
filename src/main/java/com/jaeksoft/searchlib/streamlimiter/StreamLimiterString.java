@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class StreamLimiterString extends StreamLimiter {
 
@@ -47,14 +48,13 @@ public class StreamLimiterString extends StreamLimiter {
 
 	@Override
 	protected void loadOutputCache() throws LimitException, IOException {
-		InputStream is = new ByteArrayInputStream(text.getBytes());
+		InputStream is = null;
 		try {
+			is = new ByteArrayInputStream(text.getBytes());
 			loadOutputCache(is);
 		} finally {
-			if (is != null)
-				IOUtils.closeQuietly(is);
+			IOUtils.close(is);
 		}
-
 	}
 
 	@Override

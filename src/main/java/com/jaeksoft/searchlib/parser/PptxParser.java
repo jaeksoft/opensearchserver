@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.xslf.XSLFSlideShow;
@@ -39,6 +38,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PptxParser extends Parser {
@@ -71,16 +71,15 @@ public class PptxParser extends Parser {
 			IOUtils.copy(streamLimiter.getNewInputStream(), fos);
 			fos.close();
 		} catch (IOException e) {
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
+			IOUtils.close(fos);
 			throw e;
 		}
 
+		XSLFPowerPointExtractor poiExtractor = null;
 		try {
 			XSLFSlideShow pptSlideShow = new XSLFSlideShow(
 					tempFile.getAbsolutePath());
-			XSLFPowerPointExtractor poiExtractor = new XSLFPowerPointExtractor(
-					pptSlideShow);
+			poiExtractor = new XSLFPowerPointExtractor(pptSlideShow);
 
 			ParserResultItem result = getNewParserResultItem();
 			CoreProperties info = poiExtractor.getCoreProperties();
@@ -103,6 +102,8 @@ public class PptxParser extends Parser {
 			throw new IOException(e);
 		} catch (XmlException e) {
 			throw new IOException(e);
+		} finally {
+			IOUtils.close(poiExtractor);
 		}
 
 	}

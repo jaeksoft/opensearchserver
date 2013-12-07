@@ -44,7 +44,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.HttpHostConnectException;
@@ -63,6 +62,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSProperty;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
@@ -293,10 +293,7 @@ public class HtmlArchiver {
 			Logging.warn("CSS ISSUE", e);
 			return null;
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
+			IOUtils.close(pw, sw);
 		}
 	}
 

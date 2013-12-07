@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PublisherParser extends Parser {
@@ -55,18 +56,23 @@ public class PublisherParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		PublisherTextExtractor extractor = new PublisherTextExtractor(
-				streamLimiter.getNewInputStream());
-		SummaryInformation info = extractor.getSummaryInformation();
-		ParserResultItem result = getNewParserResultItem();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.author, info.getAuthor());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
+		PublisherTextExtractor extractor = null;
+		try {
+			extractor = new PublisherTextExtractor(
+					streamLimiter.getNewInputStream());
+			SummaryInformation info = extractor.getSummaryInformation();
+			ParserResultItem result = getNewParserResultItem();
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.author, info.getAuthor());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+			}
+			result.addField(ParserFieldEnum.content, StringUtils
+					.replaceConsecutiveSpaces(extractor.getText(), " "));
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(extractor);
 		}
-		result.addField(ParserFieldEnum.content,
-				StringUtils.replaceConsecutiveSpaces(extractor.getText(), " "));
-		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 }

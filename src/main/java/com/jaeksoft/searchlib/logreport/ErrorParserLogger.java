@@ -27,12 +27,11 @@ package com.jaeksoft.searchlib.logreport;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class ErrorParserLogger {
 
@@ -77,10 +76,7 @@ public class ErrorParserLogger {
 				pw.println(element);
 			return sw.toString();
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
+			IOUtils.close(pw, sw);
 		}
 	}
 

@@ -40,11 +40,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.pojodbc.Transaction;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
@@ -54,6 +52,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.script.commands.Selectors;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.utils.Variables;
 
@@ -103,21 +102,6 @@ public class ScriptCommandContext implements Closeable {
 		indexDocuments = null;
 		currentIndexDocument = null;
 		updatedDocumentCount = 0;
-	}
-
-	private void releaseCurrentWebDriver(boolean quietly)
-			throws ScriptException {
-		if (currentWebDriver == null)
-			return;
-		if (quietly)
-			IOUtils.closeQuietly(currentWebDriver);
-		else
-			try {
-				currentWebDriver.close();
-			} catch (IOException e) {
-				throw new ScriptException(e);
-			}
-		currentWebDriver = null;
 	}
 
 	public BrowserDriver<?> getBrowserDriver() {
@@ -171,7 +155,7 @@ public class ScriptCommandContext implements Closeable {
 
 	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
 			throws ScriptException {
-		releaseCurrentWebDriver(false);
+		close();
 		try {
 			if (browserDriverEnum != null)
 				currentWebDriver = browserDriverEnum.getNewInstance();
@@ -218,11 +202,8 @@ public class ScriptCommandContext implements Closeable {
 
 	@Override
 	public void close() {
-		try {
-			releaseCurrentWebDriver(true);
-		} catch (ScriptException e) {
-			Logging.info(e);
-		}
+		IOUtils.close(currentWebDriver);
+		currentWebDriver = null;
 	}
 
 	public void setOnError(OnError onError, List<CommandEnum> commandList) {

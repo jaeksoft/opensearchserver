@@ -35,9 +35,9 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class StreamLimiter implements Closeable {
@@ -111,8 +111,7 @@ public abstract class StreamLimiter implements Closeable {
 			is = getNewInputStream();
 			return DigestUtils.md5Hex(is);
 		} finally {
-			if (is != null)
-				IOUtils.closeQuietly(is);
+			IOUtils.close(is);
 		}
 	}
 

@@ -41,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpException;
 import org.xml.sax.SAXException;
 
@@ -52,6 +51,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriRead;
 import com.jaeksoft.searchlib.remote.UriWriteObject;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
@@ -106,10 +106,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			transaction.addXmlResponse(XML_CALL_KEY_TRACE, sw.toString());
 			Logging.error(e);
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
+			IOUtils.close(pw, sw);
 			try {
 				transaction.writeXmlResponse();
 			} catch (Exception e) {

@@ -40,7 +40,6 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.XPatherException;
 import org.openqa.selenium.WebElement;
@@ -56,6 +55,7 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
 
@@ -354,8 +354,7 @@ public class WebDriverCommands {
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			} finally {
-				if (writer != null)
-					IOUtils.closeQuietly(writer);
+				IOUtils.close(writer);
 			}
 		}
 	}

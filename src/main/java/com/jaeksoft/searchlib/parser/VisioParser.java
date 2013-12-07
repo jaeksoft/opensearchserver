@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class VisioParser extends Parser {
@@ -55,23 +56,28 @@ public class VisioParser extends Parser {
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
-		VisioTextExtractor extractor = new VisioTextExtractor(
-				streamLimiter.getNewInputStream());
-		SummaryInformation info = extractor.getSummaryInformation();
-		ParserResultItem result = getNewParserResultItem();
+		VisioTextExtractor extractor = null;
+		try {
+			extractor = new VisioTextExtractor(
+					streamLimiter.getNewInputStream());
+			SummaryInformation info = extractor.getSummaryInformation();
+			ParserResultItem result = getNewParserResultItem();
 
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.author, info.getAuthor());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.author, info.getAuthor());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+			}
+			String[] texts = extractor.getAllText();
+			if (texts == null)
+				return;
+			for (String text : texts)
+				result.addField(ParserFieldEnum.content,
+						StringUtils.replaceConsecutiveSpaces(text, " "));
+			result.langDetection(10000, ParserFieldEnum.content);
+		} finally {
+			IOUtils.close(extractor);
 		}
-		String[] texts = extractor.getAllText();
-		if (texts == null)
-			return;
-		for (String text : texts)
-			result.addField(ParserFieldEnum.content,
-					StringUtils.replaceConsecutiveSpaces(text, " "));
-		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
 }

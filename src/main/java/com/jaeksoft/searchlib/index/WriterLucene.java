@@ -74,18 +74,15 @@ public class WriterLucene extends WriterAbstract {
 		this.indexDirectory = indexDirectory;
 	}
 
-	public IndexWriter close(IndexWriter indexWriter) {
+	private void close(IndexWriter indexWriter) {
 		if (indexWriter == null)
-			return null;
+			return;
 		try {
 			indexWriter.close();
-			return null;
 		} catch (AlreadyClosedException e) {
-			Logging.warn(e.getMessage(), e);
-			return null;
+			Logging.warn(e);
 		} catch (IOException e) {
-			Logging.warn(e.getMessage(), e);
-			return indexWriter;
+			Logging.warn(e);
 		} finally {
 			indexDirectory.unlock();
 		}
@@ -101,7 +98,8 @@ public class WriterLucene extends WriterAbstract {
 		lock.rl.lock();
 		try {
 			indexWriter = open(true);
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 		} finally {
 			lock.rl.unlock();
 			close(indexWriter);
@@ -135,7 +133,8 @@ public class WriterLucene extends WriterAbstract {
 		try {
 			indexWriter = open();
 			indexWriter.addDocument(document);
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 		} finally {
 			lock.rl.unlock();
 			close(indexWriter);
@@ -176,7 +175,8 @@ public class WriterLucene extends WriterAbstract {
 			SchemaField uniqueField = schema.getFieldList().getUniqueField();
 			boolean updated = updateDocNoLock(uniqueField, indexWriter, schema,
 					document);
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			if (updated)
 				indexLucene.reload();
 			return updated;
@@ -210,7 +210,8 @@ public class WriterLucene extends WriterAbstract {
 			for (IndexDocument document : documents)
 				if (updateDocNoLock(uniqueField, indexWriter, schema, document))
 					count++;
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			if (count > 0)
 				indexLucene.reload();
 			return count;
@@ -268,7 +269,8 @@ public class WriterLucene extends WriterAbstract {
 		try {
 			indexWriter = open();
 			indexWriter.optimize(true);
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -295,7 +297,8 @@ public class WriterLucene extends WriterAbstract {
 			int l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			indexLucene.reload();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			return l;
@@ -333,7 +336,8 @@ public class WriterLucene extends WriterAbstract {
 			int l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			if (terms.length > 0)
 				indexLucene.reload();
 			l = l - indexLucene.getStatistics().getNumDocs();
@@ -394,7 +398,8 @@ public class WriterLucene extends WriterAbstract {
 			int l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			indexLucene.reload();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			return l;
@@ -425,7 +430,8 @@ public class WriterLucene extends WriterAbstract {
 		try {
 			indexWriter = open();
 			indexWriter.deleteAll();
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			indexLucene.reload();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
@@ -454,7 +460,8 @@ public class WriterLucene extends WriterAbstract {
 		try {
 			indexWriter = open();
 			indexWriter.addIndexes(directory.getDirectory());
-			indexWriter = close(indexWriter);
+			close(indexWriter);
+			indexWriter = null;
 			indexLucene.reload();
 		} catch (IOException e) {
 			throw new SearchLibException(e);

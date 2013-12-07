@@ -32,7 +32,6 @@ import java.sql.SQLException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -40,6 +39,7 @@ import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.utils.Variables;
@@ -329,10 +329,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 			}
 			return sw.toString();
 		} finally {
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
+			IOUtils.close(pw, sw);
 			if (transaction != null)
 				transaction.close();
 		}

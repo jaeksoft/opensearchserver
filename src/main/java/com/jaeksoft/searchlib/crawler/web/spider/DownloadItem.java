@@ -36,13 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class DownloadItem {
 
@@ -390,10 +390,7 @@ public class DownloadItem {
 			bos = new BufferedOutputStream(fos);
 			IOUtils.copy(contentInputStream, bos);
 		} finally {
-			if (bos != null)
-				IOUtils.closeQuietly(bos);
-			if (fos != null)
-				IOUtils.closeQuietly(fos);
+			IOUtils.close(bos, fos);
 		}
 	}
 }

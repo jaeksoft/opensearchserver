@@ -36,7 +36,6 @@ import java.util.TreeMap;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -50,6 +49,7 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -66,10 +66,12 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 
 	public FieldMap(String multilineText, char fieldSeparator,
 			char concatSeparator) throws IOException {
-		StringReader sr = new StringReader(multilineText);
-		BufferedReader br = new BufferedReader(sr);
+		StringReader sr = null;
+		BufferedReader br = null;
 		this.concatSeparator = concatSeparator;
 		try {
+			sr = new StringReader(multilineText);
+			br = new BufferedReader(sr);
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] cols = StringUtils.split(line, fieldSeparator);
@@ -84,8 +86,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 						target, analyzer, boost, null));
 			}
 		} finally {
-			IOUtils.closeQuietly(br);
-			IOUtils.closeQuietly(sr);
+			IOUtils.close(br, sr);
 		}
 	}
 
