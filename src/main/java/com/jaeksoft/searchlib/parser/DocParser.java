@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DocParser extends Parser {
@@ -58,39 +59,50 @@ public class DocParser extends Parser {
 
 	private void currentWordExtraction(ParserResultItem result,
 			InputStream inputStream) throws IOException {
-		WordExtractor word = new WordExtractor(inputStream);
+		WordExtractor word = null;
 
-		SummaryInformation info = word.getSummaryInformation();
-		if (info != null) {
-			result.addField(ParserFieldEnum.title, info.getTitle());
-			result.addField(ParserFieldEnum.author, info.getAuthor());
-			result.addField(ParserFieldEnum.subject, info.getSubject());
-		}
+		try {
+			word = new WordExtractor(inputStream);
 
-		String[] paragraphes = word.getParagraphText();
-		for (String paragraph : paragraphes) {
-			String[] frags = paragraph.split("\\n");
-			for (String frag : frags)
-				result.addField(ParserFieldEnum.content,
-						StringUtils.replaceConsecutiveSpaces(frag, " "));
+			SummaryInformation info = word.getSummaryInformation();
+			if (info != null) {
+				result.addField(ParserFieldEnum.title, info.getTitle());
+				result.addField(ParserFieldEnum.author, info.getAuthor());
+				result.addField(ParserFieldEnum.subject, info.getSubject());
+			}
+
+			String[] paragraphes = word.getParagraphText();
+			for (String paragraph : paragraphes) {
+				String[] frags = paragraph.split("\\n");
+				for (String frag : frags)
+					result.addField(ParserFieldEnum.content,
+							StringUtils.replaceConsecutiveSpaces(frag, " "));
+			}
+		} finally {
+			IOUtils.close(word);
 		}
 	}
 
 	private void oldWordExtraction(ParserResultItem result,
 			InputStream inputStream) throws IOException {
-		Word6Extractor word6 = new Word6Extractor(inputStream);
-		SummaryInformation si = word6.getSummaryInformation();
-		if (si != null) {
-			result.addField(ParserFieldEnum.title, si.getTitle());
-			result.addField(ParserFieldEnum.author, si.getAuthor());
-			result.addField(ParserFieldEnum.subject, si.getSubject());
-		}
+		Word6Extractor word6 = null;
+		try {
+			word6 = new Word6Extractor(inputStream);
+			SummaryInformation si = word6.getSummaryInformation();
+			if (si != null) {
+				result.addField(ParserFieldEnum.title, si.getTitle());
+				result.addField(ParserFieldEnum.author, si.getAuthor());
+				result.addField(ParserFieldEnum.subject, si.getSubject());
+			}
 
-		String text = word6.getText();
-		String[] frags = text.split("\\n");
-		for (String frag : frags)
-			result.addField(ParserFieldEnum.content,
-					StringUtils.replaceConsecutiveSpaces(frag, " "));
+			String text = word6.getText();
+			String[] frags = text.split("\\n");
+			for (String frag : frags)
+				result.addField(ParserFieldEnum.content,
+						StringUtils.replaceConsecutiveSpaces(frag, " "));
+		} finally {
+			IOUtils.close(word6);
+		}
 	}
 
 	@Override

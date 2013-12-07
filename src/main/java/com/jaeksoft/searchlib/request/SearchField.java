@@ -64,12 +64,12 @@ public class SearchField implements Cloneable {
 		this.phraseBoost = searchField.phraseBoost;
 	}
 
-	public SearchField(String field, boolean phrase, double boost,
-			double phraseBoost) {
+	public SearchField(String field, boolean phrase, Double boost,
+			Double phraseBoost) {
 		this.field = field;
 		this.phrase = phrase;
-		this.boost = boost;
-		this.phraseBoost = phraseBoost;
+		this.boost = boost == null ? 1.0F : boost;
+		this.phraseBoost = phraseBoost == null ? this.boost : phraseBoost;
 	}
 
 	public SearchField(Node fieldNode) {
@@ -80,7 +80,7 @@ public class SearchField implements Cloneable {
 		this.boost = DomUtils.getAttributeDouble(fieldNode,
 				SEARCHFIELD_ATTRIBUTE_BOOST, 1.0);
 		this.phraseBoost = DomUtils.getAttributeDouble(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, 1.0);
+				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, this.boost);
 	}
 
 	@Override
