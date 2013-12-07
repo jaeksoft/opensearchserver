@@ -69,15 +69,11 @@ public interface LearnerInterface {
 	 * @param requestName
 	 * @param documents
 	 * @param sourceFieldMap
-	 * @param targetFieldMap
-	 * @param maxRank
-	 * @param minScore
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
 	public void learn(Client client, String requestName,
-			List<IndexDocument> documents, FieldMap sourceFieldMap,
-			FieldMap targetFieldMap, int maxRank, double minScore)
+			Collection<IndexDocument> documents, FieldMap sourceFieldMap)
 			throws IOException, SearchLibException;
 
 	/**
@@ -110,8 +106,7 @@ public interface LearnerInterface {
 			throws IOException, SearchLibException;
 
 	/**
-	 * SearchLibException Learn by reading the document returned by the search
-	 * query
+	 * Learn by reading the document returned by the search query
 	 * 
 	 * @param client
 	 * @param requestName
@@ -124,6 +119,20 @@ public interface LearnerInterface {
 	public void learn(Client client, String requestName,
 			FieldMap sourceFieldMap, int buffer, InfoCallback infoCallback)
 			throws SearchLibException, IOException;
+
+	/**
+	 * Remove the mapped document
+	 * 
+	 * @param client
+	 * @param searchRequest
+	 * @param field
+	 * @param values
+	 * @param sourceFieldMap
+	 * @throws SearchLibException
+	 */
+	public void remove(Client client, String searchRequest, String field,
+			Collection<String> values, FieldMap sourceFieldMap)
+			throws SearchLibException;
 
 	/**
 	 * Return the list of field required by the learner when learning
@@ -148,5 +157,13 @@ public interface LearnerInterface {
 	 */
 	public Map<String, List<String>> getCustoms(String name)
 			throws SearchLibException;
+
+	/**
+	 * 
+	 * @return The number of documents in the learner
+	 * @throws SearchLibException
+	 * @throws IOException
+	 */
+	long getDocumentCount() throws IOException, SearchLibException;
 
 }
