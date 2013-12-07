@@ -228,4 +228,14 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				return true;
 		return false;
 	}
+
+	public boolean isMapped(String source, String target) {
+		if (source == null || target == null)
+			return false;
+		for (GenericLink<SourceField, TargetField> link : getList())
+			if (target.equals(link.getTarget().getName()))
+				if (link.getSource().contains(source))
+					return true;
+		return false;
+	}
 }

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.learning;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -310,17 +311,30 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	public void learn(List<IndexDocument> documents) throws SearchLibException {
+	public void learn(Collection<IndexDocument> documents)
+			throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
-			instance.learn(client, searchRequest, documents, sourceFieldMap,
-					targetFieldMap, maxRank, minScore);
+			instance.learn(client, searchRequest, documents, sourceFieldMap);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public void remove(String field, Collection<String> values)
+			throws SearchLibException {
+		LearnerInterface instance = getInstance();
+		rwl.r.lock();
+		try {
+			instance.remove(client, searchRequest, field, values,
+					sourceFieldMap);
+		} finally {
+			rwl.r.unlock();
+		}
+
 	}
 
 	// TODO Implement classify while indexing
@@ -432,6 +446,18 @@ public class Learner implements InfoCallback {
 				f.delete();
 			else if (f.isDirectory())
 				FileUtils.deleteDirectory(f);
+	}
+
+	public long getDocumentCount() throws SearchLibException {
+		LearnerInterface instance = getInstance();
+		rwl.r.lock();
+		try {
+			return instance.getDocumentCount();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**

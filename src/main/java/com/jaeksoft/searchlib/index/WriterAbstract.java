@@ -39,7 +39,9 @@ public abstract class WriterAbstract implements WriterInterface {
 	final protected IndexConfig indexConfig;
 	final private Md5Spliter md5spliter;
 	private String keyField = null;
-	protected List<BeforeUpdateInterface> beforeUpdateList = null;
+	protected List<UpdateInterfaces.Before> beforeUpdateList = null;
+	protected List<UpdateInterfaces.After> afterUpdateList = null;
+	protected List<UpdateInterfaces.Delete> afterDeleteList = null;
 
 	private boolean isMergingSource = false;
 	private boolean isMergingTarget = false;
@@ -72,14 +74,26 @@ public abstract class WriterAbstract implements WriterInterface {
 	}
 
 	@Override
-	public void addBeforeUpdate(BeforeUpdateInterface beforeUpdate) {
+	public void addUpdateInterface(UpdateInterfaces updateInterface) {
 		rwl.w.lock();
 		try {
-			if (beforeUpdate == null)
+			if (updateInterface == null)
 				return;
-			if (beforeUpdateList == null)
-				beforeUpdateList = new ArrayList<BeforeUpdateInterface>();
-			beforeUpdateList.add(beforeUpdate);
+			if (updateInterface instanceof UpdateInterfaces.Before) {
+				if (beforeUpdateList == null)
+					beforeUpdateList = new ArrayList<UpdateInterfaces.Before>(1);
+				beforeUpdateList.add((UpdateInterfaces.Before) updateInterface);
+			}
+			if (updateInterface instanceof UpdateInterfaces.After) {
+				if (afterUpdateList == null)
+					afterUpdateList = new ArrayList<UpdateInterfaces.After>(1);
+				afterUpdateList.add((UpdateInterfaces.After) updateInterface);
+			}
+			if (updateInterface instanceof UpdateInterfaces.Delete) {
+				if (afterDeleteList == null)
+					afterDeleteList = new ArrayList<UpdateInterfaces.Delete>(1);
+				afterDeleteList.add((UpdateInterfaces.Delete) updateInterface);
+			}
 		} finally {
 			rwl.w.unlock();
 		}

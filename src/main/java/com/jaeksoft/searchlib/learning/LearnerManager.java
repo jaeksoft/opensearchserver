@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -39,14 +40,14 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.BeforeUpdateInterface;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.index.UpdateInterfaces;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class LearnerManager implements BeforeUpdateInterface {
+public class LearnerManager implements UpdateInterfaces.After,
+		UpdateInterfaces.Delete {
 
 	private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -168,23 +169,45 @@ public class LearnerManager implements BeforeUpdateInterface {
 	}
 
 	@Override
-	public void update(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public void update(IndexDocument document) throws SearchLibException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;
+		List<IndexDocument> documents = new ArrayList<IndexDocument>(1);
+		documents.add(document);
 		for (Learner learner : learners)
-			learner.classify(document);
+			learner.learn(documents);
 	}
 
 	@Override
-	public void postUpdate(List<IndexDocument> documents)
+	public void update(Collection<IndexDocument> documents)
 			throws SearchLibException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;
 		for (Learner learner : learners)
 			learner.learn(documents);
+	}
+
+	@Override
+	public void delete(String field, String value) throws SearchLibException {
+		Learner[] learners = getActiveArray();
+		if (learners == null)
+			return;
+		List<String> values = new ArrayList<String>(1);
+		values.add(value);
+		for (Learner learner : learners)
+			learner.remove(field, values);
+	}
+
+	@Override
+	public void delete(String field, Collection<String> values)
+			throws SearchLibException {
+		Learner[] learners = getActiveArray();
+		if (learners == null)
+			return;
+		for (Learner learner : learners)
+			learner.remove(field, values);
 	}
 
 	public Learner get(String name) {

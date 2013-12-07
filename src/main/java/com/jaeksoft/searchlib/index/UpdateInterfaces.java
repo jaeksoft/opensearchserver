@@ -24,16 +24,34 @@
 
 package com.jaeksoft.searchlib.index;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Schema;
 
-public interface BeforeUpdateInterface {
+public interface UpdateInterfaces {
 
-	public void update(final Schema schema, final IndexDocument document)
-			throws SearchLibException;
+	public static interface Before extends UpdateInterfaces {
 
-	public void postUpdate(final List<IndexDocument> documents)
-			throws SearchLibException;
+		public void update(final Schema schema, final IndexDocument document)
+				throws SearchLibException;
+	}
+
+	public static interface After extends UpdateInterfaces {
+
+		public void update(final IndexDocument document)
+				throws SearchLibException;
+
+		public void update(final Collection<IndexDocument> documents)
+				throws SearchLibException;
+	}
+
+	public static interface Delete extends UpdateInterfaces {
+
+		public void delete(final String field, final String value)
+				throws SearchLibException;
+
+		public void delete(final String field, final Collection<String> values)
+				throws SearchLibException;
+	}
 }
