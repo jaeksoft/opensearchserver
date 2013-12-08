@@ -35,7 +35,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.Sequence;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
@@ -155,7 +155,7 @@ public class ClientFactory implements PropertyItemListener {
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!FilesUtils
+			if (!FileUtils
 					.isSubDirectory(
 							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 							initFileOrDir))

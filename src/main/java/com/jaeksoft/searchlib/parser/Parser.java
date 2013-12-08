@@ -38,6 +38,8 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.FileUtils;
+import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class Parser extends ParserFactory {
@@ -103,6 +105,23 @@ public abstract class Parser extends ParserFactory {
 	private final String getErrorText(Throwable t) {
 		return StringUtils.fastConcat("Error while working on URL: ",
 				streamLimiter.getOriginURL(), " : ", t.getMessage());
+	}
+
+	final public void doParserContentExternal(IndexDocument sourceDocument,
+			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
+		File tempDir = null;
+		try {
+			tempDir = FileUtils.createTempDirectory("oss-external-parser", "");
+			File sourceDocumentFile = new File(tempDir, "sourceDocument");
+			if (sourceDocument != null) {
+				JsonUtils.jsonToFile(sourceDocument, sourceDocumentFile);
+			}
+		} finally {
+			if (tempDir != null)
+				if (tempDir.exists())
+					if (tempDir.isDirectory())
+						System.out.println(tempDir);// FileUtils.deleteDirectory(tempDir);
+		}
 	}
 
 	final public void doParserContent(IndexDocument sourceDocument,

@@ -43,9 +43,9 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.config.Mailer;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.utils.Variables;
 
 public class JobItem extends ExecutionAbstract {
 

@@ -35,14 +35,13 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import redis.clients.jedis.Jedis;
 
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -217,7 +216,7 @@ public class InstanceProperties {
 	public final boolean checkChrootQuietly(File file) throws IOException {
 		if (!chroot)
 			return true;
-		return FilesUtils.isSubDirectory(
+		return FileUtils.isSubDirectory(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
 	}
 

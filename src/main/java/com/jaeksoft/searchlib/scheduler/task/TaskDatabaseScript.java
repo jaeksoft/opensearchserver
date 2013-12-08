@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.script.DatabaseScript;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskDatabaseScript extends TaskAbstract {
 

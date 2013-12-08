@@ -34,7 +34,7 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 public class LogFilesController extends ReportsController {
@@ -74,7 +74,7 @@ public class LogFilesController extends ReportsController {
 		if (client == null)
 			return null;
 		File[] files = client.getReportsManager().getReportsList();
-		FilesUtils.sortByLastModified(files, true);
+		FileUtils.sortByLastModified(files, true);
 		ReportFile[] reportFile = new ReportFile[files.length];
 		int i = 0;
 		for (File file : files)

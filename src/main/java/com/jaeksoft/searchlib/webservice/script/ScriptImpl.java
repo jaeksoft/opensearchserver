@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.script.ScriptLinesRunner;
 import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
