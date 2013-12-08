@@ -48,8 +48,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.utils.Variables;
 
 public class CredentialItem {
 

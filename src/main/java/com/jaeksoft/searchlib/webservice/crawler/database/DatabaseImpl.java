@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.user.Role;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;

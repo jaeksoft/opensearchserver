@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class ScriptLinesRunner extends AbstractScriptRunner {
 

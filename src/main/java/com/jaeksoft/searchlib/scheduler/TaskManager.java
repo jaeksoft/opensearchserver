@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class TaskManager {

@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskMergeDataIndex extends TaskAbstract {
 

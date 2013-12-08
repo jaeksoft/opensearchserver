@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 

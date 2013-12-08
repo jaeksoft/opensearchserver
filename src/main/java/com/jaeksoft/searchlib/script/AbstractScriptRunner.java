@@ -31,7 +31,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public abstract class AbstractScriptRunner implements Closeable {
 

@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.commands.Selectors;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -331,7 +331,7 @@ public final class ClickCapture implements Comparable<ClickCapture> {
 			if (filename != null) {
 				File file = htmlArchiver.getLocalFile(filename);
 				if (file.exists()) {
-					file_md5 = FilesUtils.computeMd5(file);
+					file_md5 = FileUtils.computeMd5(file);
 					if (imgSrc != null)
 						file_phash = ImageUtils.computePHash(file);
 				}

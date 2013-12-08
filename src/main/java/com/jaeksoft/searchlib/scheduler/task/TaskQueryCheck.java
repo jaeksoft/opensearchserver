@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import com.jayway.jsonpath.JsonPath;
 

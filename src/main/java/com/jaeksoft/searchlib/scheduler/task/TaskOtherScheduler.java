@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskOtherScheduler extends TaskAbstract {
 

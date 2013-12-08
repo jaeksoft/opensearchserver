@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,7 +35,9 @@ import javax.xml.bind.annotation.XmlValue;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -42,21 +45,53 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 public class DocumentUpdate {
 
 	@XmlAttribute
-	public LanguageEnum lang;
+	public final LanguageEnum lang;
 
-	public List<Field> fields;
+	public final List<Field> fields;
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class Field {
 
 		@XmlAttribute
-		public String name;
+		final public String name;
 
 		@XmlAttribute
-		public Float boost;
+		final public Float boost;
 
 		@XmlValue
-		public String value;
+		final public String value;
+
+		public Field() {
+			name = null;
+			boost = null;
+			value = null;
+		}
+
+		public Field(String name, String value, Float boost) {
+			this.name = name;
+			this.value = value;
+			this.boost = boost;
+		}
+	}
+
+	public DocumentUpdate() {
+		lang = LanguageEnum.UNDEFINED;
+		fields = null;
+	}
+
+	public DocumentUpdate(IndexDocument indexDocument) {
+		lang = indexDocument.getLang();
+		List<Field> fieldList = new ArrayList<Field>();
+		for (FieldContent fieldContent : indexDocument) {
+			FieldValueItem[] fieldValueItems = fieldContent.getValues();
+			if (fieldValueItems == null)
+				continue;
+			String fieldName = fieldContent.getField();
+			for (FieldValueItem fieldValueItem : fieldValueItems)
+				fieldList.add(new Field(fieldName, fieldValueItem.value,
+						fieldValueItem.boost));
+		}
+		fields = fieldList;
 	}
 
 	public IndexDocument getIndexDocument() {
@@ -67,4 +102,5 @@ public class DocumentUpdate {
 				indexDocument.add(field.name, field.value, field.boost);
 		return indexDocument;
 	}
+
 }
