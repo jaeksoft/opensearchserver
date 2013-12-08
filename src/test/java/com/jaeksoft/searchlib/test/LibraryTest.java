@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.test.library.LibraryIndexCreateExistsListTest;
 import com.jaeksoft.searchlib.test.library.LibraryIndexDataTest;
 import com.jaeksoft.searchlib.test.library.LibraryIndexFileTest;
 import com.jaeksoft.searchlib.test.library.LibrarySchemaTest;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 @RunWith(Suite.class)
 @SuiteClasses({ LibraryIndexCreateExistsListTest.class,
@@ -55,7 +55,7 @@ public class LibraryTest {
 
 	@BeforeClass
 	public static void before() throws IOException {
-		DATA_DIRECTORY = FilesUtils.createTempDirectory("oss_data", "dir");
+		DATA_DIRECTORY = FileUtils.createTempDirectory("oss_data", "dir");
 		ClientCatalog.init(DATA_DIRECTORY);
 	}
 

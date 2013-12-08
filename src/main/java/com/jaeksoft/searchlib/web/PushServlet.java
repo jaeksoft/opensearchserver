@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.remote.UriWriteStream;
 import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class PushServlet extends AbstractServlet {
@@ -103,7 +103,7 @@ public class PushServlet extends AbstractServlet {
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
-			filePath = FilesUtils.unixToSystemPath(filePath);
+			filePath = FileUtils.unixToSystemPath(filePath);
 			if (transaction.getParameterBoolean("type", "dir", false))
 				ClientCatalog.receive_dir(client, filePath);
 			else
@@ -147,7 +147,7 @@ public class PushServlet extends AbstractServlet {
 			sb.append(cmd);
 		}
 		sb.append("&filePath=");
-		sb.append(URLEncoder.encode(FilesUtils.systemPathToUnix(filePath),
+		sb.append(URLEncoder.encode(FileUtils.systemPathToUnix(filePath),
 				"UTF-8"));
 		if (sourceFile.isDirectory())
 			sb.append("&type=dir");

@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.utils;
+package com.jaeksoft.searchlib.util;
 
 import java.io.IOException;
 import java.util.Map;

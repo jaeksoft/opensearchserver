@@ -29,7 +29,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class RestCrawlMaster extends
 		CrawlMasterAbstract<RestCrawlMaster, RestCrawlThread> {

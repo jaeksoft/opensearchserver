@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>, T extends ThreadAbstract<T>>
 		extends ThreadAbstract<M> {
