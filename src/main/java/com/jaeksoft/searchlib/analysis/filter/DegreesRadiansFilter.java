@@ -54,6 +54,9 @@ public class DegreesRadiansFilter extends FilterFactory {
 		return getNumberFormat(3, 5);
 	}
 
+	final public static String NEGATIVE_RADIAN_ZERO = "N0.0000000";
+	final public static String POSITIVE_RADIAN_ZERO = "P0.0000000";
+
 	final public static NumberFormat getRadiansFormat() {
 		return getNumberFormat(1, 7);
 	}
@@ -61,6 +64,8 @@ public class DegreesRadiansFilter extends FilterFactory {
 	public final static void main(String[] argv) throws ParseException {
 		System.out.println(getDegreesFormat().format(33.6564353435));
 		System.out.println(getRadiansFormat().format(-0.675757575575));
+		System.out.println(getRadiansFormat().format(0));
+		System.out.println(getRadiansFormat().format(-0));
 		System.out.println(getRadiansFormat().parse("N0.67576"));
 		System.out.println(getRadiansFormat().parse("P0.7986312"));
 	}
