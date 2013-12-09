@@ -29,6 +29,8 @@ import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
+	final public static UrlItemFieldEnum INSTANCE = new UrlItemFieldEnum();
+
 	final public ItemField url = new ItemField(this, "url");
 
 	final public ItemField parentUrl = new ItemField(this, "parentUrl");

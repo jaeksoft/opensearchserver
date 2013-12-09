@@ -32,6 +32,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -39,7 +43,6 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class Parser extends ParserFactory {
@@ -54,13 +57,17 @@ public abstract class Parser extends ParserFactory {
 
 	private Exception error;
 
-	protected Parser(ParserFieldEnum[] fieldList) {
-		super(fieldList);
+	protected Parser(ParserFieldEnum[] fieldList, boolean externalAllowed) {
+		super(fieldList, externalAllowed);
 		sourceDocument = null;
 		streamLimiter = null;
 		resultItems = new ArrayList<ParserResultItem>(0);
 		detectedLinks = new TreeSet<String>();
 		error = null;
+	}
+
+	protected Parser(ParserFieldEnum[] fieldList) {
+		this(fieldList, true);
 	}
 
 	public IndexDocument getSourceDocument() {
@@ -81,11 +88,25 @@ public abstract class Parser extends ParserFactory {
 		return resultItems;
 	}
 
+	public ExternalParser.Results getExternalResults() {
+		return new ExternalParser.Results(resultItems, detectedLinks, error);
+	}
+
+	public void setExternalResults(ExternalParser.Results results) {
+		if (results == null)
+			return;
+		if (results.results != null)
+			for (ExternalParser.Result result : results.results)
+				resultItems.add(new ParserResultItem(this, result));
+		if (results.links != null)
+			detectedLinks.addAll(results.links);
+	}
+
 	public Set<String> getDetectedLinks() {
 		return detectedLinks;
 	}
 
-	protected final void addDetectedLink(String link) {
+	protected final void addDetectedLink(final String link) {
 		detectedLinks.add(link);
 	}
 
@@ -107,25 +128,43 @@ public abstract class Parser extends ParserFactory {
 				streamLimiter.getOriginURL(), " : ", t.getMessage());
 	}
 
-	final public void doParserContentExternal(IndexDocument sourceDocument,
-			StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
+	final public void doParserContentExternal(
+			final IndexDocument sourceDocument,
+			final StreamLimiter streamLimiter, final LanguageEnum lang) {
+		if (!externalAllowed) {
+			doParserContent(sourceDocument, streamLimiter, lang);
+			return;
+		}
+		this.streamLimiter = streamLimiter;
+		if (sourceDocument != null)
+			setSourceDocument(sourceDocument);
 		File tempDir = null;
 		try {
 			tempDir = FileUtils.createTempDirectory("oss-external-parser", "");
-			File sourceDocumentFile = new File(tempDir, "sourceDocument");
-			if (sourceDocument != null) {
-				JsonUtils.jsonToFile(sourceDocument, sourceDocumentFile);
-			}
+			ExternalParser.doParserContent(this, tempDir, sourceDocument,
+					streamLimiter, lang);
+		} catch (IOException e) {
+			this.error = e;
+			Logging.warn(getErrorText(e), e);
+		} catch (SearchLibException e) {
+			this.error = e;
+			Logging.warn(getErrorText(e), e);
+		} catch (TransformerConfigurationException e) {
+			this.error = e;
+			Logging.warn(getErrorText(e), e);
+		} catch (SAXException e) {
+			this.error = e;
+			Logging.warn(getErrorText(e), e);
 		} finally {
 			if (tempDir != null)
 				if (tempDir.exists())
 					if (tempDir.isDirectory())
-						System.out.println(tempDir);// FileUtils.deleteDirectory(tempDir);
+						FileUtils.deleteDirectoryQuietly(tempDir);
 		}
 	}
 
-	final public void doParserContent(IndexDocument sourceDocument,
-			StreamLimiter streamLimiter, LanguageEnum lang) {
+	final public void doParserContent(final IndexDocument sourceDocument,
+			final StreamLimiter streamLimiter, final LanguageEnum lang) {
 		if (sourceDocument != null)
 			setSourceDocument(sourceDocument);
 		try {
@@ -179,4 +218,5 @@ public abstract class Parser extends ParserFactory {
 		throw new SearchLibException(
 				"This parser does not support file merge feature");
 	}
+
 }

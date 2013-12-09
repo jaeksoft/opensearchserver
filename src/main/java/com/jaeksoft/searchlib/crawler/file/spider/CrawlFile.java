@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
@@ -59,11 +58,10 @@ public class CrawlFile {
 	private String error;
 	private final FieldMap fileFieldMap;
 	private final Config config;
-	private final FileItemFieldEnum fileItemFieldEnum;
 
 	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
-			Config config, CrawlStatistics currentStats,
-			FileItemFieldEnum fileItemFieldEnum) throws SearchLibException {
+			Config config, CrawlStatistics currentStats)
+			throws SearchLibException {
 		this.targetIndexDocuments = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileInstance = fileInstance;
@@ -72,7 +70,6 @@ public class CrawlFile {
 		this.parser = null;
 		this.error = null;
 		this.config = config;
-		this.fileItemFieldEnum = fileItemFieldEnum;
 	}
 
 	/**
@@ -89,8 +86,7 @@ public class CrawlFile {
 
 				fileItem.setParserStatus(ParserStatus.PARSED);
 
-				IndexDocument sourceDocument = fileItem
-						.getIndexDocument(fileItemFieldEnum);
+				IndexDocument sourceDocument = fileItem.getIndexDocument();
 
 				parser = config.getParserSelector().parseFileInstance(
 						sourceDocument, fileItem.getFileName(), null, null,
@@ -155,8 +151,7 @@ public class CrawlFile {
 			for (ParserResultItem result : results) {
 				IndexDocument targetIndexDocument = new IndexDocument();
 
-				IndexDocument fileIndexDocument = fileItem
-						.getIndexDocument(fileItemFieldEnum);
+				IndexDocument fileIndexDocument = fileItem.getIndexDocument();
 				fileFieldMap.mapIndexDocument(fileIndexDocument,
 						targetIndexDocument);
 
@@ -170,7 +165,7 @@ public class CrawlFile {
 					if (!indexPluginList.run((Client) config, "octet/stream",
 							streamLimiter, targetIndexDocument)) {
 						fileItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-						fileItem.populate(fileIndexDocument, fileItemFieldEnum);
+						fileItem.populate(fileIndexDocument);
 						continue;
 					}
 				}

@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class DocumentUpdate {
 
 	@XmlAttribute
@@ -50,6 +50,7 @@ public class DocumentUpdate {
 	public final List<Field> fields;
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	@JsonInclude(Include.NON_EMPTY)
 	public static class Field {
 
 		@XmlAttribute
@@ -94,12 +95,18 @@ public class DocumentUpdate {
 		fields = fieldList;
 	}
 
-	public IndexDocument getIndexDocument() {
-		IndexDocument indexDocument = lang == null ? new IndexDocument()
-				: new IndexDocument(lang);
-		if (fields != null)
-			for (Field field : fields)
-				indexDocument.add(field.name, field.value, field.boost);
+	public void populateDocument(IndexDocument indexDocument) {
+		if (fields == null)
+			return;
+		for (Field field : fields)
+			indexDocument.add(field.name, field.value, field.boost);
+	}
+
+	public static final IndexDocument getIndexDocument(
+			DocumentUpdate documentUpdate) {
+		IndexDocument indexDocument = documentUpdate.lang == null ? new IndexDocument()
+				: new IndexDocument(documentUpdate.lang);
+		documentUpdate.populateDocument(indexDocument);
 		return indexDocument;
 	}
 

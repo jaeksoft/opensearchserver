@@ -60,7 +60,6 @@ import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
@@ -98,7 +97,6 @@ public class Crawl {
 	private boolean inclusionEnabled;
 	private boolean exclusionEnabled;
 	private boolean robotsTxtEnabled;
-	private final UrlItemFieldEnum urlItemFieldEnum;
 
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config,
 			ParserSelector parserSelector) throws SearchLibException {
@@ -124,7 +122,6 @@ public class Crawl {
 				.getValue();
 		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled()
 				.getValue();
-		this.urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
 	}
 
 	public Crawl(WebCrawlThread crawlThread) throws SearchLibException {
@@ -145,7 +142,7 @@ public class Crawl {
 		if (fileName == null)
 			fileName = FilenameUtils.getName(urlItem.getURL().getFile());
 		IndexDocument sourceDocument = new IndexDocument();
-		urlItem.populate(sourceDocument, urlItemFieldEnum);
+		urlItem.populate(sourceDocument);
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
 		parser = parserSelector.parseStream(sourceDocument, fileName,
@@ -427,7 +424,7 @@ public class Crawl {
 						LanguageEnum.findByCode(urlItem.getLang()));
 
 				IndexDocument urlIndexDocument = new IndexDocument();
-				urlItem.populate(urlIndexDocument, urlItemFieldEnum);
+				urlItem.populate(urlIndexDocument);
 				urlFieldMap.mapIndexDocument(urlIndexDocument,
 						targetIndexDocument);
 
@@ -441,7 +438,7 @@ public class Crawl {
 					if (!indexPluginList.run((Client) config, getContentType(),
 							getStreamLimiter(), targetIndexDocument)) {
 						urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-						urlItem.populate(urlIndexDocument, urlItemFieldEnum);
+						urlItem.populate(urlIndexDocument);
 						continue;
 					}
 				}
