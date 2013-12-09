@@ -49,7 +49,6 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class OcrManager implements Closeable {
 
@@ -73,8 +72,7 @@ public class OcrManager implements Closeable {
 
 	public OcrManager(File dataDir) throws InvalidPropertiesFormatException,
 			IOException, InstantiationException, IllegalAccessException {
-		propFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				OCR_PROPERTY_FILE);
+		propFile = new File(dataDir, OCR_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
 		enabled = "true".equalsIgnoreCase(properties.getProperty(
 				OCR_PROPERTY_ENABLED, "false"));

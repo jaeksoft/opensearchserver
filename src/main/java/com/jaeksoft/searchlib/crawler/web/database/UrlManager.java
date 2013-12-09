@@ -40,6 +40,7 @@ import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
@@ -83,10 +84,7 @@ public class UrlManager extends AbstractManager {
 		urlSearch, urlExport, hostFacet;
 	}
 
-	public final UrlItemFieldEnum urlItemFieldEnum;
-
 	public UrlManager() {
-		urlItemFieldEnum = new UrlItemFieldEnum();
 	}
 
 	public void init(Client client, File dataDir) throws SearchLibException,
@@ -103,10 +101,10 @@ public class UrlManager extends AbstractManager {
 			throws SearchLibException {
 		String targetField = findIndexedFieldOfTargetIndex(
 				targetClient.getWebCrawlerFieldMap(),
-				urlItemFieldEnum.url.getName());
+				UrlItemFieldEnum.INSTANCE.url.getName());
 		if (targetField != null)
 			targetClient.deleteDocuments(targetField, workDeleteUrlList);
-		dbClient.deleteDocuments(urlItemFieldEnum.url.getName(),
+		dbClient.deleteDocuments(UrlItemFieldEnum.INSTANCE.url.getName(),
 				workDeleteUrlList);
 	}
 
@@ -137,7 +135,7 @@ public class UrlManager extends AbstractManager {
 				else {
 					UrlItem item = getNewUrlItem(url);
 					IndexDocument indexDocument = new IndexDocument();
-					item.populate(indexDocument, urlItemFieldEnum);
+					item.populate(indexDocument);
 					injectList.add(indexDocument);
 				}
 			}
@@ -237,7 +235,8 @@ public class UrlManager extends AbstractManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		getFacetLimit(urlItemFieldEnum.host, searchRequest, limit, hostList);
+		getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest, limit,
+				hostList);
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
@@ -264,7 +263,7 @@ public class UrlManager extends AbstractManager {
 
 	final protected UrlItem getNewUrlItem(ResultDocument item) {
 		UrlItem ui = new UrlItem();
-		ui.init(item, urlItemFieldEnum);
+		ui.init(item);
 		return ui;
 	}
 
@@ -320,11 +319,11 @@ public class UrlManager extends AbstractManager {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest("urlExport");
 			StringBuilder sb = new StringBuilder();
-			urlItemFieldEnum.inlink.addQuery(sb, url, true);
+			UrlItemFieldEnum.INSTANCE.inlink.addQuery(sb, url, true);
 			sb.append(" OR");
-			urlItemFieldEnum.outlink.addQuery(sb, url, true);
-			urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
-					ParserStatus.PARSED.value, false, false);
+			UrlItemFieldEnum.INSTANCE.outlink.addQuery(sb, url, true);
+			UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(
+					searchRequest, ParserStatus.PARSED.value, false, false);
 			searchRequest.setQueryString(sb.toString());
 			searchRequest.setRows(0);
 			AbstractResultSearch result = (AbstractResultSearch) dbClient
@@ -357,35 +356,39 @@ public class UrlManager extends AbstractManager {
 					like = QueryUtils.escapeQuery(like, QueryUtils.RANGE_CHARS);
 					like = QueryUtils.escapeQuery(like,
 							QueryUtils.AND_OR_NOT_CHARS);
-					urlItemFieldEnum.url.addQuery(query, like, false);
+					UrlItemFieldEnum.INSTANCE.url.addQuery(query, like, false);
 				}
 			}
 			if (host != null) {
 				host = host.trim();
 				if (host.length() > 0)
 					if (includingSubDomain)
-						urlItemFieldEnum.subhost.addFilterQuery(searchRequest,
-								QueryUtils.escapeQuery(host), false, false);
+						UrlItemFieldEnum.INSTANCE.subhost.addFilterQuery(
+								searchRequest, QueryUtils.escapeQuery(host),
+								false, false);
 					else
-						urlItemFieldEnum.host.addFilterQuery(searchRequest,
-								QueryUtils.escapeQuery(host), false, false);
+						UrlItemFieldEnum.INSTANCE.host.addFilterQuery(
+								searchRequest, QueryUtils.escapeQuery(host),
+								false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					urlItemFieldEnum.lang.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(lang), false, false);
+					UrlItemFieldEnum.INSTANCE.lang.addFilterQuery(
+							searchRequest, QueryUtils.escapeQuery(lang), false,
+							false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					urlItemFieldEnum.langMethod.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(langMethod), true, false);
+					UrlItemFieldEnum.INSTANCE.langMethod.addFilterQuery(
+							searchRequest, QueryUtils.escapeQuery(langMethod),
+							true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
-					urlItemFieldEnum.contentBaseType.addFilterQuery(
+					UrlItemFieldEnum.INSTANCE.contentBaseType.addFilterQuery(
 							searchRequest,
 							QueryUtils.escapeQuery(contentBaseType), true,
 							false);
@@ -393,15 +396,15 @@ public class UrlManager extends AbstractManager {
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
-					urlItemFieldEnum.contentTypeCharset.addFilterQuery(
-							searchRequest,
-							QueryUtils.escapeQuery(contentTypeCharset), false,
-							false);
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset
+							.addFilterQuery(searchRequest,
+									QueryUtils.escapeQuery(contentTypeCharset),
+									false, false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
-					urlItemFieldEnum.contentEncoding.addFilterQuery(
+					UrlItemFieldEnum.INSTANCE.contentEncoding.addFilterQuery(
 							searchRequest,
 							QueryUtils.escapeQuery(contentEncoding), true,
 							false);
@@ -409,20 +412,20 @@ public class UrlManager extends AbstractManager {
 
 			if (robotsTxtStatus != null
 					&& robotsTxtStatus != RobotsTxtStatus.ALL)
-				urlItemFieldEnum.robotsTxtStatus.addFilterQuery(searchRequest,
-						robotsTxtStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.addFilterQuery(
+						searchRequest, robotsTxtStatus.value, false, false);
 			if (responseCode != null)
-				urlItemFieldEnum.responseCode.addFilterQuery(searchRequest,
-						responseCode, false, false);
+				UrlItemFieldEnum.INSTANCE.responseCode.addFilterQuery(
+						searchRequest, responseCode, false, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-				urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
-						fetchStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(
+						searchRequest, fetchStatus.value, false, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
-				urlItemFieldEnum.parserStatus.addFilterQuery(searchRequest,
-						parserStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(
+						searchRequest, parserStatus.value, false, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
-				urlItemFieldEnum.indexStatus.addFilterQuery(searchRequest,
-						indexStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(
+						searchRequest, indexStatus.value, false, false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -434,8 +437,8 @@ public class UrlManager extends AbstractManager {
 					to = UrlItem.longFormat.format(Integer.MAX_VALUE);
 				else
 					to = UrlItem.longFormat.format(maxContentLength);
-				urlItemFieldEnum.contentLength.addQueryRange(query, from, to,
-						false);
+				UrlItemFieldEnum.INSTANCE.contentLength.addQueryRange(query,
+						from, to, false);
 			}
 
 			if (startDate != null || endDate != null) {
@@ -448,8 +451,8 @@ public class UrlManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = UrlItem.whenDateFormat.format(endDate);
-				urlItemFieldEnum.when.addFilterRange(searchRequest, from, to,
-						false, false);
+				UrlItemFieldEnum.INSTANCE.when.addFilterRange(searchRequest,
+						from, to, false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -462,8 +465,8 @@ public class UrlManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = UrlItem.whenDateFormat.format(endModifiedDate);
-				urlItemFieldEnum.lastModifiedDate.addFilterRange(searchRequest,
-						from, to, false, false);
+				UrlItemFieldEnum.INSTANCE.lastModifiedDate.addFilterRange(
+						searchRequest, from, to, false, false);
 			}
 
 			if (query.length() == 0)
@@ -519,7 +522,7 @@ public class UrlManager extends AbstractManager {
 					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
 			searchRequest.setQueryString("*:*");
 			FacetField facetField = searchRequest.getFacetFieldList().get(
-					urlItemFieldEnum.host.getName());
+					UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)
 				minCount = 0;
 			facetField.setMinCount(minCount);
@@ -528,7 +531,7 @@ public class UrlManager extends AbstractManager {
 			if (result == null)
 				return null;
 			return result.getFacetList().getByField(
-					urlItemFieldEnum.host.getName());
+					UrlItemFieldEnum.INSTANCE.host.getName());
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}
@@ -537,7 +540,7 @@ public class UrlManager extends AbstractManager {
 	public void updateUrlItem(UrlItem urlItem) throws SearchLibException {
 		try {
 			IndexDocument indexDocument = new IndexDocument();
-			urlItem.populate(indexDocument, urlItemFieldEnum);
+			urlItem.populate(indexDocument);
 			dbClient.updateDocument(indexDocument);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -557,7 +560,7 @@ public class UrlManager extends AbstractManager {
 				if (urlItem == null)
 					continue;
 				IndexDocument indexDocument = new IndexDocument();
-				urlItem.populate(indexDocument, urlItemFieldEnum);
+				urlItem.populate(indexDocument);
 				documents.add(indexDocument);
 			}
 			if (documents.size() > 0)
@@ -584,29 +587,49 @@ public class UrlManager extends AbstractManager {
 					crawls.size());
 			List<String> documentsToDelete = new ArrayList<String>(
 					crawls.size());
+			String uniqueField = targetClient.getSchema().getUniqueField();
 			for (Crawl crawl : crawls) {
 				if (crawl == null)
 					continue;
 				if (crawl.getHostUrlList().getListType() == ListType.DBCRAWL)
 					continue;
+				UrlItem currentUrlItem = crawl.getUrlItem();
 				List<IndexDocument> indexDocuments = crawl
 						.getTargetIndexDocuments();
-				TargetStatus targetStatus = crawl.getUrlItem()
-						.getTargetResult();
+				TargetStatus targetStatus = currentUrlItem.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
-					if (indexDocuments != null)
-						for (IndexDocument indexDocument : indexDocuments)
-							if (indexDocument != null)
-								documentsToUpdate.add(indexDocument);
+					if (CollectionUtils.isEmpty(indexDocuments)) {
+						currentUrlItem
+								.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
+						continue;
+					}
+					for (IndexDocument indexDocument : indexDocuments) {
+						if (indexDocument == null)
+							continue;
+						if (uniqueField != null
+								&& !indexDocument.hasContent(uniqueField)) {
+							currentUrlItem
+									.setIndexStatus(IndexStatus.INDEX_ERROR);
+						} else
+							documentsToUpdate.add(indexDocument);
+					}
 				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(crawl.getUrlItem().getUrl());
 			}
-			if (documentsToUpdate.size() > 0)
+			if (documentsToUpdate.size() > 0) {
 				targetClient.updateDocuments(documentsToUpdate);
+				for (Crawl crawl : crawls) {
+					UrlItem currentUrlItem = crawl.getUrlItem();
+					IndexStatus indexStatus = currentUrlItem.getIndexStatus();
+					if (indexStatus == IndexStatus.TO_INDEX
+							|| indexStatus == IndexStatus.NOT_INDEXED)
+						currentUrlItem.setIndexStatus(IndexStatus.INDEXED);
+				}
+			}
 			if (documentsToDelete.size() > 0) {
 				String targetField = findIndexedFieldOfTargetIndex(
 						targetClient.getWebCrawlerFieldMap(),
-						urlItemFieldEnum.url.getName());
+						UrlItemFieldEnum.INSTANCE.url.getName());
 				if (targetField != null)
 					targetClient
 							.deleteDocuments(targetField, documentsToDelete);
@@ -722,8 +745,8 @@ public class UrlManager extends AbstractManager {
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
-				dbClient.deleteDocuments(urlItemFieldEnum.url.getName(),
-						urlList);
+				dbClient.deleteDocuments(
+						UrlItemFieldEnum.INSTANCE.url.getName(), urlList);
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) deleted");
 				if (taskLog.isAbortRequested())
@@ -740,9 +763,9 @@ public class UrlManager extends AbstractManager {
 			int bufferSize, TaskLog taskLog) throws SearchLibException {
 		String targetField = findIndexedFieldOfTargetIndex(
 				targetClient.getWebCrawlerFieldMap(),
-				urlItemFieldEnum.url.getName());
+				UrlItemFieldEnum.INSTANCE.url.getName());
 		return synchronizeIndex(searchRequest, targetField,
-				urlItemFieldEnum.url.getName(), bufferSize, taskLog);
+				UrlItemFieldEnum.INSTANCE.url.getName(), bufferSize, taskLog);
 	}
 
 	public long updateFetchStatus(AbstractSearchRequest searchRequest,
@@ -751,7 +774,7 @@ public class UrlManager extends AbstractManager {
 		setCurrentTaskLog(taskLog);
 		try {
 			long total = 0;
-			urlItemFieldEnum.fetchStatus.addFilterQuery(searchRequest,
+			UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest,
 					fetchStatus.value, false, true);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			long last = 0;

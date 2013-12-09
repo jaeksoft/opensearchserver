@@ -56,6 +56,8 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<Boolean> soapActive;
 
+	private PropertyItem<Boolean> externalParser;
+
 	private PropertyItem<Boolean> logFullTrace;
 
 	private PropertyItem<String> smtpHostname;
@@ -101,6 +103,9 @@ public class ClientFactory implements PropertyItemListener {
 			soapActive = advancedProperties.newBooleanProperty("soapActive",
 					false);
 			soapActive.addListener(this);
+			externalParser = advancedProperties.newBooleanProperty(
+					"externalParser", false);
+			externalParser.addListener(this);
 			logFullTrace = advancedProperties.newBooleanProperty(
 					"logFullTrace", false);
 			hasBeenSet(logFullTrace);
@@ -182,6 +187,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<Boolean> getSoapActive() {
 		return soapActive;
+	}
+
+	public PropertyItem<Boolean> getExternalParser() {
+		return externalParser;
 	}
 
 	public PropertyItem<Boolean> getLogFullTrace() {

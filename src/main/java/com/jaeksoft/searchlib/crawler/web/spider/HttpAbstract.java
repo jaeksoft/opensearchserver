@@ -47,6 +47,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -55,8 +56,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
@@ -64,6 +63,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public abstract class HttpAbstract {
 
@@ -71,11 +71,10 @@ public abstract class HttpAbstract {
 	private RedirectStrategy redirectStrategy;
 	private ProxyHandler proxyHandler;
 	private HttpResponse httpResponse = null;
-	private HttpContext httpContext = null;
+	private HttpClientContext httpClientContext = null;
 	private HttpRequestBase httpBaseRequest = null;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
-	private RequestConfig requestConfig = null;
 	private BasicCookieStore cookieStore;
 	private CredentialsProvider credentialsProvider;
 
@@ -84,15 +83,6 @@ public abstract class HttpAbstract {
 		HttpClientBuilder builder = HttpClients.custom();
 
 		redirectStrategy = new DefaultRedirectStrategy();
-
-		// No more than one 1 minute to establish the connection
-		// No more than 10 minutes to establish the socket
-		// Enable stales connection checking
-		// Cookies uses browser compatibility
-		requestConfig = RequestConfig.custom().setSocketTimeout(1000 * 60 * 10)
-				.setConnectTimeout(1000 * 60)
-				.setStaleConnectionCheckEnabled(true)
-				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build();
 
 		if (userAgent != null) {
 			userAgent = userAgent.trim();
@@ -126,6 +116,7 @@ public abstract class HttpAbstract {
 	protected void reset() {
 		httpResponse = null;
 		httpBaseRequest = null;
+		httpClientContext = null;
 		synchronized (this) {
 			if (httpEntity != null) {
 				try {
@@ -135,7 +126,6 @@ public abstract class HttpAbstract {
 				}
 				httpEntity = null;
 			}
-			httpEntity = null;
 			statusLine = null;
 		}
 	}
@@ -154,7 +144,17 @@ public abstract class HttpAbstract {
 		}
 
 		this.httpBaseRequest = httpBaseRequest;
+
+		// No more than one 1 minute to establish the connection
+		// No more than 10 minutes to establish the socket
+		// Enable stales connection checking
+		// Cookies uses browser compatibility
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
+				.setStaleConnectionCheckEnabled(true)
+				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build();
 		httpBaseRequest.setConfig(requestConfig);
+
 		URI uri = httpBaseRequest.getURI();
 		if (proxyHandler != null)
 			proxyHandler.check(httpClient, uri);
@@ -164,9 +164,9 @@ public abstract class HttpAbstract {
 		else
 			credentialItem.setUpCredentials(credentialsProvider);
 
-		httpContext = new BasicHttpContext();
+		httpClientContext = new HttpClientContext();
 
-		httpResponse = httpClient.execute(httpBaseRequest, httpContext);
+		httpResponse = httpClient.execute(httpBaseRequest, httpClientContext);
 		if (httpResponse == null)
 			return;
 		statusLine = httpResponse.getStatusLine();
@@ -177,14 +177,14 @@ public abstract class HttpAbstract {
 		synchronized (this) {
 			if (httpResponse == null)
 				return null;
-			if (httpContext == null)
+			if (httpClientContext == null)
 				return null;
 			try {
 				if (!redirectStrategy.isRedirected(httpBaseRequest,
-						httpResponse, httpContext))
+						httpResponse, httpClientContext))
 					return null;
 				HttpUriRequest httpUri = redirectStrategy.getRedirect(
-						httpBaseRequest, httpResponse, httpContext);
+						httpBaseRequest, httpResponse, httpClientContext);
 				if (httpUri == null)
 					return null;
 				return httpUri.getURI();
@@ -358,8 +358,7 @@ public abstract class HttpAbstract {
 		synchronized (this) {
 			try {
 				reset();
-				if (httpClient != null)
-					httpClient.getConnectionManager().shutdown();
+				IOUtils.close(httpClient);
 			} catch (Exception e) {
 				Logging.warn(e.getMessage(), e);
 			}

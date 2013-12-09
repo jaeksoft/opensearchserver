@@ -82,8 +82,6 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
 			ParserFieldEnum.htmlProvider, ParserFieldEnum.htmlSource };
 
-	private UrlItemFieldEnum urlItemFieldEnum = null;
-
 	private class BoostTag {
 		private final Float boost;
 		private String firstContent;
@@ -154,8 +152,6 @@ public class HtmlParser extends Parser {
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
 				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
-		if (config != null)
-			urlItemFieldEnum = config.getUrlManager().urlItemFieldEnum;
 		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null, 10, 1);
 		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null, 10, 1);
 		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null, 10, 1);
@@ -351,14 +347,15 @@ public class HtmlParser extends Parser {
 		String detectedCharset = null;
 
 		IndexDocument sourceDocument = getSourceDocument();
-		if (sourceDocument != null && urlItemFieldEnum != null) {
+
+		if (sourceDocument != null) {
 			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
-					urlItemFieldEnum.contentTypeCharset.getName(), 0);
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
 				headerCharset = fieldValueItem.getValue();
 			if (headerCharset == null) {
 				fieldValueItem = sourceDocument.getFieldValue(
-						urlItemFieldEnum.contentEncoding.getName(), 0);
+						UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0);
 				if (fieldValueItem != null)
 					headerCharset = fieldValueItem.getValue();
 			}
@@ -396,9 +393,9 @@ public class HtmlParser extends Parser {
 			if (currentURL == null)
 				currentURL = LinkUtils.newEncodedURL(streamLimiter
 						.getOriginURL());
-			if (currentURL == null && urlItemFieldEnum != null) {
+			if (currentURL == null) {
 				FieldValueItem fvi = srcDoc.getFieldValue(
-						urlItemFieldEnum.url.getName(), 0);
+						UrlItemFieldEnum.INSTANCE.url.getName(), 0);
 				if (fvi != null)
 					currentURL = LinkUtils.newEncodedURL(fvi.getValue());
 			}

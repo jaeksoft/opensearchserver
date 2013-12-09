@@ -37,7 +37,7 @@ public class FileSystemParser extends Parser {
 			ParserFieldEnum.md5 };
 
 	public FileSystemParser() {
-		super(fl);
+		super(fl, false);
 	}
 
 	@Override
