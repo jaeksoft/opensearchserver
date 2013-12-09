@@ -28,9 +28,10 @@ import java.io.IOException;
 import java.text.NumberFormat;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.search.TermRangeQuery;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -207,49 +208,67 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
 			AbstractSearchRequest request) throws ParseException {
 		String key = "GeoFilter - "
-				+ getQuery(defaultField, analyzer, request.getGeoParameters())
-						.toString();
+				+ getQuery(request.getGeoParameters()).toString();
 		return key;
 	}
 
-	private String getQueryString(GeoParameters geoParams) {
-		if (geoParams == null)
-			return null;
+	private Query getQuery(GeoParameters geoParams) throws ParseException {
+		if (query != null)
+			return query;
 		double lat = geoParams.getLatitudeRadian();
 		double lon = geoParams.getLongitudeRadian();
 		Geospatial.Location loc = new Geospatial.Location(lat, lon);
 		double dist = distance / unit.div;
+		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
 		Geospatial.Location[] bound = Geospatial.boundingCoordinates(loc, dist,
 				unit.radius);
-		StringBuilder sb = new StringBuilder(geoParams.getLatitudeField());
-		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
-		sb.append(":[");
-		sb.append(nf.format(bound[0].latitude));
-		sb.append(" TO ");
-		sb.append(nf.format(bound[1].latitude));
-		sb.append("] AND ");
-		sb.append(geoParams.getLongitudeField());
-		sb.append(":[");
-		sb.append(nf.format(bound[0].longitude));
-		sb.append(" TO ");
-		sb.append(nf.format(bound[1].longitude));
-		sb.append("]");
-		return sb.toString();
+		BooleanQuery booleanQuery = new BooleanQuery(true);
+		booleanQuery.add(
+				getBooleanQuery(nf, geoParams.getLatitudeField(),
+						bound[0].latitude, bound[1].latitude), Occur.MUST);
+		booleanQuery.add(
+				getBooleanQuery(nf, geoParams.getLongitudeField(),
+						bound[0].longitude, bound[1].longitude), Occur.MUST);
+		query = booleanQuery;
+		return query;
 	}
 
-	private Query getQuery(SchemaField defaultField, Analyzer analyzer,
-			GeoParameters geoParams) throws ParseException {
-		if (query != null)
-			return query;
-		QueryParser queryParser = new QueryParser(Version.LUCENE_36,
-				defaultField.getName(), analyzer);
-		queryParser.setLowercaseExpandedTerms(false);
-		try {
-			query = queryParser.parse(getQueryString(geoParams));
-		} catch (org.apache.lucene.queryParser.ParseException e) {
-			throw new ParseException(e);
+	private final static BooleanQuery getBooleanQuery(final NumberFormat nf,
+			final String field, final double min, final double max) {
+		String fMin = nf.format(min);
+		String fMax = nf.format(max);
+		BooleanQuery booleanQuery = new BooleanQuery(true);
+		if (min < 0) {
+			if (max < 0)
+				booleanQuery.add(new TermRangeQuery(field, fMax, fMin, true,
+						true), Occur.MUST);
+			else {
+				booleanQuery.add(new TermRangeQuery(field,
+						DegreesRadiansFilter.NEGATIVE_RADIAN_ZERO, fMin, true,
+						true),
+
+				Occur.SHOULD);
+				booleanQuery.add(new TermRangeQuery(field,
+						DegreesRadiansFilter.POSITIVE_RADIAN_ZERO, fMax, true,
+						true),
+
+				Occur.SHOULD);
+			}
+		} else {
+			booleanQuery.add(new TermRangeQuery(field, fMin, fMax, true, true),
+					Occur.MUST);
 		}
-		return query;
+		return booleanQuery;
+	}
+
+	public static void main(String[] args) {
+		NumberFormat nf = DegreesRadiansFilter.getRadiansFormat();
+		System.out.println(getBooleanQuery(nf, "neg_neg", -1.25, -0.50));
+		System.out.println(getBooleanQuery(nf, "neg_zero", -0.50, 0));
+		System.out.println(getBooleanQuery(nf, "neg_pos", -0.50, +0.50));
+		System.out.println(getBooleanQuery(nf, "zero_zero", 0, 0));
+		System.out.println(getBooleanQuery(nf, "zero_pos", 0, +0.50));
+		System.out.println(getBooleanQuery(nf, "pos_pos", 0.50, 1.25));
 	}
 
 	@Override
@@ -257,8 +276,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 			SchemaField defaultField, Analyzer analyzer,
 			AbstractSearchRequest request, Timer timer) throws ParseException,
 			IOException {
-		Query query = getQuery(defaultField, analyzer,
-				request.getGeoParameters());
+		Query query = getQuery(request.getGeoParameters());
 		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
 				timer);
 		return filterHits;
