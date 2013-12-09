@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,8 @@ import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
+
+	public final static FileItemFieldEnum INSTANCE = new FileItemFieldEnum();
 
 	public final ItemField repository = new ItemField(this, "repository");
 

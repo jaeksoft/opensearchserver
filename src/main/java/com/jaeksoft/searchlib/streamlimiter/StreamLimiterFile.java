@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,12 @@ import java.io.IOException;
 public class StreamLimiterFile extends StreamLimiter {
 
 	private final File file;
+
+	public StreamLimiterFile(long limit, File file, String originalURL)
+			throws IOException {
+		super(limit, file.getName(), originalURL);
+		this.file = file;
+	}
 
 	public StreamLimiterFile(long limit, File file) throws IOException {
 		super(limit, file.getName(), file.toURI().toString());

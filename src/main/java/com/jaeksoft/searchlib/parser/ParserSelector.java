@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -405,13 +406,19 @@ public class ParserSelector {
 			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
 			throws SearchLibException, ClassNotFoundException {
 		try {
+			boolean externalParser = ClientFactory.INSTANCE.getExternalParser()
+					.getValue();
 			Set<ParserType> parserSet = new HashSet<ParserType>();
 			while (parser != null) {
 				if (parserSet.contains(parser.getParserType()))
 					throw new SearchLibException(
 							"Infinite loop in parser fail over loop");
 				parserSet.add(parser.getParserType());
-				parser.doParserContent(sourceDocument, streamLimiter, lang);
+				if (externalParser)
+					parser.doParserContentExternal(sourceDocument,
+							streamLimiter, lang);
+				else
+					parser.doParserContent(sourceDocument, streamLimiter, lang);
 				if (parser.getError() == null)
 					return parser;
 				ParserFactory parserFactory = getParserByName(parser

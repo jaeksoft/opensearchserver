@@ -48,6 +48,10 @@ public class StartStopListener implements ServletContextListener {
 
 	private static boolean active = false;
 
+	public static String REALPATH_WEBINF_CLASSES = null;
+
+	public static String REALPATH_WEBINF_LIB = null;
+
 	private static void initDataDir(ServletContext servletContext) {
 		String single_data = System.getenv("OPENSEARCHSERVER_DATA");
 		String multi_data = System.getenv("OPENSEARCHSERVER_MULTIDATA");
@@ -173,6 +177,9 @@ public class StartStopListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		ServletContext servletContext = contextEvent.getServletContext();
+		REALPATH_WEBINF_CLASSES = servletContext
+				.getRealPath("/WEB-INF/classes");
+		REALPATH_WEBINF_LIB = servletContext.getRealPath("/WEB-INF/lib");
 		initDataDir(servletContext);
 		try {
 			version = new Version(servletContext);
@@ -182,5 +189,4 @@ public class StartStopListener implements ServletContextListener {
 		start();
 		new ThreadedLoad();
 	}
-
 }

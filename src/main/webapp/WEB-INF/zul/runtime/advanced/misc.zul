@@ -40,6 +40,12 @@
 				value="Set the maximum number of clauses permitted per boolean query. Default value is 1024" />
 		</row>
 		<row>
+			<label value="Parsing uses external process" />
+			<checkbox checked="@bind(advanced.externalParser.value)" />
+			<label
+				value="Enable/disable the use of external process for text extraction." />
+		</row>
+		<row>
 			<label value="Enable the SOAP Web Service" />
 			<checkbox checked="@bind(advanced.soapActive.value)" />
 			<label

@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.database.FileItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileItemFieldEnum;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
@@ -369,7 +370,7 @@ public class FileController extends CrawlerController {
 					SearchTemplate.fileSearch);
 
 			totalSize = (int) fileManager.getFiles(searchRequest,
-					fileManager.getFileItemFieldEnum().uri, true, getPageSize()
+					FileItemFieldEnum.INSTANCE.uri, true, getPageSize()
 							* getActivePage(), getPageSize(), fileList);
 			return fileList;
 		}

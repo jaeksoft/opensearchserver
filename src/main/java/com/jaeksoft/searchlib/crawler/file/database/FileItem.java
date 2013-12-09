@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.crawler.file.database;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -47,7 +46,7 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 
-public class FileItem extends FileInfo implements Serializable {
+public class FileItem extends FileInfo {
 
 	public static final String UTF_8_ENCODING = "UTF-8";
 
@@ -66,11 +65,6 @@ public class FileItem extends FileInfo implements Serializable {
 			return name;
 		}
 	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4043010587042224473L;
 
 	final static ThreadSafeDecimalFormat contentLengthFormat = new ThreadSafeDecimalFormat(
 			"00000000000000");
@@ -111,36 +105,40 @@ public class FileItem extends FileInfo implements Serializable {
 		groupDeny = null;
 	}
 
-	public FileItem(ResultDocument doc, FileItemFieldEnum fileItemFieldEnum)
-			throws UnsupportedEncodingException, URISyntaxException {
-		super(doc, fileItemFieldEnum);
+	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
+			URISyntaxException {
+		super(doc);
 
 		setRepository(doc.getValueContent(
-				fileItemFieldEnum.repository.getName(), 0));
-		setDirectory(doc.getValueContent(fileItemFieldEnum.directory.getName(),
-				0));
+				FileItemFieldEnum.INSTANCE.repository.getName(), 0));
+		setDirectory(doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.directory.getName(), 0));
 		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValueArray(fileItemFieldEnum.subDirectory.getName())));
+				.getValueArray(FileItemFieldEnum.INSTANCE.subDirectory
+						.getName())));
 
-		setLang(doc.getValueContent(fileItemFieldEnum.lang.getName(), 0));
+		setLang(doc.getValueContent(FileItemFieldEnum.INSTANCE.lang.getName(),
+				0));
 
 		setLangMethod(doc.getValueContent(
-				fileItemFieldEnum.langMethod.getName(), 0));
+				FileItemFieldEnum.INSTANCE.langMethod.getName(), 0));
 
-		setCrawlDate(doc.getValueContent(fileItemFieldEnum.crawlDate.getName(),
-				0));
+		setCrawlDate(doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.crawlDate.getName(), 0));
 
 		setFileExtension(doc.getValueContent(
-				fileItemFieldEnum.fileExtension.getName(), 0));
+				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
 
 		setUserAllow(FieldValueItem.buildArrayList(doc
-				.getValueArray(fileItemFieldEnum.userAllow.getName())));
+				.getValueArray(FileItemFieldEnum.INSTANCE.userAllow.getName())));
 		setUserDeny(FieldValueItem.buildArrayList(doc
-				.getValueArray(fileItemFieldEnum.userDeny.getName())));
-		setGroupAllow(FieldValueItem.buildArrayList(doc
-				.getValueArray(fileItemFieldEnum.groupAllow.getName())));
+				.getValueArray(FileItemFieldEnum.INSTANCE.userDeny.getName())));
+		setGroupAllow(FieldValueItem
+				.buildArrayList(doc
+						.getValueArray(FileItemFieldEnum.INSTANCE.groupAllow
+								.getName())));
 		setGroupDeny(FieldValueItem.buildArrayList(doc
-				.getValueArray(fileItemFieldEnum.groupDeny.getName())));
+				.getValueArray(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance)
@@ -190,10 +188,9 @@ public class FileItem extends FileInfo implements Serializable {
 		return sb.toString();
 	}
 
-	public IndexDocument getIndexDocument(FileItemFieldEnum fileItemFieldEnum)
-			throws UnsupportedEncodingException {
+	public IndexDocument getIndexDocument() throws UnsupportedEncodingException {
 		IndexDocument indexDocument = new IndexDocument();
-		populate(indexDocument, fileItemFieldEnum);
+		populate(indexDocument);
 		return indexDocument;
 	}
 
@@ -218,41 +215,47 @@ public class FileItem extends FileInfo implements Serializable {
 	}
 
 	@Override
-	public void populate(IndexDocument indexDocument,
-			FileItemFieldEnum fileItemFieldEnum) {
-		super.populate(indexDocument, fileItemFieldEnum);
+	public void populate(IndexDocument indexDocument) {
+		super.populate(indexDocument);
 
 		if (repository != null)
-			indexDocument.setString(fileItemFieldEnum.repository.getName(),
-					repository);
+			indexDocument
+					.setString(FileItemFieldEnum.INSTANCE.repository.getName(),
+							repository);
 
-		indexDocument.setString(fileItemFieldEnum.uri.getName(), getUri());
+		indexDocument.setString(FileItemFieldEnum.INSTANCE.uri.getName(),
+				getUri());
 
 		if (directory != null)
-			indexDocument.setString(fileItemFieldEnum.directory.getName(),
-					directory);
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.directory.getName(), directory);
 
-		indexDocument.setStringList(fileItemFieldEnum.subDirectory.getName(),
+		indexDocument.setStringList(
+				FileItemFieldEnum.INSTANCE.subDirectory.getName(),
 				getSubDirectory());
 
 		if (crawlDate != null)
-			indexDocument.setString(fileItemFieldEnum.crawlDate.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.crawlDate.getName(),
 					dateFormat.format(crawlDate));
 
 		if (lang != null)
-			indexDocument.setString(fileItemFieldEnum.lang.getName(), lang);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.lang.getName(),
+					lang);
 		if (langMethod != null)
-			indexDocument.setString(fileItemFieldEnum.langMethod.getName(),
-					langMethod);
+			indexDocument
+					.setString(FileItemFieldEnum.INSTANCE.langMethod.getName(),
+							langMethod);
 
-		indexDocument.setStringList(fileItemFieldEnum.userAllow.getName(),
-				getUserAllow());
-		indexDocument.setStringList(fileItemFieldEnum.userDeny.getName(),
-				getUserDeny());
-		indexDocument.setStringList(fileItemFieldEnum.groupAllow.getName(),
+		indexDocument.setStringList(
+				FileItemFieldEnum.INSTANCE.userAllow.getName(), getUserAllow());
+		indexDocument.setStringList(
+				FileItemFieldEnum.INSTANCE.userDeny.getName(), getUserDeny());
+		indexDocument.setStringList(
+				FileItemFieldEnum.INSTANCE.groupAllow.getName(),
 				getGroupAllow());
-		indexDocument.setStringList(fileItemFieldEnum.groupDeny.getName(),
-				getGroupDeny());
+		indexDocument.setStringList(
+				FileItemFieldEnum.INSTANCE.groupDeny.getName(), getGroupDeny());
 
 	}
 

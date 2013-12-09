@@ -66,7 +66,10 @@ public class ParserFactory extends ClassFactory implements
 
 	private ParserType parserType;
 
-	protected ParserFactory(ParserFieldEnum[] fieldList) {
+	protected final boolean externalAllowed;
+
+	protected ParserFactory(ParserFieldEnum[] fieldList, boolean externalAllowed) {
+		this.externalAllowed = externalAllowed;
 		this.fieldList = fieldList;
 		this.parserType = null;
 		this.fieldMap = null;

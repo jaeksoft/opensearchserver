@@ -121,4 +121,12 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return temp;
 	}
 
+	public final static void deleteDirectoryQuietly(File directory) {
+		try {
+			deleteDirectory(directory);
+		} catch (IOException e) {
+			Logging.warn(e);
+		}
+	}
+
 }

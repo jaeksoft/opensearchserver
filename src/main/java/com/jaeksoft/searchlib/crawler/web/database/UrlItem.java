@@ -110,51 +110,61 @@ public class UrlItem {
 		urlWhen = null;
 	}
 
-	protected void init(ResultDocument doc, UrlItemFieldEnum urlItemFieldEnum) {
-		setUrl(doc.getValueContent(urlItemFieldEnum.url.getName(), 0));
-		setHost(doc.getValueContent(urlItemFieldEnum.host.getName(), 0));
-		setSubHost(doc.getValueArray(urlItemFieldEnum.subhost.getName()));
-		addOutLinks(doc.getValueArray(urlItemFieldEnum.outlink.getName()));
-		addInLinks(doc.getValueArray(urlItemFieldEnum.inlink.getName()));
+	protected void init(ResultDocument doc) {
+		setUrl(doc.getValueContent(UrlItemFieldEnum.INSTANCE.url.getName(), 0));
+		setHost(doc
+				.getValueContent(UrlItemFieldEnum.INSTANCE.host.getName(), 0));
+		setSubHost(doc.getValueArray(UrlItemFieldEnum.INSTANCE.subhost
+				.getName()));
+		addOutLinks(doc.getValueArray(UrlItemFieldEnum.INSTANCE.outlink
+				.getName()));
+		addInLinks(doc
+				.getValueArray(UrlItemFieldEnum.INSTANCE.inlink.getName()));
 		setContentDispositionFilename(doc.getValueContent(
-				urlItemFieldEnum.contentDispositionFilename.getName(), 0));
-		setContentBaseType(doc.getValueContent(
-				urlItemFieldEnum.contentBaseType.getName(), 0));
-		setContentTypeCharset(doc.getValueContent(
-				urlItemFieldEnum.contentTypeCharset.getName(), 0));
-		setContentLength(doc.getValueContent(
-				urlItemFieldEnum.contentLength.getName(), 0));
-		setContentEncoding(doc.getValueContent(
-				urlItemFieldEnum.contentEncoding.getName(), 0));
-		setLang(doc.getValueContent(urlItemFieldEnum.lang.getName(), 0));
-		setLangMethod(doc.getValueContent(
-				urlItemFieldEnum.langMethod.getName(), 0));
-		setWhen(doc.getValueContent(urlItemFieldEnum.when.getName(), 0));
-		setRobotsTxtStatusInt(doc.getValueContent(
-				urlItemFieldEnum.robotsTxtStatus.getName(), 0));
-		setFetchStatusInt(doc.getValueContent(
-				urlItemFieldEnum.fetchStatus.getName(), 0));
-		setResponseCode(doc.getValueContent(
-				urlItemFieldEnum.responseCode.getName(), 0));
-		setParserStatusInt(doc.getValueContent(
-				urlItemFieldEnum.parserStatus.getName(), 0));
-		setIndexStatusInt(doc.getValueContent(
-				urlItemFieldEnum.indexStatus.getName(), 0));
-		setMd5size(doc.getValueContent(urlItemFieldEnum.md5size.getName(), 0));
-		setLastModifiedDate(doc.getValueContent(
-				urlItemFieldEnum.lastModifiedDate.getName(), 0));
-		setParentUrl(doc.getValueContent(urlItemFieldEnum.parentUrl.getName(),
+				UrlItemFieldEnum.INSTANCE.contentDispositionFilename.getName(),
 				0));
+		setContentBaseType(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.contentBaseType.getName(), 0));
+		setContentTypeCharset(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0));
+		setContentLength(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.contentLength.getName(), 0));
+		setContentEncoding(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0));
+		setLang(doc
+				.getValueContent(UrlItemFieldEnum.INSTANCE.lang.getName(), 0));
+		setLangMethod(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.langMethod.getName(), 0));
+		setWhen(doc
+				.getValueContent(UrlItemFieldEnum.INSTANCE.when.getName(), 0));
+		setRobotsTxtStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(), 0));
+		setFetchStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
+		setResponseCode(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.responseCode.getName(), 0));
+		setParserStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
+		setIndexStatusInt(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
+		setMd5size(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.md5size.getName(), 0));
+		setLastModifiedDate(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(), 0));
+		setParentUrl(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.parentUrl.getName(), 0));
 		setRedirectionUrl(doc.getValueContent(
-				urlItemFieldEnum.redirectionUrl.getName(), 0));
+				UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(), 0));
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
-				urlItemFieldEnum.origin.getName(), 0)));
-		addHeaders(doc.getValueArray(urlItemFieldEnum.headers.getName()));
+				UrlItemFieldEnum.INSTANCE.origin.getName(), 0)));
+		addHeaders(doc.getValueArray(UrlItemFieldEnum.INSTANCE.headers
+				.getName()));
 		setBacklinkCount(doc.getValueContent(
-				urlItemFieldEnum.backlinkCount.getName(), 0));
-		instanceId = doc.getValueContent(urlItemFieldEnum.instanceId.getName(),
-				0);
-		urlWhen = doc.getValueContent(urlItemFieldEnum.urlWhen.getName(), 0);
+				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), 0));
+		instanceId = doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.instanceId.getName(), 0);
+		urlWhen = doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
 	}
 
 	private void addHeaders(FieldValueItem[] headersList) {
@@ -521,83 +531,96 @@ public class UrlItem {
 		return subhost;
 	}
 
-	public void populate(IndexDocument indexDocument,
-			UrlItemFieldEnum urlItemFieldEnum) throws URISyntaxException,
-			IOException {
-		indexDocument.setString(urlItemFieldEnum.url.getName(), getUrl());
-		indexDocument.setString(urlItemFieldEnum.when.getName(),
+	public void populate(IndexDocument indexDocument)
+			throws URISyntaxException, IOException {
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.url.getName(),
+				getUrl());
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.when.getName(),
 				whenDateFormat.format(when));
 		URL url = getURL();
 		if (url != null) {
-			indexDocument.setString(urlItemFieldEnum.host.getName(),
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.host.getName(),
 					url.getHost());
-			indexDocument.setStringList(urlItemFieldEnum.subhost.getName(),
+			indexDocument.setStringList(
+					UrlItemFieldEnum.INSTANCE.subhost.getName(),
 					buildSubHost(url.getHost()));
 		}
 		if (inLinks != null)
-			indexDocument.setStringList(urlItemFieldEnum.inlink.getName(),
-					inLinks);
+			indexDocument.setStringList(
+					UrlItemFieldEnum.INSTANCE.inlink.getName(), inLinks);
 		if (outLinks != null)
-			indexDocument.setStringList(urlItemFieldEnum.outlink.getName(),
-					outLinks);
+			indexDocument.setStringList(
+					UrlItemFieldEnum.INSTANCE.outlink.getName(), outLinks);
 		if (responseCode != null)
-			indexDocument.setObject(urlItemFieldEnum.responseCode.getName(),
+			indexDocument.setObject(
+					UrlItemFieldEnum.INSTANCE.responseCode.getName(),
 					responseCode);
 		if (contentDispositionFilename != null)
 			indexDocument.setString(
-					urlItemFieldEnum.contentDispositionFilename.getName(),
-					contentDispositionFilename);
+					UrlItemFieldEnum.INSTANCE.contentDispositionFilename
+							.getName(), contentDispositionFilename);
 		if (contentBaseType != null)
-			indexDocument.setString(urlItemFieldEnum.contentBaseType.getName(),
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.contentBaseType.getName(),
 					contentBaseType);
 		if (contentTypeCharset != null)
 			indexDocument.setString(
-					urlItemFieldEnum.contentTypeCharset.getName(),
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(),
 					contentTypeCharset);
 		if (contentLength != null)
-			indexDocument.setString(urlItemFieldEnum.contentLength.getName(),
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.contentLength.getName(),
 					longFormat.format(contentLength));
 		if (contentEncoding != null)
-			indexDocument.setString(urlItemFieldEnum.contentEncoding.getName(),
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.contentEncoding.getName(),
 					contentEncoding);
 		if (lang != null)
-			indexDocument.setString(urlItemFieldEnum.lang.getName(), lang);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.lang.getName(),
+					lang);
 		if (langMethod != null)
-			indexDocument.setString(urlItemFieldEnum.langMethod.getName(),
-					langMethod);
-		indexDocument.setObject(urlItemFieldEnum.robotsTxtStatus.getName(),
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.langMethod.getName(), langMethod);
+		indexDocument.setObject(
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(),
 				robotsTxtStatus.value);
-		indexDocument.setObject(urlItemFieldEnum.fetchStatus.getName(),
+		indexDocument.setObject(
+				UrlItemFieldEnum.INSTANCE.fetchStatus.getName(),
 				fetchStatus.value);
-		indexDocument.setObject(urlItemFieldEnum.parserStatus.getName(),
+		indexDocument.setObject(
+				UrlItemFieldEnum.INSTANCE.parserStatus.getName(),
 				parserStatus.value);
-		indexDocument.setObject(urlItemFieldEnum.indexStatus.getName(),
+		indexDocument.setObject(
+				UrlItemFieldEnum.INSTANCE.indexStatus.getName(),
 				indexStatus.value);
 		if (md5size != null)
-			indexDocument
-					.setString(urlItemFieldEnum.md5size.getName(), md5size);
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.md5size.getName(), md5size);
 		if (lastModifiedDate != null)
 			indexDocument.setString(
-					urlItemFieldEnum.lastModifiedDate.getName(),
+					UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(),
 					whenDateFormat.format(lastModifiedDate));
 		if (parentUrl != null)
-			indexDocument.setString(urlItemFieldEnum.parentUrl.getName(),
-					parentUrl);
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.parentUrl.getName(), parentUrl);
 		if (redirectionUrl != null)
-			indexDocument.setString(urlItemFieldEnum.redirectionUrl.getName(),
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(),
 					redirectionUrl);
 		if (origin != null)
-			indexDocument.setString(urlItemFieldEnum.origin.getName(),
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.origin.getName(),
 					origin.name());
 		if (headers != null)
-			indexDocument.setStringList(urlItemFieldEnum.headers.getName(),
-					headers);
-		indexDocument.setString(urlItemFieldEnum.backlinkCount.getName(),
+			indexDocument.setStringList(
+					UrlItemFieldEnum.INSTANCE.headers.getName(), headers);
+		indexDocument.setString(
+				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(),
 				longFormat.format(backlinkCount));
 		checkInstanceId();
-		indexDocument.setString(urlItemFieldEnum.instanceId.getName(),
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.instanceId.getName(),
 				instanceId);
-		indexDocument.setString(urlItemFieldEnum.urlWhen.getName(), urlWhen);
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.urlWhen.getName(),
+				urlWhen);
 	}
 
 	public String getLang() {
