@@ -40,9 +40,9 @@ import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.utils.Variables;
 
 public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 

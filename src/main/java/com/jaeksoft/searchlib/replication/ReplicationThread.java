@@ -31,13 +31,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -193,7 +191,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		for (File dirNotPushed : dirsNotPushed) {
 			if (dir.equals(dirNotPushed))
 				return false;
-			if (FilesUtils.isSubDirectory(dirNotPushed, dir))
+			if (FileUtils.isSubDirectory(dirNotPushed, dir))
 				return false;
 		}
 		return true;

@@ -36,10 +36,12 @@ import com.cybozu.labs.langdetect.LangDetectException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.ExternalParser.Result;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
 
 public class ParserResultItem {
 
@@ -49,16 +51,24 @@ public class ParserResultItem {
 
 	private IndexDocument directDocument;
 
-	private Node xmlForXPath;
+	private Node xmlForXPath = null;
 
 	private XPathParser xpathParser;
 
 	public ParserResultItem(Parser parser) {
 		this.parser = parser;
-		directDocument = null;
-		parserDocument = new IndexDocument();
-		xmlForXPath = null;
+		this.xmlForXPath = null;
+		this.directDocument = null;
+		this.parserDocument = new IndexDocument();
 		addField(ParserFieldEnum.parser_name, parser.getParserName());
+	}
+
+	public ParserResultItem(Parser parser, ExternalParser.Result result) {
+		this(parser);
+		this.directDocument = result.directDocument == null ? null
+				: DocumentUpdate.getIndexDocument(result.directDocument);
+		if (result.parserDocument != null)
+			result.parserDocument.populateDocument(this.parserDocument);
 	}
 
 	public void populate(IndexDocument indexDocument) throws IOException {
@@ -162,6 +172,13 @@ public class ParserResultItem {
 		addField(ParserFieldEnum.lang, lang.getLanguage());
 		addField(ParserFieldEnum.lang_method, langMethod);
 		return lang;
+	}
+
+	public final Result getNewExternalResult() {
+		return new ExternalParser.Result(
+				parserDocument != null ? new DocumentUpdate(parserDocument)
+						: null, directDocument != null ? new DocumentUpdate(
+						directDocument) : null);
 	}
 
 }

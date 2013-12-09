@@ -85,6 +85,10 @@ public class AdvancedComposer extends CommonController {
 		return ClientFactory.INSTANCE.getSoapActive();
 	}
 
+	public PropertyItem<Boolean> getExternalParser() {
+		return ClientFactory.INSTANCE.getExternalParser();
+	}
+
 	public PropertyItem<Boolean> getLogFullTrace() {
 		return ClientFactory.INSTANCE.getLogFullTrace();
 	}

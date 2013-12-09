@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadItem;
 import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.utils.Variables;
+import com.jaeksoft.searchlib.util.Variables;
 
 public class ReplicationMaster extends
 		ThreadMasterAbstract<ReplicationMaster, ReplicationThread> {

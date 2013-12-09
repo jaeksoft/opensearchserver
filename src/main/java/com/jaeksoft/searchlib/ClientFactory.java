@@ -35,7 +35,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.Sequence;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
@@ -55,6 +55,8 @@ public class ClientFactory implements PropertyItemListener {
 	private PropertyItem<String> defaultWebBrowserDriver;
 
 	private PropertyItem<Boolean> soapActive;
+
+	private PropertyItem<Boolean> externalParser;
 
 	private PropertyItem<Boolean> logFullTrace;
 
@@ -101,6 +103,9 @@ public class ClientFactory implements PropertyItemListener {
 			soapActive = advancedProperties.newBooleanProperty("soapActive",
 					false);
 			soapActive.addListener(this);
+			externalParser = advancedProperties.newBooleanProperty(
+					"externalParser", false);
+			externalParser.addListener(this);
 			logFullTrace = advancedProperties.newBooleanProperty(
 					"logFullTrace", false);
 			hasBeenSet(logFullTrace);
@@ -155,7 +160,7 @@ public class ClientFactory implements PropertyItemListener {
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!FilesUtils
+			if (!FileUtils
 					.isSubDirectory(
 							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 							initFileOrDir))
@@ -182,6 +187,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<Boolean> getSoapActive() {
 		return soapActive;
+	}
+
+	public PropertyItem<Boolean> getExternalParser() {
+		return externalParser;
 	}
 
 	public PropertyItem<Boolean> getLogFullTrace() {

@@ -114,6 +114,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			updateCrawlList = new ArrayList<CrawlFile>(0);
 			deleteUriList = new ArrayList<String>(0);
 
+			if (getSessionStats() != null)
 			getSessionStats().resetPending();
 		} finally {
 			rwl.w.unlock();

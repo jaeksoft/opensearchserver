@@ -58,27 +58,28 @@ public class FileInfo {
 		init();
 	}
 
-	public FileInfo(ResultDocument doc, FileItemFieldEnum fileItemFieldEnum)
-			throws UnsupportedEncodingException, URISyntaxException {
+	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
+			URISyntaxException {
 		init();
 		setFileSystemDate(doc.getValueContent(
-				fileItemFieldEnum.fileSystemDate.getName(), 0));
-		String s = doc.getValueContent(fileItemFieldEnum.fileType.getName(), 0);
+				FileItemFieldEnum.INSTANCE.fileSystemDate.getName(), 0));
+		String s = doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.fileType.getName(), 0);
 		if (s != null)
 			setFileType(FileTypeEnum.valueOf(s));
-		setUri(doc.getValueContent(fileItemFieldEnum.uri.getName(), 0));
-		setFileName(doc
-				.getValueContent(fileItemFieldEnum.fileName.getName(), 0));
+		setUri(doc.getValueContent(FileItemFieldEnum.INSTANCE.uri.getName(), 0));
+		setFileName(doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.fileName.getName(), 0));
 		setFileExtension(doc.getValueContent(
-				fileItemFieldEnum.fileExtension.getName(), 0));
-		setFileSize(doc
-				.getValueContent(fileItemFieldEnum.fileSize.getName(), 0));
+				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
+		setFileSize(doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.fileSize.getName(), 0));
 		setFetchStatusInt(doc.getValueContent(
-				fileItemFieldEnum.fetchStatus.getName(), 0));
+				FileItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
 		setParserStatusInt(doc.getValueContent(
-				fileItemFieldEnum.parserStatus.getName(), 0));
+				FileItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
 		setIndexStatusInt(doc.getValueContent(
-				fileItemFieldEnum.indexStatus.getName(), 0));
+				FileItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
 	}
 
 	public FileInfo(FileInstanceAbstract fileInstance)
@@ -247,8 +248,9 @@ public class FileInfo {
 
 	final public boolean isStatusFull() {
 		return fetchStatus == FetchStatus.FETCHED
-				&& parserStatus == ParserStatus.PARSED
-				&& (indexStatus == IndexStatus.INDEXED || indexStatus == IndexStatus.NOTHING_TO_INDEX);
+				&& (parserStatus == ParserStatus.PARSED || parserStatus == ParserStatus.PARSER_ERROR)
+				&& (indexStatus == IndexStatus.INDEXED
+						|| indexStatus == IndexStatus.NOTHING_TO_INDEX || indexStatus == IndexStatus.INDEX_ERROR);
 	}
 
 	/**
@@ -272,28 +274,35 @@ public class FileInfo {
 		return false;
 	}
 
-	public void populate(IndexDocument indexDocument,
-			FileItemFieldEnum fileItemFieldEnum) {
+	public void populate(IndexDocument indexDocument) {
 		if (fileSystemDate != null)
-			indexDocument.setString(fileItemFieldEnum.fileSystemDate.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.fileSystemDate.getName(),
 					FileItem.dateFormat.format(fileSystemDate));
 		if (fileSize != null)
-			indexDocument.setString(fileItemFieldEnum.fileSize.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.fileSize.getName(),
 					fileSize.toString());
 		if (fileName != null)
-			indexDocument.setString(fileItemFieldEnum.fileName.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.fileName.getName(),
 					fileName.toString());
-		indexDocument.setObject(fileItemFieldEnum.fetchStatus.getName(),
+		indexDocument.setObject(
+				FileItemFieldEnum.INSTANCE.fetchStatus.getName(),
 				fetchStatus.value);
-		indexDocument.setObject(fileItemFieldEnum.parserStatus.getName(),
+		indexDocument.setObject(
+				FileItemFieldEnum.INSTANCE.parserStatus.getName(),
 				parserStatus.value);
-		indexDocument.setObject(fileItemFieldEnum.indexStatus.getName(),
+		indexDocument.setObject(
+				FileItemFieldEnum.INSTANCE.indexStatus.getName(),
 				indexStatus.value);
 		if (fileType != null)
-			indexDocument.setString(fileItemFieldEnum.fileType.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.fileType.getName(),
 					fileType.name());
 		if (fileExtension != null)
-			indexDocument.setString(fileItemFieldEnum.fileExtension.getName(),
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.fileExtension.getName(),
 					fileExtension);
 	}
 

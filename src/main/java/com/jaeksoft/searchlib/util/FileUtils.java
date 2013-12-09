@@ -33,10 +33,9 @@ import java.util.Comparator;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 
-
 import com.jaeksoft.searchlib.Logging;
 
-public class FilesUtils {
+public class FileUtils extends org.apache.commons.io.FileUtils {
 
 	public final static class LastModifiedAscComparator implements
 			Comparator<File> {
@@ -66,13 +65,13 @@ public class FilesUtils {
 		return files;
 	}
 
-	public static String systemPathToUnix(String filePath) {
+	public final static String systemPathToUnix(String filePath) {
 		if ("\\".equals(File.separator))
 			filePath = FilenameUtils.separatorsToUnix(filePath);
 		return filePath;
 	}
 
-	public static String unixToSystemPath(String filePath) {
+	public final static String unixToSystemPath(String filePath) {
 		if ("\\".equals(File.separator))
 			filePath = FilenameUtils.separatorsToWindows(filePath);
 		return filePath;
@@ -105,7 +104,7 @@ public class FilesUtils {
 		}
 	}
 
-	public static File createTempDirectory(String prefix, String suffix)
+	public final static File createTempDirectory(String prefix, String suffix)
 			throws IOException {
 		final File temp;
 
@@ -120,6 +119,14 @@ public class FilesUtils {
 					+ temp.getAbsolutePath());
 
 		return temp;
+	}
+
+	public final static void deleteDirectoryQuietly(File directory) {
+		try {
+			deleteDirectory(directory);
+		} catch (IOException e) {
+			Logging.warn(e);
+		}
 	}
 
 }

@@ -119,7 +119,8 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			throw new CommonServiceException(Status.NO_CONTENT, "No documents");
 		List<IndexDocument> indexDocuments = new ArrayList<IndexDocument>(0);
 		for (DocumentUpdate document : documents) {
-			IndexDocument indexDocument = document.getIndexDocument();
+			IndexDocument indexDocument = DocumentUpdate
+					.getIndexDocument(document);
 			if (indexDocument != null)
 				indexDocuments.add(indexDocument);
 		}

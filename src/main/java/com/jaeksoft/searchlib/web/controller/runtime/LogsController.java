@@ -34,7 +34,7 @@ import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.FilesUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class LogsController extends CommonController {
@@ -61,7 +61,7 @@ public class LogsController extends CommonController {
 		File[] files = Logging.getLogFiles();
 		if (files == null)
 			return null;
-		FilesUtils.sortByLastModified(files, true);
+		FileUtils.sortByLastModified(files, true);
 		String[] names = new String[files.length];
 		int i = 0;
 		for (File file : files)
