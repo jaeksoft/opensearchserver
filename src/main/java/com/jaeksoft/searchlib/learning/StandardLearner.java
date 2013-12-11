@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -43,13 +44,14 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -105,7 +107,8 @@ public class StandardLearner implements LearnerInterface {
 	}
 
 	private Collection<TargetField> checkDataFields(
-			final FieldMap sourceFieldMap) throws SearchLibException {
+			final FieldMap sourceFieldMap) throws SearchLibException,
+			IOException {
 		if (learnerClient == null || sourceFieldMap == null)
 			return null;
 		Schema schema = learnerClient.getSchema();
@@ -118,11 +121,14 @@ public class StandardLearner implements LearnerInterface {
 			schema.setField(fieldName, Stored.NO, Indexed.YES, TermVector.YES,
 					"StandardAnalyzer");
 		}
+		TermVectorCache termVectorCache = ((IndexSingle) learnerClient
+				.getIndex()).getTermVectorCache();
+		termVectorCache.setMaxSize(learnerClient.getStatistics().getNumDocs());
 		return boostMap.values();
 	}
 
 	private Collection<TargetField> checkIndex(FieldMap sourceFieldMap)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		if (learnerClient != null)
 			return checkDataFields(sourceFieldMap);
 		if (indexDir == null)
@@ -236,6 +242,8 @@ public class StandardLearner implements LearnerInterface {
 				return;
 			if (!sourceFieldMap.isMapped(field, FIELD_SOURCE_NAME))
 				return;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -274,7 +282,11 @@ public class StandardLearner implements LearnerInterface {
 					.getNewRequest(REQUEST_SEARCH);
 			int start = 0;
 			final int rows = 1000;
+			List<String[]> termVectors = new ArrayList<String[]>(rows);
+			List<String> stringIndexTerms = new ArrayList<String>(rows);
 			for (;;) {
+				termVectors.clear();
+				stringIndexTerms.clear();
 				searchRequest.setStart(start);
 				searchRequest.setRows(rows);
 				searchRequest.setBoostedComplexQuery(booleanQuery);
@@ -282,18 +294,26 @@ public class StandardLearner implements LearnerInterface {
 						.request(searchRequest);
 				if (result.getDocumentCount() == 0)
 					break;
-				for (int i = 0; i < result.getDocumentCount(); i++) {
-					int pos = start + i;
+				int end = start + result.getDocumentCount();
+				int[] docIds = ArrayUtils.subarray(
+						ResultDocument.getDocIds(result.getDocs()), start, end);
+				learnerClient.getIndex().putTermVectors(docIds,
+						FIELD_SOURCE_TARGET, termVectors);
+				learnerClient.getIndex().getStringIndex(FIELD_SOURCE_NAME)
+						.putTerms(docIds, stringIndexTerms);
+				int i = -1;
+				for (int pos = start; pos < end; pos++) {
+					i++;
+					String[] terms = termVectors.get(i);
+					if (terms == null)
+						continue;
 					double docScore = result.getScore(pos);
 					if (docScore < minScore)
 						break;
-					ResultDocument document = result.getDocument(pos);
-					FieldValue nameFieldValues = document.getReturnFields()
-							.get(FIELD_SOURCE_NAME);
-					if (nameFieldValues == null)
+					String name = stringIndexTerms.get(i);
+					if (name == null)
 						continue;
-					for (FieldValueItem fvi : nameFieldValues.getValueArray()) {
-						String value = fvi.getValue();
+					for (String value : terms) {
 						if (value == null)
 							continue;
 						collector.add(new LearnerResultItem(docScore, pos,
@@ -320,26 +340,36 @@ public class StandardLearner implements LearnerInterface {
 			return;
 		int start = 0;
 		final int rows = 1000;
+		List<String[]> termVectors = new ArrayList<String[]>(rows);
+		List<String> stringIndexTerms = new ArrayList<String>(rows);
 		for (;;) {
+			termVectors.clear();
+			stringIndexTerms.clear();
 			searchRequest.setStart(start);
 			searchRequest.setRows(rows);
 			searchRequest.setBoostedComplexQuery(booleanQuery);
-			AbstractResultSearch result = (AbstractResultSearch) learnerClient
+			ResultSearchSingle result = (ResultSearchSingle) learnerClient
 					.request(searchRequest);
 			if (result.getDocumentCount() == 0)
 				break;
-			for (int i = 0; i < result.getDocumentCount(); i++) {
-				int pos = start + i;
-				double docScore = result.getScore(pos);
-				ResultDocument document = result.getDocument(pos);
-				FieldValue fieldValue = document.getReturnFields().get(
-						FIELD_SOURCE_TARGET);
-				if (fieldValue == null)
+			int end = start + result.getDocumentCount();
+			int[] docIds = ArrayUtils.subarray(
+					ResultDocument.getDocIds(result.getDocs()), start, end);
+			learnerClient.getIndex().putTermVectors(docIds,
+					FIELD_SOURCE_TARGET, termVectors);
+			learnerClient.getIndex().getStringIndex(FIELD_SOURCE_NAME)
+					.putTerms(docIds, stringIndexTerms);
+			int i = -1;
+			for (int pos = start; pos < end; pos++) {
+				i++;
+				String[] terms = termVectors.get(i);
+				if (terms == null)
 					continue;
+				double docScore = result.getScore(pos);
 				if (boost != null)
 					docScore = docScore * boost;
-				for (FieldValueItem fvi : fieldValue.getValueArray()) {
-					String value = fvi.getValue();
+				String name = stringIndexTerms.get(i);
+				for (String value : terms) {
 					if (value == null)
 						continue;
 					LearnerResultItem learnerResultItem = targetMap.get(value);
@@ -348,8 +378,7 @@ public class StandardLearner implements LearnerInterface {
 								null, 0, null);
 						targetMap.put(value, learnerResultItem);
 					}
-					learnerResultItem.addScoreInstance(docScore, 1,
-							document.getValueContent(FIELD_SOURCE_NAME, 0));
+					learnerResultItem.addScoreInstance(docScore, 1, name);
 				}
 			}
 			searchRequest.reset();

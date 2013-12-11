@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -316,7 +317,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int getDocFreq(Term term) throws SearchLibException {
+	final public int getDocFreq(final Term term) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -329,7 +330,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws SearchLibException {
+	final public TermEnum getTermEnum() throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -342,7 +343,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public TermEnum getTermEnum(Term term) throws SearchLibException {
+	final public TermEnum getTermEnum(final Term term)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -355,8 +357,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public TermDocs getTermDocs(Term term) throws SearchLibException,
-			IOException {
+	final public TermDocs getTermDocs(final Term term)
+			throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -369,8 +371,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException, SearchLibException {
+	final public TermFreqVector getTermFreqVector(final int docId,
+			final String field) throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -383,7 +385,36 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public boolean isOnline() {
+	final public void putTermVectors(final int[] docIds, final String field,
+			final Collection<String[]> termVectors) throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				reader.putTermVectors(docIds, field, termVectors);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	final public FieldCacheIndex getStringIndex(final String fieldName)
+			throws IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getStringIndex(fieldName);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+
+	}
+
+	@Override
+	final public boolean isOnline() {
 		rwl.r.lock();
 		try {
 			return online;
@@ -467,6 +498,19 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	public TermVectorCache getTermVectorCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getTermVectorCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	protected void writeXmlConfigIndex(XmlWriter xmlWriter) throws SAXException {
 		indexConfig.writeXmlConfig(xmlWriter);
@@ -486,9 +530,9 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public Map<String, FieldValue> getDocumentFields(int docId,
-			Set<String> fieldNameSet, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+	final public Map<String, FieldValue> getDocumentFields(final int docId,
+			final Set<String> fieldNameSet, final Timer timer)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
