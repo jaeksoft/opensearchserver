@@ -164,7 +164,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos, Timer timer)
+	public ResultDocument getDocument(final int pos, final Timer timer)
 			throws SearchLibException {
 		if (docs == null || pos < 0 || pos > docs.getSize())
 			return null;
@@ -205,4 +205,5 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			throw new SearchLibException(e);
 		}
 	}
+
 }

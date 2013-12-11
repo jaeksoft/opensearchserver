@@ -31,4 +31,5 @@ public interface ScoreDocInterface extends DocIdInterface {
 	public float[] getScores();
 
 	public float getMaxScore();
+
 }
