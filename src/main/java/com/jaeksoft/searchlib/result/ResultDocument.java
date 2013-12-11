@@ -63,10 +63,11 @@ public class ResultDocument {
 	final private List<Position> positions;
 	final private String joinParameter;
 
-	public ResultDocument(AbstractSearchRequest searchRequest,
-			TreeSet<String> fieldSet, int docId, ReaderInterface reader,
-			String joinParameter, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+	public ResultDocument(final AbstractSearchRequest searchRequest,
+			final TreeSet<String> fieldSet, final int docId,
+			final ReaderInterface reader, final String joinParameter,
+			final Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
 
 		this.docId = docId;
 
@@ -276,12 +277,26 @@ public class ResultDocument {
 		return functionFieldValue;
 	}
 
-	final public static float getScore(DocIdInterface docs, int pos) {
+	final public static float getScore(final DocIdInterface docs, final int pos) {
 		if (docs == null)
 			return 0;
 		if (!(docs instanceof ScoreDocInterface))
 			return 0;
 		return ((ScoreDocInterface) docs).getScores()[pos];
+	}
+
+	final public static float[] getScores(DocIdInterface docs) {
+		if (docs == null)
+			return null;
+		if (!(docs instanceof ScoreDocInterface))
+			return null;
+		return ((ScoreDocInterface) docs).getScores();
+	}
+
+	final public static int[] getDocIds(DocIdInterface docs) {
+		if (docs == null)
+			return null;
+		return ((ScoreDocInterface) docs).getIds();
 	}
 
 	final public static int getCollapseCount(DocIdInterface docs, int pos) {

@@ -74,6 +74,7 @@ public class CacheController extends CommonController {
 			cacheList.add(index.getSearchCache());
 			cacheList.add(index.getFilterCache());
 			cacheList.add(index.getFieldCache());
+			cacheList.add(index.getTermVectorCache());
 			return cacheList;
 		}
 

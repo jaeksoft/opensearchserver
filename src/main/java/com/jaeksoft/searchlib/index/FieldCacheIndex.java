@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.util.Collection;
+
 public class FieldCacheIndex {
 
 	public final long version;
@@ -32,10 +34,18 @@ public class FieldCacheIndex {
 
 	public final int[] order;
 
-	public FieldCacheIndex(long version, String[] lookup, int[] order) {
+	public FieldCacheIndex(final long version, final String[] lookup,
+			final int[] order) {
 		this.version = version;
 		this.lookup = lookup;
 		this.order = order;
 	}
 
+	final public void putTerms(final int[] docIds,
+			final Collection<String> stringIndexTerms) {
+		if (stringIndexTerms == null)
+			return;
+		for (int docId : docIds)
+			stringIndexTerms.add(lookup[order[docId]]);
+	}
 }

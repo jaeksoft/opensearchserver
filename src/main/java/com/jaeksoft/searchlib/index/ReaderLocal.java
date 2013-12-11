@@ -62,6 +62,7 @@ import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.cache.SpellCheckerCache;
+import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -88,6 +89,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private SearchCache searchCache;
 	private FilterCache filterCache;
 	private FieldCache fieldCache;
+	private TermVectorCache termVectorCache;
 	private SpellCheckerCache spellCheckerCache;
 
 	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory,
@@ -112,6 +114,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		this.searchCache = new SearchCache(indexConfig);
 		this.filterCache = new FilterCache(indexConfig);
 		this.fieldCache = new FieldCache(indexConfig);
+		this.termVectorCache = new TermVectorCache(indexConfig);
 		// TODO replace value 100 by number of field in schema
 		this.spellCheckerCache = new SpellCheckerCache(100);
 	}
@@ -122,6 +125,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			searchCache.clear();
 			filterCache.clear();
 			fieldCache.clear();
+			termVectorCache.clear();
 			spellCheckerCache.clear();
 		} finally {
 			rwl.w.unlock();
@@ -149,11 +153,48 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public TermFreqVector getTermFreqVector(int docId, String field)
+	public TermFreqVector getTermFreqVector(final int docId, final String field)
 			throws IOException {
 		rwl.r.lock();
 		try {
 			return indexReader.getTermFreqVector(docId, field);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void putTermFreqVectors(final int[] docIds, final String field,
+			final Collection<TermFreqVector> termFreqVectors)
+			throws IOException {
+		if (termFreqVectors == null || docIds == null || docIds.length == 0)
+			return;
+		rwl.r.lock();
+		try {
+			for (int docId : docIds)
+				termFreqVectors
+						.add(indexReader.getTermFreqVector(docId, field));
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public void putTermVectors(int[] docIds, String field,
+			Collection<String[]> termVectors) throws IOException {
+		if (docIds == null || docIds.length == 0 || field == null
+				|| termVectors == null)
+			return;
+		rwl.r.lock();
+		try {
+			if (termVectorCache.getMaxSize() > 0) {
+				termVectorCache.put(this, docIds, field, termVectors);
+			} else {
+				List<TermFreqVector> termFreqVectors = new ArrayList<TermFreqVector>(
+						docIds.length);
+				putTermFreqVectors(docIds, field, termFreqVectors);
+				for (TermFreqVector termFreqVector : termFreqVectors)
+					termVectors.add(termFreqVector.getTerms());
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -336,8 +377,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public Document getDocFields(int docId, Set<String> fieldNameSet)
-			throws IOException {
+	final public Document getDocFields(final int docId,
+			final Set<String> fieldNameSet) throws IOException {
 		rwl.r.lock();
 		try {
 			FieldSelector selector = new SetFieldSelector(fieldNameSet);
@@ -349,7 +390,27 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
-	public FieldCacheIndex getStringIndex(String fieldName) throws IOException {
+	final public List<Document> getDocFields(final int[] docIds,
+			final Set<String> fieldNameSet) throws IOException {
+		if (docIds == null || docIds.length == 0)
+			return null;
+		List<Document> documents = new ArrayList<Document>(docIds.length);
+		rwl.r.lock();
+		try {
+			FieldSelector selector = new SetFieldSelector(fieldNameSet);
+			for (int docId : docIds)
+				documents.add(indexReader.document(docId, selector));
+			return documents;
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	final public FieldCacheIndex getStringIndex(final String fieldName)
+			throws IOException {
 		rwl.r.lock();
 		try {
 			StringIndex si = org.apache.lucene.search.FieldCache.DEFAULT
@@ -427,9 +488,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public Map<String, FieldValue> getDocumentFields(int docId,
-			Set<String> fieldNameSet, Timer timer) throws IOException,
-			ParseException, SyntaxError {
+	final public Map<String, FieldValue> getDocumentFields(final int docId,
+			final Set<String> fieldNameSet, final Timer timer)
+			throws IOException, ParseException, SyntaxError {
 		rwl.r.lock();
 		try {
 			return fieldCache.get(this, docId, fieldNameSet, timer);
@@ -553,6 +614,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return fieldCache;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected TermVectorCache getTermVectorCache() {
+		rwl.r.lock();
+		try {
+			return termVectorCache;
 		} finally {
 			rwl.r.unlock();
 		}

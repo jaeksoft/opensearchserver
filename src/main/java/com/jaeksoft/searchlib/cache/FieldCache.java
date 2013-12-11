@@ -55,17 +55,18 @@ public class FieldCache extends
 		this.indexConfig = indexConfig;
 	}
 
-	public Map<String, FieldValue> get(ReaderLocal reader, int docId,
-			Set<String> fieldNameSet, Timer timer) throws IOException,
-			ParseException, SyntaxError {
+	final public Map<String, FieldValue> get(final ReaderLocal reader,
+			final int docId, final Set<String> fieldNameSet, final Timer timer)
+			throws IOException, ParseException, SyntaxError {
 		Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
-		Set<String> storeField = new TreeSet<String>();
-		Set<String> vectorField = new TreeSet<String>();
-		Set<String> indexedField = new TreeSet<String>();
-		Set<String> missingField = new TreeSet<String>();
+		Set<String> storeField = null;
+		Set<String> vectorField = null;
+		Set<String> indexedField = null;
+		Set<String> missingField = null;
 
 		// Getting available fields in the cache
 		for (String fieldName : fieldNameSet) {
+			storeField = new TreeSet<String>();
 			FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
 					docId);
 			FieldValueItem[] values = getAndPromote(key);
@@ -77,7 +78,8 @@ public class FieldCache extends
 		}
 
 		// Check missing fields from store
-		if (storeField.size() > 0) {
+		if (storeField != null && storeField.size() > 0) {
+			vectorField = new TreeSet<String>();
 			Document document = reader.getDocFields(docId, storeField);
 			for (String fieldName : storeField) {
 				Fieldable[] fieldables = document.getFieldables(fieldName);
@@ -91,7 +93,8 @@ public class FieldCache extends
 		}
 
 		// Check missing fields from vector
-		if (vectorField.size() > 0) {
+		if (vectorField != null && vectorField.size() > 0) {
+			indexedField = new TreeSet<String>();
 			for (String fieldName : vectorField) {
 				TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
 				if (tfv != null) {
@@ -104,7 +107,8 @@ public class FieldCache extends
 		}
 
 		// Check missing fields from StringIndex
-		if (indexedField.size() > 0) {
+		if (indexedField != null && indexedField.size() > 0) {
+			missingField = new TreeSet<String>();
 			for (String fieldName : indexedField) {
 				FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 				if (stringIndex != null) {
@@ -121,15 +125,16 @@ public class FieldCache extends
 			}
 		}
 
-		if (missingField.size() > 0)
+		if (missingField != null && missingField.size() > 0)
 			for (String fieldName : missingField)
 				documentFields.put(fieldName, new FieldValue(fieldName));
 
 		return documentFields;
 	}
 
-	private void put(Map<String, FieldValue> documentFields, String fieldName,
-			int docId, FieldValueItem[] valueItems) {
+	final private void put(final Map<String, FieldValue> documentFields,
+			final String fieldName, final int docId,
+			final FieldValueItem[] valueItems) {
 		documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
 		FieldContentCacheKey key = new FieldContentCacheKey(fieldName, docId);
 		put(key, valueItems);

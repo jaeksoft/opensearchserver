@@ -74,12 +74,12 @@ public abstract class AbstractResultSearch extends
 				: joinResults;
 	}
 
-	public ResultDocument getDocument(int pos) throws SearchLibException {
+	public ResultDocument getDocument(final int pos) throws SearchLibException {
 		return getDocument(pos, null);
 	}
 
 	@Override
-	public abstract ResultDocument getDocument(int pos, Timer timer)
+	public abstract ResultDocument getDocument(final int pos, final Timer timer)
 			throws SearchLibException;
 
 	public Iterator<ResultDocument> iterator(Timer timer) {

@@ -61,12 +61,19 @@ public interface ReaderInterface {
 	public TermDocs getTermDocs(Term term) throws IOException,
 			SearchLibException;
 
-	public Map<String, FieldValue> getDocumentFields(int docId,
-			Set<String> fieldNameSet, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException;
+	public Map<String, FieldValue> getDocumentFields(final int docId,
+			final Set<String> fieldNameSet, final Timer timer)
+			throws IOException, ParseException, SyntaxError, SearchLibException;
 
-	public TermFreqVector getTermFreqVector(int docId, String field)
+	public TermFreqVector getTermFreqVector(final int docId, final String field)
 			throws IOException, SearchLibException;
+
+	public FieldCacheIndex getStringIndex(final String fieldName)
+			throws IOException, SearchLibException;
+
+	public void putTermVectors(final int[] docIds, final String field,
+			final Collection<String[]> termVectors) throws IOException,
+			SearchLibException;
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
 
