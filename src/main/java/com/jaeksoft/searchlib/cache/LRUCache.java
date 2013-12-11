@@ -32,6 +32,7 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class LRUCache<K extends Comparable<K>, V> {
 
@@ -93,14 +94,23 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		this.size = 0;
 	}
 
-	public void setMaxSize(int newMaxSize) {
-		if (queue == null)
+	private void setMaxSize_noLock(int newMaxSize) {
+		if (newMaxSize == maxSize)
 			return;
+		if (newMaxSize == 0) {
+			clear_nolock();
+			queue = null;
+		} else {
+			if (queue == null || newMaxSize < maxSize)
+				queue = new EvictionQueue(maxSize);
+		}
+		maxSize = newMaxSize;
+	}
+
+	public void setMaxSize(int newMaxSize) {
 		rwl.w.lock();
 		try {
-			maxSize = newMaxSize;
-			if (newMaxSize < size)
-				clear();
+			setMaxSize_noLock(newMaxSize);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -150,14 +160,20 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		}
 	}
 
-	final public void clear() {
+	final private void clear_nolock() {
 		if (queue == null)
 			return;
+		queue.clear();
+		tree.clear();
+		size = queue.size();
+	}
+
+	final public void clear() {
 		rwl.w.lock();
 		try {
-			queue.clear();
-			tree.clear();
-			size = queue.size();
+			if (queue == null)
+				return;
+			clear_nolock();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -165,52 +181,107 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 
 	@Override
 	final public String toString() {
-		return this.getClass().getName() + " " + size + "/" + maxSize;
+		rwl.r.lock();
+		try {
+			return StringUtils
+					.fastConcat(this.getClass().getName(), " - Size: ",
+							Integer.toString(size), " - MaxSize: ",
+							Integer.toString(maxSize), " - Lookup: ",
+							Long.toString(lookups), " HitRatio: ",
+							getHitRatioPercent());
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public void xmlInfo(PrintWriter writer) {
-		float hitRatio = getHitRatio();
-		writer.println("<cache class=\"" + this.getClass().getName()
-				+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
-				+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
-				+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
-				+ "\" evictions=\"" + evictions + "\">");
-		writer.println("</cache>");
+		rwl.r.lock();
+		try {
+			float hitRatio = getHitRatio();
+			writer.println("<cache class=\"" + this.getClass().getName()
+					+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
+					+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
+					+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
+					+ "\" evictions=\"" + evictions + "\">");
+			writer.println("</cache>");
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public String getName() {
-		return name;
+		rwl.r.lock();
+		try {
+			return name;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public int getSize() {
-		return size;
+		rwl.r.lock();
+		try {
+			return size;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public int getMaxSize() {
-		return maxSize;
+		rwl.r.lock();
+		try {
+			return maxSize;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public long getEvictions() {
-		return evictions;
+		rwl.r.lock();
+		try {
+			return evictions;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public long getLookups() {
-		return lookups;
+		rwl.r.lock();
+		try {
+			return lookups;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public long getHits() {
-		return hits;
+		rwl.r.lock();
+		try {
+			return hits;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public long getInserts() {
-		return inserts;
+		rwl.r.lock();
+		try {
+			return inserts;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public float getHitRatio() {
-		if (hits > 0 && lookups > 0)
-			return (float) (((float) hits) / ((float) lookups));
-		else
-			return 0;
+		rwl.r.lock();
+		try {
+			if (hits > 0 && lookups > 0)
+				return (float) (((float) hits) / ((float) lookups));
+			else
+				return 0;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	final public String getHitRatioPercent() {

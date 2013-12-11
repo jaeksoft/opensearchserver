@@ -286,4 +286,12 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		return null;
 	}
 
+	@Override
+	public void putTermVectors(int[] docIds, String field,
+			Collection<String[]> termVectors) throws IOException,
+			SearchLibException {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,25 +24,31 @@
 
 package com.jaeksoft.searchlib.index;
 
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FieldContentCacheKey implements Comparable<FieldContentCacheKey> {
 
-	private String fieldName;
+	final public String fieldName;
 
-	private Integer docId;
+	final public Integer docId;
 
-	public FieldContentCacheKey(String fieldName, int docId) {
+	public FieldContentCacheKey(final String fieldName, final int docId) {
 		this.fieldName = fieldName;
 		this.docId = docId;
 	}
 
 	@Override
-	public int compareTo(FieldContentCacheKey o) {
+	final public int compareTo(final FieldContentCacheKey o) {
 		int c;
 		if ((c = docId.compareTo(o.docId)) != 0)
 			return c;
 		if ((c = fieldName.compareTo(o.fieldName)) != 0)
 			return c;
 		return 0;
+	}
+
+	@Override
+	final public String toString() {
+		return StringUtils.fastConcat(Integer.toString(docId), ":", fieldName);
 	}
 }

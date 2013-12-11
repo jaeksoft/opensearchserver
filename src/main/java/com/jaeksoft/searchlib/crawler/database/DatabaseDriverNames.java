@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.zkoss.zk.ui.Executions;
 
+import com.jaeksoft.searchlib.Logging;
+
 public enum DatabaseDriverNames {
 
 	DERBY("org.apache.derby.jdbc.EmbeddedDriver"),
@@ -81,7 +83,10 @@ public enum DatabaseDriverNames {
 			try {
 				Class.forName(ddn.name, false, classLoader);
 				list.add(ddn.name);
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
+				Logging.warn(e);
+			} catch (LinkageError e) {
+				Logging.warn(e);
 			}
 		}
 		dbDriverList = new String[list.size()];

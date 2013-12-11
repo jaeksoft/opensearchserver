@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
+import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -401,13 +402,41 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	}
 
 	@Override
-	public TermFreqVector getTermFreqVector(int docId, String field)
-			throws IOException, SearchLibException {
+	final public TermFreqVector getTermFreqVector(final int docId,
+			final String field) throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
 			if (reader != null)
 				return reader.getTermFreqVector(docId, field);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	final public void putTermVectors(final int[] docIds, final String field,
+			final Collection<String[]> termVectors) throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				reader.putTermVectors(docIds, field, termVectors);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	final public FieldCacheIndex getStringIndex(final String fieldName)
+			throws IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getStringIndex(fieldName);
 			return null;
 		} finally {
 			rwl.r.unlock();
@@ -460,6 +489,19 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getFieldCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public TermVectorCache getTermVectorCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getTermVectorCache();
 			return null;
 		} finally {
 			rwl.r.unlock();

@@ -45,6 +45,8 @@ public class IndexConfig {
 
 	private int fieldCache;
 
+	private int termVectorCache;
+
 	private URI remoteUri;
 
 	private String keyField;
@@ -64,6 +66,8 @@ public class IndexConfig {
 		fieldCache = XPathParser.getAttributeValue(node, "fieldCache");
 		if (fieldCache == 0)
 			fieldCache = XPathParser.getAttributeValue(node, "documentCache");
+		termVectorCache = XPathParser
+				.getAttributeValue(node, "termVectorCache");
 		String s = XPathParser.getAttributeString(node, "remoteUrl");
 		remoteUri = s == null ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
@@ -78,14 +82,15 @@ public class IndexConfig {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("index", "indexType", indexType.name(),
-				"searchCache", Integer.toString(searchCache), "filterCache",
-				Integer.toString(filterCache), "fieldCache", Integer
-						.toString(fieldCache), "remoteUrl",
+		xmlWriter.startElement("index", "searchCache",
+				Integer.toString(searchCache), "filterCache",
+				Integer.toString(filterCache), "fieldCache",
+				Integer.toString(fieldCache), "termVectorCache",
+				Integer.toString(termVectorCache), "remoteUrl",
 				remoteUri != null ? remoteUri.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
-				similarityClass, "maxNumSegments", Integer
-						.toString(maxNumSegments));
+				similarityClass, "maxNumSegments",
+				Integer.toString(maxNumSegments));
 		xmlWriter.endElement();
 	}
 
@@ -132,6 +137,21 @@ public class IndexConfig {
 	 */
 	public void setFieldCache(int fieldCache) {
 		this.fieldCache = fieldCache;
+	}
+
+	/**
+	 * @return the termVectorCache
+	 */
+	public int getTermVectorCache() {
+		return termVectorCache;
+	}
+
+	/**
+	 * @param termVectorCache
+	 *            the termVectorCache to set
+	 */
+	public void setTermVectorCache(int termVectorCache) {
+		this.termVectorCache = termVectorCache;
 	}
 
 	/**
