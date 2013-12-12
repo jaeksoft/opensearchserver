@@ -59,14 +59,13 @@ public class FieldCache extends
 			final int docId, final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError {
 		Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
-		Set<String> storeField = null;
+		Set<String> storeField = new TreeSet<String>();
 		Set<String> vectorField = null;
 		Set<String> indexedField = null;
 		Set<String> missingField = null;
 
 		// Getting available fields in the cache
 		for (String fieldName : fieldNameSet) {
-			storeField = new TreeSet<String>();
 			FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
 					docId);
 			FieldValueItem[] values = getAndPromote(key);
