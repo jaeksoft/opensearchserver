@@ -32,8 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.client.config.RequestConfig;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
@@ -54,7 +53,7 @@ public class ProxyHandler {
 		if (proxyHost == null || proxyHost.trim().length() == 0
 				|| proxyPort == 0)
 			return;
-		proxy = new HttpHost(proxyHost, proxyPort);
+		proxy = new HttpHost(proxyHost, proxyPort, "http");
 		exclusionSet = new TreeSet<String>();
 		String line;
 		StringReader sr = null;
@@ -75,13 +74,12 @@ public class ProxyHandler {
 		}
 	}
 
-	public void check(HttpClient httpClient, URI uri) {
+	public void check(RequestConfig.Builder configBuilder, URI uri) {
 		if (proxy == null || uri == null)
 			return;
 		if (exclusionSet.contains(uri.getHost()))
 			return;
-		httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
-				proxy);
+		configBuilder.setProxy(proxy);
 	}
 
 }

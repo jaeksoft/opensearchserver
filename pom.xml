@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jaeksoft</groupId>
 	<artifactId>opensearchserver</artifactId>
@@ -13,11 +13,11 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<version>2.0-dev</version>
+	<version>2.0-SNAPSHOT</version>
 	<scm>
-		<connection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</connection>
-		<developerConnection>scm:git:git@github.com:jaeksoft/gopensearchserver.git</developerConnection>
-		<url>git@github.com:jaeksoft/gopensearchserver.git</url>
+		<connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
+		<developerConnection>scm:git:git@github.com:jaeksoft/opensearchserver.git</developerConnection>
+		<url>git@github.com:jaeksoft/opensearchserver.git</url>
 	</scm>
 	<issueManagement>
 		<url>https://github.com/jaeksoft/opensearchserver/issues</url>
@@ -459,6 +459,16 @@
 							<Implementation-Build>${buildNumber}</Implementation-Build>
 						</manifestEntries>
 					</archive>
+					<webResources>
+						<resource>
+							<directory>src/main/webapp/WEB-INF/</directory>
+							<targetPath>WEB-INF</targetPath>
+							<includes>
+								<include>web.xml</include>
+							</includes>
+							<filtering>true</filtering>
+						</resource>
+					</webResources>
 				</configuration>
 			</plugin>
 			<plugin>
