@@ -69,10 +69,10 @@ public abstract class HttpAbstract {
 
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
-	private ProxyHandler proxyHandler;
 	private HttpResponse httpResponse = null;
 	private HttpClientContext httpClientContext = null;
 	private HttpRequestBase httpBaseRequest = null;
+	private ProxyHandler proxyHandler;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
 	private BasicCookieStore cookieStore;
@@ -94,18 +94,13 @@ public abstract class HttpAbstract {
 		if (!bFollowRedirect)
 			builder.disableRedirectHandling();
 
-		// Support of GZIP and deflate and check headers
-		// builder.addInterceptorFirst(HttpRequestFilter.INSTANCE)
-		// .addInterceptorFirst(HttpResponseFilter.INSTANCE);
+		this.proxyHandler = proxyHandler;
 
 		credentialsProvider = new BasicCredentialsProvider();
 		builder.setDefaultCredentialsProvider(credentialsProvider);
 
 		cookieStore = new BasicCookieStore();
 		builder.setDefaultCookieStore(cookieStore);
-
-		this.proxyHandler = proxyHandler;
-		// httpClient.setHttpRequestRetryHandler(HttpRetryHandler.INSTANCE);
 
 		builder.setDefaultCredentialsProvider(credentialsProvider);
 
@@ -149,15 +144,16 @@ public abstract class HttpAbstract {
 		// No more than 10 minutes to establish the socket
 		// Enable stales connection checking
 		// Cookies uses browser compatibility
-		RequestConfig requestConfig = RequestConfig.custom()
+		RequestConfig.Builder configBuilber = RequestConfig.custom()
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
 				.setStaleConnectionCheckEnabled(true)
-				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY).build();
-		httpBaseRequest.setConfig(requestConfig);
+				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
 
 		URI uri = httpBaseRequest.getURI();
 		if (proxyHandler != null)
-			proxyHandler.check(httpClient, uri);
+			proxyHandler.check(configBuilber, uri);
+
+		httpBaseRequest.setConfig(configBuilber.build());
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
