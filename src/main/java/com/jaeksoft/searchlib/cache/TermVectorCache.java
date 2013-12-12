@@ -56,6 +56,12 @@ public class TermVectorCache extends LRUCache<FieldContentCacheKey, String[]> {
 		String[] terms = getAndPromote(key);
 		if (terms != null)
 			return terms;
+		TermFreqVector termFreqVector = reader.getTermFreqVector(docId, field);
+		if (termFreqVector == null)
+			return null;
+		terms = termFreqVector.getTerms();
+		if (terms == null)
+			return null;
 		put(key, terms);
 		return terms;
 	}
