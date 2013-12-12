@@ -60,7 +60,7 @@ Features
 - Search suggestion facility (auto-completion)
 
 ### Indexation
-- Supports 17 languages
+- Supports 18 languages
 - Fields schema with analyzers in each language
 - Several filters: n-gram, lemmatization, shingle, stripping diacritic from words,…
 - Automatic language recognition
