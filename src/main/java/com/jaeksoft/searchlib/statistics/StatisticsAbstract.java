@@ -168,8 +168,8 @@ public abstract class StatisticsAbstract {
 
 	private File getStatFile(File statDir) {
 		return new File(statDir, StringUtils.fastConcat(
-				type.name().replace(' ', '_'), "_", getPeriod().getName()
-						.replace(' ', '_'), ".json"));
+				type.name().replace(' ', '_'), "_",
+				getPeriod().getName().replace(' ', '_'), ".json").toString());
 	}
 
 	public final static TypeReference<List<Aggregate>> AggregateListTypeRef = new TypeReference<List<Aggregate>>() {

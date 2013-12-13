@@ -29,6 +29,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 public interface OsseLibrary extends Library {
 
@@ -55,52 +56,52 @@ public interface OsseLibrary extends Library {
 
 	void OSSCLib_ExtErrInfo_Delete(Pointer hExtErrInfo);
 
-	Pointer OSSCLib_Index_Create(WString wszIndexDirectoryName,
-			WString wszRootFileName, Pointer hExtErrInfo);
+	Pointer OSSCLib_MsIndex_Create(WString lpwszIndexDirectoryName,
+			WString lpwszFileName_MsRoot, Pointer hExtErrInfo);
 
-	Pointer OSSCLib_Index_Open(WString wszIndexDirectoryName,
-			WString wszRootFileName, Pointer hExtErrInfo);
+	Pointer OSSCLib_MsIndex_Open(WString lpwszIndexDirectoryName,
+			WString lpwszFileName_MsRoot, Pointer hExtErrInfo);
 
-	boolean OSSCLib_Index_Close(Pointer hIndex, Pointer hExtErrInfo);
+	boolean OSSCLib_MsIndex_Close(Pointer hMsIndex, Pointer hExtErrInfo);
 
-	Pointer OSSCLib_Transact_Begin(Pointer hIndex, Pointer hExtErrInfo);
+	Pointer OSSCLib_MsTransact_Begin(Pointer hMsIndex,
+			WString lpwszNewSegmentDirectoryName, Pointer hExtErrInfo);
 
-	Pointer OSSCLib_Transact_Document_New(Pointer hTransact, Pointer hExtErrInfo);
-
-	int OSSCLib_Transact_Document_AddStringTerms(Pointer hTransact,
-			Pointer hDoc, Pointer hField, WString[] termArray,
-			OsseTermOffset[] termOffsetArray, int[] termPosIncrArray,
-			boolean[] successArray, int numberOfTerms, Pointer hExtErrInfo);
-
-	boolean OSSCLib_Transact_RollBack(Pointer hTransact, Pointer hExtErrInfo);
-
-	boolean OSSCLib_Transact_Commit(Pointer hTransact, Pointer lphDoc,
-			long ui64NumberOfDocs, Pointer lpui64DocId, Pointer hExtErrInfo);
-
-	Pointer OSSCLib_Transact_CreateField(Pointer hTransact,
-			WString wszFieldName, int ui32FieldType, int ui32FieldFlags,
-			Pointer lpFieldParams, Pointer hExtErrInfo);
-
-	Pointer OSSCLib_Transact_GetField(Pointer hTransact, WString wszFieldName,
+	int OSSCLib_MsTransact_Document_GetNewDocId(Pointer hMsTransact,
 			Pointer hExtErrInfo);
 
-	int OSSCLib_Transact_DeleteFields(Pointer hTransact,
-			WString[] lplpwszFieldName, int ui32NumberOfFields,
+	int OSSCLib_MsTransact_Document_AddStringTermsW(Pointer hMsTransactField,
+			int ui32DocId, WString[] lplpwszTermArray, int ui32NumberOfTerms,
 			Pointer hExtErrInfo);
 
-	int OSSCLib_Transact_ReserveExtraSpaceForDocHandles(Pointer hTransact,
-			int ui32NumberOfNewDocs, int ui32NumberOfExistingDocs,
+	boolean OSSCLib_MsTransact_RollBack(Pointer hMsTransact, Pointer hExtErrInfo);
+
+	boolean OSSCLib_MsTransact_Commit(Pointer hMsTransact,
+			int ui32IndexSignature, LongByReference lpui64NewDocIdBase,
+			IntByReference lpbSomeDocIdsChanged, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_MsTransact_CreateFieldW(Pointer hMsTransact,
+			WString lpwszFieldName, int ui32FieldType, int ui32FieldFlags,
+			Pointer lpFieldParams, boolean bFailIfAlreadyExists,
+			IntByReference lpui32MsFieldId, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_MsTransact_FindFieldW(Pointer hMsTransact,
+			WString lpwszFieldName, Pointer hExtErrInfo);
+
+	Pointer OSSCLib_MsTransact_GetExistingField(Pointer hMsTransact,
+			int ui32MsFieldId, Pointer hExtErrInfo);
+
+	int OSSCLib_MsTransact_DeleteFields(Pointer hMsTransact,
+			Pointer[] lphMsTransactFieldArray, int ui32NumberOfFields,
 			Pointer hExtErrInfo);
 
-	int OSSCLib_Index_GetListOfFields(Pointer hIndex, Pointer[] hFieldArray,
-			int fieldArraySize, Pointer hExtErrInfo);
+	int OSSCLib_MsIndex_GetListOfFields(Pointer hMsIndex,
+			int[] lpui32FieldIdArray, int ui32FieldIdArraySize,
+			boolean bSortArrayByFieldId, Pointer hExtErrInfo);
 
-	Pointer OSSCLib_Index_GetFieldNameAndProperties(Pointer hIndex,
-			Pointer hIndexField, IntByReference fieldId,
-			IntByReference fieldType, IntByReference fieldFlags,
-			Pointer hExtErrInfo);
-
-	void OSSCLib_Index_GetFieldNameAndProperties_Free(Pointer hFieldName);
+	Pointer OSSCLib_MsIndex_GetFieldNameAndProperties(Pointer hMsIndex,
+			int ui32MsFieldId, IntByReference lpui32FieldType,
+			IntByReference lpui32FieldFlags, Pointer hExtErrInfo);
 
 	Pointer OSSCLib_QCursor_Create(Pointer hIndex, WString lpwszFieldName,
 			WString[] lplpwszTerm, int ui32NumberOfTerms, int ui32Bop,

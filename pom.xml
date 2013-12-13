@@ -25,6 +25,13 @@
 	<ciManagement>
 		<url>http://www.open-search-server.com/jenkins</url>
 	</ciManagement>
+	<repositories>
+		<repository>
+			<id>ZK CE</id>
+			<name>ZK CE Repository</name>
+			<url>http://mavensync.zkoss.org/maven2</url>
+		</repository>
+	</repositories>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -143,7 +150,7 @@
 		<dependency>
 			<groupId>net.sourceforge.htmlcleaner</groupId>
 			<artifactId>htmlcleaner</artifactId>
-			<version>2.6.1</version>
+			<version>2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.imgscalr</groupId>
@@ -355,7 +362,7 @@
 		<dependency>
 			<groupId>com.dropbox.core</groupId>
 			<artifactId>dropbox-core-sdk</artifactId>
-			<version>1.7.5</version>
+			<version>1.7.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
@@ -370,6 +377,11 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
 			<version>4.0.0</version>
 		</dependency>
 		<dependency>
@@ -416,8 +428,8 @@
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.1</httpclient.version>
 		<poi.version>3.10-beta2</poi.version>
-		<selenium.version>2.37.1</selenium.version>
-		<zk.version>6.5.3</zk.version>
+		<selenium.version>2.38.0</selenium.version>
+		<zk.version>7.0.1.FL.20131213</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>

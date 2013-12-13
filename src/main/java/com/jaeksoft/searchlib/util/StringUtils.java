@@ -283,13 +283,21 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return array;
 	}
 
-	public final static String fastConcat(final CharSequence... charSeqs) {
+	public final static CharSequence fastConcatCharSequence(
+			final CharSequence... charSeqs) {
 		if (charSeqs == null)
 			return null;
+		if (charSeqs.length == 1)
+			return charSeqs[0];
 		StringBuilder sb = new StringBuilder();
 		for (CharSequence charSeq : charSeqs)
 			sb.append(charSeq);
-		return sb.toString();
+		return sb;
+	}
+
+	public final static String fastConcat(final CharSequence... charSeqs) {
+		CharSequence cs = fastConcatCharSequence(charSeqs);
+		return cs == null ? null : cs.toString();
 	}
 
 	public final static String LINE_SEPARATOR = System

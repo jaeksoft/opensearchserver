@@ -26,36 +26,43 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.osse.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.OsseFieldList;
 import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.OsseIndex;
-import com.jaeksoft.searchlib.index.osse.OsseLibrary;
-import com.jaeksoft.searchlib.index.osse.OsseTermOffset;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
 import com.jaeksoft.searchlib.index.osse.OsseTransaction;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.sun.jna.Pointer;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.sun.jna.WString;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
 	private OsseIndex index;
+	private OsseErrorHandler error;
+	private TermBuffer termBuffer = null;
 
 	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig) {
 		super(indexConfig);
 		this.index = index;
+		error = new OsseErrorHandler();
+		termBuffer = new TermBuffer(100);
 	}
 
 	@Override
@@ -63,42 +70,28 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	}
 
-	private void checkFieldCreation(OsseTransaction transaction,
-			SchemaField schemaField) throws SearchLibException {
-		String fieldName = schemaField.getName();
-		Pointer indexField = transaction.getFieldPointer(fieldName);
-		if (indexField != null)
-			return;
-		int flag = 0;
-		switch (schemaField.getTermVector()) {
-		case YES:
-			flag += OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
-			break;
-		case POSITIONS_OFFSETS:
-			flag = OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
-					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
-					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
-			break;
-		default:
-			break;
-		}
-		transaction.createField(fieldName, flag);
-		System.out.println("FIELD CREATED: " + fieldName);
-	}
-
-	public void checkSchemaFieldList(SchemaFieldList schemaFieldList)
+	public OsseFieldList checkSchemaFieldList(SchemaFieldList schemaFieldList)
 			throws SearchLibException {
+		OsseFieldList osseFieldList = new OsseFieldList(index, error);
+		List<FieldInfo> fieldsToDelete = new ArrayList<FieldInfo>(0);
+		for (FieldInfo fieldInfo : osseFieldList.collection())
+			if (schemaFieldList.get(fieldInfo.name) == null)
+				fieldsToDelete.add(fieldInfo);
+		List<SchemaField> fieldsToCreate = new ArrayList<SchemaField>(0);
+		for (SchemaField schemaField : schemaFieldList)
+			if (osseFieldList.getFieldInfo(schemaField.getName()) == null)
+				fieldsToCreate.add(schemaField);
+		if (fieldsToDelete.size() == 0 && fieldsToCreate.size() == 0)
+			return osseFieldList;
 		OsseTransaction transaction = null;
 		try {
 			transaction = new OsseTransaction(index);
-			for (SchemaField schemaField : schemaFieldList)
-				checkFieldCreation(transaction, schemaField);
-			OsseFieldList osseFieldList = new OsseFieldList(index,
-					transaction.getError());
-			for (FieldInfo fieldInfo : osseFieldList.collection())
-				if (schemaFieldList.get(fieldInfo.name) == null)
-					transaction.deleteField(fieldInfo.name);
+			for (FieldInfo fieldToDelete : fieldsToDelete)
+				transaction.deleteField(fieldToDelete);
+			for (SchemaField schemaField : fieldsToCreate)
+				transaction.createField(schemaField);
 			transaction.commit();
+			return new OsseFieldList(index, error);
 		} finally {
 			if (transaction != null)
 				transaction.release();
@@ -106,8 +99,6 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	/**
-	 * Should be replaced by updateTerms with keywordAnalyzer (to embed offset
-	 * and posincr)
 	 * 
 	 * @param transaction
 	 * @param documentPtr
@@ -115,58 +106,42 @@ public class WriterNativeOSSE extends WriterAbstract {
 	 * @param value
 	 * @throws SearchLibException
 	 */
-	final private void updateTerm(OsseTransaction transaction,
-			Pointer documentPtr, Pointer fieldPtr, String value)
+	final private void updateTerm(final OsseTransaction transaction,
+			final int documentId, final FieldInfo field, final String value)
 			throws SearchLibException {
 		if (value == null || value.length() == 0)
 			return;
-		WString[] terms = { new WString(value) };
-		transaction.updateTerms(documentPtr, fieldPtr, terms, null, null, 1);
+		termBuffer.terms[0] = new WString(value);
+		termBuffer.offsets[0].ui32StartOffset = 0;
+		termBuffer.offsets[0].ui32EndOffset = value.length();
+		termBuffer.positionIncrements[0] = 1;
+		transaction.updateTerms(documentId, field, termBuffer, 1);
 	}
 
-	final private static int TERM_BUFFER_SIZE = 100;
-
-	final private void updateTerms(OsseTransaction transaction,
-			Pointer documentPtr, Pointer fieldPtr,
-			CompiledAnalyzer compiledAnalyzer, String value)
+	final private void updateTerms(final OsseTransaction transaction,
+			final int documentId, final FieldInfo field,
+			final CompiledAnalyzer compiledAnalyzer, final String value)
 			throws IOException, SearchLibException {
 		StringReader stringReader = null;
+		OsseTokenTermUpdate ottu = null;
 		try {
 			stringReader = new StringReader(value);
 			TokenStream tokenStream = compiledAnalyzer.tokenStream(null,
 					stringReader);
-			WString[] terms = new WString[TERM_BUFFER_SIZE];
-			OsseTermOffset[] offsets = OsseTermOffset
-					.getNewArray(TERM_BUFFER_SIZE);
-			int[] positionIncrements = new int[TERM_BUFFER_SIZE];
-			int length = 0;
-			while (tokenStream.incrementToken()) {
-				terms[length] = new WString("TODO"); // TODO new
-				// WString(tokenStream.getCurrentTerm());
-				/*
-				 * TokenAttributes attr = tokenStream.getAttributes(); if
-				 * (attr.positionIncrement != null) positionIncrements[length] =
-				 * attr.positionIncrement; if (attr.offsetStart != null)
-				 * offsets[length].set(attr); length++;
-				 */
-				if (length == TERM_BUFFER_SIZE) {
-					transaction.updateTerms(documentPtr, fieldPtr, terms,
-							offsets, positionIncrements, length);
-					length = 0;
-				}
-			}
-			if (length > 0)
-				transaction.updateTerms(documentPtr, fieldPtr, terms, offsets,
-						positionIncrements, length);
+			ottu = new OsseTokenTermUpdate(transaction, documentId, field,
+					termBuffer, tokenStream);
+			while (ottu.incrementToken())
+				;
+			ottu.close();
 		} finally {
-			if (stringReader != null)
-				IOUtils.closeQuietly(stringReader);
+			IOUtils.close(stringReader, ottu);
 		}
 	}
 
-	private void updateDoc(OsseTransaction transaction, Schema schema,
-			IndexDocument document) throws SearchLibException, IOException {
-		Pointer documentPtr = transaction.newDocumentPointer();
+	private void updateDoc(OsseTransaction transaction,
+			OsseFieldList osseFieldList, Schema schema, IndexDocument document)
+			throws SearchLibException, IOException {
+		int documentId = transaction.newDocumentId();
 		LanguageEnum lang = document.getLang();
 		for (FieldContent fieldContent : document) {
 			SchemaField schemaField = schema.getFieldList().get(
@@ -177,17 +152,17 @@ public class WriterNativeOSSE extends WriterAbstract {
 			Analyzer analyzer = schema.getAnalyzer(schemaField, lang);
 			CompiledAnalyzer compiledAnalyzer = analyzer != null ? analyzer
 					.getIndexAnalyzer() : null;
-			Pointer fieldPtr = transaction.getFieldPointer(fieldContent
-					.getField());
-			if (fieldPtr == null)
-				transaction.throwError();
+			FieldInfo fieldInfo = osseFieldList.getFieldInfo(schemaField
+					.getName());
+			if (fieldInfo == null)
+				continue;
 			for (FieldValueItem valueItem : fieldContent.getValues()) {
 				String value = valueItem.getValue();
 				if (compiledAnalyzer != null)
-					updateTerms(transaction, documentPtr, fieldPtr,
+					updateTerms(transaction, documentId, fieldInfo,
 							compiledAnalyzer, value);
 				else
-					updateTerm(transaction, documentPtr, fieldPtr, value);
+					updateTerm(transaction, documentId, fieldInfo, value);
 			}
 		}
 
@@ -198,8 +173,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 			throws SearchLibException {
 		OsseTransaction transaction = null;
 		try {
+			OsseFieldList osseFieldList = checkSchemaFieldList(schema
+					.getFieldList());
 			transaction = new OsseTransaction(index);
-			updateDoc(transaction, schema, document);
+			updateDoc(transaction, osseFieldList, schema, document);
 			transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -215,13 +192,17 @@ public class WriterNativeOSSE extends WriterAbstract {
 			Collection<IndexDocument> documents) throws SearchLibException {
 		OsseTransaction transaction = null;
 		try {
+			if (CollectionUtils.isEmpty(documents))
+				return 0;
+			OsseFieldList osseFieldList = checkSchemaFieldList(schema
+					.getFieldList());
 			transaction = new OsseTransaction(index);
-			transaction.reserveExtraSpace(documents.size(), 0);
 			int i = 0;
 			for (IndexDocument document : documents) {
-				updateDoc(transaction, schema, document);
+				updateDoc(transaction, osseFieldList, schema, document);
 				i++;
 			}
+			transaction.commit();
 			return i;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

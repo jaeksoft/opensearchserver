@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 
+import com.jaeksoft.searchlib.Logging;
+
 public class FunctionTimer {
 
 	public static FunctionTimer INSTANCE = new FunctionTimer();
@@ -54,7 +56,7 @@ public class FunctionTimer {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(name);
 			sb.append(" - count: ");
 			sb.append(callCount);
@@ -70,29 +72,35 @@ public class FunctionTimer {
 	public class ExecutionToken {
 
 		private final String name;
+		private final String[] texts;
 		private final long startTime;
 		private long duration;
 
-		private ExecutionToken(String name) {
+		private ExecutionToken(String name, String... texts) {
 			this.name = name;
+			this.texts = texts;
 			this.startTime = System.currentTimeMillis();
 		}
 
 		public final void end() {
 			duration = System.currentTimeMillis() - startTime;
 			endExecutionToken(this);
+			if (Logging.isDebug)
+				System.out.println(StringUtils.fastConcatCharSequence(name,
+						" ", StringUtils.fastConcatCharSequence(texts), " (",
+						Long.toString(duration), "ms)"));
 		}
 	}
 
 	private final SimpleLock lock = new SimpleLock();
-	private final Map<String, ExecutionInfo> map;
+	private final Map<CharSequence, ExecutionInfo> map;
 
 	private FunctionTimer() {
-		map = new TreeMap<String, ExecutionInfo>();
+		map = new TreeMap<CharSequence, ExecutionInfo>();
 	}
 
-	public ExecutionToken newExecutionToken(String name) {
-		return new ExecutionToken(name);
+	public ExecutionToken newExecutionToken(String name, String... text) {
+		return new ExecutionToken(name, text);
 	}
 
 	private void endExecutionToken(ExecutionToken executionToken) {

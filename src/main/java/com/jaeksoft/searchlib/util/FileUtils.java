@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +33,10 @@ import java.util.Comparator;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.AbstractFileFilter;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 
 import com.jaeksoft.searchlib.Logging;
 
@@ -129,4 +134,29 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		}
 	}
 
+	public static class FileNotHiddenFileFilter extends AbstractFileFilter {
+
+		/** Singleton instance of file filter */
+		public static final IOFileFilter FILE = new FileNotHiddenFileFilter();
+
+		protected FileNotHiddenFileFilter() {
+		}
+
+		@Override
+		final public boolean accept(final File file) {
+			return file.isFile() && !file.isHidden();
+		}
+
+	}
+
+	public static final boolean containsFile(final File directory,
+			final boolean ignoreHidden) {
+		if (!directory.exists())
+			return false;
+		if (!directory.isDirectory())
+			return false;
+		final FileFilter fileFilter = ignoreHidden ? FileNotHiddenFileFilter.FILE
+				: FileFileFilter.FILE;
+		return !ArrayUtils.isEmpty(directory.listFiles(fileFilter));
+	}
 }
