@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,23 +37,22 @@ public class OsseIndex {
 
 	private Pointer indexPtr;
 
-	public OsseIndex(File indexDirectory, OsseErrorHandler err,
-			boolean createIfNotExists) throws SearchLibException {
+	public OsseIndex(File indexDirectory, OsseErrorHandler err, boolean bCreate)
+			throws SearchLibException {
 		err = new OsseErrorHandler(err);
 		try {
 			WString path = new WString(indexDirectory.getPath());
-			if (!indexDirectory.exists()) {
-				indexDirectory.mkdir();
-				ExecutionToken et = FunctionTimer.INSTANCE
-						.newExecutionToken("OSSCLib_Index_Create");
-				indexPtr = OsseLibrary.INSTANCE.OSSCLib_Index_Create(path,
+			if (bCreate) {
+				ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+						"OSSCLib_MsIndex_Create ", indexDirectory.getPath());
+				indexPtr = OsseLibrary.INSTANCE.OSSCLib_MsIndex_Create(path,
 						null, err.getPointer());
 				et.end();
 			} else {
-				ExecutionToken et = FunctionTimer.INSTANCE
-						.newExecutionToken("OSSCLib_Index_Open");
-				indexPtr = OsseLibrary.INSTANCE.OSSCLib_Index_Open(path, null,
-						err.getPointer());
+				ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+						"OSSCLib_MsIndex_Open ", indexDirectory.getPath());
+				indexPtr = OsseLibrary.INSTANCE.OSSCLib_MsIndex_Open(path,
+						null, err.getPointer());
 				et.end();
 			}
 			if (indexPtr == null)
@@ -73,8 +72,8 @@ public class OsseIndex {
 		err = new OsseErrorHandler(err);
 		try {
 			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Index_Close");
-			if (!OsseLibrary.INSTANCE.OSSCLib_Index_Close(indexPtr,
+					.newExecutionToken("OSSCLib_MsIndex_Close");
+			if (!OsseLibrary.INSTANCE.OSSCLib_MsIndex_Close(indexPtr,
 					err.getPointer()))
 				Logging.warn(err.getError());
 			et.end();

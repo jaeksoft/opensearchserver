@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,10 +30,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
+import com.sun.jna.ptr.IntByReference;
 
 public class OsseTransaction {
 
@@ -43,55 +47,20 @@ public class OsseTransaction {
 
 	private OsseErrorHandler err;
 
-	private final Map<String, Pointer> fieldPointerMap;
+	final private Map<String, Pointer> transactFieldPtrMap;
 
-	public OsseTransaction(OsseIndex index) {
-		l.lock();
-		try {
-			fieldPointerMap = new TreeMap<String, Pointer>();
-			err = new OsseErrorHandler();
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_Begin");
-			transactPtr = OsseLibrary.INSTANCE.OSSCLib_Transact_Begin(
-					index.getPointer(), err.getPointer());
-			et.end();
-		} finally {
-			l.unlock();
-		}
-	}
-
-	final public void reserveExtraSpace(int newDocs, int existingDocs)
-			throws SearchLibException {
+	public OsseTransaction(OsseIndex index) throws SearchLibException {
 		l.lock();
 		try {
 			err = new OsseErrorHandler();
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_ReserveExtraSpaceForDocHandles");
-			int res = OsseLibrary.INSTANCE
-					.OSSCLib_Transact_ReserveExtraSpaceForDocHandles(
-							transactPtr, newDocs, existingDocs,
-							err.getPointer());
+			ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+					"OSSCLib_MsTransact_Begin ", index.getPointer().toString());
+			transactPtr = OsseLibrary.INSTANCE.OSSCLib_MsTransact_Begin(
+					index.getPointer(), null, err.getPointer());
 			et.end();
-			if (res == 0)
+			if (transactPtr == null)
 				throwError();
-		} finally {
-			l.unlock();
-		}
-	}
-
-	final public Pointer getFieldPointer(String fieldName) {
-		l.lock();
-		try {
-			Pointer fieldPtr = fieldPointerMap.get(fieldName);
-			if (fieldPtr != null)
-				return fieldPtr;
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_GetField");
-			fieldPtr = OsseLibrary.INSTANCE.OSSCLib_Transact_GetField(
-					transactPtr, new WString(fieldName), err.getPointer());
-			et.end();
-			fieldPointerMap.put(fieldName, fieldPtr);
-			return fieldPtr;
+			transactFieldPtrMap = new TreeMap<String, Pointer>();
 		} finally {
 			l.unlock();
 		}
@@ -101,10 +70,10 @@ public class OsseTransaction {
 		l.lock();
 		try {
 			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_Commit");
-			if (!OsseLibrary.INSTANCE.OSSCLib_Transact_Commit(transactPtr,
-					null, 0, null, err.getPointer()))
-				throw new SearchLibException(err.getError());
+					.newExecutionToken("OSSCLib_MsTransact_Commit");
+			if (!OsseLibrary.INSTANCE.OSSCLib_MsTransact_Commit(transactPtr, 0,
+					null, null, err.getPointer()))
+				throwError();
 			et.end();
 			transactPtr = null;
 		} finally {
@@ -112,70 +81,114 @@ public class OsseTransaction {
 		}
 	}
 
-	final public Pointer newDocumentPointer() throws SearchLibException {
+	final public int newDocumentId() throws SearchLibException {
 		l.lock();
 		try {
 			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_Document_New");
-			Pointer documentPtr = OsseLibrary.INSTANCE
-					.OSSCLib_Transact_Document_New(transactPtr,
+					.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
+			int documentId = OsseLibrary.INSTANCE
+					.OSSCLib_MsTransact_Document_GetNewDocId(transactPtr,
 							err.getPointer());
 			et.end();
-			if (documentPtr == null)
+			err.checkNoError();
+			if (documentId < 0)
 				throwError();
-			return documentPtr;
+			return documentId;
 		} finally {
 			l.unlock();
 		}
 	}
 
-	final public Pointer createField(String fieldName, int flag)
+	final public int createField(String fieldName, int flag)
 			throws SearchLibException {
 		l.lock();
 		try {
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_CreateField");
+			ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+					"OSSCLib_MsTransact_CreateFieldW ", fieldName, " ",
+					Integer.toString(flag));
+			IntByReference fieldId = new IntByReference();
 			Pointer fieldPtr = OsseLibrary.INSTANCE
-					.OSSCLib_Transact_CreateField(transactPtr, new WString(
+					.OSSCLib_MsTransact_CreateFieldW(transactPtr, new WString(
 							fieldName),
 							OsseLibrary.OSSCLIB_FIELD_UI32FIELDTYPE_STRING,
-							flag, null, err.getPointer());
+							flag, null, true, fieldId, err.getPointer());
 			et.end();
+			err.checkNoError();
 			if (fieldPtr == null)
 				throwError();
-			return fieldPtr;
+			return fieldId.getValue();
 		} finally {
 			l.unlock();
 		}
 	}
 
-	final public void deleteField(String fieldName) throws SearchLibException {
+	public void createField(SchemaField schemaField) throws SearchLibException {
+		int flag = 0;
+		switch (schemaField.getTermVector()) {
+		case YES:
+			flag += OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
+			break;
+		case POSITIONS_OFFSETS:
+			flag = OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
+					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
+					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
+			break;
+		default:
+			break;
+		}
+		createField(schemaField.getName(), flag);
+	}
+
+	final public void deleteField(FieldInfo field) throws SearchLibException {
 		l.lock();
 		try {
-			WString[] wTerms = { new WString(fieldName) };
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_DeleteFields");
-			int i = OsseLibrary.INSTANCE.OSSCLib_Transact_DeleteFields(
-					transactPtr, wTerms, 1, err.getPointer());
+			Pointer[] fieldsPtr = { getExistingField(field) };
+			ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+					"OSSCLib_MsTransact_DeleteFields ", field.name, "(",
+					Integer.toString(field.id), ")");
+			int i = OsseLibrary.INSTANCE.OSSCLib_MsTransact_DeleteFields(
+					transactPtr, fieldsPtr, 1, err.getPointer());
 			et.end();
-			if (i != 1)
+			if (i != fieldsPtr.length)
 				throwError();
 		} finally {
 			l.unlock();
 		}
 	}
 
-	final public void updateTerms(Pointer documentPtr, Pointer fieldPtr,
-			WString[] terms, OsseTermOffset[] offsets,
-			int[] positionIncrements, int length) throws SearchLibException {
+	final private Pointer getExistingField(FieldInfo field)
+			throws SearchLibException {
+		Pointer transactFieldPtr = transactFieldPtrMap.get(field.name);
+		if (transactFieldPtr != null)
+			return transactFieldPtr;
+		ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+				"OSSCLib_MsTransact_GetExistingField ", transactPtr.toString(),
+				" ", field.name, "(", Integer.toString(field.id), ")");
+		transactFieldPtr = OsseLibrary.INSTANCE
+				.OSSCLib_MsTransact_GetExistingField(transactPtr, field.id,
+						err.getPointer());
+		et.end();
+		if (transactFieldPtr == null)
+			throwError();
+		transactFieldPtrMap.put(field.name, transactFieldPtr);
+		return transactFieldPtr;
+	}
+
+	final public void updateTerms(int documentId, FieldInfo field,
+			TermBuffer buffer, int length) throws SearchLibException {
 		l.lock();
 		try {
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_Document_AddStringTerms");
+			Pointer transactFieldPtr = getExistingField(field);
+			ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+					"OSSCLib_MsTransact_Document_AddStringTermsW ",
+					transactFieldPtr.toString(), " ",
+					Integer.toString(documentId), " [",
+					Integer.toString(buffer.terms.length), "] ",
+					Integer.toString(length));
 			int res = OsseLibrary.INSTANCE
-					.OSSCLib_Transact_Document_AddStringTerms(transactPtr,
-							documentPtr, fieldPtr, terms, offsets,
-							positionIncrements, null, length, err.getPointer());
+					.OSSCLib_MsTransact_Document_AddStringTermsW(
+							transactFieldPtr, documentId, buffer.terms, length,
+							err.getPointer());
 			et.end();
 			if (res != length)
 				throwError();
@@ -187,10 +200,10 @@ public class OsseTransaction {
 	final public void rollback() throws SearchLibException {
 		l.lock();
 		try {
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_Transact_Commit");
-			if (!OsseLibrary.INSTANCE.OSSCLib_Transact_Commit(transactPtr,
-					null, 0, null, err.getPointer()))
+			ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
+					"OSSCLib_MsTransact_RollBack ", transactPtr.toString());
+			if (!OsseLibrary.INSTANCE.OSSCLib_MsTransact_RollBack(transactPtr,
+					err.getPointer()))
 				throw new SearchLibException(err.getError());
 			et.end();
 			transactPtr = null;

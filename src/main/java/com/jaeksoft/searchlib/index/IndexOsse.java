@@ -28,45 +28,38 @@ import java.io.File;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.OsseIndex;
 
 public class IndexOsse extends IndexAbstract {
 
 	private OsseIndex osseIndex = null;
-	private OsseErrorHandler ossErrorHandler = null;
 
 	protected IndexOsse(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, SearchLibException {
 		super(configDir, indexConfig, createIfNotExists);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void initIndexDirectory(File indexDir, boolean bCreate)
-			throws IOException {
-		// TODO Auto-generated method stub
-
+			throws IOException, SearchLibException {
+		osseIndex = new OsseIndex(indexDir, null, bCreate);
 	}
 
 	@Override
 	protected void closeIndexDirectory() {
-		// TODO Auto-generated method stub
-
+		osseIndex.close(null);
 	}
 
 	@Override
 	protected ReaderInterface getNewReader(IndexConfig indexConfig)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+			throws IOException, SearchLibException {
+		return new ReaderNativeOSSE(indexConfig, osseIndex);
 	}
 
 	@Override
 	protected WriterInterface getNewWriter(IndexConfig indexConfig,
 			boolean bCreate) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new WriterNativeOSSE(osseIndex, indexConfig);
 	}
 
 }

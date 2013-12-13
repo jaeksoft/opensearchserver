@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -74,10 +75,11 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		this.online = true;
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
-		if (!indexDir.exists()) {
+		if (!indexDir.exists() || !FileUtils.containsFile(indexDir, true)) {
 			if (!createIfNotExists)
 				return;
-			indexDir.mkdir();
+			if (!indexDir.exists())
+				indexDir.mkdir();
 			bCreate = true;
 		} else
 			indexDir = findIndexDirOrSub(indexDir);
@@ -103,7 +105,7 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	}
 
 	protected abstract void initIndexDirectory(File indexDir, boolean bCreate)
-			throws IOException;
+			throws IOException, SearchLibException;
 
 	protected abstract void closeIndexDirectory();
 

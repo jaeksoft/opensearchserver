@@ -187,10 +187,11 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			OsseFieldList fieldList = new OsseFieldList(index, error);
 			for (String fieldName : fieldSet) {
 				FieldInfo fieldInfo = fieldList.getFieldInfo(fieldName);
+				// TODO FIX
 				if (fieldInfo != null) {
 					docCursor = new OsseDocCursor(index, error);
-					List<FieldValueItem> valueList = docCursor.getTerms(
-							fieldInfo.pointer, docId);
+					List<FieldValueItem> valueList = docCursor.getTerms(null,
+							docId);
 					docCursor.release();
 					if (valueList != null)
 						fieldValueMap.put(fieldName, new FieldValue(fieldName,

@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index.osse;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
@@ -49,6 +50,15 @@ public class OsseErrorHandler {
 	final public String getError() {
 		WString error = OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_GetText(errPtr);
 		return error != null ? error.toString() : null;
+	}
+
+	final public int getErrorCode() {
+		return OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_GetErrorCode(errPtr);
+	}
+
+	final public void checkNoError() throws SearchLibException {
+		if (getErrorCode() != 0)
+			throw new SearchLibException(getError());
 	}
 
 	final public Pointer getPointer() {

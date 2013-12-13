@@ -82,15 +82,17 @@ public class IndexConfig {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("index", "searchCache",
-				Integer.toString(searchCache), "filterCache",
-				Integer.toString(filterCache), "fieldCache",
-				Integer.toString(fieldCache), "termVectorCache",
-				Integer.toString(termVectorCache), "remoteUrl",
-				remoteUri != null ? remoteUri.toString() : null, "keyField",
-				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
-				similarityClass, "maxNumSegments",
-				Integer.toString(maxNumSegments));
+		xmlWriter
+				.startElement("index", "searchCache",
+						Integer.toString(searchCache), "filterCache",
+						Integer.toString(filterCache), "fieldCache",
+						Integer.toString(fieldCache), "termVectorCache",
+						Integer.toString(termVectorCache), "remoteUrl",
+						remoteUri != null ? remoteUri.toString() : null,
+						"keyField", keyField, "keyMd5RegExp", keyMd5RegExp,
+						"similarityClass", similarityClass, "maxNumSegments",
+						Integer.toString(maxNumSegments), "indexType",
+						indexType.name());
 		xmlWriter.endElement();
 	}
 
