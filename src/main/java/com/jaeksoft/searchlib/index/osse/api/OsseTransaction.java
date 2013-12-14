@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -31,9 +31,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
+import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
@@ -142,20 +143,21 @@ public class OsseTransaction {
 	}
 
 	final public void deleteField(FieldInfo field) throws SearchLibException {
+		OssePointerArray ossePointerArray = null;
 		l.lock();
 		try {
-			Pointer[] fieldsPtr = { getExistingField(field) };
+			ossePointerArray = new OssePointerArray(getExistingField(field));
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_DeleteFields ", field.name, "(",
 					Integer.toString(field.id), ")");
-			// TODO pass pointer
 			int i = OsseLibrary.OSSCLib_MsTransact_DeleteFields(transactPtr,
-					null, 1, err.getPointer());
+					ossePointerArray, 1, err.getPointer());
 			et.end();
-			if (i != fieldsPtr.length)
+			if (i != 1)
 				throwError();
 		} finally {
 			l.unlock();
+			IOUtils.close(ossePointerArray);
 		}
 	}
 

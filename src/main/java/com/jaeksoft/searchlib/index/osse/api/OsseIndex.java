@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.File;
 

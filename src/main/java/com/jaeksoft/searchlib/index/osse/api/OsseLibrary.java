@@ -22,15 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
+import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.PointerByReference;
 
 public class OsseLibrary {
 
@@ -71,13 +71,6 @@ public class OsseLibrary {
 	public static native int OSSCLib_MsTransact_Document_GetNewDocId(
 			Pointer hMsTransact, Pointer hExtErrInfo);
 
-	/*
-	 * public static native int OSSCLib_MsTransact_Document_AddStringTermsW(
-	 * Pointer hMsTransactField, int ui32DocId, WString[] lplpwszTermArray, int
-	 * ui32NumberOfTerms, Pointer hExtErrInfo);
-	 */
-
-	// TODO byte[] lplpsu8zTermArray should be an array char**
 	public static native int OSSCLib_MsTransact_Document_AddStringTerms(
 			Pointer hMsTransactField, int ui32DocId,
 			OsseFastStringArray lplpsu8zTermArray, int ui32NumberOfTerms,
@@ -102,9 +95,8 @@ public class OsseLibrary {
 	public static native Pointer OSSCLib_MsTransact_GetExistingField(
 			Pointer hMsTransact, int ui32MsFieldId, Pointer hExtErrInfo);
 
-	// TODO Warning, Pointer lphMsTransactFieldArray should be an array
 	public static native int OSSCLib_MsTransact_DeleteFields(
-			Pointer hMsTransact, PointerByReference lphMsTransactFieldArray,
+			Pointer hMsTransact, OssePointerArray lphMsTransactFieldArray,
 			int ui32NumberOfFields, Pointer hExtErrInfo);
 
 	public static native int OSSCLib_MsIndex_GetListOfFields(Pointer hMsIndex,
@@ -116,31 +108,41 @@ public class OsseLibrary {
 			IntByReference lpui32FieldType, IntByReference lpui32FieldFlags,
 			Pointer hExtErrInfo);
 
-	// TODO WString[] lplpwszTerm should be an array
-	public static native Pointer OSSCLib_QCursor_Create(Pointer hIndex,
-			WString lpwszFieldName, WString lplpwszTerm, int ui32NumberOfTerms,
-			int ui32Bop, Pointer hExtErrInfo);
+	public static native Pointer OSSCLib_MsQCursor_Create(Pointer hMsIndex,
+			int ui32MsFieldId, OsseFastStringArray lplpsu8zTerm,
+			int ui32NumberOfTerms, int ui32Bop, Pointer hExtErrInfo);
 
-	public static native void OSSCLib_QCursor_Delete(Pointer hCursor);
+	public static native void OSSCLib_MsQCursor_Delete(Pointer hMsQCursor);
 
-	// TODO Pointer[] lphCursor should be an array
-	public static native Pointer OSSCLib_QCursor_CreateCombinedCursor(
-			Pointer lphCursor, int ui32NumberOfCursors, int ui32Bop,
-			Pointer hExtErrInfo);
+	public static native long OSSCLib_MsQCursor_GetNumberOfDocs(
+			Pointer hMsQCursor, IntByReference lpbSuccess, Pointer hExtErrInfo);
 
-	public static native long OSSCLib_QCursor_GetDocumentIds(
-			Pointer hCursor, // Cursor handle
-			long[] lpui64DocId, long ui64NumberOfDocsToRetrieve,
-			long ui64DocPosition, boolean bPosMeasuredFromEnd,
+	public static native int OSSCLib_MsQCursor_GetDocIds(
+			Pointer hMsQCursor, // Cursor handle
+			long[] lpui64DocId, long ui64DocPosition,
+			boolean bPosMeasuredFromEnd, long ui32NumberOfDocsToRetrieve,
 			IntByReference lpbSuccess, Pointer hExtErrInfo);
 
-	public static native long OSSCLib_QCursor_GetNumberOfDocuments(
-			Pointer hCursor, Pointer lpbSuccess, Pointer hExtErrInfo);
+	public static native Pointer OSSCLib_MsQCursor_CreateCombinedCursor(
+			Pointer hMsIndex, // Index handle
+			OssePointerArray lphMsQCursor, int ui32NumberOfCursors,
+			int ui32Bop, Pointer hExtErrInfo);
 
-	public static native Pointer OSSCLib_DocTCursor_Create(Pointer hIndex,
+	public static native Pointer OSSCLib_MsDocTCursor_Create(Pointer hMsIndex,
 			Pointer hExtErrInfo);
 
-	public static native void OSSCLib_DocTCursor_Delete(Pointer hDocTCursor);
+	public static native void OSSCLib_MsDocTCursor_Delete(Pointer hMsDocTCursor);
+
+	public static native int OSSCLib_MsDocTCursor_FindFirstTerm(
+			Pointer hMsDocTCursor, int ui32MsFieldId, long ui64DocId,
+			Pointer lplpsu8zTerm, IntByReference lpbError, Pointer hExtErrInfo);
+
+	public static native int OSSCLib_MsDocTCursor_FindNextTerm(
+			Pointer hMsDocTCursor, Pointer lplpsu8zTerm,
+			IntByReference lpbError, Pointer hExtErrInfo);
+
+	public static native String OSSCLib_MsDocTCursor_GetCurrentTerm(
+			Pointer hMsDocTCursor, Pointer hExtErrInfo);
 
 	static {
 		Native.register("OpenSearchServer_CLib");

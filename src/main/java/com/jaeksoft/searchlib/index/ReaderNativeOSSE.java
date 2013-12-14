@@ -47,12 +47,11 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.osse.OsseDocCursor;
-import com.jaeksoft.searchlib.index.osse.OsseErrorHandler;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
-import com.jaeksoft.searchlib.index.osse.OsseIndex;
-import com.jaeksoft.searchlib.index.osse.OsseQuery;
+import com.jaeksoft.searchlib.index.osse.api.OsseDocCursor;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -150,9 +149,9 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	public void search(Query query, BitSet filter, AbstractCollector collector)
 			throws SearchLibException, IOException {
-		OsseQuery osseQuery = new OsseQuery(index, query);
-		osseQuery.collect(collector);
-		osseQuery.free();
+		// OsseQuery osseQuery = new OsseQuery(index, query);
+		// osseQuery.collect(collector);
+		// osseQuery.free();
 		// TODO filter
 	}
 

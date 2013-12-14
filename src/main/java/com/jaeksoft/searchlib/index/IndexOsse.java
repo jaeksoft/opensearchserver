@@ -28,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 
 public class IndexOsse extends IndexAbstract {
 

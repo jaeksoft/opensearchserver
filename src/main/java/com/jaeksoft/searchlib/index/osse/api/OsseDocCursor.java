@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +46,8 @@ public class OsseDocCursor {
 		this.error = error;
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_DocTCursor_Create");
-		docCursorPtr = OsseLibrary.OSSCLib_DocTCursor_Create(
-				index.getPointer(), error.getPointer());
+		docCursorPtr = null;// OsseLibrary.OSSCLib_DocTCursor_Create(
+		// index.getPointer(), error.getPointer());
 		et.end();
 		if (docCursorPtr == null)
 			throw new SearchLibException(error.getError());
@@ -96,7 +96,7 @@ public class OsseDocCursor {
 			return;
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_DocTCursor_Delete");
-		OsseLibrary.OSSCLib_DocTCursor_Delete(docCursorPtr);
+		OsseLibrary.OSSCLib_MsDocTCursor_Delete(docCursorPtr);
 		et.end();
 		docCursorPtr = null;
 	}
