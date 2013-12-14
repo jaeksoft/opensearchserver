@@ -50,7 +50,6 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.sun.jna.WString;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
@@ -62,7 +61,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 		super(indexConfig);
 		this.index = index;
 		error = new OsseErrorHandler();
-		termBuffer = new TermBuffer(100);
+		termBuffer = new TermBuffer(1000);
 	}
 
 	@Override
@@ -111,7 +110,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			throws SearchLibException {
 		if (value == null || value.length() == 0)
 			return;
-		termBuffer.terms[0] = new WString(value);
+		termBuffer.terms[0] = value;
 		termBuffer.offsets[0].ui32StartOffset = 0;
 		termBuffer.offsets[0].ui32EndOffset = value.length();
 		termBuffer.positionIncrements[0] = 1;

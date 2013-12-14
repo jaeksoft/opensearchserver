@@ -28,8 +28,6 @@ import java.io.File;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.FunctionTimer;
-import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
@@ -43,17 +41,11 @@ public class OsseIndex {
 		try {
 			WString path = new WString(indexDirectory.getPath());
 			if (bCreate) {
-				ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
-						"OSSCLib_MsIndex_Create ", indexDirectory.getPath());
-				indexPtr = OsseLibrary.INSTANCE.OSSCLib_MsIndex_Create(path,
-						null, err.getPointer());
-				et.end();
+				indexPtr = OsseLibrary.OSSCLib_MsIndex_Create(path, null,
+						err.getPointer());
 			} else {
-				ExecutionToken et = FunctionTimer.INSTANCE.newExecutionToken(
-						"OSSCLib_MsIndex_Open ", indexDirectory.getPath());
-				indexPtr = OsseLibrary.INSTANCE.OSSCLib_MsIndex_Open(path,
-						null, err.getPointer());
-				et.end();
+				indexPtr = OsseLibrary.OSSCLib_MsIndex_Open(path, null,
+						err.getPointer());
 			}
 			if (indexPtr == null)
 				throw new SearchLibException(err.getError());
@@ -71,12 +63,8 @@ public class OsseIndex {
 			return;
 		err = new OsseErrorHandler(err);
 		try {
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_MsIndex_Close");
-			if (!OsseLibrary.INSTANCE.OSSCLib_MsIndex_Close(indexPtr,
-					err.getPointer()))
+			if (!OsseLibrary.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
 				Logging.warn(err.getError());
-			et.end();
 		} finally {
 			err.release();
 		}
