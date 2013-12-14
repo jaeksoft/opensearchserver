@@ -58,7 +58,7 @@ public class OsseQuery {
 
 	public void free() {
 		for (Pointer cursor : cursors)
-			OsseLibrary.INSTANCE.OSSCLib_QCursor_Delete(cursor);
+			OsseLibrary.OSSCLib_QCursor_Delete(cursor);
 		cursors.clear();
 		error.release();
 	}
@@ -78,11 +78,11 @@ public class OsseQuery {
 			break;
 		}
 
-		ExecutionToken et = FunctionTimer.INSTANCE
+		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_QCursor_CreateCombinedCursor");
-		Pointer cursor = OsseLibrary.INSTANCE
-				.OSSCLib_QCursor_CreateCombinedCursor(combinedCursors,
-						combinedCursors.length, bop, error.getPointer());
+		Pointer cursor = null; // OsseLibrary.OSSCLib_QCursor_CreateCombinedCursor(
+		// combinedCursors, combinedCursors.length, bop,
+		// error.getPointer());
 		et.end();
 		if (cursor == null)
 			throw new SearchLibException(error.getError());
@@ -105,11 +105,12 @@ public class OsseQuery {
 			break;
 		}
 
-		ExecutionToken et = FunctionTimer.INSTANCE
+		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_QCursor_Create");
-		Pointer cursor = OsseLibrary.INSTANCE.OSSCLib_QCursor_Create(
-				index.getPointer(), new WString(field), terms, terms.length,
-				bop, error.getPointer());
+		Pointer cursor = null; // TODO
+								// OsseLibrary.OSSCLib_QCursor_Create(index.getPointer(),
+		// new WString(field), terms, terms.length, bop,
+		// error.getPointer());
 		et.end();
 		if (cursor == null)
 			throw new SearchLibException(error.getError());
@@ -136,11 +137,11 @@ public class OsseQuery {
 	}
 
 	public Pointer matchAllCursor() throws SearchLibException {
-		ExecutionToken et = FunctionTimer.INSTANCE
+		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_QCursor_Create (MatchAll)");
-		Pointer cursor = OsseLibrary.INSTANCE.OSSCLib_QCursor_Create(
-				index.getPointer(), null, null, 0,
-				OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_OR, error.getPointer());
+		Pointer cursor = OsseLibrary.OSSCLib_QCursor_Create(index.getPointer(),
+				null, null, 0, OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_OR,
+				error.getPointer());
 		et.end();
 		if (cursor == null)
 			throw new SearchLibException(error.getError());
@@ -149,10 +150,10 @@ public class OsseQuery {
 	}
 
 	public long cursorLength(Pointer cursor) {
-		ExecutionToken et = FunctionTimer.INSTANCE
+		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_QCursor_GetNumberOfDocuments");
-		long l = OsseLibrary.INSTANCE.OSSCLib_QCursor_GetNumberOfDocuments(
-				cursor, null, error.getPointer());
+		long l = OsseLibrary.OSSCLib_QCursor_GetNumberOfDocuments(cursor, null,
+				error.getPointer());
 		et.end();
 		return l;
 	}
@@ -166,9 +167,9 @@ public class OsseQuery {
 		long docPosition = 0;
 		IntByReference bSuccess = new IntByReference();
 		for (;;) {
-			ExecutionToken et = FunctionTimer.INSTANCE
+			ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_QCursor_GetDocumentIds");
-			long length = OsseLibrary.INSTANCE.OSSCLib_QCursor_GetDocumentIds(
+			long length = OsseLibrary.OSSCLib_QCursor_GetDocumentIds(
 					finalCursor, docIdBuffer, docIdBuffer.length, docPosition,
 					false, bSuccess, error.getPointer());
 			et.end();

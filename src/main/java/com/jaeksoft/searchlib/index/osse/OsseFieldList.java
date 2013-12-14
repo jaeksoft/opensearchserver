@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.FunctionTimer;
-import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -48,13 +46,10 @@ public class OsseFieldList {
 				int ui32MsFieldId) throws SearchLibException {
 			IntByReference fieldType = new IntByReference();
 			IntByReference fieldFlags = new IntByReference();
-			ExecutionToken et = FunctionTimer.INSTANCE
-					.newExecutionToken("OSSCLib_MsIndex_GetFieldNameAndProperties");
-			Pointer hFieldName = OsseLibrary.INSTANCE
+			Pointer hFieldName = OsseLibrary
 					.OSSCLib_MsIndex_GetFieldNameAndProperties(
 							index.getPointer(), ui32MsFieldId, fieldType,
 							fieldFlags, index.getPointer());
-			et.end();
 			if (hFieldName == null)
 				throw new SearchLibException(error.getError());
 			name = hFieldName.getString(0);
@@ -76,20 +71,13 @@ public class OsseFieldList {
 	public OsseFieldList(OsseIndex index, OsseErrorHandler error)
 			throws SearchLibException {
 		fieldPointerMap = new TreeMap<String, FieldInfo>();
-		ExecutionToken et = FunctionTimer.INSTANCE
-				.newExecutionToken("OSSCLib_MsIndex_GetListOfFields");
-		int nField = OsseLibrary.INSTANCE.OSSCLib_MsIndex_GetListOfFields(
+		int nField = OsseLibrary.OSSCLib_MsIndex_GetListOfFields(
 				index.getPointer(), null, 0, false, error.getPointer());
-		et.end();
 		if (nField == 0)
 			return;
 		int[] hFieldArray = new int[nField];
-		et = FunctionTimer.INSTANCE
-				.newExecutionToken("OSSCLib_MsIndex_GetListOfFields");
-		OsseLibrary.INSTANCE.OSSCLib_MsIndex_GetListOfFields(
-				index.getPointer(), hFieldArray, nField, false,
-				error.getPointer());
-		et.end();
+		OsseLibrary.OSSCLib_MsIndex_GetListOfFields(index.getPointer(),
+				hFieldArray, nField, false, error.getPointer());
 		error.checkNoError();
 		for (int fieldId : hFieldArray) {
 			FieldInfo info = new FieldInfo(index, error, fieldId);

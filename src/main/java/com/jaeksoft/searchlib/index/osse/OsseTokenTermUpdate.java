@@ -31,7 +31,6 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
-import com.sun.jna.WString;
 
 public class OsseTokenTermUpdate extends AbstractTermFilter {
 
@@ -52,7 +51,7 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 		length = 0;
 	}
 
-	public void index() throws IOException {
+	final private void index() throws IOException {
 		if (length == 0)
 			return;
 		try {
@@ -69,7 +68,7 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 			index();
 			return false;
 		}
-		buffer.terms[length] = new WString(termAtt.toString());
+		buffer.terms[length] = termAtt.toString();
 		final OsseTermOffset offset = buffer.offsets[length];
 		offset.ui32StartOffset = offsetAtt.startOffset();
 		offset.ui32EndOffset = offsetAtt.endOffset();
@@ -80,23 +79,24 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 	}
 
 	@Override
-	public void close() throws IOException {
+	final public void close() throws IOException {
 		super.close();
 	}
 
 	public static class TermBuffer {
 
-		public final WString[] terms;
+		public final String[] terms;
 		public final OsseTermOffset[] offsets;
 		public final int[] positionIncrements;
 		public final int bufferSize;
 
 		public TermBuffer(final int bufferSize) {
 			this.bufferSize = bufferSize;
-			terms = new WString[bufferSize];
+			terms = new String[bufferSize];
 			offsets = OsseTermOffset.getNewArray(bufferSize);
 			positionIncrements = new int[bufferSize];
 		}
+
 	}
 
 }

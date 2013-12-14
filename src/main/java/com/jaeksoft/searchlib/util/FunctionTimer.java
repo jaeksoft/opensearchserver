@@ -24,20 +24,11 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.apache.commons.io.IOUtils;
-
 import com.jaeksoft.searchlib.Logging;
 
 public class FunctionTimer {
 
-	public static FunctionTimer INSTANCE = new FunctionTimer();
-
-	private class ExecutionInfo {
+	private static class ExecutionInfo {
 
 		private final String name;
 		private long totalTime;
@@ -69,14 +60,14 @@ public class FunctionTimer {
 
 	}
 
-	public class ExecutionToken {
+	public static class ExecutionToken {
 
 		private final String name;
 		private final String[] texts;
 		private final long startTime;
 		private long duration;
 
-		private ExecutionToken(String name, String... texts) {
+		private ExecutionToken(final String name, final String... texts) {
 			this.name = name;
 			this.texts = texts;
 			this.startTime = System.currentTimeMillis();
@@ -84,7 +75,6 @@ public class FunctionTimer {
 
 		public final void end() {
 			duration = System.currentTimeMillis() - startTime;
-			endExecutionToken(this);
 			if (Logging.isDebug)
 				System.out.println(StringUtils.fastConcatCharSequence(name,
 						" ", StringUtils.fastConcatCharSequence(texts), " (",
@@ -92,56 +82,9 @@ public class FunctionTimer {
 		}
 	}
 
-	private final SimpleLock lock = new SimpleLock();
-	private final Map<CharSequence, ExecutionInfo> map;
-
-	private FunctionTimer() {
-		map = new TreeMap<CharSequence, ExecutionInfo>();
-	}
-
-	public ExecutionToken newExecutionToken(String name, String... text) {
+	final public static ExecutionToken newExecutionToken(final String name,
+			final String... text) {
 		return new ExecutionToken(name, text);
 	}
 
-	private void endExecutionToken(ExecutionToken executionToken) {
-		lock.rl.lock();
-		try {
-			ExecutionInfo executionInfo = map.get(executionToken.name);
-			if (executionInfo == null) {
-				map.put(executionToken.name, new ExecutionInfo(executionToken));
-			} else
-				executionInfo.add(executionToken);
-		} finally {
-			lock.rl.unlock();
-		}
-	}
-
-	public void reset() {
-		lock.rl.lock();
-		try {
-			map.clear();
-		} finally {
-			lock.rl.unlock();
-		}
-	}
-
-	@Override
-	public String toString() {
-		StringWriter sw = null;
-		PrintWriter pw = null;
-		lock.rl.lock();
-		try {
-			sw = new StringWriter();
-			pw = new PrintWriter(sw);
-			for (ExecutionInfo info : map.values())
-				pw.println(info);
-			return sw.toString();
-		} finally {
-			lock.rl.unlock();
-			if (pw != null)
-				IOUtils.closeQuietly(pw);
-			if (sw != null)
-				IOUtils.closeQuietly(sw);
-		}
-	}
 }

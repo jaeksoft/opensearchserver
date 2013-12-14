@@ -36,7 +36,7 @@ public class OsseErrorHandler {
 
 	public OsseErrorHandler(OsseErrorHandler err) {
 		if (err == null)
-			errPtr = OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_Create();
+			errPtr = OsseLibrary.OSSCLib_ExtErrInfo_Create();
 		else {
 			errRef = err;
 			errPtr = err.errPtr;
@@ -48,12 +48,12 @@ public class OsseErrorHandler {
 	}
 
 	final public String getError() {
-		WString error = OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_GetText(errPtr);
+		WString error = OsseLibrary.OSSCLib_ExtErrInfo_GetText(errPtr);
 		return error != null ? error.toString() : null;
 	}
 
 	final public int getErrorCode() {
-		return OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_GetErrorCode(errPtr);
+		return OsseLibrary.OSSCLib_ExtErrInfo_GetErrorCode(errPtr);
 	}
 
 	final public void checkNoError() throws SearchLibException {
@@ -68,7 +68,7 @@ public class OsseErrorHandler {
 	final public void release() {
 		if (errRef != null)
 			if (errPtr != null)
-				OsseLibrary.INSTANCE.OSSCLib_ExtErrInfo_Delete(errPtr);
+				OsseLibrary.OSSCLib_ExtErrInfo_Delete(errPtr);
 		errPtr = null;
 	}
 
