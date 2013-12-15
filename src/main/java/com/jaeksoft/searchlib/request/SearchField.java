@@ -64,10 +64,10 @@ public class SearchField implements Cloneable {
 		this.phraseBoost = searchField.phraseBoost;
 	}
 
-	public SearchField(String field, boolean phrase, Double boost,
+	public SearchField(String field, Boolean phrase, Double boost,
 			Double phraseBoost) {
 		this.field = field;
-		this.phrase = phrase;
+		this.phrase = phrase == null ? false : phrase;
 		this.boost = boost == null ? 1.0F : boost;
 		this.phraseBoost = phraseBoost == null ? this.boost : phraseBoost;
 	}
