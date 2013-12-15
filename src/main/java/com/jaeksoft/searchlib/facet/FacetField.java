@@ -31,8 +31,10 @@ import java.util.List;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -128,9 +130,10 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	final public Facet getFacet(ReaderLocal reader,
+	final public Facet getFacet(ReaderAbstract reader,
 			DocIdInterface notCollapsedDocs,
-			CollapseDocInterface collapsedDocs, Timer timer) throws IOException {
+			CollapseDocInterface collapsedDocs, Timer timer)
+			throws IOException, SearchLibException {
 		// Two conditions for use postCollapsing
 		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {

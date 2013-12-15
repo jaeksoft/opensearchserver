@@ -26,14 +26,13 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
-
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -49,14 +48,14 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 		this.indexConfig = indexConfig;
 	}
 
-	public DocSetHits get(ReaderLocal reader,
+	public DocSetHits get(ReaderAbstract reader,
 			AbstractSearchRequest searchRequest, Schema schema,
 			SchemaField defaultField, Timer timer) throws ParseException,
 			SyntaxError, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
-			Analyzer analyzer = searchRequest.getAnalyzer();
+			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
 			DocSetHitCacheKey key = new DocSetHitCacheKey(searchRequest,
 					defaultField, analyzer);
 			DocSetHits dsh = getAndPromote(key);

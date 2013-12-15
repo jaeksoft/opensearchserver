@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.index.IndexReader;
@@ -58,6 +57,7 @@ import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
@@ -292,6 +292,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public int maxDoc() throws IOException {
 		rwl.r.lock();
 		try {
@@ -301,6 +302,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public int numDocs() {
 		rwl.r.lock();
 		try {
@@ -351,6 +353,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public void search(Query query, Filter filter, Collector collector)
 			throws IOException {
 		rwl.r.lock();
@@ -364,8 +367,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException {
 		rwl.r.lock();
@@ -455,6 +459,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
@@ -473,8 +478,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		}
 	}
 
+	@Override
 	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
-			Schema schema, SchemaField defaultField, Analyzer analyzer,
+			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
