@@ -29,7 +29,7 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
@@ -54,10 +54,10 @@ public class JoinFacet {
 			throws SearchLibException {
 		try {
 			JoinDocCollector joinDocCollector = (JoinDocCollector) collector;
-			ReaderLocal readerLocal = resultSearch.getReader();
-			int maxDoc = readerLocal.maxDoc();
+			ReaderAbstract readerAbstract = resultSearch.getReader();
+			int maxDoc = readerAbstract.maxDoc();
 			for (FacetField facetField : facetFieldList)
-				joinResult.add(facetField.getFacet(readerLocal,
+				joinResult.add(facetField.getFacet(readerAbstract,
 						JoinDocCollector.getDocIdInterface(maxDoc,
 								joinResult.joinPosition, joinDocCollector),
 						null, timer));

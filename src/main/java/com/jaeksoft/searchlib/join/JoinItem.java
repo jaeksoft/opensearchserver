@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -338,7 +338,7 @@ public class JoinItem implements Comparable<JoinItem> {
 		this.type = type;
 	}
 
-	public DocIdInterface apply(ReaderLocal reader, DocIdInterface docs,
+	public DocIdInterface apply(ReaderAbstract reader, DocIdInterface docs,
 			int joinResultSize, JoinResult joinResult,
 			List<JoinFacet> joinFacets, Timer timer) throws SearchLibException {
 		try {

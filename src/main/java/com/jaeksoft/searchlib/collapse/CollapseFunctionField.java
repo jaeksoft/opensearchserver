@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
@@ -109,7 +109,7 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 	}
 
 	public void prepareExecute(AbstractSearchRequest searchRequest,
-			ReaderLocal reader) throws IOException, InstantiationException,
+			ReaderAbstract reader) throws IOException, InstantiationException,
 			IllegalAccessException {
 		this.stringIndex = reader.getStringIndex(field);
 		radius = 0;
