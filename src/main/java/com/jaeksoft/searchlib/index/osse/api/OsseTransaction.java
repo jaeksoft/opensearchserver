@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index.osse.api;
 
+import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -43,7 +44,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
 
-public class OsseTransaction {
+public class OsseTransaction implements Closeable {
 
 	private final static ReentrantLock l = new ReentrantLock();
 
@@ -63,7 +64,7 @@ public class OsseTransaction {
 					index.getPointer(), null, err.getPointer());
 			et.end();
 			if (transactPtr == null)
-				throwError();
+				err.throwError();
 			transactFieldPtrMap = new TreeMap<String, Pointer>();
 		} finally {
 			l.unlock();
@@ -77,7 +78,7 @@ public class OsseTransaction {
 					.newExecutionToken("OSSCLib_MsTransact_Commit");
 			if (!OsseLibrary.OSSCLib_MsTransact_Commit(transactPtr, 0, null,
 					null, err.getPointer()))
-				throwError();
+				err.throwError();
 			et.end();
 			transactPtr = null;
 		} finally {
@@ -96,7 +97,7 @@ public class OsseTransaction {
 			et.end();
 			err.checkNoError();
 			if (documentId < 0)
-				throwError();
+				err.throwError();
 			return documentId;
 		} finally {
 			l.unlock();
@@ -118,7 +119,7 @@ public class OsseTransaction {
 			et.end();
 			err.checkNoError();
 			if (fieldPtr == null)
-				throwError();
+				err.throwError();
 			return fieldId.getValue();
 		} finally {
 			l.unlock();
@@ -154,7 +155,7 @@ public class OsseTransaction {
 					ossePointerArray, 1, err.getPointer());
 			et.end();
 			if (i != 1)
-				throwError();
+				err.throwError();
 		} finally {
 			l.unlock();
 			IOUtils.close(ossePointerArray);
@@ -173,7 +174,7 @@ public class OsseTransaction {
 				transactPtr, field.id, err.getPointer());
 		et.end();
 		if (transactFieldPtr == null)
-			throwError();
+			err.throwError();
 		transactFieldPtrMap.put(field.name, transactFieldPtr);
 		return transactFieldPtr;
 	}
@@ -196,7 +197,7 @@ public class OsseTransaction {
 					err.getPointer());
 			et.end();
 			if (res != length)
-				throwError();
+				err.throwError();
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -220,7 +221,8 @@ public class OsseTransaction {
 		}
 	}
 
-	final public void release() {
+	@Override
+	final public void close() {
 		l.lock();
 		try {
 			try {
@@ -230,27 +232,9 @@ public class OsseTransaction {
 				Logging.warn(e);
 			}
 			if (err != null) {
-				err.release();
+				IOUtils.close(err);
 				err = null;
 			}
-		} finally {
-			l.unlock();
-		}
-	}
-
-	final public void throwError() throws SearchLibException {
-		l.lock();
-		try {
-			throw new SearchLibException(err.getError());
-		} finally {
-			l.unlock();
-		}
-	}
-
-	public OsseErrorHandler getError() {
-		l.lock();
-		try {
-			return err;
 		} finally {
 			l.unlock();
 		}

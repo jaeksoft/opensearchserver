@@ -36,8 +36,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
-import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
@@ -260,7 +260,7 @@ public class ResultDocument {
 	}
 
 	public void addFunctionField(CollapseFunctionField functionField,
-			int[] collapsedDocs, ReaderLocal reader, Timer timer)
+			int[] collapsedDocs, ReaderAbstract reader, Timer timer)
 			throws IOException, java.text.ParseException,
 			InstantiationException, IllegalAccessException {
 		if (collapsedDocs == null)

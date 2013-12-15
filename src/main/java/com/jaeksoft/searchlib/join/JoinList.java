@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -98,8 +98,9 @@ public class JoinList implements Iterable<JoinItem> {
 		joinList.add(new JoinItem(xpp, node));
 	}
 
-	public DocIdInterface apply(ReaderLocal reader, DocIdInterface collector,
-			JoinResult[] joinResults, Timer timer) throws SearchLibException {
+	public DocIdInterface apply(ReaderAbstract reader,
+			DocIdInterface collector, JoinResult[] joinResults, Timer timer)
+			throws SearchLibException {
 		int joinItemSize = joinList.size();
 		int joinItemPos = 0;
 		List<JoinFacet> facetList = new ArrayList<JoinFacet>(0);

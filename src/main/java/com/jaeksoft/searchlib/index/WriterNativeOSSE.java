@@ -53,11 +53,12 @@ import com.jaeksoft.searchlib.util.IOUtils;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
-	private OsseIndex index;
-	private OsseErrorHandler error;
-	private TermBuffer termBuffer = null;
+	private final OsseIndex index;
+	private final OsseErrorHandler error;
+	private final TermBuffer termBuffer;
 
-	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig) {
+	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig)
+			throws SearchLibException {
 		super(indexConfig);
 		this.index = index;
 		error = new OsseErrorHandler();
@@ -92,8 +93,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			transaction.commit();
 			return new OsseFieldList(index, error);
 		} finally {
-			if (transaction != null)
-				transaction.release();
+			IOUtils.close(transaction);
 		}
 	}
 
@@ -180,8 +180,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (transaction != null)
-				transaction.release();
+			IOUtils.close(transaction);
 		}
 		return true;
 	}
@@ -206,8 +205,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			if (transaction != null)
-				transaction.release();
+			IOUtils.close(transaction);
 		}
 	}
 
@@ -246,8 +244,8 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-
+		index.close(error);
+		IOUtils.close(error);
 	}
 
 }

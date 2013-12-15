@@ -28,16 +28,24 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 
 public abstract class OsseAbstractQuery {
 
-	public abstract void execute();
+	protected OsseCursor cursor = null;
 
-	public static OsseAbstractQuery create(Query query)
+	final public static OsseAbstractQuery create(Query query)
 			throws SearchLibException {
 		if (query instanceof TermQuery)
 			return new OsseTermQuery((TermQuery) query);
 		throw new SearchLibException("Unsupported query type: "
 				+ query.getClass().getName());
 	}
+
+	public abstract void execute(OsseIndex index, OsseFieldList fieldList,
+			OsseErrorHandler error) throws SearchLibException;
+
 }

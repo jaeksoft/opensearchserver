@@ -24,8 +24,20 @@
 
 package com.jaeksoft.searchlib.index.osse.query;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
+import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class OsseTermQuery extends OsseAbstractQuery {
 
@@ -39,9 +51,22 @@ public class OsseTermQuery extends OsseAbstractQuery {
 	}
 
 	@Override
-	public void execute() {
-
-		// OsseLibrary.OSSCLib_MsQCursor_Create(hMsIndex, ui32MsFieldId,
-		// lplpsu8zTerm, ui32NumberOfTerms, ui32Bop, hExtErrInfo)
+	public void execute(OsseIndex index, OsseFieldList fieldList,
+			OsseErrorHandler error) throws SearchLibException {
+		FieldInfo fieldInfo = fieldList.getFieldInfo(field);
+		if (fieldInfo == null)
+			throw new SearchLibException("Unknown field: ", field);
+		OsseFastStringArray osseFastStringArray = null;
+		try {
+			osseFastStringArray = new OsseFastStringArray(
+					new String[] { text }, 1);
+			cursor = new OsseCursor(index, error, fieldInfo.id,
+					osseFastStringArray, 1,
+					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} finally {
+			IOUtils.close(osseFastStringArray);
+		}
 	}
 }

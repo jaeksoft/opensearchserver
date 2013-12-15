@@ -29,7 +29,7 @@ import java.util.Collection;
 
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocIdCollector;
@@ -171,7 +171,7 @@ public abstract class CollapseAbstract {
 	 * @throws SyntaxError
 	 * @throws ParseException
 	 */
-	private CollapseDocInterface collapseOptimized(ReaderLocal reader,
+	private CollapseDocInterface collapseOptimized(ReaderAbstract reader,
 			DocIdInterface collector, Timer timer) throws IOException,
 			ParseException, SyntaxError {
 
@@ -183,7 +183,7 @@ public abstract class CollapseAbstract {
 				collapseFieldStringIndex, timer);
 	}
 
-	private CollapseDocInterface collapseFull(ReaderLocal reader,
+	private CollapseDocInterface collapseFull(ReaderAbstract reader,
 			DocIdInterface collector, Timer timer) throws IOException,
 			ParseException, SyntaxError {
 		FieldCacheIndex collapseFieldStringIndex = reader
@@ -193,7 +193,7 @@ public abstract class CollapseAbstract {
 		return collapsedDocs;
 	}
 
-	final public CollapseDocInterface collapse(ReaderLocal reader,
+	final public CollapseDocInterface collapse(ReaderAbstract reader,
 			DocIdInterface collector, Timer timer) throws IOException,
 			ParseException, SyntaxError {
 		Timer collapseTimer = new Timer(timer, "collapse "

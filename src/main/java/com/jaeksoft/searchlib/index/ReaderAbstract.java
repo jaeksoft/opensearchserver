@@ -30,9 +30,11 @@ import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -56,8 +58,15 @@ public abstract class ReaderAbstract implements ReaderInterface {
 	public abstract void search(Query query, Filter filter, Collector collector)
 			throws IOException;
 
+	@Override
 	public abstract FieldCacheIndex getStringIndex(String name)
 			throws IOException;
+
+	public abstract DocSetHits searchDocSet(
+			AbstractSearchRequest searchRequest, Timer timer)
+			throws IOException, ParseException, SyntaxError,
+			SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException;
 
 	public abstract int maxDoc() throws IOException;
 

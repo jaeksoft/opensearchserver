@@ -34,7 +34,7 @@ import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultSearchSingle extends AbstractResultSearch {
 
-	transient private ReaderLocal reader;
+	transient private ReaderAbstract reader;
 	transient private DocSetHits docSetHits;
 	transient private final TreeSet<String> fieldNameSet;
 
@@ -63,7 +63,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public ResultSearchSingle(ReaderLocal reader,
+	public ResultSearchSingle(ReaderAbstract reader,
 			AbstractSearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, SearchLibException,
 			InstantiationException, IllegalAccessException,
@@ -151,7 +151,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	 * 
 	 * @return Searcher
 	 */
-	public ReaderLocal getReader() {
+	public ReaderAbstract getReader() {
 		return reader;
 	}
 
