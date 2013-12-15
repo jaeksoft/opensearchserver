@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -61,6 +62,13 @@ public abstract class ReaderAbstract implements ReaderInterface {
 	@Override
 	public abstract FieldCacheIndex getStringIndex(String name)
 			throws IOException;
+
+	public abstract DocSetHits newDocSetHits(
+			AbstractSearchRequest searchRequest, Schema schema,
+			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
+			throws IOException, ParseException, SyntaxError,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException;
 
 	public abstract DocSetHits searchDocSet(
 			AbstractSearchRequest searchRequest, Timer timer)
