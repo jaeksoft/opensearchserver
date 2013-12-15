@@ -33,8 +33,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
@@ -125,9 +126,9 @@ public class Facet implements Iterable<FacetItem>,
 		return get(i).count;
 	}
 
-	final static protected Facet facetMultivalued(ReaderLocal reader,
+	final static protected Facet facetMultivalued(ReaderAbstract reader,
 			DocIdInterface collector, FacetField facetField, Timer timer)
-			throws IOException {
+			throws IOException, SearchLibException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
@@ -135,7 +136,7 @@ public class Facet implements Iterable<FacetItem>,
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected Facet facetSingleValue(ReaderLocal reader,
+	final static protected Facet facetSingleValue(ReaderAbstract reader,
 			DocIdInterface collector, FacetField facetField, Timer timer)
 			throws IOException {
 		String fieldName = facetField.getName();
@@ -149,9 +150,9 @@ public class Facet implements Iterable<FacetItem>,
 		facetMap.put(facetItem.term, facetItem);
 	}
 
-	final private static int[] computeMultivalued(ReaderLocal reader,
+	final private static int[] computeMultivalued(ReaderAbstract reader,
 			String fieldName, FieldCacheIndex stringIndex, OpenBitSet bitset)
-			throws IOException {
+			throws IOException, SearchLibException {
 		int[] countIndex = new int[stringIndex.lookup.length];
 		int i = 0;
 		for (String term : stringIndex.lookup) {

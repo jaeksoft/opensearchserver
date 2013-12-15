@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class SearchLibException extends Exception {
 
@@ -41,8 +42,8 @@ public class SearchLibException extends Exception {
 		super(message, cause);
 	}
 
-	public SearchLibException(String message) {
-		super(message);
+	public SearchLibException(String... message) {
+		super(StringUtils.fastConcat(message));
 	}
 
 	public static class AbortException extends SearchLibException {

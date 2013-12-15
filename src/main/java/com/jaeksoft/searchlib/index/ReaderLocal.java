@@ -459,6 +459,7 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
+	@Override
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
@@ -477,6 +478,7 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
+	@Override
 	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
 			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
 			Timer timer) throws IOException, ParseException, SyntaxError,

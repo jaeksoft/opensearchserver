@@ -30,7 +30,8 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
 
 public class OsseTokenTermUpdate extends AbstractTermFilter {
 

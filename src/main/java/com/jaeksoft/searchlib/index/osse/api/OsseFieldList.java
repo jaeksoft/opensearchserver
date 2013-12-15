@@ -22,13 +22,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;

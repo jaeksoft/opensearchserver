@@ -27,8 +27,11 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class IndexOsse extends IndexAbstract {
 
@@ -42,12 +45,26 @@ public class IndexOsse extends IndexAbstract {
 	@Override
 	protected void initIndexDirectory(File indexDir, boolean bCreate)
 			throws IOException, SearchLibException {
-		osseIndex = new OsseIndex(indexDir, null, bCreate);
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			osseIndex = new OsseIndex(indexDir, error, bCreate);
+		} finally {
+			IOUtils.close(error);
+		}
 	}
 
 	@Override
 	protected void closeIndexDirectory() {
-		osseIndex.close(null);
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			osseIndex.close(error);
+		} catch (SearchLibException e) {
+			Logging.warn(e);
+		} finally {
+			IOUtils.close(error);
+		}
 	}
 
 	@Override
@@ -58,7 +75,7 @@ public class IndexOsse extends IndexAbstract {
 
 	@Override
 	protected WriterInterface getNewWriter(IndexConfig indexConfig,
-			boolean bCreate) throws IOException {
+			boolean bCreate) throws IOException, SearchLibException {
 		return new WriterNativeOSSE(osseIndex, indexConfig);
 	}
 

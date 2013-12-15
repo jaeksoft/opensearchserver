@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,21 +46,21 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.osse.OsseDocCursor;
-import com.jaeksoft.searchlib.index.osse.OsseErrorHandler;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList;
-import com.jaeksoft.searchlib.index.osse.OsseFieldList.FieldInfo;
-import com.jaeksoft.searchlib.index.osse.OsseIndex;
-import com.jaeksoft.searchlib.index.osse.OsseQuery;
+import com.jaeksoft.searchlib.index.osse.api.OsseDocCursor;
+import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
+import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.query.OsseAbstractQuery;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.collector.AbstractCollector;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -71,8 +70,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	private OsseIndex index;
 
-	private OsseErrorHandler err;
-
 	protected ReaderNativeOSSE(IndexConfig indexConfig, OsseIndex index)
 			throws SearchLibException {
 		super(indexConfig);
@@ -81,7 +78,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 	@Override
 	public void close() {
-		err.release();
 	}
 
 	@Override
@@ -148,14 +144,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		}
 	}
 
-	public void search(Query query, BitSet filter, AbstractCollector collector)
-			throws SearchLibException, IOException {
-		OsseQuery osseQuery = new OsseQuery(index, query);
-		osseQuery.collect(collector);
-		osseQuery.free();
-		// TODO filter
-	}
-
 	@Override
 	public TermDocs getTermDocs(Term t) throws SearchLibException {
 		// TODO Auto-generated method stub
@@ -192,7 +180,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 					docCursor = new OsseDocCursor(index, error);
 					List<FieldValueItem> valueList = docCursor.getTerms(null,
 							docId);
-					docCursor.release();
+					docCursor.close();
 					if (valueList != null)
 						fieldValueMap.put(fieldName, new FieldValue(fieldName,
 								valueList));
@@ -201,13 +189,11 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			return fieldValueMap;
 		} finally {
 			rwl.r.unlock();
-			if (docCursor != null)
-				docCursor.release();
-			if (error != null)
-				error.release();
+			IOUtils.close(docCursor, error);
 		}
 	}
 
+	@Override
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws SearchLibException, IOException, SyntaxError,
 			InstantiationException, IllegalAccessException,
@@ -263,7 +249,21 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	@Override
 	public void search(Query query, Filter filter, Collector collector)
 			throws IOException {
-		// TODO Auto-generated method stub
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			OsseFieldList fieldList = new OsseFieldList(index, error);
+			OsseAbstractQuery osseQuery = OsseAbstractQuery.create(query);
+			osseQuery.execute(index, fieldList, error);
+			// OsseQuery osseQuery = new OsseQuery(index, query);
+			// osseQuery.collect(collector);
+			// osseQuery.free();
+			// TODO filter
+		} catch (SearchLibException e) {
+			throw new IOException(e);
+		} finally {
+			IOUtils.close(error);
+		}
 
 	}
 

@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.index.osse;
+package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.File;
 
@@ -37,21 +37,16 @@ public class OsseIndex {
 
 	public OsseIndex(File indexDirectory, OsseErrorHandler err, boolean bCreate)
 			throws SearchLibException {
-		err = new OsseErrorHandler(err);
-		try {
-			WString path = new WString(indexDirectory.getPath());
-			if (bCreate) {
-				indexPtr = OsseLibrary.OSSCLib_MsIndex_Create(path, null,
-						err.getPointer());
-			} else {
-				indexPtr = OsseLibrary.OSSCLib_MsIndex_Open(path, null,
-						err.getPointer());
-			}
-			if (indexPtr == null)
-				throw new SearchLibException(err.getError());
-		} finally {
-			err.release();
+		WString path = new WString(indexDirectory.getPath());
+		if (bCreate) {
+			indexPtr = OsseLibrary.OSSCLib_MsIndex_Create(path, null,
+					err.getPointer());
+		} else {
+			indexPtr = OsseLibrary.OSSCLib_MsIndex_Open(path, null,
+					err.getPointer());
 		}
+		if (indexPtr == null)
+			throw new SearchLibException(err.getError());
 	}
 
 	public Pointer getPointer() {
@@ -61,13 +56,8 @@ public class OsseIndex {
 	public void close(OsseErrorHandler err) {
 		if (indexPtr == null)
 			return;
-		err = new OsseErrorHandler(err);
-		try {
-			if (!OsseLibrary.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
-				Logging.warn(err.getError());
-		} finally {
-			err.release();
-		}
+		if (!OsseLibrary.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
+			Logging.warn(err.getError());
 	}
 
 }
