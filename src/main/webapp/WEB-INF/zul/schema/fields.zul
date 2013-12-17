@@ -20,191 +20,178 @@
 
 	<vbox width="100%">
 		<hbox width="100%">
-			<panel title="Select default field" border="normal">
-				<panelchildren>
-					<listbox mold="select"
-						selectedItem="@bind(fields.selectedDefault)"
-						model="@load(fields.indexedFields)">
-						<template name="model" var="indexedField">
-							<listitem label="@load(indexedField)" />
-						</template>
-					</listbox>
-				</panelchildren>
-			</panel>
-			<panel title="Select unique field" border="normal">
-				<panelchildren>
-					<listbox mold="select"
-						selectedItem="@bind(fields.selectedUnique)"
-						model="@load(fields.indexedFields)">
-						<template name="model" var="indexedField">
-							<listitem label="@load(indexedField)" />
-						</template>
-					</listbox>
-				</panelchildren>
-			</panel>
+			<groupbox title="Select default field" mold="3d">
+				<listbox mold="select"
+					selectedItem="@bind(fields.selectedDefault)"
+					model="@load(fields.indexedFields)">
+					<template name="model" var="indexedField">
+						<listitem label="@load(indexedField)" />
+					</template>
+				</listbox>
+			</groupbox>
+			<groupbox title="Select unique field" mold="3d">
+				<listbox mold="select"
+					selectedItem="@bind(fields.selectedUnique)"
+					model="@load(fields.indexedFields)">
+					<template name="model" var="indexedField">
+						<listitem label="@load(indexedField)" />
+					</template>
+				</listbox>
+			</groupbox>
 		</hbox>
 
 		<separator height="5" />
 
-		<panel title="@load(fields.currentEditMode)" border="normal">
-			<panelchildren>
-				<grid>
-					<columns sizable="false">
-						<column align="right" hflex="min" />
-						<column align="left" hflex="min" />
-						<column align="left" />
-					</columns>
-					<rows>
-						<row>
-							<label value="Name: " />
-							<textbox value="@bind(fields.field.name)"
-								width="95%" readonly="@load(fields.selected)" />
-							<label
-								value="Choose a name for the field that will be created" />
-						</row>
-						<row>
-							<label value="Indexed: " />
-							<listbox mold="select"
-								selectedItem="@bind(fields.field.indexed)"
-								model="@load(fields.indexedList)">
+		<groupbox title="@load(fields.currentEditMode)" mold="3d">
+			<grid>
+				<columns sizable="false">
+					<column align="right" hflex="min" />
+					<column align="left" hflex="min" />
+					<column align="left" />
+				</columns>
+				<rows>
+					<row>
+						<label value="Name: " />
+						<textbox value="@bind(fields.field.name)"
+							width="95%" readonly="@load(fields.selected)" />
+						<label
+							value="Choose a name for the field that will be created" />
+					</row>
+					<row>
+						<label value="Indexed: " />
+						<listbox mold="select"
+							selectedItem="@bind(fields.field.indexed)"
+							model="@load(fields.indexedList)">
+							<template name="model">
+								<listitem label="@load(each.value)"
+									value="@load(each)" />
+							</template>
+						</listbox>
+						<label
+							value="@load(fields.field.indexed.description)" />
+					</row>
+					<row>
+						<label value="Stored: " />
+						<listbox mold="select"
+							selectedItem="@bind(fields.field.stored)"
+							model="@load(fields.storedList)">
+							<template name="model">
+								<listitem label="@load(each.value)"
+									value="@load(each)" />
+							</template>
+						</listbox>
+						<label
+							value="@load(fields.field.stored.description)" />
+					</row>
+					<row>
+						<label value="TermVector: " />
+						<listbox mold="select"
+							selectedItem="@bind(fields.field.termVector)"
+							model="@load(fields.termVectorList)">
+							<template name="model">
+								<listitem label="@load(each.value)"
+									value="@load(each)" />
+							</template>
+						</listbox>
+						<label
+							value="@load(fields.field.termVector.description)" />
+					</row>
+					<row>
+						<label value="Analyzer: " />
+						<listbox mold="select"
+							selectedItem="@bind(fields.field.indexAnalyzer)"
+							model="@load(fields.analyzerNameList)">
+							<listitem label="@load(analyzer)"
+								value="@load(analyzer)" />
+						</listbox>
+						<label
+							value="Choose the analyzer you need for that field." />
+					</row>
+					<row>
+						<label value="Copy of: " />
+						<grid model="@load(fields.field.copyOf)"
+							hflex="min">
+							<columns>
+								<column>
+									<listbox
+										model="@load(fields.copyOfFieldList)" mold="select"
+										selectedItem="@bind(fields.selectedCopyOf)">
+										<template name="model">
+											<listitem
+												label="@load(each)" />
+										</template>
+									</listbox>
+								</column>
+								<column>
+									<button
+										image="images/action_add.png"
+										onClick="@command('onCopyOfAdd')" />
+								</column>
+							</columns>
+							<rows>
 								<template name="model">
-									<listitem label="@load(each.value)"
-										value="@load(each)" />
-								</template>
-							</listbox>
-							<label
-								value="@load(fields.field.indexed.description)" />
-						</row>
-						<row>
-							<label value="Stored: " />
-							<listbox mold="select"
-								selectedItem="@bind(fields.field.stored)"
-								model="@load(fields.storedList)">
-								<template name="model">
-									<listitem label="@load(each.value)"
-										value="@load(each)" />
-								</template>
-							</listbox>
-							<label
-								value="@load(fields.field.stored.description)" />
-						</row>
-						<row>
-							<label value="TermVector: " />
-							<listbox mold="select"
-								selectedItem="@bind(fields.field.termVector)"
-								model="@load(fields.termVectorList)">
-								<template name="model">
-									<listitem label="@load(each.value)"
-										value="@load(each)" />
-								</template>
-							</listbox>
-							<label
-								value="@load(fields.field.termVector.description)" />
-						</row>
-						<row>
-							<label value="Analyzer: " />
-							<listbox mold="select"
-								selectedItem="@bind(fields.field.indexAnalyzer)"
-								model="@load(fields.analyzerNameList)">
-								<listitem label="@load(analyzer)"
-									value="@load(analyzer)" />
-							</listbox>
-							<label
-								value="Choose the analyzer you need for that field." />
-						</row>
-						<row>
-							<label value="Copy of: " />
-							<grid model="@load(fields.field.copyOf)"
-								hflex="min">
-								<columns>
-									<column>
-										<listbox
-											model="@load(fields.copyOfFieldList)" mold="select"
-											selectedItem="@bind(fields.selectedCopyOf)">
-											<template name="model">
-												<listitem
-													label="@load(each)" />
-											</template>
-										</listbox>
-									</column>
-									<column>
+									<row>
+										<label value="@load(each)" />
 										<button
-											image="images/action_add.png"
-											onClick="@command('onCopyOfAdd')" />
-									</column>
-								</columns>
-								<rows>
-									<template name="model">
-										<row>
-											<label value="@load(each)" />
-											<button
-												image="images/action_delete.png"
-												onClick="@command('onCopyOfRemove', field=each)" />
-										</row>
-									</template>
-								</rows>
-							</grid>
-							<label
-								value="Choose the field from which values are copied during indexation." />
-						</row>
-						<row spans="3">
-							<hbox>
-								<hbox
-									visible="@load(fields.selected)">
-									<button label="Cancel"
-										onClick="@command('onCancel')" />
-									<space width="10px" />
-									<button label="Save"
-										onClick="@command('onSave')" />
-									<space width="30px" />
-									<button label="Delete"
-										onClick="@command('onDelete')" />
-								</hbox>
-								<hbox
-									visible="@load(fields.notSelected)">
-									<button label="Add"
-										onClick="@command('onSave')" />
-								</hbox>
+											image="images/action_delete.png"
+											onClick="@command('onCopyOfRemove', field=each)" />
+									</row>
+								</template>
+							</rows>
+						</grid>
+						<label
+							value="Choose the field from which values are copied during indexation." />
+					</row>
+					<row spans="3">
+						<vbox align="center" width="100%">
+							<hbox visible="@load(fields.selected)">
+								<button label="Cancel"
+									onClick="@command('onCancel')" />
+								<space width="10px" />
+								<button label="Save"
+									onClick="@command('onSave')" />
+								<space width="30px" />
+								<button label="Delete"
+									onClick="@command('onDelete')" />
 							</hbox>
-						</row>
-					</rows>
-				</grid>
-			</panelchildren>
-		</panel>
+							<hbox visible="@load(fields.notSelected)">
+								<button label="Add"
+									onClick="@command('onSave')" />
+							</hbox>
+						</vbox>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>
 
 		<separator height="5" />
 
-		<panel title="List of existing fields and their settings"
-			border="normal">
-			<panelchildren>
-				<listbox model="@load(fields.list)"
-					selectedItem="@bind(fields.selectedField)">
-					<listhead sizable="true">
-						<listheader label="Name" />
-						<listheader hflex="min" label="Indexed"
-							tooltiptext="Indexation of content" />
-						<listheader hflex="min" label="Stored"
-							tooltiptext="Storage for queries" />
-						<listheader hflex="min" label="TermVector" />
-						<listheader hflex="min" label="Analyser" />
-						<listheader hflex="min" label="Copy Of" />
-					</listhead>
-					<template name="model" var="field">
-						<listitem>
-							<listcell label="@load(field.name)" />
-							<listcell
-								label="@load(field.indexed.value)" />
-							<listcell label="@load(field.stored.value)" />
-							<listcell
-								label="@load(field.termVector.value)" />
-							<listcell
-								label="@load(field.indexAnalyzer)" />
-							<listcell label="@load(field.copyOf)" />
-						</listitem>
-					</template>
-				</listbox>
-			</panelchildren>
-		</panel>
+		<groupbox title="List of existing fields and their settings"
+			mold="3d">
+			<listbox model="@load(fields.list)"
+				selectedItem="@bind(fields.selectedField)">
+				<listhead sizable="true">
+					<listheader label="Name" />
+					<listheader hflex="min" label="Indexed"
+						tooltiptext="Indexation of content" />
+					<listheader hflex="min" label="Stored"
+						tooltiptext="Storage for queries" />
+					<listheader hflex="min" label="TermVector" />
+					<listheader hflex="min" label="Analyser" />
+					<listheader hflex="min" label="Copy Of" />
+				</listhead>
+				<template name="model" var="field">
+					<listitem>
+						<listcell label="@load(field.name)" />
+						<listcell label="@load(field.indexed.value)" />
+						<listcell label="@load(field.stored.value)" />
+						<listcell label="@load(field.termVector.value)" />
+						<listcell label="@load(field.indexAnalyzer)" />
+						<listcell label="@load(field.copyOf)" />
+					</listitem>
+				</template>
+			</listbox>
+		</groupbox>
 
 	</vbox>
 

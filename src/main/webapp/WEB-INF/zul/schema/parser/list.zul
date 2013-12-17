@@ -17,66 +17,59 @@
 <zk>
 	<vbox width="100%">
 		<hbox width="100%">
-			<panel title="Select default web crawler parser"
-				border="normal">
-				<panelchildren>
-					<combobox value="@bind(parser.webDefaultParser)"
-						model="@load(parser.parserSet)" />
-				</panelchildren>
-			</panel>
-			<panel title="Select default file crawler parser"
-				border="normal">
-				<panelchildren>
-					<combobox value="@bind(parser.fileDefaultParser)"
-						model="@load(parser.parserSet)" />
-				</panelchildren>
-			</panel>
+			<groupbox title="Select default web crawler parser"
+				mold="3d">
+				<combobox value="@bind(parser.webDefaultParser)"
+					model="@load(parser.parserSet)" />
+			</groupbox>
+			<groupbox title="Select default file crawler parser"
+				mold="3d">
+				<combobox value="@bind(parser.fileDefaultParser)"
+					model="@load(parser.parserSet)" />
+			</groupbox>
 		</hbox>
 	</vbox>
 
 	<separator height="5" />
 
-	<panel title="List of existing parser" border="normal">
-		<panelchildren>
-			<listbox model="@load(parser.parsers)" mold="paging"
-				selectedItem="@bind(parser.selectedParser)" pageSize="15">
-				<auxhead>
-					<auxheader colspan="3">
-						<listbox mold="select"
-							selectedItem="@bind(parser.selectedParserType)"
-							model="@load(parser.parserTypeList)">
-							<template name="model" var="parserType">
-								<listitem
-									label="@load(parserType.name)" />
-							</template>
-						</listbox>
-						<button label="New parser"
-							onClick="@command('onNew')" />
-					</auxheader>
-				</auxhead>
-				<listhead>
-					<listheader label="Name" />
-					<listheader label="Type" />
-					<listheader label="Action" width="200px" />
-				</listhead>
-				<template name="model" var="item">
-					<listitem>
-						<listcell label="@load(item.parserName)"
-							onDoubleClick="@command('doEdit', item=item)" />
-						<listcell label="@load(item.parserType.name)"
-							onDoubleClick="@command('doEdit', item=item)" />
-						<listcell>
-							<hbox align="center">
-								<button label="Edit"
-									onClick="@command('doEdit', item=item)" />
-								<space width="10px" />
-								<button label="Delete"
-									onClick="@command('doDelete', item=item)" />
-							</hbox>
-						</listcell>
-					</listitem>
-				</template>
-			</listbox>
-		</panelchildren>
-	</panel>
+	<groupbox title="List of existing parser" mold="3d">
+		<listbox model="@load(parser.parsers)" mold="paging"
+			selectedItem="@bind(parser.selectedParser)" pageSize="15">
+			<auxhead>
+				<auxheader colspan="3">
+					<listbox mold="select"
+						selectedItem="@bind(parser.selectedParserType)"
+						model="@load(parser.parserTypeList)">
+						<template name="model" var="parserType">
+							<listitem label="@load(parserType.name)" />
+						</template>
+					</listbox>
+					<button label="New parser"
+						onClick="@command('onNew')" />
+				</auxheader>
+			</auxhead>
+			<listhead>
+				<listheader label="Name" />
+				<listheader label="Type" />
+				<listheader label="Action" width="200px" />
+			</listhead>
+			<template name="model" var="item">
+				<listitem>
+					<listcell label="@load(item.parserName)"
+						onDoubleClick="@command('doEdit', item=item)" />
+					<listcell label="@load(item.parserType.name)"
+						onDoubleClick="@command('doEdit', item=item)" />
+					<listcell>
+						<hbox align="center">
+							<button label="Edit"
+								onClick="@command('doEdit', item=item)" />
+							<space width="10px" />
+							<button label="Delete"
+								onClick="@command('doDelete', item=item)" />
+						</hbox>
+					</listcell>
+				</listitem>
+			</template>
+		</listbox>
+	</groupbox>
 </zk>
