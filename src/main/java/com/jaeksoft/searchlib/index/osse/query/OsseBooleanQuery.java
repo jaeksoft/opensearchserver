@@ -24,51 +24,63 @@
 
 package com.jaeksoft.searchlib.index.osse.query;
 
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
-import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
-import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.util.IOUtils;
 
-public class OsseTermQuery extends OsseAbstractQuery {
+public class OsseBooleanQuery extends OsseAbstractQuery {
 
-	final private String field;
-	final private String text;
+	private class OsseBooleanClause {
 
-	OsseTermQuery(TermQuery termQuery) {
-		final Term term = termQuery.getTerm();
-		field = term.field();
-		text = term.text();
+		private final OsseAbstractQuery query;
+
+		private OsseBooleanClause(BooleanClause booleanClause)
+				throws SearchLibException {
+			query = OsseAbstractQuery.create(booleanClause.getQuery());
+		}
+
+		public OsseCursor execute(OsseIndex index,
+				Map<String, FieldInfo> fieldMap, OsseErrorHandler error)
+				throws SearchLibException {
+			query.execute(index, fieldMap, error);
+			return query.cursor;
+		}
+
+	}
+
+	private final List<OsseBooleanClause> clauses;
+
+	OsseBooleanQuery(BooleanQuery booleanQuery) throws SearchLibException {
+		clauses = new ArrayList<OsseBooleanClause>(booleanQuery.clauses()
+				.size());
+		for (BooleanClause booleanClause : booleanQuery)
+			clauses.add(new OsseBooleanClause(booleanClause));
 	}
 
 	@Override
 	public void execute(OsseIndex index, Map<String, FieldInfo> fieldMap,
 			OsseErrorHandler error) throws SearchLibException {
-		if (fieldMap == null)
-			throw new SearchLibException("Unknown field: ", field);
-		FieldInfo fieldInfo = fieldMap.get(field);
-		if (fieldInfo == null)
-			throw new SearchLibException("Unknown field: ", field);
-		OsseFastStringArray osseFastStringArray = null;
-		try {
-			osseFastStringArray = new OsseFastStringArray(
-					new String[] { text }, 1);
-			cursor = new OsseCursor(index, error, fieldInfo.id,
-					osseFastStringArray, 1,
-					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} finally {
-			IOUtils.close(osseFastStringArray);
-		}
+		List<OsseCursor> cursors = new ArrayList<OsseCursor>(clauses.size());
+		for (OsseBooleanClause clause : clauses)
+			cursors.add(clause.execute(index, fieldMap, error));
+		cursor = null;// new OsseCursor(index, error,
+		// OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND, cursors);
+	}
+
+	@Override
+	public void close() {
+		super.close();
+		for (OsseBooleanClause clause : clauses)
+			IOUtils.close(clause.query);
 	}
 }

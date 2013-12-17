@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
+import java.util.Collection;
+
 import com.sun.jna.Pointer;
 
 /**
@@ -31,20 +33,23 @@ import com.sun.jna.Pointer;
  */
 public class OssePointerArray extends DisposableMemory {
 
-	/**
-	 * Optimized Pointer array
-	 * 
-	 * @param strings
-	 */
+	public static interface PointerProvider {
+		Pointer getPointer();
+	}
 
-	public OssePointerArray(Pointer... pointers) {
-		super((pointers.length + 1) * Pointer.SIZE);
+	public OssePointerArray(Collection<? extends PointerProvider> pointers) {
+		super((pointers.size() + 1) * Pointer.SIZE);
 		int i = 0;
-		for (Pointer pointer : pointers) {
-			setPointer(Pointer.SIZE * i, pointer);
+		for (PointerProvider pointerProvider : pointers) {
+			setPointer(Pointer.SIZE * i, pointerProvider.getPointer());
 			i++;
 		}
 		setPointer(Pointer.SIZE * i, null);
 	}
 
+	public OssePointerArray(Pointer pointer) {
+		super(2 * Pointer.SIZE);
+		setPointer(0, pointer);
+		setPointer(Pointer.SIZE, null);
+	}
 }

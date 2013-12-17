@@ -24,16 +24,21 @@
 
 package com.jaeksoft.searchlib.index.osse.query;
 
+import java.io.Closeable;
+import java.util.Map;
+
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
+import com.jaeksoft.searchlib.util.IOUtils;
 
-public abstract class OsseAbstractQuery {
+public abstract class OsseAbstractQuery implements Closeable {
 
 	protected OsseCursor cursor = null;
 
@@ -41,11 +46,19 @@ public abstract class OsseAbstractQuery {
 			throws SearchLibException {
 		if (query instanceof TermQuery)
 			return new OsseTermQuery((TermQuery) query);
+		else if (query instanceof BooleanQuery)
+			return new OsseBooleanQuery((BooleanQuery) query);
 		throw new SearchLibException("Unsupported query type: "
 				+ query.getClass().getName());
 	}
 
-	public abstract void execute(OsseIndex index, OsseFieldList fieldList,
-			OsseErrorHandler error) throws SearchLibException;
+	public abstract void execute(OsseIndex index,
+			Map<String, FieldInfo> fieldMap, OsseErrorHandler error)
+			throws SearchLibException;
+
+	@Override
+	public void close() {
+		IOUtils.close(cursor);
+	}
 
 }

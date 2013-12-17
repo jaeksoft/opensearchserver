@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.TokenStream;
@@ -40,9 +41,8 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -70,19 +70,20 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	}
 
-	public OsseFieldList checkSchemaFieldList(SchemaFieldList schemaFieldList)
-			throws SearchLibException {
-		OsseFieldList osseFieldList = new OsseFieldList(index, error);
+	public Map<String, FieldInfo> checkSchemaFieldList(
+			SchemaFieldList schemaFieldList) throws SearchLibException {
+		Map<String, FieldInfo> fieldMap = index.getListOfFields(error);
 		List<FieldInfo> fieldsToDelete = new ArrayList<FieldInfo>(0);
-		for (FieldInfo fieldInfo : osseFieldList.collection())
-			if (schemaFieldList.get(fieldInfo.name) == null)
-				fieldsToDelete.add(fieldInfo);
+		if (fieldMap != null)
+			for (FieldInfo fieldInfo : fieldMap.values())
+				if (schemaFieldList.get(fieldInfo.name) == null)
+					fieldsToDelete.add(fieldInfo);
 		List<SchemaField> fieldsToCreate = new ArrayList<SchemaField>(0);
 		for (SchemaField schemaField : schemaFieldList)
-			if (osseFieldList.getFieldInfo(schemaField.getName()) == null)
+			if (fieldMap == null || fieldMap.get(schemaField.getName()) == null)
 				fieldsToCreate.add(schemaField);
 		if (fieldsToDelete.size() == 0 && fieldsToCreate.size() == 0)
-			return osseFieldList;
+			return fieldMap;
 		OsseTransaction transaction = null;
 		try {
 			transaction = new OsseTransaction(index);
@@ -91,7 +92,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			for (SchemaField schemaField : fieldsToCreate)
 				transaction.createField(schemaField);
 			transaction.commit();
-			return new OsseFieldList(index, error);
+			return index.getListOfFields(error);
 		} finally {
 			IOUtils.close(transaction);
 		}
@@ -138,8 +139,8 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	private void updateDoc(OsseTransaction transaction,
-			OsseFieldList osseFieldList, Schema schema, IndexDocument document)
-			throws SearchLibException, IOException {
+			Map<String, FieldInfo> fieldMap, Schema schema,
+			IndexDocument document) throws SearchLibException, IOException {
 		int documentId = transaction.newDocumentId();
 		LanguageEnum lang = document.getLang();
 		for (FieldContent fieldContent : document) {
@@ -151,8 +152,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			Analyzer analyzer = schema.getAnalyzer(schemaField, lang);
 			CompiledAnalyzer compiledAnalyzer = analyzer != null ? analyzer
 					.getIndexAnalyzer() : null;
-			FieldInfo fieldInfo = osseFieldList.getFieldInfo(schemaField
-					.getName());
+			FieldInfo fieldInfo = fieldMap.get(schemaField.getName());
 			if (fieldInfo == null)
 				continue;
 			for (FieldValueItem valueItem : fieldContent.getValues()) {
@@ -172,10 +172,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 			throws SearchLibException {
 		OsseTransaction transaction = null;
 		try {
-			OsseFieldList osseFieldList = checkSchemaFieldList(schema
+			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index);
-			updateDoc(transaction, osseFieldList, schema, document);
+			updateDoc(transaction, fieldMap, schema, document);
 			transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -192,12 +192,12 @@ public class WriterNativeOSSE extends WriterAbstract {
 		try {
 			if (CollectionUtils.isEmpty(documents))
 				return 0;
-			OsseFieldList osseFieldList = checkSchemaFieldList(schema
+			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index);
 			int i = 0;
 			for (IndexDocument document : documents) {
-				updateDoc(transaction, osseFieldList, schema, document);
+				updateDoc(transaction, fieldMap, schema, document);
 				i++;
 			}
 			transaction.commit();

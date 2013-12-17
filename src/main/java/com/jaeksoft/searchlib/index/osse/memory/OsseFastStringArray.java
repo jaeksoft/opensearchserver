@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
@@ -70,6 +71,10 @@ public class OsseFastStringArray extends DisposableMemory {
 			if (string == null)
 				continue;
 			byte[] bytes = string.getBytes("UTF-8");
+			// DEBUG
+			// System.out.println(i + " " + string + " (" + string.length() +
+			// "/"
+			// + bytes.length + ")");
 			bytesCollection.add(bytes);
 			size += bytes.length + 1;
 		}
@@ -100,4 +105,9 @@ public class OsseFastStringArray extends DisposableMemory {
 		super.close();
 	}
 
+	@Override
+	public String toString() {
+		return StringUtils.fastConcat("[", super.toString(), " ",
+				fullBytes.toString(), "]");
+	}
 }

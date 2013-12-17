@@ -48,9 +48,8 @@ import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.osse.api.OsseDocCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.query.OsseAbstractQuery;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -150,6 +149,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		return null;
 	}
 
+	@Override
 	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
 			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
 			Timer timer) throws SearchLibException, ParseException,
@@ -172,9 +172,9 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		rwl.r.lock();
 		try {
 			error = new OsseErrorHandler();
-			OsseFieldList fieldList = new OsseFieldList(index, error);
-			for (String fieldName : fieldSet) {
-				FieldInfo fieldInfo = fieldList.getFieldInfo(fieldName);
+			Map<String, FieldInfo> fieldMap = index.getListOfFields(error);
+			for (String fieldName : fieldMap.keySet()) {
+				FieldInfo fieldInfo = fieldMap.get(fieldName);
 				// TODO FIX
 				if (fieldInfo != null) {
 					docCursor = new OsseDocCursor(index, error);
@@ -252,9 +252,9 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		OsseErrorHandler error = null;
 		try {
 			error = new OsseErrorHandler();
-			OsseFieldList fieldList = new OsseFieldList(index, error);
+			Map<String, FieldInfo> fieldMap = index.getListOfFields(error);
 			OsseAbstractQuery osseQuery = OsseAbstractQuery.create(query);
-			osseQuery.execute(index, fieldList, error);
+			osseQuery.execute(index, fieldMap, error);
 			// OsseQuery osseQuery = new OsseQuery(index, query);
 			// osseQuery.collect(collector);
 			// osseQuery.free();

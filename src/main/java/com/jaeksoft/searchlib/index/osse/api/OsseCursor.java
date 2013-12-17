@@ -26,10 +26,12 @@ package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
+import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray.PointerProvider;
 import com.jaeksoft.searchlib.result.collector.AbstractCollector;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
@@ -37,7 +39,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-public class OsseCursor implements Closeable {
+public class OsseCursor implements PointerProvider, Closeable {
 
 	private final OsseErrorHandler error;
 
@@ -47,8 +49,11 @@ public class OsseCursor implements Closeable {
 			OsseFastStringArray terms, int length, int booleanOperator)
 			throws SearchLibException {
 		this.error = error;
-		ExecutionToken et = FunctionTimer
-				.newExecutionToken("OSSCLib_MsQCursor_Create");
+		ExecutionToken et = FunctionTimer.newExecutionToken(
+				"OSSCLib_MsQCursor_Create", index.toString(), " ",
+				Integer.toString(fieldId), " ", terms.toString(), " ",
+				Integer.toString(length), " ",
+				Integer.toString(booleanOperator));
 		this.cursorPtr = OsseLibrary.OSSCLib_MsQCursor_Create(
 				index.getPointer(), fieldId, terms, length, booleanOperator,
 				error.getPointer());
@@ -58,7 +63,8 @@ public class OsseCursor implements Closeable {
 	}
 
 	public OsseCursor(OsseIndex index, OsseErrorHandler error,
-			int booleanOperator, Pointer... cursors) throws SearchLibException {
+			int booleanOperator, Collection<OsseCursor> cursors)
+			throws SearchLibException {
 		this.error = error;
 		OssePointerArray ossePointerArray = null;
 		try {
@@ -67,7 +73,7 @@ public class OsseCursor implements Closeable {
 					.newExecutionToken("OSSCLib_MsQCursor_CreateCombinedCursor");
 			this.cursorPtr = OsseLibrary
 					.OSSCLib_MsQCursor_CreateCombinedCursor(index.getPointer(),
-							ossePointerArray, cursors.length, booleanOperator,
+							ossePointerArray, cursors.size(), booleanOperator,
 							error.getPointer());
 			et.end();
 			if (cursorPtr == null)
@@ -129,5 +135,10 @@ public class OsseCursor implements Closeable {
 				collector.collect((int) docIdBuffer[i]);
 			docPosition += length;
 		}
+	}
+
+	@Override
+	public Pointer getPointer() {
+		return cursorPtr;
 	}
 }

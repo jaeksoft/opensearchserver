@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
-import com.jaeksoft.searchlib.index.osse.api.OsseFieldList.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.schema.SchemaField;
