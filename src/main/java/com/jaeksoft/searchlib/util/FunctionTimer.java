@@ -73,12 +73,14 @@ public class FunctionTimer {
 			this.startTime = System.currentTimeMillis();
 		}
 
-		public final void end() {
+		public final void end(String... texts) {
 			duration = System.currentTimeMillis() - startTime;
-			if (Logging.isDebug)
-				System.out.println(StringUtils.fastConcatCharSequence(name,
-						" ", StringUtils.fastConcatCharSequence(texts), " (",
-						Long.toString(duration), "ms)"));
+			if (!Logging.isDebug)
+				return;
+			System.out.println(StringUtils.fastConcatCharSequence(name, " ",
+					StringUtils.fastConcat(this.texts), " (",
+					Long.toString(duration), "ms) ",
+					StringUtils.fastConcat(texts)));
 		}
 	}
 

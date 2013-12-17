@@ -14,20 +14,28 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<window border="normal" apply="org.zkoss.bind.BindComposer"
+<?page title="OpenSearchServer"?>
+<div apply="org.zkoss.bind.BindComposer" xmlns:h="native"
 	viewModel="@id('index') @init('com.jaeksoft.searchlib.web.controller.IndexController')">
-	<caption image="images/oss_logo_32.png"
-		label="@load(index.version)">
+	<toolbar>
 		<hbox align="center">
+			<image src="images/oss_logo_48.png" />
+			<label style="font-size: 1.3em"
+				value="@load(index.version)" />
+			<space width="60px" />
+			<toolbarbutton target="_blank" label="Documentation"
+				href="http://www.open-search-server.com/documentation" />
+			<toolbarbutton target="_blank" label="Support"
+				href="http://www.open-search-server.com/support" />
+			<space width="60px" />
 			<label visible="@load(index.logged)" value="Connected as: " />
 			<label visible="@load(index.logged)"
 				value="@load(index.loggedUser.name)" />
-			<toolbarbutton visible="@bind(index.logged)"
-				label=" (logout)" onClick="@command('onLogout')" />
-			<space width="50px" />
-			<include src="toolbar.zul" />
+			<space />
+			<button visible="@bind(index.logged)" label=" logout"
+				onClick="@command('onLogout')" />
 		</hbox>
-	</caption>
+	</toolbar>
 	<include visible="@load(index.logged)"
 		src="WEB-INF/zul/controlpanel.zul" />
-</window>
+</div>
