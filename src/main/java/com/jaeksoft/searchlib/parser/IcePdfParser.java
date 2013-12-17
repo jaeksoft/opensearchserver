@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.io.FileUtils;
+import org.icepdf.core.SecurityCallback;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -43,6 +45,7 @@ import org.icepdf.core.pobjects.graphics.text.WordText;
 import org.icepdf.core.util.GraphicsRenderingHints;
 
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -52,6 +55,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImageUtils;
+import com.jaeksoft.searchlib.util.PdfCrack;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class IcePdfParser extends Parser {
@@ -63,7 +67,7 @@ public class IcePdfParser extends Parser {
 			ParserFieldEnum.keywords, ParserFieldEnum.creation_date,
 			ParserFieldEnum.modification_date, ParserFieldEnum.language,
 			ParserFieldEnum.number_of_pages, ParserFieldEnum.ocr_content,
-			ParserFieldEnum.image_ocr_boxes };
+			ParserFieldEnum.image_ocr_boxes, ParserFieldEnum.pdfcrack_password };
 
 	public IcePdfParser() {
 		super(fl);
@@ -119,24 +123,65 @@ public class IcePdfParser extends Parser {
 		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
+	private class PdfCrackCallback implements SecurityCallback {
+
+		private final File pdfFile;
+
+		private final String commandLine;
+
+		private String password = null;
+
+		private PdfCrackCallback(String commandLine, File pdfFile) {
+			this.commandLine = commandLine;
+			this.pdfFile = pdfFile;
+		}
+
+		@Override
+		public String requestPassword(Document doc) {
+			password = null;
+			try {
+				password = PdfCrack.findPassword(commandLine, pdfFile);
+			} catch (ExecuteException e) {
+				Logging.error(e);
+			} catch (IOException e) {
+				Logging.error(e);
+			}
+			return password;
+		}
+
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
 		Document pdf = null;
+		String fileName = null;
 		try {
-			ParserResultItem result = getNewParserResultItem();
+			PdfCrackCallback pdfCrackCallback = null;
+			fileName = streamLimiter.getFile().getName();
 			pdf = new Document();
+			String pdfCrackCommandLine = getProperty(
+					ClassPropertyEnum.PDFCRACK_COMMANDLINE).getValue();
+			if (!StringUtils.isEmpty(pdfCrackCommandLine)) {
+				pdfCrackCallback = new PdfCrackCallback(pdfCrackCommandLine,
+						streamLimiter.getFile());
+				pdf.setSecurityCallback(pdfCrackCallback);
+			}
 			pdf.setFile(streamLimiter.getFile().getAbsolutePath());
+			ParserResultItem result = getNewParserResultItem();
+			if (pdfCrackCallback != null)
+				result.addField(ParserFieldEnum.pdfcrack_password,
+						pdfCrackCallback.password);
 			extractContent(result, pdf);
 			extractImagesForOCR(result, pdf, lang);
 		} catch (SearchLibException e) {
-			throw new IOException(e);
+			throw new IOException("Failed on " + fileName, e);
 		} catch (PDFException e) {
-			throw new IOException(e);
-		} catch (PDFSecurityException e) {
-			throw new IOException(e);
+			throw new IOException("Failed on " + fileName, e);
 		} catch (InterruptedException e) {
-			throw new IOException(e);
+			throw new IOException("Failed on " + fileName, e);
+		} catch (PDFSecurityException e) {
+			throw new IOException("Failed on " + fileName, e);
 		} finally {
 			if (pdf != null)
 				pdf.dispose();

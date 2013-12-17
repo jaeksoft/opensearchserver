@@ -37,11 +37,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.exceptions.CryptographyException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.encryption.BadSecurityHandlerException;
+import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFMergerUtility;
 
@@ -56,6 +59,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImageUtils;
+import com.jaeksoft.searchlib.util.PdfCrack;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class PdfParser extends Parser {
@@ -66,7 +70,8 @@ public class PdfParser extends Parser {
 			ParserFieldEnum.producer, ParserFieldEnum.keywords,
 			ParserFieldEnum.creation_date, ParserFieldEnum.modification_date,
 			ParserFieldEnum.language, ParserFieldEnum.number_of_pages,
-			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes };
+			ParserFieldEnum.ocr_content, ParserFieldEnum.image_ocr_boxes,
+			ParserFieldEnum.pdfcrack_password };
 
 	public PdfParser() {
 		super(fl);
@@ -76,6 +81,7 @@ public class PdfParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE, "", null, 50, 1);
 	}
 
 	private Calendar getCreationDate(PDDocumentInformation pdfInfo) {
@@ -141,17 +147,31 @@ public class PdfParser extends Parser {
 			throws IOException {
 		PDDocument pdf = null;
 		String fileName = null;
+		String password = null;
 		try {
 			fileName = streamLimiter.getFile().getName();
 			pdf = PDDocument.load(streamLimiter.getFile());
-			if (pdf.isEncrypted())
-				throw new IOException("Encrypted PDF.");
+			if (pdf.isEncrypted()) {
+				String pdfCrackCommandLine = getProperty(
+						ClassPropertyEnum.PDFCRACK_COMMANDLINE).getValue();
+				if (!StringUtils.isEmpty(pdfCrackCommandLine))
+					password = PdfCrack.findPassword(pdfCrackCommandLine,
+							streamLimiter.getFile());
+				if (password == null)
+					throw new IOException("Encrypted PDF.");
+				pdf.openProtection(new StandardDecryptionMaterial(password));
+			}
 			ParserResultItem result = getNewParserResultItem();
+			result.addField(ParserFieldEnum.pdfcrack_password, password);
 			extractContent(result, pdf);
 			extractImagesForOCR(result, pdf, lang);
 		} catch (SearchLibException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} catch (InterruptedException e) {
+			throw new IOException("Failed on " + fileName, e);
+		} catch (BadSecurityHandlerException e) {
+			throw new IOException("Failed on " + fileName, e);
+		} catch (CryptographyException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} finally {
 			if (pdf != null)
