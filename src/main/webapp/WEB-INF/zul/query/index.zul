@@ -92,11 +92,9 @@
 		</listbox>
 	</vlayout>
 
-	<window visible="@load(query.editing)" border="normal">
-		<caption>
-			<label style="font-size: 1.2em"
-				value="@load(query.abstractRequest.nameType)" />
-			<space width="100px" />
+	<groupbox visible="@load(query.editing)" mold="3d">
+		<caption label="@load(query.abstractRequest.nameType)">
+			<space />
 			<button label="Cancel" onClick="@command('onCancel')" />
 			<button label="Save" onClick="@command('onSave')" />
 		</caption>
@@ -111,6 +109,7 @@
 		<include src="WEB-INF/zul/query/requestDocuments.zul"
 			visible="@load(query.editingDocuments)" />
 		<vbox width="100%" align="center">
+			<separator />
 			<button label="Search" onClick="@command('onSearch')" />
 		</vbox>
 		<separator />
@@ -124,5 +123,5 @@
 			visible="@load(query.resultMoreLikeThis)" />
 		<include src="WEB-INF/zul/query/resultDocuments.zul"
 			visible="@load(query.resultDocuments)" />
-	</window>
+	</groupbox>
 </window>

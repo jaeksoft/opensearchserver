@@ -28,6 +28,7 @@
 				<cell>
 					<listbox model="@load(anlzr.list.nameSet)"
 						selectedItem="@bind(anlzr.selectedName)" mold="select" />
+					<space />
 					<listbox model="@load(anlzr.langList)"
 						selectedItem="@bind(anlzr.selectedLang)" mold="select">
 						<template name="model" var="analyzer">
@@ -35,6 +36,7 @@
 								value="@load(analyzer)" />
 						</template>
 					</listbox>
+					<space />
 					<button label="Edit"
 						visible="@load(anlzr.selectedAnalyzer)"
 						onClick="@command('onEdit')" />
@@ -49,10 +51,10 @@
 	<separator />
 	<grid>
 		<auxhead>
-			<auxheader colspan="2" label="@load(anlzr.editMode)"></auxheader>
+			<auxheader colspan="2" label="@load(anlzr.editMode)" />
 		</auxhead>
-		<columns>
-			<column hflex="min" />
+		<columns vflex="min">
+			<column hflex="min" vflex="min" />
 			<column />
 		</columns>
 		<rows>
@@ -269,7 +271,7 @@
 		</auxhead>
 		<auxhead>
 			<auxheader colspan="2">
-				<hbox>
+				<hbox align="center">
 					<label value="Enter a text to analyze: " />
 					<textbox cols="100" value="@bind(anlzr.testText)"
 						multiline="true" rows="5" />
