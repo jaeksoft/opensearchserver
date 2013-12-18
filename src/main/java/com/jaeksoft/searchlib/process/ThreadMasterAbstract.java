@@ -151,6 +151,8 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 								it.remove();
 								remove = true;
 							} else if (thread.isIdleTimeExhausted(maxIdleTime)) {
+								Logging.warn("Thread aborting (time out): "
+										+ thread.getCurrentMethod());
 								thread.abort();
 								it.remove();
 								remove = true;
