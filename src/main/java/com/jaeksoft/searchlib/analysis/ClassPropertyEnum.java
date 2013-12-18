@@ -58,6 +58,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum PARSER_NAME = new ClassPropertyEnum(
 			false, "name", "name", "The name of the parser ");
 
+	public final static ClassPropertyEnum PDFCRACK_COMMANDLINE = new ClassPropertyEnum(
+			true, "pdfCrackCommandLine", "PDFCrack command line",
+			"The command line used to execute PDFCrack.");
+
 	public final static ClassPropertyEnum HTML_PARSER = new ClassPropertyEnum(
 			true, "htmlParser", "HTML parser", "The HTML parser to use");
 

@@ -122,6 +122,8 @@ public enum ParserFieldEnum {
 
 	ocr_content,
 
+	pdfcrack_password,
+
 	image_ocr_boxes,
 
 	image_phash,

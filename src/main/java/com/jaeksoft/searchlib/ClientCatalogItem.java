@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
@@ -46,8 +44,13 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return indexName;
 	}
 
-	public Client getClient() throws SearchLibException, NamingException {
-		return ClientCatalog.getClient(indexName);
+	public Client getClient() {
+		try {
+			return ClientCatalog.getClient(indexName);
+		} catch (SearchLibException e) {
+			Logging.error(e);
+			return null;
+		}
 	}
 
 	public long getSize() {
@@ -56,8 +59,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getSize();
 	}
 
-	public Integer getNumDocs() throws SearchLibException, NamingException,
-			IOException {
+	public Integer getNumDocs() throws IOException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -78,8 +80,8 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getLastModifiedFile();
 	}
 
-	public String getOptimizationStatus() throws SearchLibException,
-			NamingException, IOException {
+	public String getOptimizationStatus() throws IOException,
+			SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
