@@ -47,8 +47,13 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return indexName;
 	}
 
-	public Client getClient() throws SearchLibException, NamingException {
-		return ClientCatalog.getClient(indexName);
+	public Client getClient() {
+		try {
+			return ClientCatalog.getClient(indexName);
+		} catch (SearchLibException e) {
+			Logging.error(e);
+			return null;
+		}
 	}
 
 	public long getSize() {
@@ -57,8 +62,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getSize();
 	}
 
-	public Integer getNumDocs() throws SearchLibException, NamingException,
-			IOException {
+	public Integer getNumDocs() throws IOException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -82,8 +86,8 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getLastModifiedFile();
 	}
 
-	public String getOptimizationStatus() throws SearchLibException,
-			NamingException, IOException {
+	public String getOptimizationStatus() throws IOException,
+			SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
