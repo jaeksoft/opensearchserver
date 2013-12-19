@@ -33,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -84,6 +85,28 @@ public class XPathParser {
 
 	public File getCurrentFile() {
 		return currentFile;
+	}
+
+	private final QName[] RETURN_TYPES = { XPathConstants.NODESET,
+			XPathConstants.NODE, XPathConstants.STRING, XPathConstants.NUMBER,
+			XPathConstants.BOOLEAN };
+
+	public Object evaluate(Node parentNode, String query)
+			throws XPathExpressionException {
+		XPathExpressionException lastError = null;
+		XPathExpression xPathExpression = xPath.compile(query);
+		for (QName qname : RETURN_TYPES) {
+			try {
+				Object result = xPathExpression.evaluate(parentNode, qname);
+				if (result != null)
+					return result;
+			} catch (XPathExpressionException e) {
+				lastError = e;
+			}
+		}
+		if (lastError != null)
+			throw lastError;
+		return null;
 	}
 
 	public Object evaluate(Node parentNode, String query, QName returnType)
