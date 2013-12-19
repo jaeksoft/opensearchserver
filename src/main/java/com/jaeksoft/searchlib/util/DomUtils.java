@@ -114,8 +114,12 @@ public class DomUtils {
 	}
 
 	final private static void getText(final Node parent, final StringBuilder sb) {
-		if (parent.getNodeType() == Node.TEXT_NODE)
+		switch (parent.getNodeType()) {
+		case Node.TEXT_NODE:
+		case Node.CDATA_SECTION_NODE:
 			sb.append(parent.getNodeValue());
+			break;
+		}
 		NodeList childrens = parent.getChildNodes();
 		int l = childrens.getLength();
 		for (int i = 0; i < l; i++)
