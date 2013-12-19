@@ -30,7 +30,6 @@ import java.util.List;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -42,6 +41,7 @@ import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -101,13 +101,12 @@ public class ParserFieldMap extends
 			Object obj = xpp.evaluate(xmlForXPath, link.getSource()
 					.getUniqueName(), XPathConstants.NODESET);
 			if (obj instanceof Node) {
-				fieldTarget.add(DOMUtils.getContent((Node) obj), target);
+				fieldTarget.add(DomUtils.getText((Node) obj), target);
 			} else if (obj instanceof NodeList) {
 				NodeList nodeList = (NodeList) obj;
 				int length = nodeList.getLength();
 				for (int i = 0; i < length; i++)
-					fieldTarget.add(DOMUtils.getContent(nodeList.item(i)),
-							target);
+					fieldTarget.add(DomUtils.getText(nodeList.item(i)), target);
 			} else if (obj instanceof String) {
 				fieldTarget.add((String) obj, target);
 			}
