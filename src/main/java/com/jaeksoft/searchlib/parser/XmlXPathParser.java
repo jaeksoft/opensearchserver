@@ -71,7 +71,7 @@ public class XmlXPathParser extends Parser {
 			for (int i = 0; i < l; i++) {
 				Node documentNode = nodeList.item(i);
 				ParserResultItem parserResultItem = getNewParserResultItem();
-				parserResultItem.setXmlForXPath(xPathParser, documentNode);
+				parserResultItem.setXmlForXPath(documentNode);
 			}
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);

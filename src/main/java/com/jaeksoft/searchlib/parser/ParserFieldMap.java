@@ -92,9 +92,10 @@ public class ParserFieldMap extends
 		}
 	}
 
-	final public void mapXmlXPathDocument(final XPathParser xpp,
-			final Node xmlForXPath, final IndexDocument target)
-			throws XPathExpressionException, IOException {
+	final public void mapXmlXPathDocument(final Node xmlForXPath,
+			final IndexDocument target) throws XPathExpressionException,
+			IOException {
+		XPathParser xpp = new XPathParser(xmlForXPath);
 		for (GenericLink<SourceField, ParserFieldTarget> link : getList()) {
 			ParserFieldTarget fieldTarget = link.getTarget();
 			Object obj = xpp.evaluate(xmlForXPath, link.getSource()
