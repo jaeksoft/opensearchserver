@@ -24,13 +24,13 @@
 		<listbox model="@load(dbCrawlList.databaseCrawlList.array)"
 			mold="paging" pageSize="20">
 			<listhead>
-				<listheader label="Name" />
-				<listheader label="Last execution time" width="150px" />
+				<listheader label="Name" hflex="min" />
+				<listheader label="Last execution time" hflex="min" />
 				<listheader label="Duration"
-					tooltiptext="last duration time" width="100px" />
-				<listheader label="Status" width="100px" />
-				<listheader label="Info" width="150px" />
-				<listheader label="Action" width="150px" align="center" />
+					tooltiptext="last duration time" hflex="min" />
+				<listheader label="Status" hflex="min" />
+				<listheader label="Info" />
+				<listheader label="Action" hflex="min" align="center" />
 			</listhead>
 			<template name="model" var="dbcrawlitem">
 				<listitem>
@@ -55,6 +55,12 @@
 								disabled="@load(dbcrawlitem.thread)"
 								image="/images/action_check.png"
 								onClick="@command('execute', crawlitem=dbcrawlitem)" />
+							<space />
+							<button
+								tooltiptext="Abort the crawl process"
+								disabled="@load(!dbcrawlitem.thread)"
+								image="/images/action_cancel.png"
+								onClick="@command('abort', crawlitem=dbcrawlitem)" />
 							<space />
 							<button tooltiptext="Delete crawl process"
 								image="/images/action_delete.png"
