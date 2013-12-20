@@ -24,14 +24,17 @@
 
 package com.jaeksoft.searchlib.streamlimiter;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.LocalFileInstance;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class StreamLimiterFileInstance extends StreamLimiter {
 
@@ -57,8 +60,17 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 		}
 		if (fileInstance instanceof LocalFileInstance)
 			loadOutputCache(((LocalFileInstance) fileInstance).getFile());
-		else
-			loadOutputCache(fileInstance.getInputStream());
+		else {
+			InputStream is = null;
+			BufferedInputStream bis = null;
+			try {
+				is = fileInstance.getInputStream();
+				bis = new BufferedInputStream(is);
+				loadOutputCache(bis);
+			} finally {
+				IOUtils.close(is, bis);
+			}
+		}
 	}
 
 	@Override
