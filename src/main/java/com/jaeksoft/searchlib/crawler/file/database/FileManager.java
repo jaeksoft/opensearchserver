@@ -35,8 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
@@ -47,6 +45,7 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
+import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile.FileIndexDocumentIterator;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -405,52 +404,61 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public void updateCrawlTarget(List<CrawlFile> crawls)
-			throws SearchLibException {
+	public void updateCrawlTarget(final List<CrawlFile> crawls,
+			final int documentBufferSize) throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
-			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
-					crawls.size());
 			List<String> documentsToDelete = new ArrayList<String>(
 					crawls.size());
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
+					documentBufferSize);
 			String uniqueField = targetClient.getSchema().getUniqueField();
 			for (CrawlFile crawl : crawls) {
 				if (crawl == null)
 					continue;
 				FileItem currentFileItem = crawl.getFileItem();
-				List<IndexDocument> indexDocuments = crawl
-						.getTargetIndexDocuments();
+
+				FileIndexDocumentIterator indexDocumentIterator = crawl
+						.getTargetIndexDocumentIterator();
+
 				TargetStatus targetStatus = currentFileItem.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
-					if (CollectionUtils.isEmpty(indexDocuments)) {
+					if (!indexDocumentIterator.hasNext()) {
 						currentFileItem
 								.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
 						continue;
 					}
-					for (IndexDocument indexDocument : indexDocuments) {
+					while (indexDocumentIterator.hasNext()) {
+						IndexDocument indexDocument = indexDocumentIterator
+								.next();
+						indexDocumentIterator.throwError();
 						if (indexDocument == null)
 							continue;
 						if (uniqueField != null
 								&& !indexDocument.hasContent(uniqueField)) {
 							currentFileItem
 									.setIndexStatus(IndexStatus.INDEX_ERROR);
-						} else
+						} else {
 							documentsToUpdate.add(indexDocument);
+						}
+						if (documentsToUpdate.size() >= documentBufferSize) {
+							targetClient.updateDocuments(documentsToUpdate);
+							documentsToUpdate.clear();
+						}
 					}
 				} else if (targetStatus == TargetStatus.TARGET_DELETE)
 					documentsToDelete.add(currentFileItem.getUri());
-			}
+			} // crawl loop
 
-			if (documentsToUpdate.size() > 0) {
+			if (documentsToUpdate.size() > 0)
 				targetClient.updateDocuments(documentsToUpdate);
-				for (CrawlFile crawl : crawls) {
-					FileItem currentFileItem = crawl.getFileItem();
-					IndexStatus indexStatus = currentFileItem.getIndexStatus();
-					if (indexStatus == IndexStatus.TO_INDEX
-							|| indexStatus == IndexStatus.NOT_INDEXED)
-						currentFileItem.setIndexStatus(IndexStatus.INDEXED);
-				}
+			for (CrawlFile crawl : crawls) {
+				FileItem currentFileItem = crawl.getFileItem();
+				IndexStatus indexStatus = currentFileItem.getIndexStatus();
+				if (indexStatus == IndexStatus.TO_INDEX
+						|| indexStatus == IndexStatus.NOT_INDEXED)
+					currentFileItem.setIndexStatus(IndexStatus.INDEXED);
 			}
 			if (documentsToDelete.size() > 0) {
 				String targetField = findIndexedFieldOfTargetIndex(
