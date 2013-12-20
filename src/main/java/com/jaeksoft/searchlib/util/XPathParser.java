@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +54,7 @@ public class XPathParser {
 	private final XPath xPath;
 	private final Node rootNode;
 	private final File currentFile;
+	private final Map<String, XPathExpression> xPathExpressions;
 
 	private XPathParser(File currentFile, Node rootNode) {
 		synchronized (xPathfactory) {
@@ -59,6 +62,7 @@ public class XPathParser {
 		}
 		this.currentFile = currentFile;
 		this.rootNode = rootNode;
+		this.xPathExpressions = new TreeMap<String, XPathExpression>();
 	}
 
 	public XPathParser(File file) throws ParserConfigurationException,
@@ -91,10 +95,14 @@ public class XPathParser {
 			XPathConstants.NODE, XPathConstants.STRING, XPathConstants.NUMBER,
 			XPathConstants.BOOLEAN };
 
-	public Object evaluate(Node parentNode, String query)
+	final public Object evaluate(final Node parentNode, final String query)
 			throws XPathExpressionException {
 		XPathExpressionException lastError = null;
-		XPathExpression xPathExpression = xPath.compile(query);
+		XPathExpression xPathExpression = xPathExpressions.get(query);
+		if (xPathExpression == null) {
+			xPathExpression = xPath.compile(query);
+			xPathExpressions.put(query, xPathExpression);
+		}
 		for (QName qname : RETURN_TYPES) {
 			try {
 				Object result = xPathExpression.evaluate(parentNode, qname);
