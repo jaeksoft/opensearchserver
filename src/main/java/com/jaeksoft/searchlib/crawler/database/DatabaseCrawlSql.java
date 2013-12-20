@@ -91,6 +91,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	public void applyVariables(Variables variables) {
+		if (variables == null)
+			return;
 		sqlSelect = variables.replace(sqlSelect);
 		sqlUpdate = variables.replace(sqlUpdate);
 	}

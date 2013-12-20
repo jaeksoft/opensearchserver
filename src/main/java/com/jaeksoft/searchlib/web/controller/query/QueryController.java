@@ -152,6 +152,10 @@ public final class QueryController extends AbstractQueryController {
 		return !isEditingSearchField();
 	}
 
+	public boolean isEditingNamedEntityExtraction() throws SearchLibException {
+		return isEditing(RequestTypeEnum.NamedEntityExtractionRequest);
+	}
+
 	public boolean isEditingSpellCheck() throws SearchLibException {
 		return isEditing(RequestTypeEnum.SpellCheckRequest);
 	}
