@@ -99,6 +99,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			// new PrintWriter(System.out)));
 			ftp.setConnectTimeout(120000);
 			ftp.setControlKeepAliveTimeout(180);
+			ftp.setDataTimeout(120000);
 			ftp.connect(fpi.getHost());
 			int reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply))
