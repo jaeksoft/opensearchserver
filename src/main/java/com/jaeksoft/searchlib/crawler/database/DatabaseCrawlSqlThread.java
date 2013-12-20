@@ -88,6 +88,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		if (infoCallback != null)
 			infoCallback.setInfo(updatedIndexDocumentCount
 					+ " document(s) indexed");
+		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
@@ -116,6 +117,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		if (infoCallback != null)
 			infoCallback.setInfo(updatedDeleteDocumentCount
 					+ " document(s) deleted");
+		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
@@ -137,7 +139,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		List<String> pkList = new ArrayList<String>(0);
 
-		while (resultSet.next()) {
+		while (resultSet.next() && !isAborted()) {
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
 				dbPrimaryKey = null;
@@ -170,12 +172,6 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			lastFieldContent = newFieldContents;
 		}
 		index(transaction, indexDocumentList, 0, pkList);
-		if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
-			if (databaseFieldMap.isUrl()) {
-				setStatus(CrawlStatus.OPTIMIZATION);
-				client.getUrlManager().reload(true, null);
-			}
-		}
 	}
 
 	final private void runner_delete(Transaction transaction,
@@ -187,7 +183,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		String uniqueKeyDeleteField = databaseCrawl.getUniqueKeyDeleteField();
 		int bf = databaseCrawl.getBufferSize();
 
-		while (resultSet.next()) {
+		while (resultSet.next() && !isAborted()) {
 			if (delete(transaction, deleteKeyList, bf))
 				setStatus(CrawlStatus.CRAWL);
 			String uKey = resultSet.getString(uniqueKeyDeleteField);
