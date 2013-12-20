@@ -81,6 +81,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		return config;
 	}
 
+	@Override
 	public String getInfo() {
 		rwl.r.lock();
 		try {

@@ -85,7 +85,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
 		sqlSelect = null;
 		sqlUpdate = null;
-		sqlUpdateMode = SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY;
+		sqlUpdateMode = SqlUpdateMode.NO_CALL;
 		primaryKey = null;
 		uniqueKeyDeleteField = null;
 	}
@@ -244,7 +244,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 				getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
 				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
-				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()));
+				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()),
+				DBCRAWL_ATTR_MSSLEEP, Integer.toString(getMsSleep()));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();

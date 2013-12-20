@@ -213,6 +213,23 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		reload();
 	}
 
+	@Command
+	public void abort(@BindingParam("crawlitem") C item)
+			throws SearchLibException, InterruptedException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		T thread = item.getLastThread();
+		if (thread.isAborted())
+			return;
+		if (thread.isAborting())
+			return;
+		if (!thread.isRunning())
+			return;
+		thread.abort();
+		reload();
+	}
+
 	@Override
 	public abstract M getCrawlMaster() throws SearchLibException;
 
