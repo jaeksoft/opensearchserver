@@ -29,7 +29,6 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -46,6 +45,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
+import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
@@ -266,44 +266,19 @@ public class ClientCatalog {
 				.contains(new ClientCatalogItem(indexName));
 	}
 
-	private static CrawlCacheManager crawlCacheManager = null;
-
-	public static synchronized final CrawlCacheManager getCrawlCacheManager()
+	public static final CrawlCacheManager getCrawlCacheManager()
 			throws SearchLibException {
-		if (crawlCacheManager != null)
-			return crawlCacheManager;
-		try {
-			return crawlCacheManager = new CrawlCacheManager(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
-		} catch (InvalidPropertiesFormatException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		}
+		return CrawlCacheManager.getInstance();
 	}
-
-	private static OcrManager ocrManager = null;
 
 	public static synchronized final OcrManager getOcrManager()
 			throws SearchLibException {
-		if (ocrManager != null)
-			return ocrManager;
-		try {
-			return ocrManager = new OcrManager(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
-		} catch (InvalidPropertiesFormatException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		}
+		return OcrManager.getInstance();
+	}
+
+	public static synchronized final ClusterManager getClusterManager()
+			throws SearchLibException {
+		return ClusterManager.getInstance();
 	}
 
 	final private static boolean isValidIndexName(String name) {
