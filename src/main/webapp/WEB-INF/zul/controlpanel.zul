@@ -36,6 +36,8 @@
 				visible="@bind(index.schedulerRights)" label="Scheduler" />
 			<tab id="tabRuntime" visible="@bind(index.runtimeRights)"
 				label="Runtime" />
+			<tab id="tabCluster" visible="@bind(index.runtimeRights)"
+				label="Cluster" />
 			<tab id="tabReports" visible="@bind(index.queryRights)"
 				label="Reports" />
 			<tab id="tabReplication"
@@ -78,6 +80,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntime.onSelect">
 				<include src="WEB-INF/zul/runtime/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCluster.onSelect">
+				<include src="WEB-INF/zul/cluster/index.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabReports.onSelect">
 				<include src="WEB-INF/zul/reports/index.zul" />
