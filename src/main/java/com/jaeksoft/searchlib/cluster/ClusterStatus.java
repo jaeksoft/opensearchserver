@@ -22,29 +22,9 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.cluster;
 
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cluster.ClusterManager;
-import com.jaeksoft.searchlib.util.properties.PropertyItem;
+public enum ClusterStatus {
 
-public class ClusterComposer extends CommonController {
-
-	public ClusterComposer() throws SearchLibException {
-		super();
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
-	}
-
-	public PropertyItem<Integer> getClusterInstanceId() {
-		return ClientFactory.INSTANCE.getClusterInstanceId();
-	}
-
-	public ClusterManager getClusterManager() throws SearchLibException {
-		return ClientCatalog.getClusterManager();
-	}
+	UNKNOWN, OK, CONNECTION_ERROR, AUTHENTICATION_ERROR, INSTANCE_ID_CONFLICT;
 }
