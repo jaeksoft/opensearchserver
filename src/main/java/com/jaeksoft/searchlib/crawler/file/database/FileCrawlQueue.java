@@ -115,7 +115,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			deleteUriList = new ArrayList<String>(0);
 
 			if (getSessionStats() != null)
-			getSessionStats().resetPending();
+				getSessionStats().resetPending();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -153,7 +153,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 			return false;
 
 		FileManager manager = getConfig().getFileManager();
-		manager.updateCrawlTarget(workUpdateCrawlList);
+		manager.updateCrawlTarget(workUpdateCrawlList, getMaxBufferSize());
 		manager.updateCrawlUriDb(workUpdateCrawlList);
 
 		if (sessionStats != null)

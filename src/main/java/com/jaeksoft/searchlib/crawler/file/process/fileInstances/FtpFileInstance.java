@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
@@ -99,6 +100,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			// new PrintWriter(System.out)));
 			ftp.setConnectTimeout(120000);
 			ftp.setControlKeepAliveTimeout(180);
+			ftp.setDataTimeout(120000);
 			ftp.connect(fpi.getHost());
 			int reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply))
@@ -254,6 +256,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
+			f.setFileType(FTP.BINARY_FILE_TYPE);
 			return f.retrieveFileStream(getPath());
 		} catch (NoSuchAlgorithmException e) {
 			throw new IOException(e);

@@ -78,6 +78,8 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<Integer> schedulerThreadPoolSize;
 
+	private PropertyItem<Integer> clusterInstanceId;
+
 	private PropertyManager advancedProperties;
 
 	public ClientFactory() throws SearchLibException {
@@ -137,6 +139,12 @@ public class ClientFactory implements PropertyItemListener {
 			schedulerThreadPoolSize = advancedProperties.newIntegerProperty(
 					"schedulerThreadPoolSize", 20, 1, 200);
 			schedulerThreadPoolSize.addListener(this);
+			clusterInstanceId = advancedProperties.newIntegerProperty(
+					"clusterInstanceId", null, 0, 131072);
+			clusterInstanceId.addListener(this);
+			if (clusterInstanceId.getValue() == null)
+				clusterInstanceId
+						.setValue((int) System.currentTimeMillis() % 131072);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -231,6 +239,10 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<Integer> getSchedulerThreadPoolSize() {
 		return schedulerThreadPoolSize;
+	}
+
+	public PropertyItem<Integer> getClusterInstanceId() {
+		return clusterInstanceId;
 	}
 
 	@Override

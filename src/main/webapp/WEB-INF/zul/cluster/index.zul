@@ -1,0 +1,85 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('cluster') @init('com.jaeksoft.searchlib.web.controller.ClusterComposer')">
+	<groupbox mold="3d">
+		<caption label="This instance" />
+		<grid>
+			<columns>
+				<column align="right" hflex="min" />
+				<column align="left" hflex="min" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Instance ID" />
+					<intbox cols="5"
+						value="@bind(cluster.clusterInstanceId.value)" />
+					<label
+						value="The ID of the instance. Each instance must have an unique value." />
+				</row>
+			</rows>
+		</grid>
+	</groupbox>
+	<groupbox mold="3d">
+		<caption label="Register to a cluster" />
+		<label>
+			Enter the URL of an existing instance in the cluster
+		</label>
+		<grid>
+			<columns>
+				<column hflex="min" label="URL" />
+				<column hflex="min" label="Login" />
+				<column hflex="min" label="API KEY" />
+				<column hflex="min" label="Action" />
+			</columns>
+			<rows>
+				<row>
+					<textbox cols="60" />
+					<textbox cols="20" />
+					<textbox cols="32" />
+					<cell>
+						<button label="Check" />
+						<button label="Register" />
+					</cell>
+				</row>
+			</rows>
+		</grid>
+	</groupbox>
+	<groupbox mold="3d">
+		<caption label="Cluster instances" />
+		<grid model="@load(cluster.clusterManager.instances)">
+			<columns>
+				<column label="URL" hflex="min" />
+				<column label="ID" hflex="min" />
+				<column label="Status" hflex="min" />
+				<column label="Date" hflex="min" />
+				<column label="Action" />
+			</columns>
+			<rows>
+				<template name="model">
+					<row>
+						<label value="@load(each.uri)" />
+						<label value="@load(each.id)" />
+						<label value="@load(each.status)" />
+						<label value="@load(each.statusTime)" />
+					</row>
+				</template>
+			</rows>
+		</grid>
+	</groupbox>
+</window>

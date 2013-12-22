@@ -26,9 +26,8 @@ package com.jaeksoft.searchlib.crawler.file.spider;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -43,7 +42,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileItem;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserResultItem;
+import com.jaeksoft.searchlib.parser.ParserIndexDocumentIterator;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
@@ -51,7 +50,6 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class CrawlFile {
 
-	private List<IndexDocument> targetIndexDocuments;
 	private final FileInstanceAbstract fileInstance;
 	private final FileItem fileItem;
 	private Parser parser;
@@ -62,7 +60,6 @@ public class CrawlFile {
 	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
 			Config config, CrawlStatistics currentStats)
 			throws SearchLibException {
-		this.targetIndexDocuments = null;
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileInstance = fileInstance;
 		this.fileItem = fileItem;
@@ -133,46 +130,40 @@ public class CrawlFile {
 		return parser;
 	}
 
-	public List<IndexDocument> getTargetIndexDocuments()
+	public class FileIndexDocumentIterator extends ParserIndexDocumentIterator {
+
+		private FileIndexDocumentIterator() {
+			super(parser, fileFieldMap);
+		}
+
+		@Override
+		protected IndexDocument getCrawlItemIndexDocument()
+				throws UnsupportedEncodingException {
+			return fileItem.getIndexDocument();
+		}
+
+		@Override
+		protected boolean checkPlugins(IndexDocument crawlItemIndexDocument,
+				IndexDocument targetIndexDocument) throws SearchLibException,
+				IOException {
+			IndexPluginList indexPluginList = config.getFileCrawlMaster()
+					.getIndexPluginList();
+			if (indexPluginList == null)
+				return true;
+			StreamLimiter streamLimiter = parser.getStreamLimiter();
+			if (indexPluginList.run((Client) config, "octet/stream",
+					streamLimiter, targetIndexDocument))
+				return true;
+			fileItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
+			fileItem.populate(targetIndexDocument);
+			return false;
+		}
+	}
+
+	public FileIndexDocumentIterator getTargetIndexDocumentIterator()
 			throws SearchLibException, IOException {
 		synchronized (this) {
-			if (targetIndexDocuments != null)
-				return targetIndexDocuments;
-
-			targetIndexDocuments = new ArrayList<IndexDocument>(0);
-
-			if (parser == null)
-				return targetIndexDocuments;
-
-			List<ParserResultItem> results = parser.getParserResults();
-			if (results == null)
-				return targetIndexDocuments;
-
-			for (ParserResultItem result : results) {
-				IndexDocument targetIndexDocument = new IndexDocument();
-
-				IndexDocument fileIndexDocument = fileItem.getIndexDocument();
-				fileFieldMap.mapIndexDocument(fileIndexDocument,
-						targetIndexDocument);
-
-				StreamLimiter streamLimiter = null;
-				result.populate(targetIndexDocument);
-				streamLimiter = parser.getStreamLimiter();
-
-				IndexPluginList indexPluginList = config.getFileCrawlMaster()
-						.getIndexPluginList();
-				if (indexPluginList != null) {
-					if (!indexPluginList.run((Client) config, "octet/stream",
-							streamLimiter, targetIndexDocument)) {
-						fileItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
-						fileItem.populate(fileIndexDocument);
-						continue;
-					}
-				}
-				targetIndexDocuments.add(targetIndexDocument);
-			}
-
-			return targetIndexDocuments;
+			return new FileIndexDocumentIterator();
 		}
 	}
 

@@ -40,7 +40,6 @@ import com.jaeksoft.searchlib.parser.ExternalParser.Result;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.Lang;
-import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
 
 public class ParserResultItem {
@@ -52,8 +51,6 @@ public class ParserResultItem {
 	private IndexDocument directDocument;
 
 	private Node xmlForXPath = null;
-
-	private XPathParser xpathParser;
 
 	public ParserResultItem(Parser parser) {
 		this.parser = parser;
@@ -74,9 +71,8 @@ public class ParserResultItem {
 	public void populate(IndexDocument indexDocument) throws IOException {
 		try {
 			ParserFieldMap parserFieldMap = parser.getFieldMap();
-			if (xmlForXPath != null && xpathParser != null)
-				parserFieldMap.mapXmlXPathDocument(xpathParser, xmlForXPath,
-						indexDocument);
+			if (xmlForXPath != null)
+				parserFieldMap.mapXmlXPathDocument(xmlForXPath, indexDocument);
 			parserFieldMap.mapIndexDocument(parserDocument, indexDocument);
 			if (directDocument != null)
 				indexDocument.add(directDocument);
@@ -89,8 +85,7 @@ public class ParserResultItem {
 		return parserDocument;
 	}
 
-	final public void setXmlForXPath(XPathParser xPathParser, Node xmlForXPath) {
-		this.xpathParser = xPathParser;
+	final public void setXmlForXPath(Node xmlForXPath) {
 		this.xmlForXPath = xmlForXPath;
 	}
 
