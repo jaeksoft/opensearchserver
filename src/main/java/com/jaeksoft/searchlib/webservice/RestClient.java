@@ -22,29 +22,11 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.web.controller;
+package com.jaeksoft.searchlib.webservice;
 
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cluster.ClusterManager;
-import com.jaeksoft.searchlib.util.properties.PropertyItem;
+public class RestClient {
 
-public class ClusterComposer extends CommonController {
-
-	public ClusterComposer() throws SearchLibException {
-		super();
-	}
-
-	@Override
-	protected void reset() throws SearchLibException {
-	}
-
-	public PropertyItem<Integer> getClusterInstanceId() {
-		return ClientFactory.INSTANCE.getClusterInstanceId();
-	}
-
-	public ClusterManager getClusterManager() throws SearchLibException {
-		return ClientCatalog.getClusterManager();
+	// TODO
+	private RestClient() {
 	}
 }

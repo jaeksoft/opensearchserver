@@ -140,9 +140,11 @@ public class ClientFactory implements PropertyItemListener {
 					"schedulerThreadPoolSize", 20, 1, 200);
 			schedulerThreadPoolSize.addListener(this);
 			clusterInstanceId = advancedProperties.newIntegerProperty(
-					"clusterInstanceId",
-					(int) (System.currentTimeMillis() % 131072), 0, 131072);
+					"clusterInstanceId", null, 0, 131072);
 			clusterInstanceId.addListener(this);
+			if (clusterInstanceId.getValue() == null)
+				clusterInstanceId
+						.setValue((int) System.currentTimeMillis() % 131072);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {

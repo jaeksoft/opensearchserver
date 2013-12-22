@@ -72,7 +72,7 @@ public class CrawlCacheManager implements Closeable {
 
 	private File propFile;
 
-	public CrawlCacheManager(File dataDir)
+	private CrawlCacheManager(File dataDir)
 			throws InvalidPropertiesFormatException, IOException,
 			InstantiationException, IllegalAccessException {
 		crawlCache = null;
@@ -91,6 +91,37 @@ public class CrawlCacheManager implements Closeable {
 				.getProperty(CRAWCACHE_PROPERTY_CONFIGURATION);
 		crawlCache = crawlCacheProvider.getNewInstance();
 		setEnabled(enabled);
+	}
+
+	private static CrawlCacheManager INSTANCE = null;
+	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
+
+	public static final CrawlCacheManager getInstance()
+			throws SearchLibException {
+		rwlInstance.r.lock();
+		try {
+			if (INSTANCE != null)
+				return INSTANCE;
+		} finally {
+			rwlInstance.r.unlock();
+		}
+		rwlInstance.w.lock();
+		try {
+			if (INSTANCE != null)
+				return INSTANCE;
+			return INSTANCE = new CrawlCacheManager(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+		} catch (InvalidPropertiesFormatException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwlInstance.w.unlock();
+		}
 	}
 
 	private void save() throws IOException {

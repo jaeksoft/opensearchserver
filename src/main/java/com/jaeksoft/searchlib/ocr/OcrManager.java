@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class OcrManager implements Closeable {
 
@@ -70,7 +71,7 @@ public class OcrManager implements Closeable {
 
 	private File propFile;
 
-	public OcrManager(File dataDir) throws InvalidPropertiesFormatException,
+	private OcrManager(File dataDir) throws InvalidPropertiesFormatException,
 			IOException, InstantiationException, IllegalAccessException {
 		propFile = new File(dataDir, OCR_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
@@ -81,6 +82,36 @@ public class OcrManager implements Closeable {
 				TesseractLanguageEnum.None.name()));
 		tesseractPath = properties.getProperty(OCR_PROPERTY_TESSERACT_PATH);
 		setEnabled(enabled);
+	}
+
+	private static OcrManager INSTANCE = null;
+	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
+
+	public static final OcrManager getInstance() throws SearchLibException {
+		rwlInstance.r.lock();
+		try {
+			if (INSTANCE != null)
+				return INSTANCE;
+		} finally {
+			rwlInstance.r.unlock();
+		}
+		rwlInstance.w.lock();
+		try {
+			if (INSTANCE != null)
+				return INSTANCE;
+			return INSTANCE = new OcrManager(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+		} catch (InvalidPropertiesFormatException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwlInstance.w.unlock();
+		}
 	}
 
 	private void save() throws IOException {
