@@ -88,6 +88,13 @@
 			<label value="Enter the size of the buffer" />
 		</row>
 		<row>
+			<label value="Sleep (ms): " />
+			<intbox cols="5"
+				value="@bind(dbCrawlList.currentCrawl.msSleep)" />
+			<label
+				value="Sleep pause after each buffered documents indexation or deletion" />
+		</row>
+		<row>
 			<label value="Primary key: " />
 			<textbox value="@bind(dbCrawlList.currentCrawl.primaryKey)"
 				width="50%" />

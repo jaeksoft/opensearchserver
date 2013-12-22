@@ -50,6 +50,8 @@ public abstract class DatabaseCrawlAbstract
 
 	private int bufferSize;
 
+	private int msSleep;
+
 	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster, String name) {
 		super(crawlMaster, new DatabaseFieldMap());
 		this.name = name;
@@ -58,6 +60,7 @@ public abstract class DatabaseCrawlAbstract
 		password = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
+		msSleep = 0;
 	}
 
 	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster) {
@@ -80,6 +83,7 @@ public abstract class DatabaseCrawlAbstract
 		crawl.password = this.password;
 		crawl.lang = this.lang;
 		crawl.bufferSize = this.bufferSize;
+		crawl.msSleep = this.msSleep;
 	}
 
 	public abstract DatabaseCrawlEnum getType();
@@ -167,6 +171,21 @@ public abstract class DatabaseCrawlAbstract
 		this.bufferSize = bufferSize;
 	}
 
+	/**
+	 * @return the msSleep
+	 */
+	public int getMsSleep() {
+		return msSleep;
+	}
+
+	/**
+	 * @param msSleep
+	 *            the msSleep to set
+	 */
+	public void setMsSleep(int msSleep) {
+		this.msSleep = msSleep;
+	}
+
 	protected final static String DBCRAWL_NODE_NAME = "databaseCrawl";
 	protected final static String DBCRAWL_ATTR_TYPE = "type";
 	protected final static String DBCRAWL_ATTR_NAME = "name";
@@ -174,6 +193,7 @@ public abstract class DatabaseCrawlAbstract
 	protected final static String DBCRAWL_ATTR_PASSWORD = "password";
 	protected final static String DBCRAWL_ATTR_URL = "url";
 	protected final static String DBCRAWL_ATTR_LANG = "lang";
+	protected final static String DBCRAWL_ATTR_MSSLEEP = "msSleep";
 	protected final static String DBCRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
@@ -188,6 +208,7 @@ public abstract class DatabaseCrawlAbstract
 				DBCRAWL_ATTR_LANG)));
 		setBufferSize(XPathParser.getAttributeValue(item,
 				DBCRAWL_ATTR_BUFFER_SIZE));
+		setMsSleep(XPathParser.getAttributeValue(item, DBCRAWL_ATTR_MSSLEEP));
 		Node mapNode = xpp.getNode(item, DBCRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			getFieldMap().load(mapNode);
