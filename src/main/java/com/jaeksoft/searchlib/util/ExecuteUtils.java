@@ -37,6 +37,7 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.lang3.SystemUtils;
 
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -52,7 +53,8 @@ public class ExecuteUtils {
 	}
 
 	final public static int command(File workingDirectory, String cmd,
-			boolean putClassPath, OutputStream outputStream, Long timeOut,
+			boolean putClassPath, boolean setJavaTempDir,
+			OutputStream outputStream, OutputStream errorStream, Long timeOut,
 			String... arguments) throws ExecuteException, IOException {
 		Map<String, String> envMap = null;
 		if (putClassPath) {
@@ -60,6 +62,12 @@ public class ExecuteUtils {
 			envMap.put("CLASSPATH", ExecuteUtils.getClassPath());
 		}
 		CommandLine commandLine = new CommandLine(cmd);
+		if (setJavaTempDir)
+			if (!StringUtils.isEmpty(SystemUtils.JAVA_IO_TMPDIR))
+				commandLine
+						.addArgument(StringUtils
+								.fastConcat("-Djava.io.tmpdir=",
+										SystemUtils.JAVA_IO_TMPDIR), false);
 		if (arguments != null)
 			for (String argument : arguments)
 				commandLine.addArgument(argument);
@@ -68,7 +76,7 @@ public class ExecuteUtils {
 			executor.setWorkingDirectory(workingDirectory);
 		if (outputStream != null) {
 			PumpStreamHandler pumpStreamHandler = new PumpStreamHandler(
-					outputStream);
+					outputStream, errorStream);
 			executor.setStreamHandler(pumpStreamHandler);
 		}
 		if (timeOut != null) {
@@ -78,5 +86,4 @@ public class ExecuteUtils {
 		return envMap != null ? executor.execute(commandLine, envMap)
 				: executor.execute(commandLine);
 	}
-
 }

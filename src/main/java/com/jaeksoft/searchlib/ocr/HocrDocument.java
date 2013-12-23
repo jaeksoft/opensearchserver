@@ -59,6 +59,35 @@ public class HocrDocument {
 		boxMap = new TreeMap<String, List<HocrBox>>();
 	}
 
+	private final void ocrx_word(HtmlNodeAbstract<?> parentNode,
+			StringBuilder currentParagraph) throws SearchLibException {
+		if (parentNode == null)
+			return;
+		String parent_bbox = parentNode.getAttributeText("title").substring(5);
+		for (HtmlNodeAbstract<?> xwordNode : parentNode.getNodes("span")) {
+			if (!"ocrx_word".equals(xwordNode.getAttributeText("class")))
+				continue;
+			String word_bbox = parentNode.getAttributeText("title")
+					.substring(5);
+			String word = xwordNode.getText();
+			if (word == null)
+				continue;
+			word = word.trim();
+			String pword = word;
+			if (word.length() == 0)
+				continue;
+			word = word.toLowerCase();
+			List<HocrBox> boxList = boxMap.get(word);
+			if (boxList == null) {
+				boxList = new ArrayList<HocrBox>();
+				boxMap.put(word, boxList);
+			}
+			boxList.add(new HocrBox(word_bbox == null ? parent_bbox : word_bbox));
+			currentParagraph.append(pword);
+			currentParagraph.append(' ');
+		}
+	}
+
 	public HocrDocument(File ocrFile) throws SearchLibException {
 		this();
 		FileInputStream fis = null;
@@ -93,31 +122,9 @@ public class HocrDocument {
 								if (!"ocr_word".equals(wordNode
 										.getAttributeText("class")))
 									continue;
-								String bbox = wordNode
-										.getAttributeText("title").substring(5);
-								for (HtmlNodeAbstract<?> xwordNode : wordNode
-										.getNodes("span")) {
-									if (!"ocrx_word".equals(xwordNode
-											.getAttributeText("class")))
-										continue;
-									String word = xwordNode.getText();
-									if (word == null)
-										continue;
-									word = word.trim();
-									String pword = word;
-									if (word.length() == 0)
-										continue;
-									word = word.toLowerCase();
-									List<HocrBox> boxList = boxMap.get(word);
-									if (boxList == null) {
-										boxList = new ArrayList<HocrBox>();
-										boxMap.put(word, boxList);
-									}
-									boxList.add(new HocrBox(bbox));
-									currentParagraph.append(pword);
-									currentParagraph.append(' ');
-								}
+								ocrx_word(wordNode, currentParagraph);
 							}
+							ocrx_word(lineNode, currentParagraph);
 						}
 						paragraphList.add(currentParagraph);
 					}
@@ -180,5 +187,11 @@ public class HocrDocument {
 			return;
 		for (HocrBox box : boxes)
 			box.addRectangle(boxList, xFactor, yFactor);
+	}
+
+	final public static void main(String[] args) throws SearchLibException {
+		HocrDocument hocrDocument = new HocrDocument(new File(
+				"/Users/ekeller/Desktop/ossocr1998028053342416847.html"));
+		System.out.println(hocrDocument.getJsonBoxMap().size());
 	}
 }
