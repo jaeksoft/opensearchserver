@@ -40,6 +40,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
@@ -122,14 +123,14 @@ public class ExternalParser {
 			error = null;
 		}
 
-		public Results(Exception e) {
-			this.error = e.getMessage();
+		public Results(Throwable t) {
+			this.error = t.getMessage();
 			results = null;
 			links = null;
 		}
 
 		public Results(List<ParserResultItem> resultItems,
-				Set<String> detectedLinks, Exception exception) {
+				Set<String> detectedLinks, Throwable error) {
 			this.results = resultItems != null ? new ArrayList<ExternalParser.Result>(
 					resultItems.size()) : null;
 			if (resultItems != null)
@@ -139,7 +140,7 @@ public class ExternalParser {
 					detectedLinks.size()) : null;
 			if (detectedLinks != null)
 				this.links.addAll(detectedLinks);
-			this.error = exception == null ? null : exception.getMessage();
+			this.error = error == null ? null : error.getMessage();
 		}
 	}
 
@@ -149,7 +150,8 @@ public class ExternalParser {
 			throws IOException, SearchLibException,
 			TransformerConfigurationException, SAXException {
 		PrintWriter configWriter = null;
-		ByteArrayOutputStream baos = null;
+		ByteArrayOutputStream err = null;
+		ByteArrayOutputStream out = null;
 		try {
 			// Prepare the files JSON and XML
 			Command command = new Command(sourceDocument, streamLimiter, lang);
@@ -164,22 +166,25 @@ public class ExternalParser {
 			configWriter.close();
 
 			// Execute
-			baos = new ByteArrayOutputStream();
-			int statusCode = ExecuteUtils.command(tempDir, "java", true, baos,
-					3600000L, ExternalParser.class.getName());
+			out = new ByteArrayOutputStream();
+			err = new ByteArrayOutputStream();
+			int statusCode = ExecuteUtils.command(tempDir, "java", true, true,
+					out, err, 3600000L, ExternalParser.class.getName());
 			if (statusCode != 0)
-				throw new SearchLibException(baos.toString("UTF-8"));
+				throw new SearchLibException(err.toString("UTF-8"));
 			File fileParserResults = new File(tempDir, FILE_PARSER_RESULTS);
 			if (!fileParserResults.exists())
 				return;
 			Results results = JsonUtils.getObject(fileParserResults,
 					Results.class);
-			if (!StringUtils.isEmpty(results.error))
+			if (!StringUtils.isEmpty(results.error)) {
+				Logging.warn("External parser error: " + err.toString());
 				throw new SearchLibException.ExternalParserException(
 						results.error);
+			}
 			parser.setExternalResults(results);
 		} finally {
-			IOUtils.close(configWriter, baos);
+			IOUtils.close(configWriter, err, out);
 		}
 	}
 
