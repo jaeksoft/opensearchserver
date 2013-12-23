@@ -38,14 +38,16 @@ public class PdfCrack {
 
 	public final static String findPassword(String pdfCrackCommandLine,
 			File file) throws ExecuteException, IOException {
-		ByteArrayOutputStream baos = null;
+		ByteArrayOutputStream out = null;
+		ByteArrayOutputStream err = null;
 		BufferedReader br = null;
 		try {
-			baos = new ByteArrayOutputStream();
-			ExecuteUtils.command(null, pdfCrackCommandLine, false, baos,
-					3600000L, "-f",
+			out = new ByteArrayOutputStream();
+			err = new ByteArrayOutputStream();
+			ExecuteUtils.command(null, pdfCrackCommandLine, false, false, out,
+					err, 3600000L, "-f",
 					StringUtils.fastConcat("\"", file.getAbsolutePath(), "\""));
-			br = new BufferedReader(new StringReader(baos.toString()));
+			br = new BufferedReader(new StringReader(out.toString()));
 			String line;
 			int start = FOUND_USER_PASSWORD.length();
 			while ((line = br.readLine()) != null) {
@@ -56,7 +58,7 @@ public class PdfCrack {
 			}
 			return null;
 		} finally {
-			IOUtils.close(baos, br);
+			IOUtils.close(out, err, br);
 		}
 	}
 }
