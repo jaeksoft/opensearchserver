@@ -136,15 +136,6 @@ public class RendererController extends CommonController {
 		return !isFieldSelected();
 	}
 
-	public List<String> getIndexedFieldList() throws SearchLibException {
-		List<String> fields = new ArrayList<String>(0);
-		Client client = getClient();
-		if (client == null)
-			return fields;
-		client.getSchema().getFieldList().getIndexedFields(fields);
-		return fields;
-	}
-
 	public AuthPluginEnum[] getAuthTypeList() {
 		return AuthPluginEnum.values();
 	}
