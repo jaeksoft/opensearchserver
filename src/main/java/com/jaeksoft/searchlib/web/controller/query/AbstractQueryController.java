@@ -24,9 +24,6 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 
@@ -157,12 +154,4 @@ public abstract class AbstractQueryController extends CommonController {
 		reload();
 	}
 
-	public List<String> getIndexedFieldList() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		List<String> fieldList = new ArrayList<String>();
-		client.getSchema().getFieldList().getIndexedFields(fieldList);
-		return fieldList;
-	}
 }

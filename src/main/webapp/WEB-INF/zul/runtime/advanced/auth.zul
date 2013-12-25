@@ -1,0 +1,63 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel>
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" hflex="min" />
+				<column align="left" hflex="min" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Enable authentication" />
+					<checkbox checked="@bind(advanced.auth.enabled)" />
+					<label
+						value="Enable the authentication. Every search requests will be filtered." />
+				</row>
+				<row>
+					<label value="User allow field: " />
+					<combobox model="@load(advanced.indexedFieldList)"
+						cols="30" value="@bind(advanced.auth.userAllowField)" />
+					<label
+						value="The field of the schema containing list of allowed users" />
+				</row>
+				<row>
+					<label value="User deny field: " />
+					<combobox model="@load(advanced.indexedFieldList)"
+						cols="30" value="@bind(advanced.auth.userDenyField)" />
+					<label
+						value="The field of the schema containing list of not allowed users" />
+				</row>
+				<row>
+					<label value="Group allow field: " />
+					<combobox model="@load(advanced.indexedFieldList)"
+						cols="30" value="@bind(advanced.auth.groupAllowField)" />
+					<label
+						value="The field of the schema containing list of allowed groups" />
+				</row>
+				<row>
+					<label value="Group deny field: " />
+					<combobox model="@load(advanced.indexedFieldList)"
+						cols="30" value="@bind(advanced.auth.groupDenyField)" />
+					<label
+						value="The field of the schema containing list of not allowed groups" />
+				</row>
+			</rows>
+		</grid>
+	</panelchildren>
+</panel>
