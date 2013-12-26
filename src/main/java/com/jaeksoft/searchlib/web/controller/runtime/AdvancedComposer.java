@@ -29,11 +29,9 @@ import java.io.IOException;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.ocr.TesseractLanguageEnum;
@@ -114,10 +112,4 @@ public class AdvancedComposer extends CommonController {
 		TaskManager.getInstance().start();
 	}
 
-	public AuthManager getAuth() throws SearchLibException, IOException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getAuthManager();
-	}
 }

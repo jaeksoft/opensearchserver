@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,49 +38,49 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		values = FieldValueItem.emptyArray;
 	}
 
-	public FieldContent(String field) {
+	public FieldContent(final String field) {
 		this();
 		this.field = field;
 	}
 
-	public String getField() {
+	final public String getField() {
 		return field;
 	}
 
-	public void add(FieldValueItem value) {
+	final public void add(final FieldValueItem value) {
 		values = ArrayUtils.add(values, value);
 	}
 
-	public final void addIfNotAlreadyHere(FieldValueItem value) {
+	public final void addIfNotAlreadyHere(final FieldValueItem value) {
 		for (FieldValueItem v : values)
 			if (value.equals(v))
 				return;
 		add(value);
 	}
 
-	public void addIfNotAlreadyHere(FieldContent fc2) {
+	final public void addIfNotAlreadyHere(final FieldContent fc2) {
 		for (FieldValueItem v : fc2.values)
 			addIfNotAlreadyHere(v);
 	}
 
-	public void add(FieldContent fc2) {
+	final public void add(final FieldContent fc2) {
 		values = ArrayUtils.addAll(values, fc2.values);
 	}
 
 	@Override
-	public void addObject(FieldValueItem valueItem) {
+	final public void addObject(final FieldValueItem valueItem) {
 		add(valueItem);
 	}
 
-	public void clear() {
+	final public void clear() {
 		values = FieldValueItem.emptyArray;
 	}
 
-	public void setValueItems(FieldValueItem[] values) {
+	final public void setValueItems(final FieldValueItem[] values) {
 		this.values = values;
 	}
 
-	public FieldValueItem getValue(int pos) {
+	final public FieldValueItem getValue(final int pos) {
 		if (values == null)
 			return null;
 		if (pos >= values.length)
@@ -88,7 +88,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return values[pos];
 	}
 
-	public void setValue(int pos, FieldValueItem value) {
+	final public void setValue(final int pos, final FieldValueItem value) {
 		values[pos] = value;
 	}
 
@@ -100,7 +100,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return values.length > 0;
 	}
 
-	public String getMergedValues(String separator) {
+	public final String getMergedValues(final String separator) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (FieldValueItem item : values) {
@@ -113,7 +113,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return sb.toString();
 	}
 
-	public String getMergedValues(int max, String separator) {
+	final public String getMergedValues(final int max, final String separator) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (FieldValueItem item : values) {
@@ -130,11 +130,11 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return sb.toString();
 	}
 
-	public void remove(int index) {
+	final public void remove(int index) {
 		values = ArrayUtils.remove(values, index);
 	}
 
-	public boolean isEquals(FieldContent fc) {
+	final public boolean isEquals(FieldContent fc) {
 		if (!field.equals(fc.getField()))
 			return false;
 		if (values.length != fc.values.length)
@@ -155,7 +155,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
@@ -168,7 +168,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return sb.toString();
 	}
 
-	public String toLabel() {
+	final public String toLabel() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
