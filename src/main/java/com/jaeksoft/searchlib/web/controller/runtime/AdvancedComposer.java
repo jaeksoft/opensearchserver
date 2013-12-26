@@ -114,7 +114,7 @@ public class AdvancedComposer extends CommonController {
 		TaskManager.getInstance().start();
 	}
 
-	public AuthManager getAuth() throws SearchLibException {
+	public AuthManager getAuth() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;

@@ -100,6 +100,7 @@ public class NamedEntityQuery extends QueryAbstract {
 
 	@Override
 	protected void apply(AbstractRequest req) {
+		super.apply(req);
 		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) req;
 		if (text != null)
 			request.setText(text);
