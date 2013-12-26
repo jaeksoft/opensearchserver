@@ -45,11 +45,13 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
+import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
+import com.jaeksoft.searchlib.filter.AuthFilter;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
@@ -1001,6 +1003,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	@Override
 	public void setFromServletNoLock(ServletTransaction transaction)
 			throws SyntaxError, SearchLibException {
+		super.setFromServletNoLock(transaction);
+
 		String p;
 		Integer i;
 
@@ -1124,6 +1128,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	public AbstractResult<?> execute(ReaderInterface reader)
 			throws SearchLibException {
 		try {
+			AuthManager authManager = config.getAuthManager();
+			if (authManager.isEnabled())
+				getFilterList().add(new AuthFilter());
 			return new ResultSearchSingle((ReaderAbstract) reader, this);
 		} catch (IOException e) {
 			throw new SearchLibException(e);

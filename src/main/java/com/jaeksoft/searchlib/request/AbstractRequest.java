@@ -26,10 +26,14 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -62,6 +66,9 @@ public abstract class AbstractRequest {
 	private List<String> customLogs;
 	private int timerMinTime;
 	private int timerMaxDepth;
+
+	private String user;
+	private Set<String> groups;
 
 	protected AbstractRequest(Config config, RequestTypeEnum requestType) {
 		this.config = config;
@@ -113,6 +120,9 @@ public abstract class AbstractRequest {
 			this.customLogs = new ArrayList<String>(request.customLogs);
 		this.timerMinTime = request.timerMinTime;
 		this.timerMaxDepth = request.timerMaxDepth;
+		this.user = request.user;
+		this.groups = request.groups == null ? null : new TreeSet<String>(
+				request.groups);
 	}
 
 	public AbstractRequest duplicate() throws InstantiationException,
@@ -127,6 +137,8 @@ public abstract class AbstractRequest {
 		customLogs = null;
 		timerMinTime = 10;
 		timerMaxDepth = 3;
+		user = null;
+		groups = null;
 	}
 
 	public final RequestTypeEnum getType() {
@@ -234,8 +246,16 @@ public abstract class AbstractRequest {
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
-	protected abstract void setFromServletNoLock(ServletTransaction transaction)
-			throws SyntaxError, SearchLibException;
+	protected void setFromServletNoLock(ServletTransaction transaction)
+			throws SyntaxError, SearchLibException {
+		user = transaction.getParameterString("user");
+		String[] grps = transaction.getParameterValues("group");
+		if (grps != null) {
+			groups = new TreeSet<String>();
+			for (String grp : grps)
+				groups.add(grp);
+		}
+	}
 
 	public final void setFromServlet(ServletTransaction transaction)
 			throws SyntaxError, SearchLibException {
@@ -278,6 +298,43 @@ public abstract class AbstractRequest {
 	 */
 	public void setTimerMaxDepth(int timerMaxDepth) {
 		this.timerMaxDepth = timerMaxDepth;
+	}
+
+	public String getUser() {
+		rwl.r.lock();
+		try {
+			return this.user;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public Collection<String> getGroups() {
+		rwl.r.lock();
+		try {
+			return this.groups;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setUser(String user) {
+		rwl.w.lock();
+		try {
+			this.user = user;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void setGroups(Collection<String> groups) {
+		rwl.w.lock();
+		try {
+			this.groups = CollectionUtils.isEmpty(groups) ? null
+					: new TreeSet<String>(groups);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }
