@@ -24,6 +24,7 @@
 		<tab id="tabAutoCompletion" label="Auto-completion" />
 		<tab id="tabClassifier" label="Classifier" />
 		<tab id="tabLearner" label="Learner" />
+		<tab id="tabAuth" label="Authentication" />
 	</tabs>
 	<tabpanels>
 		<tabpanel>
@@ -49,6 +50,9 @@
 		</tabpanel>
 		<tabpanel fulfill="tabLearner.onSelect">
 			<include src="WEB-INF/zul/learner/index.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabAuth.onSelect">
+			<include src="/WEB-INF/zul/schema/auth.zul" />
 		</tabpanel>
 	</tabpanels>
 </tabbox>

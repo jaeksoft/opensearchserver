@@ -32,17 +32,21 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.index.UpdateInterfaces;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class AuthManager {
+public class AuthManager implements UpdateInterfaces.Before {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -58,6 +62,10 @@ public class AuthManager {
 
 	private String groupDenyField = null;
 
+	private String defaultUser = null;
+
+	private String defaultGroup = null;
+
 	private final static String AUTH_CONFIG_FILENAME = "auth.xml";
 	private final static String AUTH_ITEM_ROOT_NODE = "auth";
 	private final static String AUTH_ATTR_ENABLED = "enabled";
@@ -65,6 +73,8 @@ public class AuthManager {
 	private final static String AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
 	private final static String AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
 	private final static String AUTH_ATTR_GROUP_DENY_FIELD = "groupDenyField";
+	private final static String AUTH_ATTR_DEFAULT_USER = "defaultUser";
+	private final static String AUTH_ATTR_DEFAULT_GROUP = "defaultGroup";
 
 	public AuthManager(Config config, File indexDir) throws SAXException,
 			IOException, ParserConfigurationException {
@@ -86,6 +96,10 @@ public class AuthManager {
 				AUTH_ATTR_GROUP_ALLOW_FIELD);
 		groupDenyField = DomUtils.getAttributeText(authNode,
 				AUTH_ATTR_GROUP_DENY_FIELD);
+		defaultUser = DomUtils.getAttributeText(authNode,
+				AUTH_ATTR_DEFAULT_USER);
+		defaultGroup = DomUtils.getAttributeText(authNode,
+				AUTH_ATTR_DEFAULT_GROUP);
 	}
 
 	/**
@@ -233,6 +247,64 @@ public class AuthManager {
 		}
 	}
 
+	/**
+	 * @return the defaultUser
+	 */
+	public String getDefaultUser() {
+		rwl.r.lock();
+		try {
+			return defaultUser;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param defaultUser
+	 *            the defaultUser to set
+	 * @throws SearchLibException
+	 * @throws IOException
+	 */
+	public void setDefaultUser(String defaultUser) throws IOException,
+			SearchLibException {
+		rwl.w.lock();
+		try {
+			this.defaultUser = defaultUser;
+			save_noLock();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the defaultGroup
+	 */
+	public String getDefaultGroup() {
+		rwl.r.lock();
+		try {
+			return defaultGroup;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param defaultGroup
+	 *            the defaultGroup to set
+	 * @throws SearchLibException
+	 * @throws IOException
+	 */
+	public void setDefaultGroup(String defaultGroup) throws IOException,
+			SearchLibException {
+		rwl.w.lock();
+		try {
+			this.defaultGroup = defaultGroup;
+			save_noLock();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	private void save_noLock() throws IOException, SearchLibException {
 		PrintWriter pw = null;
 		try {
@@ -242,7 +314,9 @@ public class AuthManager {
 					Boolean.toString(enabled), AUTH_ATTR_USER_ALLOW_FIELD,
 					userAllowField, AUTH_ATTR_USER_DENY_FIELD, userDenyField,
 					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField,
-					AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField);
+					AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
+					AUTH_ATTR_DEFAULT_USER, defaultUser,
+					AUTH_ATTR_DEFAULT_GROUP, defaultGroup);
 			xmlWriter.endElement();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -253,4 +327,25 @@ public class AuthManager {
 		}
 	}
 
+	@Override
+	public void update(Schema schema, IndexDocument document)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (!enabled)
+				return;
+			if (!StringUtils.isEmpty(defaultUser)
+					&& !StringUtils.isEmpty(userAllowField)) {
+				if (!document.hasContent(userAllowField))
+					document.add(userAllowField, defaultUser, null);
+			}
+			if (!StringUtils.isEmpty(defaultGroup)
+					&& !StringUtils.isEmpty(groupAllowField)) {
+				if (!document.hasContent(groupAllowField))
+					document.add(groupAllowField, defaultGroup, null);
+			}
+		} finally {
+			rwl.r.unlock();
+		}
+	}
 }
