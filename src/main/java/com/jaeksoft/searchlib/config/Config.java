@@ -262,6 +262,7 @@ public abstract class Config implements ThreadFactory {
 			IndexAbstract indexAbstract = getIndexAbstract();
 			indexAbstract.addUpdateInterface(getClassifierManager());
 			indexAbstract.addUpdateInterface(getLearnerManager());
+			indexAbstract.addUpdateInterface(getAuthManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);

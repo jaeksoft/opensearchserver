@@ -23,8 +23,6 @@
 			<tab id="tabSmtp" label="Mail server" />
 			<tab id="tabScheduler" label="Scheduler" />
 			<tab id="tabMisc" label="Miscellaneous" />
-			<tab id="tabAuth" label="Authentication"
-				visible="@load(advanced.instanceValid)" />
 		</tabs>
 		<tabpanels>
 			<tabpanel>
@@ -39,9 +37,6 @@
 			</tabpanel>
 			<tabpanel fulfill="tabMisc.onSelect">
 				<include src="/WEB-INF/zul/runtime/advanced/misc.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabAuth.onSelect">
-				<include src="/WEB-INF/zul/runtime/advanced/auth.zul" />
 			</tabpanel>
 		</tabpanels>
 	</tabbox>
