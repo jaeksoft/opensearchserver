@@ -573,7 +573,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public AuthManager getAuthManager() throws SearchLibException {
+	public AuthManager getAuthManager() throws IOException {
 		rwl.r.lock();
 		try {
 			if (authManager != null)
@@ -588,11 +588,9 @@ public abstract class Config implements ThreadFactory {
 			authManager = new AuthManager(this, indexDir);
 			return authManager;
 		} catch (ParserConfigurationException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		} finally {
 			rwl.w.unlock();
 		}

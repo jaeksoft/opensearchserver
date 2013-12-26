@@ -23,10 +23,25 @@
  **/
 package com.jaeksoft.searchlib.webservice.query;
 
+import java.util.List;
+
 import com.jaeksoft.searchlib.request.AbstractRequest;
 
 public abstract class QueryAbstract {
 
-	protected abstract void apply(AbstractRequest request);
+	final public String user;
+	final public List<String> groups;
+
+	protected QueryAbstract() {
+		user = null;
+		groups = null;
+	}
+
+	protected void apply(AbstractRequest request) {
+		if (user != null)
+			request.setUser(user);
+		if (groups != null)
+			request.setGroups(groups);
+	}
 
 }

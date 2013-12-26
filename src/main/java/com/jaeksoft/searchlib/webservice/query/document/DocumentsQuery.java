@@ -61,6 +61,7 @@ public class DocumentsQuery extends QueryAbstract {
 
 	@Override
 	protected void apply(AbstractRequest req) {
+		super.apply(req);
 		DocumentsRequest request = (DocumentsRequest) req;
 		if (uniqueKeys != null)
 			request.addUniqueKeys(uniqueKeys);
