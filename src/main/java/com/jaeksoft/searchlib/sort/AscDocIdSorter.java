@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,12 +28,12 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class AscDocIdSorter extends AbstractDocIdSorter {
 
-	public AscDocIdSorter(DocIdInterface collector) {
+	public AscDocIdSorter(final DocIdInterface collector) {
 		super(collector);
 	}
 
 	@Override
-	final public int compare(int pos1, int pos2) {
+	final public int compare(final int pos1, final int pos2) {
 		return ids[pos1] - ids[pos2];
 	}
 

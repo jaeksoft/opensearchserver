@@ -29,9 +29,9 @@ import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 
 public abstract class AbstractScoreSorter extends SorterAbstract {
 
-	protected float[] scores;
+	final protected float[] scores;
 
-	protected AbstractScoreSorter(DocIdInterface collector) {
+	protected AbstractScoreSorter(final DocIdInterface collector) {
 		super(collector);
 		if (collector instanceof ScoreDocInterface)
 			scores = ((ScoreDocInterface) collector).getScores();
@@ -40,12 +40,12 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 	}
 
 	@Override
-	public boolean isScore() {
+	final public boolean isScore() {
 		return true;
 	}
 
 	@Override
-	final public String toString(int pos) {
+	public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder("Score: ");
 		sb.append(scores[pos]);
 		return sb.toString();
