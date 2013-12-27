@@ -27,15 +27,16 @@ import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 
 public class MultiSort extends SorterAbstract {
 
-	private SorterAbstract[] sorters;
+	final private SorterAbstract[] sorters;
 
-	public MultiSort(DocIdCollector collector, SorterAbstract... sorters) {
+	public MultiSort(final DocIdCollector collector,
+			final SorterAbstract... sorters) {
 		super(collector);
 		this.sorters = sorters;
 	}
 
 	@Override
-	final public int compare(int pos1, int pos2) {
+	final public int compare(final int pos1, final int pos2) {
 		int c;
 		for (SorterAbstract sorter : sorters) {
 			c = sorter.compare(pos1, pos2);
@@ -46,7 +47,7 @@ public class MultiSort extends SorterAbstract {
 	}
 
 	@Override
-	public boolean isScore() {
+	final public boolean isScore() {
 		for (SorterAbstract sorter : sorters)
 			if (sorter.isScore())
 				return true;
@@ -54,7 +55,7 @@ public class MultiSort extends SorterAbstract {
 	}
 
 	@Override
-	public String toString(int pos) {
+	final public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder('[');
 		for (SorterAbstract sorter : sorters) {
 			sb.append(sorter.toString(pos));

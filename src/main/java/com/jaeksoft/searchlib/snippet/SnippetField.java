@@ -29,15 +29,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermPositionVector;
-import org.apache.lucene.index.TermVectorOffsetInfo;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -52,6 +48,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -216,46 +213,6 @@ public class SnippetField extends AbstractField<SnippetField> {
 		target.put(field);
 	}
 
-	private Iterator<TermVectorOffsetInfo> extractTermVectorIterator(int docId,
-			ReaderInterface reader) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		if (searchTerms == null)
-			return null;
-		if (searchTerms.length == 0)
-			return null;
-		TermPositionVector termVector = (TermPositionVector) reader
-				.getTermFreqVector(docId, name);
-		if (termVector == null)
-			return null;
-		int[] termsIdx = termVector.indexesOf(searchTerms, 0,
-				searchTerms.length);
-		TreeMap<Integer, TermVectorOffsetInfo> mapStart = new TreeMap<Integer, TermVectorOffsetInfo>();
-		TreeMap<Integer, TermVectorOffsetInfo> mapEnd = new TreeMap<Integer, TermVectorOffsetInfo>();
-		for (int termId : termsIdx) {
-			if (termId == -1)
-				continue;
-			TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
-			for (TermVectorOffsetInfo offset : offsets) {
-				int start = offset.getStartOffset();
-				int end = offset.getEndOffset();
-				TermVectorOffsetInfo o = mapStart.get(start);
-				if (o == null || o.getEndOffset() < offset.getEndOffset())
-					mapStart.put(start, offset);
-				o = mapEnd.get(end);
-				if (o == null || o.getStartOffset() > offset.getStartOffset())
-					mapEnd.put(end, offset);
-			}
-		}
-
-		TreeMap<Integer, TermVectorOffsetInfo> finalMap = new TreeMap<Integer, TermVectorOffsetInfo>();
-		for (Map.Entry<Integer, TermVectorOffsetInfo> entry : mapStart
-				.entrySet())
-			if (mapEnd.containsValue(entry.getValue()))
-				finalMap.put(entry.getKey(), entry.getValue());
-
-		return finalMap.values().iterator();
-	}
-
 	public final void reset() {
 		searchTerms = null;
 		query = null;
@@ -298,9 +255,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		sb.append(text.substring(start, end));
 	}
 
-	private final TermVectorOffsetInfo checkValue(
-			TermVectorOffsetInfo currentVector,
-			Iterator<TermVectorOffsetInfo> vectorIterator, int startOffset,
+	private final SnippetVector checkValue(SnippetVector currentVector,
+			Iterator<SnippetVector> vectorIterator, int startOffset,
 			Fragment fragment) {
 		if (currentVector == null)
 			return null;
@@ -310,10 +266,10 @@ public class SnippetField extends AbstractField<SnippetField> {
 		int endOffset = startOffset + originalTextLength;
 		int pos = 0;
 		while (currentVector != null) {
-			int end = currentVector.getEndOffset() - fragment.vectorOffset;
+			int end = currentVector.end - fragment.vectorOffset;
 			if (end > endOffset)
 				break;
-			int start = currentVector.getStartOffset() - fragment.vectorOffset;
+			int start = currentVector.start - fragment.vectorOffset;
 			if (start >= startOffset) {
 				appendSubString(originalText, pos, start - startOffset, result);
 				if (tags != null)
@@ -343,9 +299,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 			return false;
 
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
-		TermVectorOffsetInfo currentVector = null;
-		Iterator<TermVectorOffsetInfo> vectorIterator = extractTermVectorIterator(
-				docId, reader);
+		SnippetVector currentVector = null;
+		Iterator<SnippetVector> vectorIterator = SnippetVectors
+				.extractTermVectorIterator(docId, reader, searchTerms, name);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;

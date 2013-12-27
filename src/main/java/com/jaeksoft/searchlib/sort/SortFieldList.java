@@ -36,11 +36,11 @@ public class SortFieldList extends AbstractFieldList<SortField> {
 		super(true);
 	}
 
-	public SortFieldList(SortFieldList sortFieldList) {
+	public SortFieldList(final SortFieldList sortFieldList) {
 		super(sortFieldList);
 	}
 
-	public boolean isScore() {
+	final public boolean isScore() {
 		if (size() == 0)
 			return true;
 		for (SortField field : this)
@@ -49,8 +49,8 @@ public class SortFieldList extends AbstractFieldList<SortField> {
 		return false;
 	}
 
-	public SorterAbstract getSorter(DocIdInterface collector,
-			ReaderAbstract reader) throws IOException {
+	public SorterAbstract getSorter(final DocIdInterface collector,
+			final ReaderAbstract reader) throws IOException {
 		if (size() == 0)
 			return new DescScoreSorter(collector);
 		return new SortListSorter(this, collector, reader);
