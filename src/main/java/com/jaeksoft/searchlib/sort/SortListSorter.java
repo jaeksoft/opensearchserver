@@ -32,9 +32,9 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class SortListSorter extends SorterAbstract {
 
-	private SorterAbstract[] sorterList;
+	final private SorterAbstract[] sorterList;
 
-	protected SortListSorter(SortFieldList sortFieldList,
+	protected SortListSorter(final SortFieldList sortFieldList,
 			DocIdInterface collector, ReaderAbstract reader) throws IOException {
 		super(collector);
 		sorterList = new SorterAbstract[sortFieldList.size()];
@@ -44,7 +44,7 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public int compare(int pos1, int pos2) {
+	final public int compare(final int pos1, final int pos2) {
 		for (SorterAbstract sorter : sorterList) {
 			int c = sorter.compare(pos1, pos2);
 			if (c != 0)
@@ -54,7 +54,7 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public void quickSort(Timer timer) {
+	final public void quickSort(final Timer timer) {
 		if (sorterList.length == 1)
 			sorterList[0].quickSort(timer);
 		else
@@ -62,7 +62,7 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	public boolean isScore() {
+	final public boolean isScore() {
 		for (SorterAbstract sorter : sorterList)
 			if (sorter.isScore())
 				return true;
@@ -70,7 +70,7 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
-	public String toString(int pos) {
+	final public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder('[');
 		for (SorterAbstract sorter : sorterList) {
 			sb.append(sorter.toString(pos));

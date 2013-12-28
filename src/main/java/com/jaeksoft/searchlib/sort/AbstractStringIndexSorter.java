@@ -29,16 +29,16 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public abstract class AbstractStringIndexSorter extends AbstractDocIdSorter {
 
-	protected FieldCacheIndex stringIndex;
+	final protected FieldCacheIndex stringIndex;
 
-	public AbstractStringIndexSorter(DocIdInterface collector,
-			FieldCacheIndex stringIndex) {
+	public AbstractStringIndexSorter(final DocIdInterface collector,
+			final FieldCacheIndex stringIndex) {
 		super(collector);
 		this.stringIndex = stringIndex;
 	}
 
 	@Override
-	public String toString(int pos) {
+	public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder("StringIndex: ");
 		sb.append(stringIndex.lookup[stringIndex.order[ids[pos]]]);
 		return sb.toString();

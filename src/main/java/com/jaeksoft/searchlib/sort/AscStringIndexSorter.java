@@ -29,13 +29,13 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class AscStringIndexSorter extends AbstractStringIndexSorter {
 
-	public AscStringIndexSorter(DocIdInterface collector,
-			FieldCacheIndex stringIndex) {
+	public AscStringIndexSorter(final DocIdInterface collector,
+			final FieldCacheIndex stringIndex) {
 		super(collector, stringIndex);
 	}
 
 	@Override
-	final public int compare(int pos1, int pos2) {
+	final public int compare(final int pos1, final int pos2) {
 		return stringIndex.order[ids[pos1]] - stringIndex.order[ids[pos2]];
 	}
 }

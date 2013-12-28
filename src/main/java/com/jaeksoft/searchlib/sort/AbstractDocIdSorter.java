@@ -28,9 +28,9 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public abstract class AbstractDocIdSorter extends SorterAbstract {
 
-	protected int[] ids;
+	final protected int[] ids;
 
-	protected AbstractDocIdSorter(DocIdInterface collector) {
+	protected AbstractDocIdSorter(final DocIdInterface collector) {
 		super(collector);
 		ids = collector.getIds();
 	}
@@ -41,7 +41,7 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 	}
 
 	@Override
-	public String toString(int pos) {
+	public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder("DocId: ");
 		sb.append(ids[pos]);
 		return sb.toString();
