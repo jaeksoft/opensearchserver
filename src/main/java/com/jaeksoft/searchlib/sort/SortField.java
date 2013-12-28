@@ -107,7 +107,7 @@ public class SortField extends AbstractField<SortField> implements
 	}
 
 	@Override
-	public int compareTo(SortField o) {
+	final public int compareTo(final SortField o) {
 		int c = super.compareTo(o);
 		if (c != 0)
 			return c;
@@ -117,7 +117,7 @@ public class SortField extends AbstractField<SortField> implements
 	}
 
 	@Override
-	public void toString(StringBuilder sb) {
+	final public void toString(final StringBuilder sb) {
 		if (desc)
 			sb.append('-');
 		else
@@ -126,7 +126,7 @@ public class SortField extends AbstractField<SortField> implements
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		StringBuilder sb = new StringBuilder();
 		toString(sb);
 		return sb.toString();

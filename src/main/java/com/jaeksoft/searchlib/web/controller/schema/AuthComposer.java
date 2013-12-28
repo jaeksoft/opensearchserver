@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,28 +22,29 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.web.controller.schema;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import java.io.IOException;
 
-public abstract class AbstractDocIdSorter extends SorterAbstract {
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.authentication.AuthManager;
+import com.jaeksoft.searchlib.web.controller.CommonController;
 
-	final protected int[] ids;
+public class AuthComposer extends CommonController {
 
-	protected AbstractDocIdSorter(final DocIdInterface collector) {
-		super(collector);
-		ids = collector.getIds();
+	public AuthComposer() throws SearchLibException {
+		super();
 	}
 
 	@Override
-	final public boolean isScore() {
-		return false;
+	protected void reset() throws SearchLibException {
 	}
 
-	@Override
-	public String toString(final int pos) {
-		StringBuilder sb = new StringBuilder("DocId: ");
-		sb.append(ids[pos]);
-		return sb.toString();
+	public AuthManager getManager() throws SearchLibException, IOException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getAuthManager();
 	}
 }

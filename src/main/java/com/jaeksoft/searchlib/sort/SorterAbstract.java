@@ -41,7 +41,7 @@ public abstract class SorterAbstract implements IntComparator {
 	public abstract String toString(int pos);
 
 	@Override
-	final public int compare(Integer pos1, Integer pos2) {
+	final public int compare(final Integer pos1, final Integer pos2) {
 		return compare((int) pos1, (int) pos2);
 	}
 

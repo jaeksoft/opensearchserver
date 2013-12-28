@@ -111,4 +111,5 @@ public class AdvancedComposer extends CommonController {
 		TaskManager.getInstance().stop();
 		TaskManager.getInstance().start();
 	}
+
 }

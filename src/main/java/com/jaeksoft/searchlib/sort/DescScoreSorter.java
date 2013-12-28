@@ -28,12 +28,12 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public class DescScoreSorter extends AbstractScoreSorter {
 
-	protected DescScoreSorter(DocIdInterface collector) {
+	protected DescScoreSorter(final DocIdInterface collector) {
 		super(collector);
 	}
 
 	@Override
-	final public int compare(int pos1, int pos2) {
+	final public int compare(final int pos1, final int pos2) {
 		float s1 = scores[pos1];
 		float s2 = scores[pos2];
 		if (s1 > s2)

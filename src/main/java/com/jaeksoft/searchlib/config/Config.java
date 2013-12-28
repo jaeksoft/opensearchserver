@@ -56,6 +56,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 import com.jaeksoft.searchlib.api.ApiManager;
+import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.classifier.Classifier;
 import com.jaeksoft.searchlib.classifier.ClassifierManager;
@@ -210,6 +211,8 @@ public abstract class Config implements ThreadFactory {
 
 	private ReportsManager reportsManager = null;
 
+	private AuthManager authManager = null;
+
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
@@ -258,6 +261,7 @@ public abstract class Config implements ThreadFactory {
 			IndexAbstract indexAbstract = getIndexAbstract();
 			indexAbstract.addUpdateInterface(getClassifierManager());
 			indexAbstract.addUpdateInterface(getLearnerManager());
+			indexAbstract.addUpdateInterface(getAuthManager());
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -563,6 +567,29 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public AuthManager getAuthManager() throws IOException {
+		rwl.r.lock();
+		try {
+			if (authManager != null)
+				return authManager;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (authManager != null)
+				return authManager;
+			authManager = new AuthManager(this, indexDir);
+			return authManager;
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		} catch (SAXException e) {
+			throw new IOException(e);
 		} finally {
 			rwl.w.unlock();
 		}

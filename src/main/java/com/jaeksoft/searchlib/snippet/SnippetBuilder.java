@@ -34,8 +34,8 @@ public class SnippetBuilder {
 
 	private final List<Fragment> fragments;
 
-	public SnippetBuilder(int maxLength, String separator, String[] tags,
-			Fragment originalFragment) {
+	public SnippetBuilder(final int maxLength, final String separator,
+			final String[] tags, final Fragment originalFragment) {
 		snippet = new StringBuilder();
 		fragments = new ArrayList<Fragment>(0);
 		if (!leftAppend(originalFragment, maxLength, separator, tags))
@@ -56,7 +56,7 @@ public class SnippetBuilder {
 		}
 	}
 
-	final private static String lastRight(String text, int max) {
+	final private static String lastRight(final String text, final int max) {
 		int len = text.length();
 		if (max >= len)
 			return text;
@@ -71,7 +71,7 @@ public class SnippetBuilder {
 		return text.substring(pos);
 	}
 
-	final private static String firstLeft(String text, int max) {
+	final private static String firstLeft(final String text, final int max) {
 		if (max >= text.length())
 			return text;
 		int pos = max;
@@ -95,8 +95,8 @@ public class SnippetBuilder {
 	 * @param separator
 	 * @return
 	 */
-	final private boolean leftAppend(Fragment fragment, int maxLength,
-			String separator, String[] tags) {
+	final private boolean leftAppend(final Fragment fragment,
+			final int maxLength, final String separator, final String[] tags) {
 		int maxLeft = maxLength - snippet.length();
 		if (maxLeft < 0)
 			return false; // The snippet is complete
@@ -116,8 +116,8 @@ public class SnippetBuilder {
 		return false;
 	}
 
-	final private boolean rightAppend(Fragment fragment, int maxLength,
-			String separator, String[] tags) {
+	final private boolean rightAppend(final Fragment fragment,
+			final int maxLength, final String separator, final String[] tags) {
 		int maxLeft = maxLength - snippet.length();
 		if (maxLeft < 0)
 			return false;
@@ -136,16 +136,16 @@ public class SnippetBuilder {
 		return false;
 	}
 
-	public int length() {
+	final public int length() {
 		return snippet.length();
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		return snippet.toString();
 	}
 
-	public Collection<Fragment> getFragments() {
+	final public Collection<Fragment> getFragments() {
 		return fragments;
 	}
 }

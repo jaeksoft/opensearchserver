@@ -856,6 +856,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	@Override
 	protected void apply(AbstractRequest req) {
 		try {
+			super.apply(req);
 			AbstractSearchRequest request = (AbstractSearchRequest) req;
 			if (query != null)
 				request.setQueryString(query);
