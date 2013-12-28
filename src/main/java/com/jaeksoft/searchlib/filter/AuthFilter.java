@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -37,6 +36,7 @@ import org.apache.lucene.search.TermQuery;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -65,7 +65,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 
 	@Override
 	final public String getCacheKey(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request)
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
 			throws ParseException {
 		StringBuilder sb = new StringBuilder(getDescription());
 		sb.append(" - ");
@@ -118,7 +118,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 
 	@Override
 	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer,
+			SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractSearchRequest request, Timer timer) throws ParseException,
 			IOException {
 		Query query = getQuery(request);
