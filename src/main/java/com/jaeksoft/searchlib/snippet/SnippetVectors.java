@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.TermVectorOffsetInfo;
@@ -43,39 +44,51 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 
-public class SnippetVectors {
+class SnippetVectors {
 
-	public static class SnippetVector {
+	static class SnippetVector {
 
 		public final int start;
 		public final int end;
 		public final int term;
+		public final int position;
 		public boolean remove;
+		public boolean query;
 
 		private SnippetVector(final int term,
-				final TermVectorOffsetInfo termVectorOffsetInfo) {
+				final TermVectorOffsetInfo termVectorOffsetInfo,
+				final int position) {
 			this.term = term;
 			this.start = termVectorOffsetInfo.getStartOffset();
 			this.end = termVectorOffsetInfo.getEndOffset();
+			this.position = position;
 			this.remove = false;
+			this.query = false;
+		}
+
+		@Override
+		public String toString() {
+			return "Term: " + term + " Start: " + start + " End: " + end
+					+ " Pos:" + position;
 		}
 	}
 
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
-			final String[] searchTerms, final String fieldName)
+			final SnippetQueries snippetQueries, final String fieldName)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		if (searchTerms == null)
-			return null;
-		if (searchTerms.length == 0)
+		if (ArrayUtils.isEmpty(snippetQueries.terms))
 			return null;
 		TermPositionVector termVector = getTermPositionVector(reader, docId,
 				fieldName);
 		if (termVector == null)
 			return null;
-		List<SnippetVector> vectorList = new ArrayList<SnippetVector>();
-		populate(termVector, searchTerms, vectorList);
-		return removeIncludes(vectorList).iterator();
+		Collection<SnippetVector> vectors = new ArrayList<SnippetVector>();
+		populate(termVector, snippetQueries.terms, vectors);
+		vectors = removeIncludes(vectors);
+		snippetQueries.checkQueries(vectors);
+		vectors = removeNonQuery(vectors);
+		return vectors.iterator();
 	}
 
 	private static final TermPositionVector getTermPositionVector(
@@ -101,8 +114,10 @@ public class SnippetVectors {
 			if (termId == -1)
 				continue;
 			TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
+			int[] positions = termVector.getTermPositions(termId);
+			int j = 0;
 			for (TermVectorOffsetInfo offset : offsets)
-				vectors.add(new SnippetVector(i, offset));
+				vectors.add(new SnippetVector(i, offset, positions[j++]));
 			i++;
 		}
 	}
@@ -123,6 +138,16 @@ public class SnippetVectors {
 				vectors.length);
 		for (SnippetVector vector : vectors)
 			if (!vector.remove)
+				vectorList.add(vector);
+		return vectorList;
+	}
+
+	private static final Collection<SnippetVector> removeNonQuery(
+			final Collection<SnippetVector> vectors) {
+		List<SnippetVector> vectorList = new ArrayList<SnippetVector>(
+				vectors.size());
+		for (SnippetVector vector : vectors)
+			if (vector.query)
 				vectorList.add(vector);
 		return vectorList;
 	}
@@ -158,4 +183,5 @@ public class SnippetVectors {
 		}
 
 	}
+
 }

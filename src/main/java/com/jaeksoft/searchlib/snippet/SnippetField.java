@@ -26,14 +26,11 @@ package com.jaeksoft.searchlib.snippet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -66,7 +63,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private String unescapedSeparator;
 	private int maxSnippetSize;
 	private int maxSnippetNumber;
-	private transient String[] searchTerms;
+	private transient SnippetQueries snippetQueries;
 	private transient Query query;
 	private transient Analyzer analyzer;
 
@@ -74,7 +71,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 			int maxSnippetSize, int maxSnippetNumber,
 			FragmenterAbstract fragmenterTemplate) {
 		super(fieldName);
-		this.searchTerms = null;
+		this.snippetQueries = null;
 		setTag(tag);
 		setSeparator(separator);
 		this.maxSnippetSize = maxSnippetSize;
@@ -214,7 +211,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public final void reset() {
-		searchTerms = null;
+		snippetQueries = null;
 		query = null;
 		analyzer = null;
 	}
@@ -222,24 +219,11 @@ public class SnippetField extends AbstractField<SnippetField> {
 	public void initSearchTerms(AbstractSearchRequest searchRequest)
 			throws ParseException, SyntaxError, IOException, SearchLibException {
 		synchronized (this) {
-			if (searchTerms != null)
+			if (snippetQueries != null)
 				return;
 			this.query = searchRequest.getSnippetQuery();
 			this.analyzer = searchRequest.getAnalyzer();
-			Set<Term> terms = new HashSet<Term>();
-			if (query != null)
-				query.extractTerms(terms);
-			String[] tempTerms = new String[terms.size()];
-			int i = 0;
-			// Find term for that field only
-			for (Term term : terms)
-				if (name.equalsIgnoreCase(term.field()))
-					tempTerms[i++] = term.text();
-			// Build final array
-			String[] finalTerms = new String[i];
-			for (i = 0; i < finalTerms.length; i++)
-				finalTerms[i] = tempTerms[i];
-			searchTerms = finalTerms;
+			snippetQueries = new SnippetQueries(this.query, name);
 		}
 	}
 
@@ -301,7 +285,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		SnippetVector currentVector = null;
 		Iterator<SnippetVector> vectorIterator = SnippetVectors
-				.extractTermVectorIterator(docId, reader, searchTerms, name);
+				.extractTermVectorIterator(docId, reader, snippetQueries, name);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
