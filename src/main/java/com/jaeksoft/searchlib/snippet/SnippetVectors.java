@@ -111,13 +111,13 @@ class SnippetVectors {
 		int[] termsIdx = termVector.indexesOf(terms, 0, terms.length);
 		int i = 0;
 		for (int termId : termsIdx) {
-			if (termId == -1)
-				continue;
-			TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
-			int[] positions = termVector.getTermPositions(termId);
-			int j = 0;
-			for (TermVectorOffsetInfo offset : offsets)
-				vectors.add(new SnippetVector(i, offset, positions[j++]));
+			if (termId != -1) {
+				TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
+				int[] positions = termVector.getTermPositions(termId);
+				int j = 0;
+				for (TermVectorOffsetInfo offset : offsets)
+					vectors.add(new SnippetVector(i, offset, positions[j++]));
+			}
 			i++;
 		}
 	}

@@ -104,6 +104,7 @@ class SnippetQueries {
 		Term[] terms = query.getTerms();
 		if (terms == null)
 			return;
+
 		List<Integer> termPosSequence = new ArrayList<Integer>(terms.length);
 		for (Term term : terms) {
 			if (!field.equals(term.field()))
