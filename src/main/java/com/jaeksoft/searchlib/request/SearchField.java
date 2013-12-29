@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -192,13 +193,17 @@ public class SearchField implements Cloneable {
 	}
 
 	final private List<TermQueryItem> getTermQueryFilter(
-			final CompiledAnalyzer analyzer, final String queryString)
+			final PerFieldAnalyzer perFieldAnalyzer,
+			CompiledAnalyzer compiledAnalyzer, final String queryString)
 			throws IOException {
 		TokenStream ts = null;
 		TokenQueryFilter.TermQueryFilter tqf = null;
+		Analyzer analyzer = compiledAnalyzer != null ? compiledAnalyzer
+				: perFieldAnalyzer.getKeywordAnalyzer();
 		try {
 			ts = analyzer.tokenStream(field, new StringReader(queryString));
-			tqf = new TermQueryFilter(analyzer, field, (float) termBoost, ts);
+			tqf = new TermQueryFilter(compiledAnalyzer, field,
+					(float) termBoost, ts);
 			while (tqf.incrementToken())
 				;
 			ts.end();
@@ -211,7 +216,7 @@ public class SearchField implements Cloneable {
 				termQueryItem.includeChilds();
 			return tqf.termQueryItems;
 		} finally {
-			IOUtils.close(tqf, ts);
+			IOUtils.close(tqf, ts, analyzer);
 		}
 	}
 
@@ -252,7 +257,7 @@ public class SearchField implements Cloneable {
 				return;
 			}
 			List<TermQueryItem> termQueryItems = getTermQueryFilter(
-					compiledAnalyzer, queryString);
+					perFieldAnalyzer, compiledAnalyzer, queryString);
 			switch (mode) {
 			case TERM:
 				complexQuery.add(getTermQuery(termQueryItems, occur),
