@@ -413,6 +413,11 @@
 			<artifactId>bcmail-jdk15</artifactId>
 			<version>1.46</version>
 		</dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.1</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -710,6 +715,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>4.1</version>
+				<configuration>
+					<outputDirectory>${basedir}/src/main/java</outputDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
