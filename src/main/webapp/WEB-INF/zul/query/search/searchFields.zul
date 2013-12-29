@@ -19,7 +19,7 @@
 	<grid model="@load(searchfields.request.searchFields)">
 		<columns>
 			<column label="Field" />
-			<column label="Phrase" />
+			<column label="Mode" />
 			<column label="Term boost" />
 			<column label="Phrase Boost" />
 			<column label="Action" />
@@ -28,8 +28,14 @@
 			<template name="model">
 				<row>
 					<label value="@load(each.field)" />
-					<checkbox checked="@bind(each.phrase)" />
-					<doublebox value="@bind(each.boost)" />
+					<listbox mold="select"
+						selectedItem="@bind(each.mode)"
+						model="@load(searchfields.searchFieldModes)">
+						<template name="model">
+							<listitem label="@load(each.label)" />
+						</template>
+					</listbox>
+					<doublebox value="@bind(each.termBoost)" />
 					<doublebox value="@bind(each.phraseBoost)" />
 					<button image="images/action_delete.png"
 						onClick="@command('onSearchFieldRemove', searchfield=each)" />
