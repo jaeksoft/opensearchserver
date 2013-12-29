@@ -70,4 +70,5 @@ public class QueryUtils {
 		query = replaceControlChars(query, WILDCARD_CHARS, " ");
 		return StringUtils.replaceConsecutiveSpaces(query, " ");
 	}
+
 }

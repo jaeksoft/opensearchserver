@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.request.SearchField;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery.SearchField.Mode;
 
 public class SearchFieldsController extends AbstractQueryController {
 
@@ -88,14 +89,19 @@ public class SearchFieldsController extends AbstractQueryController {
 		return (SearchFieldRequest) getRequest();
 	}
 
+	public Mode[] getSearchFieldModes() {
+		return Mode.values();
+	}
+
 	@Command
 	@NotifyChange("*")
 	public void onSearchFieldAdd() throws SearchLibException {
 		synchronized (this) {
 			if (selectedSearchField == null)
 				return;
-			getSearchFieldRequest().add(
-					new SearchField(selectedSearchField, true, 1.0, 1.0));
+			getSearchFieldRequest()
+					.add(new SearchField(selectedSearchField, Mode.PATTERN,
+							1.0, 1.0));
 		}
 	}
 
