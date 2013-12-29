@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery.SearchField.Mode;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
@@ -177,13 +178,13 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	 * @param phraseBoost
 	 *            Set the boost for the phrase search
 	 */
-	public void addSearchField(String fieldName, boolean phrase,
-			double termBoost, double phraseBoost) {
-		add(new SearchField(fieldName, phrase, termBoost, phraseBoost));
+	public void addSearchField(String fieldName, Mode mode, double termBoost,
+			double phraseBoost) {
+		add(new SearchField(fieldName, mode, termBoost, phraseBoost));
 	}
 
 	public void addSearchField(String fieldName, double termBoost) {
-		add(new SearchField(fieldName, false, termBoost, 1.0));
+		add(new SearchField(fieldName, Mode.PATTERN, termBoost, 1.0));
 	}
 
 	public void remove(SearchField searchField) {
