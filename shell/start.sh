@@ -18,4 +18,12 @@ SERVER_PORT=9090
 #JAVA_OPTS="-Xms1G -Xmx1G"
 
 # Starting the server
-java $JAVA_OPTS -jar opensearchserver.jar -extractDirectory server -httpPort ${SERVER_PORT} -Djava.protocol.handler.pkgs=jcifs -uriEncoding=UTF-8
+eval java $JAVA_OPTS -jar opensearchserver.jar \
+        -extractDirectory server \
+        -httpPort ${SERVER_PORT} \
+        -Djava.protocol.handler.pkgs=jcifs \
+        -uriEncoding=UTF-8 \
+        >> "logs/oss.log" 2>&1 "&"
+
+# Writing the PID
+echo $! > "logs/oss.pid"
