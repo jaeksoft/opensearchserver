@@ -66,7 +66,7 @@ public class ReplicationList {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			ReplicationItem replicationItem = new ReplicationItem(
 					replicationMaster, xpp, nodes.item(i));
-			put(replicationItem);
+			save(null, replicationItem);
 		}
 	}
 
@@ -116,23 +116,19 @@ public class ReplicationList {
 		}
 	}
 
-	public void put(ReplicationItem item) throws SearchLibException {
+	public void save(ReplicationItem oldItem, ReplicationItem newItem)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
-			if (replicationMap.containsKey(item.getName()))
-				throw new SearchLibException(
-						"Replication item already exists: " + item.getName());
-			replicationMap.put(item.getName(), item);
-			buildArray();
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void remove(ReplicationItem selectedItem) {
-		rwl.w.lock();
-		try {
-			replicationMap.remove(selectedItem.getName());
+			if (oldItem != null)
+				replicationMap.remove(oldItem.getName());
+			if (newItem != null) {
+				if (replicationMap.containsKey(newItem.getName()))
+					throw new SearchLibException(
+							"Replication item already exists: "
+									+ newItem.getName());
+				replicationMap.put(newItem.getName(), newItem);
+			}
 			buildArray();
 		} finally {
 			rwl.w.unlock();
