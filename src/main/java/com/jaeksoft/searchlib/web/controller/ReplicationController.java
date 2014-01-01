@@ -92,10 +92,7 @@ public class ReplicationController extends CommonController {
 	public void onSave() throws InterruptedException, SearchLibException,
 			TransformerConfigurationException, IOException, SAXException {
 		Client client = getClient();
-		if (selectedItem != null)
-			selectedItem.copy(currentItem);
-		else
-			client.getReplicationList().put(currentItem);
+		client.getReplicationList().save(selectedItem, currentItem);
 		client.saveReplicationList();
 		onCancel();
 	}
@@ -126,7 +123,7 @@ public class ReplicationController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		client.getReplicationList().remove(selectedItem);
+		client.getReplicationList().save(selectedItem, null);
 		client.saveReplicationList();
 		onCancel();
 	}

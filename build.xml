@@ -90,6 +90,7 @@
 
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
+		<mkdir dir="${dist}/${product}/logs" />
 
 		<copy tofile="${dist}/${product}/${product}.jar">
 			<fileset file="target/${productsrc}-war-exec.jar" />
