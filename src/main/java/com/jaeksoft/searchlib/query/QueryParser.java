@@ -109,7 +109,10 @@ public class QueryParser extends BooleanQueryBaseListener {
 			holdQuery = query;
 		} else {
 			if (holdQuery != null) {
-				addBooleanClause(holdQuery, currentOperator);
+				addBooleanClause(
+						holdQuery,
+						currentOperator == BooleanQueryLexer.NOT ? defaultOperator
+								: currentOperator);
 				holdQuery = null;
 			}
 			addBooleanClause(query, currentOperator);
