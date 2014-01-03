@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
+import com.jaeksoft.searchlib.replication.ReplicationMerge;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
@@ -494,6 +495,26 @@ public class ClientCatalog {
 		}
 		client.close();
 		FileUtils.deleteDirectory(trashDir);
+	}
+
+	public static void receive_merge(WebApp webapp, Client client)
+			throws SearchLibException, IOException {
+		File clientDir = client.getDirectory();
+		File tempDir = getTempReceiveDir(client);
+		rwl.w.lock();
+		try {
+			client.close();
+			CLIENTS.remove(clientDir);
+			new ReplicationMerge(tempDir, clientDir);
+			Client newClient = ClientFactory.INSTANCE.newClient(clientDir,
+					true, true);
+			newClient.writeReplCheck();
+			CLIENTS.put(clientDir, newClient);
+			PushEvent.eventClientSwitch.publish(client);
+		} finally {
+			rwl.w.unlock();
+		}
+		FileUtils.deleteDirectory(tempDir);
 	}
 
 	public static final void receive_dir(Client client, String filePath)

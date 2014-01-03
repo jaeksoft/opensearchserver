@@ -65,12 +65,15 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private volatile File sourceDirectory;
 
+	private final ReplicationType replicationType;
+
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, InfoCallback infoCallback)
 			throws SearchLibException {
 		super(client, replicationMaster, replicationItem);
 		this.sourceDirectory = replicationItem.getDirectory(client);
+		this.replicationType = replicationItem.getReplicationType();
 		this.client = client;
 		totalSize = 0;
 		filesSent = 0;
@@ -157,7 +160,14 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		addCheckedSize(sourceDirectory.length());
 		PushServlet.call_init(getReplicationItem());
 		new RecursiveDirectoryBrowser(sourceDirectory, this);
-		PushServlet.call_switch(replicationItem);
+		switch (replicationItem.getReplicationType().getFinalMode()) {
+		case MERGE:
+			PushServlet.call_merge(replicationItem);
+			break;
+		case SWITCH:
+			PushServlet.call_switch(replicationItem);
+			break;
+		}
 	}
 
 	private void setTotalSize(long size) {
@@ -178,7 +188,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		}
 	}
 
-	private boolean checkFilePush(File file) throws IOException {
+	final private boolean checkFilePush(final File file) throws IOException {
 		if (!checkDirPush(file))
 			return false;
 		for (File fileNotPushed : filesNotPushed)
@@ -187,7 +197,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		return true;
 	}
 
-	private boolean checkDirPush(File dir) throws IOException {
+	final private boolean checkDirPush(final File dir) throws IOException {
 		for (File dirNotPushed : dirsNotPushed) {
 			if (dir.equals(dirNotPushed))
 				return false;
@@ -217,6 +227,8 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 					}
 				}
 			} else {
+				if (replicationType.isNotPushedFolder(file))
+					dirsNotPushed.add(file);
 				if (checkDirPush(file))
 					PushServlet.call_directory(client, replicationItem, file);
 			}
