@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,12 +63,18 @@ public class ReplicationItem extends
 
 	private ReplicationType replicationType;
 
+	public final static String[] NOT_PUSHED_DATA_FOLDERS = { "index" };
+
+	public final static String[] NOT_PUSHED_DATA_PATH = { "screenshot" };
+
 	public final static String[] NOT_PUSHED_PATH = { "replication.xml",
 			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report",
 			"statstore" };
 
 	public final static String[] NOT_PUSHED_PATH_NODB = { "web_crawler_url",
 			"file_crawler_url" };
+
+	public final static String[] NOT_PUSHED_INDEX = { "index" };
 
 	public ReplicationItem(ReplicationMaster crawlMaster, String name) {
 		super(crawlMaster);
@@ -306,6 +312,7 @@ public class ReplicationItem extends
 			switch (replicationType) {
 			case MAIN_INDEX:
 			case BACKUP_INDEX:
+			case SCHEMA_ONLY:
 				return config.getDirectory();
 			case WEB_CRAWLER_URL_DATABASE:
 				return config.getUrlManager().getDbClient().getDirectory();

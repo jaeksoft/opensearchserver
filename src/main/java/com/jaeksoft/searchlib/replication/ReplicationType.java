@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,27 +26,53 @@ package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public enum ReplicationType {
 
-	BACKUP_INDEX("Backup", ReplicationItem.NOT_PUSHED_PATH),
-
-	MAIN_INDEX("Main index", ReplicationItem.NOT_PUSHED_PATH,
-			ReplicationItem.NOT_PUSHED_PATH_NODB),
-
-	WEB_CRAWLER_URL_DATABASE("Web crawler URL database",
+	BACKUP_INDEX("Backup", FinalMode.SWITCH, null,
 			ReplicationItem.NOT_PUSHED_PATH),
 
-	FILE_CRAWLER_URI_DATABASE("File crawler URI database",
-			ReplicationItem.NOT_PUSHED_PATH);
+	MAIN_INDEX("Main index", FinalMode.SWITCH, null,
+			ReplicationItem.NOT_PUSHED_PATH,
+			ReplicationItem.NOT_PUSHED_PATH_NODB),
+
+	WEB_CRAWLER_URL_DATABASE("Web crawler URL database", FinalMode.SWITCH,
+			null, ReplicationItem.NOT_PUSHED_PATH),
+
+	FILE_CRAWLER_URI_DATABASE("File crawler URI database", FinalMode.SWITCH,
+			null, ReplicationItem.NOT_PUSHED_PATH),
+
+	SCHEMA_ONLY("Schema only", FinalMode.MERGE,
+			ReplicationItem.NOT_PUSHED_DATA_FOLDERS,
+			ReplicationItem.NOT_PUSHED_PATH, ReplicationItem.NOT_PUSHED_INDEX,
+			ReplicationItem.NOT_PUSHED_DATA_PATH);
+
+	public enum FinalMode {
+		SWITCH, MERGE;
+
+	}
 
 	private final String label;
 
 	private final String[][] notPushedPaths;
 
-	private ReplicationType(String label, String[]... notPushedPaths) {
+	private final Set<String> notPushedFolderNames;
+
+	private final FinalMode mode;
+
+	private ReplicationType(final String label, final FinalMode mode,
+			final String[] notPushedFolderNames,
+			final String[]... notPushedPaths) {
 		this.label = label;
 		this.notPushedPaths = notPushedPaths;
+		this.notPushedFolderNames = notPushedFolderNames != null ? new TreeSet<String>()
+				: null;
+		if (notPushedFolderNames != null)
+			for (String folder : notPushedFolderNames)
+				this.notPushedFolderNames.add(folder);
+		this.mode = mode;
 	}
 
 	@Override
@@ -62,8 +88,8 @@ public enum ReplicationType {
 		return MAIN_INDEX;
 	}
 
-	public void addNotPushedPath(File sourceDirectory,
-			List<File> filesNotPushed, List<File> dirsNotPushed) {
+	final public void addNotPushedPath(final File sourceDirectory,
+			final List<File> filesNotPushed, final List<File> dirsNotPushed) {
 		for (String[] notPushedPath : notPushedPaths) {
 			for (String path : notPushedPath) {
 				File f = new File(sourceDirectory, path);
@@ -75,7 +101,19 @@ public enum ReplicationType {
 		}
 	}
 
+	final public boolean isNotPushedFolder(final File file) {
+		if (notPushedFolderNames == null)
+			return false;
+		if (!file.isDirectory())
+			return false;
+		return notPushedFolderNames.contains(file.getName());
+	}
+
 	final public String getLabel() {
 		return label;
+	}
+
+	final public FinalMode getFinalMode() {
+		return mode;
 	}
 }
