@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,13 +52,13 @@ public class CollapseFunction {
 					stringIndex.lookup[stringIndex.order[doc]]).doubleValue();
 		}
 
-		final protected double getDistance(final Location loc1,
+		final protected double getDistance(final Location location,
 				final FieldCacheIndex stringIndexLatitude,
 				final FieldCacheIndex stringIndexLongitude, final int doc,
 				final double radius) throws ParseException {
-			Location loc2 = new Location(getRadians(stringIndexLatitude, doc),
-					getRadians(stringIndexLongitude, doc));
-			return Geospatial.distance(loc1, loc2, radius);
+			return Geospatial.distance(location.latitude, location.longitude,
+					getRadians(stringIndexLatitude, doc),
+					getRadians(stringIndexLongitude, doc), radius);
 		}
 	}
 
