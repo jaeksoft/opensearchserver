@@ -81,6 +81,14 @@ public class PushServlet extends AbstractServlet {
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
+			if (CALL_XML_CMD_MERGE.equals(cmd)) {
+				transaction
+						.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_MERGE);
+				ClientCatalog.receive_merge(transaction.getWebApp(), client);
+				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
+						XML_CALL_KEY_STATUS_OK);
+				return;
+			}
 			String filePath = transaction
 					.getParameterString(CALL_XML_CMD_FILEPATH);
 			Long lastModified = transaction
@@ -128,6 +136,7 @@ public class PushServlet extends AbstractServlet {
 	private final static String CALL_XML_KEY_CMD = "cmd";
 	private final static String CALL_XML_CMD_INIT = "init";
 	private final static String CALL_XML_CMD_SWITCH = "switch";
+	private final static String CALL_XML_CMD_MERGE = "merge";
 	private final static String CALL_XML_CMD_EXISTS = "exists";
 	private final static String CALL_XML_CMD_FILEPATH = "filePath";
 
@@ -197,6 +206,11 @@ public class PushServlet extends AbstractServlet {
 	public static void call_switch(ReplicationItem replicationItem)
 			throws SearchLibException {
 		call(replicationItem, CALL_XML_CMD_SWITCH);
+	}
+
+	public static void call_merge(ReplicationItem replicationItem)
+			throws SearchLibException {
+		call(replicationItem, CALL_XML_CMD_MERGE);
 	}
 
 	public static boolean call_file_exist(Client client,
