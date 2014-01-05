@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
+import com.jaeksoft.searchlib.collapse.CollapseParameters.Mode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
@@ -75,6 +76,7 @@ import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -532,6 +534,25 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
+	final public boolean isDocIdRequired() {
+		rwl.r.lock();
+		try {
+			if (returnFieldList.size() > 0)
+				return true;
+			if (snippetFieldList.size() > 0)
+				return true;
+			if (isJoin())
+				return true;
+			if (isCollapsing())
+				return true;
+			if (isFacet())
+				return true;
+			return true;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void addSort(String fieldName, boolean desc) {
 		rwl.w.lock();
 		try {
@@ -798,6 +819,19 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			if (facetFieldList == null)
 				return false;
 			return facetFieldList.size() > 0;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isCollapsing() {
+		rwl.r.lock();
+		try {
+			if (collapseMode == Mode.OFF)
+				return false;
+			if (StringUtils.isEmpty(collapseField))
+				return false;
+			return true;
 		} finally {
 			rwl.r.unlock();
 		}

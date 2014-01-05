@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,15 +24,20 @@
 
 package com.jaeksoft.searchlib.sort;
 
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
 public abstract class AbstractDocIdSorter extends SorterAbstract {
 
 	final protected int[] ids;
 
-	protected AbstractDocIdSorter(final DocIdInterface collector) {
+	protected AbstractDocIdSorter(final CollectorInterface collector) {
 		super(collector);
-		ids = collector.getIds();
+		DocIdInterface docIdCollector = collector
+				.getCollector(DocIdInterface.class);
+		if (docIdCollector == null)
+			throw new RuntimeException("Wrong collector: " + collector);
+		ids = docIdCollector.getIds();
 	}
 
 	@Override

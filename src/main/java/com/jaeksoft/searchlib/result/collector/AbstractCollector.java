@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,38 +24,31 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import java.io.IOException;
+abstract class AbstractCollector implements CollectorInterface {
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.Scorer;
+	protected final CollectorInterface parent;
+	protected final int maxDoc;
 
-public abstract class AbstractCollector extends Collector {
-
-	private int currentDocBase = 0;
-	protected Scorer scorer = null;
-
-	@Override
-	final public boolean acceptsDocsOutOfOrder() {
-		return true;
+	protected AbstractCollector(final CollectorInterface parent,
+			final int maxDoc) {
+		this.maxDoc = maxDoc;
+		this.parent = parent;
 	}
 
 	@Override
-	final public void setNextReader(IndexReader reader, int docBase)
-			throws IOException {
-		currentDocBase = docBase;
+	final public int getMaxDoc() {
+		return maxDoc;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	final public void collect(final int doc) throws IOException {
-		collectDoc(doc + currentDocBase);
-	}
-
-	protected abstract void collectDoc(final int doc) throws IOException;
-
-	@Override
-	final public void setScorer(Scorer scorer) throws IOException {
-		this.scorer = scorer;
+	final public <T extends CollectorInterface> T getCollector(
+			Class<T> collectorType) {
+		if (collectorType.isInstance(this))
+			return (T) this;
+		if (parent == null)
+			return null;
+		return parent.getCollector(collectorType);
 	}
 
 }

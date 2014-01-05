@@ -92,6 +92,10 @@ public class ScoringComposer extends AbstractQueryController {
 		return fieldList;
 	}
 
+	public AdvancedScoreItem.Type[] getTypeList() {
+		return AdvancedScoreItem.Type.values();
+	}
+
 	public String[] getDirectionList() {
 		return AdvancedScoreItem.DIRECTION;
 	}

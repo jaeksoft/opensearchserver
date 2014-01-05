@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,18 +26,58 @@ package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
 
-public class MaxScoreCollector extends AbstractCollector {
+import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+
+public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
+		ScoreInterface, DocSetHitCollectorInterface {
 
 	private float maxScore = 0;
+	private FloatBufferedArray scoreCollector;
+	private float[] scores;
+
+	public ScoreBufferCollector(final DocSetHitCollector base) {
+		super(base);
+		scoreCollector = new FloatBufferedArray(base.getMaxDoc());
+		scores = null;
+	}
 
 	@Override
 	final public void collectDoc(final int docId) throws IOException {
-		float sc = scorer.score();
+		parent.collectDoc(docId);
+		float sc = base.score();
 		if (sc > maxScore)
 			maxScore = sc;
+		scoreCollector.add(sc);
 	}
 
+	@Override
+	final public void endCollection() {
+		parent.endCollection();
+		scores = scoreCollector.getFinalArray();
+	}
+
+	@Override
+	final public int getSize() {
+		return scores == null ? 0 : scores.length;
+	}
+
+	@Override
 	final public float getMaxScore() {
 		return maxScore;
 	}
+
+	@Override
+	final public void swap(final int a, final int b) {
+		parent.swap(a, b);
+		float s1 = scores[a];
+		float s2 = scores[b];
+		scores[a] = s2;
+		scores[b] = s1;
+	}
+
+	@Override
+	final public float[] getScores() {
+		return scores;
+	}
+
 }

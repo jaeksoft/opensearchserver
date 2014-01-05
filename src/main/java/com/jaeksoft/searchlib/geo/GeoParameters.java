@@ -24,9 +24,12 @@
 
 package com.jaeksoft.searchlib.geo;
 
+import java.io.IOException;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -205,6 +208,11 @@ public class GeoParameters {
 				longitudeField, "latitude", Double.toString(latitude),
 				"longitude", Double.toString(longitude));
 		xmlWriter.endElement();
+	}
+
+	public GeoDistance getGeoDistance(ReaderAbstract reader, Double radius)
+			throws IOException {
+		return new GeoDistance(this, reader, radius);
 	}
 
 }

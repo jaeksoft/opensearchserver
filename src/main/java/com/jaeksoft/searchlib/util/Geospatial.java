@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,11 +66,10 @@ public class Geospatial {
 	 * @param lat2
 	 * @return
 	 */
-	public final static double distance(final Location loc1,
-			final Location loc2, final double radius) {
-		double x = (loc2.longitude - loc1.longitude)
-				* Math.cos((loc1.latitude + loc2.latitude) / 2);
-		double y = (loc2.latitude - loc1.latitude);
+	public final static double distance(final double lat1, final double lon1,
+			final double lat2, final double lon2, final double radius) {
+		double x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
+		double y = (lat2 - lat1);
 		double d = Math.sqrt(x * x + y * y) * radius;
 		return d;
 	}

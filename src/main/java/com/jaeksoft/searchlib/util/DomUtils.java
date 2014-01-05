@@ -161,6 +161,17 @@ public class DomUtils {
 		return attr.getNodeValue();
 	}
 
+	final public static <E extends Enum<?>> E getAttributeEnum(final Node node,
+			final String name, final E[] enums, final E defaultEnum) {
+		String attr = getAttributeText(node, name);
+		if (attr == null)
+			return defaultEnum;
+		for (E e : enums)
+			if (e.name().equalsIgnoreCase(attr))
+				return e;
+		return defaultEnum;
+	}
+
 	final public static double getAttributeDouble(final Node node,
 			final String name) {
 		return getAttributeDouble(node, name, 0);

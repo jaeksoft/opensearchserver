@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,11 +24,11 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public class DescScoreSorter extends AbstractScoreSorter {
 
-	protected DescScoreSorter(final DocIdInterface collector) {
+	protected DescScoreSorter(final CollectorInterface collector) {
 		super(collector);
 	}
 

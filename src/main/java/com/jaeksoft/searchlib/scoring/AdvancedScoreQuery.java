@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,7 +44,8 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 
 	private class AdvancedScoreProvider extends CustomScoreProvider {
 
-		public AdvancedScoreProvider(IndexReader reader) throws IOException {
+		public AdvancedScoreProvider(final IndexReader reader)
+				throws IOException {
 			super(reader);
 			scoreItemValues = new AdvancedScoreItemValue[scoreItems.length];
 			int i = 0;
@@ -53,7 +54,7 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 						reader);
 		}
 
-		final private Explanation customExplanation(int doc) {
+		final private Explanation customExplanation(final int doc) {
 			Explanation expl = new Explanation(0, "sum of:");
 			float sc = 0;
 			for (AdvancedScoreItemValue scoreItemValue : scoreItemValues) {
@@ -65,7 +66,7 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 			return expl;
 		}
 
-		final private float customScore(int doc) {
+		final private float customScore(final int doc) {
 			float sc = 0;
 			for (AdvancedScoreItemValue scoreItemValue : scoreItemValues)
 				sc += scoreItemValue.getValue(doc);
@@ -73,8 +74,8 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 
 		@Override
-		final public Explanation customExplain(int doc,
-				Explanation subQueryExpl, Explanation valSrcExpl) {
+		final public Explanation customExplain(final int doc,
+				final Explanation subQueryExpl, final Explanation valSrcExpl) {
 			Explanation expl = new Explanation(0, "product of:");
 			Explanation e1 = customExplanation(doc);
 			expl.addDetail(e1);
@@ -87,14 +88,15 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 
 		@Override
-		final public float customScore(int doc, float subQueryScore,
-				float valSrcScore) {
+		final public float customScore(final int doc,
+				final float subQueryScore, final float valSrcScore) {
 			return customScore(doc) * subQueryScore * valSrcScore;
 		}
 
 		@Override
-		public Explanation customExplain(int doc, Explanation subQueryExpl,
-				Explanation[] valSrcExpls) throws IOException {
+		final public Explanation customExplain(final int doc,
+				final Explanation subQueryExpl, final Explanation[] valSrcExpls)
+				throws IOException {
 			Explanation expl = new Explanation(0, "product of:");
 			Explanation e1 = customExplanation(doc);
 			expl.addDetail(e1);
@@ -109,8 +111,8 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 
 		@Override
-		final public float customScore(int doc, float subQueryScore,
-				float[] valSrcScores) {
+		final public float customScore(final int doc,
+				final float subQueryScore, final float[] valSrcScores) {
 			float sc = customScore(doc) * subQueryScore;
 			for (float valSrcScore : valSrcScores)
 				sc *= valSrcScore;
@@ -118,14 +120,16 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 	}
 
-	public AdvancedScoreQuery(Query subQuery, AdvancedScore advancedScore) {
+	public AdvancedScoreQuery(final Query subQuery,
+			final AdvancedScore advancedScore) {
 		super(subQuery);
 		scoreItems = advancedScore.getArray();
 		name = computeName();
 	}
 
 	@Override
-	final public CustomScoreProvider getCustomScoreProvider(IndexReader reader) {
+	final public CustomScoreProvider getCustomScoreProvider(
+			final IndexReader reader) {
 		try {
 			return new AdvancedScoreProvider(reader);
 		} catch (IOException e) {
@@ -133,7 +137,7 @@ public class AdvancedScoreQuery extends CustomScoreQuery {
 		}
 	}
 
-	private String computeName() {
+	final private String computeName() {
 		StringBuilder sb = new StringBuilder("advscore(");
 		for (AdvancedScoreItem scoreItem : scoreItems) {
 			if (sb.length() > 9)

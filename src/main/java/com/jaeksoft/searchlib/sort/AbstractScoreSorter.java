@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,19 +24,20 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 
 public abstract class AbstractScoreSorter extends SorterAbstract {
 
 	final protected float[] scores;
 
-	protected AbstractScoreSorter(final DocIdInterface collector) {
+	protected AbstractScoreSorter(final CollectorInterface collector) {
 		super(collector);
-		if (collector instanceof ScoreDocInterface)
-			scores = ((ScoreDocInterface) collector).getScores();
-		else
+		ScoreInterface scoreCollector = collector
+				.getCollector(ScoreInterface.class);
+		if (scoreCollector == null)
 			throw new RuntimeException("Wrong collector " + collector);
+		scores = scoreCollector.getScores();
 	}
 
 	@Override
