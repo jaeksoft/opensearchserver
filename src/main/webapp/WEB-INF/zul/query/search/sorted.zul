@@ -27,6 +27,7 @@
 				<row>
 					<label value="@load(sortfield.name)" />
 					<listbox mold="select"
+						onSelect="@command('onFieldDirection')"
 						selectedItem="@bind(sortfield.direction)">
 						<listitem label="ascending" value="ascending" />
 						<listitem label="descending" value="descending" />

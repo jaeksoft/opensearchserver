@@ -107,6 +107,15 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		fieldList.add(field);
 	}
 
+	public void rebuildCacheKey() {
+		rwl.w.lock();
+		try {
+			buildCacheKey();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public void put(T field) {
 		rwl.w.lock();
 		try {
