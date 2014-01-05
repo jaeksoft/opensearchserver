@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -86,6 +86,12 @@ public class SortedController extends AbstractQueryController {
 					sortField.getName());
 			reload();
 		}
+	}
+
+	@Command
+	public void onFieldDirection() throws SearchLibException {
+		((AbstractSearchRequest) getRequest()).getSortFieldList()
+				.rebuildCacheKey();
 	}
 
 	public boolean isFieldLeft() throws SearchLibException {
