@@ -277,7 +277,7 @@ public class JoinDocCollector extends AbstractCollector implements
 			int joinResultPos, Timer timer, boolean factorScore,
 			JoinType joinType, OuterCollector outerCollector) {
 
-		DocIdInterface emptyDocs = docs instanceof ScoreDocInterface ? JoinScoreDocCollector.EMPTY
+		DocIdInterface emptyDocs = docs instanceof ScoreInterface ? JoinScoreCollector.EMPTY
 				: JoinDocCollector.EMPTY;
 
 		if (docs.getSize() == 0 && outerCollector == null)
@@ -287,9 +287,9 @@ public class JoinDocCollector extends AbstractCollector implements
 			return joinType == JoinType.INNER ? emptyDocs : docs;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
-		ScoreDocInterface scoreDocInterface = docs
-				.getCollector(ScoreDocInterface.class);
-		JoinDocInterface docs1 = scoreDocInterface != null ? new JoinScoreDocCollector(
+		ScoreInterface scoreDocInterface = docs
+				.getCollector(ScoreInterface.class);
+		JoinDocInterface docs1 = scoreDocInterface != null ? new JoinScoreCollector(
 				docs, scoreDocInterface, joinResultSize)
 				: new JoinDocCollector(docs, joinResultSize);
 		new AscStringIndexSorter(docs1, doc1StringIndex).quickSort(t);
@@ -298,9 +298,9 @@ public class JoinDocCollector extends AbstractCollector implements
 		t = new Timer(timer, "copy & sort foreign documents");
 		docs2 = docs2.duplicate();
 		float scores2[] = null;
-		if (docs2 instanceof ScoreDocInterface && factorScore) {
+		if (docs2 instanceof ScoreInterface && factorScore) {
 			if (factorScore)
-				scores2 = ((ScoreDocInterface) docs2).getScores();
+				scores2 = ((ScoreInterface) docs2).getScores();
 
 		}
 		new AscStringIndexSorter(docs2, doc2StringIndex).quickSort(t);

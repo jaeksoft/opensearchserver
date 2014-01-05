@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class AbstractResultSearch extends
@@ -47,6 +48,7 @@ public abstract class AbstractResultSearch extends
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
 	protected DocIdInterface docs;
+	protected ScoreInterface scores;
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
@@ -112,6 +114,7 @@ public abstract class AbstractResultSearch extends
 
 	protected void setDocs(DocIdInterface docs) {
 		this.docs = docs;
+		this.scores = docs.getCollector(ScoreInterface.class);
 	}
 
 	public int getDocLength() {
@@ -160,7 +163,9 @@ public abstract class AbstractResultSearch extends
 
 	@Override
 	public float getScore(int pos) {
-		return ResultDocument.getScore(docs, pos);
+		if (scores == null)
+			return 0;
+		return scores.getScores()[pos];
 	}
 
 	@Override

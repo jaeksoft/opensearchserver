@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-public interface ScoreDocInterface extends CollectorInterface {
+public interface ScoreInterface extends CollectorInterface {
 
 	public static float[] EMPTY_SCORES = new float[0];
 
