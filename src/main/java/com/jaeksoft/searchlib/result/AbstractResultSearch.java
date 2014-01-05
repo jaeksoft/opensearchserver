@@ -37,7 +37,6 @@ import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -58,7 +57,7 @@ public abstract class AbstractResultSearch extends
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
-		this.docs = DocIdCollector.EMPTY;
+		this.docs = null;
 		this.joinResults = JoinResult.EMPTY_ARRAY;
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
@@ -112,7 +111,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	protected void setDocs(DocIdInterface docs) {
-		this.docs = docs == null ? DocIdCollector.EMPTY : docs;
+		this.docs = docs;
 	}
 
 	public int getDocLength() {

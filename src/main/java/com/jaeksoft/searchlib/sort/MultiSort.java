@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,13 +23,13 @@
  **/
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.collector.DocIdCollector;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public class MultiSort extends SorterAbstract {
 
 	final private SorterAbstract[] sorters;
 
-	public MultiSort(final DocIdCollector collector,
+	public MultiSort(final CollectorInterface collector,
 			final SorterAbstract... sorters) {
 		super(collector);
 		this.sorters = sorters;

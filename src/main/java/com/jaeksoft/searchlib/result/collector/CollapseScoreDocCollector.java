@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,10 +33,11 @@ public class CollapseScoreDocCollector extends CollapseDocIdCollector implements
 	protected final float[] sourceScores;
 	protected final float[] scores;
 
-	public CollapseScoreDocCollector(ScoreDocInterface sourceCollector,
-			int size, boolean collectDocArray) {
-		super(sourceCollector, size, collectDocArray);
-		this.sourceScores = sourceCollector.getScores();
+	public CollapseScoreDocCollector(DocIdInterface docIdInterface,
+			ScoreDocInterface scoreDocInterface, int size,
+			boolean collectDocArray) {
+		super(docIdInterface, size, collectDocArray);
+		this.sourceScores = scoreDocInterface.getScores();
 		scores = new float[size];
 		maxScore = 0;
 	}

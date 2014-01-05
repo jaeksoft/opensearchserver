@@ -30,36 +30,25 @@ import java.text.ParseException;
 import org.apache.lucene.search.function.DocValues;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.util.Geospatial;
-import com.jaeksoft.searchlib.util.Geospatial.Location;
 
-public class DistanceDocValue extends DocValues {
+public class DecimalDocValue extends DocValues {
 
-	private final Location location;
-	private final FieldCacheIndex latitudeSi;
-	private final FieldCacheIndex longitudeSi;
+	private final FieldCacheIndex stringIndex;
 	private final DecimalFormat decimalFormat;
-	private final double radius;
 
-	public DistanceDocValue(final Location location, final double radius,
-			final FieldCacheIndex latitudeSi,
-			final FieldCacheIndex longitudeSi, final DecimalFormat decimalFormat) {
-		this.location = location;
-		this.radius = radius;
-		this.latitudeSi = latitudeSi;
-		this.longitudeSi = longitudeSi;
+	public DecimalDocValue(final FieldCacheIndex stringIndex,
+			final DecimalFormat decimalFormat) {
+		this.stringIndex = stringIndex;
 		this.decimalFormat = decimalFormat;
 	}
 
 	@Override
 	final public float floatVal(final int doc) {
 		try {
-			float lat = decimalFormat.parse(
-					latitudeSi.lookup[latitudeSi.order[doc]]).floatValue();
-			float lon = decimalFormat.parse(
-					longitudeSi.lookup[longitudeSi.order[doc]]).floatValue();
-			return (float) Geospatial.distance(location.latitude,
-					location.longitude, lat, lon, radius);
+			String s = stringIndex.lookup[stringIndex.order[doc]];
+			if (s == null)
+				return 0;
+			return decimalFormat.parse(s).floatValue();
 		} catch (ParseException e) {
 			return 0;
 		}
@@ -67,7 +56,7 @@ public class DistanceDocValue extends DocValues {
 
 	@Override
 	final public String toString(final int doc) {
-		StringBuilder sb = new StringBuilder("distance(");
+		StringBuilder sb = new StringBuilder("decimal(");
 		sb.append(floatVal(doc));
 		sb.append(')');
 		return sb.toString();

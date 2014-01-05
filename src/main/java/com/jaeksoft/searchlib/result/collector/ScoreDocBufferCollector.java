@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,37 +26,39 @@ package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.ArrayUtils;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
-public class ScoreDocCollector extends DocIdCollector implements
-		ScoreDocInterface {
+public class ScoreDocBufferCollector extends AbstractDocSetHitCollector
+		implements ScoreDocInterface, DocSetHitCollectorInterface {
 
-	protected float maxScore = 0;
-	protected float[] scores;
+	private float maxScore = 0;
+	private FloatBufferedArray scoreCollector;
+	private float[] scores;
 
-	public ScoreDocCollector(int maxDoc, int numFound) {
-		super(maxDoc, numFound);
-		scores = new float[numFound];
-	}
-
-	protected ScoreDocCollector(ScoreDocCollector src) {
-		super(src);
-		this.maxScore = src.maxScore;
-		this.scores = ArrayUtils.clone(src.scores);
+	public ScoreDocBufferCollector(final DocSetHitCollector base) {
+		super(base);
+		scoreCollector = new FloatBufferedArray(base.getMaxDoc());
+		scores = null;
 	}
 
 	@Override
-	public DocIdInterface duplicate() {
-		return new ScoreDocCollector(this);
-	}
-
-	@Override
-	final public void collectDoc(int docId) throws IOException {
-		float sc = scorer.score();
+	final public void collectDoc(final int docId) throws IOException {
+		parent.collectDoc(docId);
+		float sc = base.score();
 		if (sc > maxScore)
 			maxScore = sc;
-		ids[currentPos] = docId;
-		scores[currentPos++] = sc;
+		scoreCollector.add(sc);
+	}
+
+	@Override
+	final public void endCollection() {
+		parent.endCollection();
+		scores = scoreCollector.getFinalArray();
+	}
+
+	@Override
+	final public int getSize() {
+		return scores == null ? 0 : scores.length;
 	}
 
 	@Override
@@ -65,13 +67,12 @@ public class ScoreDocCollector extends DocIdCollector implements
 	}
 
 	@Override
-	final public void swap(int i, int j) {
-		int id = ids[i];
-		float score = scores[i];
-		ids[i] = ids[j];
-		scores[i] = scores[j];
-		ids[j] = id;
-		scores[j] = score;
+	final public void swap(final int a, final int b) {
+		parent.swap(a, b);
+		float s1 = scores[a];
+		float s2 = scores[b];
+		scores[a] = s2;
+		scores[b] = s1;
 	}
 
 	@Override

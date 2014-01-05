@@ -40,10 +40,11 @@ public class JoinScoreDocCollector extends JoinDocCollector implements
 		scores = ScoreDocInterface.EMPTY_SCORES;
 	}
 
-	public JoinScoreDocCollector(ScoreDocInterface docs, int joinResultSize) {
-		super(docs, joinResultSize);
-		maxScore = docs.getMaxScore();
-		this.scores = ArrayUtils.clone(docs.getScores());
+	public JoinScoreDocCollector(DocIdInterface docIdInterface,
+			ScoreDocInterface scoreDocInterface, int joinResultSize) {
+		super(docIdInterface, joinResultSize);
+		maxScore = scoreDocInterface.getMaxScore();
+		this.scores = ArrayUtils.clone(scoreDocInterface.getScores());
 	}
 
 	private JoinScoreDocCollector(JoinScoreDocCollector src) {

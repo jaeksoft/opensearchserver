@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,13 +25,13 @@
 package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public abstract class AbstractStringIndexSorter extends AbstractDocIdSorter {
 
 	final protected FieldCacheIndex stringIndex;
 
-	public AbstractStringIndexSorter(final DocIdInterface collector,
+	public AbstractStringIndexSorter(final CollectorInterface collector,
 			final FieldCacheIndex stringIndex) {
 		super(collector);
 		this.stringIndex = stringIndex;

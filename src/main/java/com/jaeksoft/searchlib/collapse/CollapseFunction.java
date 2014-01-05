@@ -23,43 +23,21 @@
  **/
 package com.jaeksoft.searchlib.collapse;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
 
-import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
+import com.jaeksoft.searchlib.geo.GeoDistance;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.util.Geospatial;
-import com.jaeksoft.searchlib.util.Geospatial.Location;
 
 public class CollapseFunction {
 
 	static abstract class FunctionExecutor {
 
-		private NumberFormat numberFormat = DegreesRadiansFilter
-				.getRadiansFormat();
-
 		abstract String execute(final FieldCacheIndex stringIndex,
 				final int doc, final int[] collapsedDocs);
 
-		abstract String execute(final Location location, final double radius,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
+		abstract String execute(final GeoDistance geoDistance, final int doc,
 				final int[] collapsedDocs) throws ParseException;
 
-		final private double getRadians(final FieldCacheIndex stringIndex,
-				final int doc) throws ParseException {
-			return numberFormat.parse(
-					stringIndex.lookup[stringIndex.order[doc]]).doubleValue();
-		}
-
-		final protected double getDistance(final Location location,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
-				final double radius) throws ParseException {
-			return Geospatial.distance(location.latitude, location.longitude,
-					getRadians(stringIndexLatitude, doc),
-					getRadians(stringIndexLongitude, doc), radius);
-		}
 	}
 
 	static class FunctionMinimum extends FunctionExecutor {
@@ -77,15 +55,11 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final Location location, final double radius,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
+		final String execute(final GeoDistance geoDistance, final int doc,
 				final int[] collapsedDocs) throws ParseException {
-			double min = getDistance(location, stringIndexLatitude,
-					stringIndexLongitude, doc, radius);
+			double min = geoDistance.getDistance(doc);
 			for (int id : collapsedDocs) {
-				double val = getDistance(location, stringIndexLatitude,
-						stringIndexLongitude, id, radius);
+				double val = geoDistance.getDistance(id);
 				if (val < min)
 					min = val;
 			}
@@ -108,15 +82,11 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final Location location, final double radius,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
+		final String execute(final GeoDistance geoDistance, final int doc,
 				final int[] collapsedDocs) throws ParseException {
-			double max = getDistance(location, stringIndexLatitude,
-					stringIndexLongitude, doc, radius);
+			double max = geoDistance.getDistance(doc);
 			for (int id : collapsedDocs) {
-				double val = getDistance(location, stringIndexLatitude,
-						stringIndexLongitude, id, radius);
+				double val = geoDistance.getDistance(id);
 				if (val > max)
 					max = val;
 			}
@@ -139,17 +109,13 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final Location location, final double radius,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
+		final String execute(final GeoDistance geoDistance, final int doc,
 				final int[] collapsedDocs) throws ParseException {
 			StringBuilder sb = new StringBuilder();
-			sb.append(getDistance(location, stringIndexLatitude,
-					stringIndexLongitude, doc, radius));
+			sb.append(geoDistance.getDistance(doc));
 			for (int id : collapsedDocs) {
 				sb.append('|');
-				sb.append(getDistance(location, stringIndexLatitude,
-						stringIndexLongitude, id, radius));
+				sb.append(geoDistance.getDistance(id));
 			}
 			return sb.toString();
 		}
@@ -164,9 +130,7 @@ public class CollapseFunction {
 		}
 
 		@Override
-		String execute(final Location location, final double radius,
-				final FieldCacheIndex stringIndexLatitude,
-				final FieldCacheIndex stringIndexLongitude, final int doc,
+		String execute(final GeoDistance geoDistance, final int doc,
 				final int[] collapsedDocs) throws ParseException {
 			return Integer.toString(collapsedDocs.length + 1);
 		}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,20 +24,29 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import java.io.IOException;
+abstract class AbstractDocSetHitCollector implements
+		DocSetHitCollectorInterface {
 
-public class MaxScoreCollector extends AbstractCollector {
+	protected final DocSetHitCollector base;
+	protected final DocSetHitCollectorInterface parent;
 
-	private float maxScore = 0;
+	protected AbstractDocSetHitCollector(final DocSetHitCollector base) {
+		this.parent = base.setLastCollector(this);
+		this.base = base;
+	}
 
 	@Override
-	final public void collectDoc(final int docId) throws IOException {
-		float sc = scorer.score();
-		if (sc > maxScore)
-			maxScore = sc;
+	final public int getMaxDoc() {
+		return base.getMaxDoc();
 	}
 
-	final public float getMaxScore() {
-		return maxScore;
+	@SuppressWarnings("unchecked")
+	@Override
+	final public <T extends CollectorInterface> T getCollector(
+			Class<T> collectorType) {
+		if (collectorType.isInstance(this))
+			return (T) this;
+		return parent.getCollector(collectorType);
 	}
+
 }

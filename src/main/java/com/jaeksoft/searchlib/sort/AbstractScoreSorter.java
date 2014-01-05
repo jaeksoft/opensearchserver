@@ -24,19 +24,20 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 
 public abstract class AbstractScoreSorter extends SorterAbstract {
 
 	final protected float[] scores;
 
-	protected AbstractScoreSorter(final DocIdInterface collector) {
+	protected AbstractScoreSorter(final CollectorInterface collector) {
 		super(collector);
-		if (collector instanceof ScoreDocInterface)
-			scores = ((ScoreDocInterface) collector).getScores();
-		else
+		ScoreDocInterface scoreCollector = collector
+				.getCollector(ScoreDocInterface.class);
+		if (scoreCollector == null)
 			throw new RuntimeException("Wrong collector " + collector);
+		scores = scoreCollector.getScores();
 	}
 
 	@Override

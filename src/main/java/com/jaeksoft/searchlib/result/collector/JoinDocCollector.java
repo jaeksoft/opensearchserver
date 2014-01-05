@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,18 +37,18 @@ import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class JoinDocCollector implements JoinDocInterface {
+public class JoinDocCollector extends AbstractCollector implements
+		JoinDocInterface {
 
 	public final static JoinDocCollector EMPTY = new JoinDocCollector();
 
-	protected final int maxDoc;
 	protected final int[] ids;
 	protected final int[][] foreignDocIdsArray;
 	protected OpenBitSet bitSet;
 	protected final int joinResultSize;
 
 	protected JoinDocCollector() {
-		maxDoc = 0;
+		super(null, 0);
 		ids = new int[0];
 		foreignDocIdsArray = new int[0][0];
 		bitSet = null;
@@ -56,8 +56,8 @@ public class JoinDocCollector implements JoinDocInterface {
 	}
 
 	public JoinDocCollector(DocIdInterface docs, int joinResultSize) {
+		super(null, docs.getMaxDoc());
 		this.bitSet = null;
-		this.maxDoc = docs.getMaxDoc();
 		this.ids = ArrayUtils.clone(docs.getIds());
 		this.foreignDocIdsArray = new int[ids.length][];
 		if (docs instanceof JoinDocCollector)
@@ -74,11 +74,11 @@ public class JoinDocCollector implements JoinDocInterface {
 	}
 
 	protected JoinDocCollector(int joinResultSize, int idsLength, int maxDoc) {
+		super(null, maxDoc);
 		this.bitSet = null;
 		this.joinResultSize = joinResultSize;
 		this.ids = new int[idsLength];
 		this.foreignDocIdsArray = new int[idsLength][];
-		this.maxDoc = maxDoc;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class JoinDocCollector implements JoinDocInterface {
 	 * 
 	 * @param src
 	 */
-	protected JoinDocCollector(JoinDocCollector src) {
+	private JoinDocCollector(final JoinDocCollector src) {
 		this(src.joinResultSize, validSize(src.ids), src.maxDoc);
 		int i1 = 0;
 		int i2 = 0;
@@ -157,11 +157,6 @@ public class JoinDocCollector implements JoinDocInterface {
 	}
 
 	@Override
-	public int getMaxDoc() {
-		return maxDoc;
-	}
-
-	@Override
 	public void setForeignDocId(int pos, int joinResultPos, int foreignDocId,
 			float foreignScore) {
 		int[] foreignDocIds = foreignDocIdsArray[pos];
@@ -194,7 +189,7 @@ public class JoinDocCollector implements JoinDocInterface {
 		DocIdCollector docIdCollector = new DocIdCollector(maxDoc,
 				joinDocColletor.getIds().length);
 		for (int[] foreinDocs : joinDocColletor.getForeignDocIdsArray())
-			docIdCollector.collect(foreinDocs[joinPosition]);
+			docIdCollector.collectDoc(foreinDocs[joinPosition]);
 		return docIdCollector;
 	}
 
@@ -292,8 +287,10 @@ public class JoinDocCollector implements JoinDocInterface {
 			return joinType == JoinType.INNER ? emptyDocs : docs;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
-		JoinDocInterface docs1 = (docs instanceof ScoreDocInterface) ? new JoinScoreDocCollector(
-				(ScoreDocInterface) docs, joinResultSize)
+		ScoreDocInterface scoreDocInterface = docs
+				.getCollector(ScoreDocInterface.class);
+		JoinDocInterface docs1 = scoreDocInterface != null ? new JoinScoreDocCollector(
+				docs, scoreDocInterface, joinResultSize)
 				: new JoinDocCollector(docs, joinResultSize);
 		new AscStringIndexSorter(docs1, doc1StringIndex).quickSort(t);
 		t.getDuration();
