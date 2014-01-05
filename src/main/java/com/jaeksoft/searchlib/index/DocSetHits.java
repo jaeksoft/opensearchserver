@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdBufferCollector;
 import com.jaeksoft.searchlib.result.collector.DocSetHitCollector;
 import com.jaeksoft.searchlib.result.collector.DocSetHitCollectorInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreDocBufferCollector;
+import com.jaeksoft.searchlib.result.collector.ScoreBufferCollector;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
@@ -47,7 +47,7 @@ public class DocSetHits {
 
 	private final DocSetHitCollector docSetHitCollector;
 	private final DocIdBufferCollector docIdBufferCollector;
-	private final ScoreDocBufferCollector scoreDocBufferCollector;
+	private final ScoreBufferCollector scoreBufferCollector;
 	private final DocSetHitCollectorInterface lastCollector;
 
 	protected DocSetHits(ReaderLocal reader,
@@ -58,17 +58,17 @@ public class DocSetHits {
 		if (reader.numDocs() == 0) {
 			docSetHitCollector = null;
 			docIdBufferCollector = null;
-			scoreDocBufferCollector = null;
+			scoreBufferCollector = null;
 			lastCollector = null;
 			return;
 		}
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitCollector(
 				reader.maxDoc());
 		if (searchRequest.isScoreRequired())
-			last = scoreDocBufferCollector = new ScoreDocBufferCollector(
+			last = scoreBufferCollector = new ScoreBufferCollector(
 					docSetHitCollector);
 		else
-			scoreDocBufferCollector = null;
+			scoreBufferCollector = null;
 		if (searchRequest.isDocIdRequired())
 			last = docIdBufferCollector = new DocIdBufferCollector(
 					docSetHitCollector);
@@ -104,15 +104,15 @@ public class DocSetHits {
 	}
 
 	final public float[] getScores() {
-		if (scoreDocBufferCollector == null)
+		if (scoreBufferCollector == null)
 			return null;
-		return scoreDocBufferCollector.getScores();
+		return scoreBufferCollector.getScores();
 	}
 
 	final public float getMaxScore() {
-		if (scoreDocBufferCollector == null)
+		if (scoreBufferCollector == null)
 			return 0;
-		return scoreDocBufferCollector.getMaxScore();
+		return scoreBufferCollector.getMaxScore();
 	}
 
 	final public <T extends CollectorInterface> T getCollector(

@@ -27,15 +27,14 @@ package com.jaeksoft.searchlib.result.collector;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class CollapseScoreDocCollector extends CollapseDocIdCollector implements
-		CollapseDocInterface, ScoreDocInterface {
+		CollapseDocInterface, ScoreInterface {
 
 	private float maxScore;
 	protected final float[] sourceScores;
 	protected final float[] scores;
 
 	public CollapseScoreDocCollector(DocIdInterface docIdInterface,
-			ScoreDocInterface scoreDocInterface, int size,
-			boolean collectDocArray) {
+			ScoreInterface scoreDocInterface, int size, boolean collectDocArray) {
 		super(docIdInterface, size, collectDocArray);
 		this.sourceScores = scoreDocInterface.getScores();
 		scores = new float[size];

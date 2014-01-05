@@ -40,13 +40,15 @@ abstract class AbstractDocSetHitCollector implements
 		return base.getMaxDoc();
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	final public DocSetHitCollectorInterface getParent() {
+		return parent;
+	}
+
 	@Override
 	final public <T extends CollectorInterface> T getCollector(
 			Class<T> collectorType) {
-		if (collectorType.isInstance(this))
-			return (T) this;
-		return parent.getCollector(collectorType);
+		return base.findCollector(collectorType);
 	}
 
 }

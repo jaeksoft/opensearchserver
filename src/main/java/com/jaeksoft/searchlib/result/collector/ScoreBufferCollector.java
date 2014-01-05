@@ -28,14 +28,14 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
-public class ScoreDocBufferCollector extends AbstractDocSetHitCollector
-		implements ScoreDocInterface, DocSetHitCollectorInterface {
+public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
+		ScoreInterface, DocSetHitCollectorInterface {
 
 	private float maxScore = 0;
 	private FloatBufferedArray scoreCollector;
 	private float[] scores;
 
-	public ScoreDocBufferCollector(final DocSetHitCollector base) {
+	public ScoreBufferCollector(final DocSetHitCollector base) {
 		super(base);
 		scoreCollector = new FloatBufferedArray(base.getMaxDoc());
 		scores = null;

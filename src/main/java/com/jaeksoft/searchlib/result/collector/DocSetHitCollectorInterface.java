@@ -28,6 +28,8 @@ import java.io.IOException;
 
 public interface DocSetHitCollectorInterface extends CollectorInterface {
 
+	DocSetHitCollectorInterface getParent();
+
 	void collectDoc(final int doc) throws IOException;
 
 	void endCollection();

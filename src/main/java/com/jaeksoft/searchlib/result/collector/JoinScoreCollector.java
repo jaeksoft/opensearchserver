@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,28 +26,28 @@ package com.jaeksoft.searchlib.result.collector;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class JoinScoreDocCollector extends JoinDocCollector implements
-		ScoreDocInterface {
+public class JoinScoreCollector extends JoinDocCollector implements
+		ScoreInterface {
 
-	public final static JoinScoreDocCollector EMPTY = new JoinScoreDocCollector();
+	public final static JoinScoreCollector EMPTY = new JoinScoreCollector();
 
 	private final float maxScore;
 	private final float[] scores;
 
-	public JoinScoreDocCollector() {
+	public JoinScoreCollector() {
 		super();
 		maxScore = 0;
-		scores = ScoreDocInterface.EMPTY_SCORES;
+		scores = ScoreInterface.EMPTY_SCORES;
 	}
 
-	public JoinScoreDocCollector(DocIdInterface docIdInterface,
-			ScoreDocInterface scoreDocInterface, int joinResultSize) {
+	public JoinScoreCollector(DocIdInterface docIdInterface,
+			ScoreInterface scoreDocInterface, int joinResultSize) {
 		super(docIdInterface, joinResultSize);
 		maxScore = scoreDocInterface.getMaxScore();
 		this.scores = ArrayUtils.clone(scoreDocInterface.getScores());
 	}
 
-	private JoinScoreDocCollector(JoinScoreDocCollector src) {
+	private JoinScoreCollector(JoinScoreCollector src) {
 		super(src.joinResultSize, validSize(src.ids), src.maxDoc);
 		scores = new float[ids.length];
 		int i1 = 0;
@@ -70,7 +70,7 @@ public class JoinScoreDocCollector extends JoinDocCollector implements
 
 	@Override
 	public DocIdInterface duplicate() {
-		return new JoinScoreDocCollector(this);
+		return new JoinScoreCollector(this);
 	}
 
 	@Override

@@ -107,7 +107,23 @@ final public class DocSetHitCollector extends Collector implements
 	@Override
 	final public <T extends CollectorInterface> T getCollector(
 			Class<T> collectorType) {
-		return (T) (collectorType.isInstance(this) ? this : null);
+		return collectorType.isInstance(this) ? (T) this : null;
+	}
+
+	@SuppressWarnings("unchecked")
+	<T extends CollectorInterface> T findCollector(Class<T> collectorType) {
+		DocSetHitCollectorInterface current = collectorInterface;
+		while (current != null) {
+			if (collectorType.isInstance(current))
+				return (T) current;
+			current = current.getParent();
+		}
+		return null;
+	}
+
+	@Override
+	public DocSetHitCollectorInterface getParent() {
+		return null;
 	}
 
 }
