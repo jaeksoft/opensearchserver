@@ -25,9 +25,6 @@
 package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Memory;
@@ -46,10 +43,10 @@ public class OsseFastStringArray extends DisposableMemory {
 
 	private final DisposableMemory fullBytes;
 
-	public OsseFastStringArray(String[] strings, int length)
+	public OsseFastStringArray(final String[] strings, final int length)
 			throws UnsupportedEncodingException {
 		super((length + 1) * Pointer.SIZE);
-		List<byte[]> bytesArray = new ArrayList<byte[]>(length);
+		byte[][] bytesArray = new byte[length][];
 		long totalSize = populateBytesCollection(strings, length, bytesArray);
 		fullBytes = mallocOfBytesCollection(totalSize, bytesArray);
 	}
@@ -63,37 +60,44 @@ public class OsseFastStringArray extends DisposableMemory {
 	 * @throws UnsupportedEncodingException
 	 */
 	private static final long populateBytesCollection(final String[] strings,
-			final int length, final Collection<byte[]> bytesCollection)
+			final int length, final byte[][] bytesCollection)
 			throws UnsupportedEncodingException {
 		long size = 0;
-		for (int i = 0; i < length; i++) {
-			String string = strings[i];
+		int i = 0;
+		int pos = 0;
+		for (String string : strings) {
+			if (pos == length)
+				break;
+			pos++;
 			if (string == null)
 				continue;
-			byte[] bytes = string.getBytes("UTF-8");
+			final byte[] bytes = string.getBytes("UTF-8");
 			// DEBUG
 			// System.out.println(i + " " + string + " (" + string.length() +
 			// "/"
 			// + bytes.length + ")");
-			bytesCollection.add(bytes);
+			bytesCollection[i++] = bytes;
 			size += bytes.length + 1;
 		}
 		return size;
 	}
 
-	private final DisposableMemory mallocOfBytesCollection(
-			final long totalSize, final Collection<byte[]> bytesCollection) {
+	private final DisposableMemory mallocOfBytesCollection(long totalSize,
+			final byte[][] bytesCollection) {
 		final DisposableMemory memory = new DisposableMemory(totalSize);
 		final long peer = Memory.nativeValue(memory);
 		long offset = 0;
 		int i = 0;
 		for (byte[] bytes : bytesCollection) {
+			if (totalSize == 0)
+				break;
 			setPointer(Pointer.SIZE * i, new Pointer(peer + offset));
 			memory.write(offset, bytes, 0, bytes.length);
 			offset += bytes.length;
 			memory.setByte(offset, (byte) 0);
 			offset++;
 			i++;
+			totalSize -= bytes.length;
 		}
 		setPointer(Pointer.SIZE * i, null);
 		return memory;

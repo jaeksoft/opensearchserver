@@ -66,7 +66,8 @@ public class OsseLibrary {
 			Pointer hExtErrInfo);
 
 	public static native Pointer OSSCLib_MsTransact_Begin(Pointer hMsIndex,
-			WString lpwszNewSegmentDirectoryName, Pointer hExtErrInfo);
+			WString lpwszNewSegmentDirectoryName, int ui32MaxNumberOfNewDocs,
+			Pointer hExtErrInfo);
 
 	public static native int OSSCLib_MsTransact_Document_GetNewDocId(
 			Pointer hMsTransact, Pointer hExtErrInfo);

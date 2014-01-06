@@ -54,14 +54,17 @@ public class OsseTransaction implements Closeable {
 
 	final private Map<String, Pointer> transactFieldPtrMap;
 
-	public OsseTransaction(OsseIndex index) throws SearchLibException {
+	public final static boolean FAKE_MODE = false;
+
+	public OsseTransaction(OsseIndex index, int maxBufferSize)
+			throws SearchLibException {
 		l.lock();
 		try {
 			err = new OsseErrorHandler();
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_Begin ", index.getPointer().toString());
 			transactPtr = OsseLibrary.OSSCLib_MsTransact_Begin(
-					index.getPointer(), null, err.getPointer());
+					index.getPointer(), null, maxBufferSize, err.getPointer());
 			et.end();
 			if (transactPtr == null)
 				err.throwError();
@@ -89,6 +92,8 @@ public class OsseTransaction implements Closeable {
 	final public int newDocumentId() throws SearchLibException {
 		l.lock();
 		try {
+			if (FAKE_MODE)
+				return 0;
 			ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
 			int documentId = OsseLibrary
@@ -186,6 +191,8 @@ public class OsseTransaction implements Closeable {
 		try {
 			ofsa = new OsseFastStringArray(buffer.terms, length);
 			Pointer transactFieldPtr = getExistingField(field);
+			if (FAKE_MODE)
+				return;
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_Document_AddStringTerms",
 					transactFieldPtr.toString(), " ",
@@ -209,6 +216,8 @@ public class OsseTransaction implements Closeable {
 	final public void rollback() throws SearchLibException {
 		l.lock();
 		try {
+			if (FAKE_MODE)
+				return;
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_RollBack ", transactPtr.toString());
 			if (!OsseLibrary.OSSCLib_MsTransact_RollBack(transactPtr,
