@@ -296,7 +296,7 @@ public class ResultDocument {
 	final public static int[] getDocIds(DocIdInterface docs) {
 		if (docs == null)
 			return null;
-		return ((ScoreDocInterface) docs).getIds();
+		return docs.getIds();
 	}
 
 	final public static int getCollapseCount(DocIdInterface docs, int pos) {

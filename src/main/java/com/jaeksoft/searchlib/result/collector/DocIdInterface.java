@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,22 +24,14 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import it.unimi.dsi.fastutil.Swapper;
-
 import org.apache.lucene.util.OpenBitSet;
 
-public interface DocIdInterface extends Swapper {
+public interface DocIdInterface extends CollectorInterface {
 
-	@Override
-	public void swap(int pos1, int pos2);
+	int[] getIds();
 
-	public int[] getIds();
+	OpenBitSet getBitSet();
 
-	public int getSize();
+	DocIdInterface duplicate();
 
-	public OpenBitSet getBitSet();
-
-	public int getMaxDoc();
-
-	public DocIdInterface duplicate();
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import java.io.IOException;
 
-public class AscScoreSorter extends AbstractScoreSorter {
+public interface DocSetHitCollectorInterface extends CollectorInterface {
 
-	public AscScoreSorter(final CollectorInterface collector) {
-		super(collector);
-	}
+	void collectDoc(final int doc) throws IOException;
 
-	@Override
-	final public int compare(final int pos1, final int pos2) {
-		float s1 = scores[pos1];
-		float s2 = scores[pos2];
-		if (s1 > s2)
-			return 1;
-		else if (s1 < s2)
-			return -1;
-		else
-			return 0;
-	}
+	void endCollection();
 
 }

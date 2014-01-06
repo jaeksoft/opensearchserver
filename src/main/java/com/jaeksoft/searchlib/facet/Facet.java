@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -127,12 +127,12 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetMultivalued(ReaderAbstract reader,
-			DocIdInterface collector, FacetField facetField, Timer timer)
+			DocIdInterface docIdInterface, FacetField facetField, Timer timer)
 			throws IOException, SearchLibException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
-				collector.getBitSet());
+				docIdInterface.getBitSet());
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 

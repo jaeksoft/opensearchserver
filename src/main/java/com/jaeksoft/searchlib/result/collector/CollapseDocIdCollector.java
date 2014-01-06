@@ -27,8 +27,8 @@ package com.jaeksoft.searchlib.result.collector;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-public class CollapseDocIdCollector implements CollapseDocInterface,
-		JoinDocInterface {
+public class CollapseDocIdCollector extends AbstractCollector implements
+		CollapseDocInterface, JoinDocInterface {
 
 	protected final int[][] foreignDocIdsArray;
 	protected final int[] sourceIds;
@@ -42,6 +42,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 
 	public CollapseDocIdCollector(DocIdInterface sourceCollector, int size,
 			boolean collectDocArray) {
+		super(null, sourceCollector.getMaxDoc());
 		if (sourceCollector instanceof JoinDocInterface) {
 			foreignDocIdsArray = ((JoinDocInterface) sourceCollector)
 					.getForeignDocIdsArray();
@@ -58,6 +59,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 	}
 
 	protected CollapseDocIdCollector(CollapseDocIdCollector src) {
+		super(null, src.maxDoc);
 		if (src.foreignDocIdsArray != null)
 			foreignDocIdsArray = JoinDocCollector
 					.copyForeignDocIdsArray(src.foreignDocIdsArray);
@@ -78,7 +80,7 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 
 	@Override
 	public DocIdInterface duplicate() {
-		return new CollapseDocIdCollector(this);
+		return null;
 	}
 
 	@Override
@@ -147,11 +149,6 @@ public class CollapseDocIdCollector implements CollapseDocInterface,
 		for (int id : ids)
 			bitSet.fastSet(id);
 		return bitSet;
-	}
-
-	@Override
-	public int getMaxDoc() {
-		return maxDoc;
 	}
 
 	@Override

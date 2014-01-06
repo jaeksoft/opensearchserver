@@ -209,12 +209,14 @@ public abstract class CollapseAbstract {
 		}
 	}
 
-	protected static CollapseDocInterface getNewCollapseInterfaceInstance(
-			DocIdInterface collector, int capacity, boolean collectDocArray) {
-		if (collector instanceof ScoreDocInterface)
-			return new CollapseScoreDocCollector((ScoreDocInterface) collector,
-					capacity, collectDocArray);
-		return new CollapseDocIdCollector(collector, capacity, collectDocArray);
+	final protected static CollapseDocInterface getNewCollapseInterfaceInstance(
+			final DocIdInterface collector, final int capacity,
+			final boolean collectDocArray) {
+		ScoreDocInterface scoreDocInterface = collector
+				.getCollector(ScoreDocInterface.class);
+		return scoreDocInterface != null ? new CollapseScoreDocCollector(
+				collector, scoreDocInterface, capacity, collectDocArray)
+				: new CollapseDocIdCollector(collector, capacity,
+						collectDocArray);
 	}
-
 }
