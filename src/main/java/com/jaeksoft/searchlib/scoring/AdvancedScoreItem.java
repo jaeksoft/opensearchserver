@@ -27,10 +27,15 @@ package com.jaeksoft.searchlib.scoring;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AdvancedScoreItem {
+
+	public static enum Type {
+		DISTANCE, FIELD_ORDER;
+	}
 
 	public final static String SCORE_ITEM_FIELD_ATTR = "fieldName";
 
@@ -38,16 +43,21 @@ public class AdvancedScoreItem {
 
 	public final static String SCORE_ITEM_WEIGHT_ATTR = "weight";
 
+	public final static String SCORE_ITEM_TYPE_ATTR = "type";
+
 	private boolean ascending;
 
 	private String fieldName;
 
 	private float weight;
 
+	private Type type;
+
 	public AdvancedScoreItem() {
 		fieldName = null;
 		ascending = false;
 		weight = 1.0F;
+		type = Type.FIELD_ORDER;
 	}
 
 	public AdvancedScoreItem(AdvancedScoreItem from) {
@@ -58,6 +68,7 @@ public class AdvancedScoreItem {
 		this.ascending = from.ascending;
 		this.fieldName = from.fieldName;
 		this.weight = from.weight;
+		this.type = from.type;
 	}
 
 	public AdvancedScoreItem(Node node) {
@@ -67,6 +78,8 @@ public class AdvancedScoreItem {
 				.getAttributeString(node, SCORE_ITEM_ASCENDING_ATTR));
 		this.weight = XPathParser.getAttributeFloat(node,
 				SCORE_ITEM_WEIGHT_ATTR);
+		this.type = DomUtils.getAttributeEnum(node, SCORE_ITEM_TYPE_ATTR,
+				Type.values(), Type.FIELD_ORDER);
 	}
 
 	/**
@@ -82,6 +95,22 @@ public class AdvancedScoreItem {
 	 */
 	public void setAscending(boolean ascending) {
 		this.ascending = ascending;
+	}
+
+	/**
+	 * @return the type
+	 */
+	final public Type getType() {
+		return type;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            the type to set
+	 */
+	final public void setType(Type type) {
+		this.type = type;
 	}
 
 	public final static String ASCENDING = "ascending";
@@ -130,20 +159,23 @@ public class AdvancedScoreItem {
 		xmlWriter.startElement(AdvancedScore.ADVANCED_SCORE_ITEM_NODE,
 				SCORE_ITEM_FIELD_ATTR, fieldName, SCORE_ITEM_ASCENDING_ATTR,
 				Boolean.toString(ascending), SCORE_ITEM_WEIGHT_ATTR,
-				Float.toString(weight));
+				Float.toString(weight), SCORE_ITEM_TYPE_ATTR, type.name());
 		xmlWriter.endElement();
 	}
 
 	public String name() {
 		StringBuilder sb = new StringBuilder();
-		if (ascending)
-			sb.append("ord(");
-		else
-			sb.append("rord(");
-		sb.append(fieldName);
+		switch (type) {
+		case FIELD_ORDER:
+			sb.append(ascending ? "ord(" : "rord(");
+			sb.append(fieldName);
+			break;
+		case DISTANCE:
+			sb.append(ascending ? "dist(" : "rdist(");
+			break;
+		}
 		sb.append(")*");
 		sb.append(weight);
 		return sb.toString();
 	}
-
 }

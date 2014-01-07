@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,25 +22,44 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.scoring;
+
+import java.text.DecimalFormat;
+import java.text.ParseException;
+
+import org.apache.lucene.search.function.DocValues;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
-import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-public abstract class AbstractStringIndexSorter extends AbstractDocIdSorter {
+public class DecimalDocValue extends DocValues {
 
-	final protected FieldCacheIndex stringIndex;
+	private final FieldCacheIndex stringIndex;
+	private final DecimalFormat decimalFormat;
 
-	public AbstractStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex) {
-		super(collector);
+	public DecimalDocValue(final FieldCacheIndex stringIndex,
+			final DecimalFormat decimalFormat) {
 		this.stringIndex = stringIndex;
+		this.decimalFormat = decimalFormat;
 	}
 
 	@Override
-	public String toString(final int pos) {
-		StringBuilder sb = new StringBuilder("StringIndex: ");
-		sb.append(stringIndex.lookup[stringIndex.order[ids[pos]]]);
+	final public float floatVal(final int doc) {
+		try {
+			String s = stringIndex.lookup[stringIndex.order[doc]];
+			if (s == null)
+				return 0;
+			return decimalFormat.parse(s).floatValue();
+		} catch (ParseException e) {
+			return 0;
+		}
+	}
+
+	@Override
+	final public String toString(final int doc) {
+		StringBuilder sb = new StringBuilder("decimal(");
+		sb.append(floatVal(doc));
+		sb.append(')');
 		return sb.toString();
 	}
+
 }

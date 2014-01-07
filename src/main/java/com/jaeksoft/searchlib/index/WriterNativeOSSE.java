@@ -86,7 +86,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			return fieldMap;
 		OsseTransaction transaction = null;
 		try {
-			transaction = new OsseTransaction(index);
+			transaction = new OsseTransaction(index, 0);
 			for (FieldInfo fieldToDelete : fieldsToDelete)
 				transaction.deleteField(fieldToDelete);
 			for (SchemaField schemaField : fieldsToCreate)
@@ -174,9 +174,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 		try {
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
-			transaction = new OsseTransaction(index);
+			transaction = new OsseTransaction(index, 1);
 			updateDoc(transaction, fieldMap, schema, document);
-			transaction.commit();
+			if (!OsseTransaction.FAKE_MODE)
+				transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -194,13 +195,14 @@ public class WriterNativeOSSE extends WriterAbstract {
 				return 0;
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
-			transaction = new OsseTransaction(index);
+			transaction = new OsseTransaction(index, documents.size());
 			int i = 0;
 			for (IndexDocument document : documents) {
 				updateDoc(transaction, fieldMap, schema, document);
 				i++;
 			}
-			transaction.commit();
+			if (!OsseTransaction.FAKE_MODE)
+				transaction.commit();
 			return i;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

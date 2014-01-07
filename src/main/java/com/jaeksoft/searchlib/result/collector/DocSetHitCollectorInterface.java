@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,12 +24,14 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-public interface ScoreDocInterface extends DocIdInterface {
+import java.io.IOException;
 
-	public final static float[] EMPTY_SCORES = new float[0];
+public interface DocSetHitCollectorInterface extends CollectorInterface {
 
-	public float[] getScores();
+	DocSetHitCollectorInterface getParent();
 
-	public float getMaxScore();
+	void collectDoc(final int doc) throws IOException;
+
+	void endCollection();
 
 }

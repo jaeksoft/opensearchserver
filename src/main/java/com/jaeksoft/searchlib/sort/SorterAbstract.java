@@ -27,14 +27,14 @@ package com.jaeksoft.searchlib.sort;
 import it.unimi.dsi.fastutil.Arrays;
 import it.unimi.dsi.fastutil.ints.IntComparator;
 
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class SorterAbstract implements IntComparator {
 
-	private DocIdInterface collector;
+	private final CollectorInterface collector;
 
-	protected SorterAbstract(DocIdInterface collector) {
+	protected SorterAbstract(final CollectorInterface collector) {
 		this.collector = collector;
 	}
 
@@ -46,8 +46,9 @@ public abstract class SorterAbstract implements IntComparator {
 	}
 
 	public void quickSort(Timer timer) {
-		Timer t = new Timer(timer, "Sort (quicksort): " + collector.getSize());
-		Arrays.quickSort(0, collector.getSize(), this, collector);
+		int numFound = collector.getSize();
+		Timer t = new Timer(timer, "Sort (quicksort): " + numFound);
+		Arrays.quickSort(0, numFound, this, collector);
 		t.getDuration();
 		// check(timer);
 	}

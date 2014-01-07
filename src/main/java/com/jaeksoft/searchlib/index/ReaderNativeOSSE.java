@@ -159,8 +159,8 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 				this, defaultField, searchRequest.getAnalyzer(), searchRequest,
 				timer);
 
-		DocSetHits dsh = new DocSetHits(this, searchRequest.getQuery(),
-				filterHits, searchRequest.getSortFieldList(), timer);
+		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits,
+				searchRequest.getSortFieldList(), timer);
 		return dsh;
 	}
 

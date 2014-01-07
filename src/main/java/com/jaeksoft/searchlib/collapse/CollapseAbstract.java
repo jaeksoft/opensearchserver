@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.result.collector.CollapseDocIdCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.CollapseScoreDocCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAbstract {
@@ -209,12 +209,14 @@ public abstract class CollapseAbstract {
 		}
 	}
 
-	protected static CollapseDocInterface getNewCollapseInterfaceInstance(
-			DocIdInterface collector, int capacity, boolean collectDocArray) {
-		if (collector instanceof ScoreDocInterface)
-			return new CollapseScoreDocCollector((ScoreDocInterface) collector,
-					capacity, collectDocArray);
-		return new CollapseDocIdCollector(collector, capacity, collectDocArray);
+	final protected static CollapseDocInterface getNewCollapseInterfaceInstance(
+			final DocIdInterface collector, final int capacity,
+			final boolean collectDocArray) {
+		ScoreInterface scoreInterface = collector
+				.getCollector(ScoreInterface.class);
+		return scoreInterface != null ? new CollapseScoreDocCollector(
+				collector, scoreInterface, capacity, collectDocArray)
+				: new CollapseDocIdCollector(collector, capacity,
+						collectDocArray);
 	}
-
 }

@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreDocInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -277,26 +276,10 @@ public class ResultDocument {
 		return functionFieldValue;
 	}
 
-	final public static float getScore(final DocIdInterface docs, final int pos) {
-		if (docs == null)
-			return 0;
-		if (!(docs instanceof ScoreDocInterface))
-			return 0;
-		return ((ScoreDocInterface) docs).getScores()[pos];
-	}
-
-	final public static float[] getScores(DocIdInterface docs) {
-		if (docs == null)
-			return null;
-		if (!(docs instanceof ScoreDocInterface))
-			return null;
-		return ((ScoreDocInterface) docs).getScores();
-	}
-
 	final public static int[] getDocIds(DocIdInterface docs) {
 		if (docs == null)
 			return null;
-		return ((ScoreDocInterface) docs).getIds();
+		return docs.getIds();
 	}
 
 	final public static int getCollapseCount(DocIdInterface docs, int pos) {

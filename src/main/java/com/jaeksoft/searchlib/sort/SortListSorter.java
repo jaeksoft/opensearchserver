@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.sort;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.index.ReaderAbstract;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class SortListSorter extends SorterAbstract {
@@ -35,7 +35,8 @@ public class SortListSorter extends SorterAbstract {
 	final private SorterAbstract[] sorterList;
 
 	protected SortListSorter(final SortFieldList sortFieldList,
-			DocIdInterface collector, ReaderAbstract reader) throws IOException {
+			final CollectorInterface collector, final ReaderAbstract reader)
+			throws IOException {
 		super(collector);
 		sorterList = new SorterAbstract[sortFieldList.size()];
 		int i = 0;

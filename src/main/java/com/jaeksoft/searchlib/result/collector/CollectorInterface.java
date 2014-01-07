@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,26 +22,19 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import it.unimi.dsi.fastutil.Swapper;
 
-public class AscScoreSorter extends AbstractScoreSorter {
+public interface CollectorInterface extends Swapper {
 
-	public AscScoreSorter(final CollectorInterface collector) {
-		super(collector);
-	}
+	int getSize();
+
+	int getMaxDoc();
 
 	@Override
-	final public int compare(final int pos1, final int pos2) {
-		float s1 = scores[pos1];
-		float s2 = scores[pos2];
-		if (s1 > s2)
-			return 1;
-		else if (s1 < s2)
-			return -1;
-		else
-			return 0;
-	}
+	void swap(final int a, final int b);
+
+	<T extends CollectorInterface> T getCollector(Class<T> collectorType);
 
 }

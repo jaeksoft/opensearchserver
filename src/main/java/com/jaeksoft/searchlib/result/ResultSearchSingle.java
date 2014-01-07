@@ -72,9 +72,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest, timer);
-		numFound = docSetHits.getDocNumFound();
+		numFound = docSetHits.getNumFound();
 
-		DocIdInterface notCollapsedDocs = docSetHits.getDocIdInterface(timer);
+		DocIdInterface notCollapsedDocs = docSetHits
+				.getCollector(DocIdInterface.class);
 		CollapseDocInterface collapsedDocs = null;
 
 		JoinResult[] joinResults = null;
@@ -131,15 +132,14 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			if (notCollapsedDocs != null)
 				setDocs(notCollapsedDocs);
 			else
-				setDocs(docSetHits.getDocIdInterface(timer));
+				setDocs(docSetHits.getCollector(DocIdInterface.class));
 		} else
 			setDocs(collapsedDocs);
 
 		if (joinResults != null)
 			setJoinResults(joinResults);
 
-		maxScore = request.isScoreRequired() ? docSetHits.getMaxScore(timer)
-				: 0;
+		maxScore = request.isScoreRequired() ? docSetHits.getMaxScore() : 0;
 
 		fieldNameSet = new TreeSet<String>();
 		searchRequest.getReturnFieldList().populate(fieldNameSet);

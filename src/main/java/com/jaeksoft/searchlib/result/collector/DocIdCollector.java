@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,30 +26,27 @@ package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-public class DocIdCollector extends AbstractCollector implements DocIdInterface {
+class DocIdCollector extends AbstractCollector implements DocIdInterface {
 
-	final protected int maxDoc;
-	final protected int[] ids;
+	private final int[] ids;
+	private int currentPos;
 	private OpenBitSet bitSet;
-	protected int currentPos;
 
-	final public static DocIdCollector EMPTY = new DocIdCollector(0, 0);
-
-	public DocIdCollector(int maxDoc, int numFound) {
-		this.maxDoc = maxDoc;
+	DocIdCollector(int maxDoc, int maxSize) {
+		super(null, maxDoc);
+		ids = new int[maxSize];
 		currentPos = 0;
-		bitSet = null;
-		ids = new int[numFound];
+		bitSet = new OpenBitSet(maxDoc);
 	}
 
-	protected DocIdCollector(DocIdCollector src) {
-		this.maxDoc = src.maxDoc;
-		this.ids = ArrayUtils.clone(src.ids);
-		this.bitSet = src.bitSet;
-		this.currentPos = src.currentPos;
+	private DocIdCollector(DocIdCollector source) {
+		super(source.parent, source.maxDoc);
+		this.ids = ArrayUtils.clone(source.ids);
+		this.currentPos = source.currentPos;
+		this.bitSet = (OpenBitSet) source.bitSet.clone();
 	}
 
 	@Override
@@ -57,35 +54,17 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 		return new DocIdCollector(this);
 	}
 
-	@Override
-	final public int getSize() {
-		return ids.length;
+	public void collectDoc(int doc) throws IOException {
+		ids[currentPos++] = doc;
+		bitSet.fastSet(doc);
 	}
 
 	@Override
-	public void collectDoc(final int docId) throws IOException {
-		ids[currentPos++] = docId;
-	}
-
-	final public boolean isBitSet() {
-		return bitSet != null;
-	}
-
-	@Override
-	final public OpenBitSet getBitSet() {
-		if (bitSet != null)
-			return bitSet;
-		bitSet = new OpenBitSet(maxDoc);
-		for (int id : ids)
-			bitSet.fastSet(id);
-		return bitSet;
-	}
-
-	@Override
-	public void swap(int pos1, int pos2) {
-		int id = ids[pos1];
-		ids[pos1] = ids[pos2];
-		ids[pos2] = id;
+	public void swap(int a, int b) {
+		int v1 = ids[a];
+		int v2 = ids[b];
+		ids[a] = v2;
+		ids[b] = v1;
 	}
 
 	@Override
@@ -94,8 +73,13 @@ public class DocIdCollector extends AbstractCollector implements DocIdInterface 
 	}
 
 	@Override
-	public int getMaxDoc() {
-		return maxDoc;
+	public int getSize() {
+		return currentPos;
+	}
+
+	@Override
+	public OpenBitSet getBitSet() {
+		return bitSet;
 	}
 
 }

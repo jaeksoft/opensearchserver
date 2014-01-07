@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -19,12 +19,21 @@
 	<listbox model="@load(scoring.advancedScore.array)"
 		selectedItem="@bind(scoring.selectedScoreItem)">
 		<listhead>
+			<listheader label="Type" />
 			<listheader label="Field" />
 			<listheader label="Direction" />
 			<listheader label="Weight" />
 			<listheader label="Action" />
 		</listhead>
 		<auxhead>
+			<auxheader>
+				<listbox mold="select" model="@load(scoring.typeList)"
+					selectedItem="@bind(scoring.scoreItem.type)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</auxheader>
 			<auxheader>
 				<listbox mold="select" model="@load(scoring.fieldList)"
 					selectedItem="@bind(scoring.scoreItem.fieldName)">
@@ -56,6 +65,7 @@
 		</auxhead>
 		<template name="model" var="item">
 			<listitem>
+				<listcell label="@load(item.type)" />
 				<listcell label="@load(item.fieldName)" />
 				<listcell label="@load(item.direction)" />
 				<listcell label="@load(item.weight)" />

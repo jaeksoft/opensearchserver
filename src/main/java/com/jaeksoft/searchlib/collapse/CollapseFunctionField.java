@@ -33,12 +33,12 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
+import com.jaeksoft.searchlib.geo.GeoDistance;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
-import com.jaeksoft.searchlib.util.Geospatial.Location;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -52,10 +52,7 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 	private Function function;
 	private String field;
 	private transient FieldCacheIndex stringIndex;
-	private transient FieldCacheIndex stringIndexLatitude;
-	private transient FieldCacheIndex stringIndexLongitude;
-	private transient double radius;
-	private transient Location location;
+	private transient GeoDistance geoDistance;;
 	private transient FunctionExecutor executor;
 
 	public CollapseFunctionField(Function function, String field) {
@@ -112,27 +109,19 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 			ReaderAbstract reader) throws IOException, InstantiationException,
 			IllegalAccessException {
 		this.stringIndex = reader.getStringIndex(field);
-		radius = 0;
+		double radius = 0;
 		if (DIST_KM.equals(field))
 			radius = Geospatial.EARTH_RADIUS_KM;
 		else if (DIST_MILES.equals(field))
 			radius = Geospatial.EARTH_RADIUS_MILES;
-		if (radius != 0) {
-			stringIndexLatitude = reader.getStringIndex(searchRequest
-					.getGeoParameters().getLatitudeField());
-			stringIndexLongitude = reader.getStringIndex(searchRequest
-					.getGeoParameters().getLongitudeField());
-			location = new Location(searchRequest.getGeoParameters()
-					.getLatitudeRadian(), searchRequest.getGeoParameters()
-					.getLongitudeRadian());
-		}
+		geoDistance = radius == 0 ? null : searchRequest.getGeoParameters()
+				.getGeoDistance(reader, radius);
 		executor = function.newExecutor();
 	}
 
 	public String execute(int doc, int[] collapsedDocs) throws ParseException {
-		if (radius != 0)
-			return executor.execute(location, radius, stringIndexLatitude,
-					stringIndexLongitude, doc, collapsedDocs);
+		if (geoDistance != null)
+			return executor.execute(geoDistance, doc, collapsedDocs);
 		else
 			return executor.execute(stringIndex, doc, collapsedDocs);
 	}

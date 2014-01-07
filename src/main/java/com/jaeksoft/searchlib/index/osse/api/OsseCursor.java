@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray.PointerProvider;
-import com.jaeksoft.searchlib.result.collector.AbstractCollector;
+import com.jaeksoft.searchlib.result.collector.DocSetHitCollectorInterface;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -120,7 +120,7 @@ public class OsseCursor implements PointerProvider, Closeable {
 		return number;
 	}
 
-	final public void collect(final AbstractCollector collector)
+	final public void collect(final DocSetHitCollectorInterface collector)
 			throws SearchLibException, IOException {
 		long bufferSize = getNumberOfDocs();
 		if (bufferSize > 10000)
@@ -132,7 +132,7 @@ public class OsseCursor implements PointerProvider, Closeable {
 			if (length == 0)
 				break;
 			for (int i = 0; i < length; i++)
-				collector.collect((int) docIdBuffer[i]);
+				collector.collectDoc((int) docIdBuffer[i]);
 			docPosition += length;
 		}
 	}

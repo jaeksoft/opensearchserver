@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.index.ReaderAbstract;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -90,8 +90,8 @@ public class SortField extends AbstractField<SortField> implements
 		return name.equals("score");
 	}
 
-	public SorterAbstract getSorter(DocIdInterface collector,
-			ReaderAbstract reader) throws IOException {
+	public SorterAbstract getSorter(final CollectorInterface collector,
+			final ReaderAbstract reader) throws IOException {
 		if (isScore()) {
 			if (desc)
 				return new DescScoreSorter(collector);

@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
@@ -48,9 +49,9 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	transient private ReaderLocal reader = null;
 
-	private DocIdInterface docs = null;
+	final private DocIdInterface docs;
 
-	final private float maxScore;
+	final private ScoreInterface scores;
 
 	final private TreeSet<String> fieldNameSet;
 
@@ -67,12 +68,13 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		searchRequest.setBoostedComplexQuery(request.getQuery());
 		DocSetHits dsh = reader.searchDocSet(searchRequest, timer);
 		if (dsh == null) {
-			maxScore = 0;
 			fieldNameSet = null;
+			docs = null;
+			scores = null;
 			return;
 		}
-		maxScore = dsh.getMaxScore(timer);
-		docs = dsh.getDocIdInterface(timer);
+		docs = dsh.getCollector(DocIdInterface.class);
+		scores = dsh.getCollector(ScoreInterface.class);
 		fieldNameSet = new TreeSet<String>();
 		request.getReturnFieldList().populate(fieldNameSet);
 	}
@@ -80,7 +82,9 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	@Override
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException {
-		if (docs == null || pos < 0 || pos > docs.getSize())
+		if (docs == null)
+			return null;
+		if (pos < 0 || pos >= docs.getSize())
 			return null;
 		try {
 			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader,
@@ -96,7 +100,9 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	@Override
 	public float getScore(int pos) {
-		return ResultDocument.getScore(docs, pos);
+		if (scores == null)
+			return 0;
+		return scores.getScores()[pos];
 	}
 
 	@Override
@@ -158,7 +164,9 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	@Override
 	public float getMaxScore() {
-		return maxScore;
+		if (scores == null)
+			return 0;
+		return scores.getMaxScore();
 	}
 
 	@Override
