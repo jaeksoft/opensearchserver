@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,12 +43,12 @@ public class DateConverter implements Converter<Object, Object, Component> {
 	public Object coerceToUi(Object value, Component component, BindContext ctx) {
 		if (value == null)
 			return IGNORED_VALUE;
-		long l = -1;
+		long l = 0;
 		if (value instanceof Date)
 			l = ((Date) value).getTime();
 		else if (value instanceof Long)
 			l = (Long) value;
-		if (l == -1)
+		if (l <= 0)
 			return IGNORED_VALUE;
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
 				DateFormat.MEDIUM).format(new Date(l));

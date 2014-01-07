@@ -364,6 +364,15 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		}
 	}
 
+	public long getEndTime() {
+		rwl.r.lock();
+		try {
+			return endTime;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return super.toString() + " " + getClass().getSimpleName();
