@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +41,8 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTerm;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
@@ -50,19 +53,20 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
 	private final OsseIndex index;
 	private final OsseErrorHandler error;
-	private final TermBuffer termBuffer;
+	private final OsseTermBuffer termBuffer;
 
 	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig)
 			throws SearchLibException {
 		super(indexConfig);
 		this.index = index;
 		error = new OsseErrorHandler();
-		termBuffer = new TermBuffer(1000);
+		termBuffer = new OsseTermBuffer(1000);
 	}
 
 	@Override
@@ -105,23 +109,27 @@ public class WriterNativeOSSE extends WriterAbstract {
 	 * @param fieldPtr
 	 * @param value
 	 * @throws SearchLibException
+	 * @throws CharacterCodingException
 	 */
 	final private void updateTerm(final OsseTransaction transaction,
-			final int documentId, final FieldInfo field, final String value)
-			throws SearchLibException {
+			final int documentId, final FieldInfo field, final String value,
+			final CharsetEncoder encoder) throws SearchLibException,
+			CharacterCodingException {
 		if (value == null || value.length() == 0)
 			return;
-		termBuffer.terms[0] = value;
+		termBuffer.reset();
+		termBuffer.add(new OsseTerm(encoder, value));
 		termBuffer.offsets[0].ui32StartOffset = 0;
 		termBuffer.offsets[0].ui32EndOffset = value.length();
 		termBuffer.positionIncrements[0] = 1;
-		transaction.updateTerms(documentId, field, termBuffer, 1);
+		transaction.updateTerms(documentId, field, termBuffer);
 	}
 
 	final private void updateTerms(final OsseTransaction transaction,
 			final int documentId, final FieldInfo field,
-			final CompiledAnalyzer compiledAnalyzer, final String value)
-			throws IOException, SearchLibException {
+			final CompiledAnalyzer compiledAnalyzer, final String value,
+			final CharsetEncoder charsetEncoder) throws IOException,
+			SearchLibException {
 		StringReader stringReader = null;
 		OsseTokenTermUpdate ottu = null;
 		try {
@@ -129,7 +137,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			TokenStream tokenStream = compiledAnalyzer.tokenStream(null,
 					stringReader);
 			ottu = new OsseTokenTermUpdate(transaction, documentId, field,
-					termBuffer, tokenStream);
+					termBuffer, tokenStream, charsetEncoder);
 			while (ottu.incrementToken())
 				;
 			ottu.close();
@@ -138,9 +146,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 		}
 	}
 
-	private void updateDoc(OsseTransaction transaction,
-			Map<String, FieldInfo> fieldMap, Schema schema,
-			IndexDocument document) throws SearchLibException, IOException {
+	final private void updateDoc(final OsseTransaction transaction,
+			final Map<String, FieldInfo> fieldMap, final Schema schema,
+			final IndexDocument document, final CharsetEncoder encoder)
+			throws SearchLibException, IOException {
 		int documentId = transaction.newDocumentId();
 		LanguageEnum lang = document.getLang();
 		for (FieldContent fieldContent : document) {
@@ -159,23 +168,25 @@ public class WriterNativeOSSE extends WriterAbstract {
 				String value = valueItem.getValue();
 				if (compiledAnalyzer != null)
 					updateTerms(transaction, documentId, fieldInfo,
-							compiledAnalyzer, value);
+							compiledAnalyzer, value, encoder);
 				else
-					updateTerm(transaction, documentId, fieldInfo, value);
+					updateTerm(transaction, documentId, fieldInfo, value,
+							encoder);
 			}
 		}
 
 	}
 
 	@Override
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	final public boolean updateDocument(final Schema schema,
+			final IndexDocument document) throws SearchLibException {
 		OsseTransaction transaction = null;
 		try {
+			CharsetEncoder encoder = StringUtils.newUTF8Encoder();
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index, 1);
-			updateDoc(transaction, fieldMap, schema, document);
+			updateDoc(transaction, fieldMap, schema, document, encoder);
 			if (!OsseTransaction.FAKE_MODE)
 				transaction.commit();
 		} catch (IOException e) {
@@ -193,12 +204,13 @@ public class WriterNativeOSSE extends WriterAbstract {
 		try {
 			if (CollectionUtils.isEmpty(documents))
 				return 0;
+			CharsetEncoder encoder = StringUtils.newUTF8Encoder();
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index, documents.size());
 			int i = 0;
 			for (IndexDocument document : documents) {
-				updateDoc(transaction, fieldMap, schema, document);
+				updateDoc(transaction, fieldMap, schema, document, encoder);
 				i++;
 			}
 			if (!OsseTransaction.FAKE_MODE)
