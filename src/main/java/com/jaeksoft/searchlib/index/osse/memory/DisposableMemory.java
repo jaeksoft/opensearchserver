@@ -26,17 +26,22 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
-public class DisposableMemory extends Memory implements Closeable {
+public class DisposableMemory extends Pointer implements Closeable {
 
 	DisposableMemory(long size) {
-		super(size);
+		super(Native.malloc(size));
+		if (peer == 0)
+			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
 	}
 
 	@Override
 	public void close() {
-		dispose();
+		if (peer == 0)
+			return;
+		Native.free(peer);
+		peer = 0;
 	}
-
 }

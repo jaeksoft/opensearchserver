@@ -30,7 +30,6 @@ import java.nio.charset.CharacterCodingException;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTerm;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 /**
@@ -55,7 +54,6 @@ public class OsseFastStringArray extends DisposableMemory {
 	private final DisposableMemory mallocOfTermBuffer(OsseTermBuffer termBuffer) {
 		final DisposableMemory memory = new DisposableMemory(
 				termBuffer.bytesSize + termBuffer.length);
-		final long peer = Memory.nativeValue(memory);
 		long offset = 0;
 		int i = 0;
 		int l = termBuffer.length;
