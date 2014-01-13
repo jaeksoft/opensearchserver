@@ -25,12 +25,16 @@
 package com.jaeksoft.searchlib.index.osse.query;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
@@ -60,12 +64,15 @@ public class OsseTermQuery extends OsseAbstractQuery {
 			throw new SearchLibException("Unknown field: ", field);
 		OsseFastStringArray osseFastStringArray = null;
 		try {
-			osseFastStringArray = new OsseFastStringArray(
-					new String[] { text }, 1);
+			CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+			osseFastStringArray = new OsseFastStringArray(new OsseTermBuffer(
+					encoder, text));
 			cursor = new OsseCursor(index, error, fieldInfo.id,
 					osseFastStringArray, 1,
 					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
 		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (CharacterCodingException e) {
 			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(osseFastStringArray);

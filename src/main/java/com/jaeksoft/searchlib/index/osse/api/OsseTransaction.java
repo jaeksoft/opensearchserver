@@ -26,13 +26,14 @@ package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.TermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
@@ -87,6 +88,8 @@ public class OsseTransaction implements Closeable {
 		} finally {
 			l.unlock();
 		}
+		if (FunctionTimer.ACTIVE)
+			FunctionTimer.dumpExecutionInfo(true);
 	}
 
 	final public int newDocumentId() throws SearchLibException {
@@ -184,12 +187,12 @@ public class OsseTransaction implements Closeable {
 		return transactFieldPtr;
 	}
 
-	final public void updateTerms(int documentId, FieldInfo field,
-			TermBuffer buffer, int length) throws SearchLibException {
+	final public void updateTerms(final int documentId, final FieldInfo field,
+			final OsseTermBuffer buffer) throws SearchLibException {
 		OsseFastStringArray ofsa = null;
 		l.lock();
 		try {
-			ofsa = new OsseFastStringArray(buffer.terms, length);
+			ofsa = new OsseFastStringArray(buffer);
 			Pointer transactFieldPtr = getExistingField(field);
 			if (FAKE_MODE)
 				return;
@@ -198,14 +201,16 @@ public class OsseTransaction implements Closeable {
 					transactFieldPtr.toString(), " ",
 					Integer.toString(documentId), " [",
 					Integer.toString(buffer.terms.length), "] ",
-					Integer.toString(length));
+					Integer.toString(buffer.length));
 			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTerms(
-					transactFieldPtr, documentId, ofsa, length,
+					transactFieldPtr, documentId, ofsa, buffer.length,
 					err.getPointer());
 			et.end();
-			if (res != length)
+			if (res != buffer.length)
 				err.throwError();
 		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (CharacterCodingException e) {
 			throw new SearchLibException(e);
 		} finally {
 			l.unlock();

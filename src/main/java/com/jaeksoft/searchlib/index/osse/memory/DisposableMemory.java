@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,17 +26,31 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
-public class DisposableMemory extends Memory implements Closeable {
+public class DisposableMemory extends Pointer implements Closeable {
 
 	DisposableMemory(long size) {
-		super(size);
+		super(Native.malloc(size));
+		if (peer == 0)
+			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
+	}
+
+	@Override
+	public void finalize() {
+		close();
+	}
+
+	long getPeer() {
+		return peer;
 	}
 
 	@Override
 	public void close() {
-		dispose();
+		if (peer == 0)
+			return;
+		Native.free(peer);
+		peer = 0;
 	}
-
 }

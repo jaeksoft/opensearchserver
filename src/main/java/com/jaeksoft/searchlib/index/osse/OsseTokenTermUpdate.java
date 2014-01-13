@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.index.osse;
 
 import java.io.IOException;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -35,48 +38,56 @@ import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
 
 public class OsseTokenTermUpdate extends AbstractTermFilter {
 
-	private final TermBuffer buffer;
+	private final OsseTermBuffer buffer;
 	private final OsseTransaction transaction;
 	private final int documentId;
 	private final FieldInfo field;
-	private int length;
+	private final CharsetEncoder encoder;
 
 	public OsseTokenTermUpdate(final OsseTransaction transaction,
-			final int documentId, final FieldInfo field, TermBuffer termBuffer,
-			final TokenStream input) {
+			final int documentId, final FieldInfo field,
+			final OsseTermBuffer termBuffer, final TokenStream input,
+			final CharsetEncoder encoder) {
 		super(input);
 		this.transaction = transaction;
 		this.documentId = documentId;
 		this.field = field;
 		this.buffer = termBuffer;
-		length = 0;
+		this.encoder = encoder;
+		this.buffer.reset();
 	}
 
 	final private void index() throws IOException {
-		if (length == 0)
+		if (buffer.length == 0)
 			return;
 		try {
-			transaction.updateTerms(documentId, field, buffer, length);
+			transaction.updateTerms(documentId, field, buffer);
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		}
-		length = 0;
+		buffer.reset();
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
-		if (!input.incrementToken()) {
-			index();
-			return false;
+		for (;;) {
+			if (!input.incrementToken()) {
+				index();
+				return false;
+			}
+			OsseTerm term = new OsseTerm(encoder, termAtt.buffer(),
+					termAtt.length());
+			final OsseTermOffset offset = buffer.offsets[buffer.length];
+			offset.ui32StartOffset = offsetAtt.startOffset();
+			offset.ui32EndOffset = offsetAtt.endOffset();
+			buffer.positionIncrements[buffer.length] = posIncrAtt
+					.getPositionIncrement();
+			buffer.add(term);
+			if (buffer.length == buffer.bufferSize) {
+				index();
+				return true;
+			}
 		}
-		buffer.terms[length] = termAtt.toString();
-		final OsseTermOffset offset = buffer.offsets[length];
-		offset.ui32StartOffset = offsetAtt.startOffset();
-		offset.ui32EndOffset = offsetAtt.endOffset();
-		buffer.positionIncrements[length] = posIncrAtt.getPositionIncrement();
-		if (++length == buffer.bufferSize)
-			index();
-		return true;
 	}
 
 	@Override
@@ -84,18 +95,56 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 		super.close();
 	}
 
-	public static class TermBuffer {
+	public static class OsseTerm {
 
-		public final String[] terms;
+		public final byte[] bytes;
+
+		private OsseTerm(final CharsetEncoder charsetEncoder,
+				final char[] buffer, final int length)
+				throws CharacterCodingException {
+			charsetEncoder.reset();
+			bytes = charsetEncoder.encode(CharBuffer.wrap(buffer, 0, length))
+					.array();
+		}
+
+		public OsseTerm(final CharsetEncoder charsetEncoder, final String term)
+				throws CharacterCodingException {
+			charsetEncoder.reset();
+			bytes = charsetEncoder.encode(CharBuffer.wrap(term)).array();
+		}
+
+	}
+
+	public static class OsseTermBuffer {
+
+		public final OsseTerm[] terms;
 		public final OsseTermOffset[] offsets;
 		public final int[] positionIncrements;
-		public final int bufferSize;
+		private final int bufferSize;
+		public int length;
+		public int bytesSize;
 
-		public TermBuffer(final int bufferSize) {
+		public OsseTermBuffer(final int bufferSize) {
 			this.bufferSize = bufferSize;
-			terms = new String[bufferSize];
+			terms = new OsseTerm[bufferSize];
 			offsets = OsseTermOffset.getNewArray(bufferSize);
 			positionIncrements = new int[bufferSize];
+		}
+
+		public OsseTermBuffer(final CharsetEncoder encoder, final String term)
+				throws CharacterCodingException {
+			this(1);
+			add(new OsseTerm(encoder, term));
+		}
+
+		final public void add(final OsseTerm term) {
+			terms[length++] = term;
+			bytesSize += term.bytes.length;
+		}
+
+		final public void reset() {
+			length = 0;
+			bytesSize = 0;
 		}
 
 	}

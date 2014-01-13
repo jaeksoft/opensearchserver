@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.jaeksoft.searchlib.Logging;
 
 public class FunctionTimer {
@@ -34,19 +37,20 @@ public class FunctionTimer {
 		private long totalTime;
 		private long callCount;
 
-		public ExecutionInfo(ExecutionToken executionToken) {
-			this.name = executionToken.name;
+		private ExecutionInfo(String name) {
+			this.name = name;
 			callCount = 0;
-			add(executionToken);
 		}
 
-		public final void add(ExecutionToken executionToken) {
-			callCount++;
-			totalTime += executionToken.duration;
+		private final void add(final ExecutionTokenImpl executionToken) {
+			synchronized (this) {
+				callCount++;
+				totalTime += executionToken.duration;
+			}
 		}
 
 		@Override
-		public String toString() {
+		final public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(name);
 			sb.append(" - count: ");
@@ -60,21 +64,40 @@ public class FunctionTimer {
 
 	}
 
-	public static class ExecutionToken {
+	public interface ExecutionToken {
+		public void end(final String... texts);
+	}
+
+	private static class ExecutionTokenDisableImpl implements ExecutionToken {
+
+		@Override
+		final public void end(final String... texts) {
+		}
+
+		private final static ExecutionToken DISABLED = new ExecutionTokenDisableImpl();
+	}
+
+	private static class ExecutionTokenImpl implements ExecutionToken {
 
 		private final String name;
 		private final String[] texts;
 		private final long startTime;
 		private long duration;
+		private final ExecutionInfo executionInfo;
 
-		private ExecutionToken(final String name, final String... texts) {
+		private ExecutionTokenImpl(final ExecutionInfo executionInfo,
+				final String name, final String... texts) {
+			this.executionInfo = executionInfo;
 			this.name = name;
 			this.texts = texts;
 			this.startTime = System.currentTimeMillis();
 		}
 
-		public final void end(String... texts) {
+		@Override
+		public final void end(final String... texts) {
 			duration = System.currentTimeMillis() - startTime;
+			if (executionInfo != null)
+				executionInfo.add(this);
 			if (!Logging.isDebug)
 				return;
 			System.out.println(StringUtils.fastConcatCharSequence(name, " ",
@@ -84,9 +107,42 @@ public class FunctionTimer {
 		}
 	}
 
-	final public static ExecutionToken newExecutionToken(final String name,
-			final String... text) {
-		return new ExecutionToken(name, text);
+	public final static boolean ACTIVE = false;
+
+	private final static Map<String, ExecutionInfo> ExecutionInfos;
+	static {
+		ExecutionInfos = ACTIVE ? new TreeMap<String, ExecutionInfo>() : null;
 	}
 
+	final public static ExecutionToken newExecutionToken(final String name,
+			final String... text) {
+		ExecutionInfo executionInfo = null;
+		if (!ACTIVE)
+			return ExecutionTokenDisableImpl.DISABLED;
+		synchronized (ExecutionInfos) {
+			executionInfo = ExecutionInfos.get(name);
+			if (executionInfo == null) {
+				executionInfo = new ExecutionInfo(name);
+				ExecutionInfos.put(name, executionInfo);
+			}
+		}
+		return new ExecutionTokenImpl(executionInfo, name, text);
+	}
+
+	final public static void dumpExecutionInfo(final boolean reset) {
+		if (!ACTIVE)
+			return;
+		synchronized (ExecutionInfos) {
+			System.out.println("EXECUTIONS INFO DUMP");
+			long totalTime = 0;
+			for (ExecutionInfo executionInfo : ExecutionInfos.values()) {
+				System.out.println(executionInfo);
+				totalTime += executionInfo.totalTime;
+			}
+			System.out.println(StringUtils.fastConcat("Total time: ",
+					Float.toString(totalTime / 1000), " sec"));
+			if (reset)
+				ExecutionInfos.clear();
+		}
+	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,9 +25,11 @@
 package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
 
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTerm;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 /**
@@ -43,61 +45,28 @@ public class OsseFastStringArray extends DisposableMemory {
 
 	private final DisposableMemory fullBytes;
 
-	public OsseFastStringArray(final String[] strings, final int length)
-			throws UnsupportedEncodingException {
-		super((length + 1) * Pointer.SIZE);
-		byte[][] bytesArray = new byte[length][];
-		long totalSize = populateBytesCollection(strings, length, bytesArray);
-		fullBytes = mallocOfBytesCollection(totalSize, bytesArray);
+	public OsseFastStringArray(final OsseTermBuffer termBuffer)
+			throws UnsupportedEncodingException, CharacterCodingException {
+		super((termBuffer.length + 1) * Pointer.SIZE);
+		fullBytes = mallocOfTermBuffer(termBuffer);
 	}
 
-	/**
-	 * Retrieve all the bytes and get the total size
-	 * 
-	 * @param strings
-	 * @param bytesCollection
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 */
-	private static final long populateBytesCollection(final String[] strings,
-			final int length, final byte[][] bytesCollection)
-			throws UnsupportedEncodingException {
-		long size = 0;
+	private final DisposableMemory mallocOfTermBuffer(OsseTermBuffer termBuffer) {
+		final DisposableMemory memory = new DisposableMemory(
+				termBuffer.bytesSize + termBuffer.length);
+		long memoryPeer = memory.getPeer();
+		long memoryOffset = 0;
 		int i = 0;
-		int pos = 0;
-		for (String string : strings) {
-			if (pos == length)
+		int l = termBuffer.length;
+		for (OsseTerm term : termBuffer.terms) {
+			if (i == l)
 				break;
-			pos++;
-			if (string == null)
-				continue;
-			final byte[] bytes = string.getBytes("UTF-8");
-			// DEBUG
-			// System.out.println(i + " " + string + " (" + string.length() +
-			// "/"
-			// + bytes.length + ")");
-			bytesCollection[i++] = bytes;
-			size += bytes.length + 1;
-		}
-		return size;
-	}
-
-	private final DisposableMemory mallocOfBytesCollection(long totalSize,
-			final byte[][] bytesCollection) {
-		final DisposableMemory memory = new DisposableMemory(totalSize);
-		final long peer = Memory.nativeValue(memory);
-		long offset = 0;
-		int i = 0;
-		for (byte[] bytes : bytesCollection) {
-			if (totalSize == 0)
-				break;
-			setPointer(Pointer.SIZE * i, new Pointer(peer + offset));
-			memory.write(offset, bytes, 0, bytes.length);
-			offset += bytes.length;
-			memory.setByte(offset, (byte) 0);
-			offset++;
+			setPointer(Pointer.SIZE * i, new Pointer(memoryPeer + memoryOffset));
+			memory.write(memoryOffset, term.bytes, 0, term.bytes.length);
+			memoryOffset += term.bytes.length;
+			memory.setByte(memoryOffset, (byte) 0);
+			memoryOffset++;
 			i++;
-			totalSize -= bytes.length;
 		}
 		setPointer(Pointer.SIZE * i, null);
 		return memory;

@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -305,6 +307,14 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	public final static String[] splitLines(String str) {
 		return split(str, LINE_SEPARATOR);
+	}
+
+	public final static Charset CharsetUTF8 = Charset.forName("UTF-8");
+
+	public final static CharsetEncoder newUTF8Encoder() {
+		synchronized (CharsetUTF8) {
+			return CharsetUTF8.newEncoder();
+		}
 	}
 
 }
