@@ -54,17 +54,18 @@ public class OsseFastStringArray extends DisposableMemory {
 	private final DisposableMemory mallocOfTermBuffer(OsseTermBuffer termBuffer) {
 		final DisposableMemory memory = new DisposableMemory(
 				termBuffer.bytesSize + termBuffer.length);
-		long offset = 0;
+		long memoryPeer = memory.getPeer();
+		long memoryOffset = 0;
 		int i = 0;
 		int l = termBuffer.length;
 		for (OsseTerm term : termBuffer.terms) {
 			if (i == l)
 				break;
-			setPointer(Pointer.SIZE * i, new Pointer(peer + offset));
-			memory.write(offset, term.bytes, 0, term.bytes.length);
-			offset += term.bytes.length;
-			memory.setByte(offset, (byte) 0);
-			offset++;
+			setPointer(Pointer.SIZE * i, new Pointer(memoryPeer + memoryOffset));
+			memory.write(memoryOffset, term.bytes, 0, term.bytes.length);
+			memoryOffset += term.bytes.length;
+			memory.setByte(memoryOffset, (byte) 0);
+			memoryOffset++;
 			i++;
 		}
 		setPointer(Pointer.SIZE * i, null);

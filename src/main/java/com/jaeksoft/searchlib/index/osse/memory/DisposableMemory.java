@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,15 @@ public class DisposableMemory extends Pointer implements Closeable {
 		super(Native.malloc(size));
 		if (peer == 0)
 			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
+	}
+
+	@Override
+	public void finalize() {
+		close();
+	}
+
+	long getPeer() {
+		return peer;
 	}
 
 	@Override
