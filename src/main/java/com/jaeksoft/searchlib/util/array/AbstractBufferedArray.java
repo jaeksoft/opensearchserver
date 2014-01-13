@@ -51,14 +51,16 @@ public abstract class AbstractBufferedArray {
 			final int arraySize);
 
 	final protected int checkBeforeAdd() {
+		int pos = currentArrayPos;
 		if (currentArrayPos == arraySize) {
 			newCurrentArray(currentArrayNumber, arraySize);
 			currentArrayNumber++;
-			currentArrayPos = 0;
+			currentArrayPos = 1;
+			pos = 0;
 		} else
 			currentArrayPos++;
 		totalSize++;
-		return currentArrayPos;
+		return pos;
 	}
 
 	public final int getSize() {
@@ -77,6 +79,8 @@ public abstract class AbstractBufferedArray {
 		finalArray = newFinalArray(size);
 		int pos = 0;
 		for (Object array : getArrays()) {
+			if (array == null)
+				break;
 			if (size < arraySize)
 				buffer = size;
 			System.arraycopy(array, 0, finalArray, pos, buffer);
