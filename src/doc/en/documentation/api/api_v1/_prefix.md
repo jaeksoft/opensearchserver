@@ -1,0 +1,1 @@
+API v1 is the original API. It still contains some low levels features used internally by OpenSearchServer. This API will remains active. No new features should be added. This API should be use only if you work on developing internal OpenSearchServer features.
