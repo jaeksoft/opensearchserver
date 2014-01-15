@@ -1,0 +1,1 @@
+Ces APIs fournissent une interface [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) pour les index.
