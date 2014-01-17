@@ -111,7 +111,7 @@ public class TaskXmlLoad extends TaskAbstract {
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			Variables variables, TaskLog taskLog) throws SearchLibException {
-		String uri = properties.getValue(propUri);
+		String uriString = properties.getValue(propUri);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
 		String p = properties.getValue(propBuffersize);
@@ -124,13 +124,13 @@ public class TaskXmlLoad extends TaskAbstract {
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
 				.getNewHttpDownloader(true, userAgent);
 		try {
+			URI uri = new URI(uriString);
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
 				credentialItem = new CredentialItem(
 						CredentialType.BASIC_DIGEST, null, login, password,
 						null, null);
-			DownloadItem downloadItem = httpDownloader.get(new URI(uri),
-					credentialItem);
+			DownloadItem downloadItem = httpDownloader.get(uri, credentialItem);
 			downloadItem.checkNoError(200);
 			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
