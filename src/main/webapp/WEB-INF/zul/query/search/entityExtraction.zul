@@ -47,6 +47,16 @@
 					constraint="no negative, no empty" />
 			</row>
 			<row>
+				<label>Tokenizer:</label>
+				<combobox model="@load(named.tokenizerList)"
+					onChange="@command('reload')" cols="40"
+					value="@bind(named.request.tokenizer)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
 				<label value="Stop words: " />
 				<listbox model="@load(named.request.stopWordsMap)">
 					<listhead>

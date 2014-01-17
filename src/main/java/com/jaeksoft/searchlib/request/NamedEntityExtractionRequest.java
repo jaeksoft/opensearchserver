@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.analysis.filter.IndexLookupFilter;
 import com.jaeksoft.searchlib.analysis.filter.RemoveIncludedTermFilter;
 import com.jaeksoft.searchlib.analysis.filter.ShingleFilter;
 import com.jaeksoft.searchlib.analysis.filter.StopFilter;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.ReaderInterface;
@@ -63,6 +64,8 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	private String text;
+
+	private String tokenizer;
 
 	private String searchRequest;
 
@@ -91,6 +94,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.returnedFields = null;
 		this.stopWordsMap = null;
 		this.maxNumberOfWords = 5;
+		this.tokenizer = TokenizerEnum.LetterOrDigitTokenizerFactory.name();
 	}
 
 	@Override
@@ -105,6 +109,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.stopWordsMap = neeRequest.stopWordsMap == null ? null
 				: new TreeMap<String, Boolean>(neeRequest.stopWordsMap);
 		this.maxNumberOfWords = neeRequest.maxNumberOfWords;
+		this.tokenizer = neeRequest.tokenizer;
 	}
 
 	public void addReturnedField(String returnedField) {
@@ -164,6 +169,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	private final static String ATTR_NAMED_ENTITY_FIELD = "namedEntityField";
 	private final static String NODE_NAME_STOPWORDS_LIST = "stopWords";
 	private final static String ATTR_MAX_NUMBER_OF_WORDS = "maxNumberOfWords";
+	private final static String ATTR_TOKENIZER = "tokenizer";
 	private final static String ATTR_STOPWORDS_LISTNAME = "listName";
 	private final static String ATTR_STOPWORDS_CASESENSITIVE = "caseSensitive";
 	private final static String NODE_TEXT = "text";
@@ -182,6 +188,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 				ATTR_NAMED_ENTITY_FIELD);
 		maxNumberOfWords = DomUtils.getAttributeInteger(requestNode,
 				ATTR_MAX_NUMBER_OF_WORDS, 5);
+		tokenizer = DomUtils.getAttributeText(requestNode, ATTR_TOKENIZER,
+				TokenizerEnum.LetterOrDigitTokenizerFactory.name());
 		Node textNode = DomUtils.getFirstNode(requestNode, NODE_TEXT);
 		if (textNode == null)
 			text = DomUtils.getText(requestNode);
@@ -212,7 +220,8 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 					ATTR_SEARCH_REQUEST, searchRequest,
 					ATTR_NAMED_ENTITY_FIELD, namedEntityField,
 					ATTR_MAX_NUMBER_OF_WORDS,
-					Integer.toString(maxNumberOfWords));
+					Integer.toString(maxNumberOfWords), ATTR_TOKENIZER,
+					tokenizer);
 			if (returnedFields != null) {
 				for (String returnedField : returnedFields) {
 					xmlWriter.startElement(NODE_RETURNED_FIELD,
@@ -309,8 +318,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
 					DeduplicateTokenPositionsFilter.class);
 			Analyzer analyzer = new Analyzer(config);
-			analyzer.setTokenizer(TokenizerFactory.create(config,
-					"LetterOrDigitTokenizerFactory"));
+			analyzer.setTokenizer(TokenizerFactory.create(config, tokenizer));
 			analyzer.add(getFilterList(dtpf));
 			analyzer.getQueryAnalyzer().populate(text, result);
 			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(),
@@ -409,6 +417,21 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	 */
 	public void setMaxNumberOfWords(int maxNumberOfWords) {
 		this.maxNumberOfWords = maxNumberOfWords;
+	}
+
+	/**
+	 * @return the tokenizer
+	 */
+	public String getTokenizer() {
+		return tokenizer;
+	}
+
+	/**
+	 * @param tokenizer
+	 *            the tokenizer to set
+	 */
+	public void setTokenizer(String tokenizer) {
+		this.tokenizer = tokenizer;
 	}
 
 }

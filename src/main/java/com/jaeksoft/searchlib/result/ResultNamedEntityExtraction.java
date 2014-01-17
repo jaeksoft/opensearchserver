@@ -74,20 +74,9 @@ public class ResultNamedEntityExtraction extends
 		return docList.get(pos);
 	}
 
-	private static class PositionDocument {
-
-		private final Position position;
-		private final ResultDocument document;
-
-		private PositionDocument(Position position, ResultDocument document) {
-			this.position = position;
-			this.document = document;
-		}
-	}
-
 	public void resolvePositions(String namedEntityField,
 			Map<String, List<Position>> tokenMap, String text) {
-		Map<Integer, PositionDocument> mapPositions = new TreeMap<Integer, PositionDocument>();
+		Map<Integer, Position> mapPositions = new TreeMap<Integer, Position>();
 		for (ResultDocument document : docList) {
 			String entity = document.getValueContent(namedEntityField, 0);
 			if (entity == null)
@@ -96,19 +85,16 @@ public class ResultNamedEntityExtraction extends
 			document.addPositions(positions);
 			if (positions != null)
 				for (Position position : positions)
-					mapPositions.put(position.start, new PositionDocument(
-							position, document));
+					mapPositions.put(position.start, position);
 		}
 		int lastPos = 0;
-		for (PositionDocument posDoc : mapPositions.values()) {
-			if (posDoc.position.start > lastPos)
-				enrichedText.append(text.substring(lastPos,
-						posDoc.position.start));
+		for (Position posDoc : mapPositions.values()) {
+			if (posDoc.start > lastPos)
+				enrichedText.append(text.substring(lastPos, posDoc.start));
 			enrichedText.append("<strong>");
-			enrichedText.append(text.substring(posDoc.position.start,
-					posDoc.position.end));
+			enrichedText.append(text.substring(posDoc.start, posDoc.end));
 			enrichedText.append("</strong>");
-			lastPos = posDoc.position.end;
+			lastPos = posDoc.end;
 		}
 		if (lastPos < text.length())
 			enrichedText.append(text.substring(lastPos));
