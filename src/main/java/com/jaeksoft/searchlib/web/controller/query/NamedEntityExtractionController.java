@@ -33,6 +33,7 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerEnum;
 import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
@@ -51,6 +52,10 @@ public class NamedEntityExtractionController extends AbstractQueryController {
 		if (client == null)
 			return null;
 		return client.getStopWordsManager().getList();
+	}
+
+	public String[] getTokenizerList() {
+		return TokenizerEnum.getStringArray();
 	}
 
 	public List<String> getSearchRequests() throws SearchLibException {
