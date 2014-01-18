@@ -69,4 +69,10 @@ public class IntBufferedArray extends AbstractBufferedArray {
 	protected Object[] getArrays() {
 		return arrays;
 	}
+
+	@Override
+	final protected void clear() {
+		arrays = null;
+		currentArray = null;
+	}
 }

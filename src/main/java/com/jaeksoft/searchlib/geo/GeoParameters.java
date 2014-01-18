@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,8 +29,10 @@ import java.io.IOException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
@@ -53,12 +55,40 @@ public class GeoParameters {
 			return label;
 		}
 
-		final public static CoordUnit find(String name) {
+		@JsonIgnore
+		final public static CoordUnit find(final String name) {
 			for (CoordUnit unit : values())
 				if (unit.name().equals(name))
 					return unit;
 			return null;
 		}
+	}
+
+	public static enum DistanceReturn {
+
+		NO_DISTANCE, DISTANCE_KM, DISTANCE_MILES;
+
+		final public static DistanceReturn find(final String name) {
+			for (DistanceReturn item : values())
+				if (item.name().equals(name))
+					return item;
+			return NO_DISTANCE;
+		}
+
+		@JsonIgnore
+		final public static double getRadius(final DistanceReturn distanceReturn) {
+			if (distanceReturn == null)
+				return Geospatial.EARTH_RADIUS_KM;
+			switch (distanceReturn) {
+			case NO_DISTANCE:
+			case DISTANCE_KM:
+				return Geospatial.EARTH_RADIUS_KM;
+			case DISTANCE_MILES:
+				return Geospatial.EARTH_RADIUS_MILES;
+			}
+			return Geospatial.EARTH_RADIUS_KM;
+		}
+
 	}
 
 	private String latitudeField;
@@ -71,12 +101,15 @@ public class GeoParameters {
 
 	private CoordUnit coordUnit;
 
+	private DistanceReturn distanceReturn;
+
 	public GeoParameters() {
 		latitudeField = null;
 		longitudeField = null;
 		latitude = 0;
 		longitude = 0;
 		coordUnit = CoordUnit.DEGREES;
+		distanceReturn = DistanceReturn.NO_DISTANCE;
 	}
 
 	/**
@@ -180,6 +213,9 @@ public class GeoParameters {
 		q = transaction.getParameterString("geo.unit");
 		if (q != null)
 			coordUnit = CoordUnit.find(q);
+		q = transaction.getParameterString("geo.distance");
+		if (q != null)
+			distanceReturn = DistanceReturn.find(q);
 	}
 
 	public void set(GeoParameters geoParams) {
@@ -188,6 +224,7 @@ public class GeoParameters {
 		this.latitudeField = geoParams.latitudeField;
 		this.longitude = geoParams.longitude;
 		this.longitudeField = geoParams.longitudeField;
+		this.distanceReturn = geoParams.distanceReturn;
 	}
 
 	public void set(Node geoNode) {
@@ -199,6 +236,9 @@ public class GeoParameters {
 				.getAttributeText(geoNode, "latitudeField");
 		this.longitudeField = DomUtils.getAttributeText(geoNode,
 				"longitudeField");
+		this.distanceReturn = DomUtils.getAttributeEnum(geoNode,
+				"distanceReturn", DistanceReturn.values(),
+				DistanceReturn.NO_DISTANCE);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter, String nodeName)
@@ -206,13 +246,29 @@ public class GeoParameters {
 		xmlWriter.startElement(nodeName, "coordUnit", coordUnit.name(),
 				"latitudeField", latitudeField, "longitudeField",
 				longitudeField, "latitude", Double.toString(latitude),
-				"longitude", Double.toString(longitude));
+				"longitude", Double.toString(longitude), "distanceReturn",
+				distanceReturn.name());
 		xmlWriter.endElement();
 	}
 
 	public GeoDistance getGeoDistance(ReaderAbstract reader, Double radius)
 			throws IOException {
 		return new GeoDistance(this, reader, radius);
+	}
+
+	/**
+	 * @return the distanceReturn
+	 */
+	public DistanceReturn getDistanceReturn() {
+		return distanceReturn;
+	}
+
+	/**
+	 * @param distanceReturn
+	 *            the distanceReturn to set
+	 */
+	public void setDistanceReturn(DistanceReturn distanceReturn) {
+		this.distanceReturn = distanceReturn;
 	}
 
 }

@@ -31,6 +31,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.geo.GeoParameters.CoordUnit;
+import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -127,6 +128,10 @@ public abstract class AbstractQueryController extends CommonController {
 
 	public CoordUnit[] getGeoCoordUnits() {
 		return GeoParameters.CoordUnit.values();
+	}
+
+	public DistanceReturn[] getGeoDistanceReturns() {
+		return GeoParameters.DistanceReturn.values();
 	}
 
 	@Override

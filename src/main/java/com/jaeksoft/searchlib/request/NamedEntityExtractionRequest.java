@@ -161,7 +161,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	}
 
 	@Override
-	public Query getQuery() throws SearchLibException, IOException {
+	final public Query getQuery() throws SearchLibException, IOException {
 		return null;
 	}
 

@@ -45,7 +45,6 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultSearchSingle extends AbstractResultSearch {
 
-	transient private ReaderAbstract reader;
 	transient private DocSetHits docSetHits;
 	transient private final TreeSet<String> fieldNameSet;
 
@@ -68,9 +67,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			ParseException, SyntaxError, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		super(searchRequest);
+		super(reader, searchRequest);
 
-		this.reader = reader;
 		docSetHits = reader.searchDocSet(searchRequest, timer);
 		numFound = docSetHits.getNumFound();
 

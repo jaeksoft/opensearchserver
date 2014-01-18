@@ -25,43 +25,65 @@
 package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
-import java.text.ParseException;
 
-import com.jaeksoft.searchlib.geo.GeoDistance;
 import com.jaeksoft.searchlib.geo.GeoParameters;
+import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
+import com.jaeksoft.searchlib.index.docvalue.DocValueType;
+import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
-public class DistanceCollector extends AbstractDocSetHitCollector {
+public class DistanceCollector extends AbstractDocSetHitCollector implements
+		DistanceInterface {
 
 	private final FloatBufferedArray distancesBuffer;
 
 	private float[] distances;
 
-	private final GeoDistance geoDistance;
+	private float maxDistance;
+
+	private final double radius;
+	private final DocValueInterface latitudeProvider;
+	private final DocValueInterface longitudeProvider;
+	private final double latitude;
+	private final double longitude;
+
+	float currentDistance;
+	private int currentDoc;
 
 	public DistanceCollector(final DocSetHitCollector base,
 			final ReaderAbstract reader, final GeoParameters geoParams)
 			throws IOException {
 		super(base);
 		this.distancesBuffer = new FloatBufferedArray(base.getMaxDoc());
-		this.geoDistance = geoParams.getGeoDistance(reader, null);
+		radius = DistanceReturn.getRadius(geoParams.getDistanceReturn());
+		latitudeProvider = reader.getDocValueInterface(
+				geoParams.getLatitudeField(), DocValueType.RADIANS);
+		longitudeProvider = reader.getDocValueInterface(
+				geoParams.getLongitudeField(), DocValueType.RADIANS);
+		latitude = geoParams.getLatitudeRadian();
+		longitude = geoParams.getLongitudeRadian();
 		distances = null;
+		currentDistance = 0;
+		currentDoc = -1;
+		maxDistance = 0;
 	}
 
 	@Override
-	final public void collectDoc(int doc) throws IOException {
+	final public void collectDoc(final int doc) throws IOException {
 		parent.collectDoc(doc);
-		if (geoDistance != null)
-			try {
-				distancesBuffer.add((float) geoDistance.getDistance(doc));
-			} catch (ParseException e) {
-				throw new IOException(e);
-			}
+		currentDoc = doc;
+		double dist = Geospatial.distance(latitudeProvider.getFloat(doc),
+				longitudeProvider.getFloat(doc), latitude, longitude, radius);
+		currentDistance = (float) dist;
+		if (currentDistance > maxDistance)
+			maxDistance = currentDistance;
+		distancesBuffer.add(currentDistance);
 	}
 
 	@Override
-	public void swap(int a, int b) {
+	final public void swap(final int a, final int b) {
 		parent.swap(a, b);
 		float dist1 = distances[a];
 		float dist2 = distances[b];
@@ -70,15 +92,43 @@ public class DistanceCollector extends AbstractDocSetHitCollector {
 	}
 
 	@Override
-	public void endCollection() {
+	final public void endCollection() {
+		parent.endCollection();
 		distances = distancesBuffer.getFinalArray();
 	}
 
 	@Override
-	public int getSize() {
+	final public int getSize() {
 		if (distances == null)
 			return 0;
 		return distances.length;
+	}
+
+	final public class DocValue implements DocValueInterface {
+
+		@Override
+		final public float getFloat(final int doc) {
+			if (currentDoc != doc)
+				throw new RuntimeException("Unexpected doc value: " + doc + "/"
+						+ currentDoc);
+			return currentDistance;
+		}
+
+	}
+
+	final public DocValueInterface getDocValue() {
+		return new DocValue();
+	}
+
+	@Override
+	public float getMaxDistance() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float[] getDistances() {
+		return distances;
 	}
 
 }
