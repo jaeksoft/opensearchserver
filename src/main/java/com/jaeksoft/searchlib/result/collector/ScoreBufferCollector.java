@@ -31,9 +31,9 @@ import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
 		ScoreInterface, DocSetHitCollectorInterface {
 
-	private float maxScore = 0;
-	private FloatBufferedArray scoreCollector;
-	private float[] scores;
+	protected float maxScore = 0;
+	protected FloatBufferedArray scoreCollector;
+	protected float[] scores;
 
 	public ScoreBufferCollector(final DocSetHitCollector base) {
 		super(base);
@@ -42,7 +42,7 @@ public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
 	}
 
 	@Override
-	final public void collectDoc(final int docId) throws IOException {
+	public void collectDoc(final int docId) throws IOException {
 		parent.collectDoc(docId);
 		float sc = base.score();
 		if (sc > maxScore)
@@ -51,7 +51,7 @@ public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
 	}
 
 	@Override
-	final public void endCollection() {
+	public void endCollection() {
 		parent.endCollection();
 		scores = scoreCollector.getFinalArray();
 	}

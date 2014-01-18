@@ -48,11 +48,12 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 		this.indexConfig = indexConfig;
 	}
 
-	public DocSetHits get(ReaderAbstract reader,
-			AbstractSearchRequest searchRequest, Schema schema,
-			SchemaField defaultField, Timer timer) throws ParseException,
-			SyntaxError, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+	final public DocSetHits get(final ReaderAbstract reader,
+			final AbstractSearchRequest searchRequest, final Schema schema,
+			final SchemaField defaultField, final Timer timer)
+			throws ParseException, SyntaxError, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
 			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();

@@ -110,6 +110,11 @@ public class ResultNamedEntityExtraction extends
 	}
 
 	@Override
+	public Float getDistance(int pos) {
+		return null;
+	}
+
+	@Override
 	public int getCollapseCount(int pos) {
 		return 0;
 	}

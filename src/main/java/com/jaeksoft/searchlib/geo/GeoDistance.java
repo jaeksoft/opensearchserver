@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.util.Geospatial;
 
+@Deprecated
 public class GeoDistance {
 
 	private final FieldCacheIndex stringIndexLatitude;

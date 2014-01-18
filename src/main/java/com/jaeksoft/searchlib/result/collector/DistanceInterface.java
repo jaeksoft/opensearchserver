@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,31 +24,12 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-abstract class AbstractDocSetHitCollector implements
-		DocSetHitCollectorInterface {
+public interface DistanceInterface extends CollectorInterface {
 
-	protected final DocSetHitCollector base;
-	protected final DocSetHitCollectorInterface parent;
+	public static float[] EMPTY_DISTANCES = new float[0];
 
-	protected AbstractDocSetHitCollector(final DocSetHitCollector base) {
-		this.parent = base.setLastCollector(this);
-		this.base = base;
-	}
+	public float getMaxDistance();
 
-	@Override
-	final public int getMaxDoc() {
-		return base.getMaxDoc();
-	}
-
-	@Override
-	final public DocSetHitCollectorInterface getParent() {
-		return parent;
-	}
-
-	@Override
-	final public <T extends CollectorInterface> T getCollector(
-			final Class<T> collectorType) {
-		return base.findCollector(collectorType);
-	}
+	public float[] getDistances();
 
 }

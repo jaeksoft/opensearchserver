@@ -240,7 +240,7 @@ public class SpellCheckRequest extends AbstractRequest {
 	}
 
 	@Override
-	public Query getQuery() throws ParseException, SyntaxError,
+	final public Query getQuery() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
 		return null;
 	}

@@ -35,10 +35,13 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import com.jaeksoft.searchlib.result.collector.DistanceCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdBufferCollector;
 import com.jaeksoft.searchlib.result.collector.DocSetHitCollector;
 import com.jaeksoft.searchlib.result.collector.DocSetHitCollectorInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreBufferAdvancedCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreBufferCollector;
+import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
@@ -47,6 +50,7 @@ public class DocSetHits {
 
 	private final DocSetHitCollector docSetHitCollector;
 	private final DocIdBufferCollector docIdBufferCollector;
+	private final DistanceCollector distanceCollector;
 	private final ScoreBufferCollector scoreBufferCollector;
 	private final DocSetHitCollectorInterface lastCollector;
 
@@ -57,18 +61,28 @@ public class DocSetHits {
 		Query query = searchRequest.getQuery();
 		if (reader.numDocs() == 0) {
 			docSetHitCollector = null;
+			distanceCollector = null;
 			docIdBufferCollector = null;
 			scoreBufferCollector = null;
 			lastCollector = null;
 			return;
 		}
+		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitCollector(
 				reader.maxDoc());
 		if (searchRequest.isScoreRequired())
-			last = scoreBufferCollector = new ScoreBufferCollector(
-					docSetHitCollector);
+			last = sc = new ScoreBufferCollector(docSetHitCollector);
+		if (searchRequest.isDistanceRequired())
+			last = distanceCollector = new DistanceCollector(
+					docSetHitCollector, reader,
+					searchRequest.getGeoParameters());
 		else
-			scoreBufferCollector = null;
+			distanceCollector = null;
+		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
+		if (advancedScore != null && !advancedScore.isEmpty()) {
+			last = sc = new ScoreBufferAdvancedCollector(reader, searchRequest,
+					docSetHitCollector, sc, distanceCollector);
+		}
 		if (searchRequest.isDocIdRequired())
 			last = docIdBufferCollector = new DocIdBufferCollector(
 					docSetHitCollector);
@@ -83,6 +97,7 @@ public class DocSetHits {
 			sorter.quickSort(timer);
 		}
 		lastCollector = last;
+		scoreBufferCollector = sc;
 	}
 
 	final public int getNumFound() {

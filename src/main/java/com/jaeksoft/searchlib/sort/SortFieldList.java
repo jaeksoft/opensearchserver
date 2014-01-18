@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,15 @@ public class SortFieldList extends AbstractFieldList<SortField> {
 			return true;
 		for (SortField field : this)
 			if (field.isScore())
+				return true;
+		return false;
+	}
+
+	final public boolean isDistance() {
+		if (size() == 0)
+			return true;
+		for (SortField field : this)
+			if (field.isDistance())
 				return true;
 		return false;
 	}

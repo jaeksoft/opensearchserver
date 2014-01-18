@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,33 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.index.docvalue;
 
-abstract class AbstractDocSetHitCollector implements
-		DocSetHitCollectorInterface {
+import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 
-	protected final DocSetHitCollector base;
-	protected final DocSetHitCollectorInterface parent;
+public class RadiansDocValue extends DocValueNumber {
 
-	protected AbstractDocSetHitCollector(final DocSetHitCollector base) {
-		this.parent = base.setLastCollector(this);
-		this.base = base;
-	}
-
-	@Override
-	final public int getMaxDoc() {
-		return base.getMaxDoc();
-	}
-
-	@Override
-	final public DocSetHitCollectorInterface getParent() {
-		return parent;
-	}
-
-	@Override
-	final public <T extends CollectorInterface> T getCollector(
-			final Class<T> collectorType) {
-		return base.findCollector(collectorType);
+	public RadiansDocValue(final FieldCacheIndex stringIndex) {
+		super(stringIndex, DegreesRadiansFilter.getRadiansFormat());
 	}
 
 }
