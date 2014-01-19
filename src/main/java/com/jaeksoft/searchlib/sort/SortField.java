@@ -90,6 +90,10 @@ public class SortField extends AbstractField<SortField> implements
 		return name.equals("score");
 	}
 
+	final public boolean isDistance() {
+		return name.equals("__distance__");
+	}
+
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
 		if (isScore()) {

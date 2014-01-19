@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.geo.GeoParameters.CoordUnit;
+import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinList;
@@ -67,6 +68,8 @@ import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
+import com.jaeksoft.searchlib.scoring.AdvancedScore;
+import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
 import com.jaeksoft.searchlib.snippet.NoFragmenter;
 import com.jaeksoft.searchlib.snippet.SentenceFragmenter;
 import com.jaeksoft.searchlib.snippet.SnippetField;
@@ -101,6 +104,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public List<Snippet> snippets;
 	final public List<Facet> facets;
 	final public List<Join> joins;
+	final public List<Scoring> scorings;
 	final public Boolean enableLog;
 	final public List<String> customLogs;
 
@@ -118,6 +122,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		snippets = null;
 		facets = null;
 		joins = null;
+		scorings = null;
 		enableLog = null;
 		customLogs = null;
 		emptyReturnsAll = true;
@@ -270,6 +275,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		final public double latitude;
 		final public double longitude;
 		final public CoordUnit coordUnit;
+		final public DistanceReturn distanceReturn;
 
 		public Geo() {
 			latitudeField = null;
@@ -277,6 +283,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			latitude = 0;
 			longitude = 0;
 			coordUnit = null;
+			distanceReturn = null;
 		}
 
 		public Geo(GeoParameters geoParams) {
@@ -285,6 +292,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			latitude = geoParams.getLatitude();
 			longitude = geoParams.getLongitude();
 			coordUnit = geoParams.getCoordUnit();
+			distanceReturn = geoParams.getDistanceReturn();
 		}
 
 		private void apply(GeoParameters geoParams) {
@@ -293,6 +301,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			geoParams.setLatitudeField(latitudeField);
 			geoParams.setLongitudeField(longitudeField);
 			geoParams.setCoordUnit(coordUnit);
+			geoParams.setDistanceReturn(distanceReturn);
 		}
 	}
 
@@ -563,6 +572,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Sort {
 
+		public static enum Direction {
+			ASC, DESC;
+		}
+
 		final public String field;
 		final public Direction direction;
 
@@ -577,7 +590,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 
 		@JsonIgnore
-		protected SortField newSortField() {
+		final private SortField newSortField() {
 			SortField sortField = new SortField(field, false);
 			if (direction != null)
 				sortField.setDirection(direction.name());
@@ -585,11 +598,55 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
-	public enum Direction {
-		ASC, DESC;
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class Scoring {
+
+		public static enum Type {
+			DISTANCE, FIELD_ORDER;
+		}
+
+		final public Boolean ascending;
+		final public String fieldName;
+		final public Double weight;
+		final public Type type;
+
+		public Scoring() {
+			ascending = null;
+			fieldName = null;
+			weight = null;
+			type = null;
+		}
+
+		public Scoring(AdvancedScoreItem scoreItem) {
+			ascending = scoreItem.isAscending();
+			fieldName = scoreItem.getFieldName();
+			weight = scoreItem.getWeight();
+			type = scoreItem.getType();
+		}
+
+		@JsonIgnore
+		final private AdvancedScoreItem newAdvancedScoreItem() {
+			return new AdvancedScoreItem(this);
+		}
 	}
 
-	private static List<Sort> newSortList(SortFieldList sortFieldList) {
+	final private static List<Scoring> newScoringList(
+			final AdvancedScore advancedScore) {
+		if (advancedScore == null)
+			return null;
+		AdvancedScoreItem[] advancedScoreItems = advancedScore.getArray();
+		if (advancedScoreItems == null)
+			return null;
+		List<Scoring> scorings = new ArrayList<Scoring>(
+				advancedScoreItems.length);
+		for (AdvancedScoreItem advancedScoreItem : advancedScoreItems)
+			scorings.add(new Scoring(advancedScoreItem));
+		return scorings;
+	}
+
+	final private static List<Sort> newSortList(
+			final SortFieldList sortFieldList) {
 		if (sortFieldList == null)
 			return null;
 		if (sortFieldList.size() == 0)
@@ -600,8 +657,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		return sorts;
 	}
 
-	private static List<String> newReturnFieldList(
-			ReturnFieldList returnFieldList) {
+	final private static List<String> newReturnFieldList(
+			final ReturnFieldList returnFieldList) {
 		if (returnFieldList == null)
 			return null;
 		if (returnFieldList.size() == 0)
@@ -801,7 +858,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
-	private static List<Join> newJoinList(JoinList joinList) {
+	final private static List<Join> newJoinList(final JoinList joinList) {
 		if (joinList == null)
 			return null;
 		if (joinList.size() == 0)
@@ -812,7 +869,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		return joins;
 	}
 
-	private static List<String> newLogList(List<String> customLogs) {
+	final private static List<String> newLogList(final List<String> customLogs) {
 		if (customLogs == null)
 			return null;
 		if (customLogs.size() == 0)
@@ -820,7 +877,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		return new ArrayList<String>(customLogs);
 	}
 
-	public SearchQueryAbstract(AbstractSearchRequest request) {
+	public SearchQueryAbstract(final AbstractSearchRequest request) {
 		query = request.getQueryString();
 		emptyReturnsAll = request.getEmptyReturnsAll();
 		start = request.getStart();
@@ -836,6 +893,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		snippets = newSnippetList(request.getSnippetFieldList());
 		facets = newFacetList(request.getFacetFieldList());
 		joins = newJoinList(request.getJoinList());
+		scorings = newScoringList(request.getAdvancedScore());
 		enableLog = request.isLogReport();
 		customLogs = newLogList(request.getCustomLogs());
 	}
@@ -893,6 +951,9 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			if (joins != null)
 				for (Join join : joins)
 					request.getJoinList().add(join.newJoinItem());
+			if (scorings != null)
+				for (Scoring scoring : scorings)
+					request.addAdvancedScore(scoring.newAdvancedScoreItem());
 			if (enableLog != null)
 				request.setLogReport(enableLog);
 			if (customLogs != null)

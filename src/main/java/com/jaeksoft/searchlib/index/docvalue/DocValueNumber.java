@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,33 +22,32 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.index.docvalue;
 
-abstract class AbstractDocSetHitCollector implements
-		DocSetHitCollectorInterface {
+import java.text.NumberFormat;
+import java.text.ParseException;
 
-	protected final DocSetHitCollector base;
-	protected final DocSetHitCollectorInterface parent;
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 
-	protected AbstractDocSetHitCollector(final DocSetHitCollector base) {
-		this.parent = base.setLastCollector(this);
-		this.base = base;
+public abstract class DocValueNumber extends DocValueStringIndex {
+
+	private final NumberFormat numberFormat;
+
+	protected DocValueNumber(final FieldCacheIndex stringIndex,
+			final NumberFormat numberFormat) {
+		super(stringIndex);
+		this.numberFormat = numberFormat;
 	}
 
 	@Override
-	final public int getMaxDoc() {
-		return base.getMaxDoc();
+	final public float getFloat(final int doc) {
+		try {
+			String s = stringIndex.lookup[stringIndex.order[doc]];
+			if (s == null)
+				return 0;
+			return numberFormat.parse(s).floatValue();
+		} catch (ParseException e) {
+			return 0;
+		}
 	}
-
-	@Override
-	final public DocSetHitCollectorInterface getParent() {
-		return parent;
-	}
-
-	@Override
-	final public <T extends CollectorInterface> T getCollector(
-			final Class<T> collectorType) {
-		return base.findCollector(collectorType);
-	}
-
 }

@@ -22,44 +22,22 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.scoring;
-
-import java.text.DecimalFormat;
-import java.text.ParseException;
-
-import org.apache.lucene.search.function.DocValues;
+package com.jaeksoft.searchlib.index.docvalue;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 
-public class DecimalDocValue extends DocValues {
+public class ReverseOrderDocValue extends DocValueStringIndex {
 
-	private final FieldCacheIndex stringIndex;
-	private final DecimalFormat decimalFormat;
+	final private float max;
 
-	public DecimalDocValue(final FieldCacheIndex stringIndex,
-			final DecimalFormat decimalFormat) {
-		this.stringIndex = stringIndex;
-		this.decimalFormat = decimalFormat;
+	public ReverseOrderDocValue(final FieldCacheIndex stringIndex) {
+		super(stringIndex);
+		this.max = stringIndex.order.length;
 	}
 
 	@Override
-	final public float floatVal(final int doc) {
-		try {
-			String s = stringIndex.lookup[stringIndex.order[doc]];
-			if (s == null)
-				return 0;
-			return decimalFormat.parse(s).floatValue();
-		} catch (ParseException e) {
-			return 0;
-		}
-	}
-
-	@Override
-	final public String toString(final int doc) {
-		StringBuilder sb = new StringBuilder("decimal(");
-		sb.append(floatVal(doc));
-		sb.append(')');
-		return sb.toString();
+	final public float getFloat(final int doc) {
+		return max - stringIndex.order[doc];
 	}
 
 }

@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
@@ -62,6 +63,7 @@ public abstract class AbstractRequest {
 
 	private String requestName;
 	protected Config config;
+	protected ReaderAbstract reader;
 	private boolean withLogReport;
 	private List<String> customLogs;
 	private int timerMinTime;
@@ -145,7 +147,7 @@ public abstract class AbstractRequest {
 		return requestType;
 	}
 
-	public void init(Config config) {
+	final public void init(Config config) {
 		rwl.w.lock();
 		try {
 			this.config = config;

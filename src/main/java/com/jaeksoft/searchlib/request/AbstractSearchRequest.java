@@ -71,6 +71,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
+import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 import com.jaeksoft.searchlib.sort.SortField;
@@ -316,9 +317,6 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			boostedComplexQuery = newComplexQuery(queryString);
 			if (boostedComplexQuery == null)
 				boostedComplexQuery = new BooleanQuery();
-			if (advancedScore != null && !advancedScore.isEmpty())
-				boostedComplexQuery = advancedScore
-						.getNewQuery(boostedComplexQuery);
 			for (BoostQuery boostQuery : boostingQueries)
 				boostedComplexQuery = boostQuery.getNewQuery(
 						boostedComplexQuery, queryParser);
@@ -365,7 +363,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public String getQueryParsed() throws ParseException, SyntaxError,
+	final public String getQueryParsed() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
 		rwl.r.lock();
 		try {
@@ -396,10 +394,26 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setAdvancedScore(AdvancedScore advancedScore) {
+	final public void addAdvancedScore(final AdvancedScoreItem scoreItem) {
+		if (scoreItem == null)
+			return;
 		rwl.w.lock();
 		try {
-			this.advancedScore = advancedScore;
+			if (advancedScore == null)
+				advancedScore = new AdvancedScore();
+			advancedScore.addItem(scoreItem);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	final public void removeAdvancedScore(final AdvancedScoreItem scoreItem) {
+		if (scoreItem == null)
+			return;
+		try {
+			if (advancedScore == null)
+				return;
+			advancedScore.removeItem(scoreItem);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -517,7 +531,26 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	public boolean isScoreRequired() {
 		rwl.r.lock();
 		try {
-			return this.sortFieldList.isScore();
+			if (sortFieldList.isScore())
+				return true;
+			if (advancedScore != null)
+				if (advancedScore.getScoreWeight() > 0)
+					return true;
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isDistanceRequired() {
+		rwl.r.lock();
+		try {
+			if (sortFieldList.isDistance())
+				return true;
+			if (advancedScore != null)
+				if (advancedScore.isDistance())
+					return true;
+			return false;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -809,7 +842,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public GeoParameters getGeoParameters() {
+	final public GeoParameters getGeoParameters() {
 		return geoParameters;
 	}
 
@@ -885,7 +918,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
 				requestNode);
 		if (advancedScore != null)
-			setAdvancedScore(advancedScore);
+			this.advancedScore = advancedScore;
 
 		setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
 				.getAttributeString(requestNode, "collapseMode")));
