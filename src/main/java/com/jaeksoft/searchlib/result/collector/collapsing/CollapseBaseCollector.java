@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,16 +22,20 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.collapsing;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-public class CollapseDocIdCollector extends AbstractCollector implements
-		CollapseDocInterface, JoinDocInterface {
+import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
-	protected final int[][] foreignDocIdsArray;
-	protected final int[] sourceIds;
+public class CollapseBaseCollector extends
+		AbstractBaseCollector<CollapseCollectorInterface> implements
+		CollapseDocInterface, CollapseCollectorInterface, DocIdInterface {
+
+	final int[] sourceIds;
 	protected int totalCollapseCount = 0;
 	protected final int[] ids;
 	protected final int[][] collapseDocsArray;
@@ -40,14 +44,8 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 	protected int maxDoc;
 	protected OpenBitSet bitSet;
 
-	public CollapseDocIdCollector(DocIdInterface sourceCollector, int size,
+	public CollapseBaseCollector(DocIdInterface sourceCollector, int size,
 			boolean collectDocArray) {
-		super(null, sourceCollector.getMaxDoc());
-		if (sourceCollector instanceof JoinDocInterface) {
-			foreignDocIdsArray = ((JoinDocInterface) sourceCollector)
-					.getForeignDocIdsArray();
-		} else
-			foreignDocIdsArray = null;
 		this.sourceIds = sourceCollector.getIds();
 		this.totalCollapseCount = 0;
 		this.collapseDocsArray = collectDocArray ? new int[size][] : null;
@@ -58,13 +56,7 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 		this.bitSet = null;
 	}
 
-	protected CollapseDocIdCollector(CollapseDocIdCollector src) {
-		super(null, src.maxDoc);
-		if (src.foreignDocIdsArray != null)
-			foreignDocIdsArray = JoinDocCollector
-					.copyForeignDocIdsArray(src.foreignDocIdsArray);
-		else
-			foreignDocIdsArray = null;
+	private CollapseBaseCollector(CollapseBaseCollector src) {
 		this.sourceIds = src.sourceIds;
 		this.totalCollapseCount = src.totalCollapseCount;
 		this.collapseDocsArray = new int[src.collapseDocsArray.length][];
@@ -79,12 +71,12 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 	}
 
 	@Override
-	public DocIdInterface duplicate() {
-		return null;
+	public CollapseBaseCollector duplicate(AbstractBaseCollector<?> base) {
+		return new CollapseBaseCollector((CollapseBaseCollector) base);
 	}
 
 	@Override
-	public int collectDoc(int sourcePos) {
+	final public int collectDoc(final int sourcePos) {
 		collapseCounts[currentPos] = 0;
 		ids[currentPos] = sourceIds[sourcePos];
 		int pos = currentPos;
@@ -93,7 +85,12 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 	}
 
 	@Override
-	public void collectCollapsedDoc(int sourcePos, int collapsePos) {
+	final public void endCollection() {
+	}
+
+	@Override
+	final public void collectCollapsedDoc(final int sourcePos,
+			final int collapsePos) {
 		totalCollapseCount++;
 		collapseCounts[collapsePos]++;
 		if (collapseDocsArray == null)
@@ -112,7 +109,6 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 
 	@Override
 	public void swap(int pos1, int pos2) {
-
 		int id = ids[pos1];
 		ids[pos1] = ids[pos2];
 		ids[pos2] = id;
@@ -126,9 +122,6 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 			collapseDocsArray[pos1] = collapseDocsArray[pos2];
 			collapseDocsArray[pos2] = colArray;
 		}
-
-		if (foreignDocIdsArray != null)
-			JoinDocCollector.swap(foreignDocIdsArray, pos1, pos2);
 	}
 
 	@Override
@@ -164,21 +157,8 @@ public class CollapseDocIdCollector extends AbstractCollector implements
 	}
 
 	@Override
-	public void setForeignDocId(int pos, int joinResultPos, int foreignDocId,
-			float foreignScore) {
-		throw new RuntimeException(
-				"New join is not allowed on already collapsed documents");
-	}
-
-	@Override
-	public int getForeignDocIds(int pos, int joinPosition) {
-		return JoinDocCollector.getForeignDocIds(foreignDocIdsArray, pos,
-				joinPosition);
-	}
-
-	@Override
-	public int[][] getForeignDocIdsArray() {
-		return foreignDocIdsArray;
+	public int getMaxDoc() {
+		return maxDoc;
 	}
 
 }

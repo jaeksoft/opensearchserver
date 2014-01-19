@@ -29,8 +29,8 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseCluster extends CollapseAbstract {
@@ -40,14 +40,14 @@ public class CollapseCluster extends CollapseAbstract {
 	}
 
 	@Override
-	protected CollapseDocInterface collapse(DocIdInterface collector,
+	protected CollapseCollectorInterface collapse(DocIdInterface collector,
 			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "Build collapse map");
 		Map<String, Integer> collapsedDocMap = new TreeMap<String, Integer>();
 		int[] ids = collector.getIds();
 
-		CollapseDocInterface collapseInterface = getNewCollapseInterfaceInstance(
+		CollapseCollectorInterface collapseCollector = getNewCollapseInterfaceInstance(
 				collector, fetchLength, getCollectDocArray());
 		Integer collapsePos;
 
@@ -55,15 +55,18 @@ public class CollapseCluster extends CollapseAbstract {
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[ids[i]]];
 			if (term != null
 					&& ((collapsePos = collapsedDocMap.get(term)) != null)) {
-				collapseInterface.collectCollapsedDoc(i, collapsePos);
+				collapseCollector.collectCollapsedDoc(i, collapsePos);
 			} else {
-				collapsePos = collapseInterface.collectDoc(i);
+				collapsePos = collapseCollector.collectDoc(i);
 				if (term != null)
 					collapsedDocMap.put(term, collapsePos);
 			}
 		}
+
+		collapseCollector.endCollection();
+
 		t.getDuration();
 
-		return collapseInterface;
+		return collapseCollector;
 	}
 }

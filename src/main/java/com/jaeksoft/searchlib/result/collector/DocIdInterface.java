@@ -28,10 +28,10 @@ import org.apache.lucene.util.OpenBitSet;
 
 public interface DocIdInterface extends CollectorInterface {
 
+	int getMaxDoc();
+
 	int[] getIds();
 
 	OpenBitSet getBitSet();
-
-	DocIdInterface duplicate();
 
 }

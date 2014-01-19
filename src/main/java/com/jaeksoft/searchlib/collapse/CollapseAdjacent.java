@@ -28,8 +28,8 @@ import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class CollapseAdjacent extends CollapseAbstract {
@@ -39,7 +39,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 	}
 
 	@Override
-	protected CollapseDocInterface collapse(DocIdInterface collector,
+	protected CollapseCollectorInterface collapse(DocIdInterface collector,
 			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "adjacent collapse");
@@ -61,7 +61,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 		}
 
 		int collapsedDocCount = (int) collapsedSet.cardinality();
-		CollapseDocInterface collapseCollector = getNewCollapseInterfaceInstance(
+		CollapseCollectorInterface collapseCollector = getNewCollapseInterfaceInstance(
 				collector, fetchLength - collapsedDocCount,
 				getCollectDocArray());
 		int collapsePos = -1;
@@ -70,8 +70,8 @@ public class CollapseAdjacent extends CollapseAbstract {
 				collapsePos = collapseCollector.collectDoc(i);
 			else
 				collapseCollector.collectCollapsedDoc(i, collapsePos);
-
 		}
+		collapseCollector.endCollection();
 
 		t.getDuration();
 

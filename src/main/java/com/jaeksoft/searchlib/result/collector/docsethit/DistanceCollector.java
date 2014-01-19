@@ -22,20 +22,27 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
 import com.jaeksoft.searchlib.index.docvalue.DocValueType;
+import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
+import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
+import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
-public class DistanceCollector extends AbstractDocSetHitCollector implements
-		DistanceInterface {
+public class DistanceCollector
+		extends
+		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
+		implements DocSetHitCollectorInterface, DistanceInterface {
 
 	private final FloatBufferedArray distancesBuffer;
 
@@ -52,7 +59,7 @@ public class DistanceCollector extends AbstractDocSetHitCollector implements
 	float currentDistance;
 	private int currentDoc;
 
-	public DistanceCollector(final DocSetHitCollector base,
+	public DistanceCollector(final DocSetHitBaseCollector base,
 			final ReaderAbstract reader, final GeoParameters geoParams)
 			throws IOException {
 		super(base);
@@ -68,6 +75,24 @@ public class DistanceCollector extends AbstractDocSetHitCollector implements
 		currentDistance = 0;
 		currentDoc = -1;
 		maxDistance = 0;
+	}
+
+	private DistanceCollector(final DocSetHitBaseCollector base,
+			final DistanceCollector src) {
+		super(base);
+		distancesBuffer = null;
+		distances = ArrayUtils.clone(src.distances);
+		radius = src.radius;
+		latitudeProvider = null;
+		longitudeProvider = null;
+		latitude = src.latitude;
+		longitude = src.longitude;
+	}
+
+	@Override
+	public DistanceCollector duplicate(final AbstractBaseCollector<?> base) {
+		parent.duplicate(base);
+		return new DistanceCollector((DocSetHitBaseCollector) base, this);
 	}
 
 	@Override
@@ -97,13 +122,6 @@ public class DistanceCollector extends AbstractDocSetHitCollector implements
 		distances = distancesBuffer.getFinalArray();
 	}
 
-	@Override
-	final public int getSize() {
-		if (distances == null)
-			return 0;
-		return distances.length;
-	}
-
 	final public class DocValue implements DocValueInterface {
 
 		@Override
@@ -121,14 +139,20 @@ public class DistanceCollector extends AbstractDocSetHitCollector implements
 	}
 
 	@Override
-	public float getMaxDistance() {
-		// TODO Auto-generated method stub
-		return 0;
+	final public float getMaxDistance() {
+		return maxDistance;
 	}
 
 	@Override
-	public float[] getDistances() {
+	final public float[] getDistances() {
 		return distances;
+	}
+
+	@Override
+	final public int getSize() {
+		if (distances == null)
+			return 0;
+		return distances.length;
 	}
 
 }
