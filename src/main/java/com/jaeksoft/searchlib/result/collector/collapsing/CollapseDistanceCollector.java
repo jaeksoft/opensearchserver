@@ -44,8 +44,7 @@ public class CollapseDistanceCollector
 	private int currentPos;
 
 	public CollapseDistanceCollector(final CollapseBaseCollector base,
-			final DistanceInterface distanceInterface,
-			final boolean collectDocArray) {
+			final DistanceInterface distanceInterface) {
 		super(base);
 		this.sourceDistances = distanceInterface.getDistances();
 		distanceCollector = new FloatBufferedArray(this.sourceDistances.length);
