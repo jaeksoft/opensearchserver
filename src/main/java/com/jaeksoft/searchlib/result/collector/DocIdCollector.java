@@ -24,43 +24,51 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
+import it.unimi.dsi.fastutil.Swapper;
+
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-class DocIdCollector extends AbstractCollector implements DocIdInterface {
+public class DocIdCollector implements DocIdInterface, Swapper {
 
+	private final int maxDoc;
 	private final int[] ids;
 	private int currentPos;
 	private OpenBitSet bitSet;
 
-	DocIdCollector(int maxDoc, int maxSize) {
-		super(null, maxDoc);
+	public DocIdCollector(final int maxDoc, final int maxSize) {
+		this.maxDoc = maxDoc;
 		ids = new int[maxSize];
 		currentPos = 0;
 		bitSet = new OpenBitSet(maxDoc);
 	}
 
-	private DocIdCollector(DocIdCollector source) {
-		super(source.parent, source.maxDoc);
+	private DocIdCollector(final DocIdCollector source) {
+		this.maxDoc = source.maxDoc;
 		this.ids = ArrayUtils.clone(source.ids);
 		this.currentPos = source.currentPos;
 		this.bitSet = (OpenBitSet) source.bitSet.clone();
 	}
 
 	@Override
-	public DocIdInterface duplicate() {
+	final public CollectorInterface duplicate() {
 		return new DocIdCollector(this);
 	}
 
-	public void collectDoc(int doc) throws IOException {
+	@Override
+	final public DocIdCollector duplicate(final AbstractBaseCollector<?> base) {
+		return new DocIdCollector(this);
+	}
+
+	final public void collectDoc(final int doc) throws IOException {
 		ids[currentPos++] = doc;
 		bitSet.fastSet(doc);
 	}
 
 	@Override
-	public void swap(int a, int b) {
+	final public void swap(final int a, final int b) {
 		int v1 = ids[a];
 		int v2 = ids[b];
 		ids[a] = v2;
@@ -68,18 +76,34 @@ class DocIdCollector extends AbstractCollector implements DocIdInterface {
 	}
 
 	@Override
-	public int[] getIds() {
+	final public int[] getIds() {
 		return ids;
 	}
 
 	@Override
-	public int getSize() {
+	final public int getSize() {
 		return currentPos;
 	}
 
 	@Override
-	public OpenBitSet getBitSet() {
+	final public OpenBitSet getBitSet() {
 		return bitSet;
+	}
+
+	@Override
+	final public int getMaxDoc() {
+		return maxDoc;
+	}
+
+	@Override
+	public <T extends CollectorInterface> T getCollector(
+			final Class<T> collectorType) {
+		return null;
+	}
+
+	@Override
+	public CollectorInterface getParent() {
+		return null;
 	}
 
 }

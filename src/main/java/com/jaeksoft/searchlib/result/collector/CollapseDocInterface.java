@@ -26,14 +26,10 @@ package com.jaeksoft.searchlib.result.collector;
 
 public interface CollapseDocInterface extends DocIdInterface {
 
-	int collectDoc(final int sourcePos);
-
-	void collectCollapsedDoc(final int sourcePos, final int collapsePos);
-
 	int getCollapsedCount();
 
-	public int[] getCollapseCounts();
+	int[] getCollapseCounts();
 
-	public int[] getCollapsedDocs(int pos);
+	int[] getCollapsedDocs(int pos);
 
 }

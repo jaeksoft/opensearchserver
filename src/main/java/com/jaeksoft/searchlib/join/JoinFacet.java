@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
+import com.jaeksoft.searchlib.result.collector.join.JoinDocCollector;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinFacet {

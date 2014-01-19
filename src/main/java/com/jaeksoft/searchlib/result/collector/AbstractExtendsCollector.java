@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,18 +24,32 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import it.unimi.dsi.fastutil.Swapper;
+public abstract class AbstractExtendsCollector<C extends CollectorInterface, B extends AbstractBaseCollector<C>>
+		implements CollectorInterface {
 
-public interface CollectorInterface extends Swapper {
+	final protected B base;
+	final protected C parent;
 
-	int getSize();
+	@SuppressWarnings("unchecked")
+	protected AbstractExtendsCollector(B base) {
+		this.base = (B) base;
+		parent = base.setLastCollector((C) this);
+	}
 
-	<T extends CollectorInterface> T getCollector(Class<T> collectorType);
+	@Override
+	final public <T extends CollectorInterface> T getCollector(
+			Class<T> collectorType) {
+		return base.getCollector(collectorType);
+	}
 
-	CollectorInterface getParent();
+	@Override
+	final public C getParent() {
+		return parent;
+	}
 
-	CollectorInterface duplicate(AbstractBaseCollector<?> base);
-
-	CollectorInterface duplicate();
-
+	@Override
+	final public CollectorInterface duplicate() {
+		base.duplicate();
+		return getCollector(this.getClass());
+	}
 }
