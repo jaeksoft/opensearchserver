@@ -31,7 +31,7 @@
 		<version>7</version>
 	</parent>
 	<prerequisites>
-		<maven>2.2.1</maven>
+		<maven>3.0</maven>
 	</prerequisites>
 	<dependencies>
 		<dependency>
@@ -424,7 +424,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cxf.version>2.7.7</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
-		<httpclient.version>4.3.1</httpclient.version>
+		<httpclient.version>4.3.2</httpclient.version>
 		<poi.version>3.10-beta2</poi.version>
 		<selenium.version>2.39.0</selenium.version>
 		<zk.version>6.5.3</zk.version>
