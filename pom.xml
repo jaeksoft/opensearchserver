@@ -38,7 +38,7 @@
 		<version>7</version>
 	</parent>
 	<prerequisites>
-		<maven>2.2.1</maven>
+		<maven>3.0</maven>
 	</prerequisites>
 	<dependencies>
 		<dependency>
@@ -441,10 +441,10 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cxf.version>2.7.7</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
-		<httpclient.version>4.3.1</httpclient.version>
+		<httpclient.version>4.3.2</httpclient.version>
 		<poi.version>3.10-beta2</poi.version>
 		<selenium.version>2.39.0</selenium.version>
-		<zk.version>7.0.1.FL.20131230</zk.version>
+		<zk.version>7.0.1.FL.20140117</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>
