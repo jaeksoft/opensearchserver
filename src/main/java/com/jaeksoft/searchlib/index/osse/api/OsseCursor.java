@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray.PointerProvider;
-import com.jaeksoft.searchlib.result.collector.DocSetHitCollectorInterface;
+import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInterface;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.IOUtils;

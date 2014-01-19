@@ -32,11 +32,12 @@ import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.collector.CollapseDocIdCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
-import com.jaeksoft.searchlib.result.collector.CollapseScoreDocCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseBaseCollector;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseScoreDocCollector;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class CollapseAbstract {
@@ -59,8 +60,9 @@ public abstract class CollapseAbstract {
 		this.collapsedDocs = null;
 	}
 
-	protected abstract CollapseDocInterface collapse(DocIdInterface collector,
-			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer);
+	protected abstract CollapseCollectorInterface collapse(
+			DocIdInterface collector, int fetchLength,
+			FieldCacheIndex collapseStringIndex, Timer timer);
 
 	public CollapseDocInterface run(DocIdInterface collector, int fetchLength,
 			FieldCacheIndex collapseStringIndex, Timer timer)
@@ -75,8 +77,11 @@ public abstract class CollapseAbstract {
 		if (fetchLength > numFound)
 			fetchLength = numFound;
 
-		collapsedDocs = collapse(collector, fetchLength, collapseStringIndex,
-				timer);
+		CollapseCollectorInterface collapseCollectorInterface = collapse(
+				collector, fetchLength, collapseStringIndex, timer);
+
+		collapsedDocs = collapseCollectorInterface
+				.getCollector(CollapseDocInterface.class);
 		return collapsedDocs;
 	}
 
@@ -209,14 +214,16 @@ public abstract class CollapseAbstract {
 		}
 	}
 
-	final protected static CollapseDocInterface getNewCollapseInterfaceInstance(
+	final protected static CollapseCollectorInterface getNewCollapseInterfaceInstance(
 			final DocIdInterface collector, final int capacity,
 			final boolean collectDocArray) {
+		CollapseBaseCollector base = new CollapseBaseCollector(collector,
+				capacity, collectDocArray);
+		CollapseCollectorInterface last = base;
 		ScoreInterface scoreInterface = collector
 				.getCollector(ScoreInterface.class);
-		return scoreInterface != null ? new CollapseScoreDocCollector(
-				collector, scoreInterface, capacity, collectDocArray)
-				: new CollapseDocIdCollector(collector, capacity,
-						collectDocArray);
+		if (scoreInterface != null)
+			last = new CollapseScoreDocCollector(base, scoreInterface);
+		return last;
 	}
 }
