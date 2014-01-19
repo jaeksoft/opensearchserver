@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
@@ -40,7 +40,7 @@ public class ScoreBufferAdvancedCollector extends ScoreBufferCollector {
 	private final AdvancedScoreItemValue[] scoreItemValues;
 	private int size;
 
-	public ScoreBufferAdvancedCollector(final ReaderLocal reader,
+	public ScoreBufferAdvancedCollector(final ReaderAbstract reader,
 			final AbstractSearchRequest request,
 			final DocSetHitBaseCollector base,
 			final ScoreBufferCollector scoreBufferCollector,

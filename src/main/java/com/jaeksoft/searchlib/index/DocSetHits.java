@@ -54,7 +54,7 @@ public class DocSetHits {
 	private final ScoreBufferCollector scoreBufferCollector;
 	private final DocSetHitCollectorInterface lastCollector;
 
-	protected DocSetHits(ReaderLocal reader,
+	protected DocSetHits(ReaderAbstract reader,
 			AbstractSearchRequest searchRequest, FilterHits filterHits,
 			SortFieldList sortFieldList, Timer timer) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
