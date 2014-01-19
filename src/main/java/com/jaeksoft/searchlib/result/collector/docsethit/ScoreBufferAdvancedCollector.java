@@ -22,12 +22,13 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItemValue;
@@ -40,7 +41,8 @@ public class ScoreBufferAdvancedCollector extends ScoreBufferCollector {
 	private int size;
 
 	public ScoreBufferAdvancedCollector(final ReaderLocal reader,
-			final AbstractSearchRequest request, final DocSetHitCollector base,
+			final AbstractSearchRequest request,
+			final DocSetHitBaseCollector base,
 			final ScoreBufferCollector scoreBufferCollector,
 			final DistanceCollector distanceCollector) throws IOException {
 		super(base);
@@ -57,6 +59,23 @@ public class ScoreBufferAdvancedCollector extends ScoreBufferCollector {
 						reader, scoreItem, distanceCollector);
 		this.scoreWeight = (float) advancedScore.getScoreWeight();
 		size = 0;
+	}
+
+	private ScoreBufferAdvancedCollector(final DocSetHitBaseCollector base,
+			final ScoreBufferAdvancedCollector src) {
+		super(base, src);
+		scoreBufferCollector = null;
+		scoreWeight = src.scoreWeight;
+		scoreItemValues = null;
+		size = src.size;
+	}
+
+	@Override
+	public ScoreBufferAdvancedCollector duplicate(
+			final AbstractBaseCollector<?> base) {
+		parent.duplicate(base);
+		return new ScoreBufferAdvancedCollector((DocSetHitBaseCollector) base,
+				this);
 	}
 
 	@Override

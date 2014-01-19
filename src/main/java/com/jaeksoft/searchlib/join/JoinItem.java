@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.result.collector.JoinDocCollector;
+import com.jaeksoft.searchlib.result.collector.join.JoinUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -387,10 +387,10 @@ public class JoinItem implements Comparable<JoinItem> {
 						"No string index found for the foreign field: "
 								+ foreignField);
 			t = new Timer(timer, joinResultName + " join");
-			DocIdInterface joinDocs = JoinDocCollector.join(docs,
-					localStringIndex, resultSearch.getDocs(),
-					foreignFieldIndex, joinResultSize, joinResult.joinPosition,
-					t, returnScores, type, outerCollector);
+			DocIdInterface joinDocs = JoinUtils.join(docs, localStringIndex,
+					resultSearch.getDocs(), foreignFieldIndex, joinResultSize,
+					joinResult.joinPosition, t, returnScores, type,
+					outerCollector);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {

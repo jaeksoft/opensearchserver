@@ -22,39 +22,47 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
+import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.array.IntBufferedArray;
 
-public class DocIdBufferCollector extends AbstractDocSetHitCollector implements
-		DocIdInterface, DocSetHitCollectorInterface {
+public class DocIdBufferCollector
+		extends
+		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
+		implements DocSetHitCollectorInterface, DocIdInterface {
 
 	final private IntBufferedArray idsBuffer;
 	private int[] ids;
 	private OpenBitSet bitSet;
 
-	public DocIdBufferCollector(DocSetHitCollector base) {
+	public DocIdBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
 		bitSet = new OpenBitSet(base.getMaxDoc());
 		idsBuffer = new IntBufferedArray(base.getMaxDoc());
 		ids = null;
 	}
 
-	private DocIdBufferCollector(DocIdBufferCollector source) {
-		super(null);
+	private DocIdBufferCollector(final DocSetHitBaseCollector base,
+			final DocIdBufferCollector source) {
+		super(base);
 		this.idsBuffer = null;
 		this.ids = ArrayUtils.clone(source.ids);
 		this.bitSet = (OpenBitSet) source.bitSet.clone();
 	}
 
 	@Override
-	public DocIdBufferCollector duplicate() {
-		return new DocIdBufferCollector(this);
+	public CollectorInterface duplicate(final AbstractBaseCollector<?> base) {
+		parent.duplicate(base);
+		return new DocIdBufferCollector((DocSetHitBaseCollector) base, this);
 	}
 
 	@Override
@@ -80,11 +88,6 @@ public class DocIdBufferCollector extends AbstractDocSetHitCollector implements
 	}
 
 	@Override
-	final public int getSize() {
-		return ids.length;
-	}
-
-	@Override
 	final public int[] getIds() {
 		return ids;
 	}
@@ -92,6 +95,16 @@ public class DocIdBufferCollector extends AbstractDocSetHitCollector implements
 	@Override
 	final public OpenBitSet getBitSet() {
 		return bitSet;
+	}
+
+	@Override
+	final public int getMaxDoc() {
+		return base.getMaxDoc();
+	}
+
+	@Override
+	final public int getSize() {
+		return base.getSize();
 	}
 
 }

@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
 import com.jaeksoft.searchlib.index.docvalue.DocValueType;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.collector.DistanceCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
 public class AdvancedScoreItemValue {

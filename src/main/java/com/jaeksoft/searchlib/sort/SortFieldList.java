@@ -51,7 +51,7 @@ public class SortFieldList extends AbstractFieldList<SortField> {
 
 	final public boolean isDistance() {
 		if (size() == 0)
-			return true;
+			return false;
 		for (SortField field : this)
 			if (field.isDistance())
 				return true;

@@ -149,6 +149,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	 * 
 	 * @return Searcher
 	 */
+	@Override
 	public ReaderAbstract getReader() {
 		return reader;
 	}

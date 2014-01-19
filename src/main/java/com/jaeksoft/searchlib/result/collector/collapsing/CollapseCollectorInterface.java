@@ -22,15 +22,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.collapsing;
 
-import java.io.IOException;
+import it.unimi.dsi.fastutil.Swapper;
 
-public interface DocSetHitCollectorInterface extends CollectorInterface {
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-	DocSetHitCollectorInterface getParent();
+public interface CollapseCollectorInterface extends CollectorInterface, Swapper {
 
-	void collectDoc(final int doc) throws IOException;
+	int collectDoc(final int sourcePos);
+
+	void collectCollapsedDoc(final int sourcePos, final int collapsePos);
 
 	void endCollection();
 

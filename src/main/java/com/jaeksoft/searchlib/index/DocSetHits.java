@@ -35,12 +35,12 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
-import com.jaeksoft.searchlib.result.collector.DistanceCollector;
-import com.jaeksoft.searchlib.result.collector.DocIdBufferCollector;
-import com.jaeksoft.searchlib.result.collector.DocSetHitCollector;
-import com.jaeksoft.searchlib.result.collector.DocSetHitCollectorInterface;
-import com.jaeksoft.searchlib.result.collector.ScoreBufferAdvancedCollector;
-import com.jaeksoft.searchlib.result.collector.ScoreBufferCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DocIdBufferCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInterface;
+import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class DocSetHits {
 
-	private final DocSetHitCollector docSetHitCollector;
+	private final DocSetHitBaseCollector docSetHitCollector;
 	private final DocIdBufferCollector docIdBufferCollector;
 	private final DistanceCollector distanceCollector;
 	private final ScoreBufferCollector scoreBufferCollector;
@@ -68,7 +68,7 @@ public class DocSetHits {
 			return;
 		}
 		ScoreBufferCollector sc = null;
-		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitCollector(
+		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
 				reader.maxDoc());
 		if (searchRequest.isScoreRequired())
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
@@ -89,7 +89,7 @@ public class DocSetHits {
 		else
 			docIdBufferCollector = null;
 		Timer t = new Timer(timer, "DocSetHits: " + query.toString());
-		reader.search(query, filterHits, docSetHitCollector);
+		reader.search(query, filterHits, docSetHitCollector.collector);
 		t.getDuration();
 		last.endCollection();
 		if (sortFieldList != null) {

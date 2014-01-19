@@ -22,23 +22,45 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.ArrayUtils;
+
+import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
+import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
+import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
-public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
-		ScoreInterface, DocSetHitCollectorInterface {
+public class ScoreBufferCollector
+		extends
+		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
+		implements ScoreInterface, DocSetHitCollectorInterface {
 
+	final protected FloatBufferedArray scoreCollector;
 	protected float maxScore = 0;
-	protected FloatBufferedArray scoreCollector;
 	protected float[] scores;
 
-	public ScoreBufferCollector(final DocSetHitCollector base) {
+	public ScoreBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
 		scoreCollector = new FloatBufferedArray(base.getMaxDoc());
 		scores = null;
+	}
+
+	protected ScoreBufferCollector(final DocSetHitBaseCollector base,
+			final ScoreBufferCollector src) {
+		super(base);
+		scoreCollector = null;
+		scores = src.scores == null ? null : ArrayUtils.clone(src.scores);
+		maxScore = src.maxScore;
+	}
+
+	@Override
+	public CollectorInterface duplicate(final AbstractBaseCollector<?> base) {
+		parent.duplicate(base);
+		return new ScoreBufferCollector((DocSetHitBaseCollector) base, this);
 	}
 
 	@Override
@@ -54,11 +76,6 @@ public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
 	public void endCollection() {
 		parent.endCollection();
 		scores = scoreCollector.getFinalArray();
-	}
-
-	@Override
-	final public int getSize() {
-		return scores == null ? 0 : scores.length;
 	}
 
 	@Override
@@ -78,6 +95,13 @@ public class ScoreBufferCollector extends AbstractDocSetHitCollector implements
 	@Override
 	final public float[] getScores() {
 		return scores;
+	}
+
+	@Override
+	final public int getSize() {
+		if (scores == null)
+			return 0;
+		return scores.length;
 	}
 
 }
