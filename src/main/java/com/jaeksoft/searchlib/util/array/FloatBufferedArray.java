@@ -61,12 +61,18 @@ public class FloatBufferedArray extends AbstractBufferedArray {
 	}
 
 	@Override
-	protected Object newFinalArray(int size) {
+	final protected Object newFinalArray(int size) {
 		return new float[size];
 	}
 
 	@Override
-	protected Object[] getArrays() {
+	final protected Object[] getArrays() {
 		return arrays;
+	}
+
+	@Override
+	final protected void clear() {
+		arrays = null;
+		currentArray = null;
 	}
 }

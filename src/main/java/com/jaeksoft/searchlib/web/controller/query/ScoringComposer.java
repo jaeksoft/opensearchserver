@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Scoring.Type;
 
 public class ScoringComposer extends AbstractQueryController {
 
@@ -55,16 +56,15 @@ public class ScoringComposer extends AbstractQueryController {
 		reload();
 	}
 
-	public AdvancedScore getAdvancedScore() throws SearchLibException {
+	public AdvancedScoreItem[] getAdvancedScoreArray()
+			throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
-		AdvancedScore av = searchRequest.getAdvancedScore();
-		if (av != null)
-			return av;
-		av = new AdvancedScore();
-		searchRequest.setAdvancedScore(av);
-		return av;
+		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
+		if (advancedScore == null)
+			return null;
+		return advancedScore.getArray();
 	}
 
 	public AdvancedScoreItem getScoreItem() {
@@ -92,8 +92,8 @@ public class ScoringComposer extends AbstractQueryController {
 		return fieldList;
 	}
 
-	public AdvancedScoreItem.Type[] getTypeList() {
-		return AdvancedScoreItem.Type.values();
+	public Type[] getTypeList() {
+		return Type.values();
 	}
 
 	public String[] getDirectionList() {
@@ -110,9 +110,9 @@ public class ScoringComposer extends AbstractQueryController {
 
 	@Command
 	public void onSave() throws SearchLibException {
-		AdvancedScore advancedScore = getAdvancedScore();
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (selectedScoreItem == null)
-			advancedScore.add(currentScoreItem);
+			searchRequest.addAdvancedScore(currentScoreItem);
 		else
 			selectedScoreItem.copy(currentScoreItem);
 		onCancel();
@@ -126,7 +126,8 @@ public class ScoringComposer extends AbstractQueryController {
 	@Command
 	public void onRemove(@BindingParam("item") AdvancedScoreItem scoreItem)
 			throws SearchLibException {
-		getAdvancedScore().remove(scoreItem);
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
+		searchRequest.removeAdvancedScore(scoreItem);
 		reload();
 	}
 

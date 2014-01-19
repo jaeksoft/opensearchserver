@@ -26,41 +26,67 @@ package com.jaeksoft.searchlib.scoring;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.Explanation;
-import org.apache.lucene.search.function.DocValues;
-import org.apache.lucene.search.function.OrdFieldSource;
-import org.apache.lucene.search.function.ReverseOrdFieldSource;
-import org.apache.lucene.search.function.ValueSource;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
+import com.jaeksoft.searchlib.index.docvalue.DocValueType;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.collector.DistanceCollector;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
 public class AdvancedScoreItemValue {
 
-	private final DocValues docValues;
+	private final DocValueInterface docValues;
 	private final float weight;
-	private final float maxValue;
+	private float maxValue;
+	private final FloatBufferedArray valueArray;
+	public float[] finalArray;
+	private final boolean reverse;
 
-	public AdvancedScoreItemValue(final AdvancedScoreItem scoreItem,
-			final IndexReader reader) throws IOException {
+	public AdvancedScoreItemValue(final AbstractSearchRequest request,
+			final ReaderAbstract reader, final AdvancedScoreItem scoreItem,
+			final DistanceCollector distanceCollector) throws IOException {
 		String fieldName = scoreItem.getFieldName();
-		ValueSource valueSource = scoreItem.isAscending() ? valueSource = new OrdFieldSource(
-				fieldName) : new ReverseOrdFieldSource(fieldName);
-		docValues = valueSource.getValues(reader);
-		weight = scoreItem.getWeight();
-		maxValue = docValues.getMaxValue();
+		switch (scoreItem.getType()) {
+		case FIELD_ORDER:
+			docValues = reader.getDocValueInterface(fieldName, scoreItem
+					.isAscending() ? DocValueType.ORD : DocValueType.RORD);
+			reverse = false;
+			break;
+		case DISTANCE:
+			docValues = distanceCollector.getDocValue();
+			reverse = true;
+			break;
+		default:
+			throw new IOException("Unknown score function");
+		}
+		weight = (float) scoreItem.getWeight();
+		valueArray = new FloatBufferedArray(reader.maxDoc());
+		maxValue = 0;
+		finalArray = null;
 	}
 
-	public final float getValue(final int doc) {
-		return docValues.floatVal(doc) / maxValue * weight;
+	public final void collect(final int doc) {
+		if (docValues == null)
+			return;
+		float value = docValues.getFloat(doc);
+		if (value > maxValue)
+			maxValue = value;
+		valueArray.add(value);
 	}
 
-	public final Explanation getExplanation(final int doc) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("maxValue=");
-		sb.append(maxValue);
-		sb.append(", weight=");
-		sb.append(weight);
-		sb.append(", docValue=");
-		sb.append(docValues.floatVal(doc));
-		return new Explanation(getValue(doc), sb.toString());
+	public final void endCollection() {
+		if (maxValue == 0)
+			return;
+		if (weight == 0)
+			return;
+		finalArray = valueArray.getFinalArray();
+		int i = 0;
+		if (reverse)
+			for (float value : finalArray)
+				finalArray[i++] = ((maxValue - value) / maxValue) * weight;
+		else
+			for (float value : finalArray)
+				finalArray[i++] = (value / maxValue) * weight;
 	}
+
 }

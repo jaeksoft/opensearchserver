@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,14 +29,15 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Scoring.Type;
 
 public class AdvancedScore {
 
@@ -44,12 +45,20 @@ public class AdvancedScore {
 
 	private List<AdvancedScoreItem> itemList;
 
+	private AdvancedScoreItem[] array;
+
+	private double scoreWeight;
+
 	public final static String ADVANCED_SCORE_NODE = "advancedScore";
+
+	public final static String ADVANCED_SCORE_ATTR_SCOREWEIGHT = "scoreWeight";
 
 	public final static String ADVANCED_SCORE_ITEM_NODE = "scoreItem";
 
 	public AdvancedScore() {
 		itemList = new ArrayList<AdvancedScoreItem>(0);
+		array = null;
+		scoreWeight = 1.0;
 	}
 
 	public static AdvancedScore fromXmlConfig(XPathParser xpp, Node parentNode)
@@ -58,6 +67,8 @@ public class AdvancedScore {
 		if (scoreNode == null)
 			return null;
 		AdvancedScore advancedScore = new AdvancedScore();
+		advancedScore.setScoreWeight(DomUtils.getAttributeDouble(scoreNode,
+				ADVANCED_SCORE_ATTR_SCOREWEIGHT, 1.0));
 		NodeList nodeList = xpp
 				.getNodeList(scoreNode, ADVANCED_SCORE_ITEM_NODE);
 		int l = nodeList.getLength();
@@ -69,11 +80,20 @@ public class AdvancedScore {
 	public AdvancedScoreItem[] getArray() {
 		rwl.r.lock();
 		try {
-			AdvancedScoreItem[] array = new AdvancedScoreItem[itemList.size()];
+			if (array != null)
+				return array;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (array != null)
+				return array;
+			array = new AdvancedScoreItem[itemList.size()];
 			itemList.toArray(array);
 			return array;
 		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -105,21 +125,14 @@ public class AdvancedScore {
 		return to;
 	}
 
-	public Query getNewQuery(Query subQuery) {
-		rwl.r.lock();
-		try {
-			return new AdvancedScoreQuery(subQuery, this);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
 			if (itemList.size() == 0)
 				return;
-			xmlWriter.startElement(ADVANCED_SCORE_NODE);
+			xmlWriter.startElement(ADVANCED_SCORE_NODE,
+					ADVANCED_SCORE_ATTR_SCOREWEIGHT,
+					Double.toString(scoreWeight));
 			for (AdvancedScoreItem item : itemList)
 				item.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
@@ -128,7 +141,7 @@ public class AdvancedScore {
 		}
 	}
 
-	public void add(AdvancedScoreItem scoreItem) {
+	public void addItem(AdvancedScoreItem scoreItem) {
 		rwl.w.lock();
 		try {
 			if (!itemList.contains(scoreItem))
@@ -138,7 +151,7 @@ public class AdvancedScore {
 		}
 	}
 
-	public void remove(AdvancedScoreItem scoreItem) {
+	public void removeItem(AdvancedScoreItem scoreItem) {
 		rwl.w.lock();
 		try {
 			itemList.remove(scoreItem);
@@ -165,6 +178,36 @@ public class AdvancedScore {
 		if (advancedScore == null)
 			return "";
 		return advancedScore.getCacheKey();
+	}
+
+	public void setScoreWeight(double scoreWeight) {
+		rwl.w.lock();
+		try {
+			this.scoreWeight = scoreWeight;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public double getScoreWeight() {
+		rwl.r.lock();
+		try {
+			return scoreWeight;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public boolean isDistance() {
+		rwl.r.lock();
+		try {
+			for (AdvancedScoreItem item : itemList)
+				if (item.getType() == Type.DISTANCE)
+					return true;
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 }

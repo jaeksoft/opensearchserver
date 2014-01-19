@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,6 +56,9 @@ public class DocumentResult {
 	public final Float score;
 
 	@XmlAttribute
+	public final Float distance;
+
+	@XmlAttribute
 	public final Integer collapseCount;
 
 	@XmlAttribute
@@ -104,13 +107,14 @@ public class DocumentResult {
 		collapseCount = null;
 		pos = null;
 		score = null;
+		distance = null;
 		joins = null;
 		joinParameter = null;
 	}
 
 	public DocumentResult(ResultDocument resultDocument,
 			Integer collapseDocCount, Integer position, Float docScore,
-			List<ResultDocument> joinResultDocuments) {
+			Float docDistance, List<ResultDocument> joinResultDocuments) {
 
 		Map<String, FieldValue> returnFields = resultDocument.getReturnFields();
 		fields = MapUtils.isEmpty(returnFields) ? null
@@ -133,13 +137,14 @@ public class DocumentResult {
 		if (joinResultDocuments != null) {
 			for (ResultDocument joinResultDocument : joinResultDocuments)
 				joins.add(new DocumentResult(joinResultDocument, null, null,
-						null, null));
+						null, null, null));
 		}
 		functions = resultDocument.getFunctionFieldValues();
 		positions = resultDocument.getPositions();
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;
+		distance = docDistance;
 
 	}
 
@@ -154,10 +159,12 @@ public class DocumentResult {
 			ResultDocument resultDocument = result.getDocument(i, null);
 			int collapseDocCount = result.getCollapseCount(i);
 			float docScore = result.getScore(i);
+			Float docDistance = result.getDistance(i);
 			List<ResultDocument> joinResultDocuments = resultSearch == null ? null
 					: resultSearch.getJoinDocumentList(i, null);
 			DocumentResult documentResult = new DocumentResult(resultDocument,
-					collapseDocCount, i, docScore, joinResultDocuments);
+					collapseDocCount, i, docScore, docDistance,
+					joinResultDocuments);
 			documents.add(documentResult);
 		}
 	}

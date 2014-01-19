@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHitCacheKey;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -48,11 +48,12 @@ public class SearchCache extends LRUCache<DocSetHitCacheKey, DocSetHits> {
 		this.indexConfig = indexConfig;
 	}
 
-	public DocSetHits get(ReaderLocal reader,
-			AbstractSearchRequest searchRequest, Schema schema,
-			SchemaField defaultField, Timer timer) throws ParseException,
-			SyntaxError, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+	final public DocSetHits get(final ReaderAbstract reader,
+			final AbstractSearchRequest searchRequest, final Schema schema,
+			final SchemaField defaultField, final Timer timer)
+			throws ParseException, SyntaxError, IOException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
 			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();

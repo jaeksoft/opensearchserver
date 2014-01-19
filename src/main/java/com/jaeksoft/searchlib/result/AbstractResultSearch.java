@@ -31,12 +31,14 @@ import java.util.List;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
 import com.jaeksoft.searchlib.render.RenderSearchXml;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
@@ -45,17 +47,21 @@ public abstract class AbstractResultSearch extends
 		AbstractResult<AbstractSearchRequest> implements
 		ResultDocumentsInterface<AbstractSearchRequest> {
 
+	protected final ReaderAbstract reader;
 	transient protected CollapseAbstract collapse;
 	protected FacetList facetList;
 	protected DocIdInterface docs;
 	protected ScoreInterface scores;
+	protected DistanceInterface distances;
 	protected int numFound;
 	protected float maxScore;
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
 
-	protected AbstractResultSearch(AbstractSearchRequest searchRequest) {
+	protected AbstractResultSearch(ReaderAbstract reader,
+			AbstractSearchRequest searchRequest) {
 		super(searchRequest);
+		this.reader = reader;
 		this.numFound = 0;
 		this.maxScore = 0;
 		this.collapsedDocCount = 0;
@@ -64,6 +70,10 @@ public abstract class AbstractResultSearch extends
 		if (searchRequest.getFacetFieldList().size() > 0)
 			this.facetList = new FacetList();
 		collapse = CollapseAbstract.newInstance(searchRequest);
+	}
+
+	public ReaderAbstract getReader() {
+		return reader;
 	}
 
 	public FacetList getFacetList() {
@@ -115,6 +125,7 @@ public abstract class AbstractResultSearch extends
 	protected void setDocs(DocIdInterface docs) {
 		this.docs = docs;
 		this.scores = docs.getCollector(ScoreInterface.class);
+		this.distances = docs.getCollector(DistanceInterface.class);
 	}
 
 	public int getDocLength() {
@@ -166,6 +177,13 @@ public abstract class AbstractResultSearch extends
 		if (scores == null)
 			return 0;
 		return scores.getScores()[pos];
+	}
+
+	@Override
+	public Float getDistance(int pos) {
+		if (distances == null)
+			return null;
+		return distances.getDistances()[pos];
 	}
 
 	@Override

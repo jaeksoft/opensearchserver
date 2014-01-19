@@ -71,6 +71,8 @@ public abstract class AbstractBufferedArray {
 
 	protected abstract Object[] getArrays();
 
+	protected abstract void clear();
+
 	protected Object getFinalArray() {
 		if (finalArray != null)
 			return finalArray;
@@ -87,6 +89,7 @@ public abstract class AbstractBufferedArray {
 			pos += buffer;
 			size -= buffer;
 		}
+		clear();
 		return finalArray;
 	}
 }

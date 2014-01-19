@@ -35,6 +35,11 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
+import com.jaeksoft.searchlib.index.docvalue.DocValueType;
+import com.jaeksoft.searchlib.index.docvalue.OrderDocValue;
+import com.jaeksoft.searchlib.index.docvalue.RadiansDocValue;
+import com.jaeksoft.searchlib.index.docvalue.ReverseOrderDocValue;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -78,4 +83,20 @@ public abstract class ReaderAbstract implements ReaderInterface {
 
 	public abstract int maxDoc() throws IOException;
 
+	final public DocValueInterface getDocValueInterface(final String field,
+			final DocValueType type) throws IOException {
+		FieldCacheIndex stringIndex = getStringIndex(field);
+		if (stringIndex == null)
+			throw new IOException("Not string index for field: " + field);
+		switch (type) {
+		case ORD:
+			return new OrderDocValue(stringIndex);
+		case RORD:
+			return new ReverseOrderDocValue(stringIndex);
+		case RADIANS:
+			return new RadiansDocValue(stringIndex);
+		default:
+			throw new IOException("Unknown doc value type: " + type);
+		}
+	}
 }

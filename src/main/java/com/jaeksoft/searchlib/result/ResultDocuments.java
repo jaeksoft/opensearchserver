@@ -109,6 +109,11 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	}
 
 	@Override
+	public Float getDistance(int pos) {
+		return null;
+	}
+
+	@Override
 	public int getCollapseCount(int pos) {
 		return 0;
 	}
