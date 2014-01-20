@@ -25,9 +25,12 @@
 package com.jaeksoft.searchlib.index.osse;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -35,6 +38,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
+import com.jaeksoft.searchlib.index.osse.memory.DisposableMemory;
+import com.sun.jna.Pointer;
 
 public class OsseTokenTermUpdate extends AbstractTermFilter {
 
@@ -42,23 +47,20 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 	private final OsseTransaction transaction;
 	private final int documentId;
 	private final FieldInfo field;
-	private final CharsetEncoder encoder;
 
 	public OsseTokenTermUpdate(final OsseTransaction transaction,
 			final int documentId, final FieldInfo field,
-			final OsseTermBuffer termBuffer, final TokenStream input,
-			final CharsetEncoder encoder) {
+			final OsseTermBuffer termBuffer, final TokenStream input) {
 		super(input);
 		this.transaction = transaction;
 		this.documentId = documentId;
 		this.field = field;
 		this.buffer = termBuffer;
-		this.encoder = encoder;
 		this.buffer.reset();
 	}
 
 	final private void index() throws IOException {
-		if (buffer.length == 0)
+		if (buffer.getTermCount() == 0)
 			return;
 		try {
 			transaction.updateTerms(documentId, field, buffer);
@@ -75,15 +77,13 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 				index();
 				return false;
 			}
-			OsseTerm term = new OsseTerm(encoder, termAtt.buffer(),
-					termAtt.length());
-			final OsseTermOffset offset = buffer.offsets[buffer.length];
+			final OsseTermOffset offset = buffer.offsets[buffer.termCount];
 			offset.ui32StartOffset = offsetAtt.startOffset();
 			offset.ui32EndOffset = offsetAtt.endOffset();
-			buffer.positionIncrements[buffer.length] = posIncrAtt
+			buffer.positionIncrements[buffer.termCount] = posIncrAtt
 					.getPositionIncrement();
-			buffer.add(term);
-			if (buffer.length == buffer.bufferSize) {
+			buffer.addTerm(termAtt.buffer(), termAtt.length());
+			if (buffer.termCount == buffer.bufferSize) {
 				index();
 				return true;
 			}
@@ -95,58 +95,116 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 		super.close();
 	}
 
-	public static class OsseTerm {
-
-		public final byte[] bytes;
-
-		private OsseTerm(final CharsetEncoder charsetEncoder,
-				final char[] buffer, final int length)
-				throws CharacterCodingException {
-			charsetEncoder.reset();
-			bytes = charsetEncoder.encode(CharBuffer.wrap(buffer, 0, length))
-					.array();
-		}
-
-		public OsseTerm(final CharsetEncoder charsetEncoder, final String term)
-				throws CharacterCodingException {
-			charsetEncoder.reset();
-			bytes = charsetEncoder.encode(CharBuffer.wrap(term)).array();
-		}
-
-	}
-
 	public static class OsseTermBuffer {
 
-		public final OsseTerm[] terms;
-		public final OsseTermOffset[] offsets;
-		public final int[] positionIncrements;
-		private final int bufferSize;
-		public int length;
-		public int bytesSize;
+		final private static int DEFAULT_BYTEBUFFER_SIZE = 16384;
 
-		public OsseTermBuffer(final int bufferSize) {
+		final private List<ByteBuffer> byteBuffers;
+
+		final private CharsetEncoder encoder;
+		final private int maxBytesPerChar;
+
+		final private int[] termByteSizes;
+		final private OsseTermOffset[] offsets;
+		final private int[] positionIncrements;
+
+		private final int bufferSize;
+		private int termCount;
+		private int bytesSize;
+		private ByteBuffer currentByteBuffer;
+
+		public OsseTermBuffer(final CharsetEncoder encoder, final int bufferSize) {
+			this.encoder = encoder;
+			this.maxBytesPerChar = (int) (encoder != null ? encoder
+					.maxBytesPerChar() : 1);
+			this.byteBuffers = new ArrayList<ByteBuffer>();
 			this.bufferSize = bufferSize;
-			terms = new OsseTerm[bufferSize];
-			offsets = OsseTermOffset.getNewArray(bufferSize);
-			positionIncrements = new int[bufferSize];
+			this.termByteSizes = new int[bufferSize];
+			this.offsets = OsseTermOffset.getNewArray(bufferSize);
+			this.positionIncrements = new int[bufferSize];
+			this.currentByteBuffer = null;
+			reset();
 		}
 
 		public OsseTermBuffer(final CharsetEncoder encoder, final String term)
-				throws CharacterCodingException {
-			this(1);
-			add(new OsseTerm(encoder, term));
+				throws IOException {
+			this(encoder, 1);
+			addTerm(term);
 		}
 
-		final public void add(final OsseTerm term) {
-			terms[length++] = term;
-			bytesSize += term.bytes.length;
+		final private void checkByteBufferSize(int length) {
+			if (currentByteBuffer != null
+					&& length < currentByteBuffer.remaining())
+				return;
+			encoder.reset();
+			length++;
+			currentByteBuffer = ByteBuffer
+					.allocate(length < DEFAULT_BYTEBUFFER_SIZE ? DEFAULT_BYTEBUFFER_SIZE
+							: length);
+			byteBuffers.add(currentByteBuffer);
+		}
+
+		final public void addTerm(final CharBuffer charBuffer, int charLength)
+				throws IOException {
+			checkByteBufferSize(charLength * maxBytesPerChar + 1);
+			int start = currentByteBuffer.position();
+			if (encoder.encode(charBuffer, currentByteBuffer, false) != CoderResult.UNDERFLOW)
+				throw new IOException("Charset encoder underflow condition");
+			currentByteBuffer.put((byte) 0);
+			int bsize = currentByteBuffer.position() - start;
+			termByteSizes[termCount++] = bsize;
+			bytesSize += bsize;
+		}
+
+		final public void addTerm(final char[] buffer, final int length)
+				throws IOException {
+			addTerm(CharBuffer.wrap(buffer, 0, length), length);
+		}
+
+		final public void addTerm(final String term) throws IOException {
+			addTerm(CharBuffer.wrap(term), term.length());
 		}
 
 		final public void reset() {
-			length = 0;
+			encoder.reset();
+			termCount = 0;
+			byteBuffers.clear();
+			if (currentByteBuffer != null) {
+				currentByteBuffer.clear();
+				byteBuffers.add(currentByteBuffer);
+			}
 			bytesSize = 0;
 		}
 
+		final public int getTermCount() {
+			return termCount;
+		}
+
+		final public int getBytesSize() {
+			return bytesSize;
+		}
+
+		final public void writeTermPointers(final DisposableMemory memory,
+				final long bytesBufferMemoryPeer) {
+			long pointerOffset = 0;
+			long memoryPeerOffset = bytesBufferMemoryPeer;
+			for (int i = 0; i < termCount; i++) {
+				memory.setPointer(pointerOffset, new Pointer(memoryPeerOffset));
+				memoryPeerOffset += termByteSizes[i];
+				pointerOffset += Pointer.SIZE;
+			}
+		}
+
+		final public void writeBytesBuffer(final DisposableMemory memory) {
+			long offset = 0;
+			for (ByteBuffer byteBuffer : byteBuffers) {
+				int length = byteBuffer.position();
+				if (length > 0) {
+					memory.write(offset, byteBuffer.array(), 0, length);
+					offset += length;
+				}
+			}
+		}
 	}
 
 }

@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.index.osse.query;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class OsseTermQuery extends OsseAbstractQuery {
 					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
-		} catch (CharacterCodingException e) {
+		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(osseFastStringArray);
