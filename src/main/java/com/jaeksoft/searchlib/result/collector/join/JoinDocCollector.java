@@ -39,8 +39,6 @@ public class JoinDocCollector extends
 		AbstractBaseCollector<JoinDocCollectorInterface> implements
 		JoinDocCollectorInterface, JoinDocInterface, DocIdInterface {
 
-	final static JoinDocCollector EMPTY = new JoinDocCollector();
-
 	private final int maxDoc;
 	private final int[] ids;
 	private final int[][] foreignDocIdsArray;

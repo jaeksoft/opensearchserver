@@ -3,7 +3,6 @@ package com.jaeksoft.searchlib.result.collector.join;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
-import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
@@ -19,10 +18,10 @@ public class JoinUtils {
 			JoinType joinType, OuterCollector outerCollector) {
 
 		if (docs.getSize() == 0 && outerCollector == null)
-			return JoinDocCollector.EMPTY;
+			return docs;
 
 		if (docs2.getSize() == 0)
-			return joinType == JoinType.INNER ? JoinDocCollector.EMPTY : docs;
+			return joinType == JoinType.INNER ? docs2 : docs;
 
 		JoinDocCollectorInterface docs1 = JoinUtils.getCollector(docs,
 				joinResultSize);
@@ -77,8 +76,8 @@ public class JoinUtils {
 		float score2 = 1.0F;
 		int i1 = 0;
 		int i2 = 0;
-		int[] ids1 = docs1.getCollector(DocIdCollector.class).getIds();
-		int[] ids2 = docs2.getCollector(DocIdCollector.class).getIds();
+		int[] ids1 = docs1.getCollector(DocIdInterface.class).getIds();
+		int[] ids2 = docs2.getCollector(DocIdInterface.class).getIds();
 		while (i1 != ids1.length) {
 			int id1 = ids1[i1];
 			int id2 = ids2[i2];
@@ -110,8 +109,8 @@ public class JoinUtils {
 		int i2 = 0;
 		int lastOuter = -1;
 		int lastInner = -1;
-		int[] ids1 = docs1.getCollector(DocIdCollector.class).getIds();
-		int[] ids2 = docs2.getCollector(DocIdCollector.class).getIds();
+		int[] ids1 = docs1.getCollector(DocIdInterface.class).getIds();
+		int[] ids2 = docs2.getCollector(DocIdInterface.class).getIds();
 		while (i1 != ids1.length) {
 			int id1 = ids1[i1];
 			int id2 = ids2[i2];

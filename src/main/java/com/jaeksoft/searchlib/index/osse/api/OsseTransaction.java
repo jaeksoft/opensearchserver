@@ -199,14 +199,13 @@ public class OsseTransaction implements Closeable {
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_Document_AddStringTerms",
 					transactFieldPtr.toString(), " ",
-					Integer.toString(documentId), " [",
-					Integer.toString(buffer.terms.length), "] ",
-					Integer.toString(buffer.length));
+					Integer.toString(documentId),
+					Integer.toString(buffer.getTermCount()));
 			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTerms(
-					transactFieldPtr, documentId, ofsa, buffer.length,
+					transactFieldPtr, documentId, ofsa, buffer.getTermCount(),
 					err.getPointer());
 			et.end();
-			if (res != buffer.length)
+			if (res != buffer.getTermCount())
 				err.throwError();
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);

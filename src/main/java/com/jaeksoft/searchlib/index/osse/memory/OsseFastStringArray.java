@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.index.osse.memory;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.CharacterCodingException;
 
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTerm;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
@@ -47,28 +46,16 @@ public class OsseFastStringArray extends DisposableMemory {
 
 	public OsseFastStringArray(final OsseTermBuffer termBuffer)
 			throws UnsupportedEncodingException, CharacterCodingException {
-		super((termBuffer.length + 1) * Pointer.SIZE);
+		super((termBuffer.getTermCount() + 1) * Pointer.SIZE);
 		fullBytes = mallocOfTermBuffer(termBuffer);
 	}
 
 	private final DisposableMemory mallocOfTermBuffer(OsseTermBuffer termBuffer) {
 		final DisposableMemory memory = new DisposableMemory(
-				termBuffer.bytesSize + termBuffer.length);
-		long memoryPeer = memory.getPeer();
-		long memoryOffset = 0;
-		int i = 0;
-		int l = termBuffer.length;
-		for (OsseTerm term : termBuffer.terms) {
-			if (i == l)
-				break;
-			setPointer(Pointer.SIZE * i, new Pointer(memoryPeer + memoryOffset));
-			memory.write(memoryOffset, term.bytes, 0, term.bytes.length);
-			memoryOffset += term.bytes.length;
-			memory.setByte(memoryOffset, (byte) 0);
-			memoryOffset++;
-			i++;
-		}
-		setPointer(Pointer.SIZE * i, null);
+				termBuffer.getBytesSize());
+		termBuffer.writeBytesBuffer(memory);
+		termBuffer.writeTermPointers(this, memory.getPeer());
+		setPointer(Pointer.SIZE * termBuffer.getTermCount(), null);
 		return memory;
 	}
 
