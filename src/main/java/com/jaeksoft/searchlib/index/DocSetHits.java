@@ -59,14 +59,6 @@ public class DocSetHits {
 			SortFieldList sortFieldList, Timer timer) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
 		Query query = searchRequest.getQuery();
-		if (reader.numDocs() == 0) {
-			docSetHitCollector = null;
-			distanceCollector = null;
-			docIdBufferCollector = null;
-			scoreBufferCollector = null;
-			lastCollector = null;
-			return;
-		}
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
 				reader.maxDoc());
@@ -89,7 +81,8 @@ public class DocSetHits {
 		else
 			docIdBufferCollector = null;
 		Timer t = new Timer(timer, "DocSetHits: " + query.toString());
-		reader.search(query, filterHits, docSetHitCollector.collector);
+		if (reader.numDocs() > 0)
+			reader.search(query, filterHits, docSetHitCollector.collector);
 		t.getDuration();
 		last.endCollection();
 		if (sortFieldList != null) {
