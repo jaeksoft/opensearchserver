@@ -24,17 +24,18 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
+import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.CharacterCodingException;
 
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
 
 /**
  * This class implements a fast UTF-8 String array *
  */
-public class OsseFastStringArray extends DisposableMemory {
+public class OsseFastStringArray extends Pointer implements Closeable {
 
 	/**
 	 * Optimized write only StringArray
@@ -42,27 +43,27 @@ public class OsseFastStringArray extends DisposableMemory {
 	 * @param strings
 	 */
 
+	private final DisposableMemory stringPointers;
 	private final DisposableMemory fullBytes;
 
-	public OsseFastStringArray(final OsseTermBuffer termBuffer)
+	public OsseFastStringArray(final MemoryBuffer memoryBuffer,
+			final OsseTermBuffer termBuffer)
 			throws UnsupportedEncodingException, CharacterCodingException {
-		super((termBuffer.getTermCount() + 1) * Pointer.SIZE);
-		fullBytes = mallocOfTermBuffer(termBuffer);
-	}
-
-	private final DisposableMemory mallocOfTermBuffer(OsseTermBuffer termBuffer) {
-		final DisposableMemory memory = new DisposableMemory(
-				termBuffer.getBytesSize());
-		termBuffer.writeBytesBuffer(memory);
-		termBuffer.writeTermPointers(this, memory.getPeer());
-		setPointer(Pointer.SIZE * termBuffer.getTermCount(), null);
-		return memory;
+		super(0);
+		stringPointers = memoryBuffer.getMemory((termBuffer.getTermCount() + 1)
+				* Pointer.SIZE);
+		peer = stringPointers.getPeer();
+		fullBytes = memoryBuffer.getMemory(termBuffer.getBytesSize());
+		termBuffer.writeBytesBuffer(fullBytes);
+		termBuffer.writeTermPointers(stringPointers, fullBytes.getPeer());
+		stringPointers.setPointer(Pointer.SIZE * termBuffer.getTermCount(),
+				null);
 	}
 
 	@Override
 	final public void close() {
 		fullBytes.close();
-		super.close();
+		stringPointers.close();
 	}
 
 	@Override

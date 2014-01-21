@@ -317,4 +317,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		}
 	}
 
+	final public byte[] encode(String test) {
+		return org.apache.commons.codec.binary.StringUtils.getBytesUtf8(test);
+	}
+
 }

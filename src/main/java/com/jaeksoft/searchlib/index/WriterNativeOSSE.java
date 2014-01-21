@@ -39,8 +39,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
@@ -51,7 +51,6 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
@@ -64,7 +63,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 		super(indexConfig);
 		this.index = index;
 		error = new OsseErrorHandler();
-		termBuffer = new OsseTermBuffer(StringUtils.newUTF8Encoder(), 1000);
+		termBuffer = new OsseTermBuffer(1000);
 	}
 
 	@Override

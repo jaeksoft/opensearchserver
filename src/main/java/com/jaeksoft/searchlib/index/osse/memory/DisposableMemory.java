@@ -29,20 +29,26 @@ import java.io.Closeable;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-public class DisposableMemory extends Pointer implements Closeable {
+final public class DisposableMemory extends Pointer implements Closeable {
 
-	DisposableMemory(long size) {
+	final long size;
+	protected final MemoryBuffer buffer;
+
+	DisposableMemory(final MemoryBuffer buffer, final long size) {
 		super(Native.malloc(size));
 		if (peer == 0)
 			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
+		this.size = size;
+		this.buffer = buffer;
 	}
 
 	@Override
-	public void finalize() {
-		close();
+	final public void finalize() {
+		Native.free(peer);
+		peer = 0;
 	}
 
-	long getPeer() {
+	final long getPeer() {
 		return peer;
 	}
 
@@ -50,7 +56,7 @@ public class DisposableMemory extends Pointer implements Closeable {
 	public void close() {
 		if (peer == 0)
 			return;
-		Native.free(peer);
-		peer = 0;
+		if (buffer != null)
+			buffer.closed(this);
 	}
 }

@@ -33,8 +33,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -57,10 +58,13 @@ public class OsseTransaction implements Closeable {
 
 	public final static boolean FAKE_MODE = false;
 
+	public final MemoryBuffer memoryBuffer;
+
 	public OsseTransaction(OsseIndex index, int maxBufferSize)
 			throws SearchLibException {
 		l.lock();
 		try {
+			memoryBuffer = new MemoryBuffer();
 			err = new OsseErrorHandler();
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_Begin ", index.getPointer().toString());
@@ -155,7 +159,8 @@ public class OsseTransaction implements Closeable {
 		OssePointerArray ossePointerArray = null;
 		l.lock();
 		try {
-			ossePointerArray = new OssePointerArray(getExistingField(field));
+			ossePointerArray = new OssePointerArray(memoryBuffer,
+					getExistingField(field));
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_DeleteFields ", field.name, "(",
 					Integer.toString(field.id), ")");
@@ -192,7 +197,7 @@ public class OsseTransaction implements Closeable {
 		OsseFastStringArray ofsa = null;
 		l.lock();
 		try {
-			ofsa = new OsseFastStringArray(buffer);
+			ofsa = new OsseFastStringArray(memoryBuffer, buffer);
 			Pointer transactFieldPtr = getExistingField(field);
 			if (FAKE_MODE)
 				return;
@@ -250,6 +255,7 @@ public class OsseTransaction implements Closeable {
 			}
 		} finally {
 			l.unlock();
+			memoryBuffer.close();
 		}
 	}
 
