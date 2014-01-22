@@ -97,23 +97,17 @@ public class OsseTransaction implements Closeable {
 	}
 
 	final public int newDocumentId() throws SearchLibException {
-		l.lock();
-		try {
-			if (FAKE_MODE)
-				return 0;
-			ExecutionToken et = FunctionTimer
-					.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
-			int documentId = OsseLibrary
-					.OSSCLib_MsTransact_Document_GetNewDocId(transactPtr,
-							err.getPointer());
-			et.end();
-			err.checkNoError();
-			if (documentId < 0)
-				err.throwError();
-			return documentId;
-		} finally {
-			l.unlock();
-		}
+		if (FAKE_MODE)
+			return 0;
+		ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
+		int documentId = OsseLibrary.OSSCLib_MsTransact_Document_GetNewDocId(
+				transactPtr, err.getPointer());
+		et.end();
+		err.checkNoError();
+		if (documentId < 0)
+			err.throwError();
+		return documentId;
 	}
 
 	final public int createField(String fieldName, int flag)
@@ -195,7 +189,6 @@ public class OsseTransaction implements Closeable {
 	final public void updateTerms(final int documentId, final FieldInfo field,
 			final OsseTermBuffer buffer) throws SearchLibException {
 		OsseFastStringArray ofsa = null;
-		l.lock();
 		try {
 			ofsa = new OsseFastStringArray(memoryBuffer, buffer);
 			Pointer transactFieldPtr = getExistingField(field);
@@ -206,7 +199,7 @@ public class OsseTransaction implements Closeable {
 					transactFieldPtr.toString(), " ",
 					Integer.toString(documentId),
 					Integer.toString(buffer.getTermCount()));
-			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTermsW(
+			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTerms(
 					transactFieldPtr, documentId, ofsa, buffer.getTermCount(),
 					err.getPointer());
 			et.end();
@@ -218,7 +211,6 @@ public class OsseTransaction implements Closeable {
 		} catch (CharacterCodingException e) {
 			throw new SearchLibException(e);
 		} finally {
-			l.unlock();
 			IOUtils.close(ofsa);
 		}
 	}

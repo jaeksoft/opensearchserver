@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,47 +26,24 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+public abstract class AbstractBufferItem<T extends BufferItemInterface>
+		implements Closeable {
 
-final public class DisposableMemory extends Pointer implements
-		BufferItemInterface, Closeable {
+	private final AbstractBuffer<T> buffer;
+	protected final long size;
 
-	final long size;
-	protected final MemoryBuffer buffer;
-
-	DisposableMemory(final MemoryBuffer buffer, final long size) {
-		super(Native.malloc(size));
-		if (peer == 0)
-			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
-		this.size = size;
+	protected AbstractBufferItem(final AbstractBuffer<T> buffer, final long size) {
 		this.buffer = buffer;
+		this.size = size;
 	}
 
-	@Override
-	final public void finalize() {
-		if (peer != 0)
-			Native.free(peer);
-		peer = 0;
-	}
-
-	final long getPeer() {
-		return peer;
-	}
-
-	@Override
-	final public void close() {
-		if (buffer != null)
-			buffer.closed(this);
-	}
-
-	@Override
 	final public long getSize() {
 		return size;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	final public DisposableMemory reset() {
-		return this;
+	final public void close() {
+		buffer.closed((T) this);
 	}
 }

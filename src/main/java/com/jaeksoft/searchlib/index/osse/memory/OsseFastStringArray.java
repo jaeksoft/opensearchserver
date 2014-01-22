@@ -26,13 +26,11 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
-import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
-import com.jaeksoft.searchlib.index.osse.memory.CharArrayBuffer.CharArray;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 /**
@@ -56,20 +54,21 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 
 		// First we reserve memory for the list of pointers
 		final int termCount = termBuffer.getTermCount();
-		termPointers = memoryBuffer.getMemory(termCount * Pointer.SIZE);
+		termPointers = memoryBuffer.getNewBufferItem(termCount * Pointer.SIZE);
 		peer = termPointers.getPeer();
 
 		// Filling the characters memory
-		fullBytes = memoryBuffer.getMemory(termBuffer.getTotalCharLength()
-				* Native.WCHAR_SIZE);
+		fullBytes = memoryBuffer.getNewBufferItem(termBuffer
+				.getTotalBytesLength());
+
 		long offset = 0;
-		int charArrayCount = termBuffer.getCharArrayCount();
-		CharArray[] charArrays = termBuffer.getCharArrays();
-		for (int i = 0; i < charArrayCount; i++) {
-			CharBuffer charBuffer = charArrays[i].charBuffer;
-			int length = charBuffer.position();
-			fullBytes.write(offset, charBuffer.array(), 0, length);
-			offset += length * Native.WCHAR_SIZE;
+		int byteArrayCount = termBuffer.getByteArrayCount();
+		ByteArray[] byteArrays = termBuffer.getByteArrays();
+		for (int i = 0; i < byteArrayCount; i++) {
+			ByteBuffer byteBuffer = byteArrays[i].byteBuffer;
+			int length = byteBuffer.position();
+			fullBytes.write(offset, byteBuffer.array(), 0, length);
+			offset += length;
 		}
 
 		// Filling the pointer array memory
@@ -78,7 +77,7 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 		Pointer[] pointers = new Pointer[termCount];
 		for (int i = 0; i < termCount; i++) {
 			pointers[i] = new Pointer(stringPeer);
-			stringPeer += termLengths[i] * Native.WCHAR_SIZE;
+			stringPeer += termLengths[i];
 		}
 		termPointers.write(0, pointers, 0, termCount);
 	}

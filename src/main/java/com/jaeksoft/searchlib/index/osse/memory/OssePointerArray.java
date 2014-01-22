@@ -43,7 +43,8 @@ public class OssePointerArray extends Pointer implements Closeable {
 	public OssePointerArray(final MemoryBuffer memoryBuffer,
 			final Collection<? extends PointerProvider> pointers) {
 		super(0);
-		memory = memoryBuffer.getMemory((pointers.size() + 1) * Pointer.SIZE);
+		memory = memoryBuffer.getNewBufferItem((pointers.size() + 1)
+				* Pointer.SIZE);
 		peer = memory.getPeer();
 		int i = 0;
 		for (PointerProvider pointerProvider : pointers) {
@@ -56,7 +57,7 @@ public class OssePointerArray extends Pointer implements Closeable {
 	public OssePointerArray(final MemoryBuffer memoryBuffer,
 			final Pointer pointer) {
 		super(0);
-		memory = memoryBuffer.getMemory(2 * Pointer.SIZE);
+		memory = memoryBuffer.getNewBufferItem(2 * Pointer.SIZE);
 		peer = memory.getPeer();
 		memory.setPointer(0, pointer);
 		memory.setPointer(Pointer.SIZE, null);
