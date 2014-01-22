@@ -83,7 +83,7 @@ public class DocSetHits {
 		Timer t = new Timer(timer, "DocSetHits: " + query.toString());
 		if (reader.numDocs() > 0)
 			reader.search(query, filterHits, docSetHitCollector.collector);
-		t.getDuration();
+		t.end(null);
 		last.endCollection();
 		if (sortFieldList != null) {
 			SorterAbstract sorter = sortFieldList.getSorter(last, reader);
