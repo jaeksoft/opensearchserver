@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,32 +24,46 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
+import java.io.Closeable;
 import java.util.Collection;
 
 import com.sun.jna.Pointer;
 
 /**
- * This class implements a fast UTF-8 String array *
+ * This class implements a fast Pointer array *
  */
-public class OssePointerArray extends DisposableMemory {
+public class OssePointerArray extends Pointer implements Closeable {
+
+	private final DisposableMemory memory;
 
 	public static interface PointerProvider {
 		Pointer getPointer();
 	}
 
-	public OssePointerArray(Collection<? extends PointerProvider> pointers) {
-		super((pointers.size() + 1) * Pointer.SIZE);
+	public OssePointerArray(final MemoryBuffer memoryBuffer,
+			final Collection<? extends PointerProvider> pointers) {
+		super(0);
+		memory = memoryBuffer.getMemory((pointers.size() + 1) * Pointer.SIZE);
+		peer = memory.getPeer();
 		int i = 0;
 		for (PointerProvider pointerProvider : pointers) {
-			setPointer(Pointer.SIZE * i, pointerProvider.getPointer());
+			memory.setPointer(Pointer.SIZE * i, pointerProvider.getPointer());
 			i++;
 		}
-		setPointer(Pointer.SIZE * i, null);
+		memory.setPointer(Pointer.SIZE * i, null);
 	}
 
-	public OssePointerArray(Pointer pointer) {
-		super(2 * Pointer.SIZE);
-		setPointer(0, pointer);
-		setPointer(Pointer.SIZE, null);
+	public OssePointerArray(final MemoryBuffer memoryBuffer,
+			final Pointer pointer) {
+		super(0);
+		memory = memoryBuffer.getMemory(2 * Pointer.SIZE);
+		peer = memory.getPeer();
+		memory.setPointer(0, pointer);
+		memory.setPointer(Pointer.SIZE, null);
+	}
+
+	@Override
+	public void close() {
+		memory.close();
 	}
 }

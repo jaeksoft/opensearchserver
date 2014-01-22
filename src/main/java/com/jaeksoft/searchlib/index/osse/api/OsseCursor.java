@@ -68,7 +68,8 @@ public class OsseCursor implements PointerProvider, Closeable {
 		this.error = error;
 		OssePointerArray ossePointerArray = null;
 		try {
-			ossePointerArray = new OssePointerArray(cursors);
+			// TODO MemoryBuffer
+			ossePointerArray = new OssePointerArray(null, cursors);
 			ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsQCursor_CreateCombinedCursor");
 			this.cursorPtr = OsseLibrary

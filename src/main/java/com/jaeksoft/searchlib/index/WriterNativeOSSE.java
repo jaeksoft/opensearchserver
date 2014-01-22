@@ -39,32 +39,34 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
+import com.jaeksoft.searchlib.index.osse.memory.CharArrayBuffer;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
 	private final OsseIndex index;
 	private final OsseErrorHandler error;
 	private final OsseTermBuffer termBuffer;
+	private final CharArrayBuffer charArrayBuffer;
 
 	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig)
 			throws SearchLibException {
 		super(indexConfig);
 		this.index = index;
+		charArrayBuffer = new CharArrayBuffer();
 		error = new OsseErrorHandler();
-		termBuffer = new OsseTermBuffer(StringUtils.newUTF8Encoder(), 1000);
+		termBuffer = new OsseTermBuffer(charArrayBuffer, 1000);
 	}
 
 	@Override
@@ -183,6 +185,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			updateDoc(transaction, fieldMap, schema, document);
 			if (!OsseTransaction.FAKE_MODE)
 				transaction.commit();
+			charArrayBuffer.close();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -208,6 +211,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			}
 			if (!OsseTransaction.FAKE_MODE)
 				transaction.commit();
+			charArrayBuffer.close();
 			return i;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

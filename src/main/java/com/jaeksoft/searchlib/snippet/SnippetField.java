@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -276,7 +277,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public boolean getSnippets(int docId, ReaderInterface reader,
-			FieldValueItem[] values, List<FieldValueItem> snippets)
+			FieldValueItem[] values, List<FieldValueItem> snippets, Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 
 		if (values == null)
@@ -284,11 +285,19 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		SnippetVector currentVector = null;
+
+		Timer t = new Timer(timer, "extractTermVectorIterator");
+
 		Iterator<SnippetVector> vectorIterator = SnippetVectors
 				.extractTermVectorIterator(docId, reader, snippetQueries, name);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
+
+		t.end(null);
+
+		t = new Timer(timer, "getFraments");
+
 		int startOffset = 0;
 		FragmentList fragments = new FragmentList();
 		int vectorOffset = 0;
@@ -300,8 +309,13 @@ public class SnippetField extends AbstractField<SnippetField> {
 				fragmenter.getFragments(value, fragments, vectorOffset++);
 			}
 		}
+
+		t.end(null);
+
 		if (fragments.size() == 0)
 			return false;
+
+		t = new Timer(timer, "checkValue");
 
 		Fragment fragment = fragments.first();
 		while (fragment != null) {
@@ -310,6 +324,10 @@ public class SnippetField extends AbstractField<SnippetField> {
 			startOffset += fragment.getOriginalText().length();
 			fragment = fragment.next();
 		}
+
+		t.end(null);
+
+		t = new Timer(timer, "snippetBuilder");
 
 		boolean result = false;
 		int snippetCounter = maxSnippetNumber;
@@ -353,6 +371,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 				fragments.remove(snippetBuilder.getFragments());
 			}
 		}
+
+		t.end(null);
+
 		return result;
 	}
 

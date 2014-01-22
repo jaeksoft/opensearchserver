@@ -64,6 +64,8 @@ public class FieldCache extends
 		Set<String> indexedField = null;
 		Set<String> missingField = null;
 
+		Timer t = new Timer(timer, "Field from cache");
+
 		// Getting available fields in the cache
 		for (String fieldName : fieldNameSet) {
 			FieldContentCacheKey key = new FieldContentCacheKey(fieldName,
@@ -75,6 +77,10 @@ public class FieldCache extends
 			else
 				storeField.add(fieldName);
 		}
+
+		t.end(null);
+
+		t = new Timer(timer, "Field from store");
 
 		// Check missing fields from store
 		if (storeField != null && storeField.size() > 0) {
@@ -91,6 +97,10 @@ public class FieldCache extends
 			}
 		}
 
+		t.end(null);
+
+		t = new Timer(timer, "Field from vector");
+
 		// Check missing fields from vector
 		if (vectorField != null && vectorField.size() > 0) {
 			indexedField = new TreeSet<String>();
@@ -104,6 +114,10 @@ public class FieldCache extends
 					indexedField.add(fieldName);
 			}
 		}
+
+		t.end(null);
+
+		t = new Timer(timer, "Field from StringIndex");
 
 		// Check missing fields from StringIndex
 		if (indexedField != null && indexedField.size() > 0) {
@@ -123,6 +137,8 @@ public class FieldCache extends
 				missingField.add(fieldName);
 			}
 		}
+
+		t.end(null);
 
 		if (missingField != null && missingField.size() > 0)
 			for (String fieldName : missingField)

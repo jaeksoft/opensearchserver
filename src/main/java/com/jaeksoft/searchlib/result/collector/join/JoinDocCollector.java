@@ -71,7 +71,7 @@ public class JoinDocCollector extends
 			joinDocCollector.foreignDocIdsArray[i++] = ids;
 	}
 
-	JoinDocCollector(int joinResultSize, int idsLength, int maxDoc) {
+	private JoinDocCollector(int joinResultSize, int idsLength, int maxDoc) {
 		this.maxDoc = maxDoc;
 		this.bitSet = null;
 		this.joinResultSize = joinResultSize;
@@ -84,7 +84,7 @@ public class JoinDocCollector extends
 	 * 
 	 * @param src
 	 */
-	JoinDocCollector(final JoinDocCollector src) {
+	private JoinDocCollector(final JoinDocCollector src) {
 		this(src.joinResultSize, validSize(src.ids), src.maxDoc);
 		int i1 = 0;
 		int i2 = 0;
