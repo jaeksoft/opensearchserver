@@ -144,8 +144,10 @@ public class AdvancedScore {
 	public void addItem(AdvancedScoreItem scoreItem) {
 		rwl.w.lock();
 		try {
-			if (!itemList.contains(scoreItem))
-				itemList.add(scoreItem);
+			if (itemList.contains(scoreItem))
+				return;
+			itemList.add(scoreItem);
+			array = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -155,6 +157,7 @@ public class AdvancedScore {
 		rwl.w.lock();
 		try {
 			itemList.remove(scoreItem);
+			array = null;
 		} finally {
 			rwl.w.unlock();
 		}

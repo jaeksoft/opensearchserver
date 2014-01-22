@@ -1,6 +1,6 @@
 <!--   License Agreement for OpenSearchServer -->
 <!--   -->
-<!--   Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!--   Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!--   -->
 <!--   This file is part of OpenSearchServer. -->
 <!--   http://www.open-search-server.com -->
@@ -76,13 +76,13 @@
 				</listbox>
 			</row>
 			<row>
-				<label value="Tokenizer: " />
+				<label value="Index Tokenizer: " />
 				<vbox width="100%">
 					<listbox model="@load(anlzr.tokenizerList)"
-						mold="select" selectedItem="@bind(anlzr.currentTokenizer)" />
+						mold="select" selectedItem="@bind(anlzr.currentIndexTokenizer)" />
 					<grid hflex="min"
-						visible="@load(anlzr.currentAnalyzer.tokenizer.property)"
-						model="@load(anlzr.currentAnalyzer.tokenizer.userProperties)">
+						visible="@load(anlzr.currentAnalyzer.indexTokenizer.property)"
+						model="@load(anlzr.currentAnalyzer.indexTokenizer.userProperties)">
 						<columns>
 							<column align="right" />
 							<column />
@@ -115,6 +115,48 @@
 					</grid>
 				</vbox>
 			</row>
+
+			<row>
+				<label value="Query Tokenizer: " />
+				<vbox width="100%">
+					<listbox model="@load(anlzr.tokenizerList)"
+						mold="select" selectedItem="@bind(anlzr.currentQueryTokenizer)" />
+					<grid hflex="min"
+						visible="@load(anlzr.currentAnalyzer.queryTokenizer.property)"
+						model="@load(anlzr.currentAnalyzer.queryTokenizer.userProperties)">
+						<columns>
+							<column align="right" />
+							<column />
+						</columns>
+						<rows>
+							<template name="model"
+								var="tokenizerproperty">
+								<row>
+									<label
+										tooltiptext="@load(tokenizerproperty.classPropertyEnum.info)"
+										value="@load(tokenizerproperty.classPropertyEnum.label)" />
+									<vbox>
+										<textbox
+											visible="@load(tokenizerproperty.textbox)"
+											value="@bind(tokenizerproperty.value)" />
+										<listbox mold="select"
+											visible="@load(tokenizerproperty.list)"
+											model="@load(tokenizerproperty.valueList)"
+											selectedItem="@bind(tokenizerproperty.value)">
+											<template name="model"
+												var="value">
+												<listitem
+													label="@load(value)" value="@load(value)" />
+											</template>
+										</listbox>
+									</vbox>
+								</row>
+							</template>
+						</rows>
+					</grid>
+				</vbox>
+			</row>
+
 			<row>
 				<label value="Filter list: " />
 				<listbox model="@load(anlzr.currentAnalyzer.filters)"

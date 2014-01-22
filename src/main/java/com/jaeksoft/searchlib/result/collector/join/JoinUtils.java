@@ -113,18 +113,18 @@ public class JoinUtils {
 		int[] ids1 = docs1.getCollector(DocIdInterface.class).getIds();
 		int[] ids2 = docs2.getCollector(DocIdInterface.class).getIds();
 		while (i1 != ids1.length) {
-			int id1 = ids1[i1];
-			int id2 = ids2[i2];
-			String t1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
-			String t2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
-			int c = StringUtils.compareNullString(t1, t2);
+			final int id1 = ids1[i1];
+			final int id2 = ids2[i2];
+			final String v1 = doc1StringIndex.lookup[doc1StringIndex.order[id1]];
+			final String v2 = doc2StringIndex.lookup[doc2StringIndex.order[id2]];
+			final int c = StringUtils.compareNullString(v1, v2);
 			if (c < 0) {
 				ids1[i1] = -1;
 				i1++;
 			} else if (c > 0) {
 				if (outerCollector != null && lastOuter != id2
 						&& lastInner != id2) {
-					outerCollector.collect(id2, t2);
+					outerCollector.collect(id2, v2);
 					lastOuter = id2;
 				}
 				i2++;
@@ -148,5 +148,4 @@ public class JoinUtils {
 			}
 		}
 	}
-
 }
