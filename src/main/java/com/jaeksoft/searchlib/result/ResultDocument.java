@@ -80,8 +80,12 @@ public class ResultDocument {
 		if (docId < 0)
 			return;
 
+		Timer mainTimer = new Timer(timer, "ResultDocument");
+
+		Timer t = new Timer(mainTimer, "returnField(s)");
+
 		Map<String, FieldValue> documentFields = reader.getDocumentFields(
-				docId, fieldSet, timer);
+				docId, fieldSet, t);
 
 		for (ReturnField field : searchRequest.getReturnFieldList()) {
 			String fieldName = field.getName();
@@ -89,6 +93,10 @@ public class ResultDocument {
 			if (fieldValue != null)
 				returnFields.put(fieldName, fieldValue);
 		}
+
+		t.end(null);
+
+		t = new Timer(mainTimer, "snippetField(s)");
 
 		for (SnippetField field : searchRequest.getSnippetFieldList()) {
 			String fieldName = field.getName();
@@ -98,11 +106,15 @@ public class ResultDocument {
 			FieldValue fieldValue = documentFields.get(fieldName);
 			if (fieldValue != null)
 				isHighlighted = field.getSnippets(docId, reader,
-						fieldValue.getValueArray(), snippets);
+						fieldValue.getValueArray(), snippets, t);
 			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
 					fieldName, snippets, isHighlighted);
 			snippetFields.put(fieldName, snippetFieldValue);
 		}
+
+		t.end(null);
+
+		mainTimer.end(null);
 	}
 
 	public ResultDocument(TreeSet<String> fieldSet, int docId,
