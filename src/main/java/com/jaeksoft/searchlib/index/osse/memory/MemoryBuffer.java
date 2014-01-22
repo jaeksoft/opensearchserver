@@ -24,52 +24,11 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
-import java.io.Closeable;
-import java.util.ArrayDeque;
-import java.util.Map;
-import java.util.TreeMap;
-
-public class MemoryBuffer implements Closeable {
-
-	private long reused;
-	private TreeMap<Long, ArrayDeque<DisposableMemory>> available;
-
-	public MemoryBuffer() {
-		available = new TreeMap<Long, ArrayDeque<DisposableMemory>>();
-		reused = 0;
-	}
+public class MemoryBuffer extends AbstractBuffer<DisposableMemory> {
 
 	@Override
-	public void close() {
-		System.out.println("MEMORY RELEASE " + available.size() + " " + reused);
-		available.clear();
-		reused = 0;
-	}
-
-	final private DisposableMemory newMemory(final long size) {
+	protected final DisposableMemory newBufferItem(final long size) {
 		return new DisposableMemory(this, size);
-	}
-
-	final public DisposableMemory getMemory(final long size) {
-		Map.Entry<Long, ArrayDeque<DisposableMemory>> entry = available
-				.ceilingEntry(size);
-		if (entry == null)
-			return newMemory(size);
-		ArrayDeque<DisposableMemory> memoryQue = entry.getValue();
-		if (memoryQue.isEmpty())
-			return newMemory(size);
-		reused++;
-		return memoryQue.poll();
-
-	}
-
-	void closed(DisposableMemory memory) {
-		ArrayDeque<DisposableMemory> memoryQue = available.get(memory.size);
-		if (memoryQue == null) {
-			memoryQue = new ArrayDeque<DisposableMemory>();
-			available.put(memory.size, memoryQue);
-		}
-		memoryQue.offer(memory);
 	}
 
 }

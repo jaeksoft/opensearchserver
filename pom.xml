@@ -376,18 +376,13 @@
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna-platform</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>4.0.0</version>
+			<version>3.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.6</version>
+			<version>1.7</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -435,6 +430,11 @@
 			<artifactId>antlr4-runtime</artifactId>
 			<version>4.1</version>
 		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>platform</artifactId>
+			<version>3.5.2</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -444,7 +444,7 @@
 		<httpclient.version>4.3.2</httpclient.version>
 		<poi.version>3.10-beta2</poi.version>
 		<selenium.version>2.39.0</selenium.version>
-		<zk.version>7.0.1.FL.20140117</zk.version>
+		<zk.version>7.0.1.FL.20140122</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>

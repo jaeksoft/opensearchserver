@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
-import com.jaeksoft.searchlib.index.osse.memory.CharArrayBuffer;
+import com.jaeksoft.searchlib.index.osse.memory.ByteArrayBuffer;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -58,15 +58,15 @@ public class WriterNativeOSSE extends WriterAbstract {
 	private final OsseIndex index;
 	private final OsseErrorHandler error;
 	private final OsseTermBuffer termBuffer;
-	private final CharArrayBuffer charArrayBuffer;
+	private final ByteArrayBuffer byteArrayBuffer;
 
 	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig)
 			throws SearchLibException {
 		super(indexConfig);
 		this.index = index;
-		charArrayBuffer = new CharArrayBuffer();
+		byteArrayBuffer = new ByteArrayBuffer();
 		error = new OsseErrorHandler();
-		termBuffer = new OsseTermBuffer(charArrayBuffer, 1000);
+		termBuffer = new OsseTermBuffer(byteArrayBuffer, 1000);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			updateDoc(transaction, fieldMap, schema, document);
 			if (!OsseTransaction.FAKE_MODE)
 				transaction.commit();
-			charArrayBuffer.close();
+			byteArrayBuffer.close();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -211,7 +211,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			}
 			if (!OsseTransaction.FAKE_MODE)
 				transaction.commit();
-			charArrayBuffer.close();
+			byteArrayBuffer.close();
 			return i;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
