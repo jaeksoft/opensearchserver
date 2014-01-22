@@ -57,7 +57,8 @@ public class JoinUtils {
 
 		t.getDuration();
 
-		return docs1.duplicate().getCollector(DocIdInterface.class);
+		docs1 = (JoinDocCollectorInterface) docs1.duplicate();
+		return docs1.getCollector(DocIdInterface.class);
 	}
 
 	final private static JoinDocCollectorInterface getCollector(
