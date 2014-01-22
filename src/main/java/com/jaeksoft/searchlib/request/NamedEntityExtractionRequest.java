@@ -318,7 +318,10 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
 					DeduplicateTokenPositionsFilter.class);
 			Analyzer analyzer = new Analyzer(config);
-			analyzer.setTokenizer(TokenizerFactory.create(config, tokenizer));
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
+					tokenizer));
+			analyzer.setQueryTokenizer(TokenizerFactory.create(config,
+					tokenizer));
 			analyzer.add(getFilterList(dtpf));
 			analyzer.getQueryAnalyzer().populate(text, result);
 			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(),

@@ -65,8 +65,9 @@ public abstract class TokenizerFactory extends ClassFactory {
 		return (TokenizerFactory) ClassFactory.create(tokenizer);
 	}
 
-	public void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("tokenizer", getXmlAttributes());
+	public void writeXmlConfig(String nodeName, XmlWriter writer)
+			throws SAXException {
+		writer.startElement(nodeName, getXmlAttributes());
 		writeXmlNodeAttributes(writer, "attributes");
 		writer.endElement();
 	}
