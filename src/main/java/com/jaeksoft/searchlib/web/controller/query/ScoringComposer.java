@@ -56,15 +56,11 @@ public class ScoringComposer extends AbstractQueryController {
 		reload();
 	}
 
-	public AdvancedScoreItem[] getAdvancedScoreArray()
-			throws SearchLibException {
+	public AdvancedScore getAdvancedScore() throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
-		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
-		if (advancedScore == null)
-			return null;
-		return advancedScore.getArray();
+		return searchRequest.getAdvancedScore();
 	}
 
 	public AdvancedScoreItem getScoreItem() {
