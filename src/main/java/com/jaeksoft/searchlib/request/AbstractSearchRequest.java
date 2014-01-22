@@ -410,6 +410,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	final public void removeAdvancedScore(final AdvancedScoreItem scoreItem) {
 		if (scoreItem == null)
 			return;
+		rwl.w.lock();
 		try {
 			if (advancedScore == null)
 				return;

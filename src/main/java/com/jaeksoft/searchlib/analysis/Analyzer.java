@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,7 +46,8 @@ public class Analyzer {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private TokenizerFactory tokenizer;
+	private TokenizerFactory queryTokenizer;
+	private TokenizerFactory indexTokenizer;
 	private List<FilterFactory> filters;
 	private String name;
 	private LanguageEnum lang;
@@ -59,7 +60,8 @@ public class Analyzer {
 		name = null;
 		this.config = config;
 		lang = LanguageEnum.UNDEFINED;
-		setTokenizer(TokenizerFactory.getDefaultTokenizer(config));
+		setQueryTokenizer(TokenizerFactory.getDefaultTokenizer(config));
+		setIndexTokenizer(TokenizerFactory.getDefaultTokenizer(config));
 		filters = new ArrayList<FilterFactory>();
 		queryAnalyzer = null;
 		indexAnalyzer = null;
@@ -81,8 +83,10 @@ public class Analyzer {
 		try {
 			target.name = this.name;
 			target.lang = this.lang;
-			target.tokenizer = (TokenizerFactory) ClassFactory
-					.create(tokenizer);
+			target.queryTokenizer = (TokenizerFactory) ClassFactory
+					.create(queryTokenizer);
+			target.indexTokenizer = (TokenizerFactory) ClassFactory
+					.create(indexTokenizer);
 			target.filters = new ArrayList<FilterFactory>();
 			for (FilterFactory filter : filters)
 				target.filters
@@ -124,10 +128,22 @@ public class Analyzer {
 	/**
 	 * @return the tokenizer
 	 */
-	public TokenizerFactory getTokenizer() {
+	public TokenizerFactory getIndexTokenizer() {
 		rwl.r.lock();
 		try {
-			return tokenizer;
+			return indexTokenizer;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @return the tokenizer
+	 */
+	public TokenizerFactory getQueryTokenizer() {
+		rwl.r.lock();
+		try {
+			return queryTokenizer;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -139,13 +155,29 @@ public class Analyzer {
 	 * @throws SearchLibException
 	 * @throws ClassNotFoundException
 	 */
-	public void setTokenizer(TokenizerFactory tokenizer)
+	public void setIndexTokenizer(TokenizerFactory tokenizer)
 			throws SearchLibException, ClassNotFoundException {
 		rwl.w.lock();
 		try {
-			this.tokenizer = TokenizerFactory.create(tokenizer);
-			queryAnalyzer = null;
+			this.indexTokenizer = TokenizerFactory.create(tokenizer);
 			indexAnalyzer = null;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @param tokenizer
+	 *            the tokenizer to set
+	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
+	 */
+	public void setQueryTokenizer(TokenizerFactory tokenizer)
+			throws SearchLibException, ClassNotFoundException {
+		rwl.w.lock();
+		try {
+			this.queryTokenizer = TokenizerFactory.create(tokenizer);
+			queryAnalyzer = null;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -291,15 +323,23 @@ public class Analyzer {
 			return null;
 		Analyzer analyzer = new Analyzer(config, xpp, node);
 
-		String tokenizerFactoryClassName = XPathParser.getAttributeString(node,
+		String indexTokenizer = XPathParser.getAttributeString(node,
 				"tokenizer");
-		if (tokenizerFactoryClassName != null) {
-			analyzer.setTokenizer(TokenizerFactory.create(config,
-					tokenizerFactoryClassName));
-		}
+		if (indexTokenizer != null)
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
+					indexTokenizer));
 		NodeList nodes = xpp.getNodeList(node, "tokenizer");
 		if (nodes.getLength() > 0)
-			analyzer.setTokenizer(TokenizerFactory.create(config, nodes.item(0)));
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
+					nodes.item(0)));
+
+		nodes = xpp.getNodeList(node, "queryTokenizer");
+		if (nodes.getLength() > 0)
+			analyzer.setQueryTokenizer(TokenizerFactory.create(config,
+					nodes.item(0)));
+		else
+			analyzer.setQueryTokenizer(TokenizerFactory
+					.create(analyzer.indexTokenizer));
 
 		nodes = xpp.getNodeList(node, "filter");
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -315,8 +355,10 @@ public class Analyzer {
 		try {
 			writer.startElement("analyzer", "name", getName(), "lang",
 					lang != null ? lang.getCode() : null);
-			if (tokenizer != null)
-				tokenizer.writeXmlConfig(writer);
+			if (indexTokenizer != null)
+				indexTokenizer.writeXmlConfig("tokenizer", writer);
+			if (queryTokenizer != null)
+				queryTokenizer.writeXmlConfig("queryTokenizer", writer);
 			if (filters != null && filters.size() > 0)
 				for (FilterFactory filter : filters)
 					filter.writeXmlConfig(writer);
@@ -400,7 +442,7 @@ public class Analyzer {
 		try {
 			if (queryAnalyzer != null)
 				return queryAnalyzer;
-			queryAnalyzer = new CompiledAnalyzer(tokenizer, filters,
+			queryAnalyzer = new CompiledAnalyzer(queryTokenizer, filters,
 					FilterScope.QUERY);
 			return queryAnalyzer;
 		} finally {
@@ -426,7 +468,7 @@ public class Analyzer {
 		try {
 			if (indexAnalyzer != null)
 				return indexAnalyzer;
-			indexAnalyzer = new CompiledAnalyzer(tokenizer, filters,
+			indexAnalyzer = new CompiledAnalyzer(indexTokenizer, filters,
 					FilterScope.INDEX);
 			return indexAnalyzer;
 		} finally {

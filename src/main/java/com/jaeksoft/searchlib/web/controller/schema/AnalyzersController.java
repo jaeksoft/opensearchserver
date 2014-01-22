@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -218,20 +218,37 @@ public class AnalyzersController extends CommonController {
 		return currentAnalyzer;
 	}
 
-	public String getCurrentTokenizer() {
+	public String getCurrentIndexTokenizer() {
 		Analyzer analyzer = getCurrentAnalyzer();
 		if (analyzer == null)
 			return null;
-		TokenizerFactory tokenizer = analyzer.getTokenizer();
+		TokenizerFactory tokenizer = analyzer.getIndexTokenizer();
+		if (tokenizer == null)
+			return null;
+		return tokenizer.getClassName();
+	}
+
+	public String getCurrentQueryTokenizer() {
+		Analyzer analyzer = getCurrentAnalyzer();
+		if (analyzer == null)
+			return null;
+		TokenizerFactory tokenizer = analyzer.getQueryTokenizer();
 		if (tokenizer == null)
 			return null;
 		return tokenizer.getClassName();
 	}
 
 	@NotifyChange({ ".", "currentAnalyzer" })
-	public void setCurrentTokenizer(String className)
+	public void setCurrentIndexTokenizer(String className)
 			throws SearchLibException, ClassNotFoundException {
-		getCurrentAnalyzer().setTokenizer(
+		getCurrentAnalyzer().setIndexTokenizer(
+				TokenizerFactory.create(getClient(), className));
+	}
+
+	@NotifyChange({ ".", "currentAnalyzer" })
+	public void setCurrentQueryTokenizer(String className)
+			throws SearchLibException, ClassNotFoundException {
+		getCurrentAnalyzer().setQueryTokenizer(
 				TokenizerFactory.create(getClient(), className));
 	}
 
