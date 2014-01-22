@@ -64,7 +64,7 @@ public class OsseTermQuery extends OsseAbstractQuery {
 		try {
 			// TODO MemoryBuffer
 			osseFastStringArray = new OsseFastStringArray(null,
-					new OsseTermBuffer(text));
+					new OsseTermBuffer(null, text));
 			cursor = new OsseCursor(index, error, fieldInfo.id,
 					osseFastStringArray, 1,
 					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);

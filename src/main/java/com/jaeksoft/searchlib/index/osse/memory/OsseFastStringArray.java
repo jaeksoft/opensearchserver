@@ -26,10 +26,13 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
+import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.memory.CharArrayBuffer.CharArray;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 /**
@@ -43,27 +46,47 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 	 * @param strings
 	 */
 
-	private final DisposableMemory stringPointers;
+	private final DisposableMemory termPointers;
 	private final DisposableMemory fullBytes;
 
 	public OsseFastStringArray(final MemoryBuffer memoryBuffer,
 			final OsseTermBuffer termBuffer)
 			throws UnsupportedEncodingException, CharacterCodingException {
 		super(0);
-		stringPointers = memoryBuffer.getMemory((termBuffer.getTermCount() + 1)
-				* Pointer.SIZE);
-		peer = stringPointers.getPeer();
-		fullBytes = memoryBuffer.getMemory(termBuffer.getBytesSize());
-		termBuffer.writeBytesBuffer(fullBytes);
-		termBuffer.writeTermPointers(stringPointers, fullBytes.getPeer());
-		stringPointers.setPointer(Pointer.SIZE * termBuffer.getTermCount(),
-				null);
+
+		// First we reserve memory for the list of pointers
+		final int termCount = termBuffer.getTermCount();
+		termPointers = memoryBuffer.getMemory(termCount * Pointer.SIZE);
+		peer = termPointers.getPeer();
+
+		// Filling the characters memory
+		fullBytes = memoryBuffer.getMemory(termBuffer.getTotalCharLength()
+				* Native.WCHAR_SIZE);
+		long offset = 0;
+		int charArrayCount = termBuffer.getCharArrayCount();
+		CharArray[] charArrays = termBuffer.getCharArrays();
+		for (int i = 0; i < charArrayCount; i++) {
+			CharBuffer charBuffer = charArrays[i].charBuffer;
+			int length = charBuffer.position();
+			fullBytes.write(offset, charBuffer.array(), 0, length);
+			offset += length * Native.WCHAR_SIZE;
+		}
+
+		// Filling the pointer array memory
+		long stringPeer = fullBytes.getPeer();
+		int[] termLengths = termBuffer.getTermLengths();
+		Pointer[] pointers = new Pointer[termCount];
+		for (int i = 0; i < termCount; i++) {
+			pointers[i] = new Pointer(stringPeer);
+			stringPeer += termLengths[i] * Native.WCHAR_SIZE;
+		}
+		termPointers.write(0, pointers, 0, termCount);
 	}
 
 	@Override
 	final public void close() {
 		fullBytes.close();
-		stringPointers.close();
+		termPointers.close();
 	}
 
 	@Override

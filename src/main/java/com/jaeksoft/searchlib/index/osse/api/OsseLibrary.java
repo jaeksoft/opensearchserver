@@ -72,9 +72,15 @@ public class OsseLibrary {
 	public static native int OSSCLib_MsTransact_Document_GetNewDocId(
 			Pointer hMsTransact, Pointer hExtErrInfo);
 
+	@Deprecated
 	public static native int OSSCLib_MsTransact_Document_AddStringTerms(
 			Pointer hMsTransactField, int ui32DocId,
 			OsseFastStringArray lplpsu8zTermArray, int ui32NumberOfTerms,
+			Pointer hExtErrInfo);
+
+	public static native int OSSCLib_MsTransact_Document_AddStringTermsW(
+			Pointer hMsTransactField, int ui32DocId,
+			OsseFastStringArray lplpwszTermArray, int ui32NumberOfTerms,
 			Pointer hExtErrInfo);
 
 	public static native boolean OSSCLib_MsTransact_RollBack(

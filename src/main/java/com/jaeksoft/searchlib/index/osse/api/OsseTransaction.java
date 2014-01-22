@@ -206,12 +206,13 @@ public class OsseTransaction implements Closeable {
 					transactFieldPtr.toString(), " ",
 					Integer.toString(documentId),
 					Integer.toString(buffer.getTermCount()));
-			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTerms(
+			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTermsW(
 					transactFieldPtr, documentId, ofsa, buffer.getTermCount(),
 					err.getPointer());
 			et.end();
 			if (res != buffer.getTermCount())
 				err.throwError();
+			buffer.release();
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (CharacterCodingException e) {

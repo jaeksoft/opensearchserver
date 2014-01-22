@@ -31,23 +31,22 @@ import java.util.TreeMap;
 
 public class MemoryBuffer implements Closeable {
 
-	private long allocated;
+	private long reused;
 	private TreeMap<Long, ArrayDeque<DisposableMemory>> available;
 
 	public MemoryBuffer() {
 		available = new TreeMap<Long, ArrayDeque<DisposableMemory>>();
-		allocated = 0;
+		reused = 0;
 	}
 
 	@Override
 	public void close() {
-		System.out.println("Release " + available.size());
+		System.out.println("MEMORY RELEASE " + available.size() + " " + reused);
 		available.clear();
+		reused = 0;
 	}
 
 	final private DisposableMemory newMemory(final long size) {
-		allocated++;
-		System.out.println("ALLOC " + allocated + " - " + size);
 		return new DisposableMemory(this, size);
 	}
 
@@ -59,6 +58,7 @@ public class MemoryBuffer implements Closeable {
 		ArrayDeque<DisposableMemory> memoryQue = entry.getValue();
 		if (memoryQue.isEmpty())
 			return newMemory(size);
+		reused++;
 		return memoryQue.poll();
 
 	}
