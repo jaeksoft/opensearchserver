@@ -47,9 +47,10 @@ public abstract class AbstractExtendsCollector<C extends CollectorInterface, B e
 		return parent;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	final public CollectorInterface duplicate() {
-		base.duplicate();
-		return getCollector(this.getClass());
+		B newBase = (B) base.duplicate();
+		return newBase.getCollector(this.getClass());
 	}
 }
