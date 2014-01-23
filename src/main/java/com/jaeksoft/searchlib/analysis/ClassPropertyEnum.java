@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -272,6 +272,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static ClassPropertyEnum IGNORE_META_NOFOLLOW = new ClassPropertyEnum(
 			true, "ignoreMetaNoFollow", "Ignore meta nofollow",
 			"Ignore the meta nofollow tag in HTML header");
+
+	public static ClassPropertyEnum IGNORE_LINK_NOFOLLOW = new ClassPropertyEnum(
+			true, "ignoreLinkNoFollow", "Ignore link nofollow",
+			"Ignore the REL nofollow attribute in LINK tags");
 
 	public static ClassPropertyEnum IGNORE_UNTITLED_DOCUMENTS = new ClassPropertyEnum(
 			true, "ignoreUntitledDocuments", "Ignore untitled documents",
