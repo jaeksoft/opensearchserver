@@ -97,6 +97,7 @@ public class HtmlParser extends Parser {
 	private Float titleBoost;
 	private boolean ignoreMetaNoIndex;
 	private boolean ignoreMetaNoFollow;
+	private boolean ignoreLinkNoFollow;
 	private boolean ignoreUntitledDocuments;
 	private boolean ignoreNonCanonical;
 	private boolean isCanonical = true;
@@ -147,6 +148,8 @@ public class HtmlParser extends Parser {
 		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW,
+				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.IGNORE_LINK_NOFOLLOW,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
 				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
@@ -339,6 +342,7 @@ public class HtmlParser extends Parser {
 		boostTagMap.put("h6", new BoostTag(ClassPropertyEnum.H6_BOOST));
 		ignoreMetaNoIndex = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOINDEX);
 		ignoreMetaNoFollow = getBooleanProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW);
+		ignoreLinkNoFollow = getBooleanProperty(ClassPropertyEnum.IGNORE_LINK_NOFOLLOW);
 		ignoreUntitledDocuments = getBooleanProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS);
 		ignoreNonCanonical = getBooleanProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL);
 
@@ -523,7 +527,7 @@ public class HtmlParser extends Parser {
 				}
 				boolean follow = true;
 				if (rel != null)
-					if (rel.contains("nofollow"))
+					if (rel.contains("nofollow") && !ignoreLinkNoFollow)
 						follow = false;
 				URL newUrl = null;
 				if (href != null)
