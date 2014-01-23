@@ -32,20 +32,15 @@ import java.util.TreeMap;
 public abstract class AbstractBuffer<T extends BufferItemInterface> implements
 		Closeable {
 
-	private long reused;
 	private TreeMap<Long, ArrayDeque<T>> available;
 
 	public AbstractBuffer() {
 		available = new TreeMap<Long, ArrayDeque<T>>();
-		reused = 0;
 	}
 
 	@Override
 	final public void close() {
-		System.out.println(this.getClass().getName() + " RELEASE "
-				+ available.size() + " " + reused);
 		available.clear();
-		reused = 0;
 	}
 
 	protected abstract T newBufferItem(final long size);
@@ -58,7 +53,6 @@ public abstract class AbstractBuffer<T extends BufferItemInterface> implements
 		ArrayDeque<T> memoryQue = entry.getValue();
 		if (memoryQue.isEmpty())
 			return newBufferItem(size);
-		reused++;
 		return (T) memoryQue.poll().reset();
 	}
 
