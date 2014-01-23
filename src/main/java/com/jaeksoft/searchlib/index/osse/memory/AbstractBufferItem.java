@@ -30,14 +30,14 @@ public abstract class AbstractBufferItem<T extends BufferItemInterface>
 		implements Closeable {
 
 	private final AbstractBuffer<T> buffer;
-	protected final long size;
+	protected final int size;
 
-	protected AbstractBufferItem(final AbstractBuffer<T> buffer, final long size) {
+	protected AbstractBufferItem(final AbstractBuffer<T> buffer, final int size) {
 		this.buffer = buffer;
 		this.size = size;
 	}
 
-	final public long getSize() {
+	final public int getSize() {
 		return size;
 	}
 

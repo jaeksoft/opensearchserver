@@ -24,12 +24,12 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
-import java.io.Closeable;
+public interface BufferItemInterface {
 
-public interface BufferItemInterface extends Closeable {
-
-	long getSize();
+	int getSize();
 
 	BufferItemInterface reset();
+
+	void close();
 
 }

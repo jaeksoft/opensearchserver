@@ -24,23 +24,32 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
-import java.io.Closeable;
+import java.nio.ByteBuffer;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 final public class DisposableMemory extends Pointer implements
-		BufferItemInterface, Closeable {
+		BufferItemInterface {
 
-	final long size;
+	final int size;
 	protected final MemoryBuffer buffer;
+	private ByteBuffer byteBuffer;
 
-	DisposableMemory(final MemoryBuffer buffer, final long size) {
+	DisposableMemory(final MemoryBuffer buffer, final int size) {
 		super(Native.malloc(size));
 		if (peer == 0)
 			throw new OutOfMemoryError("Cannot allocate " + size + " bytes");
 		this.size = size;
 		this.buffer = buffer;
+		this.byteBuffer = null;
+	}
+
+	final public ByteBuffer getByteBuffer() {
+		if (byteBuffer != null)
+			return byteBuffer;
+		byteBuffer = getByteBuffer(0, size);
+		return byteBuffer;
 	}
 
 	@Override
@@ -61,12 +70,14 @@ final public class DisposableMemory extends Pointer implements
 	}
 
 	@Override
-	final public long getSize() {
+	final public int getSize() {
 		return size;
 	}
 
 	@Override
 	final public DisposableMemory reset() {
+		if (byteBuffer != null)
+			byteBuffer.clear();
 		return this;
 	}
 }

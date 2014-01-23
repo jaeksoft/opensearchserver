@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.index.osse.memory;
 public class CharArrayBuffer extends AbstractBuffer<CharArray> {
 
 	@Override
-	protected CharArray newBufferItem(long size) {
+	protected CharArray newBufferItem(int size) {
 		return new CharArray(this, size);
 	}
 
