@@ -89,11 +89,11 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			return sb.toString();
 		}
 
-		public final boolean includes(TermQueryItem next) {
+		public final boolean includes(final TermQueryItem next) {
 			return next.start >= start && next.end <= end;
 		}
 
-		public final void addChild(TermQueryItem next) {
+		public final void addChild(final TermQueryItem next) {
 			if (children == null)
 				children = new ArrayList<TermQueryItem>(0);
 			children.add(next);
