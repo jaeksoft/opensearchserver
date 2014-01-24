@@ -25,8 +25,8 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -35,42 +35,46 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class AcronymExpanderFilter extends FilterFactory {
+public class AcronymFilter extends FilterFactory {
+
+	private boolean expand = false;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
+		addProperty(ClassPropertyEnum.EXPAND, Boolean.FALSE.toString(),
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
+		if (prop == ClassPropertyEnum.EXPAND)
+			expand = Boolean.parseBoolean(value);
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new AcronymExpanderTokenFilter(tokenStream);
+		return new AcronymTokenFilter(tokenStream);
 	}
 
-	public class AcronymExpanderTokenFilter extends AbstractTermFilter {
+	public class AcronymTokenFilter extends AbstractTermFilter {
 
-		private final List<String> termsQueue;
+		private final Deque<String> termsQueue;
+		private int increment;
 
-		private int currentPos = 0;
-
-		public AcronymExpanderTokenFilter(final TokenStream input) {
+		public AcronymTokenFilter(final TokenStream input) {
 			super(input);
-			termsQueue = new ArrayList<String>(0);
+			termsQueue = new ArrayDeque<String>(0);
 		}
 
 		private final boolean popToken() {
 			if (termsQueue.isEmpty())
 				return false;
-			if (currentPos == termsQueue.size()) {
-				termsQueue.clear();
-				return false;
-			}
-			createToken(termsQueue.get(currentPos++));
+			final String term = termsQueue.poll();
+			createToken(term, termsQueue.isEmpty() ? increment : 0,
+					offsetAtt.startOffset(), offsetAtt.endOffset(),
+					typeAtt.type(), flagsAtt.getFlags());
 			return true;
 		}
 
@@ -93,9 +97,10 @@ public class AcronymExpanderFilter extends FilterFactory {
 				String[] letters = checkAcronyms(term);
 				if (letters == null)
 					return true;
-				termsQueue.add(term);
-				termsQueue.add(StringUtils.join(letters));
-				currentPos = 0;
+				increment = posIncrAtt.getPositionIncrement();
+				if (expand)
+					termsQueue.offer(term);
+				termsQueue.offer(StringUtils.join(letters));
 			}
 		}
 
