@@ -75,8 +75,6 @@ public class AdvancedScoreItemValue {
 	}
 
 	public final void endCollection() {
-		if (maxValue == 0)
-			return;
 		if (weight == 0)
 			return;
 		finalArray = valueArray.getFinalArray();
