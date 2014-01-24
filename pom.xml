@@ -368,16 +368,31 @@
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
 			<version>${selenium.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>platform</artifactId>
+					<groupId>net.java.dev.jna</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jna</artifactId>
+					<groupId>net.java.dev.jna</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-remote-driver</artifactId>
 			<version>${selenium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.jna</groupId>
-			<artifactId>jna</artifactId>
-			<version>3.5.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>platform</artifactId>
+					<groupId>net.java.dev.jna</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jna</artifactId>
+					<groupId>net.java.dev.jna</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -431,14 +446,25 @@
 			<version>4.1</version>
 		</dependency>
 		<dependency>
-			<groupId>net.java.dev.jna</groupId>
-			<artifactId>platform</artifactId>
-			<version>3.5.2</version>
-		</dependency>
-		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>bridj</artifactId>
 			<version>0.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-platform</artifactId>
+			<version>4.0.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jna</artifactId>
+					<groupId>net.java.dev.jna</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.0.0</version>
 		</dependency>
 	</dependencies>
 	<properties>
