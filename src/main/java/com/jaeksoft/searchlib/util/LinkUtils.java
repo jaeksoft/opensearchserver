@@ -31,6 +31,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.http.client.utils.URIUtils;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
@@ -48,8 +50,8 @@ public class LinkUtils {
 
 		String fragment = null;
 		try {
-			URL u = new URL(currentURL, href);
-			href = u.toExternalForm();
+			URI u = URIUtils.resolve(currentURL.toURI(), href);
+			href = u.toString();
 			href = UrlFilterList.doReplace(u.getHost(), href, urlFilterList);
 			URI uri = URI.create(href);
 			uri = uri.normalize();
@@ -114,7 +116,10 @@ public class LinkUtils {
 		return newEncodedURI(u).toURL();
 	}
 
-	public final static void main(String[] args) {
+	public final static void main(String[] args) throws MalformedURLException {
+		System.out.println(getLink(new URL(
+				"http://www.example.com/test/in-75?l=75&co=FR&start=20"),
+				"?l=75&co=FR&start=20", null, false));
 		System.out.println(lastPart("/my+folder/"));
 		System.out.println(lastPart("my folder/"));
 		System.out.println(lastPart("my folder/my+sub-folder/"));
@@ -122,5 +127,4 @@ public class LinkUtils {
 		System.out.println(lastPart("my+file.png"));
 		System.out.println(lastPart("my+folder/my+sub-folder/my+file.png"));
 	}
-
 }
