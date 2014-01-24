@@ -28,7 +28,7 @@ public enum FilterEnum {
 
 	StandardFilter("Normalizes tokens extracted with StandardTokenizer."),
 
-	AcronymExpanderFilter("A filter that expand acronmys"),
+	AcronymFilter("A filter which normalize acronyms"),
 
 	ArabicStemFilter("A filter that filter Arabic words."),
 
