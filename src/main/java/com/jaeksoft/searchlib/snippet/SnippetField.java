@@ -363,9 +363,11 @@ public class SnippetField extends AbstractField<SnippetField> {
 				fragment = Fragment
 						.findNextHighlightedFragment(fragment.next());
 				scoredFragment++;
-				if (System.currentTimeMillis() > expiration) {
-					expired = true;
-					break;
+				if (expiration != 0) {
+					if (System.currentTimeMillis() > expiration) {
+						expired = true;
+						break;
+					}
 				}
 			}
 

@@ -92,8 +92,8 @@ class SnippetVectors {
 
 		Collection<SnippetVector> vectors = new ArrayList<SnippetVector>();
 
-		t = new Timer(parentTimer, "getTermPositionVector");
-		populate(termVector, snippetQueries.terms, vectors);
+		t = new Timer(parentTimer, "populate");
+		populate(termVector, snippetQueries.terms, vectors, t);
 		t.end(null);
 
 		t = new Timer(parentTimer, "removeIncludes");
@@ -126,19 +126,29 @@ class SnippetVectors {
 	}
 
 	private static final void populate(final TermPositionVector termVector,
-			final String[] terms, final Collection<SnippetVector> vectors)
-			throws SearchLibException {
+			final String[] terms, final Collection<SnippetVector> vectors,
+			Timer parentTimer) throws SearchLibException {
+		Timer t = new Timer(parentTimer, "indexOf");
 		int[] termsIdx = termVector.indexesOf(terms, 0, terms.length);
+		t.end(null);
 		int i = 0;
 		for (int termId : termsIdx) {
+			Timer termTimer = new Timer(parentTimer, "term " + terms[i]);
 			if (termId != -1) {
+				t = new Timer(termTimer, "getOffsets");
 				TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
+				t.end(null);
+				t = new Timer(termTimer, "getTermPositions");
 				int[] positions = termVector.getTermPositions(termId);
+				t.end(null);
+				t = new Timer(termTimer, "SnippetVector");
 				int j = 0;
 				for (TermVectorOffsetInfo offset : offsets)
 					vectors.add(new SnippetVector(i, offset, positions[j++]));
+				t.end(null);
 			}
 			i++;
+			termTimer.end(null);
 		}
 	}
 
