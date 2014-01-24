@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -64,13 +65,14 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private String unescapedSeparator;
 	private int maxSnippetSize;
 	private int maxSnippetNumber;
+	private int timeLimit;
 	private transient SnippetQueries snippetQueries;
 	private transient Query query;
 	private transient Analyzer analyzer;
 
 	private SnippetField(String fieldName, String tag, String separator,
 			int maxSnippetSize, int maxSnippetNumber,
-			FragmenterAbstract fragmenterTemplate) {
+			FragmenterAbstract fragmenterTemplate, int timeLimit) {
 		super(fieldName);
 		this.snippetQueries = null;
 		setTag(tag);
@@ -78,16 +80,17 @@ public class SnippetField extends AbstractField<SnippetField> {
 		this.maxSnippetSize = maxSnippetSize;
 		this.maxSnippetNumber = maxSnippetNumber;
 		this.fragmenterTemplate = fragmenterTemplate;
+		this.timeLimit = timeLimit;
 	}
 
 	public SnippetField(String fieldName) {
-		this(fieldName, "em", "...", 200, 1, FragmenterAbstract.NOFRAGMENTER);
+		this(fieldName, "em", "...", 200, 1, FragmenterAbstract.NOFRAGMENTER, 0);
 	}
 
 	@Override
 	public SnippetField duplicate() {
 		return new SnippetField(name, tag, separator, maxSnippetSize,
-				maxSnippetNumber, fragmenterTemplate);
+				maxSnippetNumber, fragmenterTemplate, timeLimit);
 	}
 
 	public String getFragmenter() {
@@ -196,6 +199,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 				"maxSnippetSize");
 		if (maxSnippetSize == 0)
 			maxSnippetSize = 200;
+		int timeLimit = DomUtils.getAttributeInteger(node, "timeLimit", 0);
+
 		FragmenterAbstract fragmenter = FragmenterAbstract
 				.newInstance(XPathParser.getAttributeString(node,
 						"fragmenterClass"));
@@ -207,7 +212,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		if (schemaField == null)
 			return;
 		SnippetField field = new SnippetField(schemaField.getName(), tag,
-				separator, maxSnippetSize, maxSnippetNumber, fragmenter);
+				separator, maxSnippetSize, maxSnippetNumber, fragmenter,
+				timeLimit);
 		target.put(field);
 	}
 
@@ -277,11 +283,16 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public boolean getSnippets(int docId, ReaderInterface reader,
-			FieldValueItem[] values, List<FieldValueItem> snippets, Timer timer)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			FieldValueItem[] values, List<FieldValueItem> snippets,
+			final Timer parentTimer) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 
 		if (values == null)
 			return false;
+
+		final Timer timer = new Timer(parentTimer, "SnippetField " + this.name);
+		final long expiration = this.timeLimit == 0 ? 0 : timer
+				.getStartOffset(this.timeLimit);
 
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		SnippetVector currentVector = null;
@@ -289,7 +300,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		Timer t = new Timer(timer, "extractTermVectorIterator");
 
 		Iterator<SnippetVector> vectorIterator = SnippetVectors
-				.extractTermVectorIterator(docId, reader, snippetQueries, name);
+				.extractTermVectorIterator(docId, reader, snippetQueries, name,
+						t);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
@@ -312,8 +324,10 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		t.end(null);
 
-		if (fragments.size() == 0)
+		if (fragments.size() == 0) {
+			timer.end(null);
 			return false;
+		}
 
 		t = new Timer(timer, "checkValue");
 
@@ -327,15 +341,20 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		t.end(null);
 
-		t = new Timer(timer, "snippetBuilder");
+		Timer sbTimer = new Timer(timer, "snippetBuilder");
 
 		boolean result = false;
 		int snippetCounter = maxSnippetNumber;
+		int scoredFragment = 0;
 		while (snippetCounter-- != 0) {
 			Fragment bestScoreFragment = null;
 			fragment = Fragment.findNextHighlightedFragment(fragments.first());
 			List<Fragment> scoreFragments = new ArrayList<Fragment>(0);
 			double maxSearchScore = 0;
+
+			t = new Timer(sbTimer, "fragmentScore");
+			boolean expired = false;
+
 			while (fragment != null) {
 				double sc = fragment.searchScore(name, analyzer, query);
 				if (sc > maxSearchScore)
@@ -343,7 +362,15 @@ public class SnippetField extends AbstractField<SnippetField> {
 				scoreFragments.add(fragment);
 				fragment = Fragment
 						.findNextHighlightedFragment(fragment.next());
+				scoredFragment++;
+				if (System.currentTimeMillis() > expiration) {
+					expired = true;
+					break;
+				}
 			}
+
+			t.end("fragmentScore " + scoredFragment + " " + expired);
+
 			for (Fragment frag : scoreFragments)
 				bestScoreFragment = Fragment.bestScore(bestScoreFragment, frag,
 						maxSearchScore, maxSnippetSize);
@@ -372,7 +399,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 			}
 		}
 
-		t.end(null);
+		sbTimer.end(null);
+
+		timer.end(null);
 
 		return result;
 	}
@@ -384,7 +413,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 				"maxSnippetNumber", Integer.toString(maxSnippetNumber),
 				"fragmenterClass",
 				fragmenterTemplate != null ? fragmenterTemplate.getClass()
-						.getSimpleName() : null);
+						.getSimpleName() : null, "timeLimit", Long
+						.toString(timeLimit));
 		xmlWriter.endElement();
 	}
 
@@ -405,5 +435,20 @@ public class SnippetField extends AbstractField<SnippetField> {
 		if ((c = maxSnippetNumber - f.maxSnippetNumber) != 0)
 			return c;
 		return 0;
+	}
+
+	/**
+	 * @return the timeLimit
+	 */
+	public int getTimeLimit() {
+		return timeLimit;
+	}
+
+	/**
+	 * @param timeLimit
+	 *            the timeLimit to set
+	 */
+	public void setTimeLimit(int timeLimit) {
+		this.timeLimit = timeLimit;
 	}
 }
