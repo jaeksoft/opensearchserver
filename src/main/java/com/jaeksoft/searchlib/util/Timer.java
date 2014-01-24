@@ -96,6 +96,10 @@ public class Timer {
 		return this.endTime - this.startTime;
 	}
 
+	final public long getStartOffset(final long offset) {
+		return startTime + offset;
+	}
+
 	final public void setError(Exception exception) {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);

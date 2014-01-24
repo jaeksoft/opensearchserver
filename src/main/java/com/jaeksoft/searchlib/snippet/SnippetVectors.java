@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.Timer;
 
 class SnippetVectors {
 
@@ -75,19 +76,38 @@ class SnippetVectors {
 
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
-			final SnippetQueries snippetQueries, final String fieldName)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			final SnippetQueries snippetQueries, final String fieldName,
+			final Timer parentTimer) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 		if (ArrayUtils.isEmpty(snippetQueries.terms))
 			return null;
+
+		Timer t = new Timer(parentTimer, "getTermPositionVector");
 		TermPositionVector termVector = getTermPositionVector(reader, docId,
 				fieldName);
+		t.end(null);
+
 		if (termVector == null)
 			return null;
+
 		Collection<SnippetVector> vectors = new ArrayList<SnippetVector>();
+
+		t = new Timer(parentTimer, "getTermPositionVector");
 		populate(termVector, snippetQueries.terms, vectors);
+		t.end(null);
+
+		t = new Timer(parentTimer, "removeIncludes");
 		vectors = removeIncludes(vectors);
+		t.end(null);
+
+		t = new Timer(parentTimer, "checkQueries");
 		snippetQueries.checkQueries(vectors);
+		t.end(null);
+
+		t = new Timer(parentTimer, "removeNonQuery");
 		vectors = removeNonQuery(vectors);
+		t.end(null);
+
 		return vectors.iterator();
 	}
 
