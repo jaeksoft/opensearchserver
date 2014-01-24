@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.index.osse.memory;
 public class MemoryBuffer extends AbstractBuffer<DisposableMemory> {
 
 	@Override
-	protected final DisposableMemory newBufferItem(final long size) {
+	protected final DisposableMemory newBufferItem(final int size) {
 		return new DisposableMemory(this, size);
 	}
 

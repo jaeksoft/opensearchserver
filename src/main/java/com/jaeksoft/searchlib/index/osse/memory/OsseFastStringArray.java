@@ -24,19 +24,18 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
-import java.io.Closeable;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer.OsseTerm;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
 
 /**
  * This class implements a fast UTF-8 String array *
  */
-public class OsseFastStringArray extends Pointer implements Closeable {
+public class OsseFastStringArray extends Pointer {
 
 	/**
 	 * Optimized write only StringArray
@@ -45,7 +44,6 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 	 */
 
 	private final DisposableMemory termPointers;
-	private final DisposableMemory fullBytes;
 
 	public OsseFastStringArray(final MemoryBuffer memoryBuffer,
 			final OsseTermBuffer termBuffer)
@@ -57,40 +55,22 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 		termPointers = memoryBuffer.getNewBufferItem(termCount * Pointer.SIZE);
 		peer = termPointers.getPeer();
 
-		// Filling the characters memory
-		fullBytes = memoryBuffer.getNewBufferItem(termBuffer
-				.getTotalBytesLength());
-
-		long offset = 0;
-		int byteArrayCount = termBuffer.getByteArrayCount();
-		ByteArray[] byteArrays = termBuffer.getByteArrays();
-		for (int i = 0; i < byteArrayCount; i++) {
-			ByteBuffer byteBuffer = byteArrays[i].byteBuffer;
-			int length = byteBuffer.position();
-			fullBytes.write(offset, byteBuffer.array(), 0, length);
-			offset += length;
-		}
-
 		// Filling the pointer array memory
-		long stringPeer = fullBytes.getPeer();
-		int[] termLengths = termBuffer.getTermLengths();
+		OsseTerm[] terms = termBuffer.getTerms();
 		Pointer[] pointers = new Pointer[termCount];
 		for (int i = 0; i < termCount; i++) {
-			pointers[i] = new Pointer(stringPeer);
-			stringPeer += termLengths[i];
+			OsseTerm term = terms[i];
+			pointers[i] = new Pointer(term.memory.getPeer() + term.offset);
 		}
 		termPointers.write(0, pointers, 0, termCount);
 	}
 
-	@Override
 	final public void close() {
-		fullBytes.close();
 		termPointers.close();
 	}
 
 	@Override
 	public String toString() {
-		return StringUtils.fastConcat("[", super.toString(), " ",
-				fullBytes.toString(), "]");
+		return StringUtils.fastConcat("[", super.toString(), " ", "]");
 	}
 }
