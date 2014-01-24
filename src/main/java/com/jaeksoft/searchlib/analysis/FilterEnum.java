@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,8 @@ public enum FilterEnum {
 
 	StandardFilter("Normalizes tokens extracted with StandardTokenizer."),
 
+	AcronymExpanderFilter("A filter that expand acronmys"),
+
 	ArabicStemFilter("A filter that filter Arabic words."),
 
 	ArabicNormalizerFilter("A filter to normalize the Arabic orthography"),
@@ -44,6 +46,8 @@ public enum FilterEnum {
 	DutchStemFilter("A filter that stems Dutch words."),
 
 	DomainFilter("A filter that extract the domain.tld from an URL."),
+
+	ElisionFilter("This filter removes elisions from words"),
 
 	EdgeNGramFilter(
 			"This filter create n-grams from the beginning edge or ending edge of a input token"),
