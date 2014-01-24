@@ -92,6 +92,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "token_type", "Token type",
 			"The type of the token (shingle, synonym, ...)");
 
+	public final static ClassPropertyEnum EXPAND = new ClassPropertyEnum(true,
+			"expand", "Expand", "");
+
 	public final static ClassPropertyEnum IGNORE_CASE = new ClassPropertyEnum(
 			true, "ignore_case", "Ignore case", "");
 
@@ -260,6 +263,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum DEFAULT_VALUE = new ClassPropertyEnum(
 			true, "defaultValue", "Default Value",
 			"The default value to use if no value is found");
+
+	public final static ClassPropertyEnum DEFAULT_ARTICLES = new ClassPropertyEnum(
+			true, "defaultArticles", "Articles",
+			"The articles to identify (separated by spaces)");
 
 	public static String[] DEGREES_RADIANS_CONVERSION_LIST = {
 			"Degrees to Radians", "Radians to Degrees", "Check degrees",
