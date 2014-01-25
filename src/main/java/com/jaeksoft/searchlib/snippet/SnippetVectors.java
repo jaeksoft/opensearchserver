@@ -77,12 +77,12 @@ class SnippetVectors {
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
 			final SnippetQueries snippetQueries, final String fieldName,
-			final Timer parentTimer) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+			final Timer parentTimer, final long expiration) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 		if (ArrayUtils.isEmpty(snippetQueries.terms))
 			return null;
 
-		Timer t = new Timer(parentTimer, "getTermPositionVector");
+		Timer t = new Timer(parentTimer, "getTermPositionVector " + fieldName);
 		TermPositionVector termVector = getTermPositionVector(reader, docId,
 				fieldName);
 		t.end(null);
@@ -101,7 +101,7 @@ class SnippetVectors {
 		t.end(null);
 
 		t = new Timer(parentTimer, "checkQueries");
-		snippetQueries.checkQueries(vectors);
+		snippetQueries.checkQueries(vectors, t, expiration);
 		t.end(null);
 
 		t = new Timer(parentTimer, "removeNonQuery");
@@ -128,7 +128,7 @@ class SnippetVectors {
 	private static final void populate(final TermPositionVector termVector,
 			final String[] terms, final Collection<SnippetVector> vectors,
 			Timer parentTimer) throws SearchLibException {
-		Timer t = new Timer(parentTimer, "indexOf");
+		Timer t = new Timer(parentTimer, "indexesOf");
 		int[] termsIdx = termVector.indexesOf(terms, 0, terms.length);
 		t.end(null);
 		int i = 0;
@@ -147,8 +147,8 @@ class SnippetVectors {
 					vectors.add(new SnippetVector(i, offset, positions[j++]));
 				t.end(null);
 			}
-			i++;
 			termTimer.end(null);
+			i++;
 		}
 	}
 
