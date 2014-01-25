@@ -43,23 +43,28 @@ public class SortField extends AbstractField<SortField> implements
 	 */
 	private static final long serialVersionUID = 3269790150800596793L;
 
+	private int joinNumber;
+
 	private boolean desc;
 
 	public SortField(String requestSort) {
 		super();
 		int c = requestSort.charAt(0);
+		joinNumber = 0;
 		desc = (c == '-');
 		name = (c == '+' || c == '-') ? requestSort.substring(1) : requestSort;
 	}
 
-	public SortField(String fieldName, boolean desc) {
+	public SortField(int joinNumber, String fieldName, boolean desc) {
 		super(fieldName);
 		this.desc = desc;
+		this.joinNumber = joinNumber;
 	}
 
 	public SortField(Node node) {
 		super(DomUtils.getAttributeText(node, "name"));
 		setDirection(DomUtils.getAttributeText(node, "direction"));
+		setJoinNumber(DomUtils.getAttributeInteger(node, "joinNumber", 0));
 	}
 
 	public boolean isDesc() {
@@ -70,9 +75,11 @@ public class SortField extends AbstractField<SortField> implements
 		return desc ? "descending" : "ascending";
 	}
 
+	final static public String[] ASCENDING_ARRAYs = { "+", "asc", "ascendant",
+			"ascending" };
+
 	public void setDirection(String v) {
-		final String[] ascArray = { "+", "asc", "ascendant", "ascending" };
-		for (String asc : ascArray) {
+		for (String asc : ASCENDING_ARRAYs) {
 			if (asc.equalsIgnoreCase(v)) {
 				desc = false;
 				return;
@@ -83,7 +90,7 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	public SortField duplicate() {
-		return new SortField(name, desc);
+		return new SortField(joinNumber, name, desc);
 	}
 
 	final public boolean isScore() {
@@ -94,6 +101,21 @@ public class SortField extends AbstractField<SortField> implements
 		return name.equals("__distance__");
 	}
 
+	/**
+	 * @return the joinNumber
+	 */
+	public int getJoinNumber() {
+		return joinNumber;
+	}
+
+	/**
+	 * @param joinNumber
+	 *            the joinNumber to set
+	 */
+	public void setJoinNumber(int joinNumber) {
+		this.joinNumber = joinNumber;
+	}
+
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
 		if (isScore()) {
@@ -102,18 +124,24 @@ public class SortField extends AbstractField<SortField> implements
 			else
 				return new AscScoreSorter(collector);
 		}
-		if (desc)
-			return new DescStringIndexSorter(collector,
-					reader.getStringIndex(name));
-		else
-			return new AscStringIndexSorter(collector,
-					reader.getStringIndex(name));
+		if (joinNumber == 0) {
+			if (desc)
+				return new DescStringIndexSorter(collector,
+						reader.getStringIndex(name));
+			else
+				return new AscStringIndexSorter(collector,
+						reader.getStringIndex(name));
+		} else {
+			throw new IOException("Join sort not yet implemented");
+		}
 	}
 
 	@Override
 	final public int compareTo(final SortField o) {
-		int c = super.compareTo(o);
-		if (c != 0)
+		int c;
+		if ((c = super.compareTo(o)) != 0)
+			return c;
+		if ((c = Integer.compare(joinNumber, o.joinNumber)) != 0)
 			return c;
 		if (desc == o.desc)
 			return 0;
@@ -122,6 +150,8 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	final public void toString(final StringBuilder sb) {
+		if (joinNumber > 0)
+			sb.append(joinNumber);
 		if (desc)
 			sb.append('-');
 		else
@@ -139,7 +169,8 @@ public class SortField extends AbstractField<SortField> implements
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name, "direction",
-				isDesc() ? "desc" : "asc");
+				isDesc() ? "desc" : "asc", "joinNumber",
+				Integer.toString(joinNumber));
 		xmlWriter.endElement();
 	}
 

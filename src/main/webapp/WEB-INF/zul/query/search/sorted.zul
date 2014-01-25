@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -18,6 +18,7 @@
 	viewModel="@id('sorted') @init('com.jaeksoft.searchlib.web.controller.query.SortedController')">
 	<grid model="@load(sorted.request.sortFieldList.list)">
 		<columns>
+			<column label="Index" />
 			<column label="Field" />
 			<column label="Direction" />
 			<column label="Action" />
@@ -25,25 +26,36 @@
 		<rows>
 			<template name="model" var="sortfield">
 				<row>
+					<label
+						value="@load(sortfield.joinNumber) @converter('com.jaeksoft.searchlib.web.converter.SortFieldJoinLabel')" />
 					<label value="@load(sortfield.name)" />
-					<listbox mold="select"
-						onSelect="@command('onFieldDirection')"
-						selectedItem="@bind(sortfield.direction)">
-						<listitem label="ascending" value="ascending" />
-						<listitem label="descending" value="descending" />
-					</listbox>
+					<label value="@load(sortfield.direction)" />
 					<button label="Remove"
 						onClick="@command('onSortRemove', sortfield=sortfield)" />
 				</row>
 			</template>
 		</rows>
-		<foot visible="@load(sorted.fieldLeft)">
-			<footer span="2">
+		<foot>
+			<footer span="4">
+				<listbox mold="select"
+					selectedItem="@bind(sorted.selectedJoinSelect)"
+					model="@load(sorted.joinSelectList)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedSort)"
-					model="@load(sorted.sortFieldLeft)">
-					<template name="model" var="sortField">
-						<listitem label="@load(sortField)" />
+					model="@load(sorted.sortFieldList)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<listbox mold="select"
+					selectedItem="@bind(sorted.selectedDirection)"
+					model="@load(sorted.directionList)">
+					<template name="model">
+						<listitem label="@load(each)" />
 					</template>
 				</listbox>
 				<button label="add sort field"

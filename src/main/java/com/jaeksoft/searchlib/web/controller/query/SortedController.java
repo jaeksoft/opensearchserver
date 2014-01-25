@@ -30,20 +30,53 @@ import java.util.List;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
+import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
-import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class SortedController extends AbstractQueryController {
 
+	private transient JoinSelect selectedJoinSelect;
+
 	private transient String selectedSort;
 
-	private transient List<String> sortFieldLeft;
+	private transient String selectedDirection;
+
+	public class JoinSelect {
+
+		public final JoinItem joinItem;
+		public final int position;
+		public final String indexName;
+		public final String label;
+
+		private JoinSelect(final JoinItem joinItem) throws SearchLibException {
+			this.joinItem = joinItem;
+			if (joinItem == null) {
+				this.indexName = getIndexName();
+				this.label = indexName;
+				this.position = 0;
+			} else {
+				this.indexName = joinItem.getIndexName();
+				this.label = StringUtils.fastConcat(indexName, " - ",
+						joinItem.getParamPosition());
+				this.position = joinItem.getPosition();
+			}
+		}
+
+		@Override
+		final public String toString() {
+			return label;
+		}
+	}
 
 	public SortedController() throws SearchLibException {
 		super();
@@ -52,93 +85,94 @@ public class SortedController extends AbstractQueryController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedSort = null;
-		sortFieldLeft = null;
+		selectedJoinSelect = null;
+		selectedDirection = null;
 	}
 
 	public void setSelectedSort(String value) {
-		synchronized (this) {
-			selectedSort = value;
-		}
+		selectedSort = value;
 	}
 
 	public String getSelectedSort() {
-		synchronized (this) {
-			return selectedSort;
-		}
+		return selectedSort;
+	}
+
+	public void setSelectedDirection(String value) {
+		selectedDirection = value;
+	}
+
+	public String getSelectedDirection() {
+		return selectedDirection;
+	}
+
+	@NotifyChange("sortFieldList")
+	public void setSelectedJoinSelect(JoinSelect joinSelect) {
+		selectedJoinSelect = joinSelect;
+	}
+
+	public JoinSelect getSelectedJoinSelect() {
+		return selectedJoinSelect;
+	}
+
+	public List<JoinSelect> getJoinSelectList() throws SearchLibException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
+		if (searchRequest == null)
+			return null;
+		List<JoinSelect> joinSelectList = new ArrayList<JoinSelect>();
+		joinSelectList.add(new JoinSelect(null));
+		JoinList joinList = searchRequest.getJoinList();
+		if (joinList == null)
+			return joinSelectList;
+		for (JoinItem joinItem : joinList)
+			joinSelectList.add(new JoinSelect(joinItem));
+		return joinSelectList;
 	}
 
 	@Command
 	public void onSortAdd() throws SearchLibException {
-		synchronized (this) {
-			if (selectedSort == null)
-				return;
-			((AbstractSearchRequest) getRequest()).getSortFieldList().put(
-					new SortField(selectedSort, true));
-			reload();
-		}
+		if (selectedSort == null || selectedJoinSelect == null)
+			return;
+		((AbstractSearchRequest) getRequest()).getSortFieldList().put(
+				new SortField(selectedJoinSelect.position, selectedSort,
+						"descending".equalsIgnoreCase(selectedDirection)));
+		reload();
 	}
 
 	@Command
 	public void onSortRemove(@BindingParam("sortfield") SortField sortField)
 			throws SearchLibException {
-		synchronized (this) {
-			((AbstractSearchRequest) getRequest()).getSortFieldList().remove(
-					sortField.getName());
-			reload();
-		}
+		((AbstractSearchRequest) getRequest()).getSortFieldList().remove(
+				sortField.getName());
+		reload();
 	}
 
-	@Command
-	public void onFieldDirection() throws SearchLibException {
-		((AbstractSearchRequest) getRequest()).getSortFieldList()
-				.rebuildCacheKey();
+	public List<String> getSortFieldList() throws SearchLibException {
+		if (selectedJoinSelect == null)
+			return null;
+		Client client = ClientCatalog.getClient(selectedJoinSelect.indexName);
+		if (client == null)
+			return null;
+		List<String> sortFieldList = new ArrayList<String>();
+		for (SchemaField field : client.getSchema().getFieldList())
+			if (field.checkIndexed(Indexed.YES))
+				sortFieldList.add(field.getName());
+		sortFieldList.add("score");
+		sortFieldList.add("__distance__");
+		return sortFieldList;
 	}
 
-	public boolean isFieldLeft() throws SearchLibException {
-		synchronized (this) {
-			List<String> list = getSortFieldLeft();
-			if (list == null)
-				return false;
-			return list.size() > 0;
-		}
-	}
+	final static public String[] DIRECTIONS_ARRAY = { "ascending", "descending" };
 
-	public List<String> getSortFieldLeft() throws SearchLibException {
-		synchronized (this) {
-			if (sortFieldLeft != null)
-				return sortFieldLeft;
-			Client client = getClient();
-			if (client == null)
-				return null;
-			AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
-			if (request == null)
-				return null;
-			sortFieldLeft = new ArrayList<String>();
-			SortFieldList sortFields = request.getSortFieldList();
-			for (SchemaField field : client.getSchema().getFieldList())
-				if (field.checkIndexed(Indexed.YES))
-					if (sortFields.get(field.getName()) == null) {
-						if (selectedSort == null)
-							selectedSort = field.getName();
-						sortFieldLeft.add(field.getName());
-					}
-			if (sortFields.get("score") == null) {
-				sortFieldLeft.add("score");
-				if (selectedSort == null)
-					selectedSort = "score";
-			}
-			return sortFieldLeft;
-		}
+	public String[] getDirectionList() {
+		return DIRECTIONS_ARRAY;
 	}
 
 	@Override
 	@Command
 	public void reload() throws SearchLibException {
-		synchronized (this) {
-			selectedSort = null;
-			sortFieldLeft = null;
-			super.reload();
-		}
+		selectedSort = null;
+		selectedJoinSelect = null;
+		super.reload();
 	}
 
 	@Override

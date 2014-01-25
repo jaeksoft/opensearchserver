@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,7 +50,7 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 	}
 
 	public void addSort(AbstractSearchRequest request, boolean desc) {
-		request.addSort(name, desc);
+		request.addSort(0, name, desc);
 	}
 
 	public final static void addQuery(StringBuilder sb, String field,
