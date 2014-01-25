@@ -132,7 +132,10 @@ public class SortField extends AbstractField<SortField> implements
 				return new AscStringIndexSorter(collector,
 						reader.getStringIndex(name));
 		} else {
-			throw new IOException("Join sort not yet implemented");
+			if (desc)
+				return new DescJoinStringIndexSorter(collector, joinNumber - 1);
+			else
+				return new AscJoinStringIndexSorter(collector, joinNumber - 1);
 		}
 	}
 

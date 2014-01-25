@@ -30,6 +30,7 @@ import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
+import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -39,6 +40,7 @@ public class JoinDocCollector extends
 		AbstractBaseCollector<JoinDocCollectorInterface> implements
 		JoinDocCollectorInterface, JoinDocInterface, DocIdInterface {
 
+	private final FieldCacheIndex[] fieldCacheIndexArray;
 	private final int maxDoc;
 	private final int[] ids;
 	private final int[][] foreignDocIdsArray;
@@ -51,6 +53,7 @@ public class JoinDocCollector extends
 		foreignDocIdsArray = new int[0][0];
 		bitSet = null;
 		joinResultSize = 0;
+		fieldCacheIndexArray = null;
 	}
 
 	JoinDocCollector(DocIdInterface docs, int joinResultSize) {
@@ -61,6 +64,7 @@ public class JoinDocCollector extends
 		if (docs instanceof JoinDocCollector)
 			((JoinDocCollector) docs).copyForeignDocIdsArray(this);
 		this.joinResultSize = joinResultSize;
+		this.fieldCacheIndexArray = new FieldCacheIndex[joinResultSize];
 	}
 
 	private void copyForeignDocIdsArray(JoinDocCollector joinDocCollector) {
@@ -77,6 +81,7 @@ public class JoinDocCollector extends
 		this.joinResultSize = joinResultSize;
 		this.ids = new int[idsLength];
 		this.foreignDocIdsArray = new int[idsLength][];
+		this.fieldCacheIndexArray = new FieldCacheIndex[joinResultSize];
 	}
 
 	/**
@@ -96,6 +101,8 @@ public class JoinDocCollector extends
 			}
 			i2++;
 		}
+		System.arraycopy(src.getFieldCacheIndexArray(), 0,
+				fieldCacheIndexArray, 0, fieldCacheIndexArray.length);
 	}
 
 	@Override
@@ -199,6 +206,11 @@ public class JoinDocCollector extends
 	@Override
 	final public int getMaxDoc() {
 		return maxDoc;
+	}
+
+	@Override
+	public FieldCacheIndex[] getFieldCacheIndexArray() {
+		return fieldCacheIndexArray;
 	}
 
 }
