@@ -576,22 +576,27 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			ASC, DESC;
 		}
 
+		final public Integer joinNumber;
 		final public String field;
 		final public Direction direction;
 
 		public Sort() {
+			joinNumber = null;
 			field = null;
 			direction = null;
 		}
 
 		public Sort(SortField sortField) {
+			joinNumber = sortField.getJoinNumber() == 0 ? null : sortField
+					.getJoinNumber();
 			field = sortField.getName();
 			direction = sortField.isDesc() ? Direction.DESC : Direction.ASC;
 		}
 
 		@JsonIgnore
 		final private SortField newSortField() {
-			SortField sortField = new SortField(field, false);
+			SortField sortField = new SortField(joinNumber == null ? 0
+					: joinNumber, field, false);
 			if (direction != null)
 				sortField.setDirection(direction.name());
 			return sortField;
