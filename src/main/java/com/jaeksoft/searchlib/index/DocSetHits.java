@@ -42,8 +42,6 @@ import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInter
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
-import com.jaeksoft.searchlib.sort.SortFieldList;
-import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class DocSetHits {
@@ -56,8 +54,8 @@ public class DocSetHits {
 
 	protected DocSetHits(ReaderAbstract reader,
 			AbstractSearchRequest searchRequest, FilterHits filterHits,
-			SortFieldList sortFieldList, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+			Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
 		Query query = searchRequest.getQuery();
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
@@ -85,10 +83,6 @@ public class DocSetHits {
 			reader.search(query, filterHits, docSetHitCollector.collector);
 		t.end(null);
 		last.endCollection();
-		if (sortFieldList != null) {
-			SorterAbstract sorter = sortFieldList.getSorter(last, reader);
-			sorter.quickSort(timer);
-		}
 		lastCollector = last;
 		scoreBufferCollector = sc;
 	}

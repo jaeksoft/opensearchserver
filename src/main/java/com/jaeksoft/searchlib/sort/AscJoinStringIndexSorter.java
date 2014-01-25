@@ -22,16 +22,23 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import java.io.IOException;
 
-public interface JoinDocInterface extends CollectorInterface {
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-	FieldCacheIndex[] getFieldCacheIndexArray();
+public class AscJoinStringIndexSorter extends AbstractJoinStringIndexSorter {
 
-	int getForeignDocIds(int pos, int joinPosition);
+	public AscJoinStringIndexSorter(final CollectorInterface collector,
+			final int joinPosition) throws IOException {
+		super(collector, joinPosition);
+	}
 
-	int[][] getForeignDocIdsArray();
-
+	@Override
+	final public int compare(final int pos1, final int pos2) {
+		int id1 = foreignDocIds[pos1];
+		int id2 = foreignDocIds[pos2];
+		return stringIndex.order[id1] - stringIndex.order[id2];
+	}
 }
