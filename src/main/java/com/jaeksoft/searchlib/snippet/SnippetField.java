@@ -282,8 +282,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		return currentVector;
 	}
 
-	public boolean getSnippets(int docId, ReaderInterface reader,
-			FieldValueItem[] values, List<FieldValueItem> snippets,
+	public boolean getSnippets(final int docId, final ReaderInterface reader,
+			final FieldValueItem[] values, final List<FieldValueItem> snippets,
 			final Timer parentTimer) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 
@@ -291,6 +291,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 			return false;
 
 		final Timer timer = new Timer(parentTimer, "SnippetField " + this.name);
+		final long halfTimeExpiration = this.timeLimit == 0 ? 0 : timer
+				.getStartOffset(this.timeLimit / 2);
 		final long expiration = this.timeLimit == 0 ? 0 : timer
 				.getStartOffset(this.timeLimit);
 
@@ -301,7 +303,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		Iterator<SnippetVector> vectorIterator = SnippetVectors
 				.extractTermVectorIterator(docId, reader, snippetQueries, name,
-						t);
+						t, halfTimeExpiration);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
