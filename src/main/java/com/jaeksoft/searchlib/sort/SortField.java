@@ -47,24 +47,30 @@ public class SortField extends AbstractField<SortField> implements
 
 	private boolean desc;
 
-	public SortField(String requestSort) {
+	private boolean nullFirst;
+
+	public SortField(final String requestSort) {
 		super();
 		int c = requestSort.charAt(0);
 		joinNumber = 0;
 		desc = (c == '-');
 		name = (c == '+' || c == '-') ? requestSort.substring(1) : requestSort;
+		nullFirst = false;
 	}
 
-	public SortField(int joinNumber, String fieldName, boolean desc) {
+	public SortField(int joinNumber, String fieldName, boolean desc,
+			boolean nullFirst) {
 		super(fieldName);
 		this.desc = desc;
 		this.joinNumber = joinNumber;
+		this.nullFirst = nullFirst;
 	}
 
 	public SortField(Node node) {
 		super(DomUtils.getAttributeText(node, "name"));
 		setDirection(DomUtils.getAttributeText(node, "direction"));
 		setJoinNumber(DomUtils.getAttributeInteger(node, "joinNumber", 0));
+		setNullFirst(DomUtils.getAttributeBoolean(node, "nullFirst", false));
 	}
 
 	public boolean isDesc() {
@@ -90,7 +96,7 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	public SortField duplicate() {
-		return new SortField(joinNumber, name, desc);
+		return new SortField(joinNumber, name, desc, nullFirst);
 	}
 
 	final public boolean isScore() {
@@ -116,6 +122,21 @@ public class SortField extends AbstractField<SortField> implements
 		this.joinNumber = joinNumber;
 	}
 
+	/**
+	 * @return the nullFirst
+	 */
+	public boolean isNullFirst() {
+		return nullFirst;
+	}
+
+	/**
+	 * @param nullFirst
+	 *            the nullFirst to set
+	 */
+	public void setNullFirst(boolean nullFirst) {
+		this.nullFirst = nullFirst;
+	}
+
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
 		if (isScore()) {
@@ -127,15 +148,17 @@ public class SortField extends AbstractField<SortField> implements
 		if (joinNumber == 0) {
 			if (desc)
 				return new DescStringIndexSorter(collector,
-						reader.getStringIndex(name));
+						reader.getStringIndex(name), nullFirst);
 			else
 				return new AscStringIndexSorter(collector,
-						reader.getStringIndex(name));
+						reader.getStringIndex(name), nullFirst);
 		} else {
 			if (desc)
-				return new DescJoinStringIndexSorter(collector, joinNumber - 1);
+				return new DescJoinStringIndexSorter(collector, joinNumber - 1,
+						name, nullFirst);
 			else
-				return new AscJoinStringIndexSorter(collector, joinNumber - 1);
+				return new AscJoinStringIndexSorter(collector, joinNumber - 1,
+						name, nullFirst);
 		}
 	}
 
@@ -160,6 +183,8 @@ public class SortField extends AbstractField<SortField> implements
 		else
 			sb.append('+');
 		sb.append(name);
+		sb.append('_');
+		sb.append(nullFirst);
 	}
 
 	@Override
@@ -173,7 +198,8 @@ public class SortField extends AbstractField<SortField> implements
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name, "direction",
 				isDesc() ? "desc" : "asc", "joinNumber",
-				Integer.toString(joinNumber));
+				Integer.toString(joinNumber), "nullFirst",
+				Boolean.toString(nullFirst));
 		xmlWriter.endElement();
 	}
 

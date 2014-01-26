@@ -50,7 +50,7 @@ public class ItemField extends ExtensibleEnumItem<ItemField> {
 	}
 
 	public void addSort(AbstractSearchRequest request, boolean desc) {
-		request.addSort(0, name, desc);
+		request.addSort(0, name, desc, false);
 	}
 
 	public final static void addQuery(StringBuilder sb, String field,

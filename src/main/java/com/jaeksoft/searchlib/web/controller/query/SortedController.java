@@ -27,10 +27,14 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.BindContext;
+import org.zkoss.bind.Converter;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
 import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zk.ui.Component;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -43,6 +47,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.util.StringUtils;
 
+@AfterCompose(superclass = true)
 public class SortedController extends AbstractQueryController {
 
 	private transient JoinSelect selectedJoinSelect;
@@ -50,6 +55,8 @@ public class SortedController extends AbstractQueryController {
 	private transient String selectedSort;
 
 	private transient String selectedDirection;
+
+	private transient String selectedNull;
 
 	public class JoinSelect {
 
@@ -105,20 +112,31 @@ public class SortedController extends AbstractQueryController {
 		return selectedDirection;
 	}
 
+	public void setSelectedNull(String value) {
+		selectedNull = value;
+	}
+
+	public String getSelectedNull() {
+		return selectedNull;
+	}
+
 	@NotifyChange("sortFieldList")
 	public void setSelectedJoinSelect(JoinSelect joinSelect) {
 		selectedJoinSelect = joinSelect;
+		resize();
 	}
 
 	public JoinSelect getSelectedJoinSelect() {
 		return selectedJoinSelect;
 	}
 
+	private List<JoinSelect> joinSelectList = null;
+
 	public List<JoinSelect> getJoinSelectList() throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
-		List<JoinSelect> joinSelectList = new ArrayList<JoinSelect>();
+		joinSelectList = new ArrayList<JoinSelect>(1);
 		joinSelectList.add(new JoinSelect(null));
 		JoinList joinList = searchRequest.getJoinList();
 		if (joinList == null)
@@ -132,9 +150,13 @@ public class SortedController extends AbstractQueryController {
 	public void onSortAdd() throws SearchLibException {
 		if (selectedSort == null || selectedJoinSelect == null)
 			return;
-		((AbstractSearchRequest) getRequest()).getSortFieldList().put(
-				new SortField(selectedJoinSelect.position, selectedSort,
-						"descending".equalsIgnoreCase(selectedDirection)));
+		((AbstractSearchRequest) getRequest())
+				.getSortFieldList()
+				.put(new SortField(
+						selectedJoinSelect.position,
+						selectedSort,
+						DIRECTIONS_ARRAY[1].equalsIgnoreCase(selectedDirection),
+						NULLS_ARRAY[1].equalsIgnoreCase(selectedNull)));
 		reload();
 	}
 
@@ -167,6 +189,12 @@ public class SortedController extends AbstractQueryController {
 		return DIRECTIONS_ARRAY;
 	}
 
+	final static public String[] NULLS_ARRAY = { "empty last", "empty first" };
+
+	public String[] getNullList() {
+		return NULLS_ARRAY;
+	}
+
 	@Override
 	@Command
 	public void reload() throws SearchLibException {
@@ -179,6 +207,55 @@ public class SortedController extends AbstractQueryController {
 	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		reload();
+	}
+
+	private final NullFirstConverter nullFirstConverter = new NullFirstConverter();
+
+	public NullFirstConverter getNullFirstConverter() {
+		return nullFirstConverter;
+	}
+
+	private final JoinLabelConverter joinLabelConverter = new JoinLabelConverter();
+
+	public JoinLabelConverter getJoinLabelConverter() {
+		return joinLabelConverter;
+	}
+
+	public class NullFirstConverter implements
+			Converter<Object, Object, Component> {
+
+		@Override
+		public Object coerceToBean(Object value, Component component,
+				BindContext ctx) {
+			return IGNORED_VALUE;
+		}
+
+		@Override
+		public Object coerceToUi(Object value, Component component,
+				BindContext ctx) {
+			if (value == null)
+				return IGNORED_VALUE;
+			return ((Boolean) value) ? "First" : "Last";
+		}
+	}
+
+	public class JoinLabelConverter implements
+			Converter<Object, Object, Component> {
+
+		@Override
+		public Object coerceToBean(Object value, Component component,
+				BindContext ctx) {
+			return IGNORED_VALUE;
+		}
+
+		@Override
+		public Object coerceToUi(Object value, Component component,
+				BindContext ctx) {
+			if (value == null)
+				return IGNORED_VALUE;
+			return joinSelectList.get((Integer) value).label;
+		}
+
 	}
 
 }

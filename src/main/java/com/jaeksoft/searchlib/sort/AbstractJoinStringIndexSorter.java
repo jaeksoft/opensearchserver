@@ -26,30 +26,37 @@ package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
+import com.jaeksoft.searchlib.util.StringUtils;
 
-public abstract class AbstractJoinStringIndexSorter extends AbstractDocIdSorter {
+public abstract class AbstractJoinStringIndexSorter extends
+		AbstractStringIndexSorter {
 
-	final protected FieldCacheIndex stringIndex;
-	final protected int[] foreignDocIds;
+	final protected int[][] foreignDocIdsArray;
+	final protected int joinPosition;
 
 	public AbstractJoinStringIndexSorter(final CollectorInterface collector,
-			final int joinPosition) throws IOException {
-		super(collector);
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws IOException {
+		super(collector, null, nullFirst);
 		JoinDocInterface joinDocCollector = collector
 				.getCollector(JoinDocInterface.class);
 		if (joinDocCollector == null)
 			throw new IOException("Unable to apply sort on non-joined query");
-		stringIndex = joinDocCollector.getFieldCacheIndexArray()[joinPosition];
-		foreignDocIds = joinDocCollector.getForeignDocIdsArray()[joinPosition];
+		this.joinPosition = joinPosition;
+		stringIndex = joinDocCollector.getForeignReaders()[joinPosition]
+				.getStringIndex(name);
+		if (stringIndex == null)
+			throw new IOException(StringUtils.fastConcat(
+					"No string index found for the foreign field: ", name));
+		foreignDocIdsArray = joinDocCollector.getForeignDocIdsArray();
 	}
 
 	@Override
 	public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder("StringIndex: ");
-		sb.append(stringIndex.lookup[stringIndex.order[foreignDocIds[pos]]]);
+		sb.append(stringIndex.lookup[stringIndex.order[foreignDocIdsArray[pos][joinPosition]]]);
 		return sb.toString();
 	}
 }

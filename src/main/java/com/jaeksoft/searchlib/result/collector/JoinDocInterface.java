@@ -24,13 +24,13 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 
 public interface JoinDocInterface extends CollectorInterface {
 
-	FieldCacheIndex[] getFieldCacheIndexArray();
+	ReaderAbstract[] getForeignReaders();
 
-	int getForeignDocIds(int pos, int joinPosition);
+	int getForeignDocIds(final int pos, final int joinPosition);
 
 	int[][] getForeignDocIdsArray();
 

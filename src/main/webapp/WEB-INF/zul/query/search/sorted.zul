@@ -18,25 +18,29 @@
 	viewModel="@id('sorted') @init('com.jaeksoft.searchlib.web.controller.query.SortedController')">
 	<grid model="@load(sorted.request.sortFieldList.list)">
 		<columns>
-			<column label="Index" />
-			<column label="Field" />
-			<column label="Direction" />
+			<column label="Index" hflex="min" />
+			<column label="Field" hflex="min" />
+			<column label="Direction" hflex="min" />
+			<column label="Empty" tooltiptext="Empty behavior"
+				hflex="min" />
 			<column label="Action" />
 		</columns>
 		<rows>
 			<template name="model" var="sortfield">
 				<row>
 					<label
-						value="@load(sortfield.joinNumber) @converter('com.jaeksoft.searchlib.web.converter.SortFieldJoinLabel')" />
+						value="@load(sortfield.joinNumber) @converter(sorted.joinLabelConverter)" />
 					<label value="@load(sortfield.name)" />
 					<label value="@load(sortfield.direction)" />
+					<label
+						value="@load(sortfield.nullFirst) @converter(sorted.nullFirstConverter)" />
 					<button label="Remove"
 						onClick="@command('onSortRemove', sortfield=sortfield)" />
 				</row>
 			</template>
 		</rows>
 		<foot>
-			<footer span="4">
+			<footer>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedJoinSelect)"
 					model="@load(sorted.joinSelectList)">
@@ -44,6 +48,8 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
+			</footer>
+			<footer>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedSort)"
 					model="@load(sorted.sortFieldList)">
@@ -51,6 +57,8 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
+			</footer>
+			<footer>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedDirection)"
 					model="@load(sorted.directionList)">
@@ -58,6 +66,17 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
+			</footer>
+			<footer>
+				<listbox mold="select"
+					selectedItem="@bind(sorted.selectedNull)"
+					model="@load(sorted.nullList)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</footer>
+			<footer>
 				<button label="add sort field"
 					onClick="@command('onSortAdd')" />
 			</footer>

@@ -31,14 +31,21 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 public class DescJoinStringIndexSorter extends AbstractJoinStringIndexSorter {
 
 	public DescJoinStringIndexSorter(final CollectorInterface collector,
-			final int joinPosition) throws IOException {
-		super(collector, joinPosition);
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws IOException {
+		super(collector, joinPosition, name, nullFirst);
 	}
 
 	@Override
 	final public int compare(final int pos1, final int pos2) {
-		int id1 = foreignDocIds[pos1];
-		int id2 = foreignDocIds[pos2];
+		int[] joinIds1 = foreignDocIdsArray[pos1];
+		int[] joinIds2 = foreignDocIdsArray[pos2];
+		if (joinIds1 == null)
+			return joinIds2 == null ? 0 : pos1null;
+		if (joinIds2 == null)
+			return pos2null;
+		int id1 = joinIds1[joinPosition];
+		int id2 = joinIds2[joinPosition];
 		return stringIndex.order[id2] - stringIndex.order[id1];
 	}
 }

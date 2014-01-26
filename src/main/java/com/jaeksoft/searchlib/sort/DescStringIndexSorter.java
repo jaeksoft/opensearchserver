@@ -30,8 +30,8 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 public class DescStringIndexSorter extends AbstractStringIndexSorter {
 
 	public DescStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex) {
-		super(collector, stringIndex);
+			final FieldCacheIndex stringIndex, final boolean nullFirst) {
+		super(collector, stringIndex, nullFirst);
 	}
 
 	@Override
