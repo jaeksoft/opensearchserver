@@ -50,7 +50,7 @@ import com.jaeksoft.searchlib.util.StringUtils;
 @AfterCompose(superclass = true)
 public class SortedController extends AbstractQueryController {
 
-	private transient JoinSelect selectedJoinSelect;
+	private transient int selectedJoinNumber;
 
 	private transient String selectedSort;
 
@@ -58,32 +58,7 @@ public class SortedController extends AbstractQueryController {
 
 	private transient String selectedNull;
 
-	public class JoinSelect {
-
-		public final JoinItem joinItem;
-		public final int position;
-		public final String indexName;
-		public final String label;
-
-		private JoinSelect(final JoinItem joinItem) throws SearchLibException {
-			this.joinItem = joinItem;
-			if (joinItem == null) {
-				this.indexName = getIndexName();
-				this.label = indexName;
-				this.position = 0;
-			} else {
-				this.indexName = joinItem.getIndexName();
-				this.label = StringUtils.fastConcat(indexName, " - ",
-						joinItem.getParamPosition());
-				this.position = joinItem.getPosition();
-			}
-		}
-
-		@Override
-		final public String toString() {
-			return label;
-		}
-	}
+	private transient SortField selectedSortField;
 
 	public SortedController() throws SearchLibException {
 		super();
@@ -92,8 +67,29 @@ public class SortedController extends AbstractQueryController {
 	@Override
 	protected void reset() throws SearchLibException {
 		selectedSort = null;
-		selectedJoinSelect = null;
+		selectedJoinNumber = 0;
 		selectedDirection = null;
+		selectedSortField = null;
+	}
+
+	public boolean isSelected() {
+		return selectedSortField != null;
+	}
+
+	@NotifyChange({ "selectedJoinSelect", "selectedDirection", "selectedSort",
+			"selectedNull" })
+	public void setSelectedSortField(SortField sortField)
+			throws SearchLibException {
+		this.selectedSortField = sortField;
+		this.selectedSort = sortField.getName();
+		this.selectedJoinNumber = sortField.getJoinNumber();
+		this.selectedDirection = sortField.getDirection();
+		this.selectedNull = NULLS_ARRAY[sortField.isNullFirst() ? 1 : 0];
+		reload();
+	}
+
+	public SortField getSelectedSortField() {
+		return selectedSortField;
 	}
 
 	public void setSelectedSort(String value) {
@@ -121,57 +117,97 @@ public class SortedController extends AbstractQueryController {
 	}
 
 	@NotifyChange("sortFieldList")
-	public void setSelectedJoinSelect(JoinSelect joinSelect) {
-		selectedJoinSelect = joinSelect;
+	public void setSelectedJoinNumber(int joinNumber) {
+		selectedJoinNumber = joinNumber;
 		resize();
 	}
 
-	public JoinSelect getSelectedJoinSelect() {
-		return selectedJoinSelect;
+	public int getSelectedJoinNumber() {
+		return selectedJoinNumber;
 	}
 
-	private List<JoinSelect> joinSelectList = null;
-
-	public List<JoinSelect> getJoinSelectList() throws SearchLibException {
+	public List<Integer> getJoinNumberList() throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
 		if (searchRequest == null)
 			return null;
-		joinSelectList = new ArrayList<JoinSelect>(1);
-		joinSelectList.add(new JoinSelect(null));
+		List<Integer> joinNumberList = new ArrayList<Integer>(1);
+		joinNumberList.add(0);
 		JoinList joinList = searchRequest.getJoinList();
 		if (joinList == null)
-			return joinSelectList;
+			return joinNumberList;
 		for (JoinItem joinItem : joinList)
-			joinSelectList.add(new JoinSelect(joinItem));
-		return joinSelectList;
+			joinNumberList.add(joinItem.getPosition());
+		return joinNumberList;
 	}
 
 	@Command
 	public void onSortAdd() throws SearchLibException {
-		if (selectedSort == null || selectedJoinSelect == null)
+		if (selectedSort == null)
 			return;
-		((AbstractSearchRequest) getRequest())
-				.getSortFieldList()
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
+		if (request == null)
+			return;
+		request.getSortFieldList()
 				.put(new SortField(
-						selectedJoinSelect.position,
+						selectedJoinNumber,
 						selectedSort,
 						DIRECTIONS_ARRAY[1].equalsIgnoreCase(selectedDirection),
 						NULLS_ARRAY[1].equalsIgnoreCase(selectedNull)));
+		onSortCancel();
+	}
+
+	@Command
+	public void onSortSave() throws SearchLibException {
+		if (selectedSortField == null)
+			return;
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
+		if (request == null)
+			return;
+		selectedSortField.setJoinNumber(selectedJoinNumber);
+		selectedSortField.setName(selectedSort);
+		selectedSortField.setDirection(selectedDirection);
+		selectedSortField.setNullFirst(NULLS_ARRAY[1].equals(selectedNull));
+		request.getSortFieldList().rebuildCacheKey();
+		onSortCancel();
+	}
+
+	@Command
+	public void onSortCancel() throws SearchLibException {
+		reset();
 		reload();
 	}
 
 	@Command
 	public void onSortRemove(@BindingParam("sortfield") SortField sortField)
 			throws SearchLibException {
-		((AbstractSearchRequest) getRequest()).getSortFieldList().remove(
-				sortField.getName());
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
+		if (request == null)
+			return;
+		request.getSortFieldList().remove(sortField.getName());
+		onSortCancel();
+	}
+
+	@Command
+	public void onSortUp(@BindingParam("sortfield") SortField sortField)
+			throws SearchLibException {
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
+		if (request == null)
+			return;
+		request.getSortFieldList().moveUp(sortField);
 		reload();
 	}
 
-	public List<String> getSortFieldList() throws SearchLibException {
-		if (selectedJoinSelect == null)
-			return null;
-		Client client = ClientCatalog.getClient(selectedJoinSelect.indexName);
+	@Command
+	public void onSortDown(@BindingParam("sortfield") SortField sortField)
+			throws SearchLibException {
+		AbstractSearchRequest request = (AbstractSearchRequest) getRequest();
+		if (request == null)
+			return;
+		request.getSortFieldList().moveDown(sortField);
+		reload();
+	}
+
+	private List<String> getFieldList(Client client) {
 		if (client == null)
 			return null;
 		List<String> sortFieldList = new ArrayList<String>();
@@ -181,6 +217,34 @@ public class SortedController extends AbstractQueryController {
 		sortFieldList.add("score");
 		sortFieldList.add("__distance__");
 		return sortFieldList;
+	}
+
+	private JoinItem getJoinItem(int joinNumber) throws SearchLibException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) getRequest();
+		if (searchRequest == null)
+			return null;
+		JoinList joinList = searchRequest.getJoinList();
+		if (joinList == null)
+			return null;
+		JoinItem[] joinItems = joinList.getArray();
+		if (joinItems == null)
+			return null;
+		if (joinNumber >= joinItems.length)
+			return null;
+		return joinItems[joinNumber];
+	}
+
+	public List<String> getSortFieldList() throws SearchLibException {
+		Client client = null;
+		if (selectedJoinNumber == 0)
+			client = getClient();
+		else {
+			JoinItem joinItem = getJoinItem(selectedJoinNumber - 1);
+			if (joinItem == null)
+				return null;
+			client = ClientCatalog.getClient(joinItem.getIndexName());
+		}
+		return getFieldList(client);
 	}
 
 	final static public String[] DIRECTIONS_ARRAY = { "ascending", "descending" };
@@ -198,8 +262,6 @@ public class SortedController extends AbstractQueryController {
 	@Override
 	@Command
 	public void reload() throws SearchLibException {
-		selectedSort = null;
-		selectedJoinSelect = null;
 		super.reload();
 	}
 
@@ -253,9 +315,25 @@ public class SortedController extends AbstractQueryController {
 				BindContext ctx) {
 			if (value == null)
 				return IGNORED_VALUE;
-			return joinSelectList.get((Integer) value).label;
-		}
 
+			Integer joinNumber = (Integer) value;
+
+			try {
+
+				if (joinNumber == 0)
+					return getIndexName();
+
+				JoinItem joinItem = getJoinItem(joinNumber - 1);
+				if (joinItem == null)
+					return IGNORED_VALUE;
+				return StringUtils.fastConcat(joinItem.getIndexName(), " - ",
+						joinItem.getParamPosition());
+
+			} catch (SearchLibException e) {
+				return IGNORED_VALUE;
+			}
+
+		}
 	}
 
 }

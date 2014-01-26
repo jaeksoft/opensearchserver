@@ -16,40 +16,50 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('sorted') @init('com.jaeksoft.searchlib.web.controller.query.SortedController')">
-	<grid model="@load(sorted.request.sortFieldList.list)">
-		<columns>
-			<column label="Index" hflex="min" />
-			<column label="Field" hflex="min" />
-			<column label="Direction" hflex="min" />
-			<column label="Empty" tooltiptext="Empty behavior"
+	<listbox model="@load(sorted.request.sortFieldList.list)"
+		selectedItem="@bind(sorted.selectedSortField)">
+		<listhead>
+			<listheader label="Index" hflex="min" />
+			<listheader label="Field" hflex="min" />
+			<listheader label="Direction" hflex="min" />
+			<listheader label="Empty" tooltiptext="Empty behavior"
 				hflex="min" />
-			<column label="Action" />
-		</columns>
-		<rows>
-			<template name="model" var="sortfield">
-				<row>
-					<label
-						value="@load(sortfield.joinNumber) @converter(sorted.joinLabelConverter)" />
-					<label value="@load(sortfield.name)" />
-					<label value="@load(sortfield.direction)" />
-					<label
-						value="@load(sortfield.nullFirst) @converter(sorted.nullFirstConverter)" />
-					<button label="Remove"
+			<listheader label="Action" />
+		</listhead>
+		<template name="model" var="sortfield">
+			<listitem>
+				<listcell
+					label="@load(sortfield.joinNumber) @converter(sorted.joinLabelConverter)" />
+				<listcell label="@load(sortfield.name)" />
+				<listcell label="@load(sortfield.direction)" />
+				<listcell
+					label="@load(sortfield.nullFirst) @converter(sorted.nullFirstConverter)" />
+				<listcell>
+					<button tooltiptext="Move up"
+						image="/images/arrow_top.png"
+						onClick="@command('onSortUp', sortfield=sortfield)" />
+					<button tooltiptext="Move down"
+						image="/images/arrow_down.png"
+						onClick="@command('onSortDown', sortfield=sortfield)" />
+					<space />
+					<button tooltiptext="Remove"
+						image="/images/action_delete.png"
 						onClick="@command('onSortRemove', sortfield=sortfield)" />
-				</row>
-			</template>
-		</rows>
-		<foot>
-			<footer>
+				</listcell>
+			</listitem>
+		</template>
+		<listfoot>
+			<listfooter hflex="min">
 				<listbox mold="select"
-					selectedItem="@bind(sorted.selectedJoinSelect)"
-					model="@load(sorted.joinSelectList)">
+					selectedItem="@bind(sorted.selectedJoinNumber)"
+					model="@load(sorted.joinNumberList)">
 					<template name="model">
-						<listitem label="@load(each)" />
+						<listitem
+							label="@load(each) @converter(sorted.joinLabelConverter)" />
 					</template>
 				</listbox>
-			</footer>
-			<footer>
+			</listfooter>
+			<listfooter>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedSort)"
 					model="@load(sorted.sortFieldList)">
@@ -57,8 +67,8 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
-			</footer>
-			<footer>
+			</listfooter>
+			<listfooter>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedDirection)"
 					model="@load(sorted.directionList)">
@@ -66,8 +76,8 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
-			</footer>
-			<footer>
+			</listfooter>
+			<listfooter>
 				<listbox mold="select"
 					selectedItem="@bind(sorted.selectedNull)"
 					model="@load(sorted.nullList)">
@@ -75,11 +85,15 @@
 						<listitem label="@load(each)" />
 					</template>
 				</listbox>
-			</footer>
-			<footer>
-				<button label="add sort field"
+			</listfooter>
+			<listfooter>
+				<button label="Add" visible="@load(!sorted.selected)"
 					onClick="@command('onSortAdd')" />
-			</footer>
-		</foot>
-	</grid>
+				<button label="Save" visible="@load(sorted.selected)"
+					onClick="@command('onSortSave')" />
+				<button label="Cancel" visible="@load(sorted.selected)"
+					onClick="@command('onSortCancel')" />
+			</listfooter>
+		</listfoot>
+	</listbox>
 </window>

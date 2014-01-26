@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.schema;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,36 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		rwl.w.lock();
 		try {
 			addNoLockNoCache(field);
+			buildCacheKey();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void moveDown(T field) {
+		rwl.w.lock();
+		try {
+			int i = fieldList.indexOf(field);
+			if (i == -1)
+				return;
+			if (i == fieldList.size() - 1)
+				return;
+			Collections.swap(fieldList, i, i + 1);
+			buildCacheKey();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void moveUp(T field) {
+		rwl.w.lock();
+		try {
+			int i = fieldList.indexOf(field);
+			if (i == -1)
+				return;
+			if (i == 0)
+				return;
+			Collections.swap(fieldList, i, i - 1);
 			buildCacheKey();
 		} finally {
 			rwl.w.unlock();
