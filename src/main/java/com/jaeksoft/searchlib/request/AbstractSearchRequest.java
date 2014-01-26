@@ -587,10 +587,12 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void addSort(int joinNumber, String fieldName, boolean desc) {
+	public void addSort(final int joinNumber, final String fieldName,
+			final boolean desc, final boolean nullFirst) {
 		rwl.w.lock();
 		try {
-			sortFieldList.put(new SortField(joinNumber, fieldName, desc));
+			sortFieldList.put(new SortField(joinNumber, fieldName, desc,
+					nullFirst));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -984,7 +986,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			Node node = nodes.item(i);
 			String textNode = xpp.getNodeString(node, false);
 			if (textNode != null && textNode.length() > 0)
-				sortFieldList.put(new SortField(0, textNode, false));
+				sortFieldList.put(new SortField(0, textNode, false, false));
 			else
 				sortFieldList.put(new SortField(node));
 		}

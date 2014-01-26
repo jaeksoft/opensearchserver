@@ -30,7 +30,7 @@ import java.util.Arrays;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.util.OpenBitSet;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -40,7 +40,7 @@ public class JoinDocCollector extends
 		AbstractBaseCollector<JoinDocCollectorInterface> implements
 		JoinDocCollectorInterface, JoinDocInterface, DocIdInterface {
 
-	private final FieldCacheIndex[] fieldCacheIndexArray;
+	private final ReaderAbstract[] foreignReaders;
 	private final int maxDoc;
 	private final int[] ids;
 	private final int[][] foreignDocIdsArray;
@@ -53,7 +53,7 @@ public class JoinDocCollector extends
 		foreignDocIdsArray = new int[0][0];
 		bitSet = null;
 		joinResultSize = 0;
-		fieldCacheIndexArray = null;
+		foreignReaders = null;
 	}
 
 	JoinDocCollector(DocIdInterface docs, int joinResultSize) {
@@ -64,10 +64,10 @@ public class JoinDocCollector extends
 		if (docs instanceof JoinDocCollector)
 			((JoinDocCollector) docs).copyForeignDocIdsArray(this);
 		this.joinResultSize = joinResultSize;
-		this.fieldCacheIndexArray = new FieldCacheIndex[joinResultSize];
+		this.foreignReaders = new ReaderAbstract[joinResultSize];
 	}
 
-	private void copyForeignDocIdsArray(JoinDocCollector joinDocCollector) {
+	private void copyForeignDocIdsArray(final JoinDocCollector joinDocCollector) {
 		int i = 0;
 		if (foreignDocIdsArray == null)
 			return;
@@ -75,13 +75,14 @@ public class JoinDocCollector extends
 			joinDocCollector.foreignDocIdsArray[i++] = ids;
 	}
 
-	private JoinDocCollector(int joinResultSize, int idsLength, int maxDoc) {
+	private JoinDocCollector(final int joinResultSize, final int idsLength,
+			final int maxDoc) {
 		this.maxDoc = maxDoc;
 		this.bitSet = null;
 		this.joinResultSize = joinResultSize;
 		this.ids = new int[idsLength];
 		this.foreignDocIdsArray = new int[idsLength][];
-		this.fieldCacheIndexArray = new FieldCacheIndex[joinResultSize];
+		this.foreignReaders = new ReaderAbstract[joinResultSize];
 	}
 
 	/**
@@ -101,16 +102,16 @@ public class JoinDocCollector extends
 			}
 			i2++;
 		}
-		System.arraycopy(src.getFieldCacheIndexArray(), 0,
-				fieldCacheIndexArray, 0, fieldCacheIndexArray.length);
+		System.arraycopy(src.getForeignReaders(), 0, foreignReaders, 0,
+				foreignReaders.length);
 	}
 
 	@Override
-	public JoinDocCollector duplicate(AbstractBaseCollector<?> base) {
+	public JoinDocCollector duplicate(final AbstractBaseCollector<?> base) {
 		return new JoinDocCollector((JoinDocCollector) base);
 	}
 
-	protected static final int validSize(int[] ids) {
+	protected static final int validSize(final int[] ids) {
 		int i = 0;
 		for (int id : ids)
 			if (id != -1)
@@ -119,7 +120,7 @@ public class JoinDocCollector extends
 	}
 
 	final public static int[][] copyForeignDocIdsArray(
-			int[][] foreignDocIdsArray) {
+			final int[][] foreignDocIdsArray) {
 		int[][] neworeignDocIdsArray = new int[foreignDocIdsArray.length][];
 		int i = 0;
 		for (int[] foreignIds : foreignDocIdsArray)
@@ -127,7 +128,8 @@ public class JoinDocCollector extends
 		return neworeignDocIdsArray;
 	}
 
-	final public static void swap(int[][] foreignDocIdsArray, int pos1, int pos2) {
+	final public static void swap(final int[][] foreignDocIdsArray,
+			final int pos1, final int pos2) {
 		int[] foreignDocIds = foreignDocIdsArray[pos1];
 		foreignDocIdsArray[pos1] = foreignDocIdsArray[pos2];
 		foreignDocIdsArray[pos2] = foreignDocIds;
@@ -209,8 +211,8 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	public FieldCacheIndex[] getFieldCacheIndexArray() {
-		return fieldCacheIndexArray;
+	public ReaderAbstract[] getForeignReaders() {
+		return foreignReaders;
 	}
 
 }

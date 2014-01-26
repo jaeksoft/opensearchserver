@@ -1,6 +1,30 @@
+/**   
+ * License Agreement for OpenSearchServer
+ *
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * 
+ * http://www.open-search-server.com
+ * 
+ * This file is part of OpenSearchServer.
+ *
+ * OpenSearchServer is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * OpenSearchServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenSearchServer. 
+ *  If not, see <http://www.gnu.org/licenses/>.
+ **/
 package com.jaeksoft.searchlib.result.collector.join;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -15,7 +39,8 @@ public class JoinUtils {
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
 			FieldCacheIndex doc2StringIndex, int joinResultSize,
 			final int joinResultPos, Timer timer, boolean factorScore,
-			JoinType joinType, OuterCollector outerCollector) {
+			JoinType joinType, OuterCollector outerCollector,
+			ReaderAbstract foreignReader) {
 
 		if (docs.getSize() == 0 && outerCollector == null)
 			return docs;
@@ -25,9 +50,10 @@ public class JoinUtils {
 
 		JoinDocCollectorInterface docs1 = JoinUtils.getCollector(docs,
 				joinResultSize);
+		docs1.getForeignReaders()[joinResultPos] = foreignReader;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
-		new AscStringIndexSorter(docs1, doc1StringIndex).quickSort(t);
+		new AscStringIndexSorter(docs1, doc1StringIndex, false).quickSort(t);
 		t.getDuration();
 
 		t = new Timer(timer, "copy & sort foreign documents");
@@ -39,7 +65,7 @@ public class JoinUtils {
 				scores2 = scoreDocs2.getScores();
 
 		}
-		new AscStringIndexSorter(docs2, doc2StringIndex).quickSort(t);
+		new AscStringIndexSorter(docs2, doc2StringIndex, false).quickSort(t);
 		t.getDuration();
 
 		t = new Timer(timer, "join operation");

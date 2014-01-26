@@ -388,17 +388,18 @@ public class JoinItem implements Comparable<JoinItem> {
 				searchRequest.getFacetFieldList().clear();
 			}
 
-			FieldCacheIndex foreignFieldIndex = resultSearch.getReader()
+			ReaderAbstract foreignReader = resultSearch.getReader();
+			FieldCacheIndex foreignFieldIndex = foreignReader
 					.getStringIndex(foreignField);
 			if (foreignFieldIndex == null)
-				throw new SearchLibException(
-						"No string index found for the foreign field: "
-								+ foreignField);
+				throw new SearchLibException(StringUtils.fastConcat(
+						"No string index found for the foreign field: ",
+						foreignField));
 			t = new Timer(timer, joinResultName + " join");
 			DocIdInterface joinDocs = JoinUtils.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex, joinResultSize,
 					joinResult.joinPosition, t, returnScores, type,
-					outerCollector);
+					outerCollector, foreignReader);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {

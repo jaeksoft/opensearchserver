@@ -30,8 +30,8 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 public class AscStringIndexSorter extends AbstractStringIndexSorter {
 
 	public AscStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex) {
-		super(collector, stringIndex);
+			final FieldCacheIndex stringIndex, final boolean nullFirst) {
+		super(collector, stringIndex, nullFirst);
 	}
 
 	@Override

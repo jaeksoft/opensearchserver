@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.result.collector.collapsing;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
@@ -36,13 +36,13 @@ public class CollapseJoinDocCollector
 		implements CollapseCollectorInterface, JoinDocInterface {
 
 	protected final int[][] foreignDocIdsArray;
-	protected final FieldCacheIndex[] fieldCacheIndexArray;
+	protected final ReaderAbstract[] foreignReaders;
 
 	public CollapseJoinDocCollector(final CollapseBaseCollector base,
 			final JoinDocInterface sourceCollector) {
 		super(base);
 		foreignDocIdsArray = sourceCollector.getForeignDocIdsArray();
-		fieldCacheIndexArray = sourceCollector.getFieldCacheIndexArray();
+		foreignReaders = sourceCollector.getForeignReaders();
 	}
 
 	private CollapseJoinDocCollector(final CollapseBaseCollector base,
@@ -50,7 +50,7 @@ public class CollapseJoinDocCollector
 		super(base);
 		foreignDocIdsArray = JoinDocCollector
 				.copyForeignDocIdsArray(src.foreignDocIdsArray);
-		fieldCacheIndexArray = src.getFieldCacheIndexArray();
+		foreignReaders = src.getForeignReaders();
 	}
 
 	@Override
@@ -101,8 +101,8 @@ public class CollapseJoinDocCollector
 	}
 
 	@Override
-	final public FieldCacheIndex[] getFieldCacheIndexArray() {
-		return fieldCacheIndexArray;
+	final public ReaderAbstract[] getForeignReaders() {
+		return foreignReaders;
 	}
 
 }
