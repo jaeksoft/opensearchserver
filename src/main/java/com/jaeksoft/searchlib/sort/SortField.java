@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -33,6 +35,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends AbstractField<SortField> implements
@@ -49,13 +52,29 @@ public class SortField extends AbstractField<SortField> implements
 
 	private boolean nullFirst;
 
+	private final static Pattern sortPattern = Pattern
+			.compile("^([0-9]+)?([+-]{1})?(.*)(_\\$null\\$)?$");
+
 	public SortField(final String requestSort) {
 		super();
-		int c = requestSort.charAt(0);
-		joinNumber = 0;
-		desc = (c == '-');
-		name = (c == '+' || c == '-') ? requestSort.substring(1) : requestSort;
-		nullFirst = false;
+		Matcher matcher = RegExpUtils.matcher(sortPattern, requestSort);
+		matcher.matches();
+		joinNumber = matcher.group(1) == null ? 0 : Integer.parseInt(matcher
+				.group(1));
+		desc = matcher.group(2) == null ? false : "-".equals(matcher.group(2));
+		name = matcher.group(3);
+		nullFirst = matcher.group(4) != null;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(new SortField("0+fieldname_$null$"));
+		System.out.println(new SortField("+fieldname_$null$"));
+		System.out.println(new SortField("fieldname_$null$"));
+		System.out.println(new SortField("-fieldname_$null$"));
+		System.out.println(new SortField("0+fieldname"));
+		System.out.println(new SortField("+fieldname"));
+		System.out.println(new SortField("fieldname"));
+		System.out.println(new SortField("-fieldname"));
 	}
 
 	public SortField(int joinNumber, String fieldName, boolean desc,
@@ -183,8 +202,8 @@ public class SortField extends AbstractField<SortField> implements
 		else
 			sb.append('+');
 		sb.append(name);
-		sb.append('_');
-		sb.append(nullFirst);
+		if (nullFirst)
+			sb.append("_$null$");
 	}
 
 	@Override

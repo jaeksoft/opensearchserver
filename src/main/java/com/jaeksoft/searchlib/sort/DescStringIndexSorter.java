@@ -36,7 +36,12 @@ public class DescStringIndexSorter extends AbstractStringIndexSorter {
 
 	@Override
 	final public int compare(final int pos1, final int pos2) {
-		return stringIndex.order[ids[pos2]] - stringIndex.order[ids[pos1]];
-
+		int ord1 = stringIndex.order[ids[pos1]];
+		int ord2 = stringIndex.order[ids[pos2]];
+		if (ord1 == 0)
+			return ord2 == 0 ? 0 : pos1null;
+		if (ord2 == 0)
+			return pos2null;
+		return ord2 - ord1;
 	}
 }
