@@ -64,6 +64,9 @@ public class StartStopListener implements ServletContextListener {
 			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data), p);
 		} else if (single_data != null)
 			OPENSEARCHSERVER_DATA_FILE = new File(single_data);
+		else
+			OPENSEARCHSERVER_DATA_FILE = new File(
+					System.getProperty("user.home"), "opensearchserver_data");
 		if (!OPENSEARCHSERVER_DATA_FILE.exists())
 			OPENSEARCHSERVER_DATA_FILE.mkdir();
 		System.out.println("OPENSEARCHSERVER_DATA_FILE IS: "

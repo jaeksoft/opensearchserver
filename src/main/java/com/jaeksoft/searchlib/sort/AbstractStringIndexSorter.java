@@ -29,12 +29,16 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public abstract class AbstractStringIndexSorter extends AbstractDocIdSorter {
 
-	final protected FieldCacheIndex stringIndex;
+	protected FieldCacheIndex stringIndex;
+	final protected int pos1null;
+	final protected int pos2null;
 
 	public AbstractStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex) {
+			final FieldCacheIndex stringIndex, final boolean nullFirst) {
 		super(collector);
 		this.stringIndex = stringIndex;
+		pos1null = nullFirst ? -1 : 1;
+		pos2null = nullFirst ? 1 : -1;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -85,8 +85,8 @@ public class JoinList implements Iterable<JoinItem> {
 		return joinList.iterator();
 	}
 
-	public Object[] getArray() {
-		return joinList.toArray();
+	public JoinItem[] getArray() {
+		return joinList.toArray(new JoinItem[joinList.size()]);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {

@@ -26,11 +26,14 @@ package com.jaeksoft.searchlib.result.collector.join;
 
 import it.unimi.dsi.fastutil.Swapper;
 
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public interface JoinDocCollectorInterface extends CollectorInterface, Swapper {
 
-	void setForeignDocId(int pos, int joinResultPos, int foreignDocId,
-			float score);
+	void setForeignDocId(final int pos, final int joinResultPos,
+			final int foreignDocId, final float score);
+
+	ReaderAbstract[] getForeignReaders();
 
 }

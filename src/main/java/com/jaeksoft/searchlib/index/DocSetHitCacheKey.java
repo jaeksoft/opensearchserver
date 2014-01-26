@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,7 +42,6 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 
 	private final String query;
 	private final Boolean facet;
-	private final String sortListCacheKey;
 	private final FilterListCacheKey filterListCacheKey;
 	private final String boostQueryCacheKey;
 	private final String advancedScoreCacheKey;
@@ -53,7 +52,6 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 		Query q = searchRequest.getQuery();
 		query = q == null ? "" : q.toString();
 		facet = searchRequest.isFacet();
-		sortListCacheKey = searchRequest.getSortFieldList().getCacheKey();
 		filterListCacheKey = new FilterListCacheKey(
 				searchRequest.getFilterList(), defaultField, analyzer,
 				searchRequest);
@@ -71,8 +69,6 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 		if ((c = facet.compareTo(r.facet)) != 0)
 			return c;
 		if ((c = filterListCacheKey.compareTo(r.filterListCacheKey)) != 0)
-			return c;
-		if ((c = sortListCacheKey.compareTo(r.sortListCacheKey)) != 0)
 			return c;
 		if ((c = boostQueryCacheKey.compareTo(r.boostQueryCacheKey)) != 0)
 			return c;
