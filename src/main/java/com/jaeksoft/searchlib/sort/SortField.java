@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.sort;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -33,6 +35,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class SortField extends AbstractField<SortField> implements
@@ -43,23 +46,50 @@ public class SortField extends AbstractField<SortField> implements
 	 */
 	private static final long serialVersionUID = 3269790150800596793L;
 
+	private int joinNumber;
+
 	private boolean desc;
 
-	public SortField(String requestSort) {
+	private boolean nullFirst;
+
+	private final static Pattern sortPattern = Pattern
+			.compile("^([0-9]+)?([+-]{1})?(.*)(_\\$null\\$)?$");
+
+	public SortField(final String requestSort) {
 		super();
-		int c = requestSort.charAt(0);
-		desc = (c == '-');
-		name = (c == '+' || c == '-') ? requestSort.substring(1) : requestSort;
+		Matcher matcher = RegExpUtils.matcher(sortPattern, requestSort);
+		matcher.matches();
+		joinNumber = matcher.group(1) == null ? 0 : Integer.parseInt(matcher
+				.group(1));
+		desc = matcher.group(2) == null ? false : "-".equals(matcher.group(2));
+		name = matcher.group(3);
+		nullFirst = matcher.group(4) != null;
 	}
 
-	public SortField(String fieldName, boolean desc) {
+	public static void main(String[] args) {
+		System.out.println(new SortField("0+fieldname_$null$"));
+		System.out.println(new SortField("+fieldname_$null$"));
+		System.out.println(new SortField("fieldname_$null$"));
+		System.out.println(new SortField("-fieldname_$null$"));
+		System.out.println(new SortField("0+fieldname"));
+		System.out.println(new SortField("+fieldname"));
+		System.out.println(new SortField("fieldname"));
+		System.out.println(new SortField("-fieldname"));
+	}
+
+	public SortField(int joinNumber, String fieldName, boolean desc,
+			boolean nullFirst) {
 		super(fieldName);
 		this.desc = desc;
+		this.joinNumber = joinNumber;
+		this.nullFirst = nullFirst;
 	}
 
 	public SortField(Node node) {
 		super(DomUtils.getAttributeText(node, "name"));
 		setDirection(DomUtils.getAttributeText(node, "direction"));
+		setJoinNumber(DomUtils.getAttributeInteger(node, "joinNumber", 0));
+		setNullFirst(DomUtils.getAttributeBoolean(node, "nullFirst", false));
 	}
 
 	public boolean isDesc() {
@@ -70,9 +100,11 @@ public class SortField extends AbstractField<SortField> implements
 		return desc ? "descending" : "ascending";
 	}
 
+	final static public String[] ASCENDING_ARRAYs = { "+", "asc", "ascendant",
+			"ascending" };
+
 	public void setDirection(String v) {
-		final String[] ascArray = { "+", "asc", "ascendant", "ascending" };
-		for (String asc : ascArray) {
+		for (String asc : ASCENDING_ARRAYs) {
 			if (asc.equalsIgnoreCase(v)) {
 				desc = false;
 				return;
@@ -83,7 +115,7 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	public SortField duplicate() {
-		return new SortField(name, desc);
+		return new SortField(joinNumber, name, desc, nullFirst);
 	}
 
 	final public boolean isScore() {
@@ -94,6 +126,36 @@ public class SortField extends AbstractField<SortField> implements
 		return name.equals("__distance__");
 	}
 
+	/**
+	 * @return the joinNumber
+	 */
+	public int getJoinNumber() {
+		return joinNumber;
+	}
+
+	/**
+	 * @param joinNumber
+	 *            the joinNumber to set
+	 */
+	public void setJoinNumber(int joinNumber) {
+		this.joinNumber = joinNumber;
+	}
+
+	/**
+	 * @return the nullFirst
+	 */
+	public boolean isNullFirst() {
+		return nullFirst;
+	}
+
+	/**
+	 * @param nullFirst
+	 *            the nullFirst to set
+	 */
+	public void setNullFirst(boolean nullFirst) {
+		this.nullFirst = nullFirst;
+	}
+
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
 		if (isScore()) {
@@ -102,18 +164,29 @@ public class SortField extends AbstractField<SortField> implements
 			else
 				return new AscScoreSorter(collector);
 		}
-		if (desc)
-			return new DescStringIndexSorter(collector,
-					reader.getStringIndex(name));
-		else
-			return new AscStringIndexSorter(collector,
-					reader.getStringIndex(name));
+		if (joinNumber == 0) {
+			if (desc)
+				return new DescStringIndexSorter(collector,
+						reader.getStringIndex(name), nullFirst);
+			else
+				return new AscStringIndexSorter(collector,
+						reader.getStringIndex(name), nullFirst);
+		} else {
+			if (desc)
+				return new DescJoinStringIndexSorter(collector, joinNumber - 1,
+						name, nullFirst);
+			else
+				return new AscJoinStringIndexSorter(collector, joinNumber - 1,
+						name, nullFirst);
+		}
 	}
 
 	@Override
 	final public int compareTo(final SortField o) {
-		int c = super.compareTo(o);
-		if (c != 0)
+		int c;
+		if ((c = super.compareTo(o)) != 0)
+			return c;
+		if ((c = Integer.compare(joinNumber, o.joinNumber)) != 0)
 			return c;
 		if (desc == o.desc)
 			return 0;
@@ -122,11 +195,15 @@ public class SortField extends AbstractField<SortField> implements
 
 	@Override
 	final public void toString(final StringBuilder sb) {
+		if (joinNumber > 0)
+			sb.append(joinNumber);
 		if (desc)
 			sb.append('-');
 		else
 			sb.append('+');
 		sb.append(name);
+		if (nullFirst)
+			sb.append("_$null$");
 	}
 
 	@Override
@@ -139,7 +216,9 @@ public class SortField extends AbstractField<SortField> implements
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("field", "name", name, "direction",
-				isDesc() ? "desc" : "asc");
+				isDesc() ? "desc" : "asc", "joinNumber",
+				Integer.toString(joinNumber), "nullFirst",
+				Boolean.toString(nullFirst));
 		xmlWriter.endElement();
 	}
 

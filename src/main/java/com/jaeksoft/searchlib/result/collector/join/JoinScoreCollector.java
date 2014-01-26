@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result.collector.join;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
@@ -117,6 +118,11 @@ public class JoinScoreCollector extends
 		if (scores == null)
 			return 0;
 		return scores.length;
+	}
+
+	@Override
+	final public ReaderAbstract[] getForeignReaders() {
+		return base.getForeignReaders();
 	}
 
 }

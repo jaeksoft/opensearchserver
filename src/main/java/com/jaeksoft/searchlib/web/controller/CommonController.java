@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -221,13 +221,16 @@ public abstract class CommonController implements EventInterface {
 		return getLoggedUser() != null;
 	}
 
+	final protected void resize() {
+		if (component != null)
+			Clients.resize(component);
+	}
+
 	@Command
 	@GlobalCommand
 	public void reload() throws SearchLibException {
 		BindUtils.postNotifyChange(null, null, this, "*");
-		if (component != null) {
-			Clients.resize(component);
-		}
+		resize();
 		if (Logging.isDebug)
 			Logging.debug("reload " + this + " " + component);
 	}

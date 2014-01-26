@@ -488,8 +488,7 @@ public class ReaderLocal extends ReaderAbstract {
 		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
 				this, defaultField, analyzer, searchRequest, timer);
 
-		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits,
-				searchRequest.getSortFieldList(), timer);
+		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits, timer);
 		return dsh;
 	}
 
