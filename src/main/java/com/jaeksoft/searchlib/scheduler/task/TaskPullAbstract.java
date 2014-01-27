@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -151,9 +151,11 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 					.getValue(propTargetMappedFields);
 			targetField = properties.getValue(propTargetField);
 			bufferSize = Integer.parseInt(properties.getValue(propBufferSize));
-			targetFieldMap = new FieldMap(targetMappedFields, ',', '|');
-			targetFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
-					lang);
+			targetFieldMap = StringUtils.isEmpty(targetMappedFields) ? null
+					: new FieldMap(targetMappedFields, ',', '|');
+			if (targetMappedFields != null)
+				targetFieldMap.cacheAnalyzers(client.getSchema()
+						.getAnalyzerList(), lang);
 			buffer = new ArrayList<IndexDocument>(bufferSize);
 			totalCount = 0;
 			String login = properties.getValue(propLogin);
@@ -199,7 +201,8 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 			IndexDocument targetDocument = new IndexDocument(mappedDocument);
 			targetDocument.add(targetField, value, null);
 			IndexDocument finalDocument = new IndexDocument(targetDocument);
-			targetFieldMap.mapIndexDocument(targetDocument, finalDocument);
+			if (targetFieldMap != null)
+				targetFieldMap.mapIndexDocument(targetDocument, finalDocument);
 			buffer.add(finalDocument);
 			if (buffer.size() == bufferSize)
 				indexBuffer(target, taskLog);
