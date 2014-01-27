@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,19 +26,21 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 public class XPathFilter extends FilterFactory {
@@ -47,7 +49,7 @@ public class XPathFilter extends FilterFactory {
 
 		private XPathExpression xPathExpression = null;
 
-		private List<?> tokenList = null;
+		private NodeList tokenList = null;
 
 		private int currentPos = 0;
 
@@ -60,9 +62,9 @@ public class XPathFilter extends FilterFactory {
 		private final boolean popToken() {
 			if (tokenList == null)
 				return false;
-			if (currentPos == tokenList.size())
+			if (currentPos == tokenList.getLength())
 				return false;
-			createToken(tokenList.get(currentPos++).toString());
+			createToken(DomUtils.getText(tokenList.item(currentPos++)));
 			return true;
 		}
 
@@ -77,6 +79,14 @@ public class XPathFilter extends FilterFactory {
 			return true;
 		}
 
+		private final boolean checkString(String text) {
+			if (text.length() > 0)
+				return createToken(text);
+			if (isDefaultValue())
+				return defaultValueToken();
+			return false;
+		}
+
 		@Override
 		public final boolean incrementToken() throws IOException {
 			try {
@@ -85,30 +95,37 @@ public class XPathFilter extends FilterFactory {
 						return true;
 					if (!input.incrementToken())
 						return false;
-					Document document = DOMUtils.readXml(new StringReader(
-							termAtt.toString()));
-					Object object = xPathExpression.evaluate(document);
+					Document document = DomUtils.readXml2(new InputSource(
+							new StringReader(termAtt.toString())));
+					Object object = XPathParser.evaluate(document,
+							xPathExpression);
 					if (object == null) {
 						if (isDefaultValue())
 							return defaultValueToken();
 						continue;
 					}
-					if (object instanceof String) {
-						String s = (String) object;
-						if (s.length() > 0)
-							return createToken(s);
-						if (isDefaultValue())
-							return defaultValueToken();
+					if (object instanceof Node) {
+						if (checkString(DomUtils.getText((Node) object)))
+							return true;
 						continue;
-					}
-					if (object instanceof List) {
-						List<?> list = (List<?>) object;
-						if (list.size() == 0)
+					} else if (object instanceof NodeList) {
+						NodeList nodeList = (NodeList) object;
+						int length = nodeList.getLength();
+						if (length == 0)
 							if (isDefaultValue())
 								return defaultValueToken();
-						tokenList = (List<?>) object;
+						tokenList = nodeList;
 						currentPos = 0;
+					} else if (object instanceof String) {
+						if (checkString((String) object))
+							return true;
+						continue;
+					} else if (object instanceof Object) {
+						if (checkString(object.toString()))
+							return true;
+						continue;
 					}
+
 				}
 			} catch (Exception e) {
 				if (faultTolerant) {
@@ -126,13 +143,13 @@ public class XPathFilter extends FilterFactory {
 	}
 
 	private XPathExpression xPathExpression = null;
-	public boolean faultTolerant = true;
-	public String defaultValue = null;
+	private boolean faultTolerant = true;
+	private String defaultValue = null;
 
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.XPATH, "", null, 30, 1);
+		addProperty(ClassPropertyEnum.XPATH, "", null, 50, 1);
 		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
 				ClassPropertyEnum.BOOLEAN_LIST[0],
