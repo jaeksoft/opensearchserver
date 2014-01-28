@@ -37,6 +37,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -52,9 +54,21 @@ public class RendererServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -9214023062084084833L;
 
+	private static final String[] hiddenParameterList = { "use", "name",
+			"login", "key" };
+
+	final private void forward(final ServletTransaction transaction,
+			final Renderer renderer, final String path) throws ServletException {
+		transaction.setRequestAttribute("hiddenParameterList",
+				hiddenParameterList);
+		transaction.setRequestAttribute("renderer", renderer);
+		transaction.forward(path);
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
+		Renderer renderer = null;
 		try {
 			User user = transaction.getLoggedUser();
 			if (user != null
@@ -64,7 +78,7 @@ public class RendererServlet extends AbstractServlet {
 
 			Client client = transaction.getClient();
 
-			Renderer renderer = client.getRendererManager().get(
+			renderer = client.getRendererManager().get(
 					transaction.getParameterString("name"));
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
@@ -115,9 +129,6 @@ public class RendererServlet extends AbstractServlet {
 			servletRequest.getSession().setAttribute("query", query);
 			transaction.setRequestAttribute("query", query);
 			transaction.setRequestAttribute("renderer", renderer);
-			String[] hiddenParameterList = { "use", "name", "login", "key" };
-			transaction.setRequestAttribute("hiddenParameterList",
-					hiddenParameterList);
 			StringBuilder getUrl = new StringBuilder("?query=");
 			if (query != null)
 				getUrl.append(URLEncoder.encode(query, "UTF-8"));
@@ -143,7 +154,12 @@ public class RendererServlet extends AbstractServlet {
 			}
 			transaction.setRequestAttribute("autocompUrl",
 					autocompUrl.toString());
-			transaction.forward("/WEB-INF/jsp/renderer.jsp");
+			forward(transaction, renderer, "/WEB-INF/jsp/renderer.jsp");
+		} catch (AuthException e) {
+			transaction.setRequestAttribute("error", e.getMessage());
+			forward(transaction, renderer, "/WEB-INF/jsp/login.jsp");
+		} catch (NoUserException e) {
+			forward(transaction, renderer, "/WEB-INF/jsp/login.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
