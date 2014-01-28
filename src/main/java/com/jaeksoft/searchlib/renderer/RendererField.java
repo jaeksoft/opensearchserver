@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,8 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -49,6 +51,10 @@ public class RendererField {
 
 	private RendererWidgets widgetName;
 
+	private String pattern;
+
+	private String replacement;
+
 	private final static String RENDERER_FIELD_ATTR_FIELDNAME = "fieldName";
 
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
@@ -59,12 +65,18 @@ public class RendererField {
 
 	private final static String RENDERER_FIELD_ATTR_WIDGETNAME = "widgetName";
 
+	private final static String RENDERER_FIELD_ATTR_REGEXP_PATTERN = "regexpPattern";
+
+	private final static String RENDERER_FIELD_ATTR_REGEXP_REPLACE = "regexpReplace";
+
 	public RendererField() {
 		fieldName = "";
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = "";
 		urlFieldName = "";
 		widgetName = RendererWidgets.TEXT;
+		pattern = null;
+		replacement = null;
 	}
 
 	public RendererField(XPathParser xpp, Node node)
@@ -79,6 +91,10 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
 		setWidgetName(RendererWidgets.find(XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_WIDGETNAME)));
+		setPattern(DomUtils.getAttributeText(node,
+				RENDERER_FIELD_ATTR_REGEXP_PATTERN));
+		setReplacement(DomUtils.getAttributeText(node,
+				RENDERER_FIELD_ATTR_REGEXP_REPLACE));
 	}
 
 	public RendererField(RendererField field) {
@@ -91,6 +107,8 @@ public class RendererField {
 		target.oldStyle = oldStyle;
 		target.urlFieldName = urlFieldName;
 		target.widgetName = widgetName;
+		target.pattern = pattern;
+		target.replacement = replacement;
 	}
 
 	/**
@@ -162,6 +180,9 @@ public class RendererField {
 			return null;
 		if (url.length() == 0)
 			return null;
+		if (!(StringUtils.isEmpty(pattern))
+				&& !(StringUtils.isEmpty(replacement)))
+			url = url.replaceAll(pattern, replacement);
 		return url;
 	}
 
@@ -178,7 +199,39 @@ public class RendererField {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
 				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
-				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name());
+				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name(),
+				RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern,
+				RENDERER_FIELD_ATTR_REGEXP_REPLACE, replacement);
 		xmlWriter.endElement();
+	}
+
+	/**
+	 * @return the pattern
+	 */
+	public String getPattern() {
+		return pattern;
+	}
+
+	/**
+	 * @param pattern
+	 *            the pattern to set
+	 */
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+
+	/**
+	 * @return the replacement
+	 */
+	public String getReplacement() {
+		return replacement;
+	}
+
+	/**
+	 * @param replacement
+	 *            the replacement to set
+	 */
+	public void setReplacement(String replacement) {
+		this.replacement = replacement;
 	}
 }

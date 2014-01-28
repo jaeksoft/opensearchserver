@@ -250,8 +250,7 @@ public class DomUtils {
 
 	private final static SimpleLock dbfLock = new SimpleLock();
 
-	private static final DocumentBuilder getDocumentBuilder(
-			final boolean errorSilent) throws ParserConfigurationException {
+	private static final DocumentBuilderFactory getDocumentBuilderFactory() {
 		DocumentBuilderFactory dbf = null;
 		dbfLock.rl.lock();
 		try {
@@ -259,6 +258,12 @@ public class DomUtils {
 		} finally {
 			dbfLock.rl.unlock();
 		}
+		return dbf;
+	}
+
+	private static final DocumentBuilder getDocumentBuilder(
+			final boolean errorSilent) throws ParserConfigurationException {
+		DocumentBuilderFactory dbf = getDocumentBuilderFactory();
 
 		dbf.setValidating(false);
 		dbf.setIgnoringComments(false);
@@ -272,6 +277,21 @@ public class DomUtils {
 		db.setErrorHandler(errorSilent ? ParserErrorHandler.SILENT_ERROR_HANDLER
 				: ParserErrorHandler.STANDARD_ERROR_HANDLER);
 		return db;
+	}
+
+	public static final Document readXml2(final InputSource source)
+			throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory factory = getDocumentBuilderFactory();
+		factory.setValidating(false);
+		factory.setFeature(
+				"http://xml.org/sax/features/external-parameter-entities",
+				false);
+		factory.setFeature(
+				"http://apache.org/xml/features/nonvalidating/load-external-dtd",
+				false);
+		DocumentBuilder db = null;
+		db = factory.newDocumentBuilder();
+		return db.parse(source);
 	}
 
 	public static final Document readXml(final StreamSource source,

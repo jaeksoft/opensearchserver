@@ -166,6 +166,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"jsonPath", "Json Path",
 			"Extract data from a JSON structure using Json Path syntax");
 
+	public static ClassPropertyEnum XPATH = new ClassPropertyEnum(true,
+			"xPath", "XPath",
+			"Extract data from a XPATH structure using XPath syntax");
+
 	public static ClassPropertyEnum REMOVE_DUPLICATE_DIGITS = new ClassPropertyEnum(
 			true, "removeDuplicateDigits", "Duplicate digits",
 			"Detect and remove consecutive duplicate digits");

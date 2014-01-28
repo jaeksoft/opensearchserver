@@ -30,6 +30,8 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -92,9 +94,12 @@ public class TaskPullFields extends TaskPullAbstract {
 
 			ExecutionData executionData = new ExecutionData(properties, client);
 
-			FieldMap sourceFieldMap = new FieldMap(sourceMappedFields, ',', '|');
-			sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(),
-					LanguageEnum.UNDEFINED);
+			FieldMap sourceFieldMap = null;
+			if (!StringUtils.isEmpty(sourceMappedFields)) {
+				sourceFieldMap = new FieldMap(sourceMappedFields, ',', '|');
+				sourceFieldMap.cacheAnalyzers(client.getSchema()
+						.getAnalyzerList(), LanguageEnum.UNDEFINED);
+			}
 
 			AbstractSearchRequest searchRequest = new SearchPatternRequest(
 					executionData.sourceClient);
@@ -122,7 +127,9 @@ public class TaskPullFields extends TaskPullAbstract {
 
 					IndexDocument mappedDocument = new IndexDocument(
 							executionData.lang);
-					sourceFieldMap.mapIndexDocument(document, mappedDocument);
+					if (sourceFieldMap != null)
+						sourceFieldMap.mapIndexDocument(document,
+								mappedDocument);
 
 					for (FieldValueItem fieldValueItem : fieldValueItems) {
 

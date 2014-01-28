@@ -146,6 +146,9 @@ public enum FilterEnum {
 
 	URLNormalizerFilter("URL normalizer"),
 
+	XPathFilter(
+			"This filter extract terms from an XML structure using XPath syntax."),
+
 	YouTubeFilter("Extract details from youtube using youtube API"),
 
 	DailymotionFilter("Extract details from Dailymotion using Dailymotion API"),
