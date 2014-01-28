@@ -42,8 +42,9 @@ public interface AuthPluginInterface {
 		public final String remoteUser;
 		public final String userId;
 		public final Set<String> usernames;
+		public final String password;
 
-		public User(HttpServletRequest request, String userId,
+		public User(HttpServletRequest request, String userId, String password,
 				Object... objectNames) {
 			usernames = new TreeSet<String>();
 			principal = request.getUserPrincipal();
@@ -55,6 +56,7 @@ public interface AuthPluginInterface {
 			for (Object objectName : objectNames)
 				if (objectName != null)
 					addUsername(objectName.toString());
+			this.password = password;
 		}
 
 		protected void addUsername(String username) {
@@ -84,10 +86,12 @@ public interface AuthPluginInterface {
 			}
 			sbQuery.append(')');
 		}
+
 	}
 
 	public String[] authGetGroups(Renderer renderer, User user)
 			throws IOException;
 
-	public User getUser(HttpServletRequest request) throws IOException;
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException;
 }

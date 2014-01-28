@@ -1100,7 +1100,8 @@ public class Renderer implements Comparable<Renderer> {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return;
-		AuthPluginInterface.User user = authPlugin.getUser(servletRequest);
+		AuthPluginInterface.User user = authPlugin
+				.getUser(this, servletRequest);
 		String[] groups = null;
 		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
 				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))

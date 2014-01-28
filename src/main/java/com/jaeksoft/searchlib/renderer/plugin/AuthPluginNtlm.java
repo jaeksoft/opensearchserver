@@ -25,21 +25,28 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbSession;
 
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
 	private static final NtlmPasswordAuthentication getNtlmAuth(
-			Renderer renderer) {
+			Renderer renderer, String username, String password) {
 		return new NtlmPasswordAuthentication(renderer.getAuthDomain(),
-				renderer.getAuthUsername(), renderer.getAuthPassword());
+				username == null ? renderer.getAuthUsername() : username,
+				password == null ? renderer.getAuthPassword() : password);
 	}
 
 	@Override
@@ -53,21 +60,25 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	public String[] authGetGroups(Renderer renderer, User user)
 			throws IOException {
 		if (user == null)
-			throw new IOException("No USER given");
+			throw new NoUserException("No USER given");
 		if (user.userId == null)
-			throw new IOException("No user SID ");
+			throw new NoUserException("No user SID ");
 		SID[] sids = null;
 		try {
-			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer);
+			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
+					user.password != null ? user.userId : null, user.password);
 			String authServer = renderer.getAuthServer();
 			SID sid = new SID(user.userId);
 			sid.resolve(authServer, ntlmAuth);
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
-		} catch (SmbAuthException e) {
-			throw new IOException("SMB authentication failed. Domain: "
-					+ renderer.getAuthDomain() + " User: "
-					+ renderer.getAuthUsername(), e);
+		} catch (SmbAuthException sae) {
+			throw new AuthException("SmbAuthException : " + sae.getMessage());
+		} catch (UnknownHostException uhe) {
+			throw new AuthException("UnknownHostException : "
+					+ uhe.getMessage());
+		} catch (SmbException smbe) {
+			throw new AuthException("SmbException : " + smbe.getMessage());
 		}
 		if (sids == null)
 			return null;
@@ -79,8 +90,29 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	}
 
 	@Override
-	public User getUser(HttpServletRequest request) throws IOException {
-		return new User(request, null);
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException {
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		if (username != null && password != null) {
+			try {
+				NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
+						username, password);
+				UniAddress dc = UniAddress.getByName(renderer.getAuthServer(),
+						true);
+				SmbSession.logon(dc, ntlmAuth);
+			} catch (SmbAuthException sae) {
+				throw new AuthException("SmbAuthException : "
+						+ sae.getMessage());
+			} catch (UnknownHostException uhe) {
+				throw new AuthException("UnknownHostException : "
+						+ uhe.getMessage());
+			} catch (SmbException smbe) {
+				throw new AuthException("SmbException : " + smbe.getMessage());
+			}
+			return new User(request, username, password);
+		}
+		return new User(request, null, null);
 	}
 
 }
