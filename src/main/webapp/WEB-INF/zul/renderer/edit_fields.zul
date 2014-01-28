@@ -19,6 +19,10 @@
 	<listhead>
 		<listheader label="Field / Snippet" />
 		<listheader label="URL Field" />
+		<listheader label="URL Pattern"
+			tooltiptext="Regular expression pattern" />
+		<listheader label="URL Replace"
+			tooltiptext="Regular expression replacement" />
 		<listheader label="Widget" />
 		<listheader label="Action" align="center" width="150px" />
 	</listhead>
@@ -50,6 +54,14 @@
 			</listbox>
 		</auxheader>
 		<auxheader>
+			<textbox
+				value="@bind(renderer.currentRendererField.pattern)" cols="30" />
+		</auxheader>
+		<auxheader>
+			<textbox
+				value="@bind(renderer.currentRendererField.replacement)" cols="30" />
+		</auxheader>
+		<auxheader>
 			<listbox model="@load(renderer.widgetList)"
 				selectedItem="@bind(renderer.currentRendererField.widgetName)"
 				mold="select">
@@ -79,6 +91,8 @@
 				<label value="@load(rendererFieldItem.fieldName)" />
 			</listcell>
 			<listcell label="@load(rendererFieldItem.urlFieldName)" />
+			<listcell label="@load(rendererFieldItem.pattern)" />
+			<listcell label="@load(rendererFieldItem.replacement)" />
 			<listcell label="@load(rendererFieldItem.widgetName)" />
 			<listcell>
 				<button tooltiptext="Move the field up"
