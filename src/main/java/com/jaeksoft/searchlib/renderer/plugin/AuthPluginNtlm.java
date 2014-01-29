@@ -36,9 +36,11 @@ import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
@@ -66,19 +68,21 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		SID[] sids = null;
 		try {
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
-					user.password != null ? user.userId : null, user.password);
+					user.password != null ? user.username : null, user.password);
 			String authServer = renderer.getAuthServer();
 			SID sid = new SID(user.userId);
 			sid.resolve(authServer, ntlmAuth);
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
 		} catch (SmbAuthException sae) {
+			Logging.warn(sae);
 			throw new AuthException("SmbAuthException : " + sae.getMessage());
-		} catch (UnknownHostException uhe) {
-			throw new AuthException("UnknownHostException : "
-					+ uhe.getMessage());
-		} catch (SmbException smbe) {
-			throw new AuthException("SmbException : " + smbe.getMessage());
+		} catch (UnknownHostException e) {
+			Logging.warn(e);
+			throw new AuthException("UnknownHostException : " + e.getMessage());
+		} catch (SmbException e) {
+			Logging.warn(e);
+			throw new AuthException("SmbException : " + e.getMessage());
 		}
 		if (sids == null)
 			return null;
@@ -92,6 +96,7 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+		String userId = null;
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		if (username != null && password != null) {
@@ -101,18 +106,36 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 				UniAddress dc = UniAddress.getByName(renderer.getAuthServer(),
 						true);
 				SmbSession.logon(dc, ntlmAuth);
-			} catch (SmbAuthException sae) {
-				throw new AuthException("SmbAuthException : "
-						+ sae.getMessage());
-			} catch (UnknownHostException uhe) {
-				throw new AuthException("UnknownHostException : "
-						+ uhe.getMessage());
-			} catch (SmbException smbe) {
-				throw new AuthException("SmbException : " + smbe.getMessage());
+				Logging.warn("Authentication success " + ntlmAuth.getName());
+				SID serverSid = SID.getServerSid(renderer.getAuthServer(),
+						ntlmAuth);
+				SID userSid = null;
+				if (StringUtils.isNumeric(username))
+					userSid = new SID(serverSid, Integer.parseInt(username));
+				else
+					userSid = new SID(serverSid, SID.SID_TYPE_USER,
+							serverSid.getDomainName(), username, false);
+				if (userSid != null) {
+					userSid.resolve(renderer.getAuthServer(), ntlmAuth);
+					userId = userSid.toString();
+				}
+			} catch (SmbAuthException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (SmbAuthException) : "
+								+ e.getMessage());
+			} catch (UnknownHostException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (UnknownHostException) : "
+								+ e.getMessage());
+			} catch (SmbException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (SmbException) : "
+								+ e.getMessage());
 			}
-			return new User(request, username, password);
 		}
-		return new User(request, null, null);
+		return new User(request, userId, username, password);
 	}
-
 }
