@@ -31,7 +31,7 @@ public class CharArray extends AbstractBufferItem<CharArray> implements
 	final public char[] chars;
 	public CharBuffer charBuffer;
 
-	CharArray(CharArrayBuffer buffer, final long size) {
+	CharArray(CharArrayBuffer buffer, final int size) {
 		super(buffer, size);
 		chars = new char[(int) size];
 		reset();

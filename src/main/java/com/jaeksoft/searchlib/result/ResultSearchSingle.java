@@ -41,6 +41,8 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.sort.SortFieldList;
+import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultSearchSingle extends AbstractResultSearch {
@@ -97,6 +99,14 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			for (JoinResult joinResult : joinResults)
 				joinResult.populate(this.facetList);
 			joinTimer.getDuration();
+		}
+
+		// Handling sorting
+		SortFieldList sortFieldList = searchRequest.getSortFieldList();
+		if (sortFieldList != null) {
+			SorterAbstract sorter = sortFieldList.getSorter(notCollapsedDocs,
+					reader);
+			sorter.quickSort(timer);
 		}
 
 		// Are we doing collapsing ?

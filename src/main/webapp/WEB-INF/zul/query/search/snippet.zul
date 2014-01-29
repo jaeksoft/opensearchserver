@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -24,6 +24,8 @@
 			<column label="Separator" />
 			<column label="Max snippet size" />
 			<column label="Max snippet number" />
+			<column label="Time limit"
+				tooltiptext="Time limit in milliseconds" />
 			<column label="Action" />
 		</columns>
 		<rows>
@@ -43,6 +45,7 @@
 						value="@bind(field.maxSnippetSize)" />
 					<intbox cols="5"
 						value="@bind(field.maxSnippetNumber)" />
+					<intbox cols="5" value="@bind(field.timeLimit)" />
 					<button label="Remove"
 						onClick="@command('onSnippetRemove', field=field)" />
 				</row>

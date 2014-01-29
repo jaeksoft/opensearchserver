@@ -31,6 +31,15 @@ import com.jaeksoft.searchlib.Logging;
 
 public class FunctionTimer {
 
+	public enum Mode {
+		OFF, TIME_ONLY, FULL
+	};
+
+	private static double globalTotalTime = 0;
+	private static long fullTotalTime = 0;
+
+	public final static Mode MODE = Mode.TIME_ONLY;
+
 	private static class ExecutionInfo {
 
 		private final String name;
@@ -96,6 +105,7 @@ public class FunctionTimer {
 		@Override
 		public final void end(final String... texts) {
 			duration = System.currentTimeMillis() - startTime;
+			fullTotalTime += duration;
 			if (executionInfo != null)
 				executionInfo.add(this);
 			if (!Logging.isDebug)
@@ -107,42 +117,58 @@ public class FunctionTimer {
 		}
 	}
 
-	public final static boolean ACTIVE = false;
-
 	private final static Map<String, ExecutionInfo> ExecutionInfos;
 	static {
-		ExecutionInfos = ACTIVE ? new TreeMap<String, ExecutionInfo>() : null;
+		ExecutionInfos = MODE == Mode.FULL ? new TreeMap<String, ExecutionInfo>()
+				: null;
 	}
 
 	final public static ExecutionToken newExecutionToken(final String name,
 			final String... text) {
 		ExecutionInfo executionInfo = null;
-		if (!ACTIVE)
+		switch (MODE) {
+		case OFF:
 			return ExecutionTokenDisableImpl.DISABLED;
-		synchronized (ExecutionInfos) {
-			executionInfo = ExecutionInfos.get(name);
-			if (executionInfo == null) {
-				executionInfo = new ExecutionInfo(name);
-				ExecutionInfos.put(name, executionInfo);
+		case FULL:
+			synchronized (ExecutionInfos) {
+				executionInfo = ExecutionInfos.get(name);
+				if (executionInfo == null) {
+					executionInfo = new ExecutionInfo(name);
+					ExecutionInfos.put(name, executionInfo);
+				}
 			}
+			break;
+		default:
+			break;
 		}
 		return new ExecutionTokenImpl(executionInfo, name, text);
 	}
 
 	final public static void dumpExecutionInfo(final boolean reset) {
-		if (!ACTIVE)
-			return;
-		synchronized (ExecutionInfos) {
-			System.out.println("EXECUTIONS INFO DUMP");
-			long totalTime = 0;
-			for (ExecutionInfo executionInfo : ExecutionInfos.values()) {
-				System.out.println(executionInfo);
-				totalTime += executionInfo.totalTime;
+		switch (MODE) {
+		case FULL:
+			synchronized (ExecutionInfos) {
+				System.out.println("EXECUTIONS INFO DUMP");
+				long totalTime = 0;
+				for (ExecutionInfo executionInfo : ExecutionInfos.values()) {
+					System.out.println(executionInfo);
+					totalTime += executionInfo.totalTime;
+				}
+				System.out.println(StringUtils.fastConcat("Total time: ",
+						Float.toString(totalTime / 1000), " sec"));
+				if (reset)
+					ExecutionInfos.clear();
 			}
+		case OFF:
+			break;
+		case TIME_ONLY:
+			globalTotalTime += (double) fullTotalTime / 1000;
 			System.out.println(StringUtils.fastConcat("Total time: ",
-					Float.toString(totalTime / 1000), " sec"));
-			if (reset)
-				ExecutionInfos.clear();
+					Long.toString(fullTotalTime / 1000))
+					+ " / " + Long.toString((long) globalTotalTime));
+			break;
 		}
+		if (reset)
+			fullTotalTime = 0;
 	}
 }

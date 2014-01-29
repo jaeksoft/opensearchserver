@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,7 +41,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.Timer;
 
 class SnippetQueries {
 
@@ -50,7 +50,7 @@ class SnippetQueries {
 	private final List<String> termList;
 	private final Set<Integer> termQuerySet;
 	private final Set<Integer> termPhraseSet;
-	private final Map<String, TermSequence> termSequenceMap;
+	private final List<TermSequence> termSequenceList;
 	final String[] terms;
 
 	SnippetQueries(final Query query, final String field) {
@@ -59,7 +59,7 @@ class SnippetQueries {
 		termPhraseSet = new TreeSet<Integer>();
 		termMap = new TreeMap<String, Integer>();
 		termList = new ArrayList<String>();
-		termSequenceMap = new TreeMap<String, TermSequence>();
+		termSequenceList = new ArrayList<TermSequence>(2);
 		parse(query);
 		terms = termList.toArray(new String[termList.size()]);
 	}
@@ -84,20 +84,17 @@ class SnippetQueries {
 
 	private final static class TermSequence {
 
-		private final Set<Integer> slopSet;
+		private final int slop;
 		private final int[] terms;
 
-		private TermSequence(final List<Integer> termPosSequence) {
-			slopSet = new TreeSet<Integer>();
+		private TermSequence(final List<Integer> termPosSequence, final int slop) {
 			int i = 0;
 			terms = new int[termPosSequence.size()];
 			for (Integer termPos : termPosSequence)
 				terms[i++] = termPos;
+			this.slop = slop;
 		}
 
-		private final void addSlop(int slop) {
-			slopSet.add(slop);
-		}
 	}
 
 	private final void parse(final PhraseQuery query) {
@@ -113,15 +110,11 @@ class SnippetQueries {
 			termPosSequence.add(pos);
 			termPhraseSet.add(pos);
 		}
-		if (termPosSequence.size() == 0)
+		// Term sequences with one term are not phrase queries
+		if (termPosSequence.size() <= 1)
 			return;
-		String termPosSeq = StringUtils.join(termPosSequence, '|');
-		TermSequence termSequence = termSequenceMap.get(termPosSeq);
-		if (termSequence == null) {
-			termSequence = new TermSequence(termPosSequence);
-			termSequenceMap.put(termPosSeq, termSequence);
-		}
-		termSequence.addSlop(query.getSlop());
+		termSequenceList
+				.add(new TermSequence(termPosSequence, query.getSlop()));
 	}
 
 	private final void parse(final BooleanQuery query) {
@@ -151,96 +144,105 @@ class SnippetQueries {
 			parse((PhraseQuery) query);
 	}
 
-	private final void checkTermQueries(final Collection<SnippetVector> vectors) {
+	private final void checkTermQueries(
+			final Collection<SnippetVector> vectors, final long expiration) {
 		if (termQuerySet.isEmpty())
 			return;
-		for (SnippetVector vector : vectors)
-			if (!vector.query)
+		for (SnippetVector vector : vectors) {
+			if (!vector.query) {
 				if (termQuerySet.contains(vector.term))
 					vector.query = true;
+				if (expiration != 0)
+					if (System.currentTimeMillis() > expiration)
+						return;
+			}
+		}
 	}
 
 	private static class SequenceCollector {
 
+		private enum Result {
+			WRONG, CONTINUE, FULL
+		};
+
 		private final TermSequence termSequence;
 		private final SnippetVector[] vectors;
 		private int foundPos;
+		private int nextPosition;
+		private int nextTerm;
 
-		private SequenceCollector(TermSequence termSequence) {
+		private SequenceCollector(final TermSequence termSequence,
+				final SnippetVector vector) {
 			this.termSequence = termSequence;
 			vectors = new SnippetVector[termSequence.terms.length];
 			foundPos = 0;
+			addVector(vector);
 		}
 
-		private final void collect(SnippetVector vector) {
-			if (isFull())
-				return;
-			if (vector.term != termSequence.terms[foundPos])
-				return;
+		private final Result addVector(final SnippetVector vector) {
 			vectors[foundPos++] = vector;
+			nextPosition = vector.position + termSequence.slop + 1;
+			if (foundPos == vectors.length)
+				return Result.FULL;
+			nextTerm = termSequence.terms[foundPos];
+			return Result.CONTINUE;
 		}
 
-		private final boolean isFull() {
-			return foundPos == termSequence.terms.length;
-		}
-
-		private final boolean checkSuccess() {
-			if (!isFull())
-				return false;
-			int maxSlop = 0;
-			SnippetVector previous = null;
-			for (SnippetVector current : vectors) {
-				if (previous != null) {
-					int newSlop = current.position - previous.position;
-					if (newSlop > maxSlop)
-						maxSlop = newSlop;
-				}
-				previous = current;
-			}
-			boolean success = false;
-			for (Integer slop : termSequence.slopSet) {
-				if (maxSlop <= slop) {
-					success = true;
-					break;
-				}
-			}
-			if (!success)
-				return false;
-			for (SnippetVector vector : vectors)
-				vector.query = true;
-			return true;
+		private final Result collect(final SnippetVector vector) {
+			if (vector.position > nextPosition)
+				return Result.WRONG;
+			if (vector.term != nextTerm)
+				return Result.CONTINUE;
+			if (addVector(vector) != Result.FULL)
+				return Result.CONTINUE;
+			for (SnippetVector v : vectors)
+				v.query = true;
+			return Result.FULL;
 		}
 	}
 
 	private final void checkPhraseQueries(
-			final Collection<SnippetVector> vectors) {
-		if (termSequenceMap.isEmpty())
+			final Collection<SnippetVector> vectors, final long expiration) {
+		if (termSequenceList.isEmpty())
 			return;
-		Collection<TermSequence> termSequences = termSequenceMap.values();
 		Set<SequenceCollector> collectors = new HashSet<SequenceCollector>();
 		List<SequenceCollector> toRemove = new ArrayList<SequenceCollector>();
 		for (SnippetVector vector : vectors) {
 			if (!(termPhraseSet.contains(vector.term)))
 				continue;
-			for (TermSequence termSequence : termSequences)
+			for (TermSequence termSequence : termSequenceList) {
 				if (termSequence.terms[0] == vector.term)
-					collectors.add(new SequenceCollector(termSequence));
+					collectors.add(new SequenceCollector(termSequence, vector));
+			}
 			for (SequenceCollector collector : collectors) {
-				collector.collect(vector);
-				if (collector.checkSuccess())
+				switch (collector.collect(vector)) {
+				case CONTINUE:
+					break;
+				case WRONG:
+				case FULL:
 					toRemove.add(collector);
+					break;
+				}
 			}
 			if (!toRemove.isEmpty()) {
 				collectors.removeAll(toRemove);
 				toRemove.clear();
 			}
+			if (expiration != 0)
+				if (System.currentTimeMillis() > expiration)
+					return;
 		}
 	}
 
-	final void checkQueries(final Collection<SnippetVector> vectors) {
+	final void checkQueries(final Collection<SnippetVector> vectors,
+			final Timer parentTimer, final long expiration) {
 		if (vectors == null)
 			return;
-		checkTermQueries(vectors);
-		checkPhraseQueries(vectors);
+		Timer t = new Timer(parentTimer, "checkTermQueries");
+		checkTermQueries(vectors, expiration);
+		t.end(null);
+		t = new Timer(parentTimer, "checkPhraseQueries");
+		checkPhraseQueries(vectors, expiration);
+		t.end(null);
 	}
 }

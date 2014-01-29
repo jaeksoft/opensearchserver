@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.Timer;
 
 class SnippetVectors {
 
@@ -75,19 +76,38 @@ class SnippetVectors {
 
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
-			final SnippetQueries snippetQueries, final String fieldName)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			final SnippetQueries snippetQueries, final String fieldName,
+			final Timer parentTimer, final long expiration) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 		if (ArrayUtils.isEmpty(snippetQueries.terms))
 			return null;
+
+		Timer t = new Timer(parentTimer, "getTermPositionVector " + fieldName);
 		TermPositionVector termVector = getTermPositionVector(reader, docId,
 				fieldName);
+		t.end(null);
+
 		if (termVector == null)
 			return null;
+
 		Collection<SnippetVector> vectors = new ArrayList<SnippetVector>();
-		populate(termVector, snippetQueries.terms, vectors);
+
+		t = new Timer(parentTimer, "populate");
+		populate(termVector, snippetQueries.terms, vectors, t);
+		t.end(null);
+
+		t = new Timer(parentTimer, "removeIncludes");
 		vectors = removeIncludes(vectors);
-		snippetQueries.checkQueries(vectors);
+		t.end(null);
+
+		t = new Timer(parentTimer, "checkQueries");
+		snippetQueries.checkQueries(vectors, t, expiration);
+		t.end(null);
+
+		t = new Timer(parentTimer, "removeNonQuery");
 		vectors = removeNonQuery(vectors);
+		t.end(null);
+
 		return vectors.iterator();
 	}
 
@@ -106,18 +126,28 @@ class SnippetVectors {
 	}
 
 	private static final void populate(final TermPositionVector termVector,
-			final String[] terms, final Collection<SnippetVector> vectors)
-			throws SearchLibException {
+			final String[] terms, final Collection<SnippetVector> vectors,
+			Timer parentTimer) throws SearchLibException {
+		Timer t = new Timer(parentTimer, "indexesOf");
 		int[] termsIdx = termVector.indexesOf(terms, 0, terms.length);
+		t.end(null);
 		int i = 0;
 		for (int termId : termsIdx) {
+			Timer termTimer = new Timer(parentTimer, "term " + terms[i]);
 			if (termId != -1) {
+				t = new Timer(termTimer, "getOffsets");
 				TermVectorOffsetInfo[] offsets = termVector.getOffsets(termId);
+				t.end(null);
+				t = new Timer(termTimer, "getTermPositions");
 				int[] positions = termVector.getTermPositions(termId);
+				t.end(null);
+				t = new Timer(termTimer, "SnippetVector");
 				int j = 0;
 				for (TermVectorOffsetInfo offset : offsets)
 					vectors.add(new SnippetVector(i, offset, positions[j++]));
+				t.end(null);
 			}
+			termTimer.end(null);
 			i++;
 		}
 	}

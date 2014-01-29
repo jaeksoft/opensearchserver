@@ -576,24 +576,38 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			ASC, DESC;
 		}
 
+		public static enum Empty {
+			last, first;
+		}
+
+		final public Integer joinNumber;
 		final public String field;
 		final public Direction direction;
+		final public Empty empty;
 
 		public Sort() {
+			joinNumber = null;
 			field = null;
 			direction = null;
+			empty = null;
 		}
 
 		public Sort(SortField sortField) {
+			joinNumber = sortField.getJoinNumber() == 0 ? null : sortField
+					.getJoinNumber();
 			field = sortField.getName();
 			direction = sortField.isDesc() ? Direction.DESC : Direction.ASC;
+			empty = sortField.isNullFirst() ? Empty.first : Empty.last;
 		}
 
 		@JsonIgnore
 		final private SortField newSortField() {
-			SortField sortField = new SortField(field, false);
+			SortField sortField = new SortField(joinNumber == null ? 0
+					: joinNumber, field, false, false);
 			if (direction != null)
 				sortField.setDirection(direction.name());
+			if (empty != null)
+				sortField.setNullFirst(empty == Empty.first);
 			return sortField;
 		}
 	}

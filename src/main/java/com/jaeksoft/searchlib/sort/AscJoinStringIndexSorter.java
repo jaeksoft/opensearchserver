@@ -24,24 +24,28 @@
 
 package com.jaeksoft.searchlib.sort;
 
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-public class AscStringIndexSorter extends AbstractStringIndexSorter {
+public class AscJoinStringIndexSorter extends AbstractJoinStringIndexSorter {
 
-	public AscStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex, final boolean nullFirst) {
-		super(collector, stringIndex, nullFirst);
+	public AscJoinStringIndexSorter(final CollectorInterface collector,
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws IOException {
+		super(collector, joinPosition, name, nullFirst);
 	}
 
 	@Override
 	final public int compare(final int pos1, final int pos2) {
-		int ord1 = stringIndex.order[ids[pos1]];
-		int ord2 = stringIndex.order[ids[pos2]];
-		if (ord1 == 0)
-			return ord2 == 0 ? 0 : pos1null;
-		if (ord2 == 0)
+		int[] joinIds1 = foreignDocIdsArray[pos1];
+		int[] joinIds2 = foreignDocIdsArray[pos2];
+		if (joinIds1 == null)
+			return joinIds2 == null ? 0 : pos1null;
+		if (joinIds2 == null)
 			return pos2null;
-		return ord1 - ord2;
+		int id1 = joinIds1[joinPosition];
+		int id2 = joinIds2[joinPosition];
+		return stringIndex.order[id1] - stringIndex.order[id2];
 	}
 }

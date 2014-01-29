@@ -29,7 +29,6 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -46,6 +45,7 @@ import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.join.JoinUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -86,6 +86,8 @@ public class JoinItem implements Comparable<JoinItem> {
 
 	private String foreignField;
 
+	private int position;
+
 	private String paramPosition;
 
 	private boolean returnFields;
@@ -104,6 +106,7 @@ public class JoinItem implements Comparable<JoinItem> {
 		queryString = null;
 		localField = null;
 		foreignField = null;
+		position = 0;
 		paramPosition = null;
 		returnFields = false;
 		returnScores = false;
@@ -123,6 +126,7 @@ public class JoinItem implements Comparable<JoinItem> {
 		target.queryString = queryString;
 		target.localField = localField;
 		target.foreignField = foreignField;
+		target.position = position;
 		target.paramPosition = paramPosition;
 		target.returnFields = returnFields;
 		target.returnScores = returnScores;
@@ -269,9 +273,13 @@ public class JoinItem implements Comparable<JoinItem> {
 	}
 
 	public void setParamPosition(int position) {
-		StringBuilder sb = new StringBuilder("jq");
-		sb.append(position);
-		paramPosition = sb.toString();
+		this.position = position;
+		paramPosition = StringUtils
+				.fastConcat("jq", Integer.toString(position));
+	}
+
+	public int getPosition() {
+		return position;
 	}
 
 	public String getParamPosition() {
@@ -380,17 +388,18 @@ public class JoinItem implements Comparable<JoinItem> {
 				searchRequest.getFacetFieldList().clear();
 			}
 
-			FieldCacheIndex foreignFieldIndex = resultSearch.getReader()
+			ReaderAbstract foreignReader = resultSearch.getReader();
+			FieldCacheIndex foreignFieldIndex = foreignReader
 					.getStringIndex(foreignField);
 			if (foreignFieldIndex == null)
-				throw new SearchLibException(
-						"No string index found for the foreign field: "
-								+ foreignField);
+				throw new SearchLibException(StringUtils.fastConcat(
+						"No string index found for the foreign field: ",
+						foreignField));
 			t = new Timer(timer, joinResultName + " join");
 			DocIdInterface joinDocs = JoinUtils.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex, joinResultSize,
 					joinResult.joinPosition, t, returnScores, type,
-					outerCollector);
+					outerCollector, foreignReader);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {

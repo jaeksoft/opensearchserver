@@ -64,9 +64,13 @@ public class ScoreBufferAdvancedCollector extends ScoreBufferCollector {
 	private ScoreBufferAdvancedCollector(final DocSetHitBaseCollector base,
 			final ScoreBufferAdvancedCollector src) {
 		super(base, src);
-		scoreBufferCollector = null;
+		scoreBufferCollector = src.scoreBufferCollector;
 		scoreWeight = src.scoreWeight;
-		scoreItemValues = null;
+		scoreItemValues = src.scoreItemValues == null ? null
+				: new AdvancedScoreItemValue[src.scoreItemValues.length];
+		if (scoreItemValues != null)
+			for (int i = 0; i < scoreItemValues.length; i++)
+				scoreItemValues[i] = src.scoreItemValues[i];
 		size = src.size;
 	}
 

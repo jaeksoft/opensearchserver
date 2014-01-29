@@ -127,7 +127,7 @@ public class AdvancedScoreItem {
 	}
 
 	public void setDirection(String direction) {
-		ascending = ASCENDING.equalsIgnoreCase(ASCENDING) ? true : false;
+		ascending = ASCENDING.equalsIgnoreCase(direction) ? true : false;
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class AdvancedScoreItem {
 	 * @param weight
 	 *            the weight to set
 	 */
-	public void setWeight(float weight) {
+	public void setWeight(double weight) {
 		this.weight = weight;
 	}
 

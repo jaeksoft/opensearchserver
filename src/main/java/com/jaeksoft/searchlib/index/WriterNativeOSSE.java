@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
-import com.jaeksoft.searchlib.index.osse.memory.ByteArrayBuffer;
+import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -57,16 +57,12 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	private final OsseIndex index;
 	private final OsseErrorHandler error;
-	private final OsseTermBuffer termBuffer;
-	private final ByteArrayBuffer byteArrayBuffer;
 
 	protected WriterNativeOSSE(OsseIndex index, IndexConfig indexConfig)
 			throws SearchLibException {
 		super(indexConfig);
 		this.index = index;
-		byteArrayBuffer = new ByteArrayBuffer();
 		error = new OsseErrorHandler();
-		termBuffer = new OsseTermBuffer(byteArrayBuffer, 1000);
 	}
 
 	@Override
@@ -90,7 +86,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 			return fieldMap;
 		OsseTransaction transaction = null;
 		try {
-			transaction = new OsseTransaction(index, 0);
+			transaction = new OsseTransaction(index, null, 0);
 			for (FieldInfo fieldToDelete : fieldsToDelete)
 				transaction.deleteField(fieldToDelete);
 			for (SchemaField schemaField : fieldsToCreate)
@@ -111,8 +107,9 @@ public class WriterNativeOSSE extends WriterAbstract {
 	 * @throws SearchLibException
 	 * @throws CharacterCodingException
 	 */
-	final private void updateTerm(final OsseTransaction transaction,
-			final int documentId, final FieldInfo field, final String value)
+	final private void updateTerm(final OsseTermBuffer termBuffer,
+			final OsseTransaction transaction, final int documentId,
+			final FieldInfo field, final String value)
 			throws SearchLibException, IOException {
 		if (value == null || value.length() == 0)
 			return;
@@ -124,10 +121,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 		transaction.updateTerms(documentId, field, termBuffer);
 	}
 
-	final private void updateTerms(final OsseTransaction transaction,
-			final int documentId, final FieldInfo field,
-			final CompiledAnalyzer compiledAnalyzer, final String value)
-			throws IOException, SearchLibException {
+	final private void updateTerms(final OsseTermBuffer termBuffer,
+			final OsseTransaction transaction, final int documentId,
+			final FieldInfo field, final CompiledAnalyzer compiledAnalyzer,
+			final String value) throws IOException, SearchLibException {
 		StringReader stringReader = null;
 		OsseTokenTermUpdate ottu = null;
 		try {
@@ -144,7 +141,8 @@ public class WriterNativeOSSE extends WriterAbstract {
 		}
 	}
 
-	final private void updateDoc(final OsseTransaction transaction,
+	final private void updateDoc(final OsseTermBuffer termBuffer,
+			final OsseTransaction transaction,
 			final Map<String, FieldInfo> fieldMap, final Schema schema,
 			final IndexDocument document) throws SearchLibException,
 			IOException {
@@ -165,10 +163,11 @@ public class WriterNativeOSSE extends WriterAbstract {
 			for (FieldValueItem valueItem : fieldContent.getValues()) {
 				String value = valueItem.getValue();
 				if (compiledAnalyzer != null)
-					updateTerms(transaction, documentId, fieldInfo,
+					updateTerms(termBuffer, transaction, documentId, fieldInfo,
 							compiledAnalyzer, value);
 				else
-					updateTerm(transaction, documentId, fieldInfo, value);
+					updateTerm(termBuffer, transaction, documentId, fieldInfo,
+							value);
 			}
 		}
 
@@ -178,18 +177,21 @@ public class WriterNativeOSSE extends WriterAbstract {
 	final public boolean updateDocument(final Schema schema,
 			final IndexDocument document) throws SearchLibException {
 		OsseTransaction transaction = null;
+		MemoryBuffer memoryBuffer = null;
 		try {
+			memoryBuffer = new MemoryBuffer();
+			OsseTermBuffer osseTermBuffer = new OsseTermBuffer(memoryBuffer,
+					1000);
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
-			transaction = new OsseTransaction(index, 1);
-			updateDoc(transaction, fieldMap, schema, document);
-			if (!OsseTransaction.FAKE_MODE)
-				transaction.commit();
-			byteArrayBuffer.close();
+			transaction = new OsseTransaction(index, fieldMap.values(), 1);
+			updateDoc(osseTermBuffer, transaction, fieldMap, schema, document);
+			transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(transaction);
+			IOUtils.close(memoryBuffer);
 		}
 		return true;
 	}
@@ -198,25 +200,30 @@ public class WriterNativeOSSE extends WriterAbstract {
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException {
 		OsseTransaction transaction = null;
+		MemoryBuffer memoryBuffer = null;
 		try {
 			if (CollectionUtils.isEmpty(documents))
 				return 0;
+			memoryBuffer = new MemoryBuffer();
+			OsseTermBuffer osseTermBuffer = new OsseTermBuffer(memoryBuffer,
+					1000);
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
-			transaction = new OsseTransaction(index, documents.size());
+			transaction = new OsseTransaction(index, fieldMap.values(),
+					documents.size());
 			int i = 0;
 			for (IndexDocument document : documents) {
-				updateDoc(transaction, fieldMap, schema, document);
+				updateDoc(osseTermBuffer, transaction, fieldMap, schema,
+						document);
 				i++;
 			}
-			if (!OsseTransaction.FAKE_MODE)
-				transaction.commit();
-			byteArrayBuffer.close();
+			transaction.commit();
 			return i;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(transaction);
+			IOUtils.close(memoryBuffer);
 		}
 	}
 

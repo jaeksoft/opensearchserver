@@ -38,15 +38,15 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 	private final OsseTermBuffer buffer;
 	private final OsseTransaction transaction;
 	private final int documentId;
-	private final FieldInfo field;
+	private final FieldInfo fieldInfo;
 
 	public OsseTokenTermUpdate(final OsseTransaction transaction,
-			final int documentId, final FieldInfo field,
+			final int documentId, final FieldInfo fieldInfo,
 			final OsseTermBuffer termBuffer, final TokenStream input) {
 		super(input);
 		this.transaction = transaction;
 		this.documentId = documentId;
-		this.field = field;
+		this.fieldInfo = fieldInfo;
 		this.buffer = termBuffer;
 		this.buffer.reset();
 	}
@@ -55,7 +55,7 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 		if (buffer.getTermCount() == 0)
 			return;
 		try {
-			transaction.updateTerms(documentId, field, buffer);
+			transaction.updateTerms(documentId, fieldInfo, buffer);
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		}

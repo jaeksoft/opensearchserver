@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
-import com.jaeksoft.searchlib.util.IOUtils;
 
 public class OsseTermQuery extends OsseAbstractQuery {
 
@@ -73,7 +72,8 @@ public class OsseTermQuery extends OsseAbstractQuery {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			IOUtils.close(osseFastStringArray);
+			if (osseFastStringArray != null)
+				osseFastStringArray.close();
 		}
 	}
 }

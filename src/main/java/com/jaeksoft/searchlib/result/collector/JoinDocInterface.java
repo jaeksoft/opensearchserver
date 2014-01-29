@@ -24,9 +24,13 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
+import com.jaeksoft.searchlib.index.ReaderAbstract;
+
 public interface JoinDocInterface extends CollectorInterface {
 
-	int getForeignDocIds(int pos, int joinPosition);
+	ReaderAbstract[] getForeignReaders();
+
+	int getForeignDocIds(final int pos, final int joinPosition);
 
 	int[][] getForeignDocIdsArray();
 

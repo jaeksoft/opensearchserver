@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.result.collector.collapsing;
 
+import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
@@ -35,11 +36,13 @@ public class CollapseJoinDocCollector
 		implements CollapseCollectorInterface, JoinDocInterface {
 
 	protected final int[][] foreignDocIdsArray;
+	protected final ReaderAbstract[] foreignReaders;
 
 	public CollapseJoinDocCollector(final CollapseBaseCollector base,
 			final JoinDocInterface sourceCollector) {
 		super(base);
 		foreignDocIdsArray = sourceCollector.getForeignDocIdsArray();
+		foreignReaders = sourceCollector.getForeignReaders();
 	}
 
 	private CollapseJoinDocCollector(final CollapseBaseCollector base,
@@ -47,6 +50,7 @@ public class CollapseJoinDocCollector
 		super(base);
 		foreignDocIdsArray = JoinDocCollector
 				.copyForeignDocIdsArray(src.foreignDocIdsArray);
+		foreignReaders = src.getForeignReaders();
 	}
 
 	@Override
@@ -94,6 +98,11 @@ public class CollapseJoinDocCollector
 		if (foreignDocIdsArray == null)
 			return 0;
 		return foreignDocIdsArray.length;
+	}
+
+	@Override
+	final public ReaderAbstract[] getForeignReaders() {
+		return foreignReaders;
 	}
 
 }

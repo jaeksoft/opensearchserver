@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -91,6 +91,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public final static ClassPropertyEnum TOKEN_TYPE = new ClassPropertyEnum(
 			true, "token_type", "Token type",
 			"The type of the token (shingle, synonym, ...)");
+
+	public final static ClassPropertyEnum EXPAND = new ClassPropertyEnum(true,
+			"expand", "Expand", "");
 
 	public final static ClassPropertyEnum IGNORE_CASE = new ClassPropertyEnum(
 			true, "ignore_case", "Ignore case", "");
@@ -261,6 +264,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "defaultValue", "Default Value",
 			"The default value to use if no value is found");
 
+	public final static ClassPropertyEnum DEFAULT_ARTICLES = new ClassPropertyEnum(
+			true, "defaultArticles", "Articles",
+			"The articles to identify (separated by spaces)");
+
 	public static String[] DEGREES_RADIANS_CONVERSION_LIST = {
 			"Degrees to Radians", "Radians to Degrees", "Check degrees",
 			"Check radians" };
@@ -272,6 +279,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static ClassPropertyEnum IGNORE_META_NOFOLLOW = new ClassPropertyEnum(
 			true, "ignoreMetaNoFollow", "Ignore meta nofollow",
 			"Ignore the meta nofollow tag in HTML header");
+
+	public static ClassPropertyEnum IGNORE_LINK_NOFOLLOW = new ClassPropertyEnum(
+			true, "ignoreLinkNoFollow", "Ignore link nofollow",
+			"Ignore the REL nofollow attribute in LINK tags");
 
 	public static ClassPropertyEnum IGNORE_UNTITLED_DOCUMENTS = new ClassPropertyEnum(
 			true, "ignoreUntitledDocuments", "Ignore untitled documents",

@@ -152,6 +152,8 @@ public class OsseLibrary {
 
 	static {
 		Native.register("OpenSearchServer_CLib");
+		System.out.println("Native version " + Native.VERSION);
+		System.out.println("Native protected? " + Native.isProtected());
 	}
 
 }
