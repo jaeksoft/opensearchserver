@@ -4,12 +4,12 @@
 <%
 	ResultDocument resultDocument = (ResultDocument) request
 			.getAttribute("resultDocument");
-	FieldValueItem fieldValueItem = (FieldValueItem) request
-			.getAttribute("fieldValueItem");
+	String[] values = (String[]) request
+			.getAttribute("rendererValues");
+	String text = values != null && values.length > 0 ? values[0] : null;
 	RendererField rendererField = (RendererField) request
 			.getAttribute("rendererField");
 	String url = rendererField.getUrlField(resultDocument);
-	String text = fieldValueItem.getValue();
 	if (url != null) {
 %>
 <a target="_top" href="<%=url%>"><%=text%></a>
