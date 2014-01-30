@@ -27,6 +27,10 @@ package com.jaeksoft.searchlib.renderer.plugin;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletRequest;
 
 import jcifs.UniAddress;
@@ -36,9 +40,11 @@ import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
+import com.jaeksoft.searchlib.util.ActiveDirectory;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
@@ -66,19 +72,21 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		SID[] sids = null;
 		try {
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
-					user.password != null ? user.userId : null, user.password);
+					user.password != null ? user.username : null, user.password);
 			String authServer = renderer.getAuthServer();
 			SID sid = new SID(user.userId);
 			sid.resolve(authServer, ntlmAuth);
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
 		} catch (SmbAuthException sae) {
+			Logging.warn(sae);
 			throw new AuthException("SmbAuthException : " + sae.getMessage());
-		} catch (UnknownHostException uhe) {
-			throw new AuthException("UnknownHostException : "
-					+ uhe.getMessage());
-		} catch (SmbException smbe) {
-			throw new AuthException("SmbException : " + smbe.getMessage());
+		} catch (UnknownHostException e) {
+			Logging.warn(e);
+			throw new AuthException("UnknownHostException : " + e.getMessage());
+		} catch (SmbException e) {
+			Logging.warn(e);
+			throw new AuthException("SmbException : " + e.getMessage());
 		}
 		if (sids == null)
 			return null;
@@ -92,8 +100,10 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+		String userId = null;
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
+		ActiveDirectory activeDirectory = null;
 		if (username != null && password != null) {
 			try {
 				NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
@@ -101,18 +111,43 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 				UniAddress dc = UniAddress.getByName(renderer.getAuthServer(),
 						true);
 				SmbSession.logon(dc, ntlmAuth);
-			} catch (SmbAuthException sae) {
-				throw new AuthException("SmbAuthException : "
-						+ sae.getMessage());
-			} catch (UnknownHostException uhe) {
-				throw new AuthException("UnknownHostException : "
-						+ uhe.getMessage());
-			} catch (SmbException smbe) {
-				throw new AuthException("SmbException : " + smbe.getMessage());
-			}
-			return new User(request, username, password);
-		}
-		return new User(request, null, null);
-	}
 
+				activeDirectory = new ActiveDirectory(username, password,
+						renderer.getAuthDomain());
+
+				NamingEnumeration<SearchResult> result = activeDirectory
+						.findUser(username, renderer.getAuthDomain());
+
+				if (result.hasMore()) {
+
+					SearchResult rs = (SearchResult) result.next();
+					Attributes attrs = rs.getAttributes();
+					userId = ActiveDirectory.getObjectSID(attrs);
+				}
+
+			} catch (SmbAuthException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (SmbAuthException) : "
+								+ e.getMessage());
+			} catch (UnknownHostException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (UnknownHostException) : "
+								+ e.getMessage());
+			} catch (SmbException e) {
+				Logging.warn(e);
+				throw new AuthException(
+						"Authentication error (SmbException) : "
+								+ e.getMessage());
+			} catch (NamingException e) {
+				Logging.warn(e);
+				throw new AuthException("LDAP error (NamingException) : "
+						+ e.getMessage());
+			} finally {
+				activeDirectory.close();
+			}
+		}
+		return new User(request, userId, username, password);
+	}
 }

@@ -164,15 +164,33 @@ public class RendererField {
 		return fieldType;
 	}
 
-	public FieldValueItem[] getFieldValue(ResultDocument resultDocument) {
-		if (fieldType == RendererFieldType.FIELD)
-			return resultDocument.getValueArray(fieldName);
-		else if (fieldType == RendererFieldType.SNIPPET)
-			return resultDocument.getSnippetArray(fieldName);
+	private String[] getValues(FieldValueItem[] fieldValueItemArray,
+			boolean replace) {
+		if (fieldValueItemArray == null)
+			return null;
+		replace = replace && !StringUtils.isEmpty(pattern);
+		String[] fields = new String[fieldValueItemArray.length];
+		int i = 0;
+		for (FieldValueItem fieldValueItem : fieldValueItemArray) {
+			String value = fieldValueItem.value;
+			if (value != null && replace)
+				value = value.replaceAll(pattern, replacement);
+			fields[i++] = value;
+		}
+		return fields;
+	}
+
+	final public String[] getFieldValue(ResultDocument resultDocument) {
+		if (fieldType == RendererFieldType.FIELD) {
+			boolean replace = StringUtils.isEmpty(urlFieldName)
+					|| (urlFieldName != null && urlFieldName.equals(fieldName));
+			return getValues(resultDocument.getValueArray(fieldName), replace);
+		} else if (fieldType == RendererFieldType.SNIPPET)
+			return getValues(resultDocument.getSnippetArray(fieldName), false);
 		return null;
 	}
 
-	public String getUrlField(ResultDocument resultDocument) {
+	final public String getUrlField(ResultDocument resultDocument) {
 		if (urlFieldName == null)
 			return null;
 		String url = resultDocument.getValueContent(urlFieldName, 0);
