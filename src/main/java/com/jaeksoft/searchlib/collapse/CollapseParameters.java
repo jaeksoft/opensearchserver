@@ -24,11 +24,15 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionConcat;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionCount;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMaximum;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMinimum;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 
 public class CollapseParameters {
 
@@ -107,13 +111,20 @@ public class CollapseParameters {
 			this.executorClass = executorClass;
 		}
 
-		public String getLabel() {
+		final public String getLabel() {
 			return label;
 		}
 
-		public FunctionExecutor newExecutor() throws InstantiationException,
-				IllegalAccessException {
-			return executorClass.newInstance();
+		final public FunctionExecutor newExecutor(
+				final CollapseFunctionField collapseFunctionField,
+				final ReaderAbstract reader,
+				final CollapseDocInterface collapseDocInterface)
+				throws InstantiationException, IllegalAccessException,
+				IOException {
+			FunctionExecutor executor = executorClass.newInstance();
+			executor.prepare(collapseFunctionField, reader,
+					collapseDocInterface);
+			return executor;
 		}
 	}
 

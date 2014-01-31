@@ -23,28 +23,63 @@
  **/
 package com.jaeksoft.searchlib.collapse;
 
-import java.text.ParseException;
+import java.io.IOException;
 
-import com.jaeksoft.searchlib.geo.GeoDistance;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.result.collector.CollapseDistanceInterface;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 
 public class CollapseFunction {
 
 	static abstract class FunctionExecutor {
 
-		abstract String execute(final FieldCacheIndex stringIndex,
-				final int doc, final int[] collapsedDocs);
+		private CollapseDocInterface collapseDocInterface;
+		protected FieldCacheIndex stringIndex = null;
+		protected CollapseDistanceInterface collapseDistanceInterface = null;
 
-		abstract String execute(final GeoDistance geoDistance, final int doc,
-				final int[] collapsedDocs) throws ParseException;
+		final void prepare(CollapseFunctionField collapseFunctionField,
+				ReaderAbstract reader, CollapseDocInterface collapseDocInterface)
+				throws IOException {
+			this.collapseDocInterface = collapseDocInterface;
+			if (collapseFunctionField.isDistance()) {
+				collapseDistanceInterface = collapseDocInterface
+						.getCollector(CollapseDistanceInterface.class);
+			} else {
+				stringIndex = reader.getStringIndex(collapseFunctionField
+						.getField());
+			}
+		}
+
+		final String executeByPos(final int pos) {
+			if (stringIndex != null) {
+				final int doc = collapseDocInterface.getIds()[pos];
+				final int[] collapsedDocs = collapseDocInterface
+						.getCollapsedDocs(pos);
+				return executeStringIndex(doc, collapsedDocs);
+			}
+			if (collapseDistanceInterface != null) {
+				final float docDistance = collapseDistanceInterface
+						.getDistances()[pos];
+				final float[] collapsedDistances = collapseDistanceInterface
+						.getCollapsedDistances(pos);
+				return executeDistance(docDistance, collapsedDistances);
+			}
+			return null;
+		}
+
+		abstract String executeStringIndex(final int doc,
+				final int[] collapsedDocs);
+
+		abstract String executeDistance(final float docDistance,
+				final float[] collapsedDistances);
 
 	}
 
 	static class FunctionMinimum extends FunctionExecutor {
 
 		@Override
-		final String execute(final FieldCacheIndex stringIndex, final int doc,
-				final int[] collapsedDocs) {
+		final String executeStringIndex(final int doc, final int[] collapsedDocs) {
 			int min = stringIndex.order[doc];
 			for (int id : collapsedDocs) {
 				int pos = stringIndex.order[id];
@@ -55,14 +90,12 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final GeoDistance geoDistance, final int doc,
-				final int[] collapsedDocs) throws ParseException {
-			double min = geoDistance.getDistance(doc);
-			for (int id : collapsedDocs) {
-				double val = geoDistance.getDistance(id);
-				if (val < min)
-					min = val;
-			}
+		final String executeDistance(final float docDistance,
+				final float[] collapsedDistances) {
+			double min = docDistance;
+			for (float distance : collapsedDistances)
+				if (distance < min)
+					min = distance;
 			return Double.toString(min);
 		}
 	}
@@ -70,8 +103,7 @@ public class CollapseFunction {
 	static class FunctionMaximum extends FunctionExecutor {
 
 		@Override
-		final String execute(final FieldCacheIndex stringIndex, final int doc,
-				final int[] collapsedDocs) {
+		final String executeStringIndex(final int doc, final int[] collapsedDocs) {
 			int max = stringIndex.order[doc];
 			for (int id : collapsedDocs) {
 				int pos = stringIndex.order[id];
@@ -82,14 +114,12 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final GeoDistance geoDistance, final int doc,
-				final int[] collapsedDocs) throws ParseException {
-			double max = geoDistance.getDistance(doc);
-			for (int id : collapsedDocs) {
-				double val = geoDistance.getDistance(id);
-				if (val > max)
-					max = val;
-			}
+		final String executeDistance(final float docDistance,
+				final float[] collapsedDistances) {
+			double max = docDistance;
+			for (float distance : collapsedDistances)
+				if (distance > max)
+					max = distance;
 			return Double.toString(max);
 		}
 	}
@@ -97,8 +127,7 @@ public class CollapseFunction {
 	static class FunctionConcat extends FunctionExecutor {
 
 		@Override
-		String execute(final FieldCacheIndex stringIndex, final int doc,
-				final int[] collapsedDocs) {
+		String executeStringIndex(final int doc, final int[] collapsedDocs) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(stringIndex.lookup[stringIndex.order[doc]]);
 			for (int id : collapsedDocs) {
@@ -109,13 +138,13 @@ public class CollapseFunction {
 		}
 
 		@Override
-		final String execute(final GeoDistance geoDistance, final int doc,
-				final int[] collapsedDocs) throws ParseException {
+		final String executeDistance(final float docDistance,
+				final float[] collapsedDistances) {
 			StringBuilder sb = new StringBuilder();
-			sb.append(geoDistance.getDistance(doc));
-			for (int id : collapsedDocs) {
+			sb.append(docDistance);
+			for (float distance : collapsedDistances) {
 				sb.append('|');
-				sb.append(geoDistance.getDistance(id));
+				sb.append(distance);
 			}
 			return sb.toString();
 		}
@@ -124,15 +153,14 @@ public class CollapseFunction {
 	static class FunctionCount extends FunctionExecutor {
 
 		@Override
-		String execute(final FieldCacheIndex stringIndex, final int doc,
-				final int[] collapsedDocs) {
+		String executeStringIndex(final int doc, final int[] collapsedDocs) {
 			return Integer.toString(collapsedDocs.length + 1);
 		}
 
 		@Override
-		String execute(final GeoDistance geoDistance, final int doc,
-				final int[] collapsedDocs) throws ParseException {
-			return Integer.toString(collapsedDocs.length + 1);
+		String executeDistance(final float docDistance,
+				final float[] collapsedDistances) {
+			return Integer.toString(collapsedDistances.length + 1);
 		}
 	}
 

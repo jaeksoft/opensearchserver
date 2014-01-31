@@ -118,7 +118,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					.getCollapseFunctionFields();
 			if (functionFields != null)
 				for (CollapseFunctionField functionField : functionFields)
-					functionField.prepareExecute(request, reader);
+					functionField
+							.prepareExecute(request, reader, collapsedDocs);
 		}
 
 		// We compute facet
@@ -189,8 +190,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					.getCollapseFunctionFields();
 			if (functionFields != null && collapsedDocs != null)
 				for (CollapseFunctionField functionField : functionFields)
-					resultDocument.addFunctionField(functionField,
-							collapsedDocs, reader, timer);
+					resultDocument.addFunctionField(functionField, reader, pos,
+							timer);
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
 			if (collapsedDocs != null)

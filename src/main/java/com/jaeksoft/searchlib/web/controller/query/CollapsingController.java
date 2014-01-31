@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -90,8 +90,7 @@ public class CollapsingController extends AbstractQueryController {
 		getIndexedFields();
 		if (indexedFields != null)
 			functionFields.addAll(indexedFields);
-		for (String function : CollapseFunctionField.DIST_FUNCTIONS)
-			functionFields.add(function);
+		functionFields.add(CollapseFunctionField.DISTANCE);
 		return functionFields;
 	}
 
