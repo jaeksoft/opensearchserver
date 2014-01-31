@@ -74,4 +74,6 @@ public abstract class SorterAbstract implements IntComparator {
 
 	public abstract boolean isScore();
 
+	public abstract boolean isDistance();
+
 }

@@ -22,38 +22,10 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.sort;
+package com.jaeksoft.searchlib.result.collector;
 
-import com.jaeksoft.searchlib.result.collector.CollectorInterface;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+public interface CollapseDistanceInterface extends DistanceInterface {
 
-public abstract class AbstractDocIdSorter extends SorterAbstract {
+	float[] getCollapsedDistances(int pos);
 
-	final protected int[] ids;
-
-	protected AbstractDocIdSorter(final CollectorInterface collector) {
-		super(collector);
-		DocIdInterface docIdCollector = collector
-				.getCollector(DocIdInterface.class);
-		if (docIdCollector == null)
-			throw new RuntimeException("Wrong collector: " + collector);
-		ids = docIdCollector.getIds();
-	}
-
-	@Override
-	final public boolean isScore() {
-		return false;
-	}
-
-	@Override
-	final public boolean isDistance() {
-		return false;
-	}
-
-	@Override
-	public String toString(final int pos) {
-		StringBuilder sb = new StringBuilder("DocId: ");
-		sb.append(ids[pos]);
-		return sb.toString();
-	}
 }

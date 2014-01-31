@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,19 +25,24 @@
 package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 
-public abstract class AbstractDocIdSorter extends SorterAbstract {
+public abstract class AbstractDistanceSorter extends SorterAbstract {
 
-	final protected int[] ids;
+	final protected float[] distances;
 
-	protected AbstractDocIdSorter(final CollectorInterface collector) {
+	protected AbstractDistanceSorter(final CollectorInterface collector) {
 		super(collector);
-		DocIdInterface docIdCollector = collector
-				.getCollector(DocIdInterface.class);
-		if (docIdCollector == null)
-			throw new RuntimeException("Wrong collector: " + collector);
-		ids = docIdCollector.getIds();
+		DistanceInterface distanceCollector = collector
+				.getCollector(DistanceInterface.class);
+		if (distanceCollector == null)
+			throw new RuntimeException("Wrong collector " + collector);
+		distances = distanceCollector.getDistances();
+	}
+
+	@Override
+	final public boolean isDistance() {
+		return true;
 	}
 
 	@Override
@@ -46,14 +51,10 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 	}
 
 	@Override
-	final public boolean isDistance() {
-		return false;
-	}
-
-	@Override
 	public String toString(final int pos) {
-		StringBuilder sb = new StringBuilder("DocId: ");
-		sb.append(ids[pos]);
+		StringBuilder sb = new StringBuilder("Distance: ");
+		sb.append(distances[pos]);
 		return sb.toString();
 	}
+
 }

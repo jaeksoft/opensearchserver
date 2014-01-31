@@ -30,6 +30,8 @@ public interface DistanceInterface extends CollectorInterface {
 
 	public float getMaxDistance();
 
+	public float getMinDistance();
+
 	public float[] getDistances();
 
 }

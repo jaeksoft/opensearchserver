@@ -55,6 +55,14 @@ public class MultiSort extends SorterAbstract {
 	}
 
 	@Override
+	final public boolean isDistance() {
+		for (SorterAbstract sorter : sorters)
+			if (sorter.isDistance())
+				return true;
+		return false;
+	}
+
+	@Override
 	final public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder('[');
 		for (SorterAbstract sorter : sorters) {

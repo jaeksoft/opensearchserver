@@ -71,6 +71,14 @@ public class SortListSorter extends SorterAbstract {
 	}
 
 	@Override
+	final public boolean isDistance() {
+		for (SorterAbstract sorter : sorterList)
+			if (sorter.isDistance())
+				return true;
+		return false;
+	}
+
+	@Override
 	final public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder('[');
 		for (SorterAbstract sorter : sorterList) {

@@ -46,6 +46,11 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 	}
 
 	@Override
+	final public boolean isDistance() {
+		return false;
+	}
+
+	@Override
 	public String toString(final int pos) {
 		StringBuilder sb = new StringBuilder("Score: ");
 		sb.append(scores[pos]);
