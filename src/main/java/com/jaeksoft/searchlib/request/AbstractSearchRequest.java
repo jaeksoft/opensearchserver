@@ -61,6 +61,7 @@ import com.jaeksoft.searchlib.filter.RelativeDateFilter;
 import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
+import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.join.JoinList;
@@ -546,6 +547,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	public boolean isDistanceRequired() {
 		rwl.r.lock();
 		try {
+			if (geoParameters != null)
+				if (geoParameters.getDistanceReturn() != DistanceReturn.NO_DISTANCE)
+					return true;
 			if (sortFieldList.isDistance())
 				return true;
 			if (advancedScore != null)

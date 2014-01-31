@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,6 @@ import java.util.TreeSet;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -271,17 +270,11 @@ public class ResultDocument {
 	}
 
 	public void addFunctionField(CollapseFunctionField functionField,
-			int[] collapsedDocs, ReaderAbstract reader, Timer timer)
-			throws IOException, java.text.ParseException,
-			InstantiationException, IllegalAccessException {
-		if (collapsedDocs == null)
-			return;
-		FieldCacheIndex stringIndex = reader.getStringIndex(functionField
-				.getField());
-		if (stringIndex == null)
-			return;
+			ReaderAbstract reader, int pos, Timer timer) throws IOException,
+			java.text.ParseException, InstantiationException,
+			IllegalAccessException {
 		functionFieldValue.add(new FunctionFieldValue(functionField,
-				functionField.execute(docId, collapsedDocs)));
+				functionField.executeByPos(pos)));
 	}
 
 	public List<FunctionFieldValue> getFunctionFieldValues() {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,35 +25,23 @@
 package com.jaeksoft.searchlib.sort;
 
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 
-public abstract class AbstractDocIdSorter extends SorterAbstract {
+public class AscDistanceSorter extends AbstractDistanceSorter {
 
-	final protected int[] ids;
-
-	protected AbstractDocIdSorter(final CollectorInterface collector) {
+	public AscDistanceSorter(final CollectorInterface collector) {
 		super(collector);
-		DocIdInterface docIdCollector = collector
-				.getCollector(DocIdInterface.class);
-		if (docIdCollector == null)
-			throw new RuntimeException("Wrong collector: " + collector);
-		ids = docIdCollector.getIds();
 	}
 
 	@Override
-	final public boolean isScore() {
-		return false;
+	final public int compare(final int pos1, final int pos2) {
+		float d1 = distances[pos1];
+		float d2 = distances[pos2];
+		if (d1 > d2)
+			return 1;
+		else if (d1 < d2)
+			return -1;
+		else
+			return 0;
 	}
 
-	@Override
-	final public boolean isDistance() {
-		return false;
-	}
-
-	@Override
-	public String toString(final int pos) {
-		StringBuilder sb = new StringBuilder("DocId: ");
-		sb.append(ids[pos]);
-		return sb.toString();
-	}
 }

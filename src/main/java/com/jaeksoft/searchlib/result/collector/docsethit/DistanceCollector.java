@@ -48,6 +48,8 @@ public class DistanceCollector
 
 	private float[] distances;
 
+	private float minDistance;
+
 	private float maxDistance;
 
 	private final double radius;
@@ -75,6 +77,7 @@ public class DistanceCollector
 		currentDistance = 0;
 		currentDoc = -1;
 		maxDistance = 0;
+		minDistance = Float.MAX_VALUE;
 	}
 
 	private DistanceCollector(final DocSetHitBaseCollector base,
@@ -104,6 +107,8 @@ public class DistanceCollector
 		currentDistance = (float) dist;
 		if (currentDistance > maxDistance)
 			maxDistance = currentDistance;
+		if (currentDistance < minDistance)
+			minDistance = currentDistance;
 		distancesBuffer.add(currentDistance);
 	}
 
@@ -141,6 +146,11 @@ public class DistanceCollector
 	@Override
 	final public float getMaxDistance() {
 		return maxDistance;
+	}
+
+	@Override
+	final public float getMinDistance() {
+		return minDistance;
 	}
 
 	@Override

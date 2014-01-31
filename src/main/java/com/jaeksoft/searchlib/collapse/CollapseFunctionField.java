@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,38 +33,30 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionExecutor;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Function;
-import com.jaeksoft.searchlib.geo.GeoDistance;
-import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class CollapseFunctionField implements Comparable<CollapseFunctionField> {
 
-	public final static String DIST_KM = "dist_km()";
-	public final static String DIST_MILES = "dist_miles()";
-
-	public final static String[] DIST_FUNCTIONS = { DIST_KM, DIST_MILES };
+	public final static String DISTANCE = "__distance__";
 
 	private Function function;
 	private String field;
-	private transient FieldCacheIndex stringIndex;
-	private transient GeoDistance geoDistance;;
+
 	private transient FunctionExecutor executor;
 
 	public CollapseFunctionField(Function function, String field) {
 		this.function = function;
 		this.field = field;
-		this.stringIndex = null;
 	}
 
 	public CollapseFunctionField(CollapseFunctionField functionField) {
 		this.function = functionField.function;
 		this.field = functionField.field;
-		this.stringIndex = null;
 	}
 
 	/**
@@ -105,25 +97,18 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 		return StringUtils.compareNullString(field, functionField.field);
 	}
 
-	public void prepareExecute(AbstractSearchRequest searchRequest,
-			ReaderAbstract reader) throws IOException, InstantiationException,
-			IllegalAccessException {
-		this.stringIndex = reader.getStringIndex(field);
-		double radius = 0;
-		if (DIST_KM.equals(field))
-			radius = Geospatial.EARTH_RADIUS_KM;
-		else if (DIST_MILES.equals(field))
-			radius = Geospatial.EARTH_RADIUS_MILES;
-		geoDistance = radius == 0 ? null : searchRequest.getGeoParameters()
-				.getGeoDistance(reader, radius);
-		executor = function.newExecutor();
+	final public boolean isDistance() {
+		return DISTANCE.equals(field);
 	}
 
-	public String execute(int doc, int[] collapsedDocs) throws ParseException {
-		if (geoDistance != null)
-			return executor.execute(geoDistance, doc, collapsedDocs);
-		else
-			return executor.execute(stringIndex, doc, collapsedDocs);
+	public void prepareExecute(AbstractSearchRequest searchRequest,
+			ReaderAbstract reader, CollapseDocInterface collapseDocCollector)
+			throws IOException, InstantiationException, IllegalAccessException {
+		executor = function.newExecutor(this, reader, collapseDocCollector);
+	}
+
+	public String executeByPos(int pos) throws ParseException {
+		return executor.executeByPos(pos);
 	}
 
 	public static Set<CollapseFunctionField> duplicate(
