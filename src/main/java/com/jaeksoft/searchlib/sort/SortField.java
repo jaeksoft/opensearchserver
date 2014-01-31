@@ -186,7 +186,7 @@ public class SortField extends AbstractField<SortField> implements
 		int c;
 		if ((c = super.compareTo(o)) != 0)
 			return c;
-		if ((c = Integer.compare(joinNumber, o.joinNumber)) != 0)
+		if ((c = joinNumber - o.joinNumber) != 0)
 			return c;
 		if (desc == o.desc)
 			return 0;

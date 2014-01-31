@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,12 +57,16 @@ public class XPathParser {
 	private final Map<String, XPathExpression> xPathExpressions;
 
 	private XPathParser(File currentFile, Node rootNode) {
-		synchronized (xPathfactory) {
-			xPath = xPathfactory.newXPath();
-		}
+		this.xPath = getXPath();
 		this.currentFile = currentFile;
 		this.rootNode = rootNode;
 		this.xPathExpressions = new TreeMap<String, XPathExpression>();
+	}
+
+	public static XPath getXPath() {
+		synchronized (xPathfactory) {
+			return xPathfactory.newXPath();
+		}
 	}
 
 	public XPathParser(File file) throws ParserConfigurationException,
@@ -91,18 +95,14 @@ public class XPathParser {
 		return currentFile;
 	}
 
-	private final QName[] RETURN_TYPES = { XPathConstants.NODESET,
+	private static final QName[] RETURN_TYPES = { XPathConstants.NODESET,
 			XPathConstants.NODE, XPathConstants.STRING, XPathConstants.NUMBER,
 			XPathConstants.BOOLEAN };
 
-	final public Object evaluate(final Node parentNode, final String query)
+	final public static Object evaluate(final Node parentNode,
+			final XPathExpression xPathExpression)
 			throws XPathExpressionException {
 		XPathExpressionException lastError = null;
-		XPathExpression xPathExpression = xPathExpressions.get(query);
-		if (xPathExpression == null) {
-			xPathExpression = xPath.compile(query);
-			xPathExpressions.put(query, xPathExpression);
-		}
 		for (QName qname : RETURN_TYPES) {
 			try {
 				Object result = xPathExpression.evaluate(parentNode, qname);
@@ -115,6 +115,16 @@ public class XPathParser {
 		if (lastError != null)
 			throw lastError;
 		return null;
+	}
+
+	final public Object evaluate(final Node parentNode, final String query)
+			throws XPathExpressionException {
+		XPathExpression xPathExpression = xPathExpressions.get(query);
+		if (xPathExpression == null) {
+			xPathExpression = xPath.compile(query);
+			xPathExpressions.put(query, xPathExpression);
+		}
+		return evaluate(parentNode, xPathExpression);
 	}
 
 	public Object evaluate(Node parentNode, String query, QName returnType)

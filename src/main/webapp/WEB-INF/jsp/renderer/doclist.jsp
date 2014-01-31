@@ -4,7 +4,6 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererWidgets"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
-<%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
 <%
 	AbstractResultSearch result = (AbstractResultSearch) request
 			.getAttribute("result");
@@ -27,12 +26,12 @@
 						request.setAttribute("fieldPos", fieldPos);
 						RendererWidgets widget = rendererField
 								.getWidgetName();
-						FieldValueItem[] fieldValueItems = rendererField
+						String[] fieldValues = rendererField
 								.getFieldValue(resultDocument);
-						if (fieldValueItems != null) {
-							for (FieldValueItem fieldValueItem : fieldValueItems) {
-								request.setAttribute("fieldValueItem",
-										fieldValueItem);
+						if (fieldValues != null) {
+							for (String fieldValue : fieldValues) {
+								request.setAttribute("rendererValues",
+										fieldValues);
 								request.setAttribute("rendererField",
 										rendererField);
 	%>
