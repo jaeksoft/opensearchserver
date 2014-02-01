@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.rest;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
@@ -42,6 +43,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
+@AfterCompose(superclass = true)
 public class RestCrawlController
 		extends
 		CommonFieldTargetCrawlerController<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {

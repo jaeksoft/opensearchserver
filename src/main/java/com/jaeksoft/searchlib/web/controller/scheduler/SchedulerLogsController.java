@@ -26,11 +26,14 @@ package com.jaeksoft.searchlib.web.controller.scheduler;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class SchedulerLogsController extends CommonController {
 
 	private transient JobItem selectedJob;

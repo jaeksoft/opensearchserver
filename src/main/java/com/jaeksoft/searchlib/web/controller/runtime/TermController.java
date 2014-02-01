@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Filedownload;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class TermController extends CommonController {
 
 	public class TermFreq {

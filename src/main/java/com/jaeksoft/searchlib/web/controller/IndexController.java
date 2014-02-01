@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.zk.ui.Executions;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -31,6 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@AfterCompose(superclass = true)
 public class IndexController extends CommonController {
 
 	public IndexController() throws SearchLibException, InterruptedException {

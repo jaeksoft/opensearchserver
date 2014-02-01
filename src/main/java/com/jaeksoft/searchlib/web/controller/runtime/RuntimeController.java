@@ -36,6 +36,7 @@ import org.zkoss.zul.Tabbox;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class RuntimeController extends CommonController {
 
 	@Wire("#tabRuntime")

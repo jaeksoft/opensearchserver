@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -396,7 +396,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return sb.toString();
 	}
 
-	public boolean check() throws InstantiationException,
+	public String check() throws InstantiationException,
 			IllegalAccessException, SearchLibException, URISyntaxException,
 			UnsupportedEncodingException {
 		if (Logging.isDebug)

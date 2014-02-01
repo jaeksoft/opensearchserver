@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,7 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.util.IOUtils;
 
 public class DownloadItem {
@@ -56,6 +56,7 @@ public class DownloadItem {
 	private String contentLocation = null;
 	private Long lastModified = null;
 	private Integer statusCode = null;
+	private String reasonPhrase = null;
 	private InputStream contentInputStream = null;
 	private boolean fromCache = false;
 	private List<String> headers = null;
@@ -74,6 +75,7 @@ public class DownloadItem {
 	protected final static String KEY_CONTENT_ENCODING = "KEY_CONTENT_ENCODING";
 	protected final static String KEY_CONTENT_LOCATION = "KEY_CONTENT_LOCATION";
 	protected final static String KEY_STATUS_CODE = "KEY_STATUS_CODE";
+	protected final static String KEY_REASON_PHRASE = "KEY_REASON_PHRASE";
 	protected final static String KEY_HEADERS = "KEY_HEADERS";
 
 	public String getMetaAsJson() throws JSONException {
@@ -106,6 +108,9 @@ public class DownloadItem {
 
 		if (statusCode != null)
 			json.put(KEY_STATUS_CODE, statusCode);
+
+		if (reasonPhrase != null)
+			json.put(KEY_REASON_PHRASE, reasonPhrase);
 
 		if (headers != null)
 			json.put(KEY_HEADERS, headers);
@@ -147,6 +152,9 @@ public class DownloadItem {
 
 		if (json.has(KEY_STATUS_CODE))
 			statusCode = json.getInt(KEY_STATUS_CODE);
+
+		if (json.has(KEY_REASON_PHRASE))
+			reasonPhrase = json.getString(KEY_REASON_PHRASE);
 
 		if (json.has(KEY_HEADERS)) {
 			headers = new ArrayList<String>();
@@ -280,19 +288,24 @@ public class DownloadItem {
 		return statusCode;
 	}
 
-	public boolean checkNoError(int fromInclusive, int toExclusive) {
+	public void checkNoError(int fromInclusive, int toExclusive)
+			throws WrongStatusCodeException {
 		if (statusCode == null)
-			return false;
-		return statusCode >= fromInclusive && statusCode < toExclusive;
+			throw new WrongStatusCodeException("No status code - ", uri);
+		if (statusCode < fromInclusive || statusCode >= toExclusive)
+			throw new WrongStatusCodeException("Wrong status code: ",
+					statusCode, ' ', reasonPhrase, " - ", uri);
 	}
 
-	public void checkNoError(int... validCodes) throws SearchLibException {
+	public void checkNoError(int... validCodes) throws WrongStatusCodeException {
 		if (statusCode == null)
-			throw new SearchLibException("No status code");
+			throw new WrongStatusCodeException("Wrong status code: ",
+					statusCode, ' ', reasonPhrase, " - ", uri);
 		for (int validCode : validCodes)
 			if (statusCode == validCode)
 				return;
-		throw new SearchLibException("Wrong status code: " + statusCode);
+		throw new WrongStatusCodeException("Wrong status code: ", statusCode,
+				' ', reasonPhrase, " - ", uri);
 	}
 
 	/**
@@ -301,6 +314,21 @@ public class DownloadItem {
 	 */
 	public void setStatusCode(Integer statusCode) {
 		this.statusCode = statusCode;
+	}
+
+	/**
+	 * @return the reasonPhrase
+	 */
+	public String getReasonPhrase() {
+		return reasonPhrase;
+	}
+
+	/**
+	 * @param reasonPhrase
+	 *            the reasonPhrase to set
+	 */
+	public void setReasonPhrase(String reasonPhrase) {
+		this.reasonPhrase = reasonPhrase;
 	}
 
 	/**

@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -37,6 +38,7 @@ import com.jaeksoft.searchlib.analysis.stopwords.AbstractDirectoryManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public abstract class CommonDirectoryController<T> extends CommonController {
 
 	private transient String editName;

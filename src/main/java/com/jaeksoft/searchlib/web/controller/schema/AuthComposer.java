@@ -26,11 +26,14 @@ package com.jaeksoft.searchlib.web.controller.schema;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class AuthComposer extends CommonController {
 
 	public AuthComposer() throws SearchLibException {

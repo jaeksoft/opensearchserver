@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
 import org.zkoss.bind.BindContext;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
 import org.zkoss.bind.annotation.ContextType;
@@ -53,6 +54,7 @@ import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
+@AfterCompose(superclass = true)
 public abstract class AbstractUploadController extends CommonController {
 
 	public abstract class AbstractUpdateThread extends
