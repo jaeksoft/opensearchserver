@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.transform.stream.StreamSource;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
+@AfterCompose(superclass = true)
 public class UploadTxtController extends AbstractUploadController {
 
 	public class UpdateTxtThread extends AbstractUpdateThread {

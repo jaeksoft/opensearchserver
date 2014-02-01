@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -347,6 +347,14 @@ public abstract class HttpAbstract {
 			if (statusLine == null)
 				return null;
 			return statusLine.getStatusCode();
+		}
+	}
+
+	public String getReasonPhrase() {
+		synchronized (this) {
+			if (statusLine == null)
+				return null;
+			return statusLine.getReasonPhrase();
 		}
 	}
 

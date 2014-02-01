@@ -101,6 +101,7 @@ public class HttpDownloader extends HttpAbstract {
 		downloadItem.setContentLocation(getContentLocation());
 		downloadItem.setContentTypeCharset(getContentTypeCharset());
 		downloadItem.setStatusCode(getStatusCode());
+		downloadItem.setReasonPhrase(getReasonPhrase());
 		downloadItem.setContentInputStream(getContent());
 		downloadItem.setHeaders(getHeaders());
 		return downloadItem;

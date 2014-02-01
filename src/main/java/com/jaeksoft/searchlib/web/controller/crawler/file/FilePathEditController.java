@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -47,6 +48,7 @@ import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToke
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
+@AfterCompose(superclass = true)
 public class FilePathEditController extends FileCrawlerController {
 
 	private FilePathItem currentFilePath;

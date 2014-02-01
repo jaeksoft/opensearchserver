@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
+@AfterCompose(superclass = true)
 public class ClusterComposer extends CommonController {
 
 	public ClusterComposer() throws SearchLibException {

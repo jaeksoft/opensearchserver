@@ -89,9 +89,9 @@ public class OsseJNILibrary {
 			int[] lpui32FieldIdArray, int ui32FieldIdArraySize,
 			boolean bSortArrayByFieldId, long hExtErrInfo);
 
-	public native long OSSCLib_MsIndex_GetFieldNameAndProperties(long hMsIndex,
-			int ui32MsFieldId, long lpui32FieldType, long lpui32FieldFlags,
-			long hExtErrInfo);
+	public native String OSSCLib_MsIndex_GetFieldNameAndProperties(
+			long hMsIndex, int ui32MsFieldId, long lpui32FieldType,
+			long lpui32FieldFlags, long hExtErrInfo);
 
 	public native long OSSCLib_MsQCursor_Create(long hMsIndex,
 			int ui32MsFieldId, long lplpsu8zTerm, int ui32NumberOfTerms,

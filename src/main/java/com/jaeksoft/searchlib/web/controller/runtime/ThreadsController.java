@@ -28,12 +28,15 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.ThreadInfo;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class ThreadsController extends CommonController {
 
 	private List<ThreadInfo> threadList = null;

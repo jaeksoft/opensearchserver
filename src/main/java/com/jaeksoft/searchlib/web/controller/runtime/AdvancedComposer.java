@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
@@ -40,6 +41,7 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class AdvancedComposer extends CommonController {
 
 	public AdvancedComposer() throws SearchLibException {

@@ -32,7 +32,7 @@ import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-public class OsseLibrary {
+public class OsseJNALibrary {
 
 	final public static int OSSCLIB_FIELD_UI32FIELDTYPE_STRING = 1;
 	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET = 0x00000002;
@@ -151,9 +151,9 @@ public class OsseLibrary {
 			Pointer hMsDocTCursor, Pointer hExtErrInfo);
 
 	static {
-		Native.register("OpenSearchServer_CLib");
-		System.out.println("Native version " + Native.VERSION);
-		System.out.println("Native protected? " + Native.isProtected());
+		// Native.register("OpenSearchServer_CLib");
+		// System.out.println("Native version " + Native.VERSION);
+		// System.out.println("Native protected? " + Native.isProtected());
 	}
 
 }

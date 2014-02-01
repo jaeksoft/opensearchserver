@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.web.controller.report;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
 import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class ReportsController extends CommonController {
 
 	public ReportsController() throws SearchLibException {

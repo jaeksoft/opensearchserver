@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
+import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -166,7 +166,7 @@ public class StartStopListener implements ServletContextListener {
 		ErrorParserLogger.init();
 
 		Logging.info("Native library version: "
-				+ OsseLibrary.OSSCLib_GetVersionInfoText());
+				+ OsseIndex.LIB.OSSCLib_GetVersionInfoText());
 
 		try {
 			ClientFactory.setInstance(new ClientFactory());

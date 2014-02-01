@@ -23,6 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 
@@ -32,6 +33,7 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class FileCrawlerController extends CrawlerController {
 
 	public FileCrawlerController() throws SearchLibException {

@@ -54,9 +54,9 @@ public class OsseCursor implements PointerProvider, Closeable {
 				Integer.toString(fieldId), " ", terms.toString(), " ",
 				Integer.toString(length), " ",
 				Integer.toString(booleanOperator));
-		this.cursorPtr = OsseLibrary.OSSCLib_MsQCursor_Create(
-				index.getPointer(), fieldId, terms, length, booleanOperator,
-				error.getPointer());
+		this.cursorPtr = OsseJNALibrary.OSSCLib_MsQCursor_Create(new Pointer(
+				index.getPointer()), fieldId, terms, length, booleanOperator,
+				new Pointer(error.getPointer()));
 		et.end();
 		if (cursorPtr == null)
 			error.checkNoError();
@@ -72,10 +72,11 @@ public class OsseCursor implements PointerProvider, Closeable {
 			ossePointerArray = new OssePointerArray(null, cursors);
 			ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsQCursor_CreateCombinedCursor");
-			this.cursorPtr = OsseLibrary
-					.OSSCLib_MsQCursor_CreateCombinedCursor(index.getPointer(),
-							ossePointerArray, cursors.size(), booleanOperator,
-							error.getPointer());
+			this.cursorPtr = OsseJNALibrary
+					.OSSCLib_MsQCursor_CreateCombinedCursor(
+							new Pointer(index.getPointer()), ossePointerArray,
+							cursors.size(), booleanOperator,
+							new Pointer(error.getPointer()));
 			et.end();
 			if (cursorPtr == null)
 				error.checkNoError();
@@ -90,7 +91,7 @@ public class OsseCursor implements PointerProvider, Closeable {
 			return;
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsQCursor_Delete");
-		OsseLibrary.OSSCLib_MsQCursor_Delete(cursorPtr);
+		OsseJNALibrary.OSSCLib_MsQCursor_Delete(cursorPtr);
 		et.end();
 		cursorPtr = null;
 	}
@@ -101,8 +102,9 @@ public class OsseCursor implements PointerProvider, Closeable {
 		IntByReference success = new IntByReference();
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsQCursor_GetDocIds");
-		int count = OsseLibrary.OSSCLib_MsQCursor_GetDocIds(cursorPtr, docIds,
-				startPos, false, docIds.length, success, error.getPointer());
+		int count = OsseJNALibrary.OSSCLib_MsQCursor_GetDocIds(cursorPtr,
+				docIds, startPos, false, docIds.length, success, new Pointer(
+						error.getPointer()));
 		et.end();
 		if (success.getValue() == 0)
 			error.checkNoError();
@@ -113,8 +115,8 @@ public class OsseCursor implements PointerProvider, Closeable {
 		IntByReference success = new IntByReference();
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsQCursor_GetDocIds");
-		long number = OsseLibrary.OSSCLib_MsQCursor_GetNumberOfDocs(cursorPtr,
-				success, error.getPointer());
+		long number = OsseJNALibrary.OSSCLib_MsQCursor_GetNumberOfDocs(
+				cursorPtr, success, new Pointer(error.getPointer()));
 		et.end();
 		if (success.getValue() == 0)
 			error.checkNoError();

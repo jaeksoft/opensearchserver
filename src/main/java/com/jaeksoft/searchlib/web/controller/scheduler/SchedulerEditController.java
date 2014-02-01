@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.scheduler.TaskEnumItem;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
+@AfterCompose(superclass = true)
 public class SchedulerEditController extends SchedulerController {
 
 	private transient JobItem currentJob;

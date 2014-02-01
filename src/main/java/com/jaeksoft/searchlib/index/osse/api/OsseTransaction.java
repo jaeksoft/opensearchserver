@@ -42,13 +42,13 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
 
 public class OsseTransaction implements Closeable {
 
-	private Pointer transactPtr;
+	private long transactPtr;
 
 	private OsseErrorHandler err;
 
@@ -61,17 +61,17 @@ public class OsseTransaction implements Closeable {
 		memoryBuffer = new MemoryBuffer();
 		err = new OsseErrorHandler();
 		final ExecutionToken et = FunctionTimer.newExecutionToken(
-				"OSSCLib_MsTransact_Begin ", index.getPointer().toString());
-		transactPtr = OsseLibrary.OSSCLib_MsTransact_Begin(index.getPointer(),
-				null, maxBufferSize, err.getPointer());
+				"OSSCLib_MsTransact_Begin ", Long.toString(index.getPointer()));
+		transactPtr = OsseIndex.LIB.OSSCLib_MsTransact_Begin(
+				index.getPointer(), null, maxBufferSize, err.getPointer());
 		et.end();
-		if (transactPtr == null)
+		if (transactPtr == 0)
 			err.throwError();
 		if (fieldInfos != null) {
 			fieldPointerMap = new TreeMap<String, Pointer>();
 			for (FieldInfo fieldInfo : fieldInfos)
-				fieldPointerMap
-						.put(fieldInfo.name, getExistingField(fieldInfo));
+				fieldPointerMap.put(fieldInfo.name, new Pointer(
+						getExistingField(fieldInfo)));
 		} else
 			fieldPointerMap = null;
 	}
@@ -79,11 +79,11 @@ public class OsseTransaction implements Closeable {
 	final public void commit() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsTransact_Commit");
-		if (!OsseLibrary.OSSCLib_MsTransact_Commit(transactPtr, 0, null, null,
+		if (!OsseIndex.LIB.OSSCLib_MsTransact_Commit(transactPtr, 0, 0, 0,
 				err.getPointer()))
 			err.throwError();
 		et.end();
-		transactPtr = null;
+		transactPtr = 0;
 		if (FunctionTimer.MODE != FunctionTimer.Mode.OFF)
 			FunctionTimer.dumpExecutionInfo(true);
 	}
@@ -91,7 +91,7 @@ public class OsseTransaction implements Closeable {
 	final public int newDocumentId() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
-		int documentId = OsseLibrary.OSSCLib_MsTransact_Document_GetNewDocId(
+		int documentId = OsseIndex.LIB.OSSCLib_MsTransact_Document_GetNewDocId(
 				transactPtr, err.getPointer());
 		et.end();
 		err.checkNoError();
@@ -106,13 +106,14 @@ public class OsseTransaction implements Closeable {
 				"OSSCLib_MsTransact_CreateFieldW ", fieldName, " ",
 				Integer.toString(flag));
 		IntByReference fieldId = new IntByReference();
-		Pointer fieldPtr = OsseLibrary.OSSCLib_MsTransact_CreateFieldW(
-				transactPtr, new WString(fieldName),
-				OsseLibrary.OSSCLIB_FIELD_UI32FIELDTYPE_STRING, flag, null,
-				true, fieldId, err.getPointer());
+		long fieldPtr = OsseIndex.LIB.OSSCLib_MsTransact_CreateFieldW(
+				transactPtr, fieldName,
+				OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDTYPE_STRING, flag,
+				(long) 0, true, Memory.nativeValue(fieldId.getPointer()),
+				err.getPointer());
 		et.end();
 		err.checkNoError();
-		if (fieldPtr == null)
+		if (fieldPtr == 0)
 			err.throwError();
 		return fieldId.getValue();
 	}
@@ -121,12 +122,12 @@ public class OsseTransaction implements Closeable {
 		int flag = 0;
 		switch (schemaField.getTermVector()) {
 		case YES:
-			flag += OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
+			flag += OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
 			break;
 		case POSITIONS_OFFSETS:
-			flag = OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
-					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
-					| OsseLibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
+			flag = OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
+					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
+					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
 			break;
 		default:
 			break;
@@ -137,13 +138,13 @@ public class OsseTransaction implements Closeable {
 	final public void deleteField(FieldInfo field) throws SearchLibException {
 		OssePointerArray ossePointerArray = null;
 		try {
-			ossePointerArray = new OssePointerArray(memoryBuffer,
-					getExistingField(field));
+			ossePointerArray = new OssePointerArray(memoryBuffer, new Pointer(
+					getExistingField(field)));
 			final ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsTransact_DeleteFields ", field.name, "(",
 					Integer.toString(field.id), ")");
-			int i = OsseLibrary.OSSCLib_MsTransact_DeleteFields(transactPtr,
-					ossePointerArray, 1, err.getPointer());
+			int i = OsseIndex.LIB.OSSCLib_MsTransact_DeleteFields(transactPtr,
+					Memory.nativeValue(ossePointerArray), 1, err.getPointer());
 			et.end();
 			if (i != 1)
 				err.throwError();
@@ -152,16 +153,17 @@ public class OsseTransaction implements Closeable {
 		}
 	}
 
-	final private Pointer getExistingField(FieldInfo field)
+	final private long getExistingField(FieldInfo field)
 			throws SearchLibException {
 		final ExecutionToken et = FunctionTimer.newExecutionToken(
-				"OSSCLib_MsTransact_GetExistingField ", transactPtr.toString(),
-				" ", field.name, "(", Integer.toString(field.id), ")");
-		Pointer transactFieldPtr = OsseLibrary
+				"OSSCLib_MsTransact_GetExistingField ",
+				Long.toString(transactPtr), " ", field.name, "(",
+				Integer.toString(field.id), ")");
+		long transactFieldPtr = OsseIndex.LIB
 				.OSSCLib_MsTransact_GetExistingField(transactPtr, field.id,
 						err.getPointer());
 		et.end();
-		if (transactFieldPtr == null)
+		if (transactFieldPtr == 0)
 			err.throwError();
 		return transactFieldPtr;
 	}
@@ -174,8 +176,9 @@ public class OsseTransaction implements Closeable {
 			ofsa = new OsseFastStringArray(memoryBuffer, buffer);
 			final ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
-			int res = OsseLibrary.OSSCLib_MsTransact_Document_AddStringTerms(
-					fieldPointerMap.get(fieldInfo.name), documentId, ofsa,
+			int res = OsseIndex.LIB.OSSCLib_MsTransact_Document_AddStringTerms(
+					Memory.nativeValue(fieldPointerMap.get(fieldInfo.name)),
+					documentId, Memory.nativeValue(ofsa),
 					buffer.getTermCount(), err.getPointer());
 			et.end();
 			if (res != buffer.getTermCount())
@@ -193,19 +196,19 @@ public class OsseTransaction implements Closeable {
 
 	final public void rollback() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer.newExecutionToken(
-				"OSSCLib_MsTransact_RollBack ", transactPtr.toString());
-		if (!OsseLibrary.OSSCLib_MsTransact_RollBack(transactPtr,
+				"OSSCLib_MsTransact_RollBack ", Long.toString(transactPtr));
+		if (!OsseIndex.LIB.OSSCLib_MsTransact_RollBack(transactPtr,
 				err.getPointer()))
 			throw new SearchLibException(err.getError());
 		et.end();
-		transactPtr = null;
+		transactPtr = 0;
 	}
 
 	@Override
 	final public void close() {
 		try {
 			try {
-				if (transactPtr != null)
+				if (transactPtr != 0)
 					rollback();
 			} catch (SearchLibException e) {
 				Logging.warn(e);

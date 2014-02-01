@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class CookiesController extends CrawlerController {
 
 	private transient List<CookieItem> cookieList;

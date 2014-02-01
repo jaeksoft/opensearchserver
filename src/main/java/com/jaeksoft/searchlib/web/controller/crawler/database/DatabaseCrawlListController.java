@@ -28,6 +28,7 @@ import java.sql.SQLException;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
@@ -44,6 +45,7 @@ import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
+@AfterCompose(superclass = true)
 public class DatabaseCrawlListController
 		extends
 		CommonFieldTargetCrawlerController<DatabaseCrawlAbstract, DatabaseCrawlThread, DatabaseCrawlMaster> {

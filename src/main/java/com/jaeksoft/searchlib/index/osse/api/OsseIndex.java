@@ -30,35 +30,39 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray.PointerProvider;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.sun.jna.Pointer;
-import com.sun.jna.WString;
+import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 
-public class OsseIndex implements PointerProvider {
+public class OsseIndex {
 
-	private Pointer indexPtr;
+	final public static OsseJNILibrary LIB;
+
+	static {
+		System.out.println(System.getProperty("java.library.path"));
+		LIB = new OsseJNILibrary();
+		System.out.println(LIB.OSSCLib_GetVersionInfoText());
+	}
+
+	private long indexPtr;
 
 	public OsseIndex(File indexDirectory, OsseErrorHandler err, boolean bCreate)
 			throws SearchLibException {
-		WString path = new WString(indexDirectory.getPath());
+		String path = indexDirectory.getPath();
 		if (bCreate) {
 			ExecutionToken et = FunctionTimer.newExecutionToken(
-					"OSSCLib_MsIndex_Create", indexDirectory.getPath());
-			indexPtr = OsseLibrary.OSSCLib_MsIndex_Create(path, null,
-					err.getPointer());
-			et.end("returns " + indexPtr.toString());
+					"OSSCLib_MsIndex_Create", path);
+			indexPtr = LIB.OSSCLib_MsIndex_Create(path, null, err.getPointer());
+			et.end("returns " + indexPtr);
 		} else {
 			ExecutionToken et = FunctionTimer.newExecutionToken(
 					"OSSCLib_MsIndex_Open", indexDirectory.getPath());
-			indexPtr = OsseLibrary.OSSCLib_MsIndex_Open(path, null,
-					err.getPointer());
-			et.end("returns " + indexPtr.toString());
+			indexPtr = LIB.OSSCLib_MsIndex_Open(path, null, err.getPointer());
+			et.end("returns " + indexPtr);
 		}
-		if (indexPtr == null)
+		if (indexPtr == 0)
 			throw new SearchLibException(err.getError());
 	}
 
@@ -69,23 +73,25 @@ public class OsseIndex implements PointerProvider {
 		ExecutionToken et = FunctionTimer.newExecutionToken(
 				"OSSCLib_MsIndex_GetFieldNameAndProperties",
 				Integer.toString(ui32MsFieldId));
-		Pointer hFieldName = OsseLibrary
+		String hFieldName = LIB
 				.OSSCLib_MsIndex_GetFieldNameAndProperties(indexPtr,
-						ui32MsFieldId, fieldType, fieldFlags,
+						ui32MsFieldId,
+						Memory.nativeValue(fieldType.getPointer()),
+						Memory.nativeValue(fieldFlags.getPointer()),
 						error.getPointer());
 		et.end();
-		if (hFieldName == null)
+		if (StringUtils.isEmpty(hFieldName))
 			error.throwError();
-		return new FieldInfo(hFieldName.getString(0), ui32MsFieldId,
-				fieldType.getValue(), fieldType.getValue());
+		return new FieldInfo(hFieldName, ui32MsFieldId, fieldType.getValue(),
+				fieldType.getValue());
 	}
 
 	public Map<String, FieldInfo> getListOfFields(OsseErrorHandler error)
 			throws SearchLibException {
 		ExecutionToken et = FunctionTimer.newExecutionToken(
 				"OSSCLib_MsIndex_GetListOfFields", Integer.toString(0));
-		int nField = OsseLibrary.OSSCLib_MsIndex_GetListOfFields(indexPtr,
-				null, 0, false, error.getPointer());
+		int nField = LIB.OSSCLib_MsIndex_GetListOfFields(indexPtr, null, 0,
+				false, error.getPointer());
 		et.end("returns ", Integer.toString(nField));
 		error.checkNoError();
 		if (nField == 0)
@@ -94,8 +100,8 @@ public class OsseIndex implements PointerProvider {
 		int[] hFieldArray = new int[nField];
 		et = FunctionTimer.newExecutionToken("OSSCLib_MsIndex_GetListOfFields",
 				Integer.toString(nField));
-		OsseLibrary.OSSCLib_MsIndex_GetListOfFields(indexPtr, hFieldArray,
-				nField, false, error.getPointer());
+		LIB.OSSCLib_MsIndex_GetListOfFields(indexPtr, hFieldArray, nField,
+				false, error.getPointer());
 		et.end();
 		error.checkNoError();
 		for (int fieldId : hFieldArray) {
@@ -105,24 +111,19 @@ public class OsseIndex implements PointerProvider {
 		return fieldMap;
 	}
 
-	@Override
-	public Pointer getPointer() {
-		return indexPtr;
-	}
-
 	public void close(OsseErrorHandler err) {
-		if (indexPtr == null)
+		if (indexPtr == 0)
 			return;
 		ExecutionToken et = FunctionTimer.newExecutionToken(
 				"OSSCLib_MsIndex_Close", " ", Integer.toString(0));
-		if (!OsseLibrary.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
+		if (!LIB.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
 			Logging.warn(err.getError());
 		et.end();
 	}
 
 	@Override
 	public String toString() {
-		return indexPtr == null ? "null" : indexPtr.toString();
+		return Long.toString(indexPtr);
 	}
 
 	public class FieldInfo {
@@ -146,5 +147,9 @@ public class OsseIndex implements PointerProvider {
 					Integer.toString(id), " - type: ", Integer.toString(type),
 					" - flags: ", Integer.toString(flags));
 		}
+	}
+
+	public long getPointer() {
+		return indexPtr;
 	}
 }

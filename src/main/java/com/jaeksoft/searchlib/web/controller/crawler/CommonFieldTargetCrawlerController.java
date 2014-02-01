@@ -34,6 +34,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
+@AfterCompose(superclass = true)
 public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawlItem<?, T, M>, T extends CrawlThreadAbstract<T, M>, M extends CrawlMasterAbstract<M, T>>
 		extends CrawlerController {
 

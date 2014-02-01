@@ -36,6 +36,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
+@AfterCompose(superclass = true)
 public class UploadXmlController extends AbstractUploadController {
 
 	public class UpdateXmlThread extends AbstractUpdateThread {

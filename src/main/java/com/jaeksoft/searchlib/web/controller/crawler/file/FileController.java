@@ -31,6 +31,7 @@ import java.util.List;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
@@ -53,6 +54,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class FileController extends CrawlerController {
 
 	public static enum BatchCommandEnum {
