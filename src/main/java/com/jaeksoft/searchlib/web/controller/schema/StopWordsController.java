@@ -24,10 +24,13 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
 
+@AfterCompose(superclass = true)
 public class StopWordsController extends CommonDirectoryController<String> {
 
 	public StopWordsController() throws SearchLibException {

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -75,10 +76,15 @@ public class SwiftToken {
 	private final String authToken;
 	private final String username;
 
+	private final List<Header> stdHeaders;
+
 	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
 			String username, String password, AuthType authType, String tenant)
 			throws URISyntaxException, ClientProtocolException, IOException,
 			JSONException, SearchLibException {
+
+		stdHeaders = new ArrayList<Header>();
+		stdHeaders.add(new BasicHeader("Accept", "application/json"));
 
 		DownloadItem downloadItem = null;
 		switch (authType) {
@@ -147,8 +153,9 @@ public class SwiftToken {
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
 		return httpDownloader
-				.post(uri, null, null, null, new StringEntity(json.toString(),
-						ContentType.APPLICATION_JSON));
+				.post(uri, null, stdHeaders, null,
+						new StringEntity(json.toString(),
+								ContentType.APPLICATION_JSON));
 	}
 
 	private DownloadItem iamRequest(HttpDownloader httpDownloader,
@@ -162,7 +169,7 @@ public class SwiftToken {
 		u.append("/credentials/openstack?tenantname=");
 		u.append(tenantname);
 		URI uri = new URI(u.toString());
-		return httpDownloader.get(uri, null);
+		return httpDownloader.get(uri, null, stdHeaders, null);
 	}
 
 	public void putAuthTokenHeader(List<Header> headerList) {

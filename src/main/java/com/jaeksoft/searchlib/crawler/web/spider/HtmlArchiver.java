@@ -56,6 +56,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSImportRule;
 import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSProperty;
@@ -181,11 +182,7 @@ public class HtmlArchiver {
 			fileName = downloadItem.getFileName();
 			if (fileName == null || fileName.length() == 0)
 				return src;
-			if (!downloadItem.checkNoError(200, 300)) {
-				Logging.warn("WRONG HTTP CODE: " + downloadItem.getStatusCode()
-						+ " src: " + src + " url: " + urlString);
-				return src;
-			}
+			downloadItem.checkNoError(200, 300);
 			String baseName = FilenameUtils.getBaseName(fileName);
 			String extension = FilenameUtils.getExtension(fileName);
 			if (contentType == null)
@@ -223,6 +220,9 @@ public class HtmlArchiver {
 			Logging.warn(e);
 			return src;
 		} catch (UnknownHostException e) {
+			Logging.warn(e);
+			return src;
+		} catch (WrongStatusCodeException e) {
 			Logging.warn(e);
 			return src;
 		} finally {

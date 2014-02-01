@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.IOException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
@@ -33,6 +34,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class CrawlFileController extends CrawlerController {
 
 	private transient int sheetRows;

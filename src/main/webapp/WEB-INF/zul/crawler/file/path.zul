@@ -18,9 +18,9 @@
 	viewModel="@id('searchPath') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FileController')">
 
 	<listbox model="@load(searchPath.fileList)" multiple="false"
-		checkmark="false" sizedByContent="true">
-		<listhead sizable="true">
-			<listheader label="File">
+		checkmark="false">
+		<listhead sizable="true" hflex="min">
+			<listheader label="File" hflex="min">
 				<vbox width="100%">
 					<textbox width="90%"
 						value="@bind(searchPath.fileName)" />
@@ -28,7 +28,7 @@
 						onClick="@command('onSearch')" />
 				</vbox>
 			</listheader>
-			<listheader label="Index Date">
+			<listheader label="Index Date" hflex="min">
 				<vbox>
 					<datebox compact="true"
 						value="@bind(searchPath.crawlDateStart)" />
@@ -36,7 +36,7 @@
 						value="@bind(searchPath.crawlDateEnd)" />
 				</vbox>
 			</listheader>
-			<listheader label="Modified date">
+			<listheader label="Modified date" hflex="min">
 				<vbox>
 					<datebox compact="true"
 						value="@bind(searchPath.dateModifiedStart)" />
@@ -44,7 +44,7 @@
 						value="@bind(searchPath.dateModifiedEnd)" />
 				</vbox>
 			</listheader>
-			<listheader label="Type">
+			<listheader label="Type" hflex="min">
 				<vbox>
 					<listbox mold="select" width="100%"
 						model="@load(searchPath.fileTypeList)"
@@ -55,19 +55,19 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader label="Extension">
+			<listheader label="Extension" hflex="min">
 				<vbox>
 					<textbox cols="5"
 						value="@bind(searchPath.extension)" />
 				</vbox>
 			</listheader>
-			<listheader label="Size" />
-			<listheader label="Lang">
+			<listheader label="Size" hflex="min" />
+			<listheader label="Lang" hflex="min">
 				<vbox>
 					<textbox cols="4" value="@bind(searchPath.lang)" />
 				</vbox>
 			</listheader>
-			<listheader label="Fetch">
+			<listheader label="Fetch" hflex="min">
 				<vbox>
 					<listbox mold="select" width="100%"
 						model="@load(searchPath.fetchStatusList)"
@@ -78,7 +78,7 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader label="Parsing">
+			<listheader label="Parsing" hflex="min">
 				<vbox>
 					<listbox mold="select" width="100%"
 						model="@load(searchPath.parserStatusList)"
@@ -89,7 +89,7 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader label="Index">
+			<listheader label="Index" hflex="min">
 				<vbox>
 					<listbox mold="select" width="100%"
 						model="@load(searchPath.indexStatusList)"
@@ -100,7 +100,7 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader label="Repository">
+			<listheader label="Repository" hflex="min">
 				<vbox>
 					<listbox mold="select" width="100%"
 						model="@load(searchPath.repositoryList)"
@@ -111,7 +111,6 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader hflex="true" />
 		</listhead>
 		<template name="model" var="file">
 			<listitem>
@@ -129,11 +128,10 @@
 				<listcell label="@load(file.parserStatus.name)" />
 				<listcell label="@load(file.indexStatus.name)" />
 				<listcell label="@load(file.repository)" />
-				<listcell />
 			</listitem>
 		</template>
 		<listfoot>
-			<listfooter span="12">
+			<listfooter span="11">
 				<paging id="paging" detailed="true"
 					totalSize="@load(searchPath.totalSize)"
 					pageSize="@load(searchPath.pageSize)"

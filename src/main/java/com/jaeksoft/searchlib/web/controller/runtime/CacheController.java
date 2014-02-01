@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -38,6 +39,7 @@ import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class CacheController extends CommonController {
 
 	private transient List<LRUCache<?, ?>> cacheList;

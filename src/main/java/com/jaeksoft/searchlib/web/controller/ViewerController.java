@@ -49,6 +49,7 @@ import org.icepdf.core.pobjects.graphics.text.LineText;
 import org.icepdf.core.pobjects.graphics.text.PageText;
 import org.icepdf.core.pobjects.graphics.text.WordText;
 import org.icepdf.core.util.GraphicsRenderingHints;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Filedownload;
@@ -62,6 +63,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
 import com.jaeksoft.searchlib.util.ImageUtils;
 
+@AfterCompose(superclass = true)
 public class ViewerController extends CommonController {
 
 	private int page;

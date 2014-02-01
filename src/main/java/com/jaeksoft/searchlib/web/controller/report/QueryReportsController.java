@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.TreeSet;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
@@ -42,6 +43,7 @@ import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.TopSet;
 
+@AfterCompose(superclass = true)
 public class QueryReportsController extends ReportsController {
 
 	private Date beginDate;
