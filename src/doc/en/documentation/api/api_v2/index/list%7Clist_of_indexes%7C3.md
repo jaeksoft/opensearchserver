@@ -1,4 +1,4 @@
-This API returns the index list
+This API returns a list of indexes.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -13,7 +13,7 @@ This API returns the index list
 - Accept: ```application/xml```
 
 ### Success response
-The index list is returned in JSON or XML format
+The index list is returned in JSON or XML format.
 
 **HTTP code:**
 200
