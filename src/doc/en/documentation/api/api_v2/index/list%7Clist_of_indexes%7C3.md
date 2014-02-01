@@ -19,9 +19,9 @@ The index list is returned in JSON or XML format.
 200
 
 **Content (application/json):**
-```json
-{
-    "result": {
+
+    {
+      "result": {
         "@successful": "true",
         "info": "6 index(es)",
         "indexList": [
@@ -32,9 +32,8 @@ The index list is returned in JSON or XML format.
             "test_oss_rb",
             "web"
         ]
+      }
     }
-}
-```
 
 ### Error response
 
@@ -44,24 +43,21 @@ The index list was not returned. The reason is provided in the content.
 500
 
 **Content (text/plain):**
-```
-An internal error occurred
-```
+
+    An internal error occurred
 
 ### Sample call
 
 **Using CURL:**
-```shell
-curl -XGET http://localhost:8080/services/rest/index
-```
+
+    curl -XGET http://localhost:8080/services/rest/index
 
 **Using jQuery:**
-```
-$.ajax({ 
-   type: "GET",
-   dataType: "json",
-   url: "http://localhost:8080/services/rest/index"
-}).done(function (data) {
-   console.log(data);
-});
-```
+
+    $.ajax({ 
+       type: "GET",
+       dataType: "json",
+       url: "http://localhost:8080/services/rest/index"
+    }).done(function (data) {
+       console.log(data);
+    });

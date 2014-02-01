@@ -22,14 +22,13 @@ The index has been found.
 200
 
 **Content (application/json):**
-```json
-{
-  "result": {
-    "@successful": "true",
-    "info": true
-  }
-}
-```
+
+    {
+      "result": {
+      "@successful": "true",
+      "info": true
+      }
+    }
 
 ### Error response
 
@@ -39,24 +38,21 @@ The index has not been found.
 404
 
 **Content (text/plain):**
-```
-The index my_index has not been found
-```
+
+    The index my_index has not been found
 
 ### Sample call
 
 **Using CURL:**
-```shell
-curl -XGET http://localhost:8080/services/rest/index/my_index
-```
+
+    curl -XGET http://localhost:8080/services/rest/index/my_index
 
 **Using jQuery:**
-```javascript
-$.ajax({ 
-   type: "GET",
-   dataType: "json",
-   url: "http://localhost:8080/services/rest/index/my_index"
-}).done(function (data) {
-   console.log(data);
-});
-```
+
+    $.ajax({ 
+     type: "GET",
+     dataType: "json",
+     url: "http://localhost:8080/services/rest/index/my_index"
+    }).done(function (data) {
+     console.log(data);
+    });

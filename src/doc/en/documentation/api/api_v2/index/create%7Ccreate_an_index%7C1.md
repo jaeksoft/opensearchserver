@@ -23,14 +23,12 @@ The index has been created.
 
 **Content (application/json):**
 
-```language-json
-{
-  result: {
-    @successful: "true",
-    info: "Created Index my_index"
-  }
-}
-```
+    {
+      result: {
+        @successful: "true",
+        info: "Created Index my_index"
+      }
+    }
 
 ### Error response
 
@@ -40,26 +38,20 @@ The index creation failed. The reason is provided in the content.
 
 **Content (text/plain):**
 
-```asciidoc
-directory my_index already exists
-```
+    directory my_index already exists
 
 ### Sample call
 
 **Using CURL:**
 
-```shell
-curl -XPOST http://localhost:8080/services/rest/index/my_index/template/WEB_CRAWLER
-```
+    curl -XPOST http://localhost:8080/services/rest/index/my_index/template/WEB_CRAWLER
 
 **Using jQuery:**
 
-```language-javascript
-$.ajax({ 
-   type: "POST",
-   dataType: "json",
-   url: "http://localhost:8080/services/rest/index/my_index/template/WEB_CRAWLER"
-}).done(function (data) {
-   console.log(data);
-});
-```
+    $.ajax({ 
+      type: "POST",
+      dataType: "json",
+      url: "http://localhost:8080/services/rest/index/my_index/template/WEB_CRAWLER"
+      }).done(function (data) {
+      console.log(data);
+    });
