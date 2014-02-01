@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -40,6 +41,7 @@ import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.template.TemplateList;
 
+@AfterCompose(superclass = true)
 public class HomeController extends CommonController {
 
 	private String indexName;

@@ -24,10 +24,13 @@
 
 package com.jaeksoft.searchlib.web.controller.schema;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
 
+@AfterCompose(superclass = true)
 public class SynonymsController extends CommonDirectoryController<String> {
 
 	public SynonymsController() throws SearchLibException {

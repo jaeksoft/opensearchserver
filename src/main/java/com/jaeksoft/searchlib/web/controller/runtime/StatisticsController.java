@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
@@ -34,6 +35,7 @@ import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class StatisticsController extends CommonController {
 
 	private transient StatisticsAbstract selectedStat;

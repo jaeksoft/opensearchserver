@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class FieldsController extends CommonController {
 
 	private transient SchemaField field;

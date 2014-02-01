@@ -23,6 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
@@ -32,6 +33,7 @@ import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class HostsController extends CommonController {
 
 	private transient FacetItem[] hostFacetList;

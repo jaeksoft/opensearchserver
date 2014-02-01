@@ -292,6 +292,24 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb.toString();
 	}
 
+	public final static CharSequence fastConcatCharSequence(
+			final Object... objects) {
+		if (objects == null)
+			return null;
+		if (objects.length == 1)
+			return objects.toString();
+		StringBuilder sb = new StringBuilder();
+		for (Object object : objects)
+			if (object != null)
+				sb.append(object);
+		return sb;
+	}
+
+	public final static String fastConcat(final Object... objects) {
+		CharSequence cs = fastConcatCharSequence(objects);
+		return cs == null ? null : cs.toString();
+	}
+
 	public final static String LINE_SEPARATOR = System
 			.getProperty("line.separator");
 

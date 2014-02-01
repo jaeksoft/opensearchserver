@@ -23,6 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -35,6 +36,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class UrlFilterController extends CrawlerController {
 
 	private class DeleteAlert extends AlertController {

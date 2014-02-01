@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationType;
 
+@AfterCompose(superclass = true)
 public class ReplicationController extends CommonController {
 
 	private transient ReplicationItem selectedItem;

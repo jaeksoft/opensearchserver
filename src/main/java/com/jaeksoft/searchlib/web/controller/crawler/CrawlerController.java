@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
@@ -34,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class CrawlerController extends CommonController {
 
 	public enum RunMode {

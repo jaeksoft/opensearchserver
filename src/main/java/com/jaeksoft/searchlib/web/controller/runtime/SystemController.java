@@ -24,11 +24,14 @@
 
 package com.jaeksoft.searchlib.web.controller.runtime;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@AfterCompose(superclass = true)
 public class SystemController extends CommonController {
 
 	private transient Monitor monitor;

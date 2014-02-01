@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller;
 
 import java.util.Set;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -38,6 +39,7 @@ import com.jaeksoft.searchlib.user.IndexRole;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@AfterCompose(superclass = true)
 public class PrivilegesController extends CommonController {
 
 	private transient User user;

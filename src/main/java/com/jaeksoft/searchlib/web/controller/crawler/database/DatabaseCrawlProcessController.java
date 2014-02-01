@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.database;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
@@ -33,6 +34,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
+@AfterCompose(superclass = true)
 public class DatabaseCrawlProcessController extends CrawlerController {
 
 	private transient boolean debug = false;

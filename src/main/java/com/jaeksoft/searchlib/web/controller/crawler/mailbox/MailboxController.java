@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.mailbox;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -34,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
+@AfterCompose(superclass = true)
 public class MailboxController
 		extends
 		CommonFieldTargetCrawlerController<MailboxCrawlItem, MailboxCrawlThread, MailboxCrawlMaster> {

@@ -45,6 +45,10 @@ public class SearchLibException extends Exception {
 		super(message);
 	}
 
+	public SearchLibException(Object... message) {
+		super(StringUtils.fastConcat(message));
+	}
+
 	public static class AbortException extends SearchLibException {
 		/**
 		 * 
@@ -94,7 +98,19 @@ public class SearchLibException extends Exception {
 		 */
 		private static final long serialVersionUID = 748700519607025552L;
 
-		public ExternalParserException(String message) {
+		public ExternalParserException(String... message) {
+			super(message);
+		}
+	}
+
+	public static class WrongStatusCodeException extends SearchLibException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8013332809430030261L;
+
+		public WrongStatusCodeException(Object... message) {
 			super(message);
 		}
 	}
