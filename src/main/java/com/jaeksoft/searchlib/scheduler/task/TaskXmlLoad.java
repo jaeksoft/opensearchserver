@@ -131,7 +131,7 @@ public class TaskXmlLoad extends TaskAbstract {
 						CredentialType.BASIC_DIGEST, null, login, password,
 						null, null);
 			DownloadItem downloadItem = httpDownloader.get(uri, credentialItem);
-			downloadItem.checkNoError(200);
+			downloadItem.checkNoErrorList(200);
 			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
