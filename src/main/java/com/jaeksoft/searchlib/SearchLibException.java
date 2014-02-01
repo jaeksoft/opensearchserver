@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class SearchLibException extends Exception {
 
@@ -98,7 +99,7 @@ public class SearchLibException extends Exception {
 		 */
 		private static final long serialVersionUID = 748700519607025552L;
 
-		public ExternalParserException(String... message) {
+		public ExternalParserException(Object... message) {
 			super(message);
 		}
 	}
