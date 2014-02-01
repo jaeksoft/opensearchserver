@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.index.osse.api.OsseCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
-import com.jaeksoft.searchlib.index.osse.api.OsseLibrary;
+import com.jaeksoft.searchlib.index.osse.api.OsseJNALibrary;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 
 public class OsseTermQuery extends OsseAbstractQuery {
@@ -66,7 +66,7 @@ public class OsseTermQuery extends OsseAbstractQuery {
 					new OsseTermBuffer(null, text));
 			cursor = new OsseCursor(index, error, fieldInfo.id,
 					osseFastStringArray, 1,
-					OsseLibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
+					OsseJNALibrary.OSSCLIB_QCURSOR_UI32BOP_AND);
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {

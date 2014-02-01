@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,27 +27,25 @@ package com.jaeksoft.searchlib.index.osse.api;
 import java.io.Closeable;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.sun.jna.Pointer;
-import com.sun.jna.WString;
 
 public class OsseErrorHandler implements Closeable {
 
-	private Pointer errPtr;
+	private long errPtr;
 
 	public OsseErrorHandler() throws SearchLibException {
-		errPtr = OsseLibrary.OSSCLib_ExtErrInfo_Create();
-		if (errPtr == null)
+		errPtr = OsseIndex.LIB.OSSCLib_ExtErrInfo_Create();
+		if (errPtr == 0)
 			throw new SearchLibException(
 					"Internal error: OSSCLib_ExtErrInfo_Create");
 	}
 
 	final public String getError() {
-		WString error = OsseLibrary.OSSCLib_ExtErrInfo_GetText(errPtr);
+		String error = OsseIndex.LIB.OSSCLib_ExtErrInfo_GetText(errPtr);
 		return error != null ? error.toString() : null;
 	}
 
 	final public int getErrorCode() {
-		return OsseLibrary.OSSCLib_ExtErrInfo_GetErrorCode(errPtr);
+		return OsseIndex.LIB.OSSCLib_ExtErrInfo_GetErrorCode(errPtr);
 	}
 
 	final public void checkNoError() throws SearchLibException {
@@ -59,16 +57,15 @@ public class OsseErrorHandler implements Closeable {
 		throw new SearchLibException(getError());
 	}
 
-	final public Pointer getPointer() {
+	final public long getPointer() {
 		return errPtr;
 	}
 
 	@Override
 	final public void close() {
-		if (errPtr == null)
+		if (errPtr == 0)
 			return;
-		OsseLibrary.OSSCLib_ExtErrInfo_Delete(errPtr);
-		errPtr = null;
+		OsseIndex.LIB.OSSCLib_ExtErrInfo_Delete(errPtr);
+		errPtr = 0;
 	}
-
 }

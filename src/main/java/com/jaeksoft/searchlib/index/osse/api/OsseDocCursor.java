@@ -96,7 +96,7 @@ public class OsseDocCursor implements Closeable {
 			return;
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_DocTCursor_Delete");
-		OsseLibrary.OSSCLib_MsDocTCursor_Delete(docCursorPtr);
+		OsseJNALibrary.OSSCLib_MsDocTCursor_Delete(docCursorPtr);
 		et.end();
 		docCursorPtr = null;
 	}
