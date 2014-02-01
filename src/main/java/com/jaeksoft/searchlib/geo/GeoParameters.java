@@ -24,13 +24,10 @@
 
 package com.jaeksoft.searchlib.geo;
 
-import java.io.IOException;
-
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -249,11 +246,6 @@ public class GeoParameters {
 				"longitude", Double.toString(longitude), "distanceReturn",
 				distanceReturn.name());
 		xmlWriter.endElement();
-	}
-
-	public GeoDistance getGeoDistance(ReaderAbstract reader, Double radius)
-			throws IOException {
-		return new GeoDistance(this, reader, radius);
 	}
 
 	/**

@@ -94,6 +94,8 @@ public class SearchPatternRequest extends AbstractSearchRequest implements
 	@Override
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
+		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
+			queryString = "*:*";
 		String q = snippetPatternQuery == null
 				|| snippetPatternQuery.length() == 0 ? searchPatternQuery
 				: snippetPatternQuery;

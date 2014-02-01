@@ -158,27 +158,22 @@ public class SortField extends AbstractField<SortField> implements
 
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
-		if (isScore()) {
-			if (desc)
-				return new DescScoreSorter(collector);
-			else
-				return new AscScoreSorter(collector);
-		}
-		if (joinNumber == 0) {
-			if (desc)
-				return new DescStringIndexSorter(collector,
-						reader.getStringIndex(name), nullFirst);
-			else
-				return new AscStringIndexSorter(collector,
-						reader.getStringIndex(name), nullFirst);
-		} else {
-			if (desc)
-				return new DescJoinStringIndexSorter(collector, joinNumber - 1,
-						name, nullFirst);
-			else
-				return new AscJoinStringIndexSorter(collector, joinNumber - 1,
-						name, nullFirst);
-		}
+		if (isScore())
+			return desc ? new DescScoreSorter(collector) : new AscScoreSorter(
+					collector);
+		if (isDistance())
+			return desc ? new DescDistanceSorter(collector)
+					: new AscDistanceSorter(collector);
+		if (joinNumber == 0)
+			return desc ? new DescStringIndexSorter(collector,
+					reader.getStringIndex(name), nullFirst)
+					: new AscStringIndexSorter(collector,
+							reader.getStringIndex(name), nullFirst);
+		else
+			return desc ? new DescJoinStringIndexSorter(collector,
+					joinNumber - 1, name, nullFirst)
+					: new AscJoinStringIndexSorter(collector, joinNumber - 1,
+							name, nullFirst);
 	}
 
 	@Override

@@ -28,19 +28,22 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
+import com.jaeksoft.searchlib.result.collector.CollapseDistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
 public class CollapseDistanceCollector
 		extends
 		AbstractExtendsCollector<CollapseCollectorInterface, CollapseBaseCollector>
-		implements CollapseCollectorInterface, DistanceInterface {
+		implements CollapseCollectorInterface, CollapseDistanceInterface {
 
 	final private float[] sourceDistances;
 	final private FloatBufferedArray distanceCollector;
 
 	private float[] distances;
+	private float[][] collapsedDistances;
 	final private float maxDistance;
+	final private float minDistance;
 	private int currentPos;
 
 	public CollapseDistanceCollector(final CollapseBaseCollector base,
@@ -49,8 +52,10 @@ public class CollapseDistanceCollector
 		this.sourceDistances = distanceInterface.getDistances();
 		distanceCollector = new FloatBufferedArray(this.sourceDistances.length);
 		maxDistance = 0;
+		minDistance = Float.MAX_VALUE;
 		currentPos = 0;
 		distances = null;
+		collapsedDistances = new float[base.getIds().length][];
 	}
 
 	private CollapseDistanceCollector(final CollapseBaseCollector base,
@@ -61,7 +66,13 @@ public class CollapseDistanceCollector
 
 		this.distances = ArrayUtils.clone(src.distances);
 		this.maxDistance = src.maxDistance;
+		this.minDistance = src.minDistance;
 		this.currentPos = src.currentPos;
+
+		this.collapsedDistances = new float[src.collapsedDistances.length][];
+		int i = 0;
+		for (float[] collDistanceArray : src.collapsedDistances)
+			this.collapsedDistances[i++] = ArrayUtils.clone(collDistanceArray);
 	}
 
 	@Override
@@ -86,6 +97,15 @@ public class CollapseDistanceCollector
 	final public void collectCollapsedDoc(final int sourcePos,
 			final int collapsePos) {
 		parent.collectCollapsedDoc(sourcePos, collapsePos);
+		if (collapsedDistances == null)
+			return;
+		if (collapsedDistances[collapsePos] == null)
+			collapsedDistances[collapsePos] = new float[] { sourceDistances[sourcePos] };
+		else
+			collapsedDistances[collapsePos] = ArrayUtils
+					.add(collapsedDistances[collapsePos],
+							sourceDistances[sourcePos]);
+
 	}
 
 	@Override
@@ -100,11 +120,21 @@ public class CollapseDistanceCollector
 		float dist = distances[pos1];
 		distances[pos1] = distances[pos2];
 		distances[pos2] = dist;
+		if (collapsedDistances != null) {
+			float[] colArray = collapsedDistances[pos1];
+			collapsedDistances[pos1] = collapsedDistances[pos2];
+			collapsedDistances[pos2] = colArray;
+		}
 	}
 
 	@Override
 	final public float getMaxDistance() {
 		return maxDistance;
+	}
+
+	@Override
+	final public float getMinDistance() {
+		return minDistance;
 	}
 
 	@Override
@@ -117,6 +147,13 @@ public class CollapseDistanceCollector
 		if (distances == null)
 			return 0;
 		return distances.length;
+	}
+
+	@Override
+	public float[] getCollapsedDistances(int pos) {
+		if (collapsedDistances == null)
+			return null;
+		return collapsedDistances[pos];
 	}
 
 }

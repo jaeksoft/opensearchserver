@@ -99,7 +99,7 @@ public class SearchLibException extends Exception {
 		 */
 		private static final long serialVersionUID = 748700519607025552L;
 
-		public ExternalParserException(String... message) {
+		public ExternalParserException(Object... message) {
 			super(message);
 		}
 	}
