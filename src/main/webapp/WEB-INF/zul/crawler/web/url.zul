@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -24,33 +24,6 @@
 				<intbox cols="3"
 					constraint="no negative, no zero, no negative"
 					value="@bind(searchUrl.pageSize)" onChange="@command('onSearch')" />
-				<space width="20px" />
-				<menubar autodrop="true">
-					<menu label="Columns view">
-						<menupopup>
-							<menuitem label="Date"
-								checked="@bind(searchUrl.colView.date)"
-								onClick="@command('onChangeColView')" checkmark="true"
-								autocheck="true" />
-							<menuitem label="Content-Type"
-								checked="@bind(searchUrl.colView.contentType)"
-								onClick="@command('onChangeColView')" checkmark="true"
-								autocheck="true" />
-							<menuitem label="Charset / Encoding"
-								checked="@bind(searchUrl.colView.charsetEncoding)"
-								onClick="@command('onChangeColView')" checkmark="true"
-								autocheck="true" />
-							<menuitem label="Language"
-								checked="@bind(searchUrl.colView.language)"
-								onClick="@command('onChangeColView')" checkmark="true"
-								autocheck="true" />
-							<menuitem label="HTTP returned code"
-								checked="@bind(searchUrl.colView.returnedCode)"
-								onClick="@command('onChangeColView')" checkmark="true"
-								autocheck="true" />
-						</menupopup>
-					</menu>
-				</menubar>
 				<space width="20px" />
 				<label value="Total URL number: " />
 				<label value="@load(searchUrl.recordNumber)" />
@@ -87,17 +60,16 @@
 	<listbox model="@load(searchUrl.urlList)" multiple="false"
 		checkmark="false"
 		emptyMessage="Click on the search button to see the URLs">
-		<listhead sizable="true">
-			<listheader label="Url" valign="top">
+		<listhead sizable="true" hflex="min">
+			<listheader label="Url" valign="top" hflex="min">
 				<vbox width="100%">
 					<textbox width="90%" value="@bind(searchUrl.like)" />
 					<button label="Search"
 						onClick="@command('onSearch')" />
 				</vbox>
 			</listheader>
-			<listheader label="Ev. Date"
-				visible="@load(searchUrl.colView.date)"
-				tooltiptext="Last event date" hflex="min" valign="top">
+			<listheader label="Ev. Date" tooltiptext="Last event date"
+				hflex="min" valign="top">
 				<vbox>
 					<datebox compact="true"
 						value="@bind(searchUrl.eventDateStart)" />
@@ -105,8 +77,7 @@
 						value="@bind(searchUrl.eventDateEnd)" />
 				</vbox>
 			</listheader>
-			<listheader label="Mod. date"
-				visible="@load(searchUrl.colView.date)" hflex="min"
+			<listheader label="Mod. date" hflex="min"
 				tooltiptext="Last modified date" valign="top">
 				<vbox>
 					<datebox compact="true"
@@ -115,25 +86,19 @@
 						value="@bind(searchUrl.modifiedDateEnd)" />
 				</vbox>
 			</listheader>
-			<listheader label="Type"
-				visible="@load(searchUrl.colView.contentType)" hflex="min"
-				valign="top">
+			<listheader label="Type" hflex="min" valign="top">
 				<vbox>
 					<textbox cols="5"
 						value="@bind(searchUrl.contentBaseType)" />
 				</vbox>
 			</listheader>
-			<listheader label="Charset"
-				visible="@load(searchUrl.colView.charsetEncoding)" hflex="min"
-				valign="top">
+			<listheader label="Charset" hflex="min" valign="top">
 				<vbox>
 					<textbox cols="5"
 						value="@bind(searchUrl.contentTypeCharset)" />
 				</vbox>
 			</listheader>
-			<listheader label="Encoding"
-				visible="@load(searchUrl.colView.charsetEncoding)" hflex="min"
-				valign="top">
+			<listheader label="Encoding" hflex="min" valign="top">
 				<vbox>
 					<textbox cols="5"
 						value="@bind(searchUrl.contentEncoding)" />
@@ -148,16 +113,12 @@
 						value="@bind(searchUrl.maxContentLength)" />
 				</vbox>
 			</listheader>
-			<listheader label="Lang"
-				visible="@load(searchUrl.colView.language)" hflex="min"
-				valign="top">
+			<listheader label="Lang" hflex="min" valign="top">
 				<vbox>
 					<textbox cols="4" value="@bind(searchUrl.lang)" />
 				</vbox>
 			</listheader>
-			<listheader label="Lang method"
-				visible="@load(searchUrl.colView.language)" hflex="min"
-				valign="top">
+			<listheader label="Lang method" hflex="min" valign="top">
 				<vbox>
 					<textbox cols="8"
 						value="@bind(searchUrl.langMethod)" />
@@ -185,9 +146,7 @@
 					</listbox>
 				</vbox>
 			</listheader>
-			<listheader label="Code"
-				visible="@load(searchUrl.colView.returnedCode)" hflex="min"
-				valign="top">
+			<listheader label="Code" hflex="min" valign="top">
 				<vbox>
 					<intbox cols="5"
 						value="@bind(searchUrl.responseCode)" />
