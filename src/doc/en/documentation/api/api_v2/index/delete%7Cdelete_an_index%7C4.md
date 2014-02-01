@@ -1,4 +1,4 @@
-This API deletes an existing index
+This API deletes an existing index.
 
 **Requirement:** OpenSearchServer v1.5
 
