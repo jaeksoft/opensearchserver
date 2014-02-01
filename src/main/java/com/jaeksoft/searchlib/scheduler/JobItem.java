@@ -237,19 +237,14 @@ public class JobItem extends ExecutionAbstract {
 					if (client.getIndex().getVersion() != originalVersion)
 						indexHasChanged = true;
 			}
-		} catch (SearchLibException e) {
-			if (currentTaskLog != null)
-				currentTaskLog.setError(e);
-			setLastError(e);
-			Logging.warn(e);
-			sendErrorEmail(e, currentTask);
-		} catch (Exception e) {
-			SearchLibException se = new SearchLibException(e);
+		} catch (Throwable e) {
+			SearchLibException se = e instanceof SearchLibException ? (SearchLibException) e
+					: new SearchLibException(e);
 			if (currentTaskLog != null)
 				currentTaskLog.setError(se);
 			setLastError(se);
-			Logging.warn(e);
-			sendErrorEmail(e, currentTask);
+			Logging.error(se);
+			sendErrorEmail(se, currentTask);
 		} finally {
 			if (currentTaskLog != null)
 				currentTaskLog.end();
