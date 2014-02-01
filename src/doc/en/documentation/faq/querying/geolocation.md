@@ -1,12 +1,12 @@
-OpenSearchServer supports Geolocation requests. By embedding the coordinates (longitude and latitude) in the indexed documents, it is possible to filter a result on the documents which are in a defined rectangle.
+OpenSearchServer supports geolocation requests. Once coordinates (longitude and latitude) have been embedded within indexed documents, it is possible to filter these based on whether they lie within a defined geographic rectangle.
 
-## Index your document with Geolocation information
+## Indexing your document with Geolocation information
 
-### Prepare the schema
+### Preparing the schema
 
-Before being able to apply geospatial queries, you have to provide the latitude and the longitude of the document.
+First, provide the latitude and the longitude of the document.
 
-The schema should contains two fields which will hold these informations:
+The schema should include two fields to hold this information:
 
 - latitude (indexed) 
 - longitude (indexed)
@@ -18,16 +18,16 @@ Choose the analyzer corresponding to the [coordinate system](http://en.wikipedia
 
 ![Alt text](geo_fields.png)
 
-### Index the data
+### Indexing the data
 
-The coordinate (latitude and longitude) are supposed to be expressed in decimal format:
+The coordinates (latitude and longitude) should expressed in decimal format. Examples:
 
 - For Degrees: -52.090904
-- For Radian: -0.675757575575
+- For Radians: -0.675757575575
 
 #### Using the API, just add the two fields on your JSON document
 
-The [JSON indexing API](https://github.com/jaeksoft/opensearchserver/wiki/Document-put-JSON) is documented on our [API wiki](https://github.com/jaeksoft/opensearchserver/wiki/)
+The [JSON indexing API](https://github.com/jaeksoft/opensearchserver/wiki/Document-put-JSON) is documented on our [API wiki](https://github.com/jaeksoft/opensearchserver/wiki/).
 
     [
       {
@@ -56,17 +56,17 @@ The [JSON indexing API](https://github.com/jaeksoft/opensearchserver/wiki/Docume
        }
     ] 
 
-### Make a query
+### Querying
 
-On our example, we want to find a city located around 10 kilometers of a given position.
+Example: let's find a city located within 10 kilometers of a given point (the "central position").
 
 The latitudeField and longitudeField are mapped to the fields of the schema.
 
 The "geo" part contains the central position.
 
-The "GeoFilter" applies a  geographical filter following the given parameters.
+The "GeoFilter" applies a geographical filter following the provided parameters.
 
-Just make a geo located search using the [Search(Field) API](https://github.com/jaeksoft/opensearchserver/wiki/Search-field) described on [our API wiki](https://github.com/jaeksoft/opensearchserver/wiki/):
+Just make a geolocated search using the [Search(Field) API](https://github.com/jaeksoft/opensearchserver/wiki/Search-field) described on [our API wiki](https://github.com/jaeksoft/opensearchserver/wiki/):
 
     {
         "start": 0,
@@ -93,7 +93,7 @@ Just make a geo located search using the [Search(Field) API](https://github.com/
 
 ### Document returned
 
-And here are the document found.
+Here are the results.
 
     {
     "successful": true,
@@ -134,9 +134,9 @@ And here are the document found.
     "maxScore": 1
     }
 
-### Add distance in returned documents
+### Adding distances to search results
 
-To add distance between the searched coordinates and each documents a "scorings" array is needed in the query:
+To list the distance between the searched coordinates and the returned documents, a "scorings" array is needed in the query:
 
     {
         "start": 0,
