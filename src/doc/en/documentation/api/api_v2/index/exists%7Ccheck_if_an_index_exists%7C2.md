@@ -1,4 +1,4 @@
-This API tests if an index exists
+This API tests whether a given index exists.
 
 **Requirement:** OpenSearchServer v1.5
 

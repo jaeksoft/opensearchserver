@@ -1,4 +1,4 @@
-This API creates a new index
+This API creates a new index.
 
 **Requirement:** OpenSearchServer v1.5
 

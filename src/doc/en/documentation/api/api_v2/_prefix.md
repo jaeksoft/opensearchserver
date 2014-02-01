@@ -1,1 +1,1 @@
-API v2 is the new REST API. As RESTFUL implementation by using this API you will be able to control every feature of OpenSearchServer. This API is evolve quickly, new features are often added.
+API v2 is the new REST API. RESTFUL implementation using this API allows for controlling every feature of OpenSearchServer. API v2 frequently receives upgrades and new features.

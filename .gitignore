@@ -1,15 +1,9 @@
-/target
 /dist
 /.settings
 /.classpath
-/.DS_Store
+.DS_Store
+.DS_Store?
 /.project
 /temp
-/target
-/target
-/target
-/target
 /bin
-/target
-/target
 /target
