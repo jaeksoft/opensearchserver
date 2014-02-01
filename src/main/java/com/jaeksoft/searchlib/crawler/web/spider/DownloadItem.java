@@ -288,7 +288,7 @@ public class DownloadItem {
 		return statusCode;
 	}
 
-	public void checkNoError(int fromInclusive, int toExclusive)
+	public void checkNoErrorRange(int fromInclusive, int toExclusive)
 			throws WrongStatusCodeException {
 		if (statusCode == null)
 			throw new WrongStatusCodeException("No status code - ", uri);
@@ -297,7 +297,8 @@ public class DownloadItem {
 					statusCode, ' ', reasonPhrase, " - ", uri);
 	}
 
-	public void checkNoError(int... validCodes) throws WrongStatusCodeException {
+	public void checkNoErrorList(int... validCodes)
+			throws WrongStatusCodeException {
 		if (statusCode == null)
 			throw new WrongStatusCodeException("Wrong status code: ",
 					statusCode, ' ', reasonPhrase, " - ", uri);
