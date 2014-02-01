@@ -22,14 +22,13 @@ The index has been deleted.
 200
 
 **Content (application/json):**
-```json
-{
-  "result": {
-    "@successful": "true",
-    "info": "Index deleted: my_index"
-  }
-}
-```
+
+    {
+      "result": {
+      "@successful": "true",
+      "info": "Index deleted: my_index"
+      }
+    }
 
 ### Error response
 
@@ -39,24 +38,21 @@ The index creation failed. The reason is provided in the content.
 500
 
 **Content (text/plain):**
-```
-Index "my_index" not found. The index directory does not exist
-```
+
+    Index "my_index" not found. The index directory does not exist
 
 ### Sample call
 
 **Using CURL:**
-```shell
-curl -XDELETE http://localhost:8080/services/rest/index/my_index
-```
+
+    curl -XDELETE http://localhost:8080/services/rest/index/my_index
 
 **Using jQuery:**
-```javascript
-$.ajax({ 
-   type: "DELETE",
-   dataType: "json",
-   url: "http://localhost:8080/services/rest/index/my_index"
-}).done(function (data) {
-   console.log(data);
-});
-```
+
+    $.ajax({ 
+      type: "DELETE",
+      dataType: "json",
+      url: "http://localhost:8080/services/rest/index/my_index"
+    }).done(function (data) {
+      console.log(data);
+    });
