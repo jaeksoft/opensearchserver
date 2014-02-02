@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProt
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.array.BytesOutputStream;
 
 public class ObjectStorageDirectory extends Directory {
 
@@ -191,8 +192,20 @@ public class ObjectStorageDirectory extends Directory {
 
 		@Override
 		public byte readByte() throws IOException {
-			// TODO Auto-generated method stub
-			return 0;
+			InputStream inputStream = null;
+			try {
+				inputStream = SwiftProtocol.readObject(httpDownloader,
+						swiftToken, container, meta.pathName, pos, pos);
+				return (byte) inputStream.read();
+			} catch (IllegalStateException e) {
+				throw new IOException(e);
+			} catch (URISyntaxException e) {
+				throw new IOException(e);
+			} catch (SearchLibException e) {
+				throw new IOException(e);
+			} finally {
+				IOUtils.close(inputStream);
+			}
 		}
 
 		@Override
@@ -202,7 +215,7 @@ public class ObjectStorageDirectory extends Directory {
 				inputStream = SwiftProtocol.readObject(httpDownloader,
 						swiftToken, container, meta.pathName, offset, offset
 								+ len - 1);
-				// TODO copy to byte array
+				inputStream.read(b, offset, len);
 			} catch (IllegalStateException e) {
 				throw new IOException(e);
 			} catch (URISyntaxException e) {
@@ -217,22 +230,34 @@ public class ObjectStorageDirectory extends Directory {
 
 	public class Output extends IndexOutput {
 
+		private final BytesOutputStream bytes;
 		private final ObjectMeta meta;
 		private long pos;
+		private boolean toEnd;
 
 		private Output(final ObjectMeta meta) {
 			this.meta = meta;
 			this.pos = 0;
+			this.bytes = new BytesOutputStream();
+			this.toEnd = true;
 		}
 
 		@Override
 		public void flush() throws IOException {
-			// TODO Auto-generated method stub
-
 		}
 
 		@Override
 		public void close() throws IOException {
+			try {
+				SwiftProtocol.writeObject(httpDownloader, swiftToken,
+						container, meta.pathName, bytes);
+			} catch (IllegalStateException e) {
+				throw new IOException(e);
+			} catch (URISyntaxException e) {
+				throw new IOException(e);
+			} catch (SearchLibException e) {
+				throw new IOException(e);
+			}
 		}
 
 		@Override
@@ -243,6 +268,7 @@ public class ObjectStorageDirectory extends Directory {
 		@Override
 		public void seek(long pos) throws IOException {
 			this.pos = pos;
+			toEnd = pos == bytes.size();
 		}
 
 		@Override
@@ -252,15 +278,27 @@ public class ObjectStorageDirectory extends Directory {
 
 		@Override
 		public void writeByte(byte b) throws IOException {
-			// TODO Auto-generated method stub
-
+			if (toEnd) {
+				bytes.write(b);
+				pos++;
+			} else {
+				bytes.write((int) pos, b);
+				pos++;
+				toEnd = pos == bytes.size();
+			}
 		}
 
 		@Override
 		public void writeBytes(byte[] b, int offset, int length)
 				throws IOException {
-			// TODO Auto-generated method stub
-
+			if (toEnd) {
+				bytes.write(b, offset, length);
+				pos += length;
+			} else {
+				bytes.write((int) pos, b, offset, length);
+				pos += length;
+				toEnd = pos == bytes.size();
+			}
 		}
 
 	}

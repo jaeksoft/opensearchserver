@@ -48,6 +48,7 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.array.BytesOutputStream;
 
 public class SwiftProtocol {
 
@@ -197,6 +198,21 @@ public class SwiftProtocol {
 		downloadItem.checkNoErrorList(201);
 	}
 
+	final public static void writeObject(HttpDownloader httpDownloader,
+			SwiftToken swiftToken, String container, String path,
+			BytesOutputStream bytes) throws URISyntaxException,
+			ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException {
+		final List<Header> headerList = swiftToken
+				.getAuthTokenHeader(new ArrayList<Header>(2));
+		headerList.add(new BasicHeader("Content-Length", Integer.toString(bytes
+				.size())));
+		final URI uri = swiftToken.getPathURI(container, path);
+		final DownloadItem downloadItem = httpDownloader.put(uri, null,
+				headerList, null, bytes.getHttpEntity());
+		downloadItem.checkNoErrorList(201);
+	}
+
 	final public static void deleteObject(HttpDownloader httpDownloader,
 			SwiftToken swiftToken, String container, String path)
 			throws URISyntaxException, ClientProtocolException,
@@ -223,4 +239,5 @@ public class SwiftProtocol {
 		downloadItem.checkNoErrorList(200, 206);
 		return downloadItem.getContentInputStream();
 	}
+
 }
