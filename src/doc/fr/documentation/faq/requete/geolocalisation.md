@@ -5,7 +5,7 @@ OpenSearchServer offre la possibilité de réaliser des requêtes géolocalisée
 
 Il faut commencer par fournir la latitude et la longitude de chaque document.
 
-Le schéma doit comporter deux champs pour stocker cette information:
+Le schéma doit comporter deux champs pour stocker cette information :
 - latitude (indexé)
 - longitude (indexé)
 
