@@ -119,7 +119,7 @@ This script will extract all the root categories of the homepage of Dmoz. Then, 
   * **parameter 2**: name of the script
   * **parameter 3**:time to wait between the click and the script execution
 * `INDEX_DOCUMENT_NEW`: create a new document to be indexed
-  * **parameter 1**: name of the new document
+  * **parameter 1**: lang of the new document
 * `INDEX_DOCUMENT_ADD_VALUE`: add a value in the current new document
   * **parameter 1**: field
   * **parameter 2**: value. Variables can be used in this parameter.
