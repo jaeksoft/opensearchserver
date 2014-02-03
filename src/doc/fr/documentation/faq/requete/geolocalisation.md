@@ -1,31 +1,31 @@
-OpenSearchServer offre la possibilitÃ© de rÃ©aliser des requÃªtes gÃ©olocalisÃ©es. A partir du moment oÃ¹ les coordonnnÃ©es (longitude et latitude) ont Ã©tÃ© enregistrÃ©es avec les documents indexÃ©s il est possible de requÃªter les documents se trouvant dans un rectangle gÃ©ographique donnÃ©.
+OpenSearchServer offre la possibilité de réaliser des requêtes géolocalisées. A partir du moment où les coordonnnées (longitude et latitude) ont été enregistrées avec les documents indexés il est possible de requêter les documents se trouvant dans un rectangle géographique donné.
 
-## Indexer les documents en intÃ©grant les informations de gÃ©olocalisation
-### PrÃ©parer le schÃ©ma
+## Indexer les documents en intégrant les informations de géolocalisation
+### Préparer le schéma
 
 Il faut commencer par fournir la latitude et la longitude de chaque document.
 
-Le schÃ©ma doit comporter deux champs pour stocker cette information :
-- latitude (indexÃ©)
-- longitude (indexÃ©)
-
-L'analyzer correspondant au [systÃ¨me de coordonnÃ©es](http://fr.wikipedia.org/wiki/Coordonn%C3%A9es_g%C3%A9ographiques) appropriÃ© doit Ãªtre choisi:
+Le schéma doit comporter deux champs pour stocker cette information :
+- latitude (indexé)
+- longitude (indexé)
+ 
+L'analyzer correspondant au [système de coordonnées](http://fr.wikipedia.org/wiki/Coordonn%C3%A9es_g%C3%A9ographiques) approprié doit être choisi:
 
 - GeoRadianAnalyzer
 - GeoDegreesAnalyzer
 
 ![Alt text](geo_fields.png)
 
-### Indexer les donnÃ©es
+### Indexer les données
 
-Les coordonnÃ©es (latitude et longitude) doivent Ãªtre exprimÃ©s au format dÃ©cimal. Par exemple :
+Les coordonnées (latitude et longitude) doivent être exprimés au format décimal. Par exemple :
 
-- Pour des degrÃ©s: -52.090904
+- Pour des degrés: -52.090904
 - Pour des radians: -0.675757575575
 
 #### Utiliser l'API : ajouter deux champs au JSON
 
-L'API [d'indexation JSON](https://github.com/jaeksoft/opensearchserver/wiki/Document-put-JSON) est documentÃ©e sur notre [wiki des API](https://github.com/jaeksoft/opensearchserver/wiki/).
+L'API [d'indexation JSON](https://github.com/jaeksoft/opensearchserver/wiki/Document-put-JSON) est documentée sur notre [wiki des API](https://github.com/jaeksoft/opensearchserver/wiki/).
 
     [
       {
@@ -54,17 +54,17 @@ L'API [d'indexation JSON](https://github.com/jaeksoft/opensearchserver/wiki/Docu
        }
     ] 
 
-### RequÃªter les donnÃ©es
+### Requêter les données
 
-Recherchons par exemple les villes situÃ©es Ã  moins de 10 kilomÃ¨tres d'un point donnÃ© (appelÃ© "la position centrale").
+Recherchons par exemple les villes situées à moins de 10 kilomètres d'un point donné (appelé "la position centrale").
 
-Les champs latitudeField et longitudeField doivent Ãªtre mappÃ©s aux champs du schÃ©ma contenant ces informations.
+Les champs latitudeField et longitudeField doivent être mappés aux champs du schéma contenant ces informations.
 
-Le tableau "geo" permet de dÃ©finir la position centrale.
+Le tableau "geo" permet de définir la position centrale.
 
-Le filtre "GeoFilter" applique un filtre gÃ©ographique selon les paramÃ¨tres donnÃ©s.
+Le filtre "GeoFilter" applique un filtre géographique selon les paramètres donnés.
 
-La requÃªte est rÃ©alisÃ©e grÃ¢ce Ã  [l'API Search(field)](https://github.com/jaeksoft/opensearchserver/wiki/Search-field) dÃ©crite sur [notre wiki](https://github.com/jaeksoft/opensearchserver/wiki/) :
+La requête est réalisée grâce à [l'API Search(field)](https://github.com/jaeksoft/opensearchserver/wiki/Search-field) décrite sur [notre wiki](https://github.com/jaeksoft/opensearchserver/wiki/) :
 
     {
         "start": 0,
@@ -89,9 +89,9 @@ La requÃªte est rÃ©alisÃ©e grÃ¢ce Ã  [l'API Search(field)](https://github.com/ja
         "returnedFields": [ "city", "latitude", "longitude" ]
     }
 
-### Documents retournÃ©s
+### Documents retournés
 
-Voici les rÃ©sultats :
+Voici les résultats :
 
     {
     "successful": true,
@@ -132,9 +132,9 @@ Voici les rÃ©sultats :
     "maxScore": 1
     }
 
-### Ajouter la distance dans les rÃ©sultats
+### Ajouter la distance dans les résultats
 
-Pour retourner la distance entre la position centrale et chacun des rÃ©sultats il est nÃ©cessaire d'ajouter un tableau "scorings" dans la requÃªte :
+Pour retourner la distance entre la position centrale et chacun des résultats il est nécessaire d'ajouter un tableau "scorings" dans la requête :
 
     {
         "start": 0,
@@ -167,7 +167,7 @@ Pour retourner la distance entre la position centrale et chacun des rÃ©sultats i
     }
 
 
-Voici les rÃ©sultats :
+Voici les résultats :
 
     {
     "successful": true,
