@@ -5,10 +5,17 @@ OpenSearchServer offre la possibilité de réaliser des requêtes géolocalisées. A 
 
 Il faut commencer par fournir la latitude et la longitude de chaque document.
 
+<<<<<<< HEAD:src/doc/fr/documentation/faq/querying/geolocation.md
 Le schéma doit comporter deux champs pour stocker cette information:
 - latitude (indexé)
 - longitude (indexé)
 
+=======
+Le schéma doit comporter deux champs pour stocker cette information :
+- latitude (indexé)
+- longitude (indexé)
+ 
+>>>>>>> 4361500... Change on french documentation:src/doc/fr/documentation/faq/requete/geolocalisation.md
 L'analyzer correspondant au [système de coordonnées](http://fr.wikipedia.org/wiki/Coordonn%C3%A9es_g%C3%A9ographiques) approprié doit être choisi:
 
 - GeoRadianAnalyzer
