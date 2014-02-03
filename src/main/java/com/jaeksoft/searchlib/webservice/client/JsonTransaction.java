@@ -106,7 +106,7 @@ public class JsonTransaction {
 
 	private JSONObject checkJsonResult(DownloadItem downloadItem)
 			throws JSONException, IOException, SearchLibException {
-		downloadItem.checkNoError(200);
+		downloadItem.checkNoErrorList(200);
 		JSONObject json = new JSONObject(downloadItem.getContentAsString());
 		JSONObject jsonResult = json.getJSONObject("result");
 		if (!"true".equals(jsonResult.getString("@successful")))

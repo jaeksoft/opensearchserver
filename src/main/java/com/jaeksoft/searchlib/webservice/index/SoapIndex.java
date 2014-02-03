@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,8 @@ public interface SoapIndex {
 	public CommonResult createIndex(@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name,
-			@WebParam(name = "template") TemplateList template);
+			@WebParam(name = "template") TemplateList template,
+			@WebParam(name = "remote_uri") String remoteURI);
 
 	public CommonResult deleteIndex(@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,

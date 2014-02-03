@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -131,7 +131,7 @@ public class Logging {
 	}
 
 	private final static boolean noLogger(PrintStream ps, Object msg,
-			Exception e) {
+			Throwable e) {
 		if (logger != null)
 			return false;
 		if (msg != null)
@@ -159,7 +159,7 @@ public class Logging {
 		}
 	}
 
-	public final static void error(Object msg, Exception e) {
+	public final static void error(Object msg, Throwable e) {
 		if (noLogger(System.err, msg, e))
 			return;
 		logger.error(msg, e);
@@ -171,13 +171,13 @@ public class Logging {
 		logger.error(msg);
 	}
 
-	public final static void error(Exception e) {
+	public final static void error(Throwable e) {
 		if (noLogger(System.out, e.getMessage(), e))
 			return;
 		logger.error(e.getMessage(), e);
 	}
 
-	public final static void warn(Object msg, Exception e) {
+	public final static void warn(Object msg, Throwable e) {
 		if (noLogger(System.err, msg, e))
 			return;
 		logger.warn(msg, e);
@@ -196,7 +196,7 @@ public class Logging {
 				logger.warn(element.toString());
 	}
 
-	public final static void warn(Exception e) {
+	public final static void warn(Throwable e) {
 		if (noLogger(System.err, e.getMessage(), e))
 			return;
 		if (isShowStackTrace())
@@ -205,7 +205,7 @@ public class Logging {
 			logger.warn(e.getMessage());
 	}
 
-	public final static void info(Object msg, Exception e) {
+	public final static void info(Object msg, Throwable e) {
 		if (noLogger(System.out, msg, e))
 			return;
 		if (isShowStackTrace())
@@ -220,7 +220,7 @@ public class Logging {
 		logger.info(msg);
 	}
 
-	public final static void info(Exception e) {
+	public final static void info(Throwable e) {
 		if (noLogger(System.out, e.getMessage(), e))
 			return;
 		if (isShowStackTrace())
@@ -229,7 +229,7 @@ public class Logging {
 			logger.info(e.getMessage());
 	}
 
-	public final static void debug(Object msg, Exception e) {
+	public final static void debug(Object msg, Throwable e) {
 		if (noLogger(System.out, msg, e))
 			return;
 		if (isShowStackTrace())
@@ -244,7 +244,7 @@ public class Logging {
 		logger.debug(msg);
 	}
 
-	public final static void debug(Exception e) {
+	public final static void debug(Throwable e) {
 		if (noLogger(System.out, e.getMessage(), e))
 			return;
 		if (isShowStackTrace())

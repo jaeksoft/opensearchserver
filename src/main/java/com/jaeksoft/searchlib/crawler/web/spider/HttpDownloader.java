@@ -225,6 +225,6 @@ public class HttpDownloader extends HttpAbstract {
 			HttpEntity entity) throws ClientProtocolException, IOException,
 			IllegalStateException, SearchLibException, URISyntaxException {
 		return request(uri, Method.PUT, credentialItem, additionalHeaders,
-				cookies, null);
+				cookies, entity);
 	}
 }

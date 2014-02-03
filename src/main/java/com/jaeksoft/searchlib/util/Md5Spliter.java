@@ -51,7 +51,7 @@ public class Md5Spliter {
 	final public static String getMD5Hash(byte[] data, int offset, int length)
 			throws NoSuchAlgorithmException {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		md5.update(data);
+		md5.update(data, offset, length);
 		return generateHash(md5.digest());
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -123,11 +125,13 @@ public class SchemaServlet extends AbstractServlet {
 	}
 
 	private boolean createIndex(User user, ServletTransaction transaction)
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, URISyntaxException {
 		String indexName = transaction.getParameterString("index.name");
 		TemplateAbstract template = TemplateList.findTemplate(transaction
 				.getParameterString("index.template"));
-		ClientCatalog.createIndex(null, indexName, template);
+		String remoteURI = transaction.getParameterString("index.remote_uri");
+		ClientCatalog.createIndex(null, indexName, template,
+				remoteURI == null ? null : new URI(remoteURI));
 		transaction.addXmlResponse("Info", "Index created: " + indexName);
 		return true;
 	}
@@ -203,6 +207,8 @@ public class SchemaServlet extends AbstractServlet {
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (InterruptedException e) {
+			throw new ServletException(e);
+		} catch (URISyntaxException e) {
 			throw new ServletException(e);
 		}
 	}

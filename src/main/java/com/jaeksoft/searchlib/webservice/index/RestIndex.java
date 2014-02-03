@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,13 +44,16 @@ public interface RestIndex {
 	public CommonResult createIndex(@QueryParam("login") String login,
 			@QueryParam("key") String key,
 			@PathParam("index_name") String name,
-			@PathParam("template") TemplateList template);
+			@PathParam("template") TemplateList template,
+			@QueryParam("remote_uri") String remoteURI);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
 	public CommonResult createIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key, @PathParam("index_name") String name);
+			@QueryParam("key") String key,
+			@PathParam("index_name") String name,
+			@QueryParam("remote_uri") String remoteURI);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
