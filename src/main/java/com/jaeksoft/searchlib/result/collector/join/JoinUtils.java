@@ -48,8 +48,7 @@ public class JoinUtils {
 		if (docs2.getSize() == 0)
 			return joinType == JoinType.INNER ? docs2 : docs;
 
-		JoinDocCollectorInterface docs1 = JoinUtils.getCollector(docs,
-				joinResultSize);
+		JoinDocCollector docs1 = JoinUtils.getCollector(docs, joinResultSize);
 		docs1.getForeignReaders()[joinResultPos] = foreignReader;
 
 		Timer t = new Timer(timer, "copy & sort local documents");
@@ -83,18 +82,17 @@ public class JoinUtils {
 
 		t.getDuration();
 
-		docs1 = (JoinDocCollectorInterface) docs1.duplicate();
-		return docs1.getCollector(DocIdInterface.class);
+		// / Duplicate on JoinCollector also made reduction
+		return (DocIdInterface) docs1.duplicate();
 	}
 
-	final private static JoinDocCollectorInterface getCollector(
+	final private static JoinDocCollector getCollector(
 			final DocIdInterface docs, final int joinResultSize) {
 		JoinDocCollector base = new JoinDocCollector(docs, joinResultSize);
-		JoinDocCollectorInterface last = base;
 		ScoreInterface scoreInterface = docs.getCollector(ScoreInterface.class);
 		if (scoreInterface != null)
-			last = new JoinScoreCollector(base, scoreInterface, joinResultSize);
-		return last;
+			new JoinScoreCollector(base, scoreInterface, joinResultSize);
+		return base;
 	}
 
 	final private static void outerJoin(JoinDocCollectorInterface docs1,

@@ -62,7 +62,8 @@ public abstract class AbstractBaseCollector<C extends CollectorInterface>
 	@Override
 	final public CollectorInterface duplicate() {
 		AbstractBaseCollector<C> base = (AbstractBaseCollector<C>) duplicate(this);
-		lastCollector.duplicate(base);
+		if (lastCollector != this)
+			lastCollector.duplicate(base);
 		return base;
 	}
 }
