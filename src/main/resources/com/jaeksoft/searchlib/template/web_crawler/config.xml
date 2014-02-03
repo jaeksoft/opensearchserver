@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -21,7 +21,7 @@
 <configuration>
 	<indices>
 		<index name="index" searchCache="100" filterCache="100"
-			fieldCache="500" indexType="{indexType}" />
+			fieldCache="500" indexType="{indexType}" remoteURI="{remoteURI}" />
 	</indices>
 	<schema>
 

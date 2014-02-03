@@ -76,15 +76,14 @@ public class SwiftToken {
 	private final String authToken;
 	private final String username;
 
-	private final List<Header> stdHeaders;
+	private final List<Header> authHeaders;
 
 	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
 			String username, String password, AuthType authType, String tenant)
 			throws URISyntaxException, ClientProtocolException, IOException,
 			JSONException, SearchLibException {
 
-		stdHeaders = new ArrayList<Header>();
-		stdHeaders.add(new BasicHeader("Accept", "application/json"));
+		authHeaders = new ArrayList<Header>(1);
 
 		DownloadItem downloadItem = null;
 		switch (authType) {
@@ -99,7 +98,7 @@ public class SwiftToken {
 		if (downloadItem == null)
 			throw new SearchLibException("Authentication failed");
 
-		downloadItem.checkNoError(200, 204);
+		downloadItem.checkNoErrorRange(200, 204);
 
 		String jsonString = downloadItem.getContentAsString();
 		JSONObject json = new JSONObject(jsonString);
@@ -136,6 +135,7 @@ public class SwiftToken {
 		internalURL = intUrl;
 		publicURL = pubUrl;
 		this.username = username;
+		authHeaders.add(new BasicHeader(X_Auth_Token, authToken));
 	}
 
 	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
@@ -152,10 +152,10 @@ public class SwiftToken {
 		JSONObject json = new JSONObject();
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
-		return httpDownloader
-				.post(uri, null, stdHeaders, null,
-						new StringEntity(json.toString(),
-								ContentType.APPLICATION_JSON));
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new BasicHeader("Accept", "application/json"));
+		return httpDownloader.post(uri, null, headers, null, new StringEntity(
+				json.toString(), ContentType.APPLICATION_JSON));
 	}
 
 	private DownloadItem iamRequest(HttpDownloader httpDownloader,
@@ -169,15 +169,43 @@ public class SwiftToken {
 		u.append("/credentials/openstack?tenantname=");
 		u.append(tenantname);
 		URI uri = new URI(u.toString());
-		return httpDownloader.get(uri, null, stdHeaders, null);
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new BasicHeader("Accept", "application/json"));
+		return httpDownloader.get(uri, null, headers, null);
 	}
 
-	public void putAuthTokenHeader(List<Header> headerList) {
+	final public List<Header> getAuthTokenHeader(final List<Header> headerList) {
+		if (headerList == null)
+			return this.authHeaders;
 		headerList.add(new BasicHeader(X_Auth_Token, authToken));
+		return headerList;
 	}
 
-	public URI getURI(String container, String path, boolean prefixAndDelimiter)
-			throws URISyntaxException, UnsupportedEncodingException {
+	final public URI getContainerURI(final String container)
+			throws URISyntaxException {
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
+				: internalURL);
+		if (!container.startsWith("/"))
+			sb.append('/');
+		sb.append(container);
+		return new URI(sb.toString());
+	}
+
+	final public URI getPathURI(final String container, final String path)
+			throws URISyntaxException {
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
+				: internalURL);
+		if (!container.startsWith("/"))
+			sb.append('/');
+		sb.append(container);
+		sb.append('/');
+		sb.append(path);
+		return new URI(sb.toString());
+	}
+
+	final public URI getURI(final String container, final String path,
+			final boolean prefixAndDelimiter) throws URISyntaxException,
+			UnsupportedEncodingException {
 		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
 				: internalURL);
 		if (!container.startsWith("/"))

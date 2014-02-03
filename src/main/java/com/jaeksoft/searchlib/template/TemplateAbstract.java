@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,12 +29,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URI;
 
-import org.apache.tools.ant.util.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class TemplateAbstract {
 
@@ -62,7 +64,7 @@ public abstract class TemplateAbstract {
 		return description;
 	}
 
-	public void createIndex(File indexDir, IndexType indexType)
+	public void createIndex(File indexDir, IndexType indexType, URI remoteURI)
 			throws SearchLibException, IOException {
 
 		if (!indexDir.mkdir())
@@ -85,6 +87,11 @@ public abstract class TemplateAbstract {
 				IOUtils.copy(is, writer, "UTF-8");
 				String newConfig = StringUtils.replace(writer.toString(),
 						"{indexType}", indexType.name());
+				newConfig = StringUtils.replace(
+						writer.toString(),
+						"{remoteURI}",
+						remoteURI == null ? "" : StringEscapeUtils
+								.escapeXml(remoteURI.toString()));
 				IOUtils.closeQuietly(is);
 				is = IOUtils.toInputStream(newConfig, "UTF-8");
 			}

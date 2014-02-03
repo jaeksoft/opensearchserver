@@ -182,7 +182,7 @@ public class HtmlArchiver {
 			fileName = downloadItem.getFileName();
 			if (fileName == null || fileName.length() == 0)
 				return src;
-			downloadItem.checkNoError(200, 300);
+			downloadItem.checkNoErrorRange(200, 300);
 			String baseName = FilenameUtils.getBaseName(fileName);
 			String extension = FilenameUtils.getExtension(fileName);
 			if (contentType == null)
