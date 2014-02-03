@@ -137,7 +137,7 @@ public class SwiftProtocol {
 				continue;
 			if (!withDirectory && objectMeta.isDirectory)
 				continue;
-			if (path.equals(objectMeta.pathName))
+			if (path != null && path.equals(objectMeta.pathName))
 				continue;
 			if (exclusionMatchers != null)
 				if (RegExpUtils.find(objectMeta.pathName, exclusionMatchers))
