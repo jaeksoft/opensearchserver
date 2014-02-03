@@ -39,7 +39,6 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
-import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
 
@@ -79,9 +78,7 @@ public class WriterLocal extends WriterAbstract {
 			return;
 		try {
 			indexWriter.close();
-		} catch (AlreadyClosedException e) {
-			Logging.warn(e);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			Logging.warn(e);
 		} finally {
 			indexDirectory.unlock();

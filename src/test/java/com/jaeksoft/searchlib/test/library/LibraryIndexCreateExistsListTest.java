@@ -48,7 +48,8 @@ public class LibraryIndexCreateExistsListTest {
 	public void testACreateIndex() throws IllegalStateException, IOException,
 			XPathExpressionException, SAXException,
 			ParserConfigurationException, SearchLibException {
-		ClientCatalog.createIndex(LibraryTest.EMPTY_INDEX_NAME, "EMPTY_INDEX");
+		ClientCatalog.createIndex(LibraryTest.EMPTY_INDEX_NAME, "EMPTY_INDEX",
+				null);
 	}
 
 	@Test

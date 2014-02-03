@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -82,7 +83,6 @@ import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexAbstract;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.learning.Learner;
 import com.jaeksoft.searchlib.learning.LearnerManager;
 import com.jaeksoft.searchlib.logreport.LogReportManager;
@@ -278,6 +278,8 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
+		} catch (JSONException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -448,14 +450,13 @@ public abstract class Config implements ThreadFactory {
 
 	private IndexAbstract newIndex(File indexDir, XPathParser xpp,
 			boolean createIndexIfNotExists) throws XPathExpressionException,
-			IOException, URISyntaxException, SearchLibException {
+			IOException, URISyntaxException, SearchLibException, JSONException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
 		switch (nodeList.getLength()) {
 		default:
 			return null;
 		case 1:
-			return new IndexSingle(indexDir, new IndexConfig(xpp,
-					xpp.getNode("/configuration/indices/index")),
+			return new IndexConfig(nodeList.item(0)).getNewIndex(indexDir,
 					createIndexIfNotExists);
 		}
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
@@ -39,6 +40,7 @@ import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
+import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -61,29 +63,36 @@ public class IndexSingle extends IndexAbstract {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private IndexDirectory indexDirectory = null;
+	final private IndexDirectory indexDirectory;
 
-	private ReaderInterface reader = null;
-	private WriterInterface writer = null;
+	private final ReaderInterface reader;
+	private final WriterInterface writer;
 
 	private volatile boolean online;
 
 	public IndexSingle(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException,
-			SearchLibException {
+			SearchLibException, JSONException {
 		super(indexConfig);
 		this.online = true;
 
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
 		if (!indexDir.exists()) {
-			if (!createIfNotExists)
+			if (!createIfNotExists) {
+				indexDirectory = null;
+				reader = null;
+				writer = null;
 				return;
+			}
 			indexDir.mkdir();
 			bCreate = true;
 		} else
 			indexDir = findIndexDirOrSub(indexDir);
-		indexDirectory = new IndexDirectory(indexDir);
+		URI remoteURI = indexConfig.getRemoteURI();
+		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir)
+				: new IndexDirectory(remoteURI);
+		bCreate = bCreate || indexDirectory.isEmpty();
 		writer = new WriterLocal(indexConfig, this, indexDirectory);
 		if (bCreate)
 			((WriterLocal) writer).create();

@@ -25,13 +25,16 @@
 package com.jaeksoft.searchlib.util.array;
 
 import java.io.ByteArrayOutputStream;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 
+import com.jaeksoft.searchlib.util.Md5Spliter;
+
 public class BytesOutputStream extends ByteArrayOutputStream {
 
-	public void write(int pos, byte b) {
+	final public void write(int pos, byte b) {
 		buf[pos] = b;
 	}
 
@@ -41,6 +44,10 @@ public class BytesOutputStream extends ByteArrayOutputStream {
 
 	final public HttpEntity getHttpEntity() {
 		return new ByteArrayEntity(buf, 0, size());
+	}
+
+	final public String getMD5() throws NoSuchAlgorithmException {
+		return Md5Spliter.getMD5Hash(buf, 0, size());
 	}
 
 }

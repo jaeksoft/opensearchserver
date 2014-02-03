@@ -60,7 +60,8 @@ public class LibraryIndexFileTest {
 			XPathExpressionException, SAXException,
 			ParserConfigurationException, SearchLibException {
 		// Create an index using the FILE_CRAWLER template
-		ClientCatalog.createIndex(LibraryTest.FILE_INDEX_NAME, "FILE_CRAWLER");
+		ClientCatalog.createIndex(LibraryTest.FILE_INDEX_NAME, "FILE_CRAWLER",
+				null);
 	}
 
 	@Test

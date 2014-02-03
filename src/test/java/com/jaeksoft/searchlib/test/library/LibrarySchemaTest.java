@@ -52,7 +52,8 @@ public class LibrarySchemaTest {
 	 */
 	@Test
 	public void testA_CreateIndex() throws IOException, SearchLibException {
-		ClientCatalog.createIndex(LibraryTest.EMPTY_INDEX_NAME, "EMPTY_INDEX");
+		ClientCatalog.createIndex(LibraryTest.EMPTY_INDEX_NAME, "EMPTY_INDEX",
+				null);
 	}
 
 	/**

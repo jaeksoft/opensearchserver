@@ -135,7 +135,7 @@ public class HomeController extends CommonController {
 			return;
 		}
 		ClientCatalog.createIndex(getLoggedUser(), indexName,
-				indexTemplate.getTemplate());
+				indexTemplate.getTemplate(), null);
 		setClient(ClientCatalog.getClient(indexName));
 	}
 

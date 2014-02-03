@@ -29,6 +29,7 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -296,16 +297,17 @@ public class ClientCatalog {
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
-	public static void createIndex(String indexName, String templateName)
-			throws SearchLibException, IOException {
+	public static void createIndex(String indexName, String templateName,
+			URI remoteURI) throws SearchLibException, IOException {
 		TemplateAbstract template = TemplateList.findTemplate(templateName);
 		if (template == null)
 			throw new SearchLibException("Template not found: " + templateName);
-		createIndex(null, indexName, template);
+		createIndex(null, indexName, template, remoteURI);
 	}
 
 	public static void createIndex(User user, String indexName,
-			TemplateAbstract template) throws SearchLibException, IOException {
+			TemplateAbstract template, URI remoteURI)
+			throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		ClientFactory.INSTANCE.properties.checkMaxIndexNumber();
@@ -319,7 +321,7 @@ public class ClientCatalog {
 			if (indexDir.exists())
 				throw new SearchLibException("directory " + indexName
 						+ " already exists");
-			template.createIndex(indexDir);
+			template.createIndex(indexDir, remoteURI);
 		} finally {
 			rwl.w.unlock();
 		}
