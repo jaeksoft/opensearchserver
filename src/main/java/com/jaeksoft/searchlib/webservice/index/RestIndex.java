@@ -45,7 +45,7 @@ public interface RestIndex {
 			@QueryParam("key") String key,
 			@PathParam("index_name") String name,
 			@PathParam("template") TemplateList template,
-			@QueryParam("remote_uri") String remoteURI);
+			@PathParam("remote_uri") String remoteURI);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -53,7 +53,7 @@ public interface RestIndex {
 	public CommonResult createIndex(@QueryParam("login") String login,
 			@QueryParam("key") String key,
 			@PathParam("index_name") String name,
-			@QueryParam("remote_uri") String remoteURI);
+			@PathParam("remote_uri") String remoteURI);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
