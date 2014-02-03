@@ -80,8 +80,7 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 			UnsupportedEncodingException {
 		String path = getPath();
 		if (token != null)
-			return token.getURI(filePathItem.getSwiftContainer(), getPath(),
-					false);
+			return token.getURI(filePathItem.getSwiftContainer(), path, false);
 		return new URI(LinkUtils.concatPath(
 				getFilePathItem().getSwiftAuthURL(), path));
 	}
