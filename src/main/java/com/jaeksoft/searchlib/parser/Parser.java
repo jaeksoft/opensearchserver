@@ -55,7 +55,7 @@ public abstract class Parser extends ParserFactory {
 
 	private Set<String> detectedLinks;
 
-	private Exception error;
+	private Throwable error;
 
 	protected Parser(ParserFieldEnum[] fieldList, boolean externalAllowed) {
 		super(fieldList, externalAllowed);
@@ -170,19 +170,13 @@ public abstract class Parser extends ParserFactory {
 		try {
 			this.streamLimiter = streamLimiter;
 			parseContent(streamLimiter, lang);
-		} catch (IllegalArgumentException e) {
-			this.error = e;
-			Logging.warn(getErrorText(e), e);
-		} catch (NullPointerException e) {
-			this.error = e;
-			Logging.warn(getErrorText(e), e);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			this.error = e;
 			Logging.warn(getErrorText(e), e);
 		}
 	}
 
-	final public Exception getError() {
+	final public Throwable getError() {
 		return error;
 	}
 
