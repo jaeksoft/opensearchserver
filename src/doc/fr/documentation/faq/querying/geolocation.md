@@ -1,6 +1,5 @@
 OpenSearchServer offre la possibilité de réaliser des requêtes géolocalisées. A partir du moment où les coordonnnées (longitude et latitude) ont été enregistrées avec les documents indexés il est possible de requêter les documents se trouvant dans un rectangle géographique donné.
 
-## Indexing your document with Geolocation information
 ## Indexer les documents en intégrant les informations de géolocalisation
 ### Préparer le schéma
 
