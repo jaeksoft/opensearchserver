@@ -30,7 +30,6 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
 public class JoinScoreCollector extends
 		AbstractExtendsCollector<JoinDocCollectorInterface, JoinDocCollector>
@@ -38,53 +37,44 @@ public class JoinScoreCollector extends
 
 	private final float maxScore;
 	private final float[] scores;
-	private final FloatBufferedArray scoresCollector;
 
 	JoinScoreCollector(JoinDocCollector base) {
 		super(base);
 		maxScore = 0;
 		scores = ScoreInterface.EMPTY_SCORES;
-		scoresCollector = null;
 	}
 
 	JoinScoreCollector(JoinDocCollector base, ScoreInterface scoreDocInterface,
 			int joinResultSize) {
 		super(base);
 		maxScore = scoreDocInterface.getMaxScore();
-		scoresCollector = null;
 		scores = ArrayUtils.clone(scoreDocInterface.getScores());
 	}
 
-	private JoinScoreCollector(JoinDocCollector base, JoinScoreCollector src) {
+	private JoinScoreCollector(final JoinDocCollector base, int[] srcIds,
+			float[] srcScores) {
 		super(base);
-		maxScore = src.maxScore;
-		scoresCollector = null;
-		scores = ArrayUtils.clone(src.scores);
-	}
-
-	JoinScoreCollector(final JoinDocCollector base, final int[] srcIds,
-			final float[] srcScores) {
-		super(base);
-		scoresCollector = new FloatBufferedArray(srcIds.length);
-		int i = 0;
+		scores = new float[srcIds.length];
+		int i1 = 0;
+		int i2 = 0;
 		float msc = 0;
 		for (int id : srcIds) {
 			if (id != -1) {
-				float score = srcScores[i];
-				scoresCollector.add(score);
+				float score = srcScores[i2];
+				scores[i1++] = score;
 				if (score > msc)
 					msc = score;
 			}
-			i++;
+			i2++;
 		}
 		maxScore = msc;
-		scores = scoresCollector.getFinalArray();
 	}
 
 	@Override
 	public JoinScoreCollector duplicate(final AbstractBaseCollector<?> base) {
 		parent.duplicate(base);
-		return new JoinScoreCollector((JoinDocCollector) base, this);
+		return new JoinScoreCollector((JoinDocCollector) base,
+				this.base.getIds(), this.scores);
 	}
 
 	@Override
