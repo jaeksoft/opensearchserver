@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -47,7 +48,7 @@ public class IndexConfig {
 
 	private int termVectorCache;
 
-	private URI remoteUri;
+	private URI remoteURI;
 
 	private String keyField;
 
@@ -68,8 +69,8 @@ public class IndexConfig {
 			fieldCache = XPathParser.getAttributeValue(node, "documentCache");
 		termVectorCache = XPathParser
 				.getAttributeValue(node, "termVectorCache");
-		String s = XPathParser.getAttributeString(node, "remoteUrl");
-		remoteUri = s == null ? null : new URI(s);
+		String s = XPathParser.getAttributeString(node, "remoteURI");
+		remoteURI = StringUtils.isEmpty(s) ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
 		setSimilarityClass(XPathParser.getAttributeString(node,
@@ -87,8 +88,8 @@ public class IndexConfig {
 						Integer.toString(searchCache), "filterCache",
 						Integer.toString(filterCache), "fieldCache",
 						Integer.toString(fieldCache), "termVectorCache",
-						Integer.toString(termVectorCache), "remoteUrl",
-						remoteUri != null ? remoteUri.toString() : null,
+						Integer.toString(termVectorCache), "remoteURI",
+						remoteURI != null ? remoteURI.toString() : null,
 						"keyField", keyField, "keyMd5RegExp", keyMd5RegExp,
 						"similarityClass", similarityClass, "maxNumSegments",
 						Integer.toString(maxNumSegments), "indexType",
@@ -157,18 +158,18 @@ public class IndexConfig {
 	}
 
 	/**
-	 * @return the remoteUri
+	 * @return the remoteURI
 	 */
-	public URI getRemoteUri() {
-		return remoteUri;
+	public URI getRemoteURI() {
+		return remoteURI;
 	}
 
 	/**
-	 * @param remoteUri
-	 *            the remoteUri to set
+	 * @param remoteURI
+	 *            the remoteURI to set
 	 */
-	public void setRemoteUri(URI remoteUri) {
-		this.remoteUri = remoteUri;
+	public void setRemoteURI(URI remoteURI) {
+		this.remoteURI = remoteURI;
 	}
 
 	/**

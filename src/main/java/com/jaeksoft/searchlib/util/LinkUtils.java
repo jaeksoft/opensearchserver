@@ -30,8 +30,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
@@ -126,5 +131,15 @@ public class LinkUtils {
 		System.out.println(lastPart("/my+file.png"));
 		System.out.println(lastPart("my+file.png"));
 		System.out.println(lastPart("my+folder/my+sub-folder/my+file.png"));
+	}
+
+	public final static Map<String, String> getUniqueQueryParameters(
+			final URI uri, final String charset) {
+		final Map<String, String> map = new TreeMap<String, String>();
+		final List<NameValuePair> parameters = URLEncodedUtils.parse(uri,
+				"UTF-8");
+		for (NameValuePair parameter : parameters)
+			map.put(parameter.getName(), parameter.getValue());
+		return map;
 	}
 }

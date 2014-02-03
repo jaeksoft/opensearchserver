@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,10 +33,10 @@ import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Tabbox;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
-@AfterCompose(superclass = true)
 public class RuntimeController extends CommonController {
 
 	@Wire("#tabRuntime")
@@ -52,11 +52,18 @@ public class RuntimeController extends CommonController {
 	protected void reset() {
 	}
 
+	@Override
 	@AfterCompose
-	public void afterCompose(@ContextParam(ContextType.VIEW) Component view)
-			throws SearchLibException {
+	public void afterCompose(
+			@ContextParam(ContextType.COMPONENT) Component component,
+			@ContextParam(ContextType.VIEW) Component view) {
+		super.afterCompose(component, view);
 		Selectors.wireComponents(view, this, false);
-		selectedTabIndex = isInstanceValid() ? 0 : 5;
+		try {
+			selectedTabIndex = isInstanceValid() ? 0 : 5;
+		} catch (SearchLibException e) {
+			Logging.warn(e);
+		}
 	}
 
 	public boolean isCommandsRights() throws SearchLibException {

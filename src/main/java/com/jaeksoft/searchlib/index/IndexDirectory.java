@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,14 +26,25 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.apache.commons.exec.OS;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.NoSuchDirectoryException;
+import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class IndexDirectory {
@@ -48,10 +59,56 @@ public class IndexDirectory {
 			directory = NIOFSDirectory.open(indexDir);
 	}
 
+	/**
+	 * Create an index directory using an index remotely stored using the Object
+	 * Storage API.
+	 * 
+	 * The URI should be created like that:
+	 * SWIFT://localhost?tenant=&container=&user=&password=&url=
+	 * 
+	 * The parameters must be URL encoded as UTF-8
+	 * 
+	 * @param uri
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws JSONException
+	 * @throws SearchLibException
+	 */
+	protected IndexDirectory(final URI uri) throws IOException,
+			URISyntaxException, JSONException, SearchLibException {
+		if ("SWIFT".equals(uri.getScheme())) {
+			HttpDownloader httpDownloader = new HttpDownloader(null, true, null);
+			Map<String, String> parameters = LinkUtils
+					.getUniqueQueryParameters(uri, "UTF-8");
+			String tenant = parameters.get("tenant");
+			String container = parameters.get("container");
+			String user = parameters.get("user");
+			String password = parameters.get("password");
+			String url = parameters.get("url");
+			SwiftToken token = new SwiftToken(httpDownloader, url, user,
+					password, AuthType.KEYSTONE, tenant);
+			directory = new ObjectStorageDirectory(httpDownloader, token,
+					container);
+			return;
+		}
+		throw new IOException("Unsupported protocol: " + uri);
+	}
+
 	public Directory getDirectory() {
 		rwl.r.lock();
 		try {
 			return directory;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isEmpty() throws IOException {
+		rwl.r.lock();
+		try {
+			return ArrayUtils.isEmpty(directory.listAll());
+		} catch (NoSuchDirectoryException e) {
+			return true;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -65,7 +122,7 @@ public class IndexDirectory {
 			if (!IndexWriter.isLocked(directory))
 				return;
 			IndexWriter.unlock(directory);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			Logging.warn(e);
 		} finally {
 			rwl.w.unlock();

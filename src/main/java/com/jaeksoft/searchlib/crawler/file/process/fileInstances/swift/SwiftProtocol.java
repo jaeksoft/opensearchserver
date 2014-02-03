@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.array.BytesOutputStream;
 
 public class SwiftProtocol {
 
@@ -124,7 +126,7 @@ public class SwiftProtocol {
 		final URI uri = swiftToken.getURI(container, path, true);
 		final DownloadItem downloadItem = httpDownloader.get(uri, null,
 				headerList, null);
-		downloadItem.checkNoErrorRange(200, 204);
+		downloadItem.checkNoErrorList(200, 204);
 
 		final String jsonString = downloadItem.getContentAsString();
 		final JSONArray jsonArray = new JSONArray(jsonString);
@@ -153,8 +155,16 @@ public class SwiftProtocol {
 		final URI uri = swiftToken.getContainerURI(container);
 		DownloadItem downloadItem = httpDownloader.get(uri, null, headerList,
 				null);
-		downloadItem.checkNoErrorRange(200, 204);
-		return IOUtils.readLines(downloadItem.getContentInputStream());
+		downloadItem.checkNoErrorList(200, 204);
+		InputStream inputStream = null;
+		try {
+			inputStream = downloadItem.getContentInputStream();
+			if (inputStream != null)
+				return IOUtils.readLines(inputStream);
+			return null;
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+		}
 	}
 
 	final public static ObjectMeta headObject(HttpDownloader httpDownloader,
@@ -197,6 +207,22 @@ public class SwiftProtocol {
 		downloadItem.checkNoErrorList(201);
 	}
 
+	final public static DownloadItem writeObject(HttpDownloader httpDownloader,
+			SwiftToken swiftToken, String container, String path,
+			BytesOutputStream bytes) throws URISyntaxException,
+			ClientProtocolException, IllegalStateException, IOException,
+			SearchLibException, NoSuchAlgorithmException {
+		final List<Header> headerList = swiftToken
+				.getAuthTokenHeader(new ArrayList<Header>(2));
+		String md5 = bytes.getMD5();
+		headerList.add(new BasicHeader("ETag", md5));
+		final URI uri = swiftToken.getPathURI(container, path);
+		final DownloadItem downloadItem = httpDownloader.put(uri, null,
+				headerList, null, bytes.getHttpEntity());
+		downloadItem.checkNoErrorList(201);
+		return downloadItem;
+	}
+
 	final public static void deleteObject(HttpDownloader httpDownloader,
 			SwiftToken swiftToken, String container, String path)
 			throws URISyntaxException, ClientProtocolException,
@@ -223,4 +249,17 @@ public class SwiftProtocol {
 		downloadItem.checkNoErrorList(200, 206);
 		return downloadItem.getContentInputStream();
 	}
+
+	final public static DownloadItem readObject(HttpDownloader httpDownloader,
+			SwiftToken swiftToken, String container, String path)
+			throws URISyntaxException, ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException {
+		final List<Header> headerList = swiftToken.getAuthTokenHeader(null);
+		final URI uri = swiftToken.getPathURI(container, path);
+		final DownloadItem downloadItem = httpDownloader.get(uri, null,
+				headerList, null);
+		downloadItem.checkNoErrorList(200, 206);
+		return downloadItem;
+	}
+
 }
