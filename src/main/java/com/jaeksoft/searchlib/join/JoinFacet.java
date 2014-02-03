@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.join;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
@@ -53,14 +54,22 @@ public class JoinFacet {
 	public void apply(DocIdInterface collector, Timer timer)
 			throws SearchLibException {
 		try {
-			JoinDocCollector joinDocCollector = (JoinDocCollector) collector;
 			ReaderAbstract readerAbstract = resultSearch.getReader();
 			int maxDoc = readerAbstract.maxDoc();
-			for (FacetField facetField : facetFieldList)
-				joinResult.add(facetField.getFacet(readerAbstract,
-						JoinDocCollector.getDocIdInterface(maxDoc,
-								joinResult.joinPosition, joinDocCollector),
-						null, timer));
+			for (FacetField facetField : facetFieldList) {
+				DocIdInterface facetCollector;
+				Facet facet = resultSearch.getFacetList().getByField(
+						facetField.getName());
+				if (collector instanceof JoinDocCollector) {
+					facetCollector = JoinDocCollector.getDocIdInterface(maxDoc,
+							joinResult.joinPosition,
+							(JoinDocCollector) collector);
+					facet = facetField.getFacet(readerAbstract, facetCollector,
+							null, timer);
+				}
+				if (facet != null)
+					joinResult.add(facet);
+			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
