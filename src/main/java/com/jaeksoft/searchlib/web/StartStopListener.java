@@ -165,8 +165,14 @@ public class StartStopListener implements ServletContextListener {
 
 		ErrorParserLogger.init();
 
-		Logging.info("Native library version: "
-				+ OsseIndex.LIB.OSSCLib_GetVersionInfoText());
+		try {
+			OsseIndex.initOsseJNILibrary();
+			Logging.info("Native library version: "
+					+ OsseIndex.LIB.OSSCLib_GetVersionInfoText());
+		} catch (java.lang.UnsatisfiedLinkError e) {
+			Logging.warn("Native OpenSearchServer_CLib not found: "
+					+ System.getProperty("java.library.path"));
+		}
 
 		try {
 			ClientFactory.setInstance(new ClientFactory());

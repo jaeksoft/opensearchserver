@@ -85,8 +85,11 @@ public abstract class TemplateAbstract {
 			if (resource.equals("config.xml")) {
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(is, writer, "UTF-8");
-				String newConfig = StringUtils.replace(writer.toString(),
-						"{indexType}", indexType.name());
+				String newConfig = StringUtils.replace(
+						writer.toString(),
+						"{indexType}",
+						indexType == null ? IndexType.LUCENE.name() : indexType
+								.name());
 				newConfig = StringUtils.replace(
 						writer.toString(),
 						"{remoteURI}",

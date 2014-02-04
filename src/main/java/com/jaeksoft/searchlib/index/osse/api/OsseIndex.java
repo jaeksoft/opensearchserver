@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,15 +38,15 @@ import com.sun.jna.ptr.IntByReference;
 
 public class OsseIndex {
 
-	final public static OsseJNILibrary LIB;
-
-	static {
-		System.out.println(System.getProperty("java.library.path"));
-		LIB = new OsseJNILibrary();
-		System.out.println(LIB.OSSCLib_GetVersionInfoText());
-	}
+	public static OsseJNILibrary LIB = null;
 
 	private long indexPtr;
+
+	public static synchronized void initOsseJNILibrary() {
+		if (LIB != null)
+			return;
+		LIB = new OsseJNILibrary();
+	}
 
 	public OsseIndex(File indexDirectory, OsseErrorHandler err, boolean bCreate)
 			throws SearchLibException {
