@@ -15,26 +15,26 @@ Voici la page de recherche finale que nous obtiendrons :
 Pour illustrer notre tutoriel, nous avons pris l’exemple d’un site d'actualités. Nous avons créé pour cela 4 pages fictives :
 
 * [http://www.open-search-server.com/fr/site-de-test-crawler/](http://www.open-search-server.com/fr/site-de-test-crawler/)
-  * [http://www.open-search-server.com/fr/site-de-test-crawler-le-chomage-est-en-baisse/](http://www.open-search-server.com/fr/site-de-test-crawler-le-chomage-est-en-baisse/)
-  * [http://www.open-search-server.com/fr/site-de-test-crawler-la-coupe-du-monde-2040](http://www.open-search-server.com/fr/site-de-test-crawler-la-coupe-du-monde-2040/)
-  * [http://www.open-search-server.com/fr/site-de-test-crawler-la-ceremonie-des-oscars/](http://www.open-search-server.com/fr/site-de-test-crawler-la-ceremonie-des-oscars/)
+  * [http://www.open-search-server.com/fr/site-de-test-crawler-le-chomage-est-en-baisse/](http://www.open-search-server.com/fr/site-de-test-crawler/le-chomage-est-en-baisse/)
+  * [http://www.open-search-server.com/fr/site-de-test-crawler-la-coupe-du-monde-2040](http://www.open-search-server.com/fr/site-de-test-crawler/la-coupe-du-monde-2040/)
+  * [http://www.open-search-server.com/fr/site-de-test-crawler-la-ceremonie-des-oscars/](http://www.open-search-server.com/fr/site-de-test-crawler/la-ceremonie-des-oscars/)
 
-Pour commencer il vous suffit d'[Installer OpenSearchServer en 3 minutes](http://www.open-search-server.com/fr/tester-opensearchserver).
+Pour commencer il vous suffit d'[Installer OpenSearchServer en 3 minutes](http://www.open-search-server.com/documentation/installation/).
 
 ## Quelques définitions
 
 Avant de démarrer ce tutoriel il est important de connaitre les principaux constituants d'un moteur de recherche :
 
 * **Index de recherche** : l'index est l'endroit où les documents sont enregistrés, découpés et classés selon différents algorithmes afin de permettre ensuite leur recherche rapide.
-* **Crawler** : le crawler web explore les sites web demandés pour indexer leurs pages. Il est capable de suivre seul les liens présents dans les pages tout en se cantonnant à un domaine précis. Il permet d'enregistrer différents types de documents : les pages web, les images, les fichiers liés, etc. Il existe aussi des crawlers de système de fichier et des crawler de base de données.
+* **Crawler** : le crawler web explore les sites web demandés pour indexer leurs pages. Il est capable de suivre seul les liens présents dans les pages tout en se cantonnant à un domaine précis. Il permet d'enregistrer différents types de documents : les pages web, les images, les fichiers liés, etc. Il existe aussi des crawlers de système de fichiers et des crawlers de bases de données.
 * **Schema** : le schéma détermine la structure d'un index. C'est lui qui indique quels sont les champs des documents indexés.
 * **Query** : les query représentent les requêtes de recherche personnalisées. Dans une requête il est possible de configurer les champs du schéma dans lesquels rechercher, la pertinence de chaque champ, la présence de facettes et de snippets, etc.
 * **Facette** : les facettes sont des compteurs de documents basés sur des valeurs partagées par tous.
 * **Snippet** : les snippets sont des extraits de document permettant de mettre en avant les mots recherchés.
-* **Renderer** : dans OpenSearchServer les renderers sont des pages de recherche simple à mettre en place et pouvant être proposées aux internautes
-* **Parser** : les parsers servent à extraire des informations structurées à partir des documents indexés (titre, auteur, description, ...)
-* **Analyzer** : les analyzers sont des composants personnalisables permettant d'appliquer certains traitements sur les textes indexés ou recherchés (découpage en token, retrait des accents, conversion d'unités, ...)
-* **Scheduler** : le scheduler d'OpenSearchServer est un gestionnaire de tâches offrant la possibilité de programmer l'exécution de différents jobs 
+* **Renderer** : dans OpenSearchServer les renderers sont des pages de recherche simple à mettre en place et pouvant être proposées aux internautes.
+* **Parser** : les parsers servent à extraire des informations structurées à partir des documents indexés (titre, auteur, description, ...).
+* **Analyzer** : les analyzers sont des composants personnalisables permettant d'appliquer certains traitements sur les textes indexés ou recherchés (découpage en token, retrait des accents, conversion d'unités, ...).
+* **Scheduler** : le scheduler d'OpenSearchServer est un puissant gestionnaire de tâches offrant la possibilité de programmer l'exécution de différents jobs.
 
 Le schéma suivant présente les principales briques d'OpenSearchServer de manière simplifiée :
 
@@ -64,13 +64,13 @@ L'index est créé immédiatement. Le contexte global de l'interface change et d
 Sélectionnez l'onglet `Schema`. Le schéma permet de définir quels sont les champs de l'index. 
 Un champ de schéma possède 5 propriétés :
 
-* **Name** : le nom du champ
+* **Name** : le nom du champ.
 * **Indexed** : indique si la valeur du champ doit être indexée, ce qui permettra alors d'effectuer des requêtes dessus. Il arrive que certains champs ne soient pas utilisés dans les recherches mais doivent tout de même être retournés (voir propriété suivante) lors d'une requête de recherche.
-* **Stored** : indique si la valeur du champ doit être stockée telle quelle. Cela permettra de renvoyer la donnée brute lors d'une requête de recherche.
+* **Stored** : indique si la valeur du champ doit être stockée telle quelle. Cela permettra de renvoyer la donnée brute (non transformée par les `analyzers`) lors d'une requête de recherche.
 * **TermVector** : indique si des `snippets` pourront être configurés sur ce champ. Les snippet sont des extraits de texte contenant les mots recherchés.
 * **Analyzer** : les `analyzers` sont des ensembles de filtre et de traitements automatiques qui peuvent être effectués sur les valeurs indexées. 
 
-L'index a été créé avec de nombreux champs de schémas. Certains de ces champs utilisent des `Analyzer`, sont `indexés` ou juste `stored` (stocké), etc. Cette configuration est issue de l'expertise de l'équipe d'OpenSearchServer et vise à offrir la recherche la plus pertinente possible.
+L'index a été créé avec de nombreux champs de schémas. Certains de ces champs utilisent des `Analyzer`, sont `indexés` ou juste `stored` (stockés), etc. Cette configuration est issue de l'expertise de l'équipe d'OpenSearchServer et vise à offrir la recherche la plus pertinente possible.
 
 ![Champs du schéma](3.schema_fields.png)
 
@@ -90,7 +90,7 @@ Nous pouvons voir dans cet onglet de nombreuses correspondances entre, à gauche
 
 Nous devons maintenant configurer le crawler web d'OSS afin qu'il parcoure et qu'il indexe les pages désirées.
 
-Rendez-vous dans l'onglet `Crawler` de l'index site. La section crawler contient deux sous navigation par onglets. Le premier des ces deux niveaux permet de choisir entre la configuration du crawler web, du crawler de base de données et du crawler de système de fichier.
+Rendez-vous dans l'onglet `Crawler` de l'index site. La section crawler contient deux sous navigation par onglets. Le premier des ces deux niveaux permet de choisir entre la configuration du crawler web, du crawler de base de données et du crawler de système de fichiers.
 
 Restons sur l'onglet `Web`. Le second niveau de navigation permet de naviguer à travers les rubriques du crawler web.
 
@@ -100,7 +100,7 @@ L'onglet sélectionné par défaut, `Pattern list`, est celui qui nous intéress
 
 Le site que nous souhaitons crawler est [http://www.open-search-server.com/fr/site-de-test-crawler/](http://www.open-search-server.com/fr/site-de-test-crawler/). Nous pouvons voir que cette URL contient les liens vers toutes les pages d'actualités. Nous pouvons donc indiquer au crawler de commencer son crawl ici et d'indexer toutes les pages se trouvant "sous" cette URL.
 
-Dans le champ de saisie de l'onglet Pattern list indiquez `http://www.open-search-server.com/fr/site-de-test-crawler/` puis cliquer sur le bouton Add. L'URL renseignée s'ajoute à la zone du dessous contenant toutes les URL à crawler.
+Dans le champ de saisie de l'onglet `Pattern list` indiquez `http://www.open-search-server.com/fr/site-de-test-crawler/` puis cliquer sur le bouton Add. L'URL renseignée s'ajoute à la zone du dessous contenant toutes les URL à crawler.
 
 La partie `/*` indique ici au crawler de parcourir toutes les pages dont l'URL débute par `http://www.open-search-server.com/fr/site-de-test-crawler/`.
 
@@ -134,7 +134,7 @@ L'onglet `Snipppets` nous renseigne sur les extraits de textes configurés pour 
 
 ![Extraits de textes](9.snippets.png)
 
-Nous pouvons très facilement ajouter des `facettes` à la recherche. Pour cela rfendez-vous dans l'onglet `Facets` et ajoutez par exemple une recherche sur le champ `host`. Dans le champ `minimal count` saisissez `1` afin de ne montrer que les valeurs pour lesquelles au moins un document correspond.
+Nous pouvons très facilement ajouter des `facettes` à la recherche. Pour cela rendez-vous dans l'onglet `Facets` et ajoutez par exemple une recherche sur le champ `host`. Dans le champ `minimal count` saisissez `1` afin de ne montrer que les valeurs pour lesquelles au moins un document correspond.
 
 ![Ajout de facettes](13.facet.png)
 
@@ -163,6 +163,8 @@ Tentez une recherche, par exemple `coupe`. Voilà ! les résultats s'affichent, 
 ![Renderer](12.renderer_view.png)
 
 Vous pouvez remarquer également que l'autocomplétion fonctionne immédiatement et que notre facette est bien présente sur la gauche. L'index ne contenant pour le moment que des documents issus de open-search-server.com il est normal que cela soit la seule valeur présentée.
+
+> L'onglet `Testing`, dans l'édition d'un renderer, vous fournira directement le code de l'`iframe` vous permettant d'afficher le formulaire de recherche sur votre site internet.
 
 ## Que faire ensuite ?
 
