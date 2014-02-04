@@ -191,7 +191,7 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	public Long getContentLength() {
+	final public Long getContentLength() {
 		synchronized (this) {
 			if (httpEntity != null)
 				return httpEntity.getContentLength();
@@ -245,19 +245,20 @@ public abstract class HttpAbstract {
 	// Sun Nov 6 08:49:37 1994
 
 	private final static String[] LastModifiedDateFormats = {
-			"EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z",
-			"EEE MMM d HH:mm:ss yyyy" };
+			"EEE, dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:ss z",
+			"EEEE, dd-MMM-yy HH:mm:ss z", "EEE MMM d HH:mm:ss yyyy" };
 
-	private final static ThreadSafeDateFormat[] httpDatesFormats = {
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[0]),
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[0],
-					Locale.ENGLISH),
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[1]),
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[1],
-					Locale.ENGLISH),
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[2]),
-			new ThreadSafeSimpleDateFormat(LastModifiedDateFormats[2],
-					Locale.ENGLISH) };
+	private final static ThreadSafeDateFormat[] httpDatesFormats;
+
+	static {
+		int i = 0;
+		httpDatesFormats = new ThreadSafeDateFormat[LastModifiedDateFormats.length * 2];
+		for (String format : LastModifiedDateFormats) {
+			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format,
+					Locale.ENGLISH);
+			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format);
+		}
+	};
 
 	public Long getLastModified() {
 		synchronized (this) {

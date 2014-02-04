@@ -155,7 +155,7 @@ public class RestCrawlThread extends
 		DownloadItem dlItem = downloader.request(uri,
 				restCrawlItem.getCallbackMethod(),
 				restCrawlItem.getCredential(), null, null, null);
-		dlItem.checkNoError(200, 201, 202, 203);
+		dlItem.checkNoErrorList(200, 201, 202, 203);
 	}
 
 	private final void callbackPerDoc(HttpDownloader downloader, URI uri,

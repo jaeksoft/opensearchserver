@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 package com.jaeksoft.searchlib.webservice.index;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +65,8 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 
 	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
-			TemplateList indexTemplateName, IndexType indexType) {
+			TemplateList indexTemplateName, IndexType indexType,
+			String remoteURI) {
 		try {
 			User user = getLoggedAdmin(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -71,7 +74,8 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 				throw new CommonServiceException("Not allowed");
 			TemplateAbstract template = TemplateList
 					.findTemplate(indexTemplateName.name());
-			ClientCatalog.createIndex(user, indexName, template, indexType);
+			ClientCatalog.createIndex(user, indexName, template, indexType,
+					remoteURI != null ? new URI(remoteURI) : null);
 			return new CommonResult(true, "Created Index " + indexName);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -79,14 +83,16 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new CommonServiceException(e);
 		}
 	}
 
 	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
-			IndexType type) {
+			IndexType type, String remoteURI) {
 		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX,
-				type);
+				type, remoteURI);
 	}
 
 	@Override
