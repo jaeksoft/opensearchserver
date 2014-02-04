@@ -36,7 +36,7 @@ public class FunctionTimer {
 	};
 
 	private static double globalTotalTime = 0;
-	private static long fullTotalTime = 0;
+	private static double fullTotalTime = 0;
 
 	public final static Mode MODE = Mode.TIME_ONLY;
 
@@ -149,7 +149,7 @@ public class FunctionTimer {
 		case FULL:
 			synchronized (ExecutionInfos) {
 				System.out.println("EXECUTIONS INFO DUMP");
-				long totalTime = 0;
+				float totalTime = 0;
 				for (ExecutionInfo executionInfo : ExecutionInfos.values()) {
 					System.out.println(executionInfo);
 					totalTime += executionInfo.totalTime;
@@ -164,8 +164,8 @@ public class FunctionTimer {
 		case TIME_ONLY:
 			globalTotalTime += (double) fullTotalTime / 1000;
 			System.out.println(StringUtils.fastConcat("Total time: ",
-					Long.toString(fullTotalTime / 1000))
-					+ " / " + Long.toString((long) globalTotalTime));
+					Double.toString(fullTotalTime / 1000))
+					+ " / " + Double.toString((long) globalTotalTime));
 			break;
 		}
 		if (reset)
