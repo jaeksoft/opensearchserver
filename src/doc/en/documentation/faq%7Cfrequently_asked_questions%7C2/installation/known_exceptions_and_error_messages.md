@@ -4,8 +4,8 @@
 
     <entry key="Exception">com.jaeksoft.searchlib.web.ServletException: com.jaeksoft.searchlib.SearchLibException: Bad credential</entry>
 
-This exception occurs when privileges is created but not used while accessing through API.
-When at least one user is created in OpenSearchServer every API call must contain some `login` and `key` information.
+This exception occurs when the privileges have been created, but were not used while accessing through the API.
+If one or more user have been created in OpenSearchServer, then every API call **must** contain some `login` and `key` information.
 
 **Example:**
 
@@ -22,7 +22,7 @@ See also: [https://github.com/jaeksoft/opensearchserver/wiki/Authentication](htt
       com.jaeksoft.searchlib.web.ServletException: com.jaeksoft.searchlib.SearchLibException: Expected to get a directory path
     </entry>
 
-This exception occurs when the index is not found. Check is the index can be found in the indexes list.
+This exception occurs when the index was not found. Verify whether the index exists in the indexes list.
  
 **Example:**
 
@@ -36,4 +36,4 @@ Index `index1` should be present in the list of indexes.
  
     Fatal error: OSS_API won't work whitout curl extension in OSS_API.class.php on line 23
 
-The OpenSearchServer PHP client needs the `php-curl` extension. Install and enable `php-curl` extension and restart your web-server.
+The OpenSearchServer PHP client needs the `php-curl` extension. Install and enable the `php-curl` extension, then restart your web server.
