@@ -1,4 +1,4 @@
-By default, Debian provide only the version 2.x of Tesseract. OpenSearchServer requires Tesseract 3. Here is how to setup Tesseract 3.x using the sources.
+OpenSearchServer requires Tesseract 3 -- but by default Debian only provides version 2.x. Here is how to setup Tesseract 3.x using the sources.
 
 **Install the compiler tools: g++ and make**
 
@@ -68,6 +68,6 @@ We use a standard installation in /usr/local
     spa
     spa_old
 
-You should put the environment variable definition in OpenSearchServer start script.
+You should put the environment variable definition in the OpenSearchServer start script.
 
 **Restart OpenSearchServer, and setup the advanced tab panel**
