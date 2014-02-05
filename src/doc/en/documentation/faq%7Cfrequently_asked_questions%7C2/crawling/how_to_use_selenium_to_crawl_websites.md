@@ -144,7 +144,7 @@ This script will extract all the root categories of the homepage of Dmoz.org. Th
 	* **parameter 2**: keywords to use for the search query
 	* **parameter 3**: JSON path to match a specific part of the result
 	* **parameter 4**: action to take. Values can be:
-    * `EXIT_IF_NOT_FOUND`: exit current script if the JSON path does not match
-    * `IF_FOUND`: if the JSON path matches:
-		* **parameter 5**: must be `NEXT_COMMAND`
-		* **parameter 6**: next command to run. Will often be `WEBDRIVER_CLOSE_WINDOW`
+		* `EXIT_IF_NOT_FOUND`: exit current script if the JSON path does not match
+		* `IF_FOUND`: if the JSON path matches:
+			* **parameter 5**: must be `NEXT_COMMAND`
+			* **parameter 6**: next command to run. Will often be `WEBDRIVER_CLOSE_WINDOW`

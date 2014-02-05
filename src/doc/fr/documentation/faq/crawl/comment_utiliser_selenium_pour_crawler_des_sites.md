@@ -95,55 +95,55 @@ Ce script extrait toutes les catégories racines de la page d'accueil du site Dm
 ## Liste complète des commandes
 
 * `WEBDRIVER_OPEN`: ouvre un navigateur web
-  * **parameter 1**: nom du driver (du navigateur). Valeurs possibles: `PHANTOMJS`, `FIREFOX`.
+	* **parameter 1**: nom du driver (du navigateur). Valeurs possibles: `PHANTOMJS`, `FIREFOX`.
 * `WEBDRIVER_CLOSE`: ferme le navigateur
 * `WEBDRIVER_NEW_WINDOW`: ouvre une nouvelle fenêtre et garde la session utilisateur active
 * `WEBDRIVER_CLOSE_WINDOW`: ferme la fenêtre courante
 * `WEBDRIVER_SET_TIMEOUTS`: défini un délai de timeout après lequel l'exécution du script est stoppée
-  * **parameter 1**: délai, en secondes
+	* **parameter 1**: délai, en secondes
 * `WEBDRIVER_RESIZE`: redimensionne la fenêtre
-  * **parameter 1**: largeur
-  * **parameter 2**: hauteur
+	* **parameter 1**: largeur
+	* **parameter 2**: hauteur
 * `WEBDRIVER_GET`: charge une URL
-  * **parameter 1**: URL. Des variables peuvent être utilisées dans ce paramètre.
+	* **parameter 1**: URL. Des variables peuvent être utilisées dans ce paramètre.
 * `SLEEP` : met en pause l'exécution du script
-  * **parameter 1**: durée de la pause, en secondes
+	* **parameter 1**: durée de la pause, en secondes
 * `CSS_SELECTOR_SUBSCRIPT`, `XPATH_SELECTOR_SUBSCRIPT`: sélectionne un élément et exécute un subscript. L'élément sélectionné doit être un `<a` ou un `<img`. L'attribut `href` ou `src` sera passé dans la variable `{url}` du subscript.
-  * **parameter 1**: nom du subscript  
-  * **parameter 2**: selecteur, CSS ou XPATH selon la commande.
+	* **parameter 1**: nom du subscript  
+	* **parameter 2**: selecteur, CSS ou XPATH selon la commande.
 * `WEBDRIVER_JAVASCRIPT`: exécute du code Javascript
-  * **parameter 1**: code Javascript à exécuter. Des variables peuvent être utilisées dans ce paramètre.
+	* **parameter 1**: code Javascript à exécuter. Des variables peuvent être utilisées dans ce paramètre.
 * `SCRIPT`: appelle un autre script
-  * **parameter 1**: nom du script
+	* **parameter 1**: nom du script
 * `CSS_SELECTOR_CLICK_AND_SCRIPT`, `XPATH_SELECTOR_CLICK_AND_SCRIPT`: sélectionne un élément, effectue un clic dessus, attend un moment et exécute un script
-  * **parameter 1**: selecteur, CSS or XPATH selon la commande.
-  * **parameter 2**: nom du script
-  * **parameter 3**: temps d'attente entre le clic sur l'élément et l'éxecution du script
+	* **parameter 1**: selecteur, CSS or XPATH selon la commande.
+	* **parameter 2**: nom du script
+	* **parameter 3**: temps d'attente entre le clic sur l'élément et l'éxecution du script
 * `INDEX_DOCUMENT_NEW`: crée un nouveau document à indexer
-  * **parameter 1**: langue du nouveau document
+	* **parameter 1**: langue du nouveau document
 * `INDEX_DOCUMENT_ADD_VALUE`: ajoute une valeur à l'un des champs du nouveau document
-  * **parameter 1**: champ
-  * **parameter 2**: valeur. Des variables peuvent être utilisées dans ce paramètre.
+	* **parameter 1**: champ
+	* **parameter 2**: valeur. Des variables peuvent être utilisées dans ce paramètre.
 * `INDEX_DOCUMENT_UPDATE`: enregistre le nouveau document dans l'index
 * `VAR_NEW_REGEX` : crée une nouvelle variable en appliquant une expression régulière sur une autre variable.
-  * **parameter 1**: variable sur laquelle appliquer l'expression régulière
-  * **parameter 2**: expression régulière. Le groupe de capture (utilisation des parenthèses) donnera sa valeur à la nouvelle variable.
-  * **parameter 3**: nom de la nouvelle variable
+	* **parameter 1**: variable sur laquelle appliquer l'expression régulière
+	* **parameter 2**: expression régulière. Le groupe de capture (utilisation des parenthèses) donnera sa valeur à la nouvelle variable.
+	* **parameter 3**: nom de la nouvelle variable
 * `CSS_SELECTOR_DOWNLOAD`, `XPATH_SELECTOR_DOWNLOAD` : sélectionne un élément et télécharge le document pointé par son attribut `href`. L'élément sélectionné doit être un `<a`.
-  * **parameter 1**: dossier dans lequel télécharger le document. Le dossier sera créé récurisvement s'il n'existe pas. Des variables peuvent être utilisées dans ce paramètre.
-  * **parameter 2**: selecteur, CSS ou XPATH selon la commande.
+	* **parameter 1**: dossier dans lequel télécharger le document. Le dossier sera créé récurisvement s'il n'existe pas. Des variables peuvent être utilisées dans ce paramètre.
+	* **parameter 2**: selecteur, CSS ou XPATH selon la commande.
 * `WEBDRIVER_DOWNLOAD`: télécharge la page en cours, indiquée par la valeur de la variable `{url}` courante.
-  * **parameter 1**: dossier dans lequel télécharger le document. Le dossier sera créé récurisvement s'il n'existe pas. Des variables peuvent être utilisées dans ce paramètre.
+	* **parameter 1**: dossier dans lequel télécharger le document. Le dossier sera créé récurisvement s'il n'existe pas. Des variables peuvent être utilisées dans ce paramètre.
 * `PARSER_MERGE`: fusionne tous les documents PDF d'un document en un nouveau document PDF.
-  * **parameter 1**: nom du parser PDF. Actuellement seule la valeur "PDF parser" peut être utilisée.
-  * **parameter 2**: dossier contenant fichiers PDF à fusionner.
-  * **parameter 3**: chemin complet (avec le nom de fichier) du PDF à créer.
+	* **parameter 1**: nom du parser PDF. Actuellement seule la valeur "PDF parser" peut être utilisée.
+	* **parameter 2**: dossier contenant fichiers PDF à fusionner.
+	* **parameter 3**: chemin complet (avec le nom de fichier) du PDF à créer.
 * `SEARCH_TEMPLATE_JSON`: exécute une requête de recherche sur l'index et exécute une action en fonction du résultat.
-  * **parameter 1**: nom du template de query à utiliser.
-  * **parameter 2**: mots clés à utiliser pour la requête de recherche.
-  * **parameter 3**: "JSON path" permettant de matcher un champ particulier du JSON renvoyé en résultat.
-  * **parameter 4**: action. Les valeurs peuvent être :
-    * `EXIT_IF_NOT_FOUND`: quitte le script actuel si le "JSON path" ne renvoie rien.
-    * `IF_FOUND`: si le "JSON path" renvoie une valeur :
-      * **parameter 5**: doit être `NEXT_COMMAND`
-      * **parameter 6**: prochaine `command` à exécuter. On utilisera souvent `WEBDRIVER_CLOSE_WINDOW`.
+	* **parameter 1**: nom du template de query à utiliser.
+	* **parameter 2**: mots clés à utiliser pour la requête de recherche.
+	* **parameter 3**: "JSON path" permettant de matcher un champ particulier du JSON renvoyé en résultat.
+	* **parameter 4**: action. Les valeurs peuvent être :
+		* `EXIT_IF_NOT_FOUND`: quitte le script actuel si le "JSON path" ne renvoie rien.
+		* `IF_FOUND`: si le "JSON path" renvoie une valeur :
+			* **parameter 5**: doit être `NEXT_COMMAND`
+			* **parameter 6**: prochaine `command` à exécuter. On utilisera souvent `WEBDRIVER_CLOSE_WINDOW`.
