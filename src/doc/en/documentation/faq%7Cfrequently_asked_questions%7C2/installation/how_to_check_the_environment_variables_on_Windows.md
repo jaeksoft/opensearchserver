@@ -14,7 +14,14 @@ If the desired variable is not present, create it like this:
 
 Once you have done that, try to launch OpenSearchServer again with `start.bat`.
 
-If you have Java but you do not see the variable and do you not remember whether you have a JDK or JRE, go to the Start menu, Click Run, type cmd to call up the command line interface, and type java -version to see what's installed. Checking whether your 8080 port is free
+If you have Java but do not see the variable and do not remember whether you have a JDK or a JRE:
+* Go to the Start menu
+* Click Run
+* Type cmd to call up the command line interface
+* Type java -version to see what's installed.
+
+
+**Checking whether your 8080 port is free**
 
 If, by chance, you already have a server listening on the 8080 tcp port you'll have to change it in the Catalina config files.
 
@@ -26,6 +33,7 @@ If you have a response like the one below, your port is not free:
 
 If port 8080 is already being used, we suggest that you simply use another port for ISS. To do so:
 
-In your OpenSearchServer folder, open the file apache-tomcat-6.0.20/conf/server.xml Locate the line starting with: `<Connector port="8080" ...` and then change it to `<connector port="8081" ...`
-
-Save your file and restart OpenSearchServer with start.bat. Your OpenSearchServer Back Office is now available at this address: http://localhost:8081
+* In your OpenSearchServer folder, open the file apache-tomcat-6.0.20/conf/server.xml
+* Locate the line starting with: `<Connector port="8080" ...` and then change it to `<connector port="8081" ...`
+* Save your file and restart OpenSearchServer with start.bat
+* Your OpenSearchServer Back Office is now available at this address: http://localhost:8081
