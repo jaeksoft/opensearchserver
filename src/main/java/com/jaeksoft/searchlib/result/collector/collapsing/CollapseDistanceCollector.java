@@ -115,8 +115,8 @@ public class CollapseDistanceCollector
 	}
 
 	@Override
-	final public void swap(final int pos1, final int pos2) {
-		parent.swap(pos1, pos2);
+	final public void doSwap(final int pos1, final int pos2) {
+		parent.doSwap(pos1, pos2);
 		float dist = distances[pos1];
 		distances[pos1] = distances[pos2];
 		distances[pos2] = dist;

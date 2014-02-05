@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
+import com.jaeksoft.searchlib.result.collector.JoinScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinResult {
@@ -53,6 +54,8 @@ public class JoinResult {
 	private transient ResultSearchSingle foreignResult;
 
 	private transient JoinDocInterface joinDocInterface;
+
+	private transient JoinScoreInterface joinScoreInterface;
 
 	private TreeSet<String> fieldNameSet;
 
@@ -79,6 +82,8 @@ public class JoinResult {
 		if (!(docIdInterface instanceof JoinDocInterface))
 			return;
 		this.joinDocInterface = (JoinDocInterface) docIdInterface;
+		this.joinScoreInterface = docIdInterface
+				.getCollector(JoinScoreInterface.class);
 	}
 
 	public AbstractResultSearch getForeignResult() {
@@ -94,9 +99,11 @@ public class JoinResult {
 		try {
 			if (joinDocInterface == null)
 				return null;
+			float score = joinScoreInterface != null ? joinScoreInterface
+					.getForeignScore(pos, joinPosition) : 0;
 			return new ResultDocument(foreignResult.getRequest(), fieldNameSet,
-					joinDocInterface.getForeignDocIds(pos, joinPosition),
-					foreignResult.getReader(), paramPosition, timer);
+					joinDocInterface.getForeignDocId(pos, joinPosition),
+					foreignResult.getReader(), score, paramPosition, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

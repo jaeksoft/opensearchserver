@@ -421,8 +421,8 @@ public class JoinItem implements Comparable<JoinItem> {
 			t = new Timer(timer, joinResultName + " join");
 			DocIdInterface joinDocs = JoinUtils.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex, joinResultSize,
-					joinResult.joinPosition, t, returnScores, type,
-					outerCollector, foreignReader);
+					joinResult.joinPosition, t, type, outerCollector,
+					foreignReader);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {

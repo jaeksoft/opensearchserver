@@ -29,90 +29,134 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
+import com.jaeksoft.searchlib.result.collector.JoinScoreInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 
 public class JoinScoreCollector extends
-		AbstractExtendsCollector<JoinDocCollectorInterface, JoinDocCollector>
-		implements JoinDocCollectorInterface, ScoreInterface {
+		AbstractExtendsCollector<JoinCollectorInterface, JoinDocCollector>
+		implements JoinCollectorInterface, JoinScoreInterface, ScoreInterface {
 
-	private final float maxScore;
-	private final float[] scores;
+	private final float srcMaxScore;
+	private final float[] srcScores;
+	private final float[][] foreignScoresArray;
+
+	private final static float[][] EMPTY = new float[0][0];
 
 	JoinScoreCollector(JoinDocCollector base) {
 		super(base);
-		maxScore = 0;
-		scores = ScoreInterface.EMPTY_SCORES;
+		srcMaxScore = 0;
+		srcScores = ScoreInterface.EMPTY_SCORES;
+		foreignScoresArray = EMPTY;
 	}
 
-	JoinScoreCollector(JoinDocCollector base, ScoreInterface scoreDocInterface,
-			int joinResultSize) {
+	JoinScoreCollector(JoinDocCollector base, ScoreInterface scoreDocs) {
 		super(base);
-		maxScore = scoreDocInterface.getMaxScore();
-		scores = ArrayUtils.clone(scoreDocInterface.getScores());
+		srcMaxScore = scoreDocs.getMaxScore();
+		this.srcScores = ArrayUtils.clone(scoreDocs.getScores());
+		this.foreignScoresArray = new float[srcScores.length][];
+		if (scoreDocs instanceof JoinScoreCollector)
+			((JoinScoreCollector) scoreDocs).copyForeignScoresArray(this);
 	}
 
-	private JoinScoreCollector(final JoinDocCollector base, int[] srcIds,
-			float[] srcScores) {
+	private void copyForeignScoresArray(
+			final JoinScoreCollector joinScoreCollector) {
+		if (foreignScoresArray == null)
+			return;
+		int i = 0;
+		for (float[] scores : foreignScoresArray)
+			joinScoreCollector.foreignScoresArray[i++] = scores;
+	}
+
+	/**
+	 * Copy only the valid item (other than -1)
+	 * 
+	 * @param src
+	 */
+	private JoinScoreCollector(final JoinDocCollector base,
+			final JoinScoreCollector src) {
 		super(base);
-		scores = new float[srcIds.length];
+		this.foreignScoresArray = new float[base.srcIds.length][];
+		this.srcScores = new float[base.srcIds.length];
 		int i1 = 0;
 		int i2 = 0;
 		float msc = 0;
-		for (int id : srcIds) {
+		for (int id : src.base.srcIds) {
 			if (id != -1) {
-				float score = srcScores[i2];
-				scores[i1++] = score;
-				if (score > msc)
-					msc = score;
+				this.foreignScoresArray[i1] = ArrayUtils
+						.clone(src.foreignScoresArray[i2]);
+				float s = src.srcScores[i2];
+				this.srcScores[i1++] = s;
+				if (s > msc)
+					msc = s;
 			}
 			i2++;
 		}
-		maxScore = msc;
+		this.srcMaxScore = msc;
 	}
 
 	@Override
 	public JoinScoreCollector duplicate(final AbstractBaseCollector<?> base) {
 		parent.duplicate(base);
-		return new JoinScoreCollector((JoinDocCollector) base,
-				this.base.getIds(), this.scores);
+		return new JoinScoreCollector((JoinDocCollector) base, this);
 	}
 
 	@Override
-	final public float[] getScores() {
-		return scores;
-	}
-
-	@Override
-	final public float getMaxScore() {
-		return maxScore;
-	}
-
-	@Override
-	final public void setForeignDocId(final int pos, final int joinResultPos,
+	final public void doSetForeignDoc(final int pos, final int joinResultPos,
 			final int foreignDocId, final float foreignScore) {
-		parent.setForeignDocId(pos, joinResultPos, foreignDocId, foreignScore);
-		float score = this.scores[pos] * foreignScore;
-		this.scores[pos] = score;
+		parent.doSetForeignDoc(pos, joinResultPos, foreignDocId, foreignScore);
+		float[] foreignScores = foreignScoresArray[pos];
+		if (foreignScores == null) {
+			foreignScores = new float[base.joinResultSize];
+			foreignScoresArray[pos] = foreignScores;
+		}
+		foreignScores[joinResultPos] = foreignScore;
+	}
+
+	final public static void swap(final float[][] foreignScoresArray,
+			final int pos1, final int pos2) {
+		float[] foreignScores = foreignScoresArray[pos1];
+		foreignScoresArray[pos1] = foreignScoresArray[pos2];
+		foreignScoresArray[pos2] = foreignScores;
 	}
 
 	@Override
-	final public void swap(final int pos1, final int pos2) {
-		parent.swap(pos1, pos2);
-		float score = scores[pos1];
-		scores[pos1] = scores[pos2];
-		scores[pos2] = score;
-	}
-
-	@Override
-	final public int getSize() {
-		if (scores == null)
-			return 0;
-		return scores.length;
+	final public void doSwap(final int pos1, final int pos2) {
+		parent.doSwap(pos1, pos2);
+		float s1 = srcScores[pos1];
+		float s2 = srcScores[pos2];
+		srcScores[pos1] = s2;
+		srcScores[pos2] = s1;
+		swap(foreignScoresArray, pos1, pos2);
 	}
 
 	@Override
 	final public ReaderAbstract[] getForeignReaders() {
 		return base.getForeignReaders();
+	}
+
+	@Override
+	public int getSize() {
+		return srcScores.length;
+	}
+
+	@Override
+	public float getForeignScore(int pos, int joinPosition) {
+		return foreignScoresArray[pos][joinPosition];
+	}
+
+	@Override
+	public float[][] getForeignDocScoreArray() {
+		return foreignScoresArray;
+	}
+
+	@Override
+	public float getMaxScore() {
+		return srcMaxScore;
+	}
+
+	@Override
+	public float[] getScores() {
+		return srcScores;
 	}
 
 }

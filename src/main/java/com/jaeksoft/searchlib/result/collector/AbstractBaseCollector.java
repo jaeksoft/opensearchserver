@@ -66,4 +66,9 @@ public abstract class AbstractBaseCollector<C extends CollectorInterface>
 			lastCollector.duplicate(base);
 		return base;
 	}
+
+	@Override
+	final public void swap(final int pos1, final int pos2) {
+		lastCollector.doSwap(pos1, pos2);
+	}
 }

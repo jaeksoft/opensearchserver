@@ -93,7 +93,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 			return null;
 		try {
 			return new ResultDocument(fieldNameSet, docList.get(pos), reader,
-					null, timer);
+					getScore(pos), null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
