@@ -56,6 +56,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class WriterLocal extends WriterAbstract {
@@ -134,7 +135,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private boolean updateDocNoLock(SchemaField uniqueField,
+	final private boolean updateDocNoLock(SchemaField uniqueField,
 			IndexWriter indexWriter, Schema schema, IndexDocument document)
 			throws IOException, NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
@@ -241,9 +242,10 @@ public class WriterLocal extends WriterAbstract {
 		schema.getIndexPerFieldAnalyzer(document.getLang());
 		Document doc = new Document();
 		LanguageEnum lang = document.getLang();
+		SchemaFieldList schemaFieldList = schema.getFieldList();
 		for (FieldContent fieldContent : document) {
 			String fieldName = fieldContent.getField();
-			SchemaField field = schema.getFieldList().get(fieldName);
+			SchemaField field = schemaFieldList.get(fieldName);
 			if (field != null) {
 				Analyzer analyzer = schema.getAnalyzer(field, lang);
 				@SuppressWarnings("resource")
