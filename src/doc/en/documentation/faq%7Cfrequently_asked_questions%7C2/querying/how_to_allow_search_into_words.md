@@ -9,4 +9,4 @@ A new field must then be created. It will take its value from the existing `cont
 
 ![ngram field](ngram_field.png)
 
-The content must now be re-indexed and query must be improved to allow searching in the new `mega_content` field!
+The content must now be re-indexed, and the new `mega_content` field must be added to the fields searched by the query.
