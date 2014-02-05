@@ -25,7 +25,7 @@ The coordinates (latitude and longitude) should be expressed in decimal format. 
 - For Degrees: -52.090904
 - For Radians: -0.675757575575
 
-#### Using the API, just add the two fields on your JSON document
+#### Using the API, just add the two fields to your JSON document
 
 The [JSON indexing API](https://github.com/jaeksoft/opensearchserver/wiki/Document-put-JSON) is documented on our [API wiki](https://github.com/jaeksoft/opensearchserver/wiki/).
 
