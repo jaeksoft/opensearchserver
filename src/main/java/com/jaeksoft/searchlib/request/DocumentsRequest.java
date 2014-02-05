@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -203,12 +204,14 @@ public class DocumentsRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void setFromServletNoLock(ServletTransaction transaction) {
+	final public void setFromServletNoLock(
+			final ServletTransaction transaction, final String prefix) {
 		String[] values;
 
 		SchemaFieldList shemaFieldList = config.getSchema().getFieldList();
 
-		if ((values = transaction.getParameterValues("rf")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "rf"))) != null) {
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
@@ -216,13 +219,15 @@ public class DocumentsRequest extends AbstractRequest implements
 								value).getName()));
 		}
 
-		if ((values = transaction.getParameterValues("id")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "id"))) != null) {
 			for (String value : values)
 				if (value != null)
 					if (value.trim().length() > 0)
 						docList.add(Integer.parseInt(value));
 		}
-		if ((values = transaction.getParameterValues("uk")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "uk"))) != null) {
 			for (String value : values)
 				if (value != null) {
 					value = value.trim();

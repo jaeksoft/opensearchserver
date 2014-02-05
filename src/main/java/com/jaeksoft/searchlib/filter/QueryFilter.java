@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -141,14 +142,16 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
-		String q = transaction.getParameterString(getParamPosition());
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
+		String q = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, getParamPosition()));
 		if (q != null)
 			setQueryString(q);
 	}
 
 	@Override
-	public void setParam(String param) {
+	final public void setParam(final String param) {
 		if (param != null)
 			setQueryString(param);
 	}
