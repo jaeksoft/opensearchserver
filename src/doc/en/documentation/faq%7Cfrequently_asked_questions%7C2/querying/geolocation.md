@@ -20,7 +20,7 @@ Choose the analyzer corresponding to the [coordinate system](http://en.wikipedia
 
 ### Indexing the data
 
-The coordinates (latitude and longitude) should expressed in decimal format. Examples:
+The coordinates (latitude and longitude) should be expressed in decimal format. Examples:
 
 - For Degrees: -52.090904
 - For Radians: -0.675757575575
