@@ -1,4 +1,4 @@
-Until we provide a deb package please use this page for reference when installing OSS on a Debian-based system (Ubuntu, Xandros, ...).
+Until we provide a deb package please use this page for reference when installing OSS on a Debian-based system (Ubuntu, Xandros, etc.).
 
 The Short Version should be sufficient ; if not use the More Detailed Version.
 
@@ -56,7 +56,7 @@ Just launch the start.sh present in your OSS base folder to get the application 
     
 To access your OSS Back Office, open you browser (Firefox, Chromium, Opera, Safari...) and open the page [http://yourserver:9090](http://yourserver:9090)
 
-If everything went right you'll see the OSS interface. If nothing is displaying and you are sure you followed this installation correctly, check the troubleshooting section.
+If everything went right you'll see the OSS interface. If nothing is displaying and you are sure you followed this installation procedure correctly, check the troubleshooting section.
 
 So far, so good ? You can now go to the next step and create your first index.
 
