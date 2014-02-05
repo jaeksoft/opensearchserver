@@ -1,8 +1,8 @@
-OpenSearchServer allows you to exclude certain part of webpage from crawling.
+OpenSearchServer allows you to exclude certain parts of a webpage from being crawled.
 
 ### Excluding content using opensearchserver.ignore CSS class
 
-The content of any HTML tag with the class `opensearchserver.ignore` will be removed while crawling.
+The content of any HTML tag with the class `opensearchserver.ignore` will be ignored while crawling.
 
 The `opensearchserver.ignore` class can also be added with your existing CSS classes.
 
