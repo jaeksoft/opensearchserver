@@ -57,7 +57,7 @@ public class SortField extends AbstractField<SortField> implements
 
 	public SortField(final String requestSort) {
 		super();
-		Matcher matcher = RegExpUtils.matcher(sortPattern, requestSort);
+		Matcher matcher = RegExpUtils.matcher(sortPattern, requestSort.trim());
 		matcher.matches();
 		joinNumber = matcher.group(1) == null ? 0 : Integer.parseInt(matcher
 				.group(1));
@@ -158,22 +158,28 @@ public class SortField extends AbstractField<SortField> implements
 
 	public SorterAbstract getSorter(final CollectorInterface collector,
 			final ReaderAbstract reader) throws IOException {
-		if (isScore())
-			return desc ? new DescScoreSorter(collector) : new AscScoreSorter(
-					collector);
-		if (isDistance())
-			return desc ? new DescDistanceSorter(collector)
-					: new AscDistanceSorter(collector);
-		if (joinNumber == 0)
+		if (joinNumber == 0) {
+			if (isScore())
+				return desc ? new DescScoreSorter(collector)
+						: new AscScoreSorter(collector);
+			if (isDistance())
+				return desc ? new DescDistanceSorter(collector)
+						: new AscDistanceSorter(collector);
 			return desc ? new DescStringIndexSorter(collector,
 					reader.getStringIndex(name), nullFirst)
 					: new AscStringIndexSorter(collector,
 							reader.getStringIndex(name), nullFirst);
-		else
+		} else {
+			if (isScore())
+				return desc ? new DescJoinScoreSorter(collector,
+						joinNumber - 1, name, nullFirst)
+						: new AscJoinScoreSorter(collector, joinNumber - 1,
+								name, nullFirst);
 			return desc ? new DescJoinStringIndexSorter(collector,
 					joinNumber - 1, name, nullFirst)
 					: new AscJoinStringIndexSorter(collector, joinNumber - 1,
 							name, nullFirst);
+		}
 	}
 
 	@Override

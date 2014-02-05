@@ -84,8 +84,8 @@ public class ScoreBufferCollector
 	}
 
 	@Override
-	final public void swap(final int a, final int b) {
-		parent.swap(a, b);
+	final public void doSwap(final int a, final int b) {
+		parent.doSwap(a, b);
 		float s1 = scores[a];
 		float s2 = scores[b];
 		scores[a] = s2;

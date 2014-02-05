@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,22 +22,16 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.result.collector.join;
 
-import it.unimi.dsi.fastutil.Swapper;
+import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-public interface CollectorInterface extends Swapper {
+public interface JoinCollectorInterface extends CollectorInterface {
 
-	int getSize();
+	void doSetForeignDoc(final int pos, final int joinResultPos,
+			final int foreignDocId, final float foreignScore);
 
-	<T extends CollectorInterface> T getCollector(Class<T> collectorType);
-
-	CollectorInterface getParent();
-
-	CollectorInterface duplicate(AbstractBaseCollector<?> base);
-
-	CollectorInterface duplicate();
-
-	void doSwap(final int pos1, final int pos2);
+	ReaderAbstract[] getForeignReaders();
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -88,8 +88,9 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		if (pos < 0 || pos >= docs.getSize())
 			return null;
 		try {
+			float score = scores != null ? scores.getScores()[pos] : 0;
 			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader,
-					null, timer);
+					score, null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

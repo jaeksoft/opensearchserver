@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -180,8 +180,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			return null;
 		try {
 			int docId = docs.getIds()[pos];
+			float score = scores != null ? scores.getScores()[pos] : 0;
 			ResultDocument resultDocument = new ResultDocument(request,
-					fieldNameSet, docId, reader, null, timer);
+					fieldNameSet, docId, reader, score, null, timer);
 			if (!(docs instanceof CollapseDocInterface))
 				return resultDocument;
 			int[] collapsedDocs = ((CollapseDocInterface) docs)
@@ -197,7 +198,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			if (collapsedDocs != null)
 				for (int doc : collapsedDocs) {
 					ResultDocument rd = new ResultDocument(request,
-							fieldNameSet, doc, reader, null, timer);
+							fieldNameSet, doc, reader, 0, null, timer);
 					resultDocument.appendIfStringDoesNotExist(rd);
 				}
 			return resultDocument;
