@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Geospatial;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -304,9 +305,10 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
-		String pp = getParamPosition();
-		String q = transaction.getParameterString(pp + ".dist");
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
+		String pp = StringUtils.fastConcat(prefix, getParamPosition(), ".dist");
+		String q = transaction.getParameterString(pp);
 		if (q != null)
 			setDistance(Double.parseDouble(q));
 	}

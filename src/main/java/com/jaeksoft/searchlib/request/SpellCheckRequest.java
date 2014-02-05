@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -142,12 +143,15 @@ public class SpellCheckRequest extends AbstractRequest {
 	}
 
 	@Override
-	protected void setFromServletNoLock(ServletTransaction transaction)
+	final protected void setFromServletNoLock(
+			final ServletTransaction transaction, final String prefix)
 			throws SyntaxError {
 		String p;
-		if ((p = transaction.getParameterString("query")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"query"))) != null)
 			setQueryString(p);
-		else if ((p = transaction.getParameterString("q")) != null)
+		else if ((p = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "q"))) != null)
 			setQueryString(p);
 	}
 

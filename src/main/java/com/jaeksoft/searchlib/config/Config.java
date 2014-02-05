@@ -1737,8 +1737,9 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public AbstractRequest getNewRequest(ServletTransaction transaction)
-			throws ParseException, SyntaxError, SearchLibException {
+	final public AbstractRequest getNewRequest(
+			final ServletTransaction transaction) throws ParseException,
+			SyntaxError, SearchLibException {
 
 		String requestName = transaction.getParameterString("qt");
 		AbstractRequest request = null;
@@ -1746,7 +1747,7 @@ public abstract class Config implements ThreadFactory {
 			request = getNewRequest(requestName);
 		if (request == null)
 			request = new SearchPatternRequest(this);
-		request.setFromServlet(transaction);
+		request.setFromServlet(transaction, "");
 		return request;
 	}
 

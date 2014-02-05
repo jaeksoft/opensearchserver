@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,6 @@ import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -57,6 +56,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -250,18 +250,24 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	}
 
 	@Override
-	public void setFromServletNoLock(ServletTransaction transaction) {
+	final public void setFromServletNoLock(
+			final ServletTransaction transaction, final String prefix) {
 		String value = null;
-		if ((value = transaction.getParameterString("text")) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "text"))) != null)
 			text = value;
-		if ((value = transaction.getParameterString("searchRequest")) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "searchRequest"))) != null)
 			searchRequest = value;
-		if ((value = transaction.getParameterString("namedEntityField")) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "namedEntityField"))) != null)
 			namedEntityField = value;
-		if ((value = transaction.getParameterString("stopWordList")) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "stopWordList"))) != null)
 			stopWordsMap.put(value, true);
 		Integer iValue;
-		if ((iValue = transaction.getParameterInteger("maxNumberOfWords")) != null)
+		if ((iValue = transaction.getParameterInteger(StringUtils.fastConcat(
+				prefix, "maxNumberOfWords"))) != null)
 			maxNumberOfWords = iValue;
 	}
 

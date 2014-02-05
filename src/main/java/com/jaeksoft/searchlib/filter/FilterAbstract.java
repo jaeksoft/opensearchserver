@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -171,7 +171,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		selectedItem.source = source;
 	}
 
-	public abstract void setFromServlet(ServletTransaction transaction);
+	public abstract void setFromServlet(final ServletTransaction transaction,
+			final String prefi);
 
 	public abstract void setParam(String param) throws SearchLibException;
 
