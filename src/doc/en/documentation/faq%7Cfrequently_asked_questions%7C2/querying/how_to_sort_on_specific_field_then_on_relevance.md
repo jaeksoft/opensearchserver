@@ -14,7 +14,7 @@ Documents can easily be sorted on one field, for instance price:
 
 But documents with the same `price` value aren't displayed in any specific order.
 
-A second tier of sorting can be added, using `score`. `score` is not a real field of the documents -- it is information that can be used while querrying to sort documents.
+A second tier of sorting can be added, using `score`. `score` is not a real field within the index for these documents -- it is information that can be used while querrying to sort documents.
 
     {
       "query" : "phone",
