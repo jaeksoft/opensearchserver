@@ -74,7 +74,6 @@ To run the script use the following call:
 * Payload: The JSON structure with the variable
 * The JSON structure for the variables:
 
-
     {
         "url": "http://www.open-search-server.com",
         "name": "John Doe"
