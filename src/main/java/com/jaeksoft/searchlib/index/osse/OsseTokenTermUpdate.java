@@ -52,14 +52,14 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 	}
 
 	final private void index() throws IOException {
-		if (buffer.getTermCount() == 0)
-			return;
 		try {
+			if (buffer.termCount == 0)
+				return;
 			transaction.updateTerms(documentId, fieldInfo, buffer);
+			buffer.reset();
 		} catch (SearchLibException e) {
 			throw new IOException(e);
 		}
-		buffer.reset();
 	}
 
 	@Override
