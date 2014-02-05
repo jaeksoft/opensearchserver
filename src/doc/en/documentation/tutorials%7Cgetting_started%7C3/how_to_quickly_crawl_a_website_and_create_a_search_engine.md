@@ -1,6 +1,4 @@
-Thanks to tutorial you will quickly learn how to use several awesome features of [OpenSearchServer](http://www.open-search-server.com/fr).
-
-This tutorial has been made for OpenSearchServer 1.5.0 to teach you how to:
+This quick OpenSearchServer 1.5.0 tutorial will teach you how to:
 
 * **crawl a website**
 * **set up a search index**
@@ -11,23 +9,23 @@ Here is the final result:
 
 ![Résultat final](finaldisplay_en.png)
 
-Some pages have been prepared to help us in this tutorial. The example is a news website with 4 URL:
+This tutorial uses an example website, which has four URLs:
 
 * [http://www.open-search-server.com/test-website/](http://www.open-search-server.com/test-website/)
   * [http://www.open-search-server.com/test-website/unemployment-is-decreasing/](http://www.open-search-server.com/test-website/unemployment-is-decreasing/)
   * [http://www.open-search-server.com/test-website/worldcup-2040/](http://www.open-search-server.com/test-website/worldcup-2040/)
   * [http://www.open-search-server.com/test-website/oscar-academy-awards/](http://www.open-search-server.com/test-website/oscar-academy-awards/)
 
-Before starting you will need to [install OpenSearchServer](http://www.open-search-server.com/install-opensearchserver/), which will take you 3 minutes only! 
+This tutorial assumes that you have already [installed OpenSearchServer](http://www.open-search-server.com/install-opensearchserver/), which takes about three minutes.
 
 ## A few definitions
 
-Let's see a few key concepts of the search engines area:
+Let's review some key concepts about search engines:
 
-* **Index**: this is where documents are stored, sorted and analysed with several algorithms to allow quick search.
-* **Crawler**: web crawler explores websites to index their pages. It can follow every links it finds and be limited to some patterns of URL only. It can read lots of types of document: web page, files, images, etc. There are also crawlers for filesystem and databases.
-* **Schema**: it is the structure of the index. It defines the fields of indexed documents.
-* **Query**: queries are the full-text search queries. Several parameters can be configured in queries, especially which fields to search in, weight for each field, facets, snippets, etc. 
+* **Index**: this is where documents are stored, sorted and analysed using algorithms that allow for faster searches.
+* **Crawler**: a "web crawler" explores websites to index their pages. It can follow every links it finds, or it can be limited to exploring certain URL patterns. A modern web crawler can read many types of document: web pages, files, images, etc. There also exist crawlers that index filesystem and databases rather than web sites.
+* **Schema**: this is the structure of the index. It defines the fields of the indexed documents.
+* **Query**: the full-text search queries. Several parameters can be configured within queries -- which fields they should search in, how much weight to give to each field, which facets, which snippets, etc. 
 * **Facet**: facets are counters with filters, on particular fields. 
 * **Snippet**: snippets are extracts of text containing the searched keywords. 
 * **Renderer**: OpenSearchServer renderers are extremely easy to set up and to customize search pages. They can then be embedded in your website to let your users search your index. 
