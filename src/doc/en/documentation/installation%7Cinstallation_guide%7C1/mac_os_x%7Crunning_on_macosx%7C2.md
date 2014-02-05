@@ -43,11 +43,11 @@ Using the Terminal, go to your newly-downloaded OpenSearchServer folder. Once th
 
 #### Running it without knowing anything about Terminal mode
 
-If you have never used the Terminal before, you may not know how to go to the OpenSearchServer folder. This is not very complicated, as you'll only need to understand the basics of two simple Unix-style commands:
+If you have never used the Terminal before, you may not know how to go to the OpenSearchServer folder. This is simple, as you'll only need to understand the basics of two simple Unix-style commands:
 
 - if you type ls (the letter L and the letter S, short for "list"), the Terminal will list all the files and folders in the folder you're currently in. This allows you to know where you are and what you can access.
 - if you type cd (short for "change directory"), the Terminal will go the place you specify (for instance cd downloads to enter the "downloads" directory).
 
 Thus, if you type **ls** and see that the folder you are currently in has a folder called **Downloads**, typing **cd Downloads** will take you within that folder. There, a typical user would type ls again to see whether the OpenSearchServer folder is indeed there.
 
-Typing **cd opensearchserver** will take the user into the OpenSearchServer folder, where the **start.sh** file we're looking for is.
+Typing **cd opensearchserver** will take the user into the OpenSearchServer folder, where the **start.sh** file we're looking for is located.
