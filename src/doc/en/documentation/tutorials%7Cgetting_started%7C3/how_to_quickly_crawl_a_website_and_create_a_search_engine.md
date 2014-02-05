@@ -26,24 +26,24 @@ Let's review some key concepts about search engines:
 * **Crawler**: a "web crawler" explores websites to index their pages. It can follow every links it finds, or it can be limited to exploring certain URL patterns. A modern web crawler can read many types of document: web pages, files, images, etc. There also exist crawlers that index filesystem and databases rather than web sites.
 * **Schema**: this is the structure of the index. It defines the fields of the indexed documents.
 * **Query**: the full-text search queries. Several parameters can be configured within queries -- which fields they should search in, how much weight to give to each field, which facets, which snippets, etc. 
-* **Facet**: facets are counters with filters, on particular fields. 
-* **Snippet**: snippets are extracts of text containing the searched keywords. 
-* **Renderer**: OpenSearchServer renderers are extremely easy to set up and to customize search pages. They can then be embedded in your website to let your users search your index. 
-* **Parser**: parser extract structured information from indexed documents (title, author, description, ...) 
-* **Analyzer**: analyzers are customizables components which can execute lots of processes on the indexed or searched texts (split texts in tokens, remove accents or plural, ...)  
-* **Scheduler** : OpenSearchServer's scheduler is a powerful and highly customizable tasks manager 
+* **Facet**: a facet is a dimension shared by multiple documents, which can be used to sort or filter these documents. For instance, with a collection of books, the color of the cover is a possible facet - and you could opt to filter out the blue ones.
+* **Snippet**: snippets are excerpts of text containing the searched keywords. 
+* **Renderer**: OpenSearchServer renderers are used to set up and customize search pages on your web site.
+* **Parser**: parsers extract structured information from indexed documents (title, author, description, ...) 
+* **Analyzer**: analyzers are customizable components that can execute multiple processes on the indexed or searched texts. Analyzers might split texts into tokens, remove accents and diacritics, remove plurals, etc.
+* **Scheduler** : OpenSearchServer's scheduler is a highly customizable tool to set up reccurent processes.
 
 This picture shows these main concepts:
 
 ![Global picture](schema3_en.png)
 
-Now everything is crystal clear, let's start!
+So far, so good? Let's start working with our example site.
 
 ## Set up crawl and index documents
 
 ### Index creation and first configuration
 
-Let's start by creating an `index`. As explained the index is the heart of OpenSearchServer. It will store every submitted `document`.
+Let's start by creating an `index`. An index is the heart of OpenSearchServer. It will store every submitted `document`.
 
 * Name : `site`
 * Template : `web crawler`
@@ -52,35 +52,34 @@ Click on `Create`.
 
 ![Index creation](1.create_index.png)
 
-Chosen template, `Web crawler`, will quickly give us a powerfully configured index. This template embeds a `query`, a `renderer`, a `schema` and an `HTML parser` that are really effective. 
+Chose the template called `Web crawler` to automatically get a properly configured index. The `Web crawler` template embeds a `query`, a `renderer`, a `schema` and an `HTML parser` that are optimised for most uses.
 
-Index is immediately created. You can see that several tabs are added to the main window.
+The index has now been created. You can see that several tabs have been added to the main window.
 
 ![Tabs for the main index](2.tabs.png)
 
-Select tab `Schema`. The schema defines the fields of an index.
+Select the `Schema` tab. The schema defines the fields within an index.
 
 A field has 5 properties:
 
-* **Name**: name of the field
-* **Indexed**: whether to index the value or not. If the value is indexed, queries will be able to search into this field. 
-* **Stored** : whether to store the value or not. If the value is stored, queries will be able to return it as it was when submitted to the index, without the transformations made by the indexation.
-* **TermVector** : this property allows, or not, the use of `snippets` on this field.
+* **Name**: the name of the field
+* **Indexed**: whether to index the value. If a value is indexed, queries can search into this field. 
+* **Stored** : whether to store the value. If the value is stored, queries can return it as it was when submitted to the index, without the alterations made to index it.
+* **TermVector** : this property allows - or disallows - the use of `snippets` on this field.
 * **Analyzer** : defines which `analyzer` to use on this field. 
 
-Index has been created with lots of fields.
-As you can see some fields are indexed, other stored, etc. This configuration has been made by the OpenSearchServer's team to offer the most effective search.
+The index has been automatically created with numerous fields. As you can see some are indexed, other stored, etc. This prepackaged configuration is what usually works best in our experience.
 
 ![Fields of the schema](3.schema_fields.png)
 
 ### HTML parser configuration
 
-How can the crawler know in which field of the schema store each information coming from a web page? This is the role of the `HTML parser`.
+The `HTML parser` tells the crawler in which fields of the schema to store each bit of information found on a web page.
 
-Click on tab `Parser list` under the tab `Schema`. This pages lists every available parsers. Click on the `Edit` button of the line `HTML parser`.
+Click on the tab `Parser list` under the tab `Schema`. This pages lists every available parser. Click on the `Edit` button of the line `HTML parser`.
 Then click on tab `Field mapping`.
 
-Here again you can see that lots of mapping are already configured. On the left of each line is an information the parser extracts from the page, and then is the field of the schema in which this information must go. 
+Here again you can see that many mappings have already been configured. On the left of each line is an information the parser extracts from the page, and next is the field of the schema in which this information must go. 
 
 ![Field mapping](4.parser_mapping.png)
 
@@ -88,88 +87,87 @@ Here again you can see that lots of mapping are already configured. On the left 
 
 The web crawler needs to be configured in order to crawl our example pages.
 
-Select tab `Crawler`. Make sure tab `Web` is selected then.
+Select tab `Crawler`. Make sure that the tab `Web` is selected.
 
-In the tab `Pattern list` we will configure which URL we want the crawler to explore.
+In the tab `Pattern list` we will configure which URLs the crawler should explore.
 
 ![Pattern d'URL](5.crawler.png)
 
 We want to crawl this website: [http://www.open-search-server.com/test-website/](http://www.open-search-server.com/test-website/). 
-We can see this page has links towards every news page. Thus we can tell the crawler to start by this page only, it will discover the links to the other pages. 
+This page has links towards every news page. Thus, we can simply tell the crawler to start with this page, since it will discover the links to the other pages. 
 
-In the textarea, write `http://www.open-search-server.com/test-website/*` and then click on the button `Add`.
+In the text area, write `http://www.open-search-server.com/test-website/*` and then click on the button `Add`.
 
-The `/*` part tells the crawler to explore every page whose URL starts with `http://www.open-search-server.com/test-website/`.
+The `/*` part is a wild card telling the crawler to explore every page whose URL starts with `http://www.open-search-server.com/test-website/`.
 
-Since every news page is "under" the main page in term of URL it will work fine. 
+Since every news page linked on the main page has an URL that starts this way, this fits our need.
 
 ![Pattern d'URL](6.crawler_patterns_en.png)
 
 ### Crawl start
 
-To start the crawler select tab `Crawl process`. Here several parameters can be adjusted. For example write `7` in field `Delay between each successive access, in seconds:`, `5` in field `Fetch interval between re-fetches:` and select `minutes` in the list. 
+To start the crawler, select the `Crawl process` tab. There, several parameters can be adjusted. For example write `7` in the field `Delay between each successive access, in seconds:`, `5` in the field `Fetch interval between re-fetches:` and select `minutes` in the following list. 
 
-In the block `Current status` choose `Run forever` in the list and then click on the button `Not running - click to run`.
+In the block `Current status` choose `Run forever` -- and then click on the button `Not running - click to run`.
 
-Process automaticaly updates in the area below.
+The process automaticaly reports its status in the area below.
 
 ![Pattern d'URL](7.run_crawler.png)
 
-> Tab `Manual crawl` will allow you to quickly and easily test the crawler for one particular URL.
+> The tab `Manual crawl` allows you to easily test a crawler on a specific URL.
 
 ## Search content and customize relevancy
 
 ### Full-text search query
 
-Click on tab `Query`. Click on button `Edit` for the ligne `search`.
+Click on the `Query` tab. Click on the `Edit` button corresponding to the `search` line.
 
-Queries are used to search contents into the index. Search is made in configured fields, according to the weight each field is given.
+Queries are used to search for content within the index. A search is run within the selected fields, according to the weight assigned to each field.
 
-As you can see query is made in numerous fields, with some differences of weight. You can easily change weight for each field to change the relevancy of each document.
+As you can see the prepackaged query is run across numerous fields, with some differences in weight. You can easily change the weight for each field to better match how the information is organised.
 
 ![Searched fields](8.query.png)
 
-Tab `Snipppets` lists the configured extracts of text for this query.
+The `Snipppets` tab lists the configured excerpts of text for this query.
 
 ![Snippets](9.snippets.png)
 
-You can also easily add some `facets` to this query. To do so go to tab `Facets` and for instance add a facet on field `host`.
-In field `minimal count` write `1`  in order to show only values for which more than 1 document can be found.
+You can also easily add some `facets-based filtering` to this query. To do so go to the `Facets` tab. As an example add a facet to the `host` field. In the `minimal count` field write `1`. Now the query will only return values for which more than one document can be found.
 
 ![Facet](13.facet.png)
 
-To save those modifiation click on the `Save` button on the top right of the page.
+To save those modifiation click on the `Save` button in the top right corner of the page.
 
 ### Build a search page
 
-So far you created an index, crawled some pages and configured a query.
+So far you created an index, crawled some pages to feed this index, and configured a query.
 
-Let's now see how our documents could be exposed to our visitors.
+Let's now see how our index can be made accessible to our visitors.
 
-Click on tab `Renderer`. One `Renderer` is already created by the template of index we chose sooner. Click on `Edit`.
+Click on the `Renderer` tab. A `Renderer` already exists - it was created after we chose a template for our index earlier in this example. Click on `Edit`.
 
 ![Renderer](10.renderer.png)
 
-You can see that this renderer uses the query `search`.
+You can see that this renderer uses a query called `search`.
 
 ![Renderer](11.renderer_setting.png)
 
-Tab `Fields` lets you choose which fields you want to display for each result on the results page. Tab `CSS Style` give you the ability to customize the way this page will be displayed.
+The `Fields` tab lets you choose which fields to display for each result on the results page. The `CSS Style` tab allows for customizing how this page will be displayed.
 
 Click on `Save & close` and then click on the `View` button to open the renderer in a new window.
 
-Try to search something, for instance `Worldcup 2040`. Voilà! some documents are found and displayed, with a link to the web page and some snippets. 
+Try to search something, for instance `Worldcup 2040`. Voilà! The relevant documents are found and displayed, with a link to the web page and some snippets. 
 
 ![Renderer](12.renderer_view_en.png)
 
-You can also see that autocompletion is working and that the `host` facet is there on the left!
+You can also test that autocompletion is working, and see that the `host` facet is there on the left!
 
-> You can use the `Testing` tab to quicly get the code that will allow you to easily embed the search form on your website 
+> You can use the `Testing` tab to get the code you can embed into the search form on your website 
 
 ## What's next?
 
-We just discovered some of the numerous features of OpenSearchServer.
+These are just some of the numerous features of OpenSearchServer.
 
-You could now read our [documentation center](http://www.open-search-server.com/confluence/display/EN/Home), to understand lots of other available parameters and features.
+You could now read our [documentation center](http://www.open-search-server.com/confluence/display/EN/Home), to browse through OSS's parameters and features.
 
-Don't forget to have a look at [our APIs](https://github.com/jaeksoft/opensearchserver/wiki)! They will allow you to easily build a powerful customized application!
+Don't forget to check [our APIs](https://github.com/jaeksoft/opensearchserver/wiki)! These will allow you to easily build a powerful customized application!
