@@ -90,7 +90,7 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("No search request has been found");
 			HttpServletRequest servletRequest = transaction.getRequest();
 			setLog(renderer, searchRequest, servletRequest);
-			searchRequest.setFromServlet(transaction);
+			searchRequest.setFromServlet(transaction, "");
 			renderer.configureAuthRequest(searchRequest, servletRequest);
 			if (query == null)
 				query = (String) transaction.getRequest().getSession()

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -183,11 +183,12 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
 	}
 
 	@Override
-	public void setParam(String param) throws SearchLibException {
+	final public void setParam(final String param) throws SearchLibException {
 	}
 
 	/**
