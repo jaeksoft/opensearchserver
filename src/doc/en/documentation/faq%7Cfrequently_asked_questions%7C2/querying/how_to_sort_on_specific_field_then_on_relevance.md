@@ -1,4 +1,4 @@
-Documents can easily be sorted on one field, for instance price:
+Documents can easily be sorted based on one field, for instance price:
 
     {
       "query" : "phone",
