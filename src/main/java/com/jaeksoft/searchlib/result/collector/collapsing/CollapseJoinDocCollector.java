@@ -61,13 +61,13 @@ public class CollapseJoinDocCollector
 	}
 
 	@Override
-	final public void swap(final int pos1, final int pos2) {
-		parent.swap(pos1, pos2);
+	final public void doSwap(final int pos1, final int pos2) {
+		parent.doSwap(pos1, pos2);
 		JoinDocCollector.swap(foreignDocIdsArray, pos1, pos2);
 	}
 
 	@Override
-	final public int getForeignDocIds(final int pos, final int joinPosition) {
+	final public int getForeignDocId(final int pos, final int joinPosition) {
 		return JoinDocCollector.getForeignDocIds(foreignDocIdsArray, pos,
 				joinPosition);
 	}

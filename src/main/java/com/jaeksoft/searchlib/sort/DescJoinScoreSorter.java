@@ -22,41 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.sort;
 
-public abstract class AbstractExtendsCollector<C extends CollectorInterface, B extends AbstractBaseCollector<C>>
-		implements CollectorInterface {
+import java.io.IOException;
 
-	final protected B base;
-	final protected C parent;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-	@SuppressWarnings("unchecked")
-	protected AbstractExtendsCollector(B base) {
-		this.base = (B) base;
-		parent = base.setLastCollector((C) this);
+public class DescJoinScoreSorter extends AbstractJoinScoreSorter {
+
+	public DescJoinScoreSorter(final CollectorInterface collector,
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws IOException {
+		super(collector, joinPosition, name, nullFirst);
 	}
 
 	@Override
-	final public <T extends CollectorInterface> T getCollector(
-			Class<T> collectorType) {
-		return base.getCollector(collectorType);
+	final public int compare(final int pos1, final int pos2) {
+		float[] joinScores1 = foreignScoresArray[pos1];
+		float[] joinScores2 = foreignScoresArray[pos2];
+		if (joinScores1 == null)
+			return joinScores2 == null ? 0 : pos1null;
+		if (joinScores2 == null)
+			return pos2null;
+		float s1 = joinScores1[joinPosition];
+		float s2 = joinScores2[joinPosition];
+		if (s1 > s2)
+			return -1;
+		else if (s1 < s2)
+			return 1;
+		else
+			return 0;
 	}
-
-	@Override
-	final public C getParent() {
-		return parent;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	final public CollectorInterface duplicate() {
-		B newBase = (B) base.duplicate();
-		return newBase.getCollector(this.getClass());
-	}
-
-	@Override
-	final public void swap(final int pos1, final int pos2) {
-		base.lastCollector.doSwap(pos1, pos2);
-	}
-
 }

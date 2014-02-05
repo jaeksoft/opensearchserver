@@ -37,52 +37,42 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 
 public class JoinDocCollector extends
-		AbstractBaseCollector<JoinDocCollectorInterface> implements
-		JoinDocCollectorInterface, JoinDocInterface, DocIdInterface {
+		AbstractBaseCollector<JoinCollectorInterface> implements
+		JoinCollectorInterface, JoinDocInterface, DocIdInterface {
 
-	private final ReaderAbstract[] foreignReaders;
 	private final int maxDoc;
-	private final int[] ids;
+	private final ReaderAbstract[] foreignReaders;
+	final int[] srcIds;
+	final int joinResultSize;
 	private final int[][] foreignDocIdsArray;
-	private OpenBitSet bitSet;
-	private final int joinResultSize;
+	private OpenBitSet bitSet = null;
+
+	private final static int[][] EMPTY = new int[0][0];
 
 	JoinDocCollector() {
-		maxDoc = 0;
-		ids = new int[0];
-		foreignDocIdsArray = new int[0][0];
-		bitSet = null;
+		srcIds = ArrayUtils.EMPTY_INT_ARRAY;
+		foreignDocIdsArray = EMPTY;
 		joinResultSize = 0;
 		foreignReaders = null;
+		maxDoc = 0;
 	}
 
 	JoinDocCollector(DocIdInterface docs, int joinResultSize) {
-		this.maxDoc = docs.getMaxDoc();
-		this.bitSet = null;
-		this.ids = ArrayUtils.clone(docs.getIds());
-		this.foreignDocIdsArray = new int[ids.length][];
+		this.srcIds = ArrayUtils.clone(docs.getIds());
+		this.foreignDocIdsArray = new int[srcIds.length][];
 		if (docs instanceof JoinDocCollector)
 			((JoinDocCollector) docs).copyForeignDocIdsArray(this);
 		this.joinResultSize = joinResultSize;
 		this.foreignReaders = new ReaderAbstract[joinResultSize];
+		this.maxDoc = docs.getMaxDoc();
 	}
 
 	private void copyForeignDocIdsArray(final JoinDocCollector joinDocCollector) {
-		int i = 0;
 		if (foreignDocIdsArray == null)
 			return;
+		int i = 0;
 		for (int[] ids : foreignDocIdsArray)
 			joinDocCollector.foreignDocIdsArray[i++] = ids;
-	}
-
-	private JoinDocCollector(final int joinResultSize, final int idsLength,
-			final int maxDoc) {
-		this.maxDoc = maxDoc;
-		this.bitSet = null;
-		this.joinResultSize = joinResultSize;
-		this.ids = new int[idsLength];
-		this.foreignDocIdsArray = new int[idsLength][];
-		this.foreignReaders = new ReaderAbstract[joinResultSize];
 	}
 
 	/**
@@ -91,12 +81,16 @@ public class JoinDocCollector extends
 	 * @param src
 	 */
 	private JoinDocCollector(final JoinDocCollector src) {
-		this(src.joinResultSize, validSize(src.ids), src.maxDoc);
+		this.maxDoc = src.maxDoc;
+		this.joinResultSize = src.joinResultSize;
+		this.srcIds = new int[validSize(src.srcIds)];
+		this.foreignDocIdsArray = new int[this.srcIds.length][];
+		this.foreignReaders = new ReaderAbstract[joinResultSize];
 		int i1 = 0;
 		int i2 = 0;
-		for (int id : src.ids) {
+		for (int id : src.srcIds) {
 			if (id != -1) {
-				ids[i1] = id;
+				srcIds[i1] = id;
 				foreignDocIdsArray[i1++] = ArrayUtils
 						.clone(src.foreignDocIdsArray[i2]);
 			}
@@ -136,43 +130,29 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	final public void swap(final int pos1, final int pos2) {
-		int id = ids[pos1];
-		ids[pos1] = ids[pos2];
-		ids[pos2] = id;
+	final public void doSwap(final int pos1, final int pos2) {
+		int id = srcIds[pos1];
+		srcIds[pos1] = srcIds[pos2];
+		srcIds[pos2] = id;
 		swap(foreignDocIdsArray, pos1, pos2);
 	}
 
 	@Override
-	final public int[] getIds() {
-		return ids;
-	}
-
-	@Override
-	final public int getSize() {
-		return ids.length;
-	}
-
-	@Override
-	final public OpenBitSet getBitSet() {
-		if (bitSet != null)
-			return bitSet;
-		bitSet = new OpenBitSet(maxDoc);
-		for (int id : ids)
-			bitSet.fastSet(id);
-		return bitSet;
-	}
-
-	@Override
-	final public void setForeignDocId(final int pos, final int joinResultPos,
+	final public void doSetForeignDoc(final int pos, final int joinResultPos,
 			final int foreignDocId, float foreignScore) {
 		int[] foreignDocIds = foreignDocIdsArray[pos];
 		if (foreignDocIds == null) {
 			foreignDocIds = new int[joinResultSize];
 			Arrays.fill(foreignDocIds, -1);
+			foreignDocIdsArray[pos] = foreignDocIds;
 		}
 		foreignDocIds[joinResultPos] = foreignDocId;
-		foreignDocIdsArray[pos] = foreignDocIds;
+	}
+
+	final void setForeignDoc(final int pos, final int joinResultPos,
+			final int foreignDocId, float foreignScore) {
+		lastCollector.doSetForeignDoc(pos, joinResultPos, foreignDocId,
+				foreignScore);
 	}
 
 	final public static int getForeignDocIds(final int[][] foreignDocIdsArray,
@@ -186,7 +166,7 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	final public int getForeignDocIds(final int pos, final int joinPosition) {
+	final public int getForeignDocId(final int pos, final int joinPosition) {
 		return getForeignDocIds(foreignDocIdsArray, pos, joinPosition);
 	}
 
@@ -194,7 +174,7 @@ public class JoinDocCollector extends
 			int joinPosition, JoinDocCollector joinDocColletor)
 			throws IOException {
 		DocIdCollector docIdCollector = new DocIdCollector(maxDoc,
-				joinDocColletor.getIds().length);
+				joinDocColletor.srcIds.length);
 		for (int[] foreinDocs : joinDocColletor.getForeignDocIdsArray())
 			docIdCollector.collectDoc(foreinDocs[joinPosition]);
 		return docIdCollector;
@@ -206,13 +186,33 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	final public int getMaxDoc() {
+	public ReaderAbstract[] getForeignReaders() {
+		return foreignReaders;
+	}
+
+	@Override
+	public int getSize() {
+		return srcIds.length;
+	}
+
+	@Override
+	public int getMaxDoc() {
 		return maxDoc;
 	}
 
 	@Override
-	public ReaderAbstract[] getForeignReaders() {
-		return foreignReaders;
+	public int[] getIds() {
+		return srcIds;
+	}
+
+	@Override
+	public OpenBitSet getBitSet() {
+		if (bitSet != null)
+			return bitSet;
+		bitSet = new OpenBitSet(maxDoc);
+		for (int id : srcIds)
+			bitSet.fastSet(id);
+		return bitSet;
 	}
 
 }

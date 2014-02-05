@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.TokenStream;
@@ -34,87 +32,67 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.util.RegExpUtils;
 
-public class RegularExpressionFilter extends FilterFactory {
+public class RegularExpressionReplaceFilter extends FilterFactory {
 
 	private Pattern pattern = null;
+	private String replace = null;
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.REGULAR_EXPRESSION, "", null, 20, 1);
+		addProperty(ClassPropertyEnum.REGULAR_EXPRESSION, "", null, 30, 1);
+		addProperty(ClassPropertyEnum.REGULAR_EXPRESSION_REPLACEMENT, "", null,
+				30, 1);
 	}
 
 	@Override
 	public void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-		if (prop != ClassPropertyEnum.REGULAR_EXPRESSION)
-			return;
 		if (value == null || value.length() == 0)
 			return;
-		pattern = Pattern.compile(value);
+		if (prop == ClassPropertyEnum.REGULAR_EXPRESSION)
+			pattern = Pattern.compile(value);
+		else if (prop == ClassPropertyEnum.REGULAR_EXPRESSION_REPLACEMENT)
+			replace = value;
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		if (pattern == null)
-			return tokenStream;
-		return new RegularExpressionTokenFilter(pattern, tokenStream);
+		return new RegularExpressionReplaceTokenFilter(pattern, replace,
+				tokenStream);
 	}
 
-	public static class RegularExpressionTokenFilter extends AbstractTermFilter
-			implements RegExpUtils.MatchGroupListener {
-
-		private List<String> termQueue = null;
-
-		private int currentPos = 0;
+	public static class RegularExpressionReplaceTokenFilter extends
+			AbstractTermFilter {
 
 		private final Pattern pattern;
+		private final String replace;
 
-		protected RegularExpressionTokenFilter(Pattern pattern,
-				TokenStream input) {
+		protected RegularExpressionReplaceTokenFilter(Pattern pattern,
+				String replace, TokenStream input) {
 			super(input);
-			termQueue = new ArrayList<String>(0);
 			this.pattern = pattern;
-		}
-
-		private final boolean popToken() {
-			if (termQueue.size() == 0)
-				return false;
-			if (currentPos == termQueue.size())
-				return false;
-			createToken(termQueue.get(currentPos++));
-			return true;
-		}
-
-		private final void createTokens() {
-			termQueue.clear();
-			currentPos = 0;
-
-			synchronized (pattern) {
-				RegExpUtils.groupExtractor(pattern, termAtt.toString(), this);
-			}
+			this.replace = replace;
 		}
 
 		@Override
 		public final boolean incrementToken() throws IOException {
 			for (;;) {
-				if (popToken())
-					return true;
 				if (!input.incrementToken())
 					return false;
-				createTokens();
+				synchronized (pattern) {
+					if (createToken(pattern.matcher(termAtt.toString())
+							.replaceAll(replace)))
+						return true;
+				}
 			}
 		}
+	}
 
-		@Override
-		public void match(int start, int end) {
-		}
-
-		@Override
-		public void group(int start, int end, String content) {
-			termQueue.add(content);
-		}
+	public final static void main(String[] args) {
+		System.out.println("january, 1999".replaceAll("^.* ([0-9]*)$", "$1"));
+		System.out.println(Pattern.compile("^.* ([0-9]*)$")
+				.matcher("january, 1999").replaceAll("$1"));
 	}
 }

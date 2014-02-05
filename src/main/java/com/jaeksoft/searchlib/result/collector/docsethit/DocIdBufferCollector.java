@@ -73,8 +73,8 @@ public class DocIdBufferCollector
 	}
 
 	@Override
-	final public void swap(final int a, final int b) {
-		parent.swap(a, b);
+	final public void doSwap(final int a, final int b) {
+		parent.doSwap(a, b);
 		int i1 = ids[a];
 		int i2 = ids[b];
 		ids[a] = i2;

@@ -1075,73 +1075,88 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void setFromServletNoLock(ServletTransaction transaction)
-			throws SyntaxError, SearchLibException {
-		super.setFromServletNoLock(transaction);
+	public void setFromServletNoLock(final ServletTransaction transaction,
+			final String prefix) throws SyntaxError, SearchLibException {
+		super.setFromServletNoLock(transaction, prefix);
 
 		String p;
 		Integer i;
 
 		SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 
-		if ((p = transaction.getParameterString("query")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"query"))) != null)
 			setQueryString(p);
-		else if ((p = transaction.getParameterString("q")) != null)
+		else if ((p = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "q"))) != null)
 			setQueryString(p);
 
-		if ((i = transaction.getParameterInteger("start")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"start"))) != null)
 			setStart(i);
 
-		if ((i = transaction.getParameterInteger("rows")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"rows"))) != null)
 			setRows(i);
 
-		if ((p = transaction.getParameterString("lang")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"lang"))) != null)
 			setLang(LanguageEnum.findByCode(p));
 
-		if ((p = transaction.getParameterString("collapse.mode")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"collapse.mode"))) != null)
 			setCollapseMode(CollapseParameters.Mode.valueOfLabel(p));
 
-		if ((p = transaction.getParameterString("collapse.type")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"collapse.type"))) != null)
 			setCollapseType(CollapseParameters.Type.valueOfLabel(p));
 
-		if ((p = transaction.getParameterString("collapse.field")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"collapse.field"))) != null)
 			setCollapseField(schemaFieldList.get(p).getName());
 
-		if ((i = transaction.getParameterInteger("collapse.max")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"collapse.max"))) != null)
 			setCollapseMax(i);
 
-		if ((p = transaction.getParameterString("log")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"log"))) != null)
 			setLogReport(true);
 
-		if ((p = transaction.getParameterString("operator")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"operator"))) != null)
 			setDefaultOperator(p);
 
 		if (joinList != null)
-			joinList.setFromServlet(transaction);
+			joinList.setFromServlet(transaction, prefix);
 
 		if (filterList != null)
-			filterList.setFromServlet(transaction);
+			filterList.setFromServlet(transaction, prefix);
 
 		if (isLogReport()) {
 			for (int j = 1; j <= 10; j++) {
-				p = transaction.getParameterString("log" + j);
+				p = transaction.getParameterString(StringUtils.fastConcat(
+						prefix, "log", j));
 				if (p == null)
 					break;
 				addCustomLog(p);
 			}
 		}
 
-		if ((p = transaction.getParameterString("timer.minTime")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"timer.minTime"))) != null)
 			setTimerMinTime(Integer.parseInt(p));
 
-		if ((p = transaction.getParameterString("timer.maxDepth")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"timer.maxDepth"))) != null)
 			setTimerMaxDepth(Integer.parseInt(p));
 
 		String[] values;
 
 		filterList.addFromServlet(transaction, null);
 
-		if ((values = transaction.getParameterValues("rf")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "rf"))) != null) {
 			for (String value : values)
 				if (value != null) {
 					value = value.trim();
@@ -1150,46 +1165,54 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				}
 		}
 
-		if ((values = transaction.getParameterValues("hl")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "hl"))) != null) {
 			for (String value : values)
 				snippetFieldList.put(new SnippetField(getCheckSchemaField(
 						schemaFieldList, value).getName()));
 		}
 
-		if ((values = transaction.getParameterValues("fl")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "fl"))) != null) {
 			for (String value : values)
 				returnFieldList.put(new ReturnField(getCheckSchemaField(
 						schemaFieldList, value).getName()));
 		}
 
-		if ((values = transaction.getParameterValues("sort")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "sort"))) != null) {
 			for (String value : values)
 				sortFieldList.put(new SortField(value));
 		}
 
 		for (int j = 1; j <= 10; j++) {
-			p = transaction.getParameterString("sort" + j);
+			p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+					"sort", j));
 			if (p == null)
 				break;
 			sortFieldList.put(new SortField(p));
 		}
 
-		if ((values = transaction.getParameterValues("facet")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "facet"))) != null) {
 			for (String value : values)
 				facetFieldList.put(FacetField.buildFacetField(value, false,
 						false));
 		}
-		if ((values = transaction.getParameterValues("facet.collapse")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "facet.collapse"))) != null) {
 			for (String value : values)
 				facetFieldList.put(FacetField.buildFacetField(value, false,
 						true));
 		}
-		if ((values = transaction.getParameterValues("facet.multi")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "facet.multi"))) != null) {
 			for (String value : values)
 				facetFieldList.put(FacetField.buildFacetField(value, true,
 						false));
 		}
-		if ((values = transaction.getParameterValues("facet.multi.collapse")) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "facet.multi.collapse"))) != null) {
 			for (String value : values)
 				facetFieldList.put(FacetField
 						.buildFacetField(value, true, true));

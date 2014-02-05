@@ -91,6 +91,9 @@ public enum FilterEnum {
 	RegularExpressionFilter(
 			"This filter generates tokens by applying a regular expression"),
 
+	RegularExpressionReplaceFilter(
+			"This filter generates tokens by applying a regular expression with replacement"),
+
 	RemoveDuplicateCharactersFilter("Remove consecutive duplicate characters."),
 
 	RemoveTokenTypeFilter("Remove token of given type."),

@@ -113,8 +113,8 @@ public class DistanceCollector
 	}
 
 	@Override
-	final public void swap(final int a, final int b) {
-		parent.swap(a, b);
+	final public void doSwap(final int a, final int b) {
+		parent.doSwap(a, b);
 		float dist1 = distances[a];
 		float dist2 = distances[b];
 		distances[b] = dist1;

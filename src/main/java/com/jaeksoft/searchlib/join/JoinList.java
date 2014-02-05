@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
@@ -118,9 +119,10 @@ public class JoinList implements Iterable<JoinItem> {
 		return collector;
 	}
 
-	public void setFromServlet(ServletTransaction transaction) {
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) throws SearchLibException, SyntaxError {
 		for (JoinItem item : joinList)
-			item.setFromServlet(transaction);
+			item.setFromServlet(transaction, prefix);
 	}
 
 	public void setParam(int pos, String param) throws SearchLibException {

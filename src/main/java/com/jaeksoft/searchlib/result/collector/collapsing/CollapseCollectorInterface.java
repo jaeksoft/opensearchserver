@@ -24,11 +24,9 @@
 
 package com.jaeksoft.searchlib.result.collector.collapsing;
 
-import it.unimi.dsi.fastutil.Swapper;
-
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-public interface CollapseCollectorInterface extends CollectorInterface, Swapper {
+public interface CollapseCollectorInterface extends CollectorInterface {
 
 	int collectDoc(final int sourcePos);
 

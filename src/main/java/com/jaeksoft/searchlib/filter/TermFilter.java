@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -147,14 +147,16 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
-		String q = transaction.getParameterString(getParamPosition());
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
+		String q = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, getParamPosition()));
 		if (q != null)
 			setTerm(q);
 	}
 
 	@Override
-	public void setParam(String param) {
+	final public void setParam(final String param) {
 		if (param != null)
 			setTerm(param);
 	}

@@ -187,8 +187,12 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			"The Option to remove or keep the URL Fragment");
 
 	public final static ClassPropertyEnum REGULAR_EXPRESSION = new ClassPropertyEnum(
-			true, "regular_expression", "Regular Expression",
+			true, "regular_expression", "Pattern",
 			"The regular expression pattern");
+
+	public final static ClassPropertyEnum REGULAR_EXPRESSION_REPLACEMENT = new ClassPropertyEnum(
+			true, "regular_expression_replacement", "Replacement",
+			"The regular expression replacement");
 
 	public final static ClassPropertyEnum H1_BOOST = new ClassPropertyEnum(
 			true, "h1_boost", "H1 Boost", "Boost for H1 Tag in Html Content");

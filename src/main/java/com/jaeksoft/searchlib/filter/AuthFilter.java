@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -143,10 +143,11 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	}
 
 	@Override
-	public void setFromServlet(ServletTransaction transaction) {
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
 	}
 
 	@Override
-	public void setParam(String params) throws SearchLibException {
+	final public void setParam(final String params) throws SearchLibException {
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -100,6 +101,10 @@ public class JoinItem implements Comparable<JoinItem> {
 
 	private transient OuterCollector outerCollector;
 
+	private transient Client foreignClient;
+
+	private transient AbstractSearchRequest foreignSearchRequest;
+
 	public JoinItem() {
 		indexName = null;
 		queryTemplate = null;
@@ -114,6 +119,8 @@ public class JoinItem implements Comparable<JoinItem> {
 		type = JoinType.INNER;
 		filterList = new FilterList();
 		outerCollector = null;
+		foreignSearchRequest = null;
+		foreignClient = null;
 	}
 
 	public JoinItem(JoinItem source) {
@@ -133,7 +140,6 @@ public class JoinItem implements Comparable<JoinItem> {
 		target.returnFacets = returnFacets;
 		target.type = type;
 		target.filterList = new FilterList(filterList);
-		target.outerCollector = outerCollector;
 	}
 
 	public JoinItem(XPathParser xpp, Node node) throws XPathExpressionException {
@@ -346,46 +352,63 @@ public class JoinItem implements Comparable<JoinItem> {
 		this.type = type;
 	}
 
+	private final Client getFogeignClient() throws SearchLibException {
+		Client foreignClient = ClientCatalog.getClient(indexName);
+		if (foreignClient == null)
+			throw new SearchLibException("No client found: " + indexName);
+		return foreignClient;
+	}
+
+	private final AbstractSearchRequest getForeignSearchRequest(
+			final Client foreignClient) throws SearchLibException {
+		AbstractRequest foreignRequest = StringUtils.isEmpty(queryTemplate) ? new SearchFieldRequest(
+				foreignClient) : foreignClient.getNewRequest(queryTemplate);
+		if (foreignRequest == null)
+			throw new SearchLibException("The request template was not found: "
+					+ queryTemplate);
+		if (!(foreignRequest instanceof AbstractSearchRequest))
+			throw new SearchLibException(
+					"The request template is not a Search request: "
+							+ queryTemplate);
+		return (AbstractSearchRequest) foreignRequest;
+	}
+
+	private final void lasyLoadForeignSearchRequest() throws SearchLibException {
+		if (foreignClient == null)
+			foreignClient = getFogeignClient();
+		if (foreignSearchRequest == null)
+			foreignSearchRequest = getForeignSearchRequest(foreignClient);
+	}
+
 	public DocIdInterface apply(ReaderAbstract reader, DocIdInterface docs,
 			int joinResultSize, JoinResult joinResult,
 			List<JoinFacet> joinFacets, Timer timer) throws SearchLibException {
 		try {
-			Client foreignClient = ClientCatalog.getClient(indexName);
-			if (foreignClient == null)
-				throw new SearchLibException("No client found: " + indexName);
-			AbstractRequest foreignRequest = StringUtils.isEmpty(queryTemplate) ? new SearchFieldRequest(
-					foreignClient) : foreignClient.getNewRequest(queryTemplate);
-			if (foreignRequest == null)
-				throw new SearchLibException(
-						"The request template was not found: " + queryTemplate);
-			if (!(foreignRequest instanceof AbstractSearchRequest))
-				throw new SearchLibException(
-						"The request template is not a Search request: "
-								+ queryTemplate);
 			FieldCacheIndex localStringIndex = reader
 					.getStringIndex(localField);
 			if (localStringIndex == null)
 				throw new SearchLibException(
 						"No string index found for the local field: "
 								+ localField);
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) foreignRequest;
+			lasyLoadForeignSearchRequest();
 			// TODO Why ??
-			if (searchRequest.getRows() == 0)
-				searchRequest.setRows(1);
-			searchRequest.setQueryString(queryString);
+			// if (foreignSearchRequest.getRows() == 0)
+			// searchRequest.setRows(1);
+			foreignSearchRequest.setQueryString(queryString);
 			for (FilterAbstract<?> filter : filterList)
-				searchRequest.getFilterList().add(filter);
+				foreignSearchRequest.getFilterList().add(filter);
 			String joinResultName = "join " + joinResult.joinPosition;
 			Timer t = new Timer(timer, joinResultName + " foreign search");
 			ResultSearchSingle resultSearch = (ResultSearchSingle) foreignClient
-					.request(searchRequest);
+					.request(foreignSearchRequest);
 			t.getDuration();
 			joinResult.setForeignResult(resultSearch);
-			if (searchRequest.isFacet()) {
+			if (foreignSearchRequest.isFacet()) {
 				if (returnFacets)
-					joinFacets.add(new JoinFacet(joinResult, searchRequest
-							.getFacetFieldList(), resultSearch));
-				searchRequest.getFacetFieldList().clear();
+					joinFacets.add(new JoinFacet(joinResult,
+							foreignSearchRequest.getFacetFieldList(),
+							resultSearch));
+				foreignSearchRequest.getFacetFieldList().clear();
 			}
 
 			ReaderAbstract foreignReader = resultSearch.getReader();
@@ -398,8 +421,8 @@ public class JoinItem implements Comparable<JoinItem> {
 			t = new Timer(timer, joinResultName + " join");
 			DocIdInterface joinDocs = JoinUtils.join(docs, localStringIndex,
 					resultSearch.getDocs(), foreignFieldIndex, joinResultSize,
-					joinResult.joinPosition, t, returnScores, type,
-					outerCollector, foreignReader);
+					joinResult.joinPosition, t, type, outerCollector,
+					foreignReader);
 			t.getDuration();
 			return joinDocs;
 		} catch (IOException e) {
@@ -407,11 +430,16 @@ public class JoinItem implements Comparable<JoinItem> {
 		}
 	}
 
-	public void setFromServlet(ServletTransaction transaction) {
-		String q = transaction.getParameterString(paramPosition);
+	public void setFromServlet(ServletTransaction transaction, String prefix)
+			throws SearchLibException, SyntaxError {
+		String myPrefix = StringUtils.fastConcat(prefix, paramPosition);
+		String q = transaction.getParameterString(myPrefix);
 		if (q != null)
 			setQueryString(q);
-		filterList.addFromServlet(transaction, paramPosition + ".");
+		myPrefix = StringUtils.fastConcat(myPrefix, ".");
+		filterList.addFromServlet(transaction, myPrefix);
+		lasyLoadForeignSearchRequest();
+		foreignSearchRequest.setFromServlet(transaction, myPrefix);
 	}
 
 	public void setParam(String param) {

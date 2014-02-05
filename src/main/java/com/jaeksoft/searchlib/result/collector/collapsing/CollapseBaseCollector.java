@@ -108,7 +108,7 @@ public class CollapseBaseCollector extends
 	}
 
 	@Override
-	public void swap(int pos1, int pos2) {
+	final public void doSwap(final int pos1, final int pos2) {
 		int id = ids[pos1];
 		ids[pos1] = ids[pos2];
 		ids[pos2] = id;

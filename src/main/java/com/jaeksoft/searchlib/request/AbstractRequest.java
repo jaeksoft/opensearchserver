@@ -248,8 +248,8 @@ public abstract class AbstractRequest {
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
-	protected void setFromServletNoLock(ServletTransaction transaction)
-			throws SyntaxError, SearchLibException {
+	protected void setFromServletNoLock(final ServletTransaction transaction,
+			final String prefix) throws SyntaxError, SearchLibException {
 		user = transaction.getParameterString("user");
 		String[] grps = transaction.getParameterValues("group");
 		if (grps != null) {
@@ -259,11 +259,11 @@ public abstract class AbstractRequest {
 		}
 	}
 
-	public final void setFromServlet(ServletTransaction transaction)
-			throws SyntaxError, SearchLibException {
+	public final void setFromServlet(final ServletTransaction transaction,
+			final String prefix) throws SyntaxError, SearchLibException {
 		rwl.w.lock();
 		try {
-			setFromServletNoLock(transaction);
+			setFromServletNoLock(transaction, prefix);
 		} finally {
 			rwl.w.unlock();
 		}

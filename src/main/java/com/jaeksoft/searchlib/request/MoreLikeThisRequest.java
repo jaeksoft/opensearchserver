@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -623,47 +624,61 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 	}
 
 	@Override
-	protected void setFromServletNoLock(ServletTransaction transaction) {
+	final protected void setFromServletNoLock(
+			final ServletTransaction transaction, final String prefix) {
 		String p;
 		Integer i;
 		Boolean b;
 
-		if ((p = transaction.getParameterString("mlt.docquery")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"mlt.docquery"))) != null)
 			setDocQuery(p);
 
-		if ((p = transaction.getParameterString("mlt.liketext")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"mlt.liketext"))) != null)
 			setLikeText(p);
 
-		if ((i = transaction.getParameterInteger("mlt.minwordlen")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"mlt.minwordlen"))) != null)
 			setMinWordLen(i);
 
-		if ((i = transaction.getParameterInteger("mlt.maxwordlen")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"mlt.maxwordlen"))) != null)
 			setMaxWordLen(i);
 
-		if ((i = transaction.getParameterInteger("mlt.mindocfreq")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"mlt.mindocfreq"))) != null)
 			setMinDocFreq(i);
 
-		if ((i = transaction.getParameterInteger("mlt.mintermfreq")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"mlt.mintermfreq"))) != null)
 			setMinTermFreq(i);
 
-		if ((p = transaction.getParameterString("mlt.stopwords")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"mlt.stopwords"))) != null)
 			setStopWords(p);
 
-		if ((p = transaction.getParameterString("lang")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"lang"))) != null)
 			setLang(LanguageEnum.findByCode(p));
-		else if ((p = transaction.getParameterString("mlt.lang")) != null)
+		else if ((p = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "mlt.lang"))) != null)
 			setLang(LanguageEnum.findByCode(p));
 
-		if ((p = transaction.getParameterString("mlt.analyzer")) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"mlt.analyzer"))) != null)
 			setAnalyzerName(p);
 
-		if ((b = transaction.getParameterBoolean("mlt.boost")) != null)
+		if ((b = transaction.getParameterBoolean(StringUtils.fastConcat(prefix,
+				"mlt.boost"))) != null)
 			setBoost(b);
 
-		if ((i = transaction.getParameterInteger("start")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"start"))) != null)
 			setStart(i);
 
-		if ((i = transaction.getParameterInteger("rows")) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
+				"rows"))) != null)
 			setRows(i);
 	}
 

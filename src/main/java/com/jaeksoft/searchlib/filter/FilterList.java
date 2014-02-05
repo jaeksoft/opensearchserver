@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
@@ -116,9 +117,10 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			filter.writeXmlConfig(xmlWriter);
 	}
 
-	public void setFromServlet(ServletTransaction transaction) {
+	final public void setFromServlet(final ServletTransaction transaction,
+			final String prefix) {
 		for (FilterAbstract<?> filter : filterList)
-			filter.setFromServlet(transaction);
+			filter.setFromServlet(transaction, prefix);
 	}
 
 	private void addFromServlet(String[] values, boolean negative) {
@@ -134,8 +136,10 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	public void addFromServlet(ServletTransaction transaction, String prefix) {
 		if (prefix == null)
 			prefix = "";
-		addFromServlet(transaction.getParameterValues(prefix + "fq"), false);
-		addFromServlet(transaction.getParameterValues(prefix + "fqn"), true);
+		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "fq")), false);
+		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(
+				prefix, "fqn")), true);
 	}
 
 	public void setParam(int pos, String param) throws SearchLibException {

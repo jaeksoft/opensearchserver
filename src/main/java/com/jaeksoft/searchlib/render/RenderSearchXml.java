@@ -53,6 +53,8 @@ public class RenderSearchXml extends
 			return;
 		writer.print("\t\t<join paramPosition=\"");
 		writer.print(joinResultDocument.getJoinParameter());
+		writer.print("\" score=\"");
+		writer.print(joinResultDocument.getScore());
 		writer.println("\">");
 		renderDocument(joinResultDocument);
 		writer.println("\t\t</join>");

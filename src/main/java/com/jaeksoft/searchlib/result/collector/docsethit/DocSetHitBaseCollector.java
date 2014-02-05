@@ -113,7 +113,7 @@ final public class DocSetHitBaseCollector extends
 	}
 
 	@Override
-	final public void swap(final int a, final int b) {
+	final public void doSwap(final int a, final int b) {
 	}
 
 }
