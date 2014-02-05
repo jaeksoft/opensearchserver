@@ -76,6 +76,11 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
+	final public void doSwap(final int a, final int b) {
+		doSwap(a, b);
+	}
+
+	@Override
 	final public int[] getIds() {
 		return ids;
 	}

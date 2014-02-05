@@ -30,7 +30,7 @@ public interface JoinDocInterface extends CollectorInterface {
 
 	ReaderAbstract[] getForeignReaders();
 
-	int getForeignDocIds(final int pos, final int joinPosition);
+	int getForeignDocId(final int pos, final int joinPosition);
 
 	int[][] getForeignDocIdsArray();
 

@@ -106,8 +106,8 @@ public class CollapseScoreDocCollector
 	}
 
 	@Override
-	final public void swap(final int pos1, final int pos2) {
-		parent.swap(pos1, pos2);
+	final public void doSwap(final int pos1, final int pos2) {
+		parent.doSwap(pos1, pos2);
 		float score = scores[pos1];
 		scores[pos1] = scores[pos2];
 		scores[pos2] = score;

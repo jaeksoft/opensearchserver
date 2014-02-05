@@ -22,18 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector.join;
+package com.jaeksoft.searchlib.sort;
 
-import it.unimi.dsi.fastutil.Swapper;
+import java.io.IOException;
 
-import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
-public interface JoinDocCollectorInterface extends CollectorInterface, Swapper {
+public class AscJoinScoreSorter extends AbstractJoinScoreSorter {
 
-	void setForeignDocId(final int pos, final int joinResultPos,
-			final int foreignDocId, final float score);
+	public AscJoinScoreSorter(final CollectorInterface collector,
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws IOException {
+		super(collector, joinPosition, name, nullFirst);
+	}
 
-	ReaderAbstract[] getForeignReaders();
-
+	@Override
+	final public int compare(final int pos1, final int pos2) {
+		float[] joinScores1 = foreignScoresArray[pos1];
+		float[] joinScores2 = foreignScoresArray[pos2];
+		if (joinScores1 == null)
+			return joinScores2 == null ? 0 : pos1null;
+		if (joinScores2 == null)
+			return pos2null;
+		float s1 = joinScores1[joinPosition];
+		float s2 = joinScores2[joinPosition];
+		if (s1 > s2)
+			return 1;
+		else if (s1 < s2)
+			return -1;
+		else
+			return 0;
+	}
 }

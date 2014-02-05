@@ -24,39 +24,10 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-public abstract class AbstractExtendsCollector<C extends CollectorInterface, B extends AbstractBaseCollector<C>>
-		implements CollectorInterface {
+public interface JoinScoreInterface extends CollectorInterface {
 
-	final protected B base;
-	final protected C parent;
+	float getForeignScore(final int pos, final int joinPosition);
 
-	@SuppressWarnings("unchecked")
-	protected AbstractExtendsCollector(B base) {
-		this.base = (B) base;
-		parent = base.setLastCollector((C) this);
-	}
-
-	@Override
-	final public <T extends CollectorInterface> T getCollector(
-			Class<T> collectorType) {
-		return base.getCollector(collectorType);
-	}
-
-	@Override
-	final public C getParent() {
-		return parent;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	final public CollectorInterface duplicate() {
-		B newBase = (B) base.duplicate();
-		return newBase.getCollector(this.getClass());
-	}
-
-	@Override
-	final public void swap(final int pos1, final int pos2) {
-		base.lastCollector.doSwap(pos1, pos2);
-	}
+	float[][] getForeignDocScoreArray();
 
 }
