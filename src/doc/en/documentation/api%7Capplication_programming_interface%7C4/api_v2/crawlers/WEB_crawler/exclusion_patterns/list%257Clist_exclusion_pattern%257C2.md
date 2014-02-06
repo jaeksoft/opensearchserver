@@ -53,10 +53,10 @@ The list was not returned. The reason is provided in the content.
     
 
 **Using jQuery:**
-    
-$.ajax({ 
-   type: "GET",
-   dataType: "json",
-   url: "http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion   console.log(data);
-});
+
+    $.ajax({ 
+       type: "GET",
+       dataType: "json",
+       url: "http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion   console.log(data);
+    });
     

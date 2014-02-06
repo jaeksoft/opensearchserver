@@ -53,6 +53,6 @@ The deletion failed. The reason is provided in the content.
        dataType: "json",
        url: "http://localhost:8080/services/rest/index/my_index/search/template/my_search"
     }).done(function (data) {
-   vconsole.log(data);
+        console.log(data);
     });
     
