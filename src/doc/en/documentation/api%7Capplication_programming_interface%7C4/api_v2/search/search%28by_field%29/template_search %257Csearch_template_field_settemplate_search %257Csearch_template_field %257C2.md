@@ -155,8 +155,7 @@ The search failed. The reason is provided in the content.
 **HTTP code:**
 404, 500
 
-    
-Template not found: test3
+    Template not found: test3
     
 
 ### Sample call

@@ -92,7 +92,7 @@ The search template was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-Template not found: my_search
+    Template not found: my_search
     
 
 ### Sample call

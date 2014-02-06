@@ -1,10 +1,12 @@
-Use this API to delete a field of the schema.
+The WEB crawler index web site based on wildcards patterns (exclusion and inclusion).
+
+Use this API to stop the crawler.
 
 **Requirement:** OpenSearchServer v1.5
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/field/{field_name}```
+**URL:** ```/services/rest/index/{index_name}/crawler/web/run```
 
 **Method:** ```DELETE```
 
@@ -14,45 +16,42 @@ Use this API to delete a field of the schema.
 
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
-- _**field_name**_ (required): The name of the field.
 
 ### Success response
-The field has been deleted.
+The stop request has been received.
 
 **HTTP code:**
 200
 
 **Content (application/json):**
-    
+
     {
         "successful": true,
-        "info": "Deleted my_field"
+        "info": "STOPPING"
     }
-
+    
 
 ### Error response
 
-The deletion failed. The reason is provided in the content.
+The crawl failed. The reason is provided in the content.
 
 **HTTP code:**
-404, 500
-    
-    Field not found: my_field
-    
+500
 
 ### Sample call
 
 **Using CURL:**
     
-    curl -XDELETE http://localhost:8080/services/rest/index/my_index/field/my_field
-
-
-**Using jQuery:**
+    curl -XDELETE http://localhost:8080/services/rest/index/my_index/crawler/web/run
     
+
+**Using CURL:**
+
     $.ajax({ 
        type: "DELETE",
        dataType: "json",
-       url: "http://localhost:8080/services/rest/index/my_index/field/my_field"
+       url: "http://localhost:8080/services/rest/index/my_index/crawler/web/run"
     }).done(function (data) {
        console.log(data);
     });
+    

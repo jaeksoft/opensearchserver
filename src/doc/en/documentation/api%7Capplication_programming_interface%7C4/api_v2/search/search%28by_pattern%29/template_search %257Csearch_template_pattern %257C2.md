@@ -162,8 +162,7 @@ The search failed. The reason is provided in the content.
 **HTTP code:**
 404, 500
 
-    
-Template not found: my_search
+    Template not found: my_search
     
 
 ### Sample call

@@ -37,8 +37,7 @@ The deletion failed. The reason is provided in the content.
 **HTTP code:**
 404, 500
 
-    
-Field not found: my_field
+    Field not found: my_field
     
 
 ### Sample call

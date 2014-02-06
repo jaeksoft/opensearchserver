@@ -76,7 +76,7 @@ The list was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-An internal error occurred
+    An internal error occurred
     
 
 ### Sample call
