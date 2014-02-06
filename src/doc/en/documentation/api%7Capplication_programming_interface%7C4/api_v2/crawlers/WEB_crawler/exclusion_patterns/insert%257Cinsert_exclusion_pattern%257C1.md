@@ -18,8 +18,8 @@ Use this API to insert wildcards patterns in the exclusion list.
 
 **Raw data (PUT):**
 An array of patterns.
-    json
-[ "http://www.open-search-server.com/wp-admin/*" ]
+
+    [ "http://www.open-search-server.com/wp-admin/*" ]
     
 
 ### Success response
@@ -29,11 +29,11 @@ The patterns has been inserted.
 200
 
 **Content (application/json):**
-    json
-{
-    "successful": true,
-    "info": "1 patterns injected"
-}
+
+    {
+        "successful": true,
+        "info": "1 patterns injected"
+    }
     
 
 ### Error response
@@ -46,8 +46,8 @@ The insertion failed. The reason is provided in the content.
 ### Sample call
 
 **Using CURL:**
-    shell
-curl -XPUT -H "Content-Type: application/json" \
-    -d '["http://www.open-search-server.com/wp-admin/*"]' \
-    http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion
+
+    curl -XPUT -H "Content-Type: application/json" \
+        -d '["http://www.open-search-server.com/wp-admin/*"]' \
+        http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion
     

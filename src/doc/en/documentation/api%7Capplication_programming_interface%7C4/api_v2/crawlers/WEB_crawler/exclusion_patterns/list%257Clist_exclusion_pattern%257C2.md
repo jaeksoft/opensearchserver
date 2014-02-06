@@ -23,14 +23,14 @@ The pattern list is returned either in JSON or XML format
 200
 
 **Content (application/json):**
-    json
-{
-    "successful": true,
-    "info": "1 item(s) found",
-    "items": [
-        "http://www.open-search-server.com/wp-admin/*"
-    ]
-}
+
+    {
+        "successful": true,
+        "info": "1 item(s) found",
+        "items": [
+            "http://www.open-search-server.com/wp-admin/*"
+        ]
+    }
     
 
 ### Error response
@@ -42,14 +42,14 @@ The list was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-An internal error occurred
+    An internal error occurred
     
 
 ### Sample call
 
 **Using CURL:**
-    shell
-curl -XGET http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion?starts_with=http://www
+
+    curl -XGET http://localhost:8080/services/rest/index/my_index/crawler/web/patterns/exclusion?starts_with=http://www
     
 
 **Using jQuery:**
