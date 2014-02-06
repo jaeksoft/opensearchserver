@@ -18,6 +18,7 @@ Use this API to create or update a search template.
 
 **Raw data (PUT):**
 The search field query either in JSON or XML format.
+
     {
         "successful": true,
         "query": {
