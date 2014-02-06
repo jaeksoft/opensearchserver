@@ -31,7 +31,6 @@ The auto-completion item has been created or updated.
       "successful": true,
       "info": "Autocompletion item my_expressions updated."
     }
-    
 
     {
         "successful": true,
