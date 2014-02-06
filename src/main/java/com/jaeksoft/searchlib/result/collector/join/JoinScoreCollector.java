@@ -141,7 +141,10 @@ public class JoinScoreCollector extends
 
 	@Override
 	public float getForeignScore(int pos, int joinPosition) {
-		return foreignScoresArray[pos][joinPosition];
+		float[] scoresArray = foreignScoresArray[pos];
+		if (scoresArray == null)
+			return 0F;
+		return scoresArray[joinPosition];
 	}
 
 	@Override
