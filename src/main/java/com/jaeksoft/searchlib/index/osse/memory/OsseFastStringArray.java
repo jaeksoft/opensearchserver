@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.CharacterCodingException;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTermBuffer.OsseTerm;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Pointer;
 
@@ -55,11 +56,11 @@ public class OsseFastStringArray extends Pointer {
 		peer = termPointers.getPeer();
 
 		// Filling the pointer array memory
-		// OsseTerm[] terms = termBuffer.getTerms();
+		OsseTerm[] terms = termBuffer.getTerms();
 		Pointer[] pointers = new Pointer[termCount];
 		for (int i = 0; i < termCount; i++) {
-			// OsseTerm term = terms[i];
-			// pointers[i] = new Pointer(term.memory.getPeer() + term.offset);
+			OsseTerm term = terms[i];
+			pointers[i] = new Pointer(term.memory.getPeer() + term.offset);
 		}
 		termPointers.write(0, pointers, 0, termCount);
 	}
