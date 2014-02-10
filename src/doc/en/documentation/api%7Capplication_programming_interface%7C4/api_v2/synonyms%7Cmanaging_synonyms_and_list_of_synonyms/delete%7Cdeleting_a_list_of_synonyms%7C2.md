@@ -1,4 +1,4 @@
-Use this API to delete a list of synonyms
+Use this API to delete a list of synonyms.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -16,7 +16,7 @@ Use this API to delete a list of synonyms
 - _**list_name**_ (required): The name of the list to delete.
 
 ### Success response
-Synonym list has been deleted.
+The list of synonyms has been deleted.
 
 **HTTP code:**
 200
