@@ -1,4 +1,4 @@
-Use this API to list the REST crawler items
+Use this API to list the REST crawler items.
 
 **Requirement:** OpenSearchServer v1.5
 
