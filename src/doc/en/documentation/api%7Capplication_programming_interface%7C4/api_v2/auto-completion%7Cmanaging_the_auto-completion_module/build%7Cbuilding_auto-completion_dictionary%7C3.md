@@ -1,4 +1,4 @@
-Use this API to populate the auto-completion with the terms extracted from the configured fields.
+Use this API to populate the auto-completion feature using terms extracted from the configured fields.
 
 **Requirement:** OpenSearchServer v1.5
 
