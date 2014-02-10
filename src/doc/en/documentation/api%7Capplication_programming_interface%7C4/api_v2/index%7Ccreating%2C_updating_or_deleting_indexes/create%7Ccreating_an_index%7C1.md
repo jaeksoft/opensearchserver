@@ -13,7 +13,7 @@ This API creates a new index.
 - Accept: ```application/xml```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
+- _**index_name**_ (required): The name of the index.
 - _**template_name**_ (optional): The name of the template: EMPTY_INDEX, WEB_CRAWLER or FILE_CRAWLER.
 
 ### Success response
