@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
+import com.jaeksoft.searchlib.sort.SorterAbstract.NoCollectorException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -157,7 +158,8 @@ public class SortField extends AbstractField<SortField> implements
 	}
 
 	public SorterAbstract getSorter(final CollectorInterface collector,
-			final ReaderAbstract reader) throws IOException {
+			final ReaderAbstract reader) throws IOException,
+			NoCollectorException {
 		if (joinNumber == 0) {
 			if (isScore())
 				return desc ? new DescScoreSorter(collector)

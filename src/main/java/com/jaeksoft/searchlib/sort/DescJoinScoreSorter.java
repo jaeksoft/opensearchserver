@@ -32,7 +32,7 @@ public class DescJoinScoreSorter extends AbstractJoinScoreSorter {
 
 	public DescJoinScoreSorter(final CollectorInterface collector,
 			final int joinPosition, final String name, final boolean nullFirst)
-			throws IOException {
+			throws IOException, NoCollectorException {
 		super(collector, joinPosition, name, nullFirst);
 	}
 

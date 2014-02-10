@@ -28,7 +28,8 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public class AscScoreSorter extends AbstractScoreSorter {
 
-	public AscScoreSorter(final CollectorInterface collector) {
+	public AscScoreSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 	}
 

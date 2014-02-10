@@ -34,7 +34,8 @@ public abstract class AbstractStringIndexSorter extends AbstractDocIdSorter {
 	final protected int pos2null;
 
 	public AbstractStringIndexSorter(final CollectorInterface collector,
-			final FieldCacheIndex stringIndex, final boolean nullFirst) {
+			final FieldCacheIndex stringIndex, final boolean nullFirst)
+			throws NoCollectorException {
 		super(collector);
 		this.stringIndex = stringIndex;
 		pos1null = nullFirst ? -1 : 1;

@@ -36,7 +36,7 @@ public class SortListSorter extends SorterAbstract {
 
 	protected SortListSorter(final SortFieldList sortFieldList,
 			final CollectorInterface collector, final ReaderAbstract reader)
-			throws IOException {
+			throws IOException, NoCollectorException {
 		super(collector);
 		sorterList = new SorterAbstract[sortFieldList.size()];
 		int i = 0;
@@ -56,10 +56,16 @@ public class SortListSorter extends SorterAbstract {
 
 	@Override
 	final public void quickSort(final Timer timer) {
-		if (sorterList.length == 1)
+		switch (sorterList.length) {
+		case 0:
+			return;
+		case 1:
 			sorterList[0].quickSort(timer);
-		else
+			break;
+		default:
 			super.quickSort(timer);
+			break;
+		}
 	}
 
 	@Override
