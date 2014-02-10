@@ -1,4 +1,4 @@
-Use this API to create or update a field. If the field already exists, it is modified.
+Use this API to create a new field -- or update an existing field.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -35,7 +35,7 @@ Use this API to create or update a field. If the field already exists, it is mod
 - indexed: YES or NO.
 - stored: YES, NO or COMPRESS.
 - termVector: YES, NO or POSITIONS_OFFSETS.
-- copyOf: An array of fields
+- copyOf: An array of fields.
 
 ### Success response
 The field has been created or updated.
