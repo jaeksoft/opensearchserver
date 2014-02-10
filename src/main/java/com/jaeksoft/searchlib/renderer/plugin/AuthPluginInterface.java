@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -38,25 +37,21 @@ public interface AuthPluginInterface {
 
 	public static class User {
 
-		public final Principal principal;
-		public final String remoteUser;
+		public final static User EMPTY = new User(null, null, null);
+
 		public final String userId;
 		public final String username;
 		public final String password;
 		public final Set<String> usernames;
 
-		public User(HttpServletRequest request, String userId, String username,
-				String password, Object... objectNames) {
+		public User(String userId, String username, String password,
+				Object... userNames) {
 			usernames = new TreeSet<String>();
-			principal = request.getUserPrincipal();
-			if (principal != null)
-				addUsername(principal.getName());
-			remoteUser = request.getRemoteUser();
 			this.username = username;
+			addUsername(username);
 			this.password = password;
-			addUsername(remoteUser);
-			this.userId = userId != null ? userId : remoteUser;
-			for (Object objectName : objectNames)
+			this.userId = userId;
+			for (Object objectName : userNames)
 				if (objectName != null)
 					addUsername(objectName.toString());
 		}
@@ -94,6 +89,7 @@ public interface AuthPluginInterface {
 	public String[] authGetGroups(Renderer renderer, User user)
 			throws IOException;
 
-	public User getUser(Renderer renderer, HttpServletRequest request)
-			throws IOException;
+	public User getUser(Renderer renderer, User sessionUser,
+			HttpServletRequest request) throws IOException;
+
 }

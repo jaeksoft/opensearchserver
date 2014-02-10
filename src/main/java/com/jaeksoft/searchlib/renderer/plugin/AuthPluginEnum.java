@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,9 @@ public enum AuthPluginEnum {
 
 	NO_AUTH("No authentication", null),
 
-	NTLM("NTLM", AuthPluginNtlm.class);
+	NTLM("NTLM", AuthPluginNtlm.class),
+
+	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class);
 
 	public final String label;
 
