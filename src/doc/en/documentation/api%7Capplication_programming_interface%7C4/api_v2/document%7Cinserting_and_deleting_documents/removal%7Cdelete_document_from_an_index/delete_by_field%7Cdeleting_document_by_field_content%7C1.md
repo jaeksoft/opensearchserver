@@ -1,4 +1,4 @@
-Use this API to delete documents which contains the values (passed as parameters) in a provided field.
+Use this API to delete documents that contain the values listed in a specific field. These values are passed as parameters.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -13,8 +13,8 @@ Use this API to delete documents which contains the values (passed as parameters
 
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
-- _**field_name**_ (required): The name of the field used to identify the document to delete.
-- _**value**_ (required): A list of values
+- _**field_name**_ (required): The name of the field used to identify the documents to delete.
+- _**value**_ (required): A list of values.
 
 ### Success response
 The document has been deleted.
