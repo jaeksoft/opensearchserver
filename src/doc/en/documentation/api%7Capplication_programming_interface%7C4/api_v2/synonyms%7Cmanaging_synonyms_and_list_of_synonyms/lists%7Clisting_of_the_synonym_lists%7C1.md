@@ -1,4 +1,4 @@
-Use this API to list all synonyms lists
+Use this API to list all synonyms lists.
 
 **Requirement:** OpenSearchServer v1.5
 
