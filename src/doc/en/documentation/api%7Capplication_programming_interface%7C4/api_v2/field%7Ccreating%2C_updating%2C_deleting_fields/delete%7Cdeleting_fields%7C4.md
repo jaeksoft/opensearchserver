@@ -1,4 +1,4 @@
-Use this API to delete a field of the schema.
+Use this API to delete a field from the schema.
 
 **Requirement:** OpenSearchServer v1.5
 
