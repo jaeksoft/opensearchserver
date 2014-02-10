@@ -1,4 +1,4 @@
-Use this API to create or update document in the index.
+Use this API to create or update documents in the index.
 
 **Requirement:** OpenSearchServer v1.5
 
