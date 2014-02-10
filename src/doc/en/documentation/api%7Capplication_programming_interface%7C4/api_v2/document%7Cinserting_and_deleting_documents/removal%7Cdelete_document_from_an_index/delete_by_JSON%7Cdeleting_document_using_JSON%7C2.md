@@ -1,4 +1,4 @@
-Use this API to delete documents by using a JSON body.
+Use this API to delete documents using a JSON body.
 
 **Requirement:** OpenSearchServer v1.5
 
