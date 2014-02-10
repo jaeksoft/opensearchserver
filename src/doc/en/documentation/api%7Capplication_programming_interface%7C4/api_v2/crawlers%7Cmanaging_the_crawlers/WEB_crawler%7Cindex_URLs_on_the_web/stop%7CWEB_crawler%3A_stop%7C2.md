@@ -1,4 +1,4 @@
-The WEB crawler index web site based on wildcards patterns (exclusion and inclusion).
+The WEB crawler index web sites -- based on wildcards patterns for exclusion and inclusion.
 
 Use this API to stop the crawler.
 
