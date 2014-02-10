@@ -13,7 +13,7 @@ This API returns the templates. A templates is a query stored with its parameter
 - Accept: ```application/xml```
 
 ### Success response
-The field list is returned either in JSON or XML format
+The field list is returned either in JSON or in XML format.
 
 **HTTP code:**
 200
