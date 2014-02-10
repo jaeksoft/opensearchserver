@@ -1,4 +1,4 @@
-Use this API to create or to update a list of synonyms
+Use this API to create or to update a list of synonyms.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -19,14 +19,15 @@ Use this API to create or to update a list of synonyms
 
 **Raw data (PUT):**
 
-One line for each synonym group, each synonym separated by a comma:
+One line for each group of synonyms. The synonyms within a group are separated by commas.
     
-canapé,sofa,banquette
-buffet,vaisselier
+couch,sofa,divan
+
+desk,bureau
     
 
 ### Success response
-Synonym list has been created or updated.
+The synonyms list has been created or updated.
 
 **Update:**
 
