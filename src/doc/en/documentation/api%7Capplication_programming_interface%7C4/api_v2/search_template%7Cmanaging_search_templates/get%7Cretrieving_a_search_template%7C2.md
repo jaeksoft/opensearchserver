@@ -9,14 +9,14 @@ This API returns the content of a search template.
 **Method:** ```GET```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
-- _**template_name**_ (required): The name of the search template
+- _**index_name**_ (required): The name of the index.
+- _**template_name**_ (required): The name of the search template.
 
 **Header** (optional returned type):
 - Accept: ```application/json``` or ```application/xml```
 
 ### Success response
-The field is returned either in JSON or XML format
+The field is returned either in JSON or in XML format
 
 **HTTP code:**
 200
