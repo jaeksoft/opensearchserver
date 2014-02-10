@@ -1,4 +1,4 @@
-Use this API to retrieve all synonyms from a list
+Use this API to retrieve all synonyms from a list.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -13,14 +13,15 @@ Use this API to retrieve all synonyms from a list
 
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
-- _**list_name**_ (required): The name of the list for which retrieve synonyms from.
+- _**list_name**_ (required): The name of the target list.
 
 ### Success response
-All synonymes from the list are returned. One group of synonyms by line, each synonym separated by a comma:
+All synonymes within the list are returned. One group of synonyms by line, each synonym separated by a comma:
 
     
-canapé,banquette,sofa
-vaisselier,buffet
+couch,divan,sofa
+
+desk,bureau
     
 
 **HTTP code:**
