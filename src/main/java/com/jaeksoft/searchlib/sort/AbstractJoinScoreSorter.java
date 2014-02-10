@@ -35,12 +35,13 @@ public abstract class AbstractJoinScoreSorter extends SorterAbstract {
 	final protected int pos2null;
 
 	protected AbstractJoinScoreSorter(final CollectorInterface collector,
-			final int joinPosition, final String name, final boolean nullFirst) {
+			final int joinPosition, final String name, final boolean nullFirst)
+			throws NoCollectorException {
 		super(collector);
 		JoinScoreInterface joinScoreCollector = collector
 				.getCollector(JoinScoreInterface.class);
 		if (joinScoreCollector == null)
-			throw new RuntimeException("Wrong collector " + collector);
+			throw new NoCollectorException("Wrong collector ", collector);
 		this.joinPosition = joinPosition;
 		foreignScoresArray = joinScoreCollector.getForeignDocScoreArray();
 		pos1null = nullFirst ? -1 : 1;

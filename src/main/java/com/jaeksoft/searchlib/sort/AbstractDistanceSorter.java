@@ -31,12 +31,13 @@ public abstract class AbstractDistanceSorter extends SorterAbstract {
 
 	final protected float[] distances;
 
-	protected AbstractDistanceSorter(final CollectorInterface collector) {
+	protected AbstractDistanceSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 		DistanceInterface distanceCollector = collector
 				.getCollector(DistanceInterface.class);
 		if (distanceCollector == null)
-			throw new RuntimeException("Wrong collector " + collector);
+			throw new NoCollectorException("Wrong collector ", collector);
 		distances = distanceCollector.getDistances();
 	}
 

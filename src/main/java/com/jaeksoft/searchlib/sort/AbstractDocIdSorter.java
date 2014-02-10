@@ -31,12 +31,13 @@ public abstract class AbstractDocIdSorter extends SorterAbstract {
 
 	final protected int[] ids;
 
-	protected AbstractDocIdSorter(final CollectorInterface collector) {
+	protected AbstractDocIdSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 		DocIdInterface docIdCollector = collector
 				.getCollector(DocIdInterface.class);
 		if (docIdCollector == null)
-			throw new RuntimeException("Wrong collector: " + collector);
+			throw new NoCollectorException("Wrong collector ", collector);
 		ids = docIdCollector.getIds();
 	}
 

@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.sort;
 import it.unimi.dsi.fastutil.Arrays;
 import it.unimi.dsi.fastutil.ints.IntComparator;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -76,4 +77,15 @@ public abstract class SorterAbstract implements IntComparator {
 
 	public abstract boolean isDistance();
 
+	public static class NoCollectorException extends SearchLibException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8408101032556966875L;
+
+		NoCollectorException(Object... msg) {
+			super(msg);
+		}
+	}
 }

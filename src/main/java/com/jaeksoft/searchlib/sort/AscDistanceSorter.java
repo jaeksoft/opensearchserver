@@ -28,7 +28,8 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public class AscDistanceSorter extends AbstractDistanceSorter {
 
-	public AscDistanceSorter(final CollectorInterface collector) {
+	public AscDistanceSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 	}
 
