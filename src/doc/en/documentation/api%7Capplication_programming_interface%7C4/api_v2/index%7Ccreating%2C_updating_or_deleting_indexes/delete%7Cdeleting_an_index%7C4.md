@@ -13,7 +13,7 @@ This API deletes an existing index.
 - Accept: ```application/xml```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
+- _**index_name**_ (required): The name of the index.
 
 ### Success response
 The index has been deleted.
