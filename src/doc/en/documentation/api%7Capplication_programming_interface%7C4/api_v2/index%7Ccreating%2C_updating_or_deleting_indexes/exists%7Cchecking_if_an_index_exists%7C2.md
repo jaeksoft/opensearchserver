@@ -13,7 +13,7 @@ This API tests whether a given index exists.
 - Accept: ```application/xml```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
+- _**index_name**_ (required): The name of the index.
 
 ### Success response
 The index has been found.
