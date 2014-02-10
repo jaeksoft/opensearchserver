@@ -1,4 +1,4 @@
-Use this API to set the default field and the unique field in the schema
+Use this API to set the default field and the unique field in the schema.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -16,7 +16,7 @@ Use this API to set the default field and the unique field in the schema
 
 **Query parameters:**
 - _**default**_ (optional): The name of the default field. To reset the field, just pass an empty string.
-- _**unique**_ (optional): The name of the default field. To reset the field, pass an empty string.
+- _**unique**_ (optional): The name of the unique field. To reset the field, just pass an empty string.
 
 ### Success response
 The default and/or unique field has been updated.
