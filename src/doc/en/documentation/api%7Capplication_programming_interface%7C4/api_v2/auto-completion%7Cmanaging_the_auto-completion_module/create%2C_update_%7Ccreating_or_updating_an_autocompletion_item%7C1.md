@@ -1,4 +1,4 @@
-Use this API to update or create an autocompletion item
+Use this API to update or create an auto-completion item.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -16,8 +16,8 @@ Use this API to update or create an autocompletion item
 - _**autocompletion_name**_ (required): The name of the auto-completion item.
 
 **Query parameters:**
-- _**field**_ (required, one or more): The fields providing the terms populating the auto-completion index.
-- _**rows**_ (optional): The number of terms returned by default by the auto-completion query.
+- _**field**_ (required, one or more): The fields providing the terms to populate the auto-completion index.
+- _**rows**_ (optional): The number of terms that an auto-completion query will return by default.
 
 ### Success response
 The auto-completion item has been created or updated.
