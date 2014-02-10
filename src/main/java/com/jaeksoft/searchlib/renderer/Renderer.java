@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -45,6 +46,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -54,6 +56,7 @@ import com.jaeksoft.searchlib.web.RendererServlet;
 
 public class Renderer implements Comparable<Renderer> {
 
+	private final static String RENDERER_SESSION_USER = "rendererUser";
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_NAME = "name";
 	private final static String RENDERER_ITEM_ROOT_ATTR_REQUEST = "request";
@@ -1100,8 +1103,16 @@ public class Renderer implements Comparable<Renderer> {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return;
-		AuthPluginInterface.User user = authPlugin
-				.getUser(this, servletRequest);
+		HttpSession session = servletRequest.getSession();
+		if (servletRequest.getParameter("logout") != null) {
+			session.removeAttribute(RENDERER_SESSION_USER);
+			return;
+		}
+		AuthPluginInterface.User sessionUser = (User) session
+				.getAttribute(RENDERER_SESSION_USER);
+		AuthPluginInterface.User user = authPlugin.getUser(this, sessionUser,
+				servletRequest);
+		session.setAttribute(RENDERER_SESSION_USER, user);
 		String[] groups = null;
 		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
 				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))

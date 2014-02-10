@@ -28,7 +28,8 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 
 public class AscDocIdSorter extends AbstractDocIdSorter {
 
-	public AscDocIdSorter(final CollectorInterface collector) {
+	public AscDocIdSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 	}
 

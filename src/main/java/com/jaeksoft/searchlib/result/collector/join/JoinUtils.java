@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.join.JoinItem.OuterCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
+import com.jaeksoft.searchlib.sort.SorterAbstract.NoCollectorException;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -39,7 +40,8 @@ public class JoinUtils {
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
 			FieldCacheIndex doc2StringIndex, int joinResultSize,
 			final int joinResultPos, Timer timer, JoinType joinType,
-			OuterCollector outerCollector, ReaderAbstract foreignReader) {
+			OuterCollector outerCollector, ReaderAbstract foreignReader)
+			throws NoCollectorException {
 
 		if (docs.getSize() == 0 && outerCollector == null)
 			return docs;

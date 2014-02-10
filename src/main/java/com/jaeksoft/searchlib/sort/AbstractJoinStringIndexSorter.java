@@ -38,7 +38,7 @@ public abstract class AbstractJoinStringIndexSorter extends
 
 	public AbstractJoinStringIndexSorter(final CollectorInterface collector,
 			final int joinPosition, final String name, final boolean nullFirst)
-			throws IOException {
+			throws IOException, NoCollectorException {
 		super(collector, null, nullFirst);
 		JoinDocInterface joinDocCollector = collector
 				.getCollector(JoinDocInterface.class);

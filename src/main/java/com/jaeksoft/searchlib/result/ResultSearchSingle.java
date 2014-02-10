@@ -80,6 +80,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 
 		JoinResult[] joinResults = null;
 
+		SortFieldList sortFieldList = searchRequest.getSortFieldList();
+
 		// Are we doing join
 		if (searchRequest.isJoin()) {
 			Timer joinTimer = new Timer(timer, "join");
@@ -90,8 +92,13 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					joinResults, t);
 			t.getDuration();
 			t = new Timer(joinTimer, "join - sort");
-			searchRequest.getSortFieldList()
-					.getSorter(notCollapsedDocs, reader).quickSort(t);
+			if (sortFieldList != null) {
+				SorterAbstract sorter = sortFieldList.getSorter(
+						notCollapsedDocs, reader);
+				if (sorter != null)
+					sorter.quickSort(t);
+				sortFieldList = null;
+			}
 			t.getDuration();
 			numFound = notCollapsedDocs.getSize();
 			if (this.facetList == null)
@@ -102,11 +109,11 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		}
 
 		// Handling sorting
-		SortFieldList sortFieldList = searchRequest.getSortFieldList();
 		if (sortFieldList != null) {
 			SorterAbstract sorter = sortFieldList.getSorter(notCollapsedDocs,
 					reader);
-			sorter.quickSort(timer);
+			if (sorter != null)
+				sorter.quickSort(timer);
 		}
 
 		// Are we doing collapsing ?

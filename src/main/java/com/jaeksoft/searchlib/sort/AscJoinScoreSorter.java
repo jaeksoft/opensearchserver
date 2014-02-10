@@ -32,7 +32,7 @@ public class AscJoinScoreSorter extends AbstractJoinScoreSorter {
 
 	public AscJoinScoreSorter(final CollectorInterface collector,
 			final int joinPosition, final String name, final boolean nullFirst)
-			throws IOException {
+			throws IOException, NoCollectorException {
 		super(collector, joinPosition, name, nullFirst);
 	}
 

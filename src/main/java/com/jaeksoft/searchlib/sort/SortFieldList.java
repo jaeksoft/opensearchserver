@@ -29,6 +29,7 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.schema.AbstractFieldList;
+import com.jaeksoft.searchlib.sort.SorterAbstract.NoCollectorException;
 
 public class SortFieldList extends AbstractFieldList<SortField> {
 
@@ -59,7 +60,10 @@ public class SortFieldList extends AbstractFieldList<SortField> {
 	}
 
 	public SorterAbstract getSorter(final CollectorInterface collector,
-			final ReaderAbstract reader) throws IOException {
+			final ReaderAbstract reader) throws IOException,
+			NoCollectorException {
+		if (collector.getSize() == 0)
+			return null;
 		if (size() == 0)
 			return new DescScoreSorter(collector);
 		return new SortListSorter(this, collector, reader);

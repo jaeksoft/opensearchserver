@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.Closeable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.CharacterCodingException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,6 +36,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
+import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
@@ -165,49 +168,49 @@ public class OsseTransaction implements Closeable {
 		return transactFieldPtr;
 	}
 
-	final public void updateTerms(final int documentId,
-			final FieldInfo fieldInfo, final OsseTermBuffer buffer)
-			throws SearchLibException {
-		final ExecutionToken et = FunctionTimer
-				.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
-		final int termCount = buffer.getTermCount();
-		final int res = OsseIndex.LIB
-				.OSSCLib_MsTransact_Document_AddStringTermsJ(
-						Memory.nativeValue(fieldPointerMap.get(fieldInfo.name)),
-						documentId, buffer.getTerms(), termCount,
-						err.getPointer());
-		et.end();
-		if (res != termCount)
-			err.throwError();
-	}
-
-	// final public void updateTermsJNA(final int documentId,
+	// final public void updateTerms(final int documentId,
 	// final FieldInfo fieldInfo, final OsseTermBuffer buffer)
 	// throws SearchLibException {
-	// OsseFastStringArray ofsa = null;
-	// try {
-	// final int termCount = buffer.getTermCount();
-	// ofsa = new OsseFastStringArray(memoryBuffer, buffer);
 	// final ExecutionToken et = FunctionTimer
 	// .newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
+	// final int termCount = buffer.getTermCount();
 	// final int res = OsseIndex.LIB
-	// .OSSCLib_MsTransact_Document_AddStringTerms(Memory
-	// .nativeValue(fieldPointerMap.get(fieldInfo.name)),
-	// documentId, Memory.nativeValue(ofsa), termCount,
+	// .OSSCLib_MsTransact_Document_AddStringTermsJ(
+	// Memory.nativeValue(fieldPointerMap.get(fieldInfo.name)),
+	// documentId, buffer.getTerms(), termCount,
 	// err.getPointer());
 	// et.end();
 	// if (res != termCount)
 	// err.throwError();
-	// buffer.release();
-	// } catch (UnsupportedEncodingException e) {
-	// throw new SearchLibException(e);
-	// } catch (CharacterCodingException e) {
-	// throw new SearchLibException(e);
-	// } finally {
-	// if (ofsa != null)
-	// ofsa.close();
 	// }
-	// }
+
+	final public void updateTerms(final int documentId,
+			final FieldInfo fieldInfo, final OsseTermBuffer buffer)
+			throws SearchLibException {
+		OsseFastStringArray ofsa = null;
+		try {
+			final int termCount = buffer.getTermCount();
+			ofsa = new OsseFastStringArray(memoryBuffer, buffer);
+			final ExecutionToken et = FunctionTimer
+					.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
+			final int res = OsseIndex.LIB
+					.OSSCLib_MsTransact_Document_AddStringTerms(Memory
+							.nativeValue(fieldPointerMap.get(fieldInfo.name)),
+							documentId, Memory.nativeValue(ofsa), termCount,
+							err.getPointer());
+			et.end();
+			if (res != termCount)
+				err.throwError();
+			buffer.release();
+		} catch (UnsupportedEncodingException e) {
+			throw new SearchLibException(e);
+		} catch (CharacterCodingException e) {
+			throw new SearchLibException(e);
+		} finally {
+			if (ofsa != null)
+				ofsa.close();
+		}
+	}
 
 	final public void rollback() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer.newExecutionToken(

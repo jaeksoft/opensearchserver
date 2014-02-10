@@ -31,12 +31,13 @@ public abstract class AbstractScoreSorter extends SorterAbstract {
 
 	final protected float[] scores;
 
-	protected AbstractScoreSorter(final CollectorInterface collector) {
+	protected AbstractScoreSorter(final CollectorInterface collector)
+			throws NoCollectorException {
 		super(collector);
 		ScoreInterface scoreCollector = collector
 				.getCollector(ScoreInterface.class);
 		if (scoreCollector == null)
-			throw new RuntimeException("Wrong collector " + collector);
+			throw new NoCollectorException("Wrong collector ", collector);
 		scores = scoreCollector.getScores();
 	}
 
