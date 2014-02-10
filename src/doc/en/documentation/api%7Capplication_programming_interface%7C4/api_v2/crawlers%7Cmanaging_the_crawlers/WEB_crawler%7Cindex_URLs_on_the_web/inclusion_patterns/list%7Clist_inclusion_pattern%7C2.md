@@ -1,4 +1,4 @@
-This API returns the inclusion pattern list
+This API returns the inclusion pattern list.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -9,15 +9,15 @@ This API returns the inclusion pattern list
 **Method:** ```GET```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
-- _**starts_with**_ (optional): A filter to get only the patterns which starts with the given characters
+- _**index_name**_ (required): The name of the index.
+- _**starts_with**_ (optional): A filter to only get those patterns starting with these characters.
 
 **Header** (optional returned type):
 - Accept: ```application/json```
 - Accept: ```application/xml```
 
 ### Success response
-The pattern list is returned either in JSON or XML format
+The pattern list is returned either in JSON or XML format.
 
 **HTTP code:**
 200
