@@ -1,4 +1,4 @@
-Use this API to request the auto-completion index
+Use this API to request the auto-completion index.
 
 **Requirement:** OpenSearchServer v1.5
 
