@@ -1,4 +1,4 @@
-This API returns the description of one field
+This API returns the description of one field.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -9,15 +9,15 @@ This API returns the description of one field
 **Method:** ```GET```
 
 **URL parameters:**
-- _**index_name**_ (required): The name of the index
-- _**field_name**_ (required): The name of the field
+- _**index_name**_ (required): The name of the index.
+- _**field_name**_ (required): The name of the field.
 
 **Header** (optional returned type):
 - Accept: ```application/json```
 - Accept: ```application/xml```
 
 ### Success response
-The field is returned either in JSON or XML format
+The field is returned either in JSON or XML format.
 
 **HTTP code:**
 200
