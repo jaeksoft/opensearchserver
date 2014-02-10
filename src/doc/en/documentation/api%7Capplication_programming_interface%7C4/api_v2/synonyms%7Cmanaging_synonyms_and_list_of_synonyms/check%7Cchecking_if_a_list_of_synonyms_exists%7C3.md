@@ -1,4 +1,4 @@
-Use this API to check if a list of synonyms exists
+Use this API to check whether a list of synonyms exists.
 
 **Requirement:** OpenSearchServer v1.5
 
