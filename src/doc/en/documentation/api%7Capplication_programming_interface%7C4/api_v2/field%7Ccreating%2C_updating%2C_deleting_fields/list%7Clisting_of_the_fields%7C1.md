@@ -1,4 +1,4 @@
-This API returns the field list
+This API returns a list of fields and their attributes.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -13,7 +13,7 @@ This API returns the field list
 - Accept: ```application/xml```
 
 ### Success response
-The field list is returned either in JSON or XML format
+The list of fields is returned either in JSON or in XML format.
 
 **HTTP code:**
 200
