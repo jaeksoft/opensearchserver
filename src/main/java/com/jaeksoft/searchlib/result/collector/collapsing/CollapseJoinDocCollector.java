@@ -35,22 +35,29 @@ public class CollapseJoinDocCollector
 		AbstractExtendsCollector<CollapseCollectorInterface, CollapseBaseCollector>
 		implements CollapseCollectorInterface, JoinDocInterface {
 
+	protected final int[][] sourceForeignDocIdsArray;
 	protected final int[][] foreignDocIdsArray;
 	protected final ReaderAbstract[] foreignReaders;
+
+	private int currentPos;
 
 	public CollapseJoinDocCollector(final CollapseBaseCollector base,
 			final JoinDocInterface sourceCollector) {
 		super(base);
-		foreignDocIdsArray = sourceCollector.getForeignDocIdsArray();
+		sourceForeignDocIdsArray = sourceCollector.getForeignDocIdsArray();
+		foreignDocIdsArray = new int[sourceForeignDocIdsArray.length][];
 		foreignReaders = sourceCollector.getForeignReaders();
+		currentPos = 0;
 	}
 
 	private CollapseJoinDocCollector(final CollapseBaseCollector base,
 			final CollapseJoinDocCollector src) {
 		super(base);
+		sourceForeignDocIdsArray = src.sourceForeignDocIdsArray;
 		foreignDocIdsArray = JoinDocCollector
 				.copyForeignDocIdsArray(src.foreignDocIdsArray);
 		foreignReaders = src.getForeignReaders();
+		currentPos = src.currentPos;
 	}
 
 	@Override
@@ -79,7 +86,14 @@ public class CollapseJoinDocCollector
 
 	@Override
 	final public int collectDoc(final int sourcePos) {
-		return parent.collectDoc(sourcePos);
+		int pos = parent.collectDoc(sourcePos);
+		if (pos != currentPos)
+			throw new RuntimeException("Internal position issue: " + pos
+					+ " - " + currentPos);
+		int[] foreignDocIds = sourceForeignDocIdsArray[sourcePos];
+		foreignDocIdsArray[currentPos++] = foreignDocIds;
+		return pos;
+
 	}
 
 	@Override
@@ -97,7 +111,7 @@ public class CollapseJoinDocCollector
 	final public int getSize() {
 		if (foreignDocIdsArray == null)
 			return 0;
-		return foreignDocIdsArray.length;
+		return currentPos;
 	}
 
 	@Override

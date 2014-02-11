@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
@@ -149,8 +150,15 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				setDocs(notCollapsedDocs);
 			else
 				setDocs(docSetHits.getCollector(DocIdInterface.class));
-		} else
+		} else {
+			// With collapsing
 			setDocs(collapsedDocs);
+			// Update joinResults
+			if (joinResults != null)
+				for (JoinResult joinResult : joinResults)
+					joinResult.setJoinDocInterface(collapsedDocs
+							.getCollector(JoinDocInterface.class));
+		}
 
 		if (joinResults != null)
 			setJoinResults(joinResults);
