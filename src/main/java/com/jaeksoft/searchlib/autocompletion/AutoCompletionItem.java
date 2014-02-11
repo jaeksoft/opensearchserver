@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -271,19 +271,6 @@ public class AutoCompletionItem implements Closeable,
 				throw new SearchLibException("The build is already running");
 	}
 
-	private int builder(Integer endTimeOut, int bufferSize,
-			InfoCallback infoCallBack) throws SearchLibException, IOException {
-		if (infoCallBack != null)
-			infoCallBack.setInfo("Build starts");
-		checkIfRunning();
-		buildThread.init(propFields, searchRequest, bufferSize, infoCallBack);
-		buildThread.execute();
-		buildThread.waitForStart(300);
-		if (endTimeOut != null)
-			buildThread.waitForEnd(endTimeOut);
-		return buildThread.getIndexNumDocs();
-	}
-
 	public int build(Integer waitForEndTimeOut, int bufferSize,
 			InfoCallback infoCallBack) throws SearchLibException {
 		rwl.r.lock();
@@ -294,12 +281,26 @@ public class AutoCompletionItem implements Closeable,
 		}
 		rwl.w.lock();
 		try {
+			checkIfRunning();
 			checkIndexAndThread();
-			return builder(waitForEndTimeOut, bufferSize, infoCallBack);
+			if (infoCallBack != null)
+				infoCallBack.setInfo("Build starts");
+			buildThread.init(propFields, searchRequest, bufferSize,
+					infoCallBack);
+			buildThread.execute();
+			buildThread.waitForStart(300);
+		} finally {
+			rwl.w.unlock();
+		}
+		rwl.r.lock();
+		try {
+			if (waitForEndTimeOut != null)
+				buildThread.waitForEnd(waitForEndTimeOut);
+			return buildThread.getIndexNumDocs();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			rwl.r.unlock();
 		}
 	}
 
