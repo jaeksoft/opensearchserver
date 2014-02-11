@@ -114,6 +114,8 @@ public class RegularExpressionFilter extends FilterFactory {
 
 		@Override
 		public void group(int start, int end, String content) {
+			if (start == end)
+				return;
 			termQueue.add(content);
 		}
 	}
