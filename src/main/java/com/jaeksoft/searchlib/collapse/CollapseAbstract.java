@@ -35,10 +35,12 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseBaseCollector;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseDistanceCollector;
+import com.jaeksoft.searchlib.result.collector.collapsing.CollapseJoinDocCollector;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseScoreDocCollector;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -230,6 +232,10 @@ public abstract class CollapseAbstract {
 				.getCollector(DistanceInterface.class);
 		if (distanceInterface != null)
 			last = new CollapseDistanceCollector(base, distanceInterface);
+		JoinDocInterface joinDocInterface = collector
+				.getCollector(JoinDocInterface.class);
+		if (joinDocInterface != null)
+			last = new CollapseJoinDocCollector(base, joinDocInterface);
 		return last;
 	}
 }

@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
-import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.result.collector.JoinScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
@@ -78,11 +78,11 @@ public class JoinResult {
 		request.getSnippetFieldList().populate(fieldNameSet);
 	}
 
-	public void setJoinDocInterface(DocIdInterface docIdInterface) {
-		if (!(docIdInterface instanceof JoinDocInterface))
+	public void setJoinDocInterface(CollectorInterface collectorInterface) {
+		if (!(collectorInterface instanceof JoinDocInterface))
 			return;
-		this.joinDocInterface = (JoinDocInterface) docIdInterface;
-		this.joinScoreInterface = docIdInterface
+		this.joinDocInterface = (JoinDocInterface) collectorInterface;
+		this.joinScoreInterface = collectorInterface
 				.getCollector(JoinScoreInterface.class);
 	}
 
