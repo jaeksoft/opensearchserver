@@ -54,11 +54,6 @@ public abstract class ReaderAbstract implements ReaderInterface {
 		this.indexConfig = indexConfig;
 	}
 
-	public abstract FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException;
-
 	public abstract int numDocs();
 
 	public abstract void search(Query query, Filter filter, Collector collector)
@@ -81,6 +76,11 @@ public abstract class ReaderAbstract implements ReaderInterface {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 
+	public abstract FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException, SearchLibException;
+
 	public abstract int maxDoc() throws IOException;
 
 	final public DocValueInterface getDocValueInterface(final String field,
@@ -99,4 +99,5 @@ public abstract class ReaderAbstract implements ReaderInterface {
 			throw new IOException("Unknown doc value type: " + type);
 		}
 	}
+
 }

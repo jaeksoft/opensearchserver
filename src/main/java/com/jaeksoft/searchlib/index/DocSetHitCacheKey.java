@@ -30,8 +30,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
+import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.FilterListCacheKey;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.BoostQuery;
@@ -41,24 +44,39 @@ import com.jaeksoft.searchlib.scoring.AdvancedScore;
 public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 
 	private final String query;
-	private final Boolean facet;
+	private final Boolean isScoreRequired;
+	private final Boolean isDistanceRequired;
+	private final Boolean isDocIdRequired;
 	private final FilterListCacheKey filterListCacheKey;
 	private final String boostQueryCacheKey;
 	private final String advancedScoreCacheKey;
 
+	public DocSetHitCacheKey(SchemaField defaultField, Analyzer analyzer,
+			Query query, boolean isScoreRequired, boolean isDistanceRequired,
+			GeoParameters geoParameters, FilterList filterList,
+			AdvancedScore advancedScore, boolean isDocIdRequired,
+			BoostQuery[] boostQueries, AbstractSearchRequest request)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
+		this.query = query == null ? "" : query.toString();
+		this.isScoreRequired = isScoreRequired;
+		this.isDistanceRequired = isDistanceRequired;
+		this.isDocIdRequired = isDocIdRequired;
+		filterListCacheKey = new FilterListCacheKey(filterList, defaultField,
+				analyzer, request);
+		boostQueryCacheKey = BoostQuery.getCacheKey(boostQueries);
+		advancedScoreCacheKey = AdvancedScore.getCacheKey(advancedScore);
+	}
+
 	public DocSetHitCacheKey(AbstractSearchRequest searchRequest,
-			SchemaField defaultField, Analyzer analyzer) throws ParseException,
-			SyntaxError, SearchLibException, IOException {
-		Query q = searchRequest.getQuery();
-		query = q == null ? "" : q.toString();
-		facet = searchRequest.isFacet();
-		filterListCacheKey = new FilterListCacheKey(
-				searchRequest.getFilterList(), defaultField, analyzer,
+			SchemaField defaultField, PerFieldAnalyzer analyzer)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
+		this(defaultField, analyzer, searchRequest.getQuery(), searchRequest
+				.isScoreRequired(), searchRequest.isDistanceRequired(),
+				searchRequest.getGeoParameters(),
+				searchRequest.getFilterList(),
+				searchRequest.getAdvancedScore(), searchRequest
+						.isDocIdRequired(), searchRequest.getBoostingQueries(),
 				searchRequest);
-		boostQueryCacheKey = BoostQuery.getCacheKey(searchRequest
-				.getBoostingQueries());
-		advancedScoreCacheKey = AdvancedScore.getCacheKey(searchRequest
-				.getAdvancedScore());
 	}
 
 	@Override
@@ -66,7 +84,11 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 		int c;
 		if ((c = query.compareTo(r.query)) != 0)
 			return c;
-		if ((c = facet.compareTo(r.facet)) != 0)
+		if ((c = isScoreRequired.compareTo(r.isScoreRequired)) != 0)
+			return c;
+		if ((c = isDistanceRequired.compareTo(r.isDistanceRequired)) != 0)
+			return c;
+		if ((c = isDocIdRequired.compareTo(r.isDocIdRequired)) != 0)
 			return c;
 		if ((c = filterListCacheKey.compareTo(r.filterListCacheKey)) != 0)
 			return c;

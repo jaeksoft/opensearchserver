@@ -552,6 +552,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					return true;
 			if (sortFieldList.isDistance())
 				return true;
+			if (filterList != null)
+				if (filterList.isDistance())
+					return true;
 			if (advancedScore != null)
 				if (advancedScore.isDistance())
 					return true;
@@ -572,7 +575,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	final public boolean isDocIdRequired() {
+	public boolean isDocIdRequired() {
 		rwl.r.lock();
 		try {
 			if (returnFieldList.size() > 0)
@@ -1226,7 +1229,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			throws SearchLibException {
 		try {
 			AuthManager authManager = config.getAuthManager();
-			if (authManager.isEnabled())
+			if (authManager.isEnabled()
+					&& !(this instanceof SearchFilterRequest))
 				getFilterList().add(new AuthFilter());
 			return new ResultSearchSingle((ReaderAbstract) reader, this);
 		} catch (IOException e) {

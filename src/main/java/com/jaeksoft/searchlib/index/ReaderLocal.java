@@ -65,6 +65,7 @@ import com.jaeksoft.searchlib.cache.SpellCheckerCache;
 import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -371,11 +372,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException {
+			IOException, SearchLibException {
 		rwl.r.lock();
 		try {
-			return filterCache.get(this, filter, defaultField, analyzer,
-					request, timer);
+			return filterCache.get(filter, defaultField, analyzer, request,
+					timer);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -485,8 +486,9 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SearchLibException {
 
-		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
-				this, defaultField, analyzer, searchRequest, timer);
+		FilterList filterList = searchRequest.getFilterList();
+		FilterHits filterHits = filterList == null ? null : filterList
+				.getFilterHits(defaultField, analyzer, searchRequest, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits, timer);
 		return dsh;
