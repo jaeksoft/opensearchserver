@@ -27,11 +27,11 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 import java.text.NumberFormat;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
+import org.apache.lucene.util.OpenBitSet;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -39,9 +39,10 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.geo.GeoParameters;
-import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.collector.DistanceInterface;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -212,9 +213,11 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	public String getCacheKey(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
 			throws ParseException {
-		String key = "GeoFilter - "
-				+ getQuery(request.getGeoParameters()).toString();
-		return key;
+		StringBuilder sb = new StringBuilder("GeoFilter - ");
+		sb.append(getQuery(request.getGeoParameters()).toString());
+		sb.append(" - ");
+		sb.append(type.name());
+		return sb.toString();
 	}
 
 	private Query getQuery(GeoParameters geoParams) throws ParseException {
@@ -277,14 +280,28 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	@Override
-	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException {
+	public OpenBitSet getBitSet(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(request.getGeoParameters());
-		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
-				timer);
-		return filterHits;
+		DocIdInterface docIdInterface = getDocIdInterface(request.getConfig(),
+				query, request.getGeoParameters(), isNegative(), timer);
+		if (type == Type.SQUARED)
+			return docIdInterface.getBitSet();
+		if (type == Type.RADIUS) {
+			DistanceInterface distanceInterface = docIdInterface
+					.getCollector(DistanceInterface.class);
+			OpenBitSet docSet = new OpenBitSet(docIdInterface.getMaxDoc());
+			int[] docIds = docIdInterface.getIds();
+			int pos = 0;
+			for (float dist : distanceInterface.getDistances()) {
+				if (dist <= distance)
+					docSet.fastSet(docIds[pos]);
+				pos++;
+			}
+			return docSet;
+		}
+		return null;
 	}
 
 	@Override

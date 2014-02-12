@@ -226,7 +226,8 @@ public abstract class AbstractRequest {
 
 	public String getNameType() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(getType().getLabel());
+		if (requestType != null)
+			sb.append(requestType.getLabel());
 		sb.append(": ");
 		sb.append(requestName);
 		return sb.toString();

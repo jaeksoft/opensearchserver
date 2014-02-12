@@ -155,9 +155,9 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			Timer timer) throws SearchLibException, ParseException,
 			IOException, SyntaxError {
 
-		FilterHits filterHits = searchRequest.getFilterList().getFilterHits(
-				this, defaultField, searchRequest.getAnalyzer(), searchRequest,
-				timer);
+		FilterHits filterHits = searchRequest.getFilterList()
+				.getFilterHits(defaultField, searchRequest.getAnalyzer(),
+						searchRequest, timer);
 
 		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits, timer);
 		return dsh;

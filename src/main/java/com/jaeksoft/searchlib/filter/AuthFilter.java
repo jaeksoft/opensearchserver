@@ -33,12 +33,12 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.authentication.AuthManager;
-import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -69,6 +69,8 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 			throws ParseException {
 		StringBuilder sb = new StringBuilder(getDescription());
 		sb.append(" - ");
+		if (request == null)
+			return sb.toString();
 		sb.append(request.getUser());
 		sb.append(" - ");
 		Collection<String> groups = request.getGroups();
@@ -117,14 +119,12 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	}
 
 	@Override
-	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException {
+	public OpenBitSet getBitSet(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(request);
-		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
-				timer);
-		return filterHits;
+		return getDocIdInterface(request.getConfig(), query, null,
+				isNegative(), timer).getBitSet();
 	}
 
 	@Override

@@ -40,9 +40,10 @@ public class FilterListCacheKey implements Comparable<FilterListCacheKey> {
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
 			throws ParseException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
-		for (FilterAbstract<?> filter : filterList)
-			filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,
-					analyzer, request));
+		if (filterList != null)
+			for (FilterAbstract<?> filter : filterList)
+				filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,
+						analyzer, request));
 	}
 
 	@Override

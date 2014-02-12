@@ -37,11 +37,16 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
 public interface ReaderInterface {
@@ -70,6 +75,11 @@ public interface ReaderInterface {
 
 	public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException, SearchLibException;
+
+	public FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException, SearchLibException;
 
 	public void putTermVectors(final int[] docIds, final String field,
 			final Collection<String[]> termVectors) throws IOException,
