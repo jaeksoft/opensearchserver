@@ -32,13 +32,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.OpenBitSet;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
-import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -152,14 +152,12 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 	}
 
 	@Override
-	public FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer,
+	public OpenBitSet getBitSet(SchemaField defaultField, Analyzer analyzer,
 			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException {
+			IOException, SearchLibException {
 		Query query = getQuery(defaultField, analyzer);
-		FilterHits filterHits = new FilterHits(query, isNegative(), reader,
-				timer);
-		return filterHits;
+		return getDocIdInterface(request.getConfig(), query, null,
+				isNegative(), timer).getBitSet();
 	}
 
 	@Override

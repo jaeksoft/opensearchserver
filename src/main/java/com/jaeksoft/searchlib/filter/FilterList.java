@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
-import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -92,20 +91,17 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return filterList.iterator();
 	}
 
-	public FilterHits getFilterHits(ReaderAbstract reader,
-			SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws IOException,
-			ParseException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws IOException, ParseException, SearchLibException {
 
 		if (size() == 0)
 			return null;
 
 		FilterHits finalFilterHits = new FilterHits();
-		for (FilterAbstract<?> filter : filterList) {
-			FilterHits filterHits = reader.getFilterHits(defaultField,
-					analyzer, request, filter, timer);
-			finalFilterHits.and(filterHits);
-		}
+		for (FilterAbstract<?> filter : filterList)
+			finalFilterHits.and(filter.getDocSet(defaultField, analyzer,
+					request, timer));
 		return finalFilterHits;
 	}
 

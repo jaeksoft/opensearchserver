@@ -30,10 +30,11 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 
-public class GeoParameters {
+public class GeoParameters implements Comparable<GeoParameters> {
 
 	public static enum CoordUnit {
 
@@ -107,6 +108,15 @@ public class GeoParameters {
 		longitude = 0;
 		coordUnit = CoordUnit.DEGREES;
 		distanceReturn = DistanceReturn.NO_DISTANCE;
+	}
+
+	public void copyFrom(GeoParameters src) {
+		latitudeField = src.latitudeField;
+		longitudeField = src.longitudeField;
+		latitude = src.latitude;
+		longitude = src.longitude;
+		coordUnit = src.coordUnit;
+		distanceReturn = src.distanceReturn;
 	}
 
 	/**
@@ -261,6 +271,26 @@ public class GeoParameters {
 	 */
 	public void setDistanceReturn(DistanceReturn distanceReturn) {
 		this.distanceReturn = distanceReturn;
+	}
+
+	@Override
+	public int compareTo(GeoParameters geo) {
+		int c;
+		if ((c = StringUtils.compareNullString(this.latitudeField,
+				geo.latitudeField)) != 0)
+			return c;
+		if ((c = StringUtils.compareNullString(this.longitudeField,
+				geo.longitudeField)) != 0)
+			return c;
+		if ((c = Double.compare(this.latitude, geo.latitude)) != 0)
+			return c;
+		if ((c = Double.compare(this.longitude, geo.longitude)) != 0)
+			return c;
+		if ((c = this.coordUnit.ordinal() - geo.coordUnit.ordinal()) != 0)
+			return c;
+		if ((c = this.distanceReturn.ordinal() - geo.distanceReturn.ordinal()) != 0)
+			return c;
+		return 0;
 	}
 
 }

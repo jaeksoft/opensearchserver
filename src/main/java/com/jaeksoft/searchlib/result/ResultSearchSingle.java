@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
@@ -110,7 +111,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		}
 
 		// Handling sorting
-		if (sortFieldList != null) {
+		if (sortFieldList != null && !(request instanceof SearchFilterRequest)) {
 			SorterAbstract sorter = sortFieldList.getSorter(notCollapsedDocs,
 					reader);
 			if (sorter != null)

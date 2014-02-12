@@ -27,12 +27,18 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.index.ReaderLocal;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchFilterRequest;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -144,10 +150,32 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;
 
-	public abstract FilterHits getFilterHits(ReaderLocal reader,
-			SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException;
+	final public OpenBitSet getDocSet(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			throws ParseException, IOException, SearchLibException {
+		OpenBitSet docSet = getBitSet(defaultField, analyzer, request, timer);
+		if (negative)
+			docSet.flip(0, docSet.size());
+		return docSet;
+	}
+
+	protected abstract OpenBitSet getBitSet(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			throws ParseException, IOException, SearchLibException;
+
+	protected DocIdInterface getDocIdInterface(Config config, Query query,
+			GeoParameters geoParams, boolean negative, Timer timer)
+			throws IOException, ParseException, SearchLibException {
+		Timer t = new Timer(timer, "Filter hit: " + query.toString());
+		SearchFilterRequest request = new SearchFilterRequest(config, query,
+				this);
+		if (geoParams != null)
+			request.getGeoParameters().copyFrom(geoParams);
+		AbstractResultSearch result = (AbstractResultSearch) config
+				.getIndexAbstract().request(request);
+		t.getDuration();
+		return result.getDocs();
+	}
 
 	public abstract T duplicate();
 

@@ -52,8 +52,6 @@ public class DistanceCollector
 
 	private float maxDistance;
 
-	final private float filterDistance;
-
 	private final double radius;
 	private final DocValueInterface latitudeProvider;
 	private final DocValueInterface longitudeProvider;
@@ -64,8 +62,8 @@ public class DistanceCollector
 	private int currentDoc;
 
 	public DistanceCollector(final DocSetHitBaseCollector base,
-			final ReaderAbstract reader, final GeoParameters geoParams,
-			final float filterDistance) throws IOException {
+			final ReaderAbstract reader, final GeoParameters geoParams)
+			throws IOException {
 		super(base);
 		this.distancesBuffer = new FloatBufferedArray(base.getMaxDoc());
 		radius = DistanceReturn.getRadius(geoParams.getDistanceReturn());
@@ -80,7 +78,6 @@ public class DistanceCollector
 		currentDoc = -1;
 		maxDistance = 0;
 		minDistance = Float.MAX_VALUE;
-		this.filterDistance = filterDistance;
 	}
 
 	private DistanceCollector(final DocSetHitBaseCollector base,
@@ -93,7 +90,6 @@ public class DistanceCollector
 		longitudeProvider = null;
 		latitude = src.latitude;
 		longitude = src.longitude;
-		this.filterDistance = src.filterDistance;
 	}
 
 	@Override
