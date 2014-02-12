@@ -180,4 +180,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		return filterType;
 	}
 
+	public boolean isDistance() {
+		return false;
+	}
+
 }

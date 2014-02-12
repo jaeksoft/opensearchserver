@@ -65,7 +65,8 @@ public class DocSetHits {
 		if (searchRequest.isDistanceRequired())
 			last = distanceCollector = new DistanceCollector(
 					docSetHitCollector, reader,
-					searchRequest.getGeoParameters());
+					searchRequest.getGeoParameters(), searchRequest
+							.getFilterList().getMaxDistance());
 		else
 			distanceCollector = null;
 		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
