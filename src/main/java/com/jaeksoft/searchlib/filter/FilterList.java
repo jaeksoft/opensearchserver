@@ -158,8 +158,8 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			if (filter.isGeoFilter()) {
 				GeoFilter geoFilter = (GeoFilter) filter;
 				if (geoFilter.getType() == Type.RADIUS)
-					if (maxDistance > geoFilter.getDistance())
-						maxDistance = geoFilter.getDistance();
+					if (maxDistance > geoFilter.getMaxDistance())
+						maxDistance = geoFilter.getMaxDistance();
 			}
 		return (float) (maxDistance == Double.MAX_VALUE ? 0 : maxDistance);
 	}
