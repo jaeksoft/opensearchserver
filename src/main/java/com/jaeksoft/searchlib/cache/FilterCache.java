@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,12 +26,12 @@ package com.jaeksoft.searchlib.cache;
 
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.index.IndexConfig;
-import com.jaeksoft.searchlib.index.ReaderLocal;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -46,10 +46,9 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 		this.indexConfig = indexConfig;
 	}
 
-	public FilterHits get(ReaderLocal reader, FilterAbstract<?> filter,
-			SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException {
+	public FilterHits get(FilterAbstract<?> filter, SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
@@ -57,8 +56,8 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			FilterHits filterHits = getAndPromote(filterCacheKey);
 			if (filterHits != null)
 				return filterHits;
-			filterHits = filter.getFilterHits(reader, defaultField, analyzer,
-					request, timer);
+			filterHits = new FilterHits(filter.getDocSet(defaultField,
+					analyzer, request, timer));
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {

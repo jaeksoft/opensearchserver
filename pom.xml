@@ -135,7 +135,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.2.1</version>
+			<version>2.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.james</groupId>
@@ -296,7 +296,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.5</version>
+			<version>1.7.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
@@ -443,7 +443,7 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.1</version>
+			<version>4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
@@ -473,9 +473,9 @@
 		<cxf.version>2.7.7</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.2</httpclient.version>
-		<poi.version>3.10-beta2</poi.version>
+		<poi.version>3.10-FINAL</poi.version>
 		<selenium.version>2.39.0</selenium.version>
-		<zk.version>7.0.1.FL.20140122</zk.version>
+		<zk.version>7.0.1.FL.20140211</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>

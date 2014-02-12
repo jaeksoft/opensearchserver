@@ -29,7 +29,6 @@ import java.io.IOException;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
 import com.jaeksoft.searchlib.index.docvalue.DocValueType;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
 
@@ -42,8 +41,8 @@ public class AdvancedScoreItemValue {
 	public float[] finalArray;
 	private final boolean reverse;
 
-	public AdvancedScoreItemValue(final AbstractSearchRequest request,
-			final ReaderAbstract reader, final AdvancedScoreItem scoreItem,
+	public AdvancedScoreItemValue(final ReaderAbstract reader,
+			final AdvancedScoreItem scoreItem,
 			final DistanceCollector distanceCollector) throws IOException {
 		String fieldName = scoreItem.getFieldName();
 		switch (scoreItem.getType()) {

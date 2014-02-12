@@ -41,10 +41,13 @@ import org.apache.lucene.search.similar.MoreLikeThis;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.cache.FieldCache;
 import com.jaeksoft.searchlib.cache.FilterCache;
 import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.cache.TermVectorCache;
+import com.jaeksoft.searchlib.filter.FilterAbstract;
+import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -52,6 +55,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
@@ -130,6 +134,23 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			closeIndexDirectory();
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	@Override
+	public FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			FilterAbstract<?> filter, Timer timer) throws ParseException,
+			IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.getFilterHits(defaultField, analyzer, request,
+						filter, timer);
+			return null;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

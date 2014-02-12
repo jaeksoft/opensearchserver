@@ -434,7 +434,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			super(src.isNegative());
 			unit = src.getUnit();
 			shape = src.getType();
-			distance = src.getDistance();
+			distance = src.getMaxDistance();
 		}
 
 		@Override
@@ -446,7 +446,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			if (shape != null)
 				geoFilter.setType(shape);
 			if (distance != null)
-				geoFilter.setDistance(distance);
+				geoFilter.setMaxDistance(distance);
 		}
 
 		@Override
