@@ -552,6 +552,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					return true;
 			if (sortFieldList.isDistance())
 				return true;
+			if (filterList != null)
+				if (filterList.isDistance())
+					return true;
 			if (advancedScore != null)
 				if (advancedScore.isDistance())
 					return true;

@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -146,5 +147,24 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		if (pos < 0 || pos >= filterList.size())
 			throw new SearchLibException("Wrong filter parameter (" + pos + ")");
 		filterList.get(pos).setParam(param);
+	}
+
+	final public boolean isDistance() {
+		for (FilterAbstract<?> filter : filterList)
+			if (filter.isDistance())
+				return true;
+		return false;
+	}
+
+	final public float getMaxDistance() {
+		double maxDistance = Double.MAX_VALUE;
+		for (FilterAbstract<?> filter : filterList)
+			if (filter.isGeoFilter()) {
+				GeoFilter geoFilter = (GeoFilter) filter;
+				if (geoFilter.getType() == Type.RADIUS)
+					if (maxDistance > geoFilter.getDistance())
+						maxDistance = geoFilter.getDistance();
+			}
+		return (float) (maxDistance == Double.MAX_VALUE ? 0 : maxDistance);
 	}
 }

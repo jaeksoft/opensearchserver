@@ -89,7 +89,9 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	public static enum Type {
 
-		SQUARED("Squared");
+		SQUARED("Squared"),
+
+		RADIUS("Radius");
 
 		final private String label;
 
@@ -314,5 +316,10 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	@Override
 	public void setParam(String params) throws SearchLibException {
 		setDistance(Double.parseDouble(params));
+	}
+
+	@Override
+	public boolean isDistance() {
+		return type == GeoFilter.Type.RADIUS;
 	}
 }
