@@ -189,7 +189,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	/**
 	 * @return the distance
 	 */
-	public double getDistance() {
+	public double getMaxDistance() {
 		return distance;
 	}
 
@@ -197,7 +197,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	 * @param distance
 	 *            the distance to set
 	 */
-	public void setDistance(double distance) {
+	public void setMaxDistance(double distance) {
 		this.distance = distance;
 		this.query = null;
 	}
@@ -329,12 +329,12 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 		String pp = StringUtils.fastConcat(prefix, getParamPosition(), ".dist");
 		String q = transaction.getParameterString(pp);
 		if (q != null)
-			setDistance(Double.parseDouble(q));
+			setMaxDistance(Double.parseDouble(q));
 	}
 
 	@Override
 	public void setParam(String params) throws SearchLibException {
-		setDistance(Double.parseDouble(params));
+		setMaxDistance(Double.parseDouble(params));
 	}
 
 	@Override
