@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -16,7 +16,7 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('filters') @init('com.jaeksoft.searchlib.web.controller.query.FiltersController')">
-	<listbox model="@load(filters.request.filterList.array) "
+	<listbox model="@load(filters.filterList) "
 		selectedItem="@bind(filters.selected)">
 		<listhead>
 			<listheader label="#" hflex="min" />

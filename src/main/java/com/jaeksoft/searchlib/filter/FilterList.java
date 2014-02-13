@@ -163,4 +163,11 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			}
 		return (float) (maxDistance == Double.MAX_VALUE ? 0 : maxDistance);
 	}
+
+	public void addAuthFilter() {
+		for (FilterAbstract<?> filter : filterList)
+			if (filter instanceof AuthFilter)
+				return;
+		filterList.add(new AuthFilter());
+	}
 }
