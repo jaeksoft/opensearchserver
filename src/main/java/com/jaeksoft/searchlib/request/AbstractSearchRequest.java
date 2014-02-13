@@ -1156,7 +1156,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 
 		String[] values;
 
-		filterList.addFromServlet(transaction, null);
+		filterList.addFromServlet(transaction, prefix);
 
 		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
 				prefix, "rf"))) != null) {
@@ -1221,7 +1221,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 						.buildFacetField(value, true, true));
 		}
 
-		geoParameters.setFromServlet(transaction);
+		geoParameters.setFromServlet(transaction, prefix);
 	}
 
 	@Override
