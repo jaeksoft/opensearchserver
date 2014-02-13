@@ -52,7 +52,6 @@ import com.jaeksoft.searchlib.collapse.CollapseParameters.Mode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
-import com.jaeksoft.searchlib.filter.AuthFilter;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
@@ -1231,7 +1230,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			AuthManager authManager = config.getAuthManager();
 			if (authManager.isEnabled()
 					&& !(this instanceof SearchFilterRequest))
-				getFilterList().add(new AuthFilter());
+				getFilterList().addAuthFilter();
 			return new ResultSearchSingle((ReaderAbstract) reader, this);
 		} catch (IOException e) {
 			throw new SearchLibException(e);

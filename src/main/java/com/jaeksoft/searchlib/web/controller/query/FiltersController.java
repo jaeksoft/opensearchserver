@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -32,12 +35,14 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
+import com.jaeksoft.searchlib.filter.FilterAbstract.Source;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
+import com.jaeksoft.searchlib.request.RequestInterfaces.FilterListInterface;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
 public class FiltersController extends AbstractQueryController {
@@ -80,6 +85,17 @@ public class FiltersController extends AbstractQueryController {
 
 	public FilterAbstract<?> getSelected() {
 		return selectedItem;
+	}
+
+	public List<FilterAbstract<?>> getFilterList() throws SearchLibException {
+		FilterListInterface request = (FilterListInterface) getRequest();
+		if (request == null)
+			return null;
+		List<FilterAbstract<?>> list = new ArrayList<FilterAbstract<?>>();
+		for (FilterAbstract<?> filter : request.getFilterList())
+			if (filter.getSource() != Source.REQUEST)
+				list.add(filter);
+		return list;
 	}
 
 	@NotifyChange("*")
