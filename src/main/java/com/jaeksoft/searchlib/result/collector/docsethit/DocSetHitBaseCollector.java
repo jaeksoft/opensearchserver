@@ -40,7 +40,6 @@ final public class DocSetHitBaseCollector extends
 	private final int maxDoc;
 	public final LuceneCollector collector;
 
-	private int currentDocBase = 0;
 	private Float score;
 	private int size = 0;
 
@@ -67,6 +66,7 @@ final public class DocSetHitBaseCollector extends
 
 	final public class LuceneCollector extends Collector {
 
+		private int currentDocBase = 0;
 		private Scorer scorer = null;
 
 		@Override

@@ -48,6 +48,8 @@ public class SearchFilterRequest extends AbstractSearchRequest implements
 		super(config, null);
 		setBoostedComplexQuery(query);
 		this.filter = filter;
+		setStart(0);
+		setRows(0);
 	}
 
 	@Override
