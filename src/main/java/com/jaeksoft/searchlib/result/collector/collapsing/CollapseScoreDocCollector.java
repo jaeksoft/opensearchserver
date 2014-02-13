@@ -47,7 +47,7 @@ public class CollapseScoreDocCollector
 			final ScoreInterface scoreInterface) {
 		super(base);
 		this.sourceScores = scoreInterface.getScores();
-		this.scoreCollector = new FloatBufferedArray(base.getCollapsedCount());
+		this.scoreCollector = new FloatBufferedArray(scoreInterface.getSize());
 		this.maxScore = 0;
 		this.currentPos = 0;
 		this.scores = null;
