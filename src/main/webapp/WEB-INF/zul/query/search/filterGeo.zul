@@ -35,7 +35,7 @@
 				</template>
 			</listbox>
 			<textbox constraint="/[0-9,.]*/"
-				value="@bind(filters.current.distance)" />
+				value="@bind(filters.current.maxDistance)" />
 		</row>
 	</rows>
 </grid>
