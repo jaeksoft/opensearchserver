@@ -132,7 +132,7 @@ public class Facet implements Iterable<FacetItem>,
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
-				docIdInterface.getBitSet());
+				docIdInterface);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
@@ -151,10 +151,14 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final private static int[] computeMultivalued(ReaderAbstract reader,
-			String fieldName, FieldCacheIndex stringIndex, OpenBitSet bitset)
-			throws IOException, SearchLibException {
+			String fieldName, FieldCacheIndex stringIndex,
+			DocIdInterface docIdInterface) throws IOException,
+			SearchLibException {
 		int[] countIndex = new int[stringIndex.lookup.length];
 		int i = 0;
+		if (docIdInterface.getSize() == 0)
+			return countIndex;
+		OpenBitSet bitset = docIdInterface.getBitSet();
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
 				Term t = new Term(fieldName, term);

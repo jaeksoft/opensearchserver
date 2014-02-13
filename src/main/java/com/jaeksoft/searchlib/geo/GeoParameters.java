@@ -204,23 +204,29 @@ public class GeoParameters implements Comparable<GeoParameters> {
 		this.coordUnit = coordUnit;
 	}
 
-	public void setFromServlet(ServletTransaction transaction) {
-		String q = transaction.getParameterString("geo.lon");
+	public void setFromServlet(ServletTransaction transaction, String prefix) {
+		String q = transaction.getParameterString(StringUtils.fastConcat(
+				prefix, "geo.lon"));
 		if (q != null)
 			longitude = Double.parseDouble(q);
-		q = transaction.getParameterString("geo.lat");
+		q = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"geo.lat"));
 		if (q != null)
 			latitude = Double.parseDouble(q);
-		q = transaction.getParameterString("geo.field.lon");
+		q = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"geo.field.lon"));
 		if (q != null)
 			longitudeField = q;
-		q = transaction.getParameterString("geo.field.lat");
+		q = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"geo.field.lat"));
 		if (q != null)
 			latitudeField = q;
-		q = transaction.getParameterString("geo.unit");
+		q = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"geo.unit"));
 		if (q != null)
 			coordUnit = CoordUnit.find(q);
-		q = transaction.getParameterString("geo.distance");
+		q = transaction.getParameterString(StringUtils.fastConcat(prefix,
+				"geo.distance"));
 		if (q != null)
 			distanceReturn = DistanceReturn.find(q);
 	}

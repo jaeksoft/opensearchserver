@@ -391,9 +391,8 @@ public class JoinItem implements Comparable<JoinItem> {
 						"No string index found for the local field: "
 								+ localField);
 			lasyLoadForeignSearchRequest();
-			// TODO Why ??
-			// if (foreignSearchRequest.getRows() == 0)
-			// searchRequest.setRows(1);
+			foreignSearchRequest.setStart(0);
+			foreignSearchRequest.setRows(0);
 			foreignSearchRequest.setQueryString(queryString);
 			for (FilterAbstract<?> filter : filterList)
 				foreignSearchRequest.getFilterList().add(filter);

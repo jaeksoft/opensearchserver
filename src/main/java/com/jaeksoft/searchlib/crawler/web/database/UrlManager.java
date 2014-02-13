@@ -229,7 +229,7 @@ public class UrlManager extends AbstractManager {
 			Date after, int limit, List<NamedItem> hostList)
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
-		searchRequest.setQueryString("*:*");
+		searchRequest.setEmptyReturnsAll(true);
 		try {
 			filterQueryToFetch(searchRequest, fetchStatus, before, after);
 		} catch (ParseException e) {
@@ -290,7 +290,7 @@ public class UrlManager extends AbstractManager {
 			searchRequest.addFilter(
 					"host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"",
 					false);
-			searchRequest.setQueryString("*:*");
+			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, fetchStatus, before, after);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
@@ -469,8 +469,7 @@ public class UrlManager extends AbstractManager {
 						searchRequest, from, to, false, false);
 			}
 
-			if (query.length() == 0)
-				query.append("*:*");
+			searchRequest.setEmptyReturnsAll(true);
 			searchRequest.setQueryString(query.toString().trim());
 			return searchRequest;
 		} catch (ParseException e) {
@@ -520,7 +519,7 @@ public class UrlManager extends AbstractManager {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
-			searchRequest.setQueryString("*:*");
+			searchRequest.setEmptyReturnsAll(true);
 			FacetField facetField = searchRequest.getFacetFieldList().get(
 					UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)

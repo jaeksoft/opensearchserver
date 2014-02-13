@@ -189,8 +189,7 @@ public class FileManager extends AbstractManager {
 				FileItemFieldEnum.INSTANCE.subDirectory.addFilterQuery(
 						searchRequest, subDirectory, true, false);
 
-			if (query.length() == 0)
-				query.append("*:*");
+			searchRequest.setEmptyReturnsAll(true);
 			searchRequest.setQueryString(query.toString().trim());
 			return searchRequest;
 		} catch (ParseException e) {
