@@ -139,6 +139,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 				synchronized (this) {
 					wait(5000);
 				}
+				System.out.println("WAIT FOR CHILD");
 				// Remove terminated thread
 				rwl.w.lock();
 				try {
