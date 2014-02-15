@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.DocSetHits.Params;
 import com.jaeksoft.searchlib.index.osse.api.OsseDocCursor;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
@@ -159,7 +160,8 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 				.getFilterHits(defaultField, searchRequest.getAnalyzer(),
 						searchRequest, timer);
 
-		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits, timer);
+		DocSetHits dsh = new DocSetHits(new Params(this, searchRequest,
+				filterHits), timer);
 		return dsh;
 	}
 

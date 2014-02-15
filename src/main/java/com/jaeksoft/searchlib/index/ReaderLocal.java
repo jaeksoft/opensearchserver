@@ -67,6 +67,7 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.DocSetHits.Params;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -490,7 +491,8 @@ public class ReaderLocal extends ReaderAbstract {
 		FilterHits filterHits = filterList == null ? null : filterList
 				.getFilterHits(defaultField, analyzer, searchRequest, timer);
 
-		DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits, timer);
+		DocSetHits dsh = new DocSetHits(new Params(this, searchRequest,
+				filterHits), timer);
 		return dsh;
 	}
 

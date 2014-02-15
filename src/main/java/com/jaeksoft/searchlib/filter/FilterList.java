@@ -98,9 +98,9 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		if (size() == 0)
 			return null;
 
-		FilterHits finalFilterHits = new FilterHits();
+		FilterHits finalFilterHits = new FilterHits(true);
 		for (FilterAbstract<?> filter : filterList)
-			finalFilterHits.and(filter.getDocSet(defaultField, analyzer,
+			finalFilterHits.and(filter.getFilterHits(defaultField, analyzer,
 					request, timer));
 		return finalFilterHits;
 	}

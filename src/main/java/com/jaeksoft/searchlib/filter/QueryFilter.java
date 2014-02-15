@@ -28,16 +28,14 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.OpenBitSet;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -70,7 +68,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 				.getAttributeString(node, "negative")), Source.CONFIGXML, null);
 	}
 
-	public Query getQuery(SchemaField defaultField, Analyzer analyzer)
+	public Query getQuery(SchemaField defaultField, PerFieldAnalyzer analyzer)
 			throws ParseException {
 		if (query != null)
 			return query;
@@ -117,12 +115,13 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(defaultField, analyzer);
-		return getDocIdInterface(request.getConfig(), query, null,
-				isNegative(), timer).getBitSet();
+		return new FilterHits(
+				getResult(request.getConfig(), query, null, timer),
+				isNegative(), timer);
 	}
 
 	@Override
