@@ -34,7 +34,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.OpenBitSet;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -119,12 +118,13 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(request);
-		return getDocIdInterface(request.getConfig(), query, null,
-				isNegative(), timer).getBitSet();
+		return new FilterHits(
+				getResult(request.getConfig(), query, null, timer),
+				isNegative(), timer);
 	}
 
 	@Override

@@ -32,7 +32,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.OpenBitSet;
 import org.apache.lucene.util.Version;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -152,12 +151,13 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(defaultField, analyzer);
-		return getDocIdInterface(request.getConfig(), query, null,
-				isNegative(), timer).getBitSet();
+		return new FilterHits(
+				getResult(request.getConfig(), query, null, timer),
+				isNegative(), timer);
 	}
 
 	@Override

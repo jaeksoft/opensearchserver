@@ -95,6 +95,7 @@ public class FiltersController extends AbstractQueryController {
 		for (FilterAbstract<?> filter : request.getFilterList())
 			if (filter.getSource() != Source.REQUEST)
 				list.add(filter);
+		System.out.println("filter " + list.size());
 		return list;
 	}
 
