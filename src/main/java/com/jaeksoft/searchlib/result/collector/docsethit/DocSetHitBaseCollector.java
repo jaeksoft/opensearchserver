@@ -25,10 +25,13 @@
 package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Scorer;
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
@@ -39,13 +42,13 @@ final public class DocSetHitBaseCollector extends
 
 	private final int maxDoc;
 	public final LuceneCollector collector;
-
 	private Float score;
 	private int size = 0;
 
-	public DocSetHitBaseCollector(final int maxDoc) {
+	public DocSetHitBaseCollector(final int maxDoc, final boolean isFilterHits) {
 		this.maxDoc = maxDoc;
-		collector = new LuceneCollector();
+		collector = isFilterHits ? new FilterHitsCollector()
+				: new LuceneCollector();
 	}
 
 	private DocSetHitBaseCollector(final DocSetHitBaseCollector src) {
@@ -64,9 +67,9 @@ final public class DocSetHitBaseCollector extends
 		size++;
 	}
 
-	final public class LuceneCollector extends Collector {
+	public class LuceneCollector extends Collector {
 
-		private int currentDocBase = 0;
+		protected int currentDocBase = 0;
 		private Scorer scorer = null;
 
 		@Override
@@ -75,13 +78,13 @@ final public class DocSetHitBaseCollector extends
 		}
 
 		@Override
-		final public void setNextReader(final IndexReader reader,
-				final int docBase) throws IOException {
+		public void setNextReader(final IndexReader reader, final int docBase)
+				throws IOException {
 			currentDocBase = docBase;
 		}
 
 		@Override
-		final public void collect(final int doc) throws IOException {
+		public void collect(final int doc) throws IOException {
 			score = null;
 			lastCollector.collectDoc(doc + currentDocBase);
 		}
@@ -89,6 +92,46 @@ final public class DocSetHitBaseCollector extends
 		@Override
 		final public void setScorer(final Scorer scorer) throws IOException {
 			this.scorer = scorer;
+		}
+
+	}
+
+	final public class FilterHitsCollector extends LuceneCollector {
+
+		final public class Segment {
+
+			public final Integer docBase;
+			public final IndexReader indexReader;
+			public final OpenBitSet docBitSet;
+
+			private Segment(int docBase, IndexReader reader) {
+				this.docBase = docBase;
+				this.indexReader = reader;
+				this.docBitSet = new OpenBitSet(reader.maxDoc());
+			}
+		}
+
+		final public List<Segment> segments;
+
+		private Segment currentSegment;
+
+		private FilterHitsCollector() {
+			segments = new ArrayList<Segment>();
+		}
+
+		@Override
+		final public void setNextReader(final IndexReader reader,
+				final int docBase) throws IOException {
+			currentDocBase = docBase;
+			currentSegment = new Segment(docBase, reader);
+			segments.add(currentSegment);
+		}
+
+		@Override
+		public void collect(final int doc) throws IOException {
+			score = null;
+			lastCollector.collectDoc(doc + currentDocBase);
+			currentSegment.docBitSet.fastSet(doc);
 		}
 
 	}

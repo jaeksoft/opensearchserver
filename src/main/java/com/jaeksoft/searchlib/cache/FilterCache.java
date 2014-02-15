@@ -56,8 +56,8 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			FilterHits filterHits = getAndPromote(filterCacheKey);
 			if (filterHits != null)
 				return filterHits;
-			filterHits = new FilterHits(filter.getDocSet(defaultField,
-					analyzer, request, timer));
+			filterHits = filter.getFilterHits(defaultField, analyzer, request,
+					timer);
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {

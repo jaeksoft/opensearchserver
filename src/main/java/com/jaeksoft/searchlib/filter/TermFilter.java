@@ -31,12 +31,11 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.OpenBitSet;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -119,12 +118,13 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, PerFieldAnalyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		Query query = getQuery();
-		return getDocIdInterface(request.getConfig(), query, null,
-				isNegative(), timer).getBitSet();
+		return new FilterHits(
+				getResult(request.getConfig(), query, null, timer),
+				isNegative(), timer);
 	}
 
 	@Override

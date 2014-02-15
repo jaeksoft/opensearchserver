@@ -156,10 +156,8 @@ public class WebCrawlMaster extends
 			waitForChild(1800);
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);
-			if (currentStats.getUrlCount() > 0) {
-				setStatus(CrawlStatus.OPTIMIZATION);
-				config.getUrlManager().reload(true, null);
-			}
+			if (currentStats.getUrlCount() > 0)
+				config.getUrlManager().reload(false, null);
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
 				TaskManager.getInstance().executeJob(config.getIndexName(),
@@ -180,8 +178,7 @@ public class WebCrawlMaster extends
 			IllegalAccessException {
 		Config config = getConfig();
 		UrlManager urlManager = config.getUrlManager();
-		setStatus(CrawlStatus.OPTIMIZATION);
-		urlManager.reload(true, null);
+		urlManager.reload(false, null);
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 
 		WebPropertyManager propertyManager = config.getWebPropertyManager();

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,6 +57,7 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskUploadMonitor extends TaskAbstract {
@@ -134,6 +135,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 		try {
 			reqEntity.addPart("instanceId", new StringBody(instanceId));
 		} catch (UnsupportedEncodingException e) {
+			IOUtils.close(httpClient);
 			throw new SearchLibException(e);
 		}
 		httpPost.setEntity(reqEntity);
@@ -156,6 +158,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 					.getConnectionManager();
 			if (connectionManager != null)
 				connectionManager.shutdown();
+			IOUtils.close(httpClient);
 		}
 
 	}

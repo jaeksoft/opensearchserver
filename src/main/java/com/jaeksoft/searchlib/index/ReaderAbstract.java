@@ -76,6 +76,7 @@ public abstract class ReaderAbstract implements ReaderInterface {
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 
+	@Override
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
