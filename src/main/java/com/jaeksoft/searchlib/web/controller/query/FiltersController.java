@@ -33,9 +33,9 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
+import com.jaeksoft.searchlib.filter.AuthFilter;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
-import com.jaeksoft.searchlib.filter.FilterAbstract.Source;
 import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
 import com.jaeksoft.searchlib.filter.GeoFilter.Unit;
@@ -93,9 +93,8 @@ public class FiltersController extends AbstractQueryController {
 			return null;
 		List<FilterAbstract<?>> list = new ArrayList<FilterAbstract<?>>();
 		for (FilterAbstract<?> filter : request.getFilterList())
-			if (filter.getSource() != Source.REQUEST)
+			if (!(filter instanceof AuthFilter))
 				list.add(filter);
-		System.out.println("filter " + list.size());
 		return list;
 	}
 
