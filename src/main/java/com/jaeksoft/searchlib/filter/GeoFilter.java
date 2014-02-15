@@ -297,7 +297,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 			int[] docIds = docIdInterface.getIds();
 			int pos = 0;
 			for (float dist : distanceInterface.getDistances()) {
-				if (dist <= distance)
+				if (dist > distance)
 					filterHits.fastRemove(docIds[pos]);
 				pos++;
 			}

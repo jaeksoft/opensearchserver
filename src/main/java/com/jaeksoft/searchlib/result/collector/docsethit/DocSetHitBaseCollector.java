@@ -100,7 +100,7 @@ final public class DocSetHitBaseCollector extends
 
 		final public class Segment {
 
-			public final int docBase;
+			public final Integer docBase;
 			public final IndexReader indexReader;
 			public final OpenBitSet docBitSet;
 
@@ -122,6 +122,7 @@ final public class DocSetHitBaseCollector extends
 		@Override
 		final public void setNextReader(final IndexReader reader,
 				final int docBase) throws IOException {
+			currentDocBase = docBase;
 			currentSegment = new Segment(docBase, reader);
 			segments.add(currentSegment);
 		}

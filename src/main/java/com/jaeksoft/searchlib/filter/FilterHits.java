@@ -75,18 +75,15 @@ public class FilterHits extends Filter {
 	}
 
 	final void and(FilterHits sourceFilterHits) {
-		for (Map.Entry<IndexReader, OpenBitSet> entry : sourceFilterHits.docSetMap
-				.entrySet())
-			and(entry.getKey(), entry.getValue());
-	}
-
-	private final void and(IndexReader indexReader, OpenBitSet sourceDocSet) {
-		OpenBitSet docSet = docSetMap.get(indexReader);
-		if (docSet == null) {
-			docSet = (OpenBitSet) sourceDocSet.clone();
-			docSetMap.put(indexReader, docSet);
+		if (docSetMap.isEmpty()) {
+			for (Map.Entry<IndexReader, OpenBitSet> entry : sourceFilterHits.docSetMap
+					.entrySet())
+				docSetMap.put(entry.getKey(), (OpenBitSet) entry.getValue()
+						.clone());
 		} else
-			docSet.and(sourceDocSet);
+			for (Map.Entry<IndexReader, OpenBitSet> entry : sourceFilterHits.docSetMap
+					.entrySet())
+				docSetMap.get(entry.getKey()).and(entry.getValue());
 	}
 
 	@Override
@@ -95,13 +92,12 @@ public class FilterHits extends Filter {
 	}
 
 	final public void fastRemove(int doc) {
-		Map.Entry<Integer, OpenBitSet> entry = docBaseMap.floorEntry(doc);
-		doc -= entry.getKey();
-		OpenBitSet bitSet = entry.getValue();
+		Integer floorKey = docBaseMap.floorKey(doc);
+		OpenBitSet bitSet = docBaseMap.get(floorKey);
+		doc -= floorKey;
 		if (isNegative)
 			bitSet.fastSet(doc);
 		else
 			bitSet.fastClear(doc);
 	}
-
 }
