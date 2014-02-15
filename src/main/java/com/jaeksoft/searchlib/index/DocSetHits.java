@@ -35,10 +35,12 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocIdBufferCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector;
+import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector.FilterHitsCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInterface;
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
@@ -47,53 +49,70 @@ import com.jaeksoft.searchlib.util.Timer;
 
 public class DocSetHits {
 
+	public static class Params {
+
+		final ReaderAbstract reader;
+		final Query query;
+		final GeoParameters geoParameters;
+		final AdvancedScore advancedScore;
+		final FilterHits filterHits;
+		final boolean isScoreRequired;
+		final boolean isDistanceRequired;
+		final boolean isDocIdRequired;
+		final boolean forFilterHits;
+
+		public Params(ReaderAbstract reader,
+				AbstractSearchRequest searchRequest, FilterHits filterHits)
+				throws ParseException, SyntaxError, SearchLibException,
+				IOException {
+			this.reader = reader;
+			this.query = searchRequest.getQuery();
+			this.isScoreRequired = searchRequest.isScoreRequired();
+			this.isDistanceRequired = searchRequest.isDistanceRequired();
+			this.geoParameters = searchRequest.getGeoParameters();
+			this.advancedScore = searchRequest.getAdvancedScore();
+			this.isDocIdRequired = searchRequest.isDocIdRequired();
+			this.filterHits = filterHits;
+			this.forFilterHits = searchRequest instanceof SearchFilterRequest;
+		}
+	}
+
 	private final DocSetHitBaseCollector docSetHitCollector;
 	private final DocIdBufferCollector docIdBufferCollector;
 	private final DistanceCollector distanceCollector;
 	private final ScoreBufferCollector scoreBufferCollector;
 	private final DocSetHitCollectorInterface lastCollector;
 
-	protected DocSetHits(ReaderAbstract reader, Query query,
-			boolean isScoreRequired, boolean isDistanceRequired,
-			GeoParameters geoParameters, AdvancedScore advancedScore,
-			boolean isDocIdRequired, FilterHits filterHits, Timer timer)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+	protected DocSetHits(Params params, Timer timer) throws IOException,
+			ParseException, SyntaxError, SearchLibException {
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
-				reader.maxDoc());
-		if (isScoreRequired)
+				params.reader.maxDoc(), params.forFilterHits);
+		if (params.isScoreRequired)
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
-		if (isDistanceRequired)
+		if (params.isDistanceRequired)
 			last = distanceCollector = new DistanceCollector(
-					docSetHitCollector, reader, geoParameters);
+					docSetHitCollector, params.reader, params.geoParameters);
 		else
 			distanceCollector = null;
-		if (advancedScore != null && !advancedScore.isEmpty()) {
-			last = sc = new ScoreBufferAdvancedCollector(reader, advancedScore,
-					docSetHitCollector, sc, distanceCollector);
+		if (params.advancedScore != null && !params.advancedScore.isEmpty()) {
+			last = sc = new ScoreBufferAdvancedCollector(params.reader,
+					params.advancedScore, docSetHitCollector, sc,
+					distanceCollector);
 		}
-		if (isDocIdRequired)
+		if (params.isDocIdRequired)
 			last = docIdBufferCollector = new DocIdBufferCollector(
 					docSetHitCollector);
 		else
 			docIdBufferCollector = null;
-		Timer t = new Timer(timer, "DocSetHits: " + query.toString());
-		if (reader.numDocs() > 0)
-			reader.search(query, filterHits, docSetHitCollector.collector);
+		Timer t = new Timer(timer, "DocSetHits: " + params.query.toString());
+		if (params.reader.numDocs() > 0)
+			params.reader.search(params.query, params.filterHits,
+					docSetHitCollector.collector);
 		t.end(null);
 		last.endCollection();
 		lastCollector = last;
 		scoreBufferCollector = sc;
-	}
-
-	protected DocSetHits(ReaderAbstract reader,
-			AbstractSearchRequest searchRequest, FilterHits filterHits,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException {
-		this(reader, searchRequest.getQuery(), searchRequest.isScoreRequired(),
-				searchRequest.isDistanceRequired(), searchRequest
-						.getGeoParameters(), searchRequest.getAdvancedScore(),
-				searchRequest.isDocIdRequired(), filterHits, timer);
 	}
 
 	final public int getNumFound() {
@@ -129,6 +148,11 @@ public class DocSetHits {
 	final public <T extends CollectorInterface> T getCollector(
 			Class<T> collectorType) {
 		return lastCollector.getCollector(collectorType);
+	}
+
+	final public FilterHitsCollector getFilterHitsCollector() {
+		return (FilterHitsCollector) (docSetHitCollector.collector instanceof FilterHitsCollector ? docSetHitCollector.collector
+				: null);
 	}
 
 }

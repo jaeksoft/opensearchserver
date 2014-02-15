@@ -32,7 +32,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.OpenBitSet;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -118,12 +117,13 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+	public FilterHits getFilterHits(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			throws ParseException, IOException, SearchLibException {
 		Query query = getQuery();
-		return getDocIdInterface(request.getConfig(), query, null,
-				isNegative(), timer).getBitSet();
+		return new FilterHits(
+				getResult(request.getConfig(), query, null, timer),
+				isNegative(), timer);
 	}
 
 	@Override

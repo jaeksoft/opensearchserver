@@ -32,7 +32,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.util.OpenBitSet;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -41,6 +40,7 @@ import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -279,26 +279,29 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	}
 
 	@Override
-	public OpenBitSet getBitSet(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request, Timer timer) throws ParseException,
-			IOException, SearchLibException {
-		Query query = getQuery(request.getGeoParameters());
-		DocIdInterface docIdInterface = getDocIdInterface(request.getConfig(),
-				query, request.getGeoParameters(), isNegative(), timer);
+	public FilterHits getFilterHits(SchemaField defaultField,
+			Analyzer analyzer, AbstractSearchRequest searchRequest, Timer timer)
+			throws ParseException, IOException, SearchLibException {
+		GeoParameters geoParams = searchRequest.getGeoParameters();
+		Query query = getQuery(geoParams);
+		ResultSearchSingle result = getResult(searchRequest.getConfig(), query,
+				geoParams, timer);
+		FilterHits filterHits = new FilterHits(result.getDocSetHits()
+				.getFilterHitsCollector(), isNegative(), timer);
 		if (type == Type.SQUARED)
-			return docIdInterface.getBitSet();
+			return filterHits;
 		if (type == Type.RADIUS) {
+			DocIdInterface docIdInterface = result.getDocs();
 			DistanceInterface distanceInterface = docIdInterface
 					.getCollector(DistanceInterface.class);
-			OpenBitSet docSet = new OpenBitSet(docIdInterface.getMaxDoc());
 			int[] docIds = docIdInterface.getIds();
 			int pos = 0;
 			for (float dist : distanceInterface.getDistances()) {
-				if (dist <= distance)
-					docSet.fastSet(docIds[pos]);
+				if (dist > distance)
+					filterHits.fastRemove(docIds[pos]);
 				pos++;
 			}
-			return docSet;
+			return filterHits;
 		}
 		return null;
 	}

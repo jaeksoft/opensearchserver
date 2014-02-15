@@ -38,12 +38,14 @@ import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.BoostQuery;
+import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 
 public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 
 	private final String query;
+	private final Boolean forFilterHits;
 	private final Boolean isScoreRequired;
 	private final Boolean isDistanceRequired;
 	private final Boolean isDocIdRequired;
@@ -61,6 +63,7 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 		this.isScoreRequired = isScoreRequired;
 		this.isDistanceRequired = isDistanceRequired;
 		this.isDocIdRequired = isDocIdRequired;
+		this.forFilterHits = request instanceof SearchFilterRequest;
 		filterListCacheKey = new FilterListCacheKey(filterList, defaultField,
 				analyzer, request);
 		boostQueryCacheKey = BoostQuery.getCacheKey(boostQueries);
@@ -83,6 +86,8 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 	public int compareTo(DocSetHitCacheKey r) {
 		int c;
 		if ((c = query.compareTo(r.query)) != 0)
+			return c;
+		if ((c = forFilterHits.compareTo(r.forFilterHits)) != 0)
 			return c;
 		if ((c = isScoreRequired.compareTo(r.isScoreRequired)) != 0)
 			return c;
