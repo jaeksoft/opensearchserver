@@ -58,6 +58,9 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			return sessionUser == null ? User.EMPTY : sessionUser;
 		if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
 			return User.EMPTY;
+		if (StringUtils.isEmpty(renderer.getAuthServer()))
+			throw new AuthException(
+					"No auth server given, check the parameters of the renderer");
 		ActiveDirectory activeDirectory = null;
 		try {
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
