@@ -44,6 +44,8 @@ public class ActiveDirectory implements Closeable {
 
 	public ActiveDirectory(String username, String password, String domain)
 			throws NamingException {
+		if (StringUtils.isEmpty(domain))
+			throw new NamingException("The domain is empty");
 		Properties properties = new Properties();
 		properties.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
