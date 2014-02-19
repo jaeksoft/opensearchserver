@@ -72,8 +72,8 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			activeDirectory = new ActiveDirectory(username, password,
 					renderer.getAuthDomain());
 
-			NamingEnumeration<SearchResult> result = activeDirectory.findUser(
-					username, renderer.getAuthDomain());
+			NamingEnumeration<SearchResult> result = activeDirectory
+					.findUser(username);
 
 			if (!result.hasMore())
 				return User.EMPTY;
