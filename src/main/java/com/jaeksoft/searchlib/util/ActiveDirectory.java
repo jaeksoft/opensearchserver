@@ -6,6 +6,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -111,7 +112,12 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	public static String getObjectSID(Attributes attrs) throws NamingException {
-		byte[] sidBytes = (byte[]) attrs.get("objectsid").get();
+		Attribute attr = attrs.get("objectsid");
+		if (attr == null)
+			throw new NamingException("No ObjectSID attribute");
+		byte[] sidBytes = (byte[]) attr.get();
+		if (sidBytes == null)
+			throw new NamingException("ObjectSID is empty");
 		return decodeSID(sidBytes);
 	}
 
