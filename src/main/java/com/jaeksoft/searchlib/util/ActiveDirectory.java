@@ -55,7 +55,7 @@ public class ActiveDirectory implements Closeable {
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
 		dirContext = new InitialDirContext(properties);
-		domainSearchName = getDomainSearch(domainSearchName);
+		domainSearchName = getDomainSearch(domain);
 	}
 
 	public final static String[] DefaultReturningAttributes = { "cn", "mail",
