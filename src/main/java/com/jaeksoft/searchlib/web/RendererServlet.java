@@ -121,6 +121,7 @@ public class RendererServlet extends AbstractServlet {
 							.duplicate();
 					facetRequest
 							.removeFilterSource(FilterAbstract.Source.REQUEST);
+					renderer.configureAuthRequest(facetRequest, servletRequest);
 					AbstractResultSearch facetResult = (AbstractResultSearch) client
 							.request(facetRequest);
 					transaction.setRequestAttribute("facetResult", facetResult);
