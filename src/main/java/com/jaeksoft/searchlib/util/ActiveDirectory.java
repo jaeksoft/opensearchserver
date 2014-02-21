@@ -115,10 +115,20 @@ public class ActiveDirectory implements Closeable {
 		Attribute attr = attrs.get("objectsid");
 		if (attr == null)
 			throw new NamingException("No ObjectSID attribute");
-		byte[] sidBytes = (byte[]) attr.get();
-		if (sidBytes == null)
+		Object attrObject = attr.get();
+		if (attrObject == null)
 			throw new NamingException("ObjectSID is empty");
-		return decodeSID(sidBytes);
+		Logging.warn("GETOBJECTSID attr.get()=" + attrObject);
+		if (attrObject instanceof String) {
+			String attrString = (String) attrObject;
+			if (attrString.startsWith("S-"))
+				return attrString;
+			return decodeSID(attrString.getBytes());
+		} else if (attrObject instanceof byte[]) {
+			return decodeSID((byte[]) attrObject);
+		} else
+			throw new NamingException("Unknown attribute type: "
+					+ attrObject.getClass().getName());
 	}
 
 	/**
