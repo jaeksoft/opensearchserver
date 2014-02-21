@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.collapse.CollapseParameters.Mode;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
+import com.jaeksoft.searchlib.filter.AuthFilter;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
@@ -467,7 +468,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			List<FilterAbstract<?>> toRemoveList = new ArrayList<FilterAbstract<?>>(
 					0);
 			for (FilterAbstract<?> filterAbstract : filterList)
-				if (filterAbstract.getSource() == source)
+				if (filterAbstract.getSource() == source
+						&& !(filterAbstract instanceof AuthFilter))
 					toRemoveList.add(filterAbstract);
 			for (FilterAbstract<?> filterAbstract : toRemoveList)
 				filterList.remove(filterAbstract);
