@@ -81,6 +81,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			SearchResult rs = (SearchResult) result.next();
 			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
+			Logging.warn("ObjectSID Found: " + userId);
 			return new User(userId, username, password);
 
 		} catch (SmbAuthException e) {

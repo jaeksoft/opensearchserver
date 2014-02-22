@@ -86,8 +86,10 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			return null;
 		String[] groups = new String[sids.length];
 		int i = 0;
-		for (SID gsid : sids)
+		for (SID gsid : sids) {
 			groups[i++] = gsid.toDisplayString();
+			Logging.warn("GROUP FOUND #" + i + ": " + gsid.toDisplayString());
+		}
 		return groups;
 	}
 
