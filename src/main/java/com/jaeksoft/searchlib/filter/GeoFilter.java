@@ -27,6 +27,8 @@ package com.jaeksoft.searchlib.filter;
 import java.io.IOException;
 import java.text.NumberFormat;
 
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -89,6 +91,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	}
 
+	@XmlType(name = "GeoType")
 	public static enum Type {
 
 		SQUARED("Squared"),
@@ -281,8 +284,8 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest searchRequest, Timer timer)
-			throws ParseException, IOException, SearchLibException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest searchRequest,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		GeoParameters geoParams = searchRequest.getGeoParameters();
 		Query query = getQuery(geoParams);
 		ResultSearchSingle result = getResult(searchRequest.getConfig(), query,
