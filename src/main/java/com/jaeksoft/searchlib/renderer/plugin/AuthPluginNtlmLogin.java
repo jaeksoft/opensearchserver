@@ -63,14 +63,14 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 					"No auth server given, check the parameters of the renderer");
 		ActiveDirectory activeDirectory = null;
 		try {
+			String domain = renderer.getAuthDomain();
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
 					username, password);
 			UniAddress dc = UniAddress
 					.getByName(renderer.getAuthServer(), true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(username, password,
-					renderer.getAuthDomain());
+			activeDirectory = new ActiveDirectory(username, password, domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
@@ -81,8 +81,10 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			SearchResult rs = (SearchResult) result.next();
 			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
-			Logging.warn("ObjectSID Found: " + userId);
-			return new User(userId, username, password);
+			Logging.warn("ObjectSID Found: " + userId + " for user: "
+					+ username);
+			return new User(userId, username, password,
+					ActiveDirectory.getDisplayString(domain, username));
 
 		} catch (SmbAuthException e) {
 			Logging.warn(e);
