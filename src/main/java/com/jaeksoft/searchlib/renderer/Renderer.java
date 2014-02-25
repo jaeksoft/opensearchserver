@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
@@ -1146,6 +1147,8 @@ public class Renderer implements Comparable<Renderer> {
 			}
 			sbPositiveFilter.append(')');
 		}
+
+		Logging.warn("POSITIVE FILTER: " + sbPositiveFilter.toString());
 		if (sbPositiveFilter.length() > 0)
 			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 

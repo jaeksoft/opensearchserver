@@ -59,8 +59,14 @@ public class ActiveDirectory implements Closeable {
 		domainSearchName = getDomainSearch(domain);
 	}
 
-	public final static String[] DefaultReturningAttributes = { "cn", "mail",
-			"givenName", "objectSid", "sAMAccountName", };
+	public final static String ATTR_CN = "cn";
+	public final static String ATTR_MAIL = "mail";
+	public final static String ATTR_GIVENNAME = "givenName";
+	public final static String ATTR_OBJECTSID = "objectSid";
+	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
+
+	public final static String[] DefaultReturningAttributes = { ATTR_CN,
+			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, };
 
 	public NamingEnumeration<SearchResult> findUser(String username,
 			String... returningAttributes) throws NamingException {
@@ -86,6 +92,28 @@ public class ActiveDirectory implements Closeable {
 		} catch (NamingException e) {
 			Logging.warn(e);
 		}
+	}
+
+	private static String getDomainName(String domain) {
+		String[] dcs = StringUtils.split(domain.toUpperCase(), '.');
+		return dcs != null && dcs.length > 0 ? dcs[0] : null;
+	}
+
+	final public static String getDisplayString(String domain, String user) {
+		StringBuilder sb = new StringBuilder();
+		String domainName = getDomainName(domain);
+		if (domainName != null)
+			sb.append(domainName);
+		if (user != null) {
+			if (sb.length() > 0)
+				sb.append('\\');
+			sb.append(user);
+		}
+		return sb.toString();
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getDisplayString("sp.int.fr", "01234"));
 	}
 
 	private static String getDomainSearch(String domain) {
