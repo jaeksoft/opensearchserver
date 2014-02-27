@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -83,6 +83,9 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField lastModifiedDate = new ItemField(this,
 			"lastModifiedDate");
+
+	final public ItemField contentUpdateDate = new ItemField(this,
+			"contentUpdateDate");
 
 	final public ItemField reponseCode = new ItemField(this, "responseCode");
 
