@@ -1,4 +1,5 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.RendererSort"%>
 <div class="osscmnrdr oss-input-div">
 	<form id="osssearchform" method="get" autocomplete="off"
 		action="renderer">
@@ -25,6 +26,29 @@
 			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
 			autocomplete="off" /> <input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />
+		<%
+			if (renderer.getSorts().size() > 0) {
+		%>
+		<div id="osssort">
+			<select name="sort"
+				onchange="document.forms['osssearchform'].submit();">
+				<%
+					String sort = (String) request.getParameter("sort");
+						if (sort == null)
+							sort = "";
+						for (RendererSort rendererSort : renderer.getSorts()) {
+							String selected = sort.equals(rendererSort.getSort()) ? "selected=selected"
+									: "";
+				%>
+				<option <%=selected%> value="<%=rendererSort.getSort()%>"><%=rendererSort.getLabel()%></option>
+				<%
+					}
+				%>
+			</select>
+		</div>
+		<%
+			}
+		%>
 	</form>
 	<div style="position: relative">
 		<div id="ossautocomplete" class="osscmnrd" style="position: absolute;"></div>
