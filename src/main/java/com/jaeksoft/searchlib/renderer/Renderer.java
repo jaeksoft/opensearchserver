@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -69,6 +69,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
 	private final static String RENDERER_ITEM_NODE_CSS = "css";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
+	private final static String RENDERER_ITEM_NODE_NAME_SORT = "sort";
 	private final static String RENDERER_ITEM_NODE_HEADER = "header";
 	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
 	private final static String RENDERER_ITEM_ROOT_ATTR_LOGENABLED = "logEnabled";
@@ -108,6 +109,8 @@ public class Renderer implements Comparable<Renderer> {
 	private List<RendererField> fields;
 
 	private List<RendererLogField> logFields;
+
+	private List<RendererSort> sorts;
 
 	private String footer;
 
@@ -152,6 +155,7 @@ public class Renderer implements Comparable<Renderer> {
 		facetWidth = "200px";
 		logEnabled = false;
 		fields = new ArrayList<RendererField>();
+		sorts = new ArrayList<RendererSort>(0);
 		logFields = new ArrayList<RendererLogField>();
 		footer = null;
 		header = null;
@@ -233,6 +237,10 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeList.getLength(); i++)
 			addField(new RendererField(xpp, nodeList.item(i)));
+		NodeList nodeSortList = xpp.getNodeList(rootNode,
+				RENDERER_ITEM_NODE_NAME_SORT);
+		for (int i = 0; i < nodeSortList.getLength(); i++)
+			addSort(new RendererSort(xpp, nodeSortList.item(i)));
 		NodeList nodeLogList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_LOG_FIELD);
 		for (int j = 0; j < nodeLogList.getLength(); j++)
@@ -409,6 +417,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.resultsFoundText = resultsFoundText;
 				target.facetWidth = facetWidth;
 				target.fields.clear();
+				target.sorts.clear();
 				target.logFields.clear();
 				target.header = header;
 				target.footer = footer;
@@ -428,7 +437,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.authGroupDenyField = authGroupDenyField;
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
-
+				for (RendererSort sort : sorts)
+					target.addSort(new RendererSort(sort));
 				for (RendererLogField logField : logFields)
 					target.addLogField(new RendererLogField(logField));
 			} finally {
@@ -452,6 +462,25 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			fields.remove(field);
+		} finally {
+			rwl.w.unlock();
+		}
+
+	}
+
+	public void addSort(RendererSort sort) {
+		rwl.w.lock();
+		try {
+			sorts.add(sort);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeSort(RendererSort sort) {
+		rwl.w.lock();
+		try {
+			sorts.remove(sort);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -498,6 +527,51 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.r.lock();
 		try {
 			return fields;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * Move sort up
+	 * 
+	 * @param sort
+	 */
+	public void sortUp(RendererSort sort) {
+		rwl.w.lock();
+		try {
+			int i = sorts.indexOf(sort);
+			if (i == -1 || i == 0)
+				return;
+			sorts.remove(i);
+			sorts.add(i - 1, sort);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Move sort down
+	 * 
+	 * @param sort
+	 */
+	public void sortDown(RendererSort sort) {
+		rwl.w.lock();
+		try {
+			int i = sorts.indexOf(sort);
+			if (i == -1 || i == sorts.size() - 1)
+				return;
+			sorts.remove(i);
+			sorts.add(i + 1, sort);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public List<RendererSort> getSorts() {
+		rwl.r.lock();
+		try {
+			return sorts;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -615,7 +689,8 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_CSS, css);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
-
+			for (RendererSort sort : sorts)
+				sort.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_SORT);
 			for (RendererLogField logReportField : logFields)
 				logReportField
 						.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);

@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
 import redis.clients.jedis.Jedis;
 
 import com.jaeksoft.searchlib.util.FileUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -398,9 +399,11 @@ public class InstanceProperties {
 		} catch (IOException e) {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		} finally {
-			if (jedis != null)
+			if (jedis != null) {
 				if (jedis.isConnected())
 					jedis.disconnect();
+				IOUtils.close(jedis);
+			}
 		}
 	}
 
