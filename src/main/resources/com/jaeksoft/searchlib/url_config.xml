@@ -45,6 +45,8 @@
 			<field name="md5size" indexed="yes" stored="no" termVector="no" />
 			<field name="lastModifiedDate" indexed="yes" stored="no"
 				termVector="no" />
+			<field name="contentUpdateDate" indexed="yes" stored="no"
+				termVector="no" />
 			<field name="parentUrl" indexed="yes" stored="no" termVector="no" />
 			<field name="redirectionUrl" indexed="yes" stored="no"
 				termVector="no" />
