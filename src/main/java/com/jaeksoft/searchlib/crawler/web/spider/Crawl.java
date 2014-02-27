@@ -183,17 +183,17 @@ public class Crawl {
 		String oldMd5size = urlItem.getMd5size();
 		String newMd5size = parser.getMd5size();
 		urlItem.setMd5size(newMd5size);
-		Date oldLastModifiedTime = urlItem.getLastModifiedDate();
-		Date newLastModifiedTime = null;
-		if (oldLastModifiedTime == null)
-			newLastModifiedTime = parserStartDate;
+		Date oldContentUpdateDate = urlItem.getContentUpdateDate();
+		Date newContentUpdateDate = null;
+		if (oldContentUpdateDate == null)
+			newContentUpdateDate = parserStartDate;
 		else {
 			if (oldMd5size != null && newMd5size != null)
 				if (!oldMd5size.equals(newMd5size))
-					newLastModifiedTime = parserStartDate;
+					newContentUpdateDate = parserStartDate;
 		}
-		if (newLastModifiedTime != null)
-			urlItem.setLastModifiedDate(newLastModifiedTime);
+		if (newContentUpdateDate != null)
+			urlItem.setContentUpdateDate(newContentUpdateDate);
 
 		for (ParserResultItem result : parser.getParserResults()) {
 			FieldContent fieldContent = result
@@ -272,6 +272,8 @@ public class Crawl {
 				urlItem.setContentEncoding(downloadItem.getContentEncoding());
 
 				urlItem.setContentLength(downloadItem.getContentLength());
+
+				urlItem.setLastModifiedDate(downloadItem.getLastModified());
 
 				urlItem.setFetchStatus(FetchStatus.FETCHED);
 

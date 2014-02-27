@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,6 +68,7 @@ public class UrlItem {
 	private int count;
 	private String md5size;
 	private Date lastModifiedDate;
+	private Date contentUpdateDate;
 	private List<String> outLinks;
 	private List<String> inLinks;
 	private String parentUrl;
@@ -101,6 +102,7 @@ public class UrlItem {
 		count = 0;
 		md5size = null;
 		lastModifiedDate = null;
+		contentUpdateDate = null;
 		parentUrl = null;
 		redirectionUrl = null;
 		origin = null;
@@ -151,6 +153,8 @@ public class UrlItem {
 				UrlItemFieldEnum.INSTANCE.md5size.getName(), 0));
 		setLastModifiedDate(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(), 0));
+		setContentUpdateDate(doc.getValueContent(
+				UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(), 0));
 		setParentUrl(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.parentUrl.getName(), 0));
 		setRedirectionUrl(doc.getValueContent(
@@ -486,6 +490,26 @@ public class UrlItem {
 		this.lastModifiedDate = d;
 	}
 
+	public void setLastModifiedDate(Long time) {
+		this.lastModifiedDate = time == null ? null : new Date(time);
+	}
+
+	public Date getContentUpdateDate() {
+		return contentUpdateDate;
+	}
+
+	protected void setContentUpdateDate(String d) {
+		try {
+			this.contentUpdateDate = d == null ? null : whenDateFormat.parse(d);
+		} catch (ParseException e) {
+			Logging.error(e.getMessage(), e);
+		}
+	}
+
+	public void setContentUpdateDate(Date d) {
+		this.contentUpdateDate = d;
+	}
+
 	final static ThreadSafeSimpleDateFormat whenDateFormat = new ThreadSafeSimpleDateFormat(
 			"yyyyMMddHHmmss");
 
@@ -600,6 +624,10 @@ public class UrlItem {
 			indexDocument.setString(
 					UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(),
 					whenDateFormat.format(lastModifiedDate));
+		if (contentUpdateDate != null)
+			indexDocument.setString(
+					UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(),
+					whenDateFormat.format(contentUpdateDate));
 		if (parentUrl != null)
 			indexDocument.setString(
 					UrlItemFieldEnum.INSTANCE.parentUrl.getName(), parentUrl);
