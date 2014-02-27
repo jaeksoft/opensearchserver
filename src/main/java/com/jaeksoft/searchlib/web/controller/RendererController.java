@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.renderer.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
+import com.jaeksoft.searchlib.renderer.RendererSort;
 import com.jaeksoft.searchlib.renderer.RendererWidgets;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -55,6 +56,8 @@ public class RendererController extends CommonController {
 	private transient RendererField currentRendererField;
 	private transient RendererField selectedRendererField;
 	private transient RendererLogField currentRendererLogField;
+	private transient RendererSort currentRendererSort;
+	private transient RendererSort selectedRendererSort;
 
 	private class DeleteAlert extends AlertController {
 
@@ -86,6 +89,7 @@ public class RendererController extends CommonController {
 	protected void reset() throws SearchLibException {
 		currentRenderer = null;
 		currentRendererField = null;
+		currentRendererSort = null;
 		selectedRenderer = null;
 		isTestable = false;
 		currentRendererLogField = null;
@@ -138,6 +142,10 @@ public class RendererController extends CommonController {
 		return !isFieldSelected();
 	}
 
+	public boolean isSortSelected() {
+		return selectedRendererSort != null;
+	}
+
 	public AuthPluginEnum[] getAuthTypeList() {
 		return AuthPluginEnum.values();
 	}
@@ -149,6 +157,7 @@ public class RendererController extends CommonController {
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
 		currentRendererLogField = new RendererLogField();
+		currentRendererSort = new RendererSort();
 		reload();
 	}
 
@@ -163,6 +172,7 @@ public class RendererController extends CommonController {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
 		currentRendererLogField = new RendererLogField();
+		currentRendererSort = new RendererSort();
 		reload();
 	}
 
@@ -173,6 +183,16 @@ public class RendererController extends CommonController {
 		else
 			currentRendererField.copyTo(selectedRendererField);
 		onRendererFieldCancel();
+		reload();
+	}
+
+	@Command
+	public void onRendererSortSave() throws SearchLibException {
+		if (selectedRendererSort == null)
+			currentRenderer.addSort(currentRendererSort);
+		else
+			currentRendererSort.copyTo(selectedRendererSort);
+		onRendererSortCancel();
 		reload();
 	}
 
@@ -198,10 +218,25 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
+	public void onRendererSortCancel() throws SearchLibException {
+		currentRendererSort = new RendererSort();
+		selectedRendererSort = null;
+		reload();
+	}
+
+	@Command
 	public void onLogFieldRemove(
 			@BindingParam("renderLogFieldItem") RendererLogField rendererlogField)
 			throws SearchLibException, InterruptedException {
 		currentRenderer.removeLogField(rendererlogField);
+		reload();
+	}
+
+	@Command
+	public void onRendererSortRemove(
+			@BindingParam("rendererSort") RendererSort rendererSort)
+			throws SearchLibException, InterruptedException {
+		currentRenderer.removeSort(rendererSort);
 		reload();
 	}
 
@@ -226,6 +261,22 @@ public class RendererController extends CommonController {
 			@BindingParam("rendererFieldItem") RendererField rendererField)
 			throws SearchLibException {
 		currentRenderer.fieldDown(rendererField);
+		reload();
+	}
+
+	@Command
+	public void onRendererSortUp(
+			@BindingParam("rendererSort") RendererSort rendererSort)
+			throws SearchLibException {
+		currentRenderer.sortUp(rendererSort);
+		reload();
+	}
+
+	@Command
+	public void onRendererSortDown(
+			@BindingParam("rendererSort") RendererSort rendererSort)
+			throws SearchLibException {
+		currentRenderer.sortDown(rendererSort);
 		reload();
 	}
 
@@ -305,6 +356,21 @@ public class RendererController extends CommonController {
 			throws SearchLibException {
 		selectedRendererField = field;
 		currentRendererField = new RendererField(field);
+		reload();
+	}
+
+	public RendererSort getCurrentRendererSort() {
+		return currentRendererSort;
+	}
+
+	public RendererSort getSelectedRendererSort() {
+		return selectedRendererSort;
+	}
+
+	public void setSelectedRendererSort(RendererSort sort)
+			throws SearchLibException {
+		selectedRendererSort = sort;
+		currentRendererSort = new RendererSort(sort);
 		reload();
 	}
 
