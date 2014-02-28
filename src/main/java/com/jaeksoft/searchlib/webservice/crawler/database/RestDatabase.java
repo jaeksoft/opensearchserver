@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,7 +50,7 @@ public interface RestDatabase {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{crawl_name}/run")
-	public CommonResult run(@PathParam("index") String index,
+	public CommonResult run(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("crawl_name") String name, Map<String, String> variables);
 
