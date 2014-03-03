@@ -37,6 +37,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -1189,11 +1190,6 @@ public class Renderer implements Comparable<Renderer> {
 		AuthPluginInterface.User user = authPlugin.getUser(this, sessionUser,
 				servletRequest);
 		session.setAttribute(RENDERER_SESSION_USER, user);
-		String[] groups = null;
-		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
-				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))
-			if (user != null)
-				groups = authPlugin.authGetGroups(this, user);
 
 		StringBuilder sbPositiveFilter = new StringBuilder();
 		if (authUserAllowField != null && authUserAllowField.length() > 0) {
@@ -1205,13 +1201,13 @@ public class Renderer implements Comparable<Renderer> {
 					sbPositiveFilter);
 		}
 		if (authGroupAllowField != null && authGroupAllowField.length() > 0
-				&& groups != null && groups.length > 0) {
+				&& !CollectionUtils.isEmpty(user.groups)) {
 			if (sbPositiveFilter.length() > 0)
 				sbPositiveFilter.append(" OR ");
 			sbPositiveFilter.append(authGroupAllowField);
 			sbPositiveFilter.append(":(");
 			boolean bOr = false;
-			for (String group : groups) {
+			for (String group : user.groups) {
 				if (bOr)
 					sbPositiveFilter.append(" OR ");
 				else
@@ -1237,12 +1233,12 @@ public class Renderer implements Comparable<Renderer> {
 		}
 
 		if (authGroupDenyField != null && authGroupDenyField.length() > 0
-				&& groups != null && groups.length > 0) {
+				&& !CollectionUtils.isEmpty(user.groups)) {
 			StringBuilder sbNegativeFilter = new StringBuilder();
 			sbNegativeFilter.append(authGroupDenyField);
 			sbNegativeFilter.append(":(");
 			boolean bOr = false;
-			for (String group : groups) {
+			for (String group : user.groups) {
 				if (bOr)
 					sbNegativeFilter.append(" OR ");
 				else

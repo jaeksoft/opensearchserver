@@ -1,6 +1,8 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -55,6 +57,9 @@ public class ActiveDirectory implements Closeable {
 		properties.put(Context.SECURITY_PRINCIPAL,
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
+		properties.put("java.naming.ldap.attributes.binary",
+				"tokenGroups objectSID");
+
 		dirContext = new InitialDirContext(properties);
 		domainSearchName = getDomainSearch(domain);
 	}
@@ -62,11 +67,13 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_CN = "cn";
 	public final static String ATTR_MAIL = "mail";
 	public final static String ATTR_GIVENNAME = "givenName";
+	public final static String ATTR_TOKENGROUPS = "tokenGroups";
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
 
 	public final static String[] DefaultReturningAttributes = { ATTR_CN,
-			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, };
+			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
+			ATTR_TOKENGROUPS };
 
 	public NamingEnumeration<SearchResult> findUser(String username,
 			String... returningAttributes) throws NamingException {
@@ -112,6 +119,21 @@ public class ActiveDirectory implements Closeable {
 		return sb.toString();
 	}
 
+	public static List<String> getTokenGroups(Attributes attrs)
+			throws NamingException {
+		List<String> sids = new ArrayList<String>();
+		Attribute tga = attrs.get("tokenGroups");
+		if (tga == null)
+			return null;
+		NamingEnumeration<?> tokenGroups = tga.getAll();
+		while (tokenGroups.hasMore()) {
+			byte[] gsid = (byte[]) tokenGroups.next();
+			sids.add(decodeSID(gsid));
+		}
+		tokenGroups.close();
+		return sids;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 	}
@@ -146,13 +168,14 @@ public class ActiveDirectory implements Closeable {
 		Object attrObject = attr.get();
 		if (attrObject == null)
 			throw new NamingException("ObjectSID is empty");
-		Logging.warn("GETOBJECTSID attr.get()=" + attrObject);
 		if (attrObject instanceof String) {
+			Logging.warn("GETOBJECTSID (string) attr.get()=" + attrObject);
 			String attrString = (String) attrObject;
 			if (attrString.startsWith("S-"))
 				return attrString;
 			return decodeSID(attrString.getBytes());
 		} else if (attrObject instanceof byte[]) {
+			Logging.warn("GETOBJECTSID (byte array) attr.get()=" + attrObject);
 			return decodeSID((byte[]) attrObject);
 		} else
 			throw new NamingException("Unknown attribute type: "

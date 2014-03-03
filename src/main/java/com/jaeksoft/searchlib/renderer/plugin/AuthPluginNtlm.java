@@ -38,7 +38,6 @@ import jcifs.smb.SmbException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
-import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
@@ -49,7 +48,20 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 				password == null ? renderer.getAuthPassword() : password);
 	}
 
-	@Override
+	protected String[] getGroups(SID[] sids, String authServer,
+			NtlmPasswordAuthentication ntlmAuth) throws IOException {
+		if (sids == null)
+			return null;
+		String[] groups = new String[sids.length];
+		SID.resolveSids(authServer, ntlmAuth, sids);
+		int i = 0;
+		for (SID gsid : sids) {
+			groups[i++] = gsid.toDisplayString();
+			Logging.warn("GROUP FOUND #" + i + ": " + gsid.toDisplayString());
+		}
+		return groups;
+	}
+
 	/*
 	 * The userId must be an SID (non-Javadoc)
 	 * 
@@ -57,21 +69,23 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	 * com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface#authGetGroups
 	 * (com.jaeksoft.searchlib.renderer.Renderer, java.lang.String)
 	 */
-	public String[] authGetGroups(Renderer renderer, User user)
+	private String[] getGroups(Renderer renderer, String sidString)
 			throws IOException {
-		if (user == null)
-			throw new NoUserException("No USER given");
-		if (user.userId == null)
-			throw new NoUserException("No user SID ");
 		SID[] sids = null;
 		try {
-			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
-					user.password != null ? user.username : null, user.password);
+			// TODO remove
+			Logging.warn("AuthGetGroups " + sidString);
+			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
+					null);
 			String authServer = renderer.getAuthServer();
-			SID sid = new SID(user.userId);
+			SID sid = new SID(sidString);
 			sid.resolve(authServer, ntlmAuth);
+			Logging.warn("AuthGetGroups " + sidString + " Type: "
+					+ sid.getTypeText());
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
+			Logging.warn("GROUP SIDS: " + sids);
+			return getGroups(sids, authServer, ntlmAuth);
 		} catch (SmbAuthException sae) {
 			Logging.warn(sae);
 			throw new AuthException("SmbAuthException : " + sae.getMessage());
@@ -82,15 +96,6 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			Logging.warn(e);
 			throw new AuthException("SmbException : " + e.getMessage());
 		}
-		if (sids == null)
-			return null;
-		String[] groups = new String[sids.length];
-		int i = 0;
-		for (SID gsid : sids) {
-			groups[i++] = gsid.toDisplayString();
-			Logging.warn("GROUP FOUND #" + i + ": " + gsid.toDisplayString());
-		}
-		return groups;
 	}
 
 	@Override
@@ -100,6 +105,7 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		String userId = remoteUser;
 		Principal principal = request.getUserPrincipal();
 		String username = principal != null ? principal.getName() : remoteUser;
-		return new User(userId, null, username, remoteUser);
+		return new User(userId, username, null, getGroups(renderer, userId),
+				remoteUser);
 	}
 }

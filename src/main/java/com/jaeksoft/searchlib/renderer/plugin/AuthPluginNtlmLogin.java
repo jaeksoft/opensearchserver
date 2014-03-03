@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
@@ -47,6 +50,17 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class AuthPluginNtlmLogin extends AuthPluginNtlm {
+
+	protected String[] getGroups(Collection<String> sidCollection,
+			String authServer, NtlmPasswordAuthentication ntlmAuth)
+			throws IOException {
+		Logging.warn("GROUP SIDS: " + sidCollection.size());
+		SID[] sids = new SID[sidCollection.size()];
+		int i = 0;
+		for (String sid : sidCollection)
+			sids[i++] = new SID(sid);
+		return getGroups(sids, authServer, ntlmAuth);
+	}
 
 	@Override
 	public User getUser(Renderer renderer, User sessionUser,
@@ -81,9 +95,19 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			SearchResult rs = (SearchResult) result.next();
 			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
+			String mail = ActiveDirectory.getStringAttribute(attrs,
+					ActiveDirectory.ATTR_MAIL);
+			String givenname = ActiveDirectory.getStringAttribute(attrs,
+					ActiveDirectory.ATTR_GIVENNAME);
+			String samAccount = ActiveDirectory.getStringAttribute(attrs,
+					ActiveDirectory.ATTR_SAMACCOUNTNAME);
 			Logging.warn("ObjectSID Found: " + userId + " for user: "
-					+ username);
-			return new User(userId, username, password,
+					+ username + " mail: " + mail + " givenname: " + givenname
+					+ " samaccountname: " + samAccount);
+			List<String> tokenGroups = ActiveDirectory.getTokenGroups(attrs);
+			String[] groups = getGroups(tokenGroups, renderer.getAuthServer(),
+					ntlmAuth);
+			return new User(userId, username, password, groups,
 					ActiveDirectory.getDisplayString(domain, username));
 
 		} catch (SmbAuthException e) {
