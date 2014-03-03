@@ -37,16 +37,18 @@ public interface AuthPluginInterface {
 
 	public static class User {
 
-		public final static User EMPTY = new User(null, null, null);
+		public final static User EMPTY = new User(null, null, null, null);
 
 		public final String userId;
 		public final String username;
 		public final String password;
 		public final Set<String> usernames;
+		public final Set<String> groups;
 
 		public User(String userId, String username, String password,
-				Object... userNames) {
-			usernames = new TreeSet<String>();
+				String[] groups, Object... userNames) {
+			this.usernames = new TreeSet<String>();
+			this.groups = new TreeSet<String>();
 			this.username = username;
 			addUsername(username);
 			this.password = password;
@@ -54,6 +56,10 @@ public interface AuthPluginInterface {
 			for (Object objectName : userNames)
 				if (objectName != null)
 					addUsername(objectName.toString());
+			if (groups != null)
+				for (String group : groups)
+					if (group != null)
+						this.groups.add(group);
 		}
 
 		protected void addUsername(String username) {
@@ -85,9 +91,6 @@ public interface AuthPluginInterface {
 		}
 
 	}
-
-	public String[] authGetGroups(Renderer renderer, User user)
-			throws IOException;
 
 	public User getUser(Renderer renderer, User sessionUser,
 			HttpServletRequest request) throws IOException;
