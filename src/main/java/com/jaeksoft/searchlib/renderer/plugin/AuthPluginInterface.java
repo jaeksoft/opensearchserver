@@ -37,8 +37,6 @@ public interface AuthPluginInterface {
 
 	public static class User {
 
-		public final static User EMPTY = new User(null, null, null, null);
-
 		public final String userId;
 		public final String username;
 		public final String password;
@@ -92,7 +90,7 @@ public interface AuthPluginInterface {
 
 	}
 
-	public User getUser(Renderer renderer, User sessionUser,
-			HttpServletRequest request) throws IOException;
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException;
 
 }

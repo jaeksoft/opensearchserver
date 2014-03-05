@@ -55,10 +55,8 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		String[] groups = new String[sids.length];
 		SID.resolveSids(authServer, ntlmAuth, sids);
 		int i = 0;
-		for (SID gsid : sids) {
+		for (SID gsid : sids)
 			groups[i++] = gsid.toDisplayString();
-			Logging.warn("GROUP FOUND #" + i + ": " + gsid.toDisplayString());
-		}
 		return groups;
 	}
 
@@ -73,18 +71,13 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			throws IOException {
 		SID[] sids = null;
 		try {
-			// TODO remove
-			Logging.warn("AuthGetGroups " + sidString);
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
 					null);
 			String authServer = renderer.getAuthServer();
 			SID sid = new SID(sidString);
 			sid.resolve(authServer, ntlmAuth);
-			Logging.warn("AuthGetGroups " + sidString + " Type: "
-					+ sid.getTypeText());
 			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
 					SID.SID_FLAG_RESOLVE_SIDS);
-			Logging.warn("GROUP SIDS: " + sids);
 			return getGroups(sids, authServer, ntlmAuth);
 		} catch (SmbAuthException sae) {
 			Logging.warn(sae);
@@ -99,8 +92,8 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	}
 
 	@Override
-	public User getUser(Renderer renderer, User sessionUser,
-			HttpServletRequest request) throws IOException {
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException {
 		String remoteUser = request.getRemoteUser();
 		String userId = remoteUser;
 		Principal principal = request.getUserPrincipal();
