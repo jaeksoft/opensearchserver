@@ -42,10 +42,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
+import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
@@ -1183,12 +1183,14 @@ public class Renderer implements Comparable<Renderer> {
 		HttpSession session = servletRequest.getSession();
 		if (servletRequest.getParameter("logout") != null) {
 			session.removeAttribute(RENDERER_SESSION_USER);
-			return;
+			throw new NoUserException("Logout");
 		}
-		AuthPluginInterface.User sessionUser = (User) session
+		AuthPluginInterface.User user = (User) session
 				.getAttribute(RENDERER_SESSION_USER);
-		AuthPluginInterface.User user = authPlugin.getUser(this, sessionUser,
-				servletRequest);
+		if (user == null)
+			user = authPlugin.getUser(this, servletRequest);
+		if (user == null)
+			throw new NoUserException("No user found");
 		session.setAttribute(RENDERER_SESSION_USER, user);
 
 		StringBuilder sbPositiveFilter = new StringBuilder();
@@ -1219,7 +1221,6 @@ public class Renderer implements Comparable<Renderer> {
 			sbPositiveFilter.append(')');
 		}
 
-		Logging.warn("POSITIVE FILTER: " + sbPositiveFilter.toString());
 		if (sbPositiveFilter.length() > 0)
 			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 

@@ -381,15 +381,11 @@ public class ObjectStorageDirectory extends Directory {
 
 		private ByteCacheItem get(String name) {
 			ByteCacheItem byteCacheItem = super.getAndPromote(name);
-			// System.out.println("GET " + name + " " + byteCacheItem + " " +
-			// this);
 			return byteCacheItem;
 		}
 
 		private ByteCacheItem add(String name, ByteCacheItem byteCacheItem) {
 			put(name, byteCacheItem);
-			// System.out.println("ADD " + name + " " + byteCacheItem + " " +
-			// this);
 			return byteCacheItem;
 		}
 

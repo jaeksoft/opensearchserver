@@ -57,8 +57,7 @@ public class ActiveDirectory implements Closeable {
 		properties.put(Context.SECURITY_PRINCIPAL,
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
-		properties.put("java.naming.ldap.attributes.binary",
-				"tokenGroups objectSID");
+		properties.put("java.naming.ldap.attributes.binary", "objectSID");
 
 		dirContext = new InitialDirContext(properties);
 		domainSearchName = getDomainSearch(domain);
@@ -67,13 +66,13 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_CN = "cn";
 	public final static String ATTR_MAIL = "mail";
 	public final static String ATTR_GIVENNAME = "givenName";
-	public final static String ATTR_TOKENGROUPS = "tokenGroups";
+	public final static String ATTR_MEMBEROF = "memberOf";
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
 
 	public final static String[] DefaultReturningAttributes = { ATTR_CN,
 			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
-			ATTR_TOKENGROUPS };
+			ATTR_MEMBEROF };
 
 	public NamingEnumeration<SearchResult> findUser(String username,
 			String... returningAttributes) throws NamingException {
@@ -119,23 +118,41 @@ public class ActiveDirectory implements Closeable {
 		return sb.toString();
 	}
 
-	public static List<String> getTokenGroups(Attributes attrs)
+	public static List<String> getMemberOf(Attributes attrs)
 			throws NamingException {
-		List<String> sids = new ArrayList<String>();
-		Attribute tga = attrs.get("tokenGroups");
+		List<String> groups = new ArrayList<String>();
+		Attribute tga = attrs.get("memberOf");
 		if (tga == null)
 			return null;
-		NamingEnumeration<?> tokenGroups = tga.getAll();
-		while (tokenGroups.hasMore()) {
-			byte[] gsid = (byte[]) tokenGroups.next();
-			sids.add(decodeSID(gsid));
+		NamingEnumeration<?> membersOf = tga.getAll();
+		while (membersOf.hasMore()) {
+			Object memberObject = membersOf.next();
+			groups.add(getGroupMemberOf(memberObject.toString()));
 		}
-		tokenGroups.close();
-		return sids;
+		membersOf.close();
+		return groups;
+	}
+
+	final public static String getGroupMemberOf(final String memberOf) {
+		String[] parts = StringUtils.split(memberOf, ',');
+		String cn = null;
+		String dc = null;
+		for (String part : parts) {
+			String[] pair = StringUtils.split(part, "=");
+			if (pair == null || pair.length != 2)
+				continue;
+			if (cn == null && "CN".equals(pair[0]))
+				cn = pair[1];
+			if (dc == null && "DC".equals(pair[0]))
+				dc = pair[1].toUpperCase();
+		}
+		return StringUtils.fastConcat(dc, '\\', cn);
 	}
 
 	public static void main(String[] args) {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
+		System.out
+				.println(getGroupMemberOf("CN=GG-TEST-TEST-TEST,OU=Groupes Ressource,OU=Groupes,OU=DSCP,DC=sp,DC=pn,DC=int"));
 	}
 
 	private static String getDomainSearch(String domain) {
@@ -151,7 +168,10 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	public static String getStringAttribute(Attributes attrs, String name) {
-		String s = attrs.get(name).toString();
+		Attribute attr = attrs.get(name);
+		if (attr == null)
+			return null;
+		String s = attr.toString();
 		if (StringUtils.isEmpty(s))
 			return s;
 		int i = s.indexOf(':');
@@ -169,13 +189,11 @@ public class ActiveDirectory implements Closeable {
 		if (attrObject == null)
 			throw new NamingException("ObjectSID is empty");
 		if (attrObject instanceof String) {
-			Logging.warn("GETOBJECTSID (string) attr.get()=" + attrObject);
 			String attrString = (String) attrObject;
 			if (attrString.startsWith("S-"))
 				return attrString;
 			return decodeSID(attrString.getBytes());
 		} else if (attrObject instanceof byte[]) {
-			Logging.warn("GETOBJECTSID (byte array) attr.get()=" + attrObject);
 			return decodeSID((byte[]) attrObject);
 		} else
 			throw new NamingException("Unknown attribute type: "

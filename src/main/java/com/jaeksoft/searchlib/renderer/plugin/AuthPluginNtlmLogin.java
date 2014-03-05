@@ -54,7 +54,6 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 	protected String[] getGroups(Collection<String> sidCollection,
 			String authServer, NtlmPasswordAuthentication ntlmAuth)
 			throws IOException {
-		Logging.warn("GROUP SIDS: " + sidCollection.size());
 		SID[] sids = new SID[sidCollection.size()];
 		int i = 0;
 		for (String sid : sidCollection)
@@ -63,15 +62,13 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 	}
 
 	@Override
-	public User getUser(Renderer renderer, User sessionUser,
-			HttpServletRequest request) throws IOException {
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException {
 
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		if (username == null && password == null)
-			return sessionUser == null ? User.EMPTY : sessionUser;
 		if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
-			return User.EMPTY;
+			throw new AuthException("Username or password is empty");
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
 			throw new AuthException(
 					"No auth server given, check the parameters of the renderer");
@@ -90,24 +87,14 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 					.findUser(username);
 
 			if (!result.hasMore())
-				return User.EMPTY;
+				throw new AuthException("No user found");
 
 			SearchResult rs = (SearchResult) result.next();
 			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
-			String mail = ActiveDirectory.getStringAttribute(attrs,
-					ActiveDirectory.ATTR_MAIL);
-			String givenname = ActiveDirectory.getStringAttribute(attrs,
-					ActiveDirectory.ATTR_GIVENNAME);
-			String samAccount = ActiveDirectory.getStringAttribute(attrs,
-					ActiveDirectory.ATTR_SAMACCOUNTNAME);
-			Logging.warn("ObjectSID Found: " + userId + " for user: "
-					+ username + " mail: " + mail + " givenname: " + givenname
-					+ " samaccountname: " + samAccount);
-			List<String> tokenGroups = ActiveDirectory.getTokenGroups(attrs);
-			String[] groups = getGroups(tokenGroups, renderer.getAuthServer(),
-					ntlmAuth);
-			return new User(userId, username, password, groups,
+			List<String> groups = ActiveDirectory.getMemberOf(attrs);
+			return new User(userId, username, password,
+					groups.toArray(new String[groups.size()]),
 					ActiveDirectory.getDisplayString(domain, username));
 
 		} catch (SmbAuthException e) {
