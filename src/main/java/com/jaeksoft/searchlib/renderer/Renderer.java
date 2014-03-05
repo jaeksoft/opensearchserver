@@ -37,14 +37,15 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
+import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
@@ -1182,18 +1183,15 @@ public class Renderer implements Comparable<Renderer> {
 		HttpSession session = servletRequest.getSession();
 		if (servletRequest.getParameter("logout") != null) {
 			session.removeAttribute(RENDERER_SESSION_USER);
-			return;
+			throw new NoUserException("Logout");
 		}
-		AuthPluginInterface.User sessionUser = (User) session
+		AuthPluginInterface.User user = (User) session
 				.getAttribute(RENDERER_SESSION_USER);
-		AuthPluginInterface.User user = authPlugin.getUser(this, sessionUser,
-				servletRequest);
+		if (user == null)
+			user = authPlugin.getUser(this, servletRequest);
+		if (user == null)
+			throw new NoUserException("No user found");
 		session.setAttribute(RENDERER_SESSION_USER, user);
-		String[] groups = null;
-		if ((authGroupAllowField != null && authGroupAllowField.length() > 0)
-				|| (authGroupDenyField != null && authGroupDenyField.length() > 0))
-			if (user != null)
-				groups = authPlugin.authGetGroups(this, user);
 
 		StringBuilder sbPositiveFilter = new StringBuilder();
 		if (authUserAllowField != null && authUserAllowField.length() > 0) {
@@ -1205,13 +1203,13 @@ public class Renderer implements Comparable<Renderer> {
 					sbPositiveFilter);
 		}
 		if (authGroupAllowField != null && authGroupAllowField.length() > 0
-				&& groups != null && groups.length > 0) {
+				&& !CollectionUtils.isEmpty(user.groups)) {
 			if (sbPositiveFilter.length() > 0)
 				sbPositiveFilter.append(" OR ");
 			sbPositiveFilter.append(authGroupAllowField);
 			sbPositiveFilter.append(":(");
 			boolean bOr = false;
-			for (String group : groups) {
+			for (String group : user.groups) {
 				if (bOr)
 					sbPositiveFilter.append(" OR ");
 				else
@@ -1223,7 +1221,6 @@ public class Renderer implements Comparable<Renderer> {
 			sbPositiveFilter.append(')');
 		}
 
-		Logging.warn("POSITIVE FILTER: " + sbPositiveFilter.toString());
 		if (sbPositiveFilter.length() > 0)
 			searchRequest.addFilter(sbPositiveFilter.toString(), false);
 
@@ -1237,12 +1234,12 @@ public class Renderer implements Comparable<Renderer> {
 		}
 
 		if (authGroupDenyField != null && authGroupDenyField.length() > 0
-				&& groups != null && groups.length > 0) {
+				&& !CollectionUtils.isEmpty(user.groups)) {
 			StringBuilder sbNegativeFilter = new StringBuilder();
 			sbNegativeFilter.append(authGroupDenyField);
 			sbNegativeFilter.append(":(");
 			boolean bOr = false;
-			for (String group : groups) {
+			for (String group : user.groups) {
 				if (bOr)
 					sbNegativeFilter.append(" OR ");
 				else
