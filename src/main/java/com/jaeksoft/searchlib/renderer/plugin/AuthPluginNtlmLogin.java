@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
@@ -48,16 +51,24 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 
+	protected String[] getGroups(Collection<String> sidCollection,
+			String authServer, NtlmPasswordAuthentication ntlmAuth)
+			throws IOException {
+		SID[] sids = new SID[sidCollection.size()];
+		int i = 0;
+		for (String sid : sidCollection)
+			sids[i++] = new SID(sid);
+		return getGroups(sids, authServer, ntlmAuth);
+	}
+
 	@Override
-	public User getUser(Renderer renderer, User sessionUser,
-			HttpServletRequest request) throws IOException {
+	public User getUser(Renderer renderer, HttpServletRequest request)
+			throws IOException {
 
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		if (username == null && password == null)
-			return sessionUser == null ? User.EMPTY : sessionUser;
 		if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
-			return User.EMPTY;
+			throw new AuthException("Username or password is empty");
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
 			throw new AuthException(
 					"No auth server given, check the parameters of the renderer");
@@ -76,14 +87,14 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 					.findUser(username);
 
 			if (!result.hasMore())
-				return User.EMPTY;
+				throw new AuthException("No user found");
 
 			SearchResult rs = (SearchResult) result.next();
 			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
-			Logging.warn("ObjectSID Found: " + userId + " for user: "
-					+ username);
+			List<String> groups = ActiveDirectory.getMemberOf(attrs);
 			return new User(userId, username, password,
+					groups.toArray(new String[groups.size()]),
 					ActiveDirectory.getDisplayString(domain, username));
 
 		} catch (SmbAuthException e) {

@@ -422,15 +422,11 @@ public class NaiveCSSParser {
 
 	public static void test(String cssContent) throws IOException,
 			SearchLibException {
-		System.out.println("CHECKING");
-		System.out.println(cssContent);
 		NaiveCSSParser parser = new NaiveCSSParser();
 		parser.parseStyleSheet(cssContent);
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		parser.write(pw);
-		System.out.println("PARSED");
-		System.out.println(sw);
 	}
 
 	public static void main(String[] args) throws IOException,
