@@ -47,6 +47,8 @@ Ce crawleur a vocation à indexer les systèmes de fichiers locaux ou distants. 
 -	Indexation des **fichiers distants** : Support des protocoles CIFS/SMB, FTP, FTPS.
 -	Le **File Browser** : Cette interface permet de parcourir la liste des fichiers et répertoires parcourus et de prendre connaissance d'un certain nombre d'informations utiles (indexé ou non, taille fichiers, type de document, etc.).
 
+![Crawler de système de fichiers - configuration d'un nouvel emplacement de crawl FTP](crawler_files.png)
+
 ### Le crawleur de base de données
 Ce crawleur a vocation à indexer les données structurées issues des tables de base de données. Voici la liste des fonctionnalités:
 -	Support de la plupart des bases de données (JDBC) : MySQL, SQLServer, PostgreSQL, Oracle, Sybase, DB2, etc.
@@ -56,6 +58,8 @@ Ce crawleur a vocation à indexer les données structurées issues des tables de
 -	Conversion des **entités HTML**.
 -	Possibilité d'appliquer des **expressions régulières** avant indexation.
  
+![Crawler de base de données - configuration du processus de crawl](crawler_db.png)
+
 ### Le crawleur par fichier XML
 Il est possible d'indexer des documents par mise à disposition d'un fichier XML. OpenSearchServer dispose de son propre format XML natif. Ce format à la fois simple et puissant pourra être généré très aisément, par exemple, par export puis application d'une transformation XSLT.
 Le format natif permet notamment:
@@ -66,6 +70,10 @@ Le format natif permet notamment:
 -	Le retrait automatique des tags HTML.
 -	La conversion des **entités HTML**.
 -	L'application d'une **expression régulière** par champ avant indexation.
+
+Exemple de fichier au format XML natif :
+
+![Exemple de fichier XML](example_xml.png)
 
 ## Les parseurs
 Le rôle d'un parseur est **d'extraire les données** à indexer des documents rapatriés par les crawleurs présentés dans le chapitre précédent. Le parseur est **sélectionné automatiquement** en fonction soit du type MIME (quand le crawleur le fournit) soit en utilisant l'extension présente dans le nom du fichier. Pour chaque parseur, il est possible de limiter la taille maximum des fichiers à indexer.
@@ -88,10 +96,12 @@ Quelques exemples de formats additionnels:
 -	Microsoft Publisher
 -	Microsoft VISIO
 -	Microsoft Outlook
- 
+
+![Liste partielle des parsers disponibles](parsers_list.png)
+
 Chaque parseur fourni un certain nombre d'informations qui sont ensuite réparties dans l'index. Par exemple, les parseurs Microsoft Office, OpenOffice, et PDF fournissent séparément le titre du document, son auteur et son contenu. Le parseur HTML/XHTML identifiera individuellement les liens présents, le titre de la page, etc.
 
-Un système simple de `Field mapping` (assignation de champs) permet d'enregistrer dans des champs spécifiques chaque valeur fourni par le parser.
+Un système simple de `Field mapping` (assignation de champs) permet d'enregistrer dans des champs spécifiques chaque valeur fournie par le parser.
 
 Les valeurs fournies par le parser peuvent être **retravaillées par des expressions régulières**. Cette fonctionnalité puissante permet par exemple d'extraire des informations très précises dans une page HTML.
 
@@ -101,9 +111,13 @@ Enfin il est possible d'assigner plusieurs valeurs à un même champ, ce qui aur
 ![Field mapping dans le parser HTML](parsers_htmlmapping.png)
 
 ## Les analyseurs
-Les analyseurs ont vocation à traiter les informations textuelles issues des parseurs. Ils vont appliquer un certain nombre de traitements sémantiques et linguistiques permettant une amélioration significative de la pertinence des recherches en autorisant la recherche avec des orthographes approximatives. Ces traitements peuvent être individuellement activés ou désactivés.
+Les analyseurs ont vocation à traiter les informations textuelles issues des parseurs. Ils vont appliquer un certain nombre de traitements sémantiques et linguistiques permettant une amélioration significative de la pertinence des recherches, par exemple en autorisant la recherche avec des orthographes approximatives. Il est possible de créer un nombre illimité d'analyseur qui pourront ensuite être activés sur des champs spécifiques de l'index.
 
 ![Analyseurs](analyzers.png)
+
+Les analyseurs se composent d'un tokenizer, chargé de découper les textes en `tokens`, et d'une succession de filtres configurable, qui effectuent différents traitement sur les textes découpés.
+
+Voici la description de quelques une de ces fonctionnalités.
 
 ### Lemmatisation
 La lemmatisation consiste à identifier le radical des mots en retirant les désinences typiques de la langue spécifiée. Ainsi, le mot "consommation" sera également indexé en tant que "consomm" (avec un niveau de pertinence moindre). 
@@ -122,10 +136,17 @@ Ce filtre consiste à remplacer toutes les lettres accompagnées d'un signe (let
 Ce filtre permet d'ignorer une liste de mot. Il s'applique sur des mots considérés comme peu intéressants dans le corpus indexé. La liste des mots interdits est paramétrable pour chaque langue.
 
 ### Synonymes
-Cet analyseur permet de trouver un document sur la base de son synonyme. La liste des synonymes est paramétrable. Ainsi la recherche du mot "formulaire" pourra également renvoyer des pages contenant "codex" ou "questionnaire".
+Ce filtre permet de trouver un document sur la base de son synonyme. La liste des synonymes est paramétrable. Ainsi la recherche du mot "formulaire" pourra également renvoyer des pages contenant "codex" ou "questionnaire".
 
 ### Sensibilité à la casse
 Ce filtre permet de ne pas tenir compte des majuscules et minuscules. Le mot "Les" sera également indexé en "les".
+
+### Remplacement par expressions régulières
+Ce filtre permet d'appliquer un processus de "capture et remplace" sur un texte donnée en entrée. 
+Il est ainsi facile de transformer une date au format JJ/MM/AAAA en une date au format AAAAMMJJ par exemple, en utilisant l'expression de capture `^([0-9]*)/([0-9]*)/([0-9]*)$` et le texte de remplacement `$3$2$1`.
+
+### Autres filtres
+De nombreux autres filtres sont disponibles, pour par exemple convertir des degrés en radians, formatter des nombres, dédupliquer des mots, extraire le nom de domaine d'une URL, normaliser des URL, rechercher des informations sur Youtube à partir d'une URL, etc.
 
 ## Les classifieurs
 Ce module permet d'intégrer des données complémentaires à un document indexé. Le document indexé est soumis à une liste de requêtes. Chaque fois qu'une requête aboutie, **un mot clé déterminé est associé au document** dans un champ de son choix.
@@ -145,6 +166,8 @@ La seconde partie du module est ensuite utilisée typiquement au moment de l'ind
 
 Le module de requêtes permet la création d'un nombre illimité de modèles de requêtes. Chaque modèle de requêtes dispose de ses propres paramètres décrits ci-après. 
 
+![Liste des requêtes configurées sur un index](queries_list.png)
+
 ## Deux types de requêtes
 
 ### Requête de type "Field"
@@ -155,6 +178,8 @@ Chaque champ peut être configuré de 4 manières :
 - Term : les mots clés saisis sont nettoyés afin de supprimer les caractères superflus (guillemets, signes, etc.) et la recherche s'effectue sur chacun des termes saisis. Par exemple la recherche de `lorem ipsum` consistera en la recherche de `lorem` puis en la recherche de `ipsum`.
 - Phrase : les mots clés sont ici aussi nettoyés mais la recherche s'effectue en *mode "phrase"*.Par exemple la recherche de `lorem ipsum` se traduira par la recherche de `"lorem ipsum"`.
 - Term & Phrase : ce mode combine les deux modes précédent. Ainsi une recherche de `lorep ipsum` recherchera indépendemment `lorem` puis `ipsum` et également la phrase `"lorem ipsum"`.
+
+![Configuration d'une requête de type Search - fields](query_searched_fields.png)
 
 ### Requête de type "Pattern"
 Dans le mode "Search (pattern)" c'est un langage de requête spécifique qui doit être utilisé afin d'indiquer quels champs seront à utiliser pour la recherche full-text.
@@ -195,10 +220,12 @@ Cette fonction est souvent le corollaire des facettes. On peut filtrer une reche
 
 Par exemple, on peut donc filtrer une recherche sur un nom de domaine, sur une fourchette de temps, etc.
 
+![Configuration d'un filtre de date relatif](query_filter_date_relative.png)
+
 ## Regroupements
 
 Les documents peuvent être regroupés pour favoriser la diversité et la lisibilité des documents présentés dans le résultat de recherche.
-On pourra par exemple présenter que 3 résultats consécutifs appartenant au même site Internet.
+On pourra par exemple ne présenter que 3 résultats consécutifs appartenant au même site Internet.
 
 Les différents types de regroupements possibles sont:
 -	**Regroupement consécutif optimisé** : Limite le nombre de résultats consécutifs, appliqués au nombre de résultats affichés (optimisé pour les gros volumes de donnée).
@@ -207,7 +234,7 @@ Les différents types de regroupements possibles sont:
 
 ## Extraits de texte
 
-Pour construire le résultat de recherche, OpenSearchServer peut soit restituer le champ indexé tel quel, ou bien construire un extrait de texte intelligent.
+Pour construire le résultat de recherche, OpenSearchServer peut soit restituer le champ indexé tel quel, soit construire un extrait de texte intelligent.
 
 L'extrait de texte répond aux exigences suivantes:
 -	**Nombre de caractères maximum** : l'extrait de texte ne peut pas dépasser le nombre de caractère indiqué.
@@ -215,7 +242,8 @@ L'extrait de texte répond aux exigences suivantes:
 -	**Pertinence de l'extrait** : Le moteur s'attache à présenter la phrase la plus pertinente par rapport aux mots recherchés, la plus proche possible de la taille souhaitée.
 -	**Détection de phrase** : Le moteur s'applique à présenter un extrait de texte correspondant à un début de phrase (quand c'est possible).
 
-![Définition des snippets](snippets.png)
+![Définition des snippets lors de la création d'une requête](snippets.png)
+![Exemple de résultats de recherche présentés dans l'interface, avec des extraits de texte](snippets_2.png)
 
 ## Ordonnancement
 
@@ -236,6 +264,8 @@ Les coordonnées peuvent être exprimées en degrés ou en radian et les distanc
 
 Les sous-requêtes de promotion permettent d'influer sur le score des documents retournés et d'impacter ainsi la pertinence en fonction de paramètres métiers autres que la recherche full-text.
  
+![Configuration des sous-requêtes de promotions lors de la création d'une requête de recherche](boosting.png)
+
 On peut simplement utiliser une sous-requête pour promouvoir ou dégrader des documents. Ainsi on pourra promouvoir les résultats d'un site Internet par rapport aux autres ou dégrader les documents appartenant à une catégorie.
 Il est possible de configurer plusieurs sous-requêtes pour mixer les règles de pertinence.
 
