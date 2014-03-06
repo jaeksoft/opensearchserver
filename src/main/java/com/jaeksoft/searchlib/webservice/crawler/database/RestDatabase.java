@@ -52,6 +52,6 @@ public interface RestDatabase {
 	@Path("/{crawl_name}/run")
 	public CommonResult run(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("crawl_name") String name, Map<String, String> variables);
+			@PathParam("crawl_name") String name, Map<String, String> variables);
 
 }
