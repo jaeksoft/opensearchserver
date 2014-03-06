@@ -348,7 +348,7 @@ Le module de réplication prend en charge la copie de l'index sur le même serve
  
 La réplication est habituellement utilisée dans deux cas de figure:
 -	**La distribution** d'un index sur une grappe de serveurs. Les index sont mis à jour sur les serveurs de destination sans arrêt de service.
--	**La sauvegarde** d'un index localement ou sur sur un serveur distant.
+-	**La sauvegarde** d'un index localement ou su sur un serveur distant.
 
 ![Réplication](replication.png)
 
