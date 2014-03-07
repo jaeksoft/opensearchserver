@@ -30,6 +30,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -74,6 +76,9 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(index, login, key,
 					Role.DATABASE_CRAWLER_START_STOP);
+			if (StringUtils.isEmpty(databaseName))
+				throw new CommonServiceException(
+						"The database crawler name is missing");
 			DatabaseCrawlAbstract databaseCrawl = client.getDatabaseCrawlList()
 					.get(databaseName);
 			if (databaseCrawl == null)
