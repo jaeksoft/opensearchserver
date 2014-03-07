@@ -72,6 +72,11 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
 			throw new AuthException(
 					"No auth server given, check the parameters of the renderer");
+		// For debug
+		/*
+		 * if (true) return new User("userId", username, password, new String[]
+		 * { "Guest" });
+		 */
 		ActiveDirectory activeDirectory = null;
 		try {
 			String domain = renderer.getAuthDomain();
