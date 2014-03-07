@@ -67,6 +67,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT = "noResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT = "oneResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT = "resultsFoundText";
+	private final static String RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT = "logoutText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
 	private final static String RENDERER_ITEM_NODE_CSS = "css";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
@@ -104,6 +105,8 @@ public class Renderer implements Comparable<Renderer> {
 	private String oneResultFoundText;
 
 	private String noResultFoundText;
+
+	private String logoutText;
 
 	private String facetWidth;
 
@@ -153,6 +156,7 @@ public class Renderer implements Comparable<Renderer> {
 		oneResultFoundText = "1 result found";
 		resultsFoundText = "results found";
 		noResultFoundText = "No results found";
+		logoutText = "Logout";
 		facetWidth = "200px";
 		logEnabled = false;
 		fields = new ArrayList<RendererField>();
@@ -193,6 +197,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT));
 		setResultsFoundText(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
+		setLogoutText(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT));
 		setContentTypeField(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE));
 		setFilenameField(XPathParser.getAttributeString(rootNode,
@@ -416,6 +422,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.noResultFoundText = noResultFoundText;
 				target.oneResultFoundText = oneResultFoundText;
 				target.resultsFoundText = resultsFoundText;
+				target.logoutText = logoutText;
 				target.facetWidth = facetWidth;
 				target.fields.clear();
 				target.sorts.clear();
@@ -676,6 +683,7 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT,
 					oneResultFoundText,
 					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
+					RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT, logoutText,
 					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth,
 					RENDERER_ITEM_ROOT_ATTR_LOGENABLED,
 					Boolean.toString(logEnabled),
@@ -796,6 +804,28 @@ public class Renderer implements Comparable<Renderer> {
 		rwl.w.lock();
 		try {
 			this.noResultFoundText = noResultFoundText;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getLogoutText() {
+		rwl.r.lock();
+		try {
+			return logoutText;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @param logoutText
+	 */
+	public void setLogoutText(String logoutText) {
+		rwl.w.lock();
+		try {
+			this.logoutText = logoutText;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -1153,6 +1183,11 @@ public class Renderer implements Comparable<Renderer> {
 	public String getAuthType() {
 		AuthPluginEnum authPlugin = AuthPluginEnum.find(authPluginClass);
 		return authPlugin == null ? authPluginClass : authPlugin.label;
+	}
+
+	public boolean isAuthentication() {
+		AuthPluginEnum authPlugin = AuthPluginEnum.find(authPluginClass);
+		return authPlugin != null && authPlugin != AuthPluginEnum.NO_AUTH;
 	}
 
 	private AuthPluginInterface getNewAuthPluginInterface()

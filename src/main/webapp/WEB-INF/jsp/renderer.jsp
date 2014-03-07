@@ -1,7 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page contentType="text/html; charset=UTF-8" %> 
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
-<% Renderer renderer = (Renderer) request.getAttribute("renderer"); %>
+<%@ page import="com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface" %>
+<%
+	Renderer renderer = (Renderer) request.getAttribute("renderer");
+	AuthPluginInterface.User user = (AuthPluginInterface.User) session.getAttribute("rendererUser");
+	String login = user == null ? "" : user.username;
+%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
@@ -39,6 +44,11 @@ body,html {
 		<div id="oss-header">
 			<%=renderer.getHeader()%>
 		</div>
+		<% if (renderer.isAuthentication()) { %>
+		<div id="oss-login">
+		<%=login%>&nbsp;-&nbsp;<a href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
+		</div>
+		<% } %>
 		<div id="oss-facet">
 				<jsp:include page="renderer/facet.jsp" />
 				</div>
