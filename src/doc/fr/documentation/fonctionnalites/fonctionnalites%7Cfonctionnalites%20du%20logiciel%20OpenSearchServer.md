@@ -32,7 +32,7 @@ Ce crawleur prend en charge les protocoles HTTP / HTTPS. Il a vocation à indexe
 -	**Le filtrage des paramètres d'URL** : Il est possible d'ignorer automatiquement les paramètres non discriminant dans une URL (par exemple, les paramètres de session).
 -	**L'URL Browser** : Cette interface permet d'accéder à la liste intégrale des URLs connues et de contrôler leur statut (indexé ou non, erreur 404, etc.)
 -	**Gestion du crawl** : Contrôle du processus d'indexation avec gestion du nombre de thread simultané, de la vitesse de crawl par site, du nombre de page par session, etc.
--	**Crawl manuel** : Il est possible de tester l'indexation d'une URL pour contrôler son indexation.
+-	**Crawl manuel** : Il est possible de contrôler qu'une URL spécifique a été indexée.
 -	**Proxy** : Utilisation d'un proxy dans le cadre du protocole HTTP ou HTTPS.
 -	**Capture d'écran** : Capture d'écran des pages indexées.
 -	**Authentification** : Accès aux sites Internet sécurisés nécessitant une authentification.
@@ -60,8 +60,8 @@ Ce crawleur a vocation à indexer les données structurées issues des tables de
  
 ![Crawler de base de données - configuration du processus de crawl](crawler_db.png)
 
-### Le crawleur par fichier XML
-Il est possible d'indexer des documents par mise à disposition d'un fichier XML. OpenSearchServer dispose de son propre format XML natif. Ce format à la fois simple et puissant pourra être généré très aisément, par exemple, par export puis application d'une transformation XSLT.
+### L'indexation par fichier XML
+Il est possible d'entrer des données sous forme de fichier XML. OpenSearchServer dispose de son propre format XML natif. Ce format à la fois simple et puissant pourra être généré très aisément, par exemple, par export puis application d'une transformation XSLT.
 Le format natif permet notamment:
 -	L'indexation des données structurées en indiquant chaque champ individuellement.
 -	L'indexation des **fichiers joints embarqués** dans le fichier XML (encodés au format base64)
@@ -99,7 +99,7 @@ Quelques exemples de formats additionnels:
 
 ![Liste partielle des parsers disponibles](parsers_list.png)
 
-Chaque parseur fourni un certain nombre d'informations qui sont ensuite réparties dans l'index. Par exemple, les parseurs Microsoft Office, OpenOffice, et PDF fournissent séparément le titre du document, son auteur et son contenu. Le parseur HTML/XHTML identifiera individuellement les liens présents, le titre de la page, etc.
+Chaque parseur fournit un certain nombre d'informations qui sont ensuite réparties dans l'index. Par exemple, les parseurs Microsoft Office, OpenOffice, et PDF fournissent séparément le titre du document, son auteur et son contenu. Le parseur HTML/XHTML identifiera individuellement les liens présents, le titre de la page, etc.
 
 Un système simple de `Field mapping` (assignation de champs) permet d'enregistrer dans des champs spécifiques chaque valeur fournie par le parser.
 
