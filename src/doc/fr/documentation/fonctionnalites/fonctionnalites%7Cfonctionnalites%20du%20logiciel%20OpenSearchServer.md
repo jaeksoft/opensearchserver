@@ -28,8 +28,8 @@ OpenSearchServer dispose de quatre types de crawleurs:
 ### Le crawleur WEB
 Ce crawleur prend en charge les protocoles HTTP / HTTPS. Il a vocation à indexer les sites Internet, Intranet ou Extranet. Voici la liste des fonctionnalités:
 -	**Liste des sites Internet** : Il s'agit d'une liste d'URL pouvant contenir des jokers (astérisque). Cela permet d'indexer intégralement ou partiellement un site Web.
--	**Liste d'exclusion** : Celle liste d'URL intégrant des jokers, permet d'exclure des pages ou parties de sites du périmètre d'indexation.
--	**Le filtrage des paramètres d'URL** : Il est possible d'ignorer automatiquement les paramètres non discriminant dans une URL (par exemple, le cas des paramètres de session).
+-	**Liste d'exclusion** : Une liste d'URL intégrant des jokers, permet d'exclure des pages ou parties de sites du périmètre d'indexation.
+-	**Le filtrage des paramètres d'URL** : Il est possible d'ignorer automatiquement les paramètres non discriminant dans une URL (par exemple, les paramètres de session).
 -	**L'URL Browser** : Cette interface permet d'accéder à la liste intégrale des URLs connues et de contrôler leur statut (indexé ou non, erreur 404, etc.)
 -	**Gestion du crawl** : Contrôle du processus d'indexation avec gestion du nombre de thread simultané, de la vitesse de crawl par site, du nombre de page par session, etc.
 -	**Crawl manuel** : Il est possible de tester l'indexation d'une URL pour contrôler son indexation.
@@ -45,7 +45,7 @@ Ce crawleur prend en charge les protocoles HTTP / HTTPS. Il a vocation à indexe
 Ce crawleur a vocation à indexer les systèmes de fichiers locaux ou distants. Voici la liste des fonctionnalités:
 -	Indexation des **fichiers locaux** : Parcours du système de fichier local, points de montages (NFS, CIFS).
 -	Indexation des **fichiers distants** : Support des protocoles CIFS/SMB, FTP, FTPS.
--	Le **File Browser** : Cette interface permet de parcourir la liste des fichiers et répertoires parcourus et de prendre connaissance d'un certain nombre d'informations utiles (indexé ou non, taille fichiers, type de document, etc.).
+-	Le **File Browser** : Cette interface permet de parcourir la liste des fichiers et répertoires parcourus et de prendre connaissance d'informations utiles (indexé ou non, taille fichiers, type de document, etc.).
 
 ![Crawler de système de fichiers - configuration d'un nouvel emplacement de crawl FTP](crawler_files.png)
 
@@ -103,7 +103,7 @@ Chaque parseur fourni un certain nombre d'informations qui sont ensuite réparti
 
 Un système simple de `Field mapping` (assignation de champs) permet d'enregistrer dans des champs spécifiques chaque valeur fournie par le parser.
 
-Les valeurs fournies par le parser peuvent être **retravaillées par des expressions régulières**. Cette fonctionnalité puissante permet par exemple d'extraire des informations très précises dans une page HTML.
+Les valeurs fournies par le parser peuvent être **retravaillées par des expressions régulières**. Cette fonctionnalité puissante permet par exemple d'extraire des informations très précises depuis une page HTML.
 
 Enfin il est possible d'assigner plusieurs valeurs à un même champ, ce qui aura pour effet de le **multivaluer**.
 
@@ -133,7 +133,7 @@ Cela consiste à regrouper plusieurs mots ensemble pour n'en faire qu'un seul. A
 Ce filtre consiste à remplacer toutes les lettres accompagnées d'un signe (lettres accentuées) par son équivalent sans signe. Ainsi le mot "côté" deviendra "cote".
 
 ### Mots ignorés (stop words)
-Ce filtre permet d'ignorer une liste de mot. Il s'applique sur des mots considérés comme peu intéressants dans le corpus indexé. La liste des mots interdits est paramétrable pour chaque langue.
+Ce filtre permet d'ignorer une liste de mots. Il s'applique sur des mots considérés comme peu intéressants dans le corpus indexé. La liste des mots interdits est paramétrable pour chaque langue.
 
 ### Synonymes
 Ce filtre permet de trouver un document sur la base de son synonyme. La liste des synonymes est paramétrable. Ainsi la recherche du mot "formulaire" pourra également renvoyer des pages contenant "codex" ou "questionnaire".
@@ -229,7 +229,7 @@ On pourra par exemple ne présenter que 3 résultats consécutifs appartenant au
 
 Les différents types de regroupements possibles sont:
 -	**Regroupement consécutif optimisé** : Limite le nombre de résultats consécutifs, appliqués au nombre de résultats affichés (optimisé pour les gros volumes de donnée).
--	**Regroupement consécutif complet** : Limite le nombre de résultats consécutifs appliqué à l'ensemble des résultats (et pas seulement à ceux de la page affichée).
+-	**Regroupement consécutif complet** : Limite le nombre de résultats consécutifs appliqués à l'ensemble des résultats (et pas seulement à ceux de la page affichée).
 -	**Regroupement simple** : Limite de nombre de résultats consécutifs ou non sur l'ensemble des résultats.
 
 ## Extraits de texte
@@ -258,7 +258,7 @@ A partir du moment où le schéma de l'index est prévu pour stocker des informa
 
 Seuls les documents dont les coordonnées sont comprises dans le rectangle exprimé dans la requête seront retournés. La distance entre chaque document et le point central sera également calculée et retournée.
 
-Les coordonnées peuvent être exprimées en degrés ou en radian et les distances en kilomètres ou en miles.
+Les coordonnées peuvent être exprimées en degrés ou en radians et les distances en kilomètres ou en miles.
 
 ## Sous-requête de promotion
 
@@ -300,12 +300,12 @@ L'auto-complétion se configure facilement en quelques clics. Il est possible de
 
 L'analyseur d'auto-complétion pré-configuré permet d'appliquer un traitement optimal aux données indexées pour offrir les suggestions les plus pertinentes.
 
-Plusieurs index d'auto-complétion peuvent même être configurés, pour par exemple proposer aux utilisateurs à différents endroits des suggestions issues d'un même index mais de champs différents.
+Plusieurs index d'auto-complétion peuvent même être configurés, par exemple pour proposer aux utilisateurs à différents endroits des suggestions issues d'un même index mais de champs différents.
 
 ![Auto-complétion](autocompletion.png)
 
 ## Page de recherche
-Le module Renderer intégré dans OpenSearchServer permet d'accéder facilement et très rapidement à **une page de recherche complète**. La page peut-être personnalisée facilement via l'écriture de feuilles de styles CSS. Les informations à afficher pour chaque résultat peuvent être choisies précisément. Il est possible d'intégrer l'affichage d'images ou de liens.
+Le module Renderer intégré dans OpenSearchServer permet d'accéder facilement et très rapidement à **une page de recherche complète**. La page peut-être personnalisée facilement via l'écriture de feuilles de styles (CSS). Les informations à afficher pour chaque résultat peuvent être choisies précisément. Il est possible d'intégrer l'affichage d'images ou de liens.
 
 Le code prêt à l'emploi permet d'embarquer facilement la page de recherche dans une autre application via l'utilisation d'une iFrame.
 
@@ -378,6 +378,6 @@ Ces fichiers de logs peuvent être importés dans des outils de gestion des stat
  
 L'interface de visualisation permet d'interroger les statistiques avec les fonctionnalités suivantes:
 -	Quels sont les mots-clés les plus fréquents.
--	Quels sont les recherches ne renvoyant aucun résultat.
+-	Quelles sont les recherches ne renvoyant aucun résultat.
 -	Limiter la recherche dans une fenêtre de temps.
 -	Exporter le rapport au format CSV.
