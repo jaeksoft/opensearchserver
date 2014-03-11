@@ -91,7 +91,7 @@ public abstract class TemplateAbstract {
 						indexType == null ? IndexType.LUCENE.name() : indexType
 								.name());
 				newConfig = StringUtils.replace(
-						writer.toString(),
+						newConfig,
 						"{remoteURI}",
 						remoteURI == null ? "" : StringEscapeUtils
 								.escapeXml(remoteURI.toString()));
