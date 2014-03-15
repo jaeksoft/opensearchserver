@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,10 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +64,17 @@ public class JsonUtils {
 		return mapper.readValue(file, typeReference);
 	}
 
+	public static <T> T getObject(InputStream inputStream,
+			TypeReference<T> typeReference) throws JsonParseException,
+			JsonMappingException, IOException {
+		return mapper.readValue(inputStream, typeReference);
+	}
+
+	public static <T> T getObject(Reader reader, TypeReference<T> typeReference)
+			throws JsonParseException, JsonMappingException, IOException {
+		return mapper.readValue(reader, typeReference);
+	}
+
 	public static String toJsonString(Object object)
 			throws JsonProcessingException {
 		return mapper.writeValueAsString(object);
@@ -68,6 +83,16 @@ public class JsonUtils {
 	public static void jsonToFile(Object object, File file)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		mapper.writeValue(file, object);
+	}
+
+	public static void jsonToStream(Object object, OutputStream outputStream)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		mapper.writeValue(outputStream, object);
+	}
+
+	public static void jsonToWriter(Object object, Writer writer)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		mapper.writeValue(writer, object);
 	}
 
 	public final static TypeReference<Map<String, String>> MapStringStringTypeRef = new TypeReference<Map<String, String>>() {

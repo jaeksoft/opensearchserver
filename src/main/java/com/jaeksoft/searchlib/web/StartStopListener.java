@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -141,21 +142,6 @@ public class StartStopListener implements ServletContextListener {
 		return version;
 	}
 
-	public static class ThreadedLoad implements Runnable {
-
-		public ThreadedLoad() {
-			new Thread(ClientCatalog.getThreadGroup(), this).start();
-		}
-
-		@Override
-		public void run() {
-			Logging.info("OSS starts loading index(es)");
-			ClientCatalog.openAll();
-			Logging.info("OSS ends loading index(es)");
-		}
-
-	}
-
 	private static final void start() {
 		setActive(true);
 
@@ -167,6 +153,7 @@ public class StartStopListener implements ServletContextListener {
 		try {
 			ClientFactory.setInstance(new ClientFactory());
 			TaskManager.getInstance().start();
+			ClusterManager.getInstance();
 		} catch (SearchLibException e) {
 			Logging.error(e);
 		}
@@ -190,6 +177,5 @@ public class StartStopListener implements ServletContextListener {
 			Logging.error(e);
 		}
 		start();
-		new ThreadedLoad();
 	}
 }

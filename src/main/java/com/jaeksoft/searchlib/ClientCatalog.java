@@ -132,21 +132,6 @@ public class ClientCatalog {
 		}
 	}
 
-	public static final void openAll() {
-		rwl.w.lock();
-		try {
-
-			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-				Logging.info("OSS loads index " + catalogItem.getIndexName());
-				getClient(catalogItem.getIndexName());
-			}
-		} catch (SearchLibException e) {
-			Logging.error(e);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	public static final void closeAll() {
 		rwl.w.lock();
 		try {
