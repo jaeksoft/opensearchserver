@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -40,8 +39,10 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class Logging {
@@ -55,38 +56,13 @@ public class Logging {
 	private static boolean showStackTrace = true;
 
 	private static void configure() {
-
-		Properties props = new Properties();
-		FileReader fileReader = null;
 		try {
-			File configLog = new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"log4j.properties");
-			if (!configLog.exists()) {
-				PropertyConfigurator.configure(getLoggerProperties());
-				return;
-			}
-			fileReader = new FileReader(configLog);
-			props.load(fileReader);
-			PropertyConfigurator.configure(props);
-		} catch (FileNotFoundException e) {
+			PropertyConfigurator.configure(getLoggerProperties(ClusterManager
+					.getInstanceId()));
+		} catch (Exception e) {
 			BasicConfigurator.configure();
 			e.printStackTrace();
-		} catch (IOException e) {
-			BasicConfigurator.configure();
-			e.printStackTrace();
-		} catch (SearchLibException e) {
-			BasicConfigurator.configure();
-			e.printStackTrace();
-		} finally {
-			if (fileReader != null)
-				try {
-					fileReader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 		}
-
 	}
 
 	public final static File getLogDirectory() {
@@ -100,7 +76,7 @@ public class Logging {
 		return dirLog.listFiles();
 	}
 
-	private final static Properties getLoggerProperties()
+	private final static Properties getLoggerProperties(String instanceId)
 			throws SearchLibException {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
@@ -112,9 +88,11 @@ public class Logging {
 			props.put("log4j.rootLogger", "INFO, R");
 		props.put("log4j.appender.R",
 				"org.apache.log4j.DailyRollingFileAppender");
-		props.put("log4j.appender.R.File", new File(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs"
-						+ File.separator + "oss.log").getAbsolutePath());
+		String logPath = StringUtils.fastConcat("logs", File.separator, "oss.",
+				instanceId, ".log");
+		File logFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				logPath);
+		props.put("log4j.appender.R.File", logFile.getAbsolutePath());
 		props.put("log4j.appender.R.DatePattern", "'.'yyyy-MM-dd");
 		props.put("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
 		props.put("log4j.appender.R.layout.ConversionPattern",

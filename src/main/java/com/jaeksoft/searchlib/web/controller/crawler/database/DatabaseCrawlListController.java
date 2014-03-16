@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.database;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.naming.NamingException;
@@ -83,7 +84,8 @@ public class DatabaseCrawlListController
 
 	@Override
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		getDatabaseCrawlList();
 		if (getSelectedCrawl() != null)
 			getCurrentCrawl().copyTo(getSelectedCrawl());

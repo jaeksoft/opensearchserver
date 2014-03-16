@@ -32,15 +32,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class ClusterInstance {
 
-	private final String hardwareAddress;
+	private final String id;
 	private URI uri = null;
 	private String login = null;
 	private String apiKey = null;
 	private ClusterStatus status = ClusterStatus.OFFLINE;
 	private Long fileTime = null;
 
-	public ClusterInstance(String hardwareAddress) {
-		this.hardwareAddress = hardwareAddress;
+	public ClusterInstance(String id) {
+		this.id = id;
 	}
 
 	public ClusterInstance() {
@@ -121,8 +121,8 @@ public class ClusterInstance {
 	/**
 	 * @return the hardwareAddress
 	 */
-	public String getHardwareAddress() {
-		return hardwareAddress;
+	public String getId() {
+		return id;
 	}
 
 }
