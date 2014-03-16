@@ -27,10 +27,9 @@
 			<rows>
 				<row>
 					<label value="Instance ID" />
+					<label value="@load(cluster.clusterManager.me.id)" />
 					<label
-						value="@load(cluster.clusterManager.me.hardwareAddress)" />
-					<label
-						value="The ID of the instance. Each instance must have an unique value (Mac address)" />
+						value="The ID of the instance. Each instance must have an unique value (Mac address by default)." />
 				</row>
 			</rows>
 		</grid>
@@ -74,7 +73,7 @@
 				<template name="model">
 					<row>
 						<label value="@load(each.uri)" />
-						<label value="@load(each.hardwareAddress)" />
+						<label value="@load(each.id)" />
 						<label value="@load(each.status)" />
 					</row>
 				</template>

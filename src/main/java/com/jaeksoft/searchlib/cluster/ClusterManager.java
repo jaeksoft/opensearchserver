@@ -27,7 +27,9 @@ package com.jaeksoft.searchlib.cluster;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -54,18 +56,20 @@ public class ClusterManager {
 
 	private final File clusterFile;
 
+	public final static String OSS_CLUSTER_NODES_DIRNAME = ".oss_cluster_nodes";
+
 	private ClusterManager(File instanceDataDir) throws JsonParseException,
 			JsonMappingException, IOException, URISyntaxException {
-		clusterDirectory = new File(instanceDataDir, ".oss_cluster_nodes");
+		clusterDirectory = new File(instanceDataDir, OSS_CLUSTER_NODES_DIRNAME);
 		if (!clusterDirectory.exists())
 			clusterDirectory.mkdir();
-		String hardwareAddress = NetworksUtils.getFirstHardwareAddress();
-		clusterFile = new File(clusterDirectory, hardwareAddress);
+		String instanceId = getInstanceId();
+		clusterFile = new File(clusterDirectory, instanceId);
 		if (clusterFile.exists() && clusterFile.length() > 0)
 			clusterInstance = JsonUtils.getObject(clusterFile,
 					ClusterInstance.class);
 		else {
-			clusterInstance = new ClusterInstance(hardwareAddress);
+			clusterInstance = new ClusterInstance(instanceId);
 			saveMe();
 		}
 	}
@@ -73,6 +77,16 @@ public class ClusterManager {
 	private static ClusterManager INSTANCE = null;
 
 	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
+
+	public final static String OSS_CLUSTER_ID = "oss.cluster.id";
+
+	public static final String getInstanceId() throws UnknownHostException,
+			SocketException, URISyntaxException {
+		String clusterId = System.getProperty(OSS_CLUSTER_ID);
+		if (clusterId == null)
+			clusterId = NetworksUtils.getFirstHardwareAddress();
+		return clusterId;
+	}
 
 	public static final ClusterManager getInstance() throws SearchLibException {
 		rwlInstance.r.lock();
@@ -132,6 +146,49 @@ public class ClusterManager {
 			JsonUtils.jsonToFile(clusterInstance, clusterFile);
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	private File getClientFile(File indexDir) {
+		File dir = new File(indexDir, OSS_CLUSTER_NODES_DIRNAME);
+		if (!dir.exists())
+			dir.mkdir();
+		return new File(dir, clusterInstance.getId());
+	}
+
+	public void openClient(File indexDir) throws IOException {
+		rwl.r.lock();
+		try {
+			File file = getClientFile(indexDir);
+			if (!file.exists())
+				file.createNewFile();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void closeClient(File indexDir) {
+		rwl.r.lock();
+		try {
+			File file = getClientFile(indexDir);
+			if (!file.exists())
+				return;
+			file.delete();
+		} finally {
+			rwl.r.unlock();
+		}
+
+	}
+
+	private void sendNotification(ClusterNotification notification) {
+		System.out.println("SEND NOTIF: " + notification.type);
+	}
+
+	public static void notify(ClusterNotification notification) {
+		try {
+			getInstance().sendNotification(notification);
+		} catch (Throwable e) {
+			Logging.warn(e);
 		}
 	}
 }

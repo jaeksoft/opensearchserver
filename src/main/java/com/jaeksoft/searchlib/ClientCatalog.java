@@ -47,6 +47,8 @@ import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
 import com.jaeksoft.searchlib.cluster.ClusterManager;
+import com.jaeksoft.searchlib.cluster.ClusterNotification;
+import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
@@ -95,8 +97,9 @@ public class ClientCatalog {
 	 * 
 	 * @param data_directory
 	 *            The directory which contain the indexes
+	 * @throws IOException
 	 */
-	public static final void init(File data_directory) {
+	public static final void init(File data_directory) throws IOException {
 		StartStopListener.start(data_directory);
 	}
 
@@ -393,14 +396,17 @@ public class ClientCatalog {
 			IOException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
+		ClientFactory.INSTANCE.versionFile.lock();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
-			cfr.rotate();
+			cfr.rotate(ClientFactory.INSTANCE.versionFile);
+			ClusterManager.notify(new ClusterNotification(Type.RELOAD_USER));
 		} finally {
 			cfr.abort();
+			ClientFactory.INSTANCE.versionFile.release();
 		}
 	}
 

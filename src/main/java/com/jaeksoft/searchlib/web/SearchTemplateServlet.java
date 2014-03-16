@@ -111,7 +111,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	private boolean setSnippetField(User user, ServletTransaction transaction)
 			throws SearchLibException, NamingException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, IOException {
 
 		String searchTemplate = transaction.getParameterString("qt.name");
 		String maxSnippetSize = transaction
@@ -148,7 +148,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 	}
 
 	private boolean setReturnField(User user, ServletTransaction transaction)
-			throws SearchLibException, NamingException {
+			throws SearchLibException, NamingException, IOException {
 		String searchTemplate = transaction.getParameterString("qt.name");
 		String returnField = transaction.getParameterString("returnfield");
 		Client client = transaction.getClient();
@@ -168,7 +168,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 	}
 
 	private boolean deletTemplate(User user, ServletTransaction transaction)
-			throws InterruptedException, SearchLibException, NamingException {
+			throws InterruptedException, SearchLibException, NamingException,
+			IOException {
 		String searchTemplate = transaction.getParameterString("qt.name");
 		Client client = transaction.getClient();
 		if (client.getRequestMap().get(searchTemplate) != null) {

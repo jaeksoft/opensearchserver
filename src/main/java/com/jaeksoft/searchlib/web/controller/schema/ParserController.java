@@ -97,7 +97,7 @@ public class ParserController extends CommonController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			Client client = getClient();
 			client.getParserSelector().replaceParserFactory(deleteParser, null);
 			client.saveParsers();
@@ -528,7 +528,8 @@ public class ParserController extends CommonController {
 		return parserSelector.getWebCrawlerDefaultParserName();
 	}
 
-	public void setWebDefaultParser(String value) throws SearchLibException {
+	public void setWebDefaultParser(String value) throws SearchLibException,
+			IOException {
 		ParserSelector parserSelector = getParserSelector();
 		if (parserSelector == null)
 			return;
@@ -543,7 +544,8 @@ public class ParserController extends CommonController {
 		return parserSelector.getFileCrawlerDefaultParserName();
 	}
 
-	public void setFileDefaultParser(String value) throws SearchLibException {
+	public void setFileDefaultParser(String value) throws SearchLibException,
+			IOException {
 		ParserSelector parserSelector = getParserSelector();
 		if (parserSelector == null)
 			return;

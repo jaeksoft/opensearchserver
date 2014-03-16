@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.io.IOException;
+
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
@@ -102,7 +104,8 @@ public class AlertController implements EventListener<Event> {
 	protected void onIgnore() throws SearchLibException {
 	}
 
-	protected void onYes() throws SearchLibException, InterruptedException {
+	protected void onYes() throws SearchLibException, InterruptedException,
+			IOException {
 	}
 
 	protected void onNo() throws SearchLibException {
