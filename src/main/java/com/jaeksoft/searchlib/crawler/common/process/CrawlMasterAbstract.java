@@ -188,7 +188,7 @@ public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T
 			if (config instanceof Client) {
 				try {
 					((Client) config).reload();
-				} catch (SearchLibException e) {
+				} catch (Exception e) {
 					setException(e);
 				}
 			}

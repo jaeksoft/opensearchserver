@@ -24,23 +24,69 @@
 
 package com.jaeksoft.searchlib.cluster;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.web.ActionServlet;
+
 public class ClusterNotification {
 
 	public enum Type {
-		RELOAD_USER, CLOSE_CLIENT;
+		RELOAD_USER, CLOSE_CLIENT, RELOAD_DATA;
 	}
 
 	public final Type type;
-	public final String indexName;
+	public final File indexDir;
 
 	public ClusterNotification(Type type) {
 		this.type = type;
-		this.indexName = null;
+		this.indexDir = null;
 	}
 
-	public ClusterNotification(Type type, String indexName) {
+	public ClusterNotification(Type type, File indexDir) {
 		this.type = type;
-		this.indexName = indexName;
+		this.indexDir = indexDir;
 	}
 
+	public void send(ClusterInstance clusterInstance)
+			throws SearchLibException, URISyntaxException {
+		if (clusterInstance == null)
+			return;
+		new NotificationThread(clusterInstance);
+	}
+
+	public class NotificationThread implements Runnable {
+
+		private final ClusterInstance clusterInstance;
+
+		private NotificationThread(ClusterInstance clusterInstance) {
+			this.clusterInstance = clusterInstance;
+			new Thread(ClientCatalog.getThreadGroup(), this).start();
+		}
+
+		@Override
+		public void run() {
+			try {
+				switch (type) {
+				case CLOSE_CLIENT:
+					ActionServlet.close(clusterInstance.getUri(),
+							indexDir.getName(), clusterInstance.getLogin(),
+							clusterInstance.getApiKey());
+					break;
+				case RELOAD_DATA:
+					ActionServlet.reload(clusterInstance.getUri(),
+							indexDir.getName(), clusterInstance.getLogin(),
+							clusterInstance.getApiKey());
+					break;
+				default:
+					Logging.warn("Nothing to do");
+				}
+			} catch (Throwable t) {
+				Logging.error(t);
+			}
+		}
+	}
 }

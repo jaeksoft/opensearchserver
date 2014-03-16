@@ -183,4 +183,5 @@ public class HomeController extends CommonController {
 			return;
 		catalogItem.computeInfos();
 	}
+
 }

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -59,7 +61,8 @@ public class TaskDeleteAll extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		taskLog.setInfo("Delete all started");
 		client.deleteAll();
 		taskLog.setInfo("Index truncated");

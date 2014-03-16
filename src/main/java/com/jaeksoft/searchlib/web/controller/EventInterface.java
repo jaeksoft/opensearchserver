@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,9 +24,6 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import org.zkoss.bind.annotation.BindingParam;
-import org.zkoss.bind.annotation.GlobalCommand;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -37,47 +34,28 @@ import com.jaeksoft.searchlib.user.User;
 
 public interface EventInterface {
 
-	@GlobalCommand
 	void eventClientChange() throws SearchLibException;
 
-	@GlobalCommand
-	void eventClientSwitch(@BindingParam("client") Client client)
+	void eventClientSwitch(Client client) throws SearchLibException;
+
+	void eventFlushPrivileges(User user) throws SearchLibException;
+
+	void eventDocumentUpdate(Client client) throws SearchLibException;
+
+	void eventRequestListChange(Client client) throws SearchLibException;
+
+	void eventSchemaChange(Client client) throws SearchLibException;
+
+	void eventEditRequest(AbstractRequest request) throws SearchLibException;
+
+	void eventEditScheduler(JobItem jobItem) throws SearchLibException;
+
+	void eventEditRequestResult(AbstractResult<?> result)
 			throws SearchLibException;
 
-	@GlobalCommand
-	void eventFlushPrivileges(@BindingParam("user") User user)
+	void eventEditFileRepository(FilePathItem filePathItem)
 			throws SearchLibException;
 
-	@GlobalCommand
-	void eventDocumentUpdate(@BindingParam("client") Client client)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventRequestListChange(@BindingParam("client") Client client)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventSchemaChange(@BindingParam("client") Client client)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventEditRequest(@BindingParam("request") AbstractRequest request)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventEditScheduler(@BindingParam("jobItem") JobItem jobItem)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventEditRequestResult(@BindingParam("result") AbstractResult<?> result)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventEditFileRepository(
-			@BindingParam("filePathItem") FilePathItem filePathItem)
-			throws SearchLibException;
-
-	@GlobalCommand
-	void eventLogout(@BindingParam("user") User user) throws SearchLibException;
+	void eventLogout(User user) throws SearchLibException;
 
 }

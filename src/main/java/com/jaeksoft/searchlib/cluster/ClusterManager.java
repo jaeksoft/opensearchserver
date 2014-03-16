@@ -33,6 +33,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
@@ -50,7 +51,7 @@ public class ClusterManager {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private final ClusterInstance clusterInstance;
+	private final ClusterInstance me;
 
 	private final File clusterDirectory;
 
@@ -58,20 +59,31 @@ public class ClusterManager {
 
 	public final static String OSS_CLUSTER_NODES_DIRNAME = ".oss_cluster_nodes";
 
+	public final VersionFile versionFile;
+
+	public final TreeMap<String, ClusterInstance> instancesMap;
+
+	public List<ClusterInstance> instancesList;
+
+	public long listVersion = -1;
+
 	private ClusterManager(File instanceDataDir) throws JsonParseException,
 			JsonMappingException, IOException, URISyntaxException {
 		clusterDirectory = new File(instanceDataDir, OSS_CLUSTER_NODES_DIRNAME);
 		if (!clusterDirectory.exists())
 			clusterDirectory.mkdir();
+		versionFile = new VersionFile(clusterDirectory);
 		String instanceId = getInstanceId();
 		clusterFile = new File(clusterDirectory, instanceId);
 		if (clusterFile.exists() && clusterFile.length() > 0)
-			clusterInstance = JsonUtils.getObject(clusterFile,
-					ClusterInstance.class);
+			me = JsonUtils.getObject(clusterFile, ClusterInstance.class);
 		else {
-			clusterInstance = new ClusterInstance(instanceId);
+			me = new ClusterInstance(instanceId);
 			saveMe();
 		}
+		instancesMap = new TreeMap<String, ClusterInstance>();
+		instancesList = null;
+		getInstances();
 	}
 
 	private static ClusterManager INSTANCE = null;
@@ -112,48 +124,81 @@ public class ClusterManager {
 	}
 
 	public ClusterInstance getMe() {
-		return clusterInstance;
+		return me;
 	}
 
-	public Collection<ClusterInstance> getInstances() {
-		rwl.r.lock();
+	public Collection<ClusterInstance> getInstances() throws IOException {
+		versionFile.sharedLock();
 		try {
-			List<ClusterInstance> clusterInstances = new ArrayList<ClusterInstance>();
-			File[] files = clusterDirectory
-					.listFiles((FileFilter) FileFilterUtils.fileFileFilter());
-			for (File file : files) {
-				try {
-					clusterInstances.add(JsonUtils.getObject(file,
-							ClusterInstance.class));
-				} catch (JsonParseException e) {
-					Logging.warn(e);
-				} catch (JsonMappingException e) {
-					Logging.warn(e);
-				} catch (IOException e) {
-					Logging.warn(e);
-				}
+			rwl.r.lock();
+			try {
+				if (instancesList != null
+						&& listVersion == versionFile.getVersion())
+					return instancesList;
+			} finally {
+				rwl.r.unlock();
 			}
-			return clusterInstances;
+			rwl.w.lock();
+			try {
+				if (instancesList != null
+						&& listVersion == versionFile.getVersion())
+					return instancesList;
+				File[] files = clusterDirectory
+						.listFiles((FileFilter) FileFilterUtils
+								.fileFileFilter());
+				for (File file : files) {
+					String name = file.getName();
+					if (VersionFile.FILENAME.equals(name))
+						continue;
+					try {
+						instancesMap.put(name, JsonUtils.getObject(file,
+								ClusterInstance.class));
+					} catch (JsonParseException e) {
+						Logging.warn(e);
+					} catch (JsonMappingException e) {
+						Logging.warn(e);
+					} catch (IOException e) {
+						Logging.warn(e);
+					}
+				}
+				instancesList = new ArrayList<ClusterInstance>(
+						instancesMap.values());
+				listVersion = versionFile.getVersion();
+				return instancesList;
+			} finally {
+				rwl.w.unlock();
+			}
 		} finally {
-			rwl.r.unlock();
+			versionFile.release();
 		}
+
 	}
 
 	public void saveMe() throws JsonGenerationException, JsonMappingException,
 			IOException {
-		rwl.w.lock();
+		versionFile.lock();
 		try {
-			JsonUtils.jsonToFile(clusterInstance, clusterFile);
+			rwl.w.lock();
+			try {
+				JsonUtils.jsonToFile(me, clusterFile);
+				versionFile.increment();
+			} finally {
+				rwl.w.unlock();
+			}
 		} finally {
-			rwl.w.unlock();
+			versionFile.release();
 		}
 	}
 
-	private File getClientFile(File indexDir) {
+	private File getClientDir(File indexDir) {
 		File dir = new File(indexDir, OSS_CLUSTER_NODES_DIRNAME);
 		if (!dir.exists())
 			dir.mkdir();
-		return new File(dir, clusterInstance.getId());
+		return dir;
+	}
+
+	private File getClientFile(File indexDir) {
+		return new File(getClientDir(indexDir), me.getId());
 	}
 
 	public void openClient(File indexDir) throws IOException {
@@ -177,11 +222,25 @@ public class ClusterManager {
 		} finally {
 			rwl.r.unlock();
 		}
-
 	}
 
-	private void sendNotification(ClusterNotification notification) {
-		System.out.println("SEND NOTIF: " + notification.type);
+	private void sendNotification(ClusterNotification notification)
+			throws IOException {
+		File[] files = getClientDir(notification.indexDir).listFiles(
+				(FileFilter) FileFilterUtils.fileFileFilter());
+		if (files == null)
+			return;
+		getInstances();
+		for (File file : files) {
+			String id = file.getName();
+			if (id.equals(me.getId()))
+				continue;
+			try {
+				notification.send(instancesMap.get(id));
+			} catch (Throwable t) {
+				Logging.warn(t);
+			}
+		}
 	}
 
 	public static void notify(ClusterNotification notification) {

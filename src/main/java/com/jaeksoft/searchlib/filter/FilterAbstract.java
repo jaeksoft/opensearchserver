@@ -197,7 +197,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	}
 
 	protected ResultSearchSingle getResult(Config config, Query query,
-			GeoParameters geoParams, Timer timer) throws SearchLibException {
+			GeoParameters geoParams, Timer timer) throws SearchLibException,
+			IOException {
 		Timer t = new Timer(timer, "Filter hit: " + query.toString());
 		SearchFilterRequest filterRequest = new SearchFilterRequest(config,
 				query, this);

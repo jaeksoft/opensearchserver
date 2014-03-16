@@ -63,8 +63,6 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		if (!client.isOnline())
-			return null;
 		return client.getStatistics().getNumDocs();
 	}
 

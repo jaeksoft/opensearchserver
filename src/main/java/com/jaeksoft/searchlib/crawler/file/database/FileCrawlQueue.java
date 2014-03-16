@@ -163,7 +163,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	protected boolean deleteCollection(List<String> workDeleteUriList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+			CrawlStatistics sessionStats) throws SearchLibException,
+			IOException {
 		if (workDeleteUriList.size() == 0)
 			return false;
 

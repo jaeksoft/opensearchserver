@@ -316,7 +316,7 @@ public class FileManager extends AbstractManager {
 	}
 
 	public final boolean deleteByUri(List<String> rowToDelete)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 
 		if (rowToDelete == null
 				|| (rowToDelete != null && rowToDelete.isEmpty()))
@@ -494,7 +494,7 @@ public class FileManager extends AbstractManager {
 	}
 
 	public int delete(AbstractSearchRequest searchRequest, TaskLog taskLog)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			int total = 0;
@@ -551,7 +551,8 @@ public class FileManager extends AbstractManager {
 	}
 
 	public long synchronizeIndex(AbstractSearchRequest searchRequest,
-			int bufferSize, TaskLog taskLog) throws SearchLibException {
+			int bufferSize, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		String targetField = findIndexedFieldOfTargetIndex(
 				targetClient.getFileCrawlerFieldMap(),
 				FileItemFieldEnum.INSTANCE.uri.getName());

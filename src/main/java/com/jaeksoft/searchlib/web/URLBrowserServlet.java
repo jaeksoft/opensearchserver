@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.web;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.naming.NamingException;
 
@@ -73,6 +74,8 @@ public class URLBrowserServlet extends AbstractServlet {
 			throw new ServletException(e);
 		} catch (ParseException e) {
 			throw new ServletException(e);
+		} catch (IOException e) {
+			throw new ServletException(e);
 		}
 
 	}
@@ -106,7 +109,7 @@ public class URLBrowserServlet extends AbstractServlet {
 	}
 
 	private void deleteAll(UrlManager urlManager, ServletTransaction transaction)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		urlManager.deleteAll(null);
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Info", "URL database truncated");
