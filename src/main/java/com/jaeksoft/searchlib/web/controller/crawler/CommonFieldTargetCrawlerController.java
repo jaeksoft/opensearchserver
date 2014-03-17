@@ -157,7 +157,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 
 	@Command
 	public abstract void onSave() throws InterruptedException,
-			SearchLibException;
+			SearchLibException, IOException;
 
 	@Command
 	public abstract void onNew() throws SearchLibException;

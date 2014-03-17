@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -27,10 +27,9 @@
 			<rows>
 				<row>
 					<label value="Instance ID" />
-					<intbox cols="5"
-						value="@bind(cluster.clusterInstanceId.value)" />
+					<label value="@load(cluster.clusterManager.me.id)" />
 					<label
-						value="The ID of the instance. Each instance must have an unique value." />
+						value="The ID of the instance. Each instance must have an unique value (Mac address by default)." />
 				</row>
 			</rows>
 		</grid>
@@ -38,23 +37,26 @@
 	<groupbox mold="3d">
 		<caption label="Register to a cluster" />
 		<label>
-			Enter the URL of an existing instance in the cluster
+			Enter the access parameters for this instance in the cluster
 		</label>
 		<grid>
 			<columns>
 				<column hflex="min" label="URL" />
-				<column hflex="min" label="Login" />
-				<column hflex="min" label="API KEY" />
 				<column hflex="min" label="Action" />
+				<column hflex="min" label="Status" />
 			</columns>
 			<rows>
 				<row>
-					<textbox cols="60" />
-					<textbox cols="20" />
-					<textbox cols="32" />
+					<textbox cols="60" value="@bind(cluster.url)" />
+					<label
+						value="@load(cluster.clusterManager.me.status)" />
 					<cell>
-						<button label="Check" />
-						<button label="Register" />
+						<button label="Set Offline"
+							visible="@load(cluster.clusterManager.me.online)"
+							onClick="@command('onSetOffline')" />
+						<button label="Set Online"
+							visible="@load(!cluster.clusterManager.me.online)"
+							onClick="@command('onSetOnline')" />
 					</cell>
 				</row>
 			</rows>
@@ -67,8 +69,6 @@
 				<column label="URL" hflex="min" />
 				<column label="ID" hflex="min" />
 				<column label="Status" hflex="min" />
-				<column label="Date" hflex="min" />
-				<column label="Action" />
 			</columns>
 			<rows>
 				<template name="model">
@@ -76,7 +76,6 @@
 						<label value="@load(each.uri)" />
 						<label value="@load(each.id)" />
 						<label value="@load(each.status)" />
-						<label value="@load(each.statusTime)" />
 					</row>
 				</template>
 			</rows>

@@ -313,7 +313,7 @@ public final class QueryController extends AbstractQueryController {
 		}
 
 		@Override
-		public void onYes() throws SearchLibException {
+		public void onYes() throws SearchLibException, IOException {
 			Client client = getClient();
 			client.getRequestMap().remove(selectedRequest);
 			client.saveRequests();

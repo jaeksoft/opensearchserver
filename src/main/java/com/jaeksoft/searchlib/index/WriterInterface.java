@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -32,31 +33,33 @@ import com.jaeksoft.searchlib.schema.Schema;
 
 public interface WriterInterface {
 
-	public void deleteAll() throws SearchLibException;
+	public void deleteAll() throws SearchLibException, IOException;
 
 	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException;
+			Collection<String> values) throws SearchLibException, IOException;
 
 	public int deleteDocuments(AbstractSearchRequest query)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	public void addUpdateInterface(UpdateInterfaces updateInterface)
 			throws SearchLibException;
 
 	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException;
+			Collection<IndexDocument> documents) throws SearchLibException,
+			IOException;
 
-	public void optimize() throws SearchLibException;
+	public void optimize() throws SearchLibException, IOException;
 
 	public boolean isOptimizing();
 
-	public void mergeData(WriterInterface source) throws SearchLibException;
+	public void mergeData(WriterInterface source) throws SearchLibException,
+			IOException;
 
 	public boolean isMerging();
 }

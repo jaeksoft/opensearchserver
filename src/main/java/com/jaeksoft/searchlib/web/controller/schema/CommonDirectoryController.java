@@ -59,7 +59,7 @@ public abstract class CommonDirectoryController<T> extends CommonController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			getManager().delete(deleteListName);
 			getClient().getSchema().recompileAnalyzers();
 			getClient().reload();

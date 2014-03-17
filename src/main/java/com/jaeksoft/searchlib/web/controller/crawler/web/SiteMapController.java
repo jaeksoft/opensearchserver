@@ -63,7 +63,7 @@ public class SiteMapController extends CrawlerController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			getSiteMapList().remove(siteMapItem);
 			getClient().saveSiteMapList();
 			onCancel();
@@ -126,7 +126,8 @@ public class SiteMapController extends CrawlerController {
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		SiteMapList siteMapList = getSiteMapList();
 		if (siteMapList == null)
 			return;

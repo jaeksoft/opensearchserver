@@ -47,7 +47,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.index.IndexSingle;
+import com.jaeksoft.searchlib.index.IndexLucene;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -121,7 +121,7 @@ public class StandardLearner implements LearnerInterface {
 			schema.setField(fieldName, Stored.NO, Indexed.YES, TermVector.YES,
 					"StandardAnalyzer");
 		}
-		TermVectorCache termVectorCache = ((IndexSingle) learnerClient
+		TermVectorCache termVectorCache = ((IndexLucene) learnerClient
 				.getIndex()).getTermVectorCache();
 		termVectorCache.setMaxSize(learnerClient.getStatistics().getNumDocs());
 		return boostMap.values();
@@ -233,7 +233,7 @@ public class StandardLearner implements LearnerInterface {
 	@Override
 	public void remove(Client client, String searchRequest, String field,
 			Collection<String> values, FieldMap sourceFieldMap)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			checkIndex(sourceFieldMap);

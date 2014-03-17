@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class RendererController extends CommonController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			Client client = getClient();
 			client.getRendererManager().remove(deleteRenderer);
 			client.delete(deleteRenderer);
@@ -302,8 +303,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onSave() throws SearchLibException,
-			UnsupportedEncodingException {
+	public void onSave() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -316,8 +316,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onSaveAndClose() throws UnsupportedEncodingException,
-			SearchLibException {
+	public void onSaveAndClose() throws SearchLibException, IOException {
 		onSave();
 		onCancel();
 	}

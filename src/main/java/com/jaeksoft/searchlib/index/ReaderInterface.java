@@ -55,13 +55,14 @@ public interface ReaderInterface {
 
 	public void close();
 
-	public Collection<?> getFieldNames() throws SearchLibException;
+	public Collection<?> getFieldNames() throws SearchLibException, IOException;
 
-	public int getDocFreq(Term term) throws SearchLibException;
+	public int getDocFreq(Term term) throws SearchLibException, IOException;
 
-	public TermEnum getTermEnum() throws SearchLibException;
+	public TermEnum getTermEnum() throws SearchLibException, IOException;
 
-	public TermEnum getTermEnum(Term term) throws SearchLibException;
+	public TermEnum getTermEnum(Term term) throws SearchLibException,
+			IOException;
 
 	public TermDocs getTermDocs(Term term) throws IOException,
 			SearchLibException;
@@ -87,19 +88,20 @@ public interface ReaderInterface {
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
 
-	public abstract MoreLikeThis getMoreLikeThis() throws SearchLibException;
+	public abstract MoreLikeThis getMoreLikeThis() throws SearchLibException,
+			IOException;
 
 	public AbstractResult<?> request(AbstractRequest request)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	public IndexStatistics getStatistics() throws IOException,
 			SearchLibException;
 
-	public long getVersion() throws SearchLibException;
+	public long getVersion() throws SearchLibException, IOException;
 
-	public void reload() throws SearchLibException;
+	public void reload() throws SearchLibException, IOException;
 
 }

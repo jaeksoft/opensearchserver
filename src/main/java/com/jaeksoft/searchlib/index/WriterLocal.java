@@ -65,9 +65,9 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexDirectory indexDirectory;
 
-	private IndexSingle indexSingle;
+	private IndexLucene indexSingle;
 
-	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
+	protected WriterLocal(IndexConfig indexConfig, IndexLucene indexSingle,
 			IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
 		this.indexSingle = indexSingle;
@@ -172,7 +172,7 @@ public class WriterLocal extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (updated) {
-				indexSingle.reload();
+				indexSingle.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(document);
@@ -211,7 +211,7 @@ public class WriterLocal extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (count > 0) {
-				indexSingle.reload();
+				indexSingle.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(documents);
@@ -302,7 +302,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteDocuments(new Term(field, value));
 			close(indexWriter);
 			indexWriter = null;
-			indexSingle.reload();
+			indexSingle.reloadNoLock();
 			l = l - indexSingle.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
@@ -350,7 +350,7 @@ public class WriterLocal extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (terms.length > 0)
-				indexSingle.reload();
+				indexSingle.reloadNoLock();
 			l = l - indexSingle.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
@@ -411,7 +411,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteDocuments(query.getQuery());
 			close(indexWriter);
 			indexWriter = null;
-			indexSingle.reload();
+			indexSingle.reloadNoLock();
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
@@ -443,7 +443,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteAll();
 			close(indexWriter);
 			indexWriter = null;
-			indexSingle.reload();
+			indexSingle.reloadNoLock();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -473,7 +473,7 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.addIndexes(directory.getDirectory());
 			close(indexWriter);
 			indexWriter = null;
-			indexSingle.reload();
+			indexSingle.reloadNoLock();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

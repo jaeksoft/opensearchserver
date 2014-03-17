@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.scheduler;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class SchedulerEditController extends SchedulerController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			Client client = getClient();
 			client.getJobList().remove(deleteJob.getName());
 			client.saveJobs();
@@ -245,7 +246,8 @@ public class SchedulerEditController extends SchedulerController {
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		Client client = getClient();
 		if (client == null)
 			return;

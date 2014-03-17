@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.rest;
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.AfterCompose;
@@ -96,7 +98,8 @@ public class RestCrawlController
 
 	@Override
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		getRestCrawlList();
 		if (getSelectedCrawl() != null)
 			getCurrentCrawl().copyTo(getSelectedCrawl());

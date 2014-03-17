@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -59,6 +59,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class Client extends Config {
 
@@ -242,7 +243,7 @@ public class Client extends Config {
 
 	private final int deleteUniqueKeyList(int totalCount, int docCount,
 			Collection<String> deleteList, InfoCallback infoCallBack)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		docCount += deleteDocuments(null, deleteList);
 		StringBuilder sb = new StringBuilder();
 		sb.append(docCount);
@@ -284,7 +285,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocument(String field, String value)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Timer timer = new Timer("Delete document " + field + ": " + value);
 		try {
 			return getIndexAbstract().deleteDocument(getSchema(), field, value);
@@ -294,7 +295,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(String field, Collection<String> values)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Timer timer = new Timer("Delete " + values.size() + " documents("
 				+ field + ")");
 		try {
@@ -306,7 +307,7 @@ public class Client extends Config {
 	}
 
 	public int deleteDocuments(AbstractSearchRequest searchRequest)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
 			return getIndexAbstract().deleteDocuments(searchRequest);
@@ -315,7 +316,7 @@ public class Client extends Config {
 		}
 	}
 
-	public void optimize() throws SearchLibException {
+	public void optimize() throws SearchLibException, IOException {
 		Timer timer = new Timer("Optimize");
 		try {
 			getIndexAbstract().optimize();
@@ -330,8 +331,6 @@ public class Client extends Config {
 
 	public String getOptimizationStatus() throws IOException,
 			SearchLibException {
-		if (!isOnline())
-			return "Unknown";
 		if (isOptimizing())
 			return "Running";
 		return Boolean.toString(getIndexAbstract().getStatistics()
@@ -339,8 +338,6 @@ public class Client extends Config {
 	}
 
 	public String getMergeStatus() {
-		if (!isOnline())
-			return "Unknown";
 		return isMerging() ? "Merging" : null;
 	}
 
@@ -348,7 +345,7 @@ public class Client extends Config {
 		return getIndexAbstract().isMerging();
 	}
 
-	public void deleteAll() throws SearchLibException {
+	public void deleteAll() throws SearchLibException, IOException {
 		Timer timer = new Timer("DeleteAll");
 		try {
 			getIndexAbstract().deleteAll();
@@ -357,23 +354,14 @@ public class Client extends Config {
 		}
 	}
 
-	public void reload() throws SearchLibException {
+	public void reload() throws SearchLibException, IOException {
 		Timer timer = new Timer("Reload");
 		try {
 			getIndexAbstract().reload();
+			PushEvent.eventClientChange.publish(this);
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
-	}
-
-	public void setOnline(boolean online) throws SearchLibException {
-		if (online == getIndexAbstract().isOnline())
-			return;
-		getIndexAbstract().setOnline(online);
-	}
-
-	public boolean isOnline() {
-		return getIndexAbstract().isOnline();
 	}
 
 	public AbstractResult<?> request(AbstractRequest request)
@@ -404,7 +392,7 @@ public class Client extends Config {
 	}
 
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		return getIndexAbstract().explain(request, docId, bHtml);
 	}
 
@@ -422,7 +410,8 @@ public class Client extends Config {
 		return getIndexAbstract().getStatistics();
 	}
 
-	public TermEnum getTermEnum(Term term) throws SearchLibException {
+	public TermEnum getTermEnum(Term term) throws SearchLibException,
+			IOException {
 		return getIndexAbstract().getTermEnum(term);
 	}
 
@@ -440,7 +429,8 @@ public class Client extends Config {
 		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
 	}
 
-	public void mergeData(Client sourceClient) throws SearchLibException {
+	public void mergeData(Client sourceClient) throws SearchLibException,
+			IOException {
 		getIndexAbstract().mergeData(sourceClient.getIndexAbstract());
 	}
 }

@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.cluster;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -43,7 +44,7 @@ public class ClusterInfoResult extends CommonResult {
 	public final long time;
 	public final int instancesNumber;
 
-	public ClusterInfoResult() throws SearchLibException {
+	public ClusterInfoResult() throws SearchLibException, IOException {
 		id = ClientFactory.INSTANCE.getClusterInstanceId().getValue();
 		time = System.currentTimeMillis();
 		Collection<ClusterInstance> list = ClientCatalog.getClusterManager()

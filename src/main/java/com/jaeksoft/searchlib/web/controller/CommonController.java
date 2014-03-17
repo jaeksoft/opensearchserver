@@ -43,6 +43,9 @@ import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Session;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.EventQueues;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Tab;
 
@@ -61,7 +64,8 @@ import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 
-public abstract class CommonController implements EventInterface {
+public abstract class CommonController implements EventInterface,
+		EventListener<Event> {
 
 	protected transient Component component;
 
@@ -75,6 +79,53 @@ public abstract class CommonController implements EventInterface {
 			@ContextParam(ContextType.COMPONENT) Component component,
 			@ContextParam(ContextType.VIEW) Component view) {
 		this.component = component;
+		EventQueues.lookup(PushEvent.QUEUE_NAME, EventQueues.DESKTOP, true)
+				.subscribe(this);
+		EventQueues.lookup(PushEvent.QUEUE_NAME, EventQueues.APPLICATION, true)
+				.subscribe(this);
+		EventQueues.lookup(PushEvent.QUEUE_NAME, EventQueues.SESSION, true)
+				.subscribe(this);
+	}
+
+	@Override
+	public void onEvent(Event event) throws Exception {
+		Object data = event.getData();
+		System.out.println("Event: " + event + " data: " + data);
+		switch (PushEvent.valueOf(event.getName())) {
+		case eventClientChange:
+			eventClientChange();
+			break;
+		case eventClientSwitch:
+			eventClientSwitch((Client) data);
+			break;
+		case eventDocumentUpdate:
+			eventDocumentUpdate((Client) data);
+			break;
+		case eventEditFileRepository:
+			eventEditFileRepository((FilePathItem) data);
+			break;
+		case eventEditRequest:
+			eventEditRequest((AbstractRequest) data);
+			break;
+		case eventEditRequestResult:
+			eventEditRequestResult((AbstractResult<?>) data);
+			break;
+		case eventEditScheduler:
+			eventEditScheduler((JobItem) data);
+			break;
+		case eventFlushPrivileges:
+			eventFlushPrivileges((User) data);
+			break;
+		case eventLogout:
+			eventLogout((User) data);
+			break;
+		case eventRequestListChange:
+			eventRequestListChange((Client) data);
+			break;
+		case eventSchemaChange:
+			eventSchemaChange((Client) data);
+			break;
+		}
 	}
 
 	final protected String getExecutionParameter(String name) {
@@ -272,45 +323,35 @@ public abstract class CommonController implements EventInterface {
 	protected abstract void reset() throws SearchLibException;
 
 	@Override
-	@GlobalCommand
 	public void eventClientChange() throws SearchLibException {
 		Logging.debug("eventClientChange " + this);
 		refresh();
 	}
 
 	@Override
-	@GlobalCommand
-	public void eventEditRequest(
-			@BindingParam("request") AbstractRequest request)
+	public void eventEditRequest(AbstractRequest request)
 			throws SearchLibException {
 		Logging.debug("eventEditRequest " + this);
 	}
 
-	@GlobalCommand
 	@Override
-	public void eventEditScheduler(@BindingParam("jobItem") JobItem jobItem)
-			throws SearchLibException {
+	public void eventEditScheduler(JobItem jobItem) throws SearchLibException {
 		Logging.debug("eventEditScheduler " + this);
 	}
 
-	@GlobalCommand
 	@Override
-	public void eventEditFileRepository(
-			@BindingParam("filePathItem") FilePathItem filePathItem)
+	public void eventEditFileRepository(FilePathItem filePathItem)
 			throws SearchLibException {
 		Logging.debug("eventEditFileRepository " + this);
 	}
 
 	@Override
-	@GlobalCommand
-	public void eventEditRequestResult(
-			@BindingParam("result") AbstractResult<?> result)
+	public void eventEditRequestResult(AbstractResult<?> result)
 			throws SearchLibException {
 		Logging.debug("eventEditRequestResult " + this);
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventClientSwitch(Client client) throws SearchLibException {
 		if (client == null)
 			return;
@@ -319,36 +360,32 @@ public abstract class CommonController implements EventInterface {
 			return;
 		if (!client.getIndexName().equals(currentClient.getIndexName()))
 			return;
+		setClient(null);
 		refresh();
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventFlushPrivileges(User user) throws SearchLibException {
 		Logging.debug("eventFlushPrivileges " + this);
 		refresh();
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventDocumentUpdate(Client client) throws SearchLibException {
 		Logging.debug("eventDocumentUpdate " + this);
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventRequestListChange(Client client) throws SearchLibException {
 		Logging.debug("eventRequestListChange " + this);
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventSchemaChange(Client client) throws SearchLibException {
 		Logging.debug("eventSchemaChange " + this);
 	}
 
 	@Override
-	@GlobalCommand
 	public void eventLogout(User user) throws SearchLibException {
 		Logging.debug("eventLogout " + this);
 		refresh();
