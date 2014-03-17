@@ -183,7 +183,7 @@ public class PrivilegesController extends CommonController {
 		if (selectedUserName != null)
 			user.copyTo(ClientCatalog.getUserList().get(selectedUserName));
 		else
-			ClientCatalog.getUserList().add(user);
+			ClientCatalog.getUserList().add(user, true);
 		ClientCatalog.saveUserList();
 		flushPrivileges(user);
 		onCancel();

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,7 +46,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
 	public Client getClient() {
 		try {
-			return ClientCatalog.getClient(indexName);
+			return ClientCatalog.getLoadedClient(indexName);
 		} catch (SearchLibException e) {
 			Logging.error(e);
 			return null;

@@ -65,9 +65,9 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexDirectory indexDirectory;
 
-	private IndexSingle indexSingle;
+	private IndexLucene indexSingle;
 
-	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
+	protected WriterLocal(IndexConfig indexConfig, IndexLucene indexSingle,
 			IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
 		this.indexSingle = indexSingle;

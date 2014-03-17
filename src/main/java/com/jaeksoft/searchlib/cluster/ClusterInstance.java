@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.cluster;
 
 import java.net.URI;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -34,8 +35,6 @@ public class ClusterInstance {
 
 	private final String id;
 	private URI uri = null;
-	private String login = null;
-	private String apiKey = null;
 	private ClusterStatus status = ClusterStatus.OFFLINE;
 	private Long fileTime = null;
 
@@ -63,33 +62,12 @@ public class ClusterInstance {
 	}
 
 	/**
-	 * @return the login
+	 * 
+	 * @return if the instance is online
 	 */
-	public String getLogin() {
-		return login;
-	}
-
-	/**
-	 * @param login
-	 *            the login to set
-	 */
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
-	/**
-	 * @return the apiKey
-	 */
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	/**
-	 * @param apiKey
-	 *            the apiKey to set
-	 */
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
+	@JsonIgnore
+	public boolean isOnline() {
+		return status == ClusterStatus.ONLINE;
 	}
 
 	/**

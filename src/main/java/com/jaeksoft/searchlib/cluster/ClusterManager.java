@@ -40,8 +40,10 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -225,18 +227,19 @@ public class ClusterManager {
 	}
 
 	private void sendNotification(ClusterNotification notification)
-			throws IOException {
+			throws IOException, SearchLibException {
 		File[] files = getClientDir(notification.indexDir).listFiles(
 				(FileFilter) FileFilterUtils.fileFileFilter());
 		if (files == null)
 			return;
 		getInstances();
+		User user = ClientCatalog.getUserList().getFirstAdmin();
 		for (File file : files) {
 			String id = file.getName();
 			if (id.equals(me.getId()))
 				continue;
 			try {
-				notification.send(instancesMap.get(id));
+				notification.send(instancesMap.get(id), user);
 			} catch (Throwable t) {
 				Logging.warn(t);
 			}

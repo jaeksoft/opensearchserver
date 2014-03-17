@@ -244,7 +244,7 @@ public class IndexConfig {
 	public IndexAbstract getNewIndex(File configDir,
 			boolean createIndexIfNotExists) throws IOException,
 			URISyntaxException, SearchLibException, JSONException {
-		return new IndexSingle(configDir, this, createIndexIfNotExists);
+		return new IndexLucene(configDir, this, createIndexIfNotExists);
 	}
 
 }

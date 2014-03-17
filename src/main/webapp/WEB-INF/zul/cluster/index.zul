@@ -42,20 +42,21 @@
 		<grid>
 			<columns>
 				<column hflex="min" label="URL" />
-				<column hflex="min" label="Login" />
-				<column hflex="min" label="API KEY" />
 				<column hflex="min" label="Action" />
 				<column hflex="min" label="Status" />
 			</columns>
 			<rows>
 				<row>
 					<textbox cols="60" value="@bind(cluster.url)" />
-					<textbox cols="20" value="@bind(cluster.login)" />
 					<label
 						value="@load(cluster.clusterManager.me.status)" />
 					<cell>
-						<button label="Set Offline" />
-						<button label="Set Online" />
+						<button label="Set Offline"
+							visible="@load(cluster.clusterManager.me.online)"
+							onClick="@command('onSetOffline')" />
+						<button label="Set Online"
+							visible="@load(!cluster.clusterManager.me.online)"
+							onClick="@command('onSetOnline')" />
 					</cell>
 				</row>
 			</rows>

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -43,6 +44,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public class UserList {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
+
+	private User firstAdmin;
 
 	private Map<String, User> users;
 
@@ -55,15 +58,19 @@ public class UserList {
 	public UserList() {
 		users = new TreeMap<String, User>();
 		key = null;
-
+		firstAdmin = null;
 	}
 
-	public boolean add(User user) {
+	public boolean add(User user, boolean checkAdminFirst)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
 			if (users.containsKey(user.getName()))
 				return false;
+			if (checkAdminFirst && !user.isAdmin() && findFirstAdmin() == null)
+				throw new SearchLibException("The first user must be an admin");
 			users.put(user.getName(), user);
+			firstAdmin = null;
 			return true;
 		} finally {
 			rwl.w.unlock();
@@ -73,6 +80,7 @@ public class UserList {
 	public boolean remove(String selectedUserName) {
 		rwl.w.lock();
 		try {
+			firstAdmin = null;
 			return users.remove(selectedUserName) != null;
 		} finally {
 			rwl.w.unlock();
@@ -85,6 +93,27 @@ public class UserList {
 			if (name == null)
 				return null;
 			return users.get(name);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private User findFirstAdmin() {
+		if (users.isEmpty())
+			return null;
+		for (User u : users.values())
+			if (u.isAdmin())
+				return u;
+		return null;
+	}
+
+	public User getFirstAdmin() {
+		rwl.r.lock();
+		try {
+			if (firstAdmin != null)
+				return firstAdmin;
+			firstAdmin = findFirstAdmin();
+			return firstAdmin;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -108,7 +137,7 @@ public class UserList {
 	}
 
 	public static UserList fromXml(XPathParser xpp, Node parentNode)
-			throws XPathExpressionException {
+			throws XPathExpressionException, SearchLibException {
 		UserList userList = new UserList();
 		if (parentNode == null)
 			return userList;
@@ -120,7 +149,7 @@ public class UserList {
 			return userList;
 		for (int i = 0; i < nodes.getLength(); i++) {
 			User user = User.fromXml(xpp, nodes.item(i));
-			userList.add(user);
+			userList.add(user, false);
 		}
 		return userList;
 	}
@@ -147,4 +176,5 @@ public class UserList {
 			rwl.r.unlock();
 		}
 	}
+
 }

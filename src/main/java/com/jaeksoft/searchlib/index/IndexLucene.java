@@ -67,7 +67,7 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class IndexSingle extends IndexAbstract {
+public class IndexLucene extends IndexAbstract {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -80,7 +80,7 @@ public class IndexSingle extends IndexAbstract {
 
 	private final VersionFile versionFile;
 
-	public IndexSingle(File configDir, IndexConfig indexConfig,
+	public IndexLucene(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException,
 			SearchLibException, JSONException {
 		super(indexConfig);
@@ -396,7 +396,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public IndexSingle get(String name) {
+	public IndexLucene get(String name) {
 		return this;
 	}
 
@@ -685,9 +685,9 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public void mergeData(WriterInterface source) throws SearchLibException,
 			IOException {
-		if (!(source instanceof IndexSingle))
+		if (!(source instanceof IndexLucene))
 			throw new SearchLibException("Unsupported operation");
-		IndexSingle sourceIndex = (IndexSingle) source;
+		IndexLucene sourceIndex = (IndexLucene) source;
 		versionFile.lock();
 		try {
 			rwl.r.lock();
