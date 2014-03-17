@@ -2,8 +2,11 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.Closeable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -58,7 +61,7 @@ public class ActiveDirectory implements Closeable {
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
 		properties.put("java.naming.ldap.attributes.binary", "objectSID");
-
+		properties.put(Context.REFERRAL, "follow");
 		dirContext = new InitialDirContext(properties);
 		domainSearchName = getDomainSearch(domain);
 	}
@@ -74,19 +77,68 @@ public class ActiveDirectory implements Closeable {
 			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
 			ATTR_MEMBEROF };
 
-	public NamingEnumeration<SearchResult> findUser(String username,
+	private NamingEnumeration<SearchResult> find(String filterExpr,
 			String... returningAttributes) throws NamingException {
-
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		if (returningAttributes == null || returningAttributes.length == 0)
 			returningAttributes = DefaultReturningAttributes;
 		searchControls.setReturningAttributes(returningAttributes);
-		String filterExpr = StringUtils
-				.fastConcat(
-						"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname=",
-						username, "))");
 		return dirContext.search(domainSearchName, filterExpr, searchControls);
+	}
+
+	public static final Attributes getAttributes(
+			NamingEnumeration<SearchResult> result) throws NamingException {
+		if (result == null)
+			return null;
+		if (!result.hasMore())
+			return null;
+		SearchResult rs = (SearchResult) result.next();
+		return rs.getAttributes();
+	}
+
+	public NamingEnumeration<SearchResult> findUser(String username,
+			String... returningAttributes) throws NamingException {
+		return find(
+				StringUtils.fastConcat(
+						"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname=",
+						username, "))"), returningAttributes);
+	}
+
+	private NamingEnumeration<SearchResult> findGroup(String group)
+			throws NamingException {
+		return find(StringUtils
+				.fastConcat(
+						"(&((&(objectCategory=Group)(objectClass=Group)))(samaccountname=",
+						group, "))"));
+	}
+
+	private void findGroups(Collection<ADGroup> groups,
+			Collection<ADGroup> collector, Set<String> searchedGroups)
+			throws NamingException {
+		List<ADGroup> newGroups = new ArrayList<ADGroup>();
+		for (ADGroup group : groups) {
+			NamingEnumeration<SearchResult> result = findGroup(group.cn);
+			Attributes attrs = getAttributes(result);
+			if (attrs == null)
+				continue;
+			collectMemberOf(attrs, newGroups);
+		}
+		collector.addAll(newGroups);
+		for (ADGroup newGroup : newGroups) {
+			if (searchedGroups.contains(newGroup.cn))
+				continue;
+			searchedGroups.add(newGroup.cn);
+			findGroups(groups, collector, searchedGroups);
+		}
+		newGroups.clear();
+	}
+
+	public void findGroups(Collection<ADGroup> collector)
+			throws NamingException {
+		List<ADGroup> groups = new ArrayList<ADGroup>(collector);
+		TreeSet<String> searchedGroups = new TreeSet<String>();
+		findGroups(groups, collector, searchedGroups);
 	}
 
 	@Override
@@ -118,41 +170,57 @@ public class ActiveDirectory implements Closeable {
 		return sb.toString();
 	}
 
-	public static List<String> getMemberOf(Attributes attrs)
-			throws NamingException {
-		List<String> groups = new ArrayList<String>();
+	public static void collectMemberOf(Attributes attrs,
+			Collection<ADGroup> groups) throws NamingException {
 		Attribute tga = attrs.get("memberOf");
 		if (tga == null)
-			return null;
+			return;
 		NamingEnumeration<?> membersOf = tga.getAll();
 		while (membersOf.hasMore()) {
 			Object memberObject = membersOf.next();
-			groups.add(getGroupMemberOf(memberObject.toString()));
+			groups.add(new ADGroup(memberObject.toString()));
 		}
 		membersOf.close();
-		return groups;
 	}
 
-	final public static String getGroupMemberOf(final String memberOf) {
-		String[] parts = StringUtils.split(memberOf, ',');
-		String cn = null;
-		String dc = null;
-		for (String part : parts) {
-			String[] pair = StringUtils.split(part, "=");
-			if (pair == null || pair.length != 2)
-				continue;
-			if (cn == null && "CN".equals(pair[0]))
-				cn = pair[1];
-			if (dc == null && "DC".equals(pair[0]))
-				dc = pair[1].toUpperCase();
+	public static class ADGroup {
+
+		public final String cn;
+		public final String dc;
+
+		private ADGroup(final String memberOf) {
+			String[] parts = StringUtils.split(memberOf, ',');
+			String lcn = null;
+			String ldc = null;
+			for (String part : parts) {
+				String[] pair = StringUtils.split(part, "=");
+				if (pair == null || pair.length != 2)
+					continue;
+				if (lcn == null && "CN".equals(pair[0]))
+					lcn = pair[1];
+				if (ldc == null && "DC".equals(pair[0]))
+					ldc = pair[1].toUpperCase();
+			}
+			this.cn = lcn;
+			this.dc = ldc;
 		}
-		return StringUtils.fastConcat(dc, '\\', cn);
+	}
+
+	public static String[] toArray(List<ADGroup> groups) {
+		if (groups == null)
+			return null;
+		String[] array = new String[groups.size()];
+		int i = 0;
+		for (ADGroup group : groups)
+			array[i++] = StringUtils.fastConcat(group.dc, '\\', group.cn);
+		return array;
 	}
 
 	public static void main(String[] args) {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 		System.out
-				.println(getGroupMemberOf("CN=GG-TEST-TEST-TEST,OU=Groupes Ressource,OU=Groupes,OU=DSCP,DC=sp,DC=pn,DC=int"));
+				.println(new ADGroup(
+						"CN=GG-TEST-TEST-TEST,OU=Groupes Ressource,OU=Groupes,OU=DSCP,DC=sp,DC=pn,DC=int"));
 	}
 
 	private static String getDomainSearch(String domain) {

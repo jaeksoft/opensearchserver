@@ -27,7 +27,11 @@ package com.jaeksoft.searchlib.index.osse.api;
 public class OsseJNILibrary {
 
 	static {
-		System.loadLibrary("OpenSearchServer_CLib");
+		try {
+			System.loadLibrary("libOpenSearchServer_CLib");
+		} catch (Throwable t) {
+			System.loadLibrary("OpenSearchServer_CLib");
+		}
 	}
 
 	public native String OSSCLib_GetVersionInfoText();

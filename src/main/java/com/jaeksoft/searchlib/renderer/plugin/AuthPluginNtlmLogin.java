@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,6 +47,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.util.ActiveDirectory;
+import com.jaeksoft.searchlib.util.ActiveDirectory.ADGroup;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -72,6 +74,11 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
 			throw new AuthException(
 					"No auth server given, check the parameters of the renderer");
+		// For debug
+		/*
+		 * if (true) return new User("userId", username, password, new String[]
+		 * { "Guest" });
+		 */
 		ActiveDirectory activeDirectory = null;
 		try {
 			String domain = renderer.getAuthDomain();
@@ -85,16 +92,17 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
-
-			if (!result.hasMore())
+			Attributes attrs = ActiveDirectory.getAttributes(result);
+			if (attrs == null)
 				throw new AuthException("No user found");
 
-			SearchResult rs = (SearchResult) result.next();
-			Attributes attrs = rs.getAttributes();
 			String userId = ActiveDirectory.getObjectSID(attrs);
-			List<String> groups = ActiveDirectory.getMemberOf(attrs);
+			List<ADGroup> groups = new ArrayList<ADGroup>();
+			ActiveDirectory.collectMemberOf(attrs, groups);
+			activeDirectory.findGroups(groups);
+
 			return new User(userId, username, password,
-					groups.toArray(new String[groups.size()]),
+					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, username));
 
 		} catch (SmbAuthException e) {
