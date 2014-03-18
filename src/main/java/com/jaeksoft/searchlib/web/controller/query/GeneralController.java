@@ -24,8 +24,11 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.SearchLibException;
 
+@AfterCompose(superclass = true)
 public class GeneralController extends AbstractQueryController {
 
 	public GeneralController() throws SearchLibException {

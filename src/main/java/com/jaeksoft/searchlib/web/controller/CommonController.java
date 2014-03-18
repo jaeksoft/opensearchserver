@@ -90,7 +90,9 @@ public abstract class CommonController implements EventInterface,
 	@Override
 	public void onEvent(Event event) throws Exception {
 		Object data = event.getData();
-		System.out.println("Event: " + event + " data: " + data);
+		if (Logging.isDebug)
+			Logging.debug(this + " -> " + "Event: " + event.getName()
+					+ " data: " + data);
 		switch (PushEvent.valueOf(event.getName())) {
 		case eventClientChange:
 			eventClientChange();

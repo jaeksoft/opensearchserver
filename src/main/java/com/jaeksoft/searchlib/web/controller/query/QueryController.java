@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -54,6 +55,7 @@ import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
+@AfterCompose(superclass = true)
 public final class QueryController extends AbstractQueryController {
 
 	private transient String requestName;

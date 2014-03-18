@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.4.1</version>
+			<version>2.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.james</groupId>
@@ -369,7 +369,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.7</version>
+			<version>1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -426,7 +426,7 @@
 		<httpclient.version>4.3.3</httpclient.version>
 		<poi.version>3.10-FINAL</poi.version>
 		<selenium.version>2.40.0</selenium.version>
-		<zk.version>6.5.4</zk.version>
+		<zk.version>7.0.1</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>

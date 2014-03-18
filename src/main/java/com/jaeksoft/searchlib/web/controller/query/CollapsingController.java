@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.GlobalCommand;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
+@AfterCompose(superclass = true)
 public class CollapsingController extends AbstractQueryController {
 
 	private transient List<String> indexedFields;
