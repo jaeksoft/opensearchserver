@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 
@@ -31,6 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.BoostQuery;
 
+@AfterCompose(superclass = true)
 public class BoostQueriesController extends AbstractQueryController {
 
 	private BoostQuery currentBoostQuery;
