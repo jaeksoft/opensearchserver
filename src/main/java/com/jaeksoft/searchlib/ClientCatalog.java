@@ -111,19 +111,20 @@ public class ClientCatalog {
 		StartStopListener.shutdown();
 	}
 
-	private static final Client getClient(File indexDirectory)
-			throws SearchLibException {
+	private static final Client getClient(File indexDirectory,
+			boolean openIfNotLoaded) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
+			if (!openIfNotLoaded)
+				return null;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			System.out.println("Opening client " + indexDirectory.getName());
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
@@ -228,13 +229,22 @@ public class ClientCatalog {
 		return new LastModifiedAndSize(file, false);
 	}
 
+	public static final Client getLoadedClient(String indexName)
+			throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				indexName), false);
+	}
+
 	public static final Client getClient(String indexName)
 			throws SearchLibException {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				indexName));
+				indexName), true);
 	}
 
 	public static final void closeClient(String indexName)

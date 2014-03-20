@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.lucene.search.Similarity;
+import org.json.JSONException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -263,7 +264,7 @@ public class IndexConfig {
 
 	public final IndexAbstract getNewIndex(File configDir,
 			boolean createIndexIfNotExists) throws IOException,
-			URISyntaxException, SearchLibException {
+			URISyntaxException, SearchLibException, JSONException {
 		switch (indexType) {
 		case OSSE:
 			return new IndexOsse(configDir, this, createIndexIfNotExists);

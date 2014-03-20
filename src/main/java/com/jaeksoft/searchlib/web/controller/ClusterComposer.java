@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -38,7 +39,7 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
-import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.cluster.ClusterStatus;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 @AfterCompose(superclass = true)
@@ -80,22 +81,21 @@ public class ClusterComposer extends CommonController {
 		manager.saveMe();
 	}
 
-	public String getLogin() throws SearchLibException {
-		return getClusterManager().getMe().getLogin();
+	@Command
+	@NotifyChange("clusterManager")
+	public void onSetOffline() throws SearchLibException,
+			JsonGenerationException, JsonMappingException, IOException {
+		ClusterManager manager = getClusterManager();
+		manager.getMe().setStatus(ClusterStatus.OFFLINE);
+		manager.saveMe();
 	}
 
-	public void setLogin(String login) throws SearchLibException,
+	@Command
+	@NotifyChange("clusterManager")
+	public void onSetOnline() throws SearchLibException,
 			JsonGenerationException, JsonMappingException, IOException {
-		String apiKey = null;
-		if (login != null) {
-			User user = ClientCatalog.getUserList().get(login);
-			if (user == null)
-				throw new SearchLibException("Unknown user: " + login);
-			apiKey = user.getApiKey();
-		}
 		ClusterManager manager = getClusterManager();
-		manager.getMe().setLogin(login);
-		manager.getMe().setApiKey(apiKey);
+		manager.getMe().setStatus(ClusterStatus.ONLINE);
 		manager.saveMe();
 	}
 }

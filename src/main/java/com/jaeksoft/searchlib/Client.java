@@ -59,6 +59,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public class Client extends Config {
 
@@ -359,6 +360,7 @@ public class Client extends Config {
 		Timer timer = new Timer("Reload");
 		try {
 			getIndexAbstract().reload();
+			PushEvent.eventClientChange.publish(this);
 		} finally {
 			getStatisticsList().addReload(timer);
 		}
