@@ -26,9 +26,15 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.List;
 
-
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 
@@ -59,6 +65,35 @@ public class NetworksUtils {
 		} finally {
 			IOUtils.closeQuietly(sr);
 		}
+	}
+
+	public static final String getHardwareAddress(
+			NetworkInterface networkInterface) throws SocketException {
+		if (networkInterface == null)
+			return null;
+		if (networkInterface.getHardwareAddress() == null)
+			return null;
+		return Hex.encodeHexString(networkInterface.getHardwareAddress());
+	}
+
+	public static final String getFirstHardwareAddress()
+			throws URISyntaxException, UnknownHostException, SocketException {
+		InetAddress localhost = InetAddress.getLocalHost();
+		String hardwareAddress = null;
+		if (localhost != null)
+			hardwareAddress = getHardwareAddress(NetworkInterface
+					.getByInetAddress(localhost));
+		if (hardwareAddress != null)
+			return hardwareAddress;
+		Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+				.getNetworkInterfaces();
+		while (networkInterfaces.hasMoreElements()) {
+			hardwareAddress = getHardwareAddress(networkInterfaces
+					.nextElement());
+			if (hardwareAddress != null)
+				return hardwareAddress;
+		}
+		return null;
 	}
 
 	public static void main(String[] args) throws IOException {

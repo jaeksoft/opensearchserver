@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,5 +26,5 @@ package com.jaeksoft.searchlib.cluster;
 
 public enum ClusterStatus {
 
-	UNKNOWN, OK, CONNECTION_ERROR, AUTHENTICATION_ERROR, INSTANCE_ID_CONFLICT;
+	ONLINE, OFFLINE;
 }

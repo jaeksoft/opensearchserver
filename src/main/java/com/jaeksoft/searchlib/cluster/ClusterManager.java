@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,14 +25,22 @@
 package com.jaeksoft.searchlib.cluster;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.JsonUtils;
+import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -40,20 +48,30 @@ public class ClusterManager {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
+	private final ClusterInstance clusterInstance;
+
+	private final File clusterDirectory;
+
 	private final File clusterFile;
 
-	private final LinkedHashSet<ClusterInstance> clusterInstances;
-
 	private ClusterManager(File instanceDataDir) throws JsonParseException,
-			JsonMappingException, IOException {
-		clusterFile = new File(instanceDataDir, "cluster.xml");
-		List<ClusterInstance> clusterInstanceList = ClusterInstance
-				.readList(clusterFile);
-		clusterInstances = clusterInstanceList == null ? new LinkedHashSet<ClusterInstance>(
-				0) : new LinkedHashSet<ClusterInstance>(clusterInstanceList);
+			JsonMappingException, IOException, URISyntaxException {
+		clusterDirectory = new File(instanceDataDir, ".oss_cluster_nodes");
+		if (!clusterDirectory.exists())
+			clusterDirectory.mkdir();
+		String hardwareAddress = NetworksUtils.getFirstHardwareAddress();
+		clusterFile = new File(clusterDirectory, hardwareAddress);
+		if (clusterFile.exists() && clusterFile.length() > 0)
+			clusterInstance = JsonUtils.getObject(clusterFile,
+					ClusterInstance.class);
+		else {
+			clusterInstance = new ClusterInstance(hardwareAddress);
+			saveMe();
+		}
 	}
 
 	private static ClusterManager INSTANCE = null;
+
 	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
 
 	public static final ClusterManager getInstance() throws SearchLibException {
@@ -72,33 +90,48 @@ public class ClusterManager {
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwlInstance.w.unlock();
 		}
 	}
 
-	public void set(ClusterInstance oldInstance, ClusterInstance newInstance)
-			throws IOException {
-		if (oldInstance == null && newInstance == null)
-			return;
-		rwl.w.lock();
-		try {
-			if (oldInstance != null)
-				clusterInstances.remove(oldInstance);
-			if (newInstance != null)
-				clusterInstances.add(newInstance);
-			ClusterInstance.writeList(clusterInstances, clusterFile);
-		} finally {
-			rwl.w.unlock();
-		}
+	public ClusterInstance getMe() {
+		return clusterInstance;
 	}
 
 	public Collection<ClusterInstance> getInstances() {
 		rwl.r.lock();
 		try {
+			List<ClusterInstance> clusterInstances = new ArrayList<ClusterInstance>();
+			File[] files = clusterDirectory
+					.listFiles((FileFilter) FileFilterUtils.fileFileFilter());
+			for (File file : files) {
+				try {
+					clusterInstances.add(JsonUtils.getObject(file,
+							ClusterInstance.class));
+				} catch (JsonParseException e) {
+					Logging.warn(e);
+				} catch (JsonMappingException e) {
+					Logging.warn(e);
+				} catch (IOException e) {
+					Logging.warn(e);
+				}
+			}
 			return clusterInstances;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public void saveMe() throws JsonGenerationException, JsonMappingException,
+			IOException {
+		rwl.w.lock();
+		try {
+			JsonUtils.jsonToFile(clusterInstance, clusterFile);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 }
