@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
@@ -38,6 +39,7 @@ import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
+@AfterCompose(superclass = true)
 public class ResultSearchController extends AbstractQueryController {
 
 	private transient Facet selectedFacet;

@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -44,6 +45,7 @@ import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
+@AfterCompose(superclass = true)
 public class JoinController extends AbstractQueryController {
 
 	private JoinItem currentItem;

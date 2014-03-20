@@ -20,7 +20,7 @@
 	<toolbar>
 		<hbox align="center">
 			<image src="images/oss_logo_48.png" />
-			<label style="font-size: 1.3em"
+			<label style="font-size: 1.2em"
 				value="@load(index.version)" />
 			<space width="60px" />
 			<toolbarbutton target="_blank" label="Documentation"

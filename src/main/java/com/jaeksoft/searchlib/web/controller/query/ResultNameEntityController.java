@@ -24,9 +24,12 @@
 
 package com.jaeksoft.searchlib.web.controller.query;
 
+import org.zkoss.bind.annotation.AfterCompose;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
+@AfterCompose(superclass = true)
 public class ResultNameEntityController extends AbstractQueryController {
 
 	public ResultNameEntityController() throws SearchLibException {
