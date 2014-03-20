@@ -178,13 +178,14 @@ public abstract class AbstractManager {
 		}
 
 		@Override
-		final public void collect(final int id, final String value) {
+		final public void collect(final int id, final String value)
+				throws IOException {
 			deletionList.add(value);
 			if (deletionList.size() >= buffer)
 				delete();
 		}
 
-		final public void delete() {
+		final public void delete() throws IOException {
 			if (deletionList.isEmpty())
 				return;
 			try {
@@ -200,7 +201,7 @@ public abstract class AbstractManager {
 
 	protected long synchronizeIndex(AbstractSearchRequest searchRequest,
 			String targetField, String dbField, int bufferSize, TaskLog taskLog)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			if (targetField == null)
@@ -232,7 +233,7 @@ public abstract class AbstractManager {
 	}
 
 	final public void reload(boolean optimize, TaskLog taskLog)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			if (optimize) {
@@ -253,7 +254,8 @@ public abstract class AbstractManager {
 		}
 	}
 
-	final public void deleteAll(TaskLog taskLog) throws SearchLibException {
+	final public void deleteAll(TaskLog taskLog) throws SearchLibException,
+			IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			dbClient.deleteAll();

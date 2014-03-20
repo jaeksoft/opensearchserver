@@ -32,7 +32,9 @@ public class VersionFile {
 
 	private final File file;
 
-	private RandomAccessFile raf = null;
+	private RandomAccessFile writeRaf = null;
+
+	private RandomAccessFile readRaf = null;
 
 	private long version = 0;
 
@@ -44,39 +46,43 @@ public class VersionFile {
 			file.createNewFile();
 	}
 
-	public long readVersion() throws IOException {
-		RandomAccessFile localRaf = raf;
-		if (localRaf == null) {
-			localRaf = new RandomAccessFile(file, "r");
-			localRaf.getChannel().lock(0, raf.length(), true);
-		} else
-			raf.seek(0);
-		try {
-			version = localRaf.length() == 0 ? 0 : raf.readLong();
-			return version;
-		} finally {
-			if (localRaf != raf)
-				localRaf.close();
-		}
+	public void sharedLock() throws IOException {
+		if (readRaf != null)
+			return;
+		if (writeRaf != null)
+			throw new IOException("Already open for write");
+		readRaf = new RandomAccessFile(file, "r");
+		readRaf.getChannel().lock(0, readRaf.length(), true);
+		version = readRaf.length() == 0 ? 0 : readRaf.readLong();
+	}
+
+	public long getVersion() {
+		return version;
 	}
 
 	public void lock() throws IOException {
-		if (raf != null)
-			throw new IOException("Already open");
-		raf = new RandomAccessFile(file, "rw");
-		raf.getChannel().lock();
-		version = raf.length() == 0 ? 0 : raf.readLong();
+		if (writeRaf != null)
+			return;
+		if (readRaf != null)
+			throw new IOException("Already open for read");
+		writeRaf = new RandomAccessFile(file, "rw");
+		writeRaf.getChannel().lock();
+		version = writeRaf.length() == 0 ? 0 : writeRaf.readLong();
 	}
 
 	public void increment() throws IOException {
-		raf.seek(0);
-		raf.writeLong(++version);
+		writeRaf.seek(0);
+		writeRaf.writeLong(++version);
 	}
 
 	public void release() throws IOException {
-		if (raf != null) {
-			raf.close();
-			raf = null;
+		if (readRaf != null) {
+			readRaf.close();
+			readRaf = null;
+		}
+		if (writeRaf != null) {
+			writeRaf.close();
+			writeRaf = null;
 		}
 	}
 }

@@ -27,8 +27,6 @@ package com.jaeksoft.searchlib;
 import java.io.File;
 import java.io.IOException;
 
-import javax.naming.NamingException;
-
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
@@ -65,8 +63,6 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 	public Integer getNumDocs() throws IOException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
-			return null;
-		if (!client.isOnline())
 			return null;
 		IndexStatistics stats = client.getStatistics();
 		if (stats == null)

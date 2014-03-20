@@ -60,7 +60,7 @@ public class DeleteController extends CommonController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			request.reset();
 			Client client = getClient();
 			if (client == null)

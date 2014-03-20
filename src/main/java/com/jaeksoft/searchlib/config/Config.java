@@ -324,7 +324,7 @@ public abstract class Config implements ThreadFactory {
 			xmlWriter.endDocument();
 			cfr.rotate(versionFile);
 			ClusterManager.notify(new ClusterNotification(Type.CLOSE_CLIENT,
-					getIndexName()));
+					indexDir));
 		} finally {
 			cfr.abort();
 			versionFile.release();
@@ -345,7 +345,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -377,7 +377,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -408,7 +408,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -433,7 +433,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -665,7 +665,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -693,7 +693,7 @@ public abstract class Config implements ThreadFactory {
 			try {
 				cfr.delete(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -720,7 +720,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -748,7 +748,7 @@ public abstract class Config implements ThreadFactory {
 			try {
 				cfr.delete(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -803,7 +803,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -860,7 +860,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -1185,7 +1185,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -1213,7 +1213,7 @@ public abstract class Config implements ThreadFactory {
 			try {
 				cfr.delete(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -1610,7 +1610,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
@@ -1659,7 +1659,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate(versionFile);
 				ClusterManager.notify(new ClusterNotification(
-						Type.CLOSE_CLIENT, getIndexName()));
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}

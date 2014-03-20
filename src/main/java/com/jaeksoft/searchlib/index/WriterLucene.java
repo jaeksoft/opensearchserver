@@ -176,7 +176,7 @@ public class WriterLucene extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (updated) {
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(document);
@@ -215,7 +215,7 @@ public class WriterLucene extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (count > 0) {
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(documents);
@@ -306,7 +306,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.deleteDocuments(new Term(field, value));
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
@@ -354,7 +354,7 @@ public class WriterLucene extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (terms.length > 0)
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
@@ -415,7 +415,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.deleteDocuments(query.getQuery());
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
@@ -447,7 +447,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.deleteAll();
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -477,7 +477,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.addIndexes(directory.getDirectory());
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -27,8 +27,7 @@
 			<row>
 				<label value="Reload the index: " />
 				<button label="Reload"
-					onClick="@command('onReloadClient')"
-					disabled="@load(commands.offline)" />
+					onClick="@command('onReloadClient')" />
 				<label />
 				<cell>
 					<button target="_blank"
@@ -41,8 +40,7 @@
 			<row>
 				<label value="Optimization: " />
 				<button label="Optimize"
-					onClick="@command('onOptimize')"
-					disabled="@load(commands.offline)" />
+					onClick="@command('onOptimize')" />
 				<cell>
 					<label value="@load(commands.optimizeStatus)" />
 					<space />
@@ -57,34 +55,9 @@
 				</cell>
 			</row>
 			<row>
-				<label value="Offline/Online: " />
-				<cell>
-					<button label="Offline"
-						onClick="@command('onOffline')" visible="@load(commands.online)" />
-					<button label="Online"
-						onClick="@command('onOnline')" visible="@load(commands.offline)" />
-				</cell>
-				<label value="@load(commands.onlineStatus)" />
-				<cell>
-					<button target="_blank"
-						visible="@load(commands.offline)"
-						href="@load(commands.onlineXmlApi)" label="XML" />
-					<button target="_blank"
-						visible="@load(commands.offline)"
-						href="@load(commands.onlineJsonApi)" label="JSON" />
-					<button target="_blank"
-						visible="@load(commands.online)"
-						href="@load(commands.offlineXmlApi)" label="XML" />
-					<button target="_blank"
-						visible="@load(commands.online)"
-						href="@load(commands.offlineJsonApi)" label="JSON" />
-				</cell>
-			</row>
-			<row>
 				<label value="Truncate: " />
 				<button label="Delete all"
-					onClick="@command('onDeleteAll')"
-					disabled="@load(commands.offline)" />
+					onClick="@command('onDeleteAll')" />
 				<cell>
 					<label value="@load(commands.documentNumber)" />
 					<space />

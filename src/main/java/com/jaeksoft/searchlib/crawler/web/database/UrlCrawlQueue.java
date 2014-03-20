@@ -173,7 +173,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	private boolean deleteCollection(List<String> workDeleteUrlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+			CrawlStatistics sessionStats) throws SearchLibException,
+			IOException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();

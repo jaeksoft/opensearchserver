@@ -187,7 +187,8 @@ public class LearnerManager implements UpdateInterfaces.After,
 	}
 
 	@Override
-	public void delete(String field, String value) throws SearchLibException {
+	public void delete(String field, String value) throws SearchLibException,
+			IOException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;
@@ -199,7 +200,7 @@ public class LearnerManager implements UpdateInterfaces.After,
 
 	@Override
 	public void delete(String field, Collection<String> values)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;

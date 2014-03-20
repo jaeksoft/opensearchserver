@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -113,7 +113,6 @@ public class ClientCatalog {
 
 	private static final Client getClient(File indexDirectory)
 			throws SearchLibException {
-
 		rwl.r.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
@@ -122,9 +121,9 @@ public class ClientCatalog {
 		} finally {
 			rwl.r.unlock();
 		}
-
 		rwl.w.lock();
 		try {
+			System.out.println("Opening client " + indexDirectory.getName());
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
@@ -132,6 +131,29 @@ public class ClientCatalog {
 					false);
 			CLIENTS.put(indexDirectory, client);
 			return client;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	private static final void closeClient(File indexDirectory) {
+		rwl.r.lock();
+		try {
+			Client client = CLIENTS.get(indexDirectory);
+			if (client == null)
+				return;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			Client client = CLIENTS.get(indexDirectory);
+			if (client == null)
+				return;
+			System.out.println("Closing client " + indexDirectory.getName());
+			client.close();
+			CLIENTS.remove(indexDirectory);
+			PushEvent.eventClientSwitch.publish(client);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -212,6 +234,15 @@ public class ClientCatalog {
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				indexName));
+	}
+
+	public static final void closeClient(String indexName)
+			throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		closeClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 				indexName));
 	}
 

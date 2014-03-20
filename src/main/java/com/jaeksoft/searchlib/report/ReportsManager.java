@@ -180,10 +180,9 @@ public class ReportsManager {
 		}
 	}
 
-	public void reload(boolean optimize) throws SearchLibException {
+	public void reload(boolean optimize) throws SearchLibException, IOException {
 		if (optimize) {
 			reportsClient.reload();
-			reportsClient.getIndex().optimize();
 		}
 	}
 
@@ -221,7 +220,7 @@ public class ReportsManager {
 	}
 
 	public void loadReportItems(List<String> fileList, File reportFile)
-			throws UnsupportedEncodingException, SearchLibException {
+			throws SearchLibException, IOException {
 		List<ReportItem> reportItems = createIndexvalues(fileList, reportFile);
 		updateReportItems(reportItems);
 		fileList.clear();
@@ -248,7 +247,7 @@ public class ReportsManager {
 	}
 
 	public void updateReportItems(List<ReportItem> listItem)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		for (ReportItem reportItemList : listItem)
 			updateReportItem(reportItemList);
 		reload(true);

@@ -98,7 +98,7 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public void deleteUrls(Collection<String> workDeleteUrlList)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		String targetField = findIndexedFieldOfTargetIndex(
 				targetClient.getWebCrawlerFieldMap(),
 				UrlItemFieldEnum.INSTANCE.url.getName());
@@ -724,7 +724,7 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public long deleteUrls(AbstractSearchRequest searchRequest, int bufferSize,
-			TaskLog taskLog) throws SearchLibException {
+			TaskLog taskLog) throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			long total = 0;
@@ -759,7 +759,8 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public long synchronizeIndex(AbstractSearchRequest searchRequest,
-			int bufferSize, TaskLog taskLog) throws SearchLibException {
+			int bufferSize, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		String targetField = findIndexedFieldOfTargetIndex(
 				targetClient.getWebCrawlerFieldMap(),
 				UrlItemFieldEnum.INSTANCE.url.getName());

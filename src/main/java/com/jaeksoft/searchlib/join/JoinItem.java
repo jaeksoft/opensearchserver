@@ -55,7 +55,8 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class JoinItem implements Comparable<JoinItem> {
 
 	public interface OuterCollector {
-		public void collect(final int id, final String value);
+		public void collect(final int id, final String value)
+				throws IOException;
 	}
 
 	public static enum JoinType {
