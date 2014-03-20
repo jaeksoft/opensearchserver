@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,7 +31,6 @@ import java.util.Collection;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
-import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray.PointerProvider;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInterface;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
@@ -39,7 +38,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
-public class OsseCursor implements PointerProvider, Closeable {
+public class OsseCursor implements Closeable {
 
 	private final OsseErrorHandler error;
 
@@ -69,7 +68,8 @@ public class OsseCursor implements PointerProvider, Closeable {
 		OssePointerArray ossePointerArray = null;
 		try {
 			// TODO MemoryBuffer
-			ossePointerArray = new OssePointerArray(null, cursors);
+			ossePointerArray = new OssePointerArray(null,
+					(Collection<Pointer>) null);
 			ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsQCursor_CreateCombinedCursor");
 			this.cursorPtr = OsseJNALibrary
@@ -140,8 +140,4 @@ public class OsseCursor implements PointerProvider, Closeable {
 		}
 	}
 
-	@Override
-	public Pointer getPointer() {
-		return cursorPtr;
-	}
 }

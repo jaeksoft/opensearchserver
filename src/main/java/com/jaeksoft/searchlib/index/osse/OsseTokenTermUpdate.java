@@ -28,63 +28,42 @@ import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
-import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
-import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
 
 public class OsseTokenTermUpdate extends AbstractTermFilter {
 
 	private final OsseTermBuffer buffer;
-	private final OsseTransaction transaction;
-	private final int documentId;
-	private final FieldInfo fieldInfo;
 
-	public OsseTokenTermUpdate(final OsseTransaction transaction,
-			final int documentId, final FieldInfo fieldInfo,
-			final OsseTermBuffer termBuffer, final TokenStream input) {
+	private int termCount;
+
+	public OsseTokenTermUpdate(
+
+	final OsseTermBuffer termBuffer, final TokenStream input) {
 		super(input);
-		this.transaction = transaction;
-		this.documentId = documentId;
-		this.fieldInfo = fieldInfo;
 		this.buffer = termBuffer;
-		this.buffer.reset();
-	}
-
-	final private void index() throws IOException {
-		try {
-			if (buffer.termCount == 0)
-				return;
-			transaction.updateTerms(documentId, fieldInfo, buffer);
-			buffer.reset();
-		} catch (SearchLibException e) {
-			throw new IOException(e);
-		}
+		this.termCount = 0;
 	}
 
 	@Override
 	public final boolean incrementToken() throws IOException {
 		for (;;) {
-			if (!input.incrementToken()) {
-				index();
+			if (!input.incrementToken())
 				return false;
-			}
-			final OsseTermOffset offset = buffer.offsets[buffer.termCount];
-			offset.ui32StartOffset = offsetAtt.startOffset();
-			offset.ui32EndOffset = offsetAtt.endOffset();
-			buffer.positionIncrements[buffer.termCount] = posIncrAtt
-					.getPositionIncrement();
-			buffer.addTerm(termAtt.buffer(), termAtt.length());
-			if (buffer.termCount == buffer.bufferSize) {
-				index();
-				return true;
-			}
+			if (termAtt.length() != 0) {
+				buffer.addTerm(termAtt, offsetAtt, posIncrAtt);
+				termCount++;
+			} else
+				System.out.println("ZERO");
 		}
 	}
 
 	@Override
 	final public void close() throws IOException {
 		super.close();
+	}
+
+	final public int getTermCount() {
+		return termCount;
 	}
 
 }

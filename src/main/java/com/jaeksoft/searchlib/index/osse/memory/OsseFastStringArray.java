@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.index.osse.memory;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.CharacterCodingException;
+import java.io.Closeable;
+import java.util.List;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer.OsseTerm;
@@ -35,7 +35,7 @@ import com.sun.jna.Pointer;
 /**
  * This class implements a fast UTF-8 String array *
  */
-public class OsseFastStringArray extends Pointer {
+public class OsseFastStringArray extends Pointer implements Closeable {
 
 	/**
 	 * Optimized write only StringArray
@@ -46,8 +46,7 @@ public class OsseFastStringArray extends Pointer {
 	private final DisposableMemory termPointers;
 
 	public OsseFastStringArray(final MemoryBuffer memoryBuffer,
-			final OsseTermBuffer termBuffer)
-			throws UnsupportedEncodingException, CharacterCodingException {
+			final OsseTermBuffer termBuffer) {
 		super(0);
 
 		// First we reserve memory for the list of pointers
@@ -56,15 +55,15 @@ public class OsseFastStringArray extends Pointer {
 		peer = termPointers.getPeer();
 
 		// Filling the pointer array memory
-		OsseTerm[] terms = termBuffer.getTerms();
+		List<OsseTerm> terms = termBuffer.getTerms();
 		Pointer[] pointers = new Pointer[termCount];
-		for (int i = 0; i < termCount; i++) {
-			OsseTerm term = terms[i];
-			pointers[i] = new Pointer(term.memory.getPeer() + term.offset);
-		}
+		int i = 0;
+		for (OsseTerm term : terms)
+			pointers[i++] = new Pointer(term.memory.getPeer() + term.offset);
 		termPointers.write(0, pointers, 0, termCount);
 	}
 
+	@Override
 	final public void close() {
 		termPointers.close();
 	}

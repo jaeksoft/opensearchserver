@@ -36,19 +36,15 @@ public class OssePointerArray extends Pointer implements Closeable {
 
 	private final DisposableMemory memory;
 
-	public static interface PointerProvider {
-		Pointer getPointer();
-	}
-
 	public OssePointerArray(final MemoryBuffer memoryBuffer,
-			final Collection<? extends PointerProvider> pointers) {
+			final Collection<Pointer> pointers) {
 		super(0);
 		memory = memoryBuffer.getNewBufferItem((pointers.size() + 1)
 				* Pointer.SIZE);
 		peer = memory.getPeer();
 		int i = 0;
-		for (PointerProvider pointerProvider : pointers) {
-			memory.setPointer(Pointer.SIZE * i, pointerProvider.getPointer());
+		for (Pointer pointer : pointers) {
+			memory.setPointer(Pointer.SIZE * i, pointer);
 			i++;
 		}
 		memory.setPointer(Pointer.SIZE * i, null);
