@@ -205,7 +205,6 @@ public class OsseTransaction implements Closeable {
 			et.end();
 			if (res != termCount)
 				err.throwError();
-			buffer.release();
 		} finally {
 			if (ofsa != null)
 				ofsa.close();
@@ -218,6 +217,7 @@ public class OsseTransaction implements Closeable {
 			IOException {
 		DocumentRecord documentRecord = null;
 		try {
+			termBuffer.reset();
 			documentRecord = new DocumentRecord(memoryBuffer, termBuffer,
 					schema, fieldPointerMap, indexDocument);
 			final ExecutionToken et = FunctionTimer

@@ -36,9 +36,8 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 
 	private int termCount;
 
-	public OsseTokenTermUpdate(
-
-	final OsseTermBuffer termBuffer, final TokenStream input) {
+	public OsseTokenTermUpdate(final OsseTermBuffer termBuffer,
+			final TokenStream input) {
 		super(input);
 		this.buffer = termBuffer;
 		this.termCount = 0;
@@ -52,8 +51,7 @@ public class OsseTokenTermUpdate extends AbstractTermFilter {
 			if (termAtt.length() != 0) {
 				buffer.addTerm(termAtt, offsetAtt, posIncrAtt);
 				termCount++;
-			} else
-				System.out.println("ZERO");
+			}
 		}
 	}
 

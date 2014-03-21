@@ -52,6 +52,12 @@ public class OsseJNILibrary {
 
 	public native boolean OSSCLib_MsIndex_Close(long hMsIndex, long hExtErrInfo);
 
+	public native long OSSCLib_MsIndex_GetNumberOfDocs(long hMsIndex,
+			long hExtErrInfo);
+
+	public native boolean OSSCLib_MsIndex_DeleteAllDocs(long hMsIndex,
+			int ui32IndexSignature, long hExtErrInfo);
+
 	public native long OSSCLib_MsTransact_Begin(long hMsIndex,
 			String lpwszNewSegmentDirectoryName, int ui32MaxNumberOfNewDocs,
 			long hExtErrInfo);

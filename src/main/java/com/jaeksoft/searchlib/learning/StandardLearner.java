@@ -123,7 +123,8 @@ public class StandardLearner implements LearnerInterface {
 		}
 		TermVectorCache termVectorCache = ((IndexLucene) learnerClient
 				.getIndex()).getTermVectorCache();
-		termVectorCache.setMaxSize(learnerClient.getStatistics().getNumDocs());
+		termVectorCache.setMaxSize((int) learnerClient.getStatistics()
+				.getNumDocs());
 		return boostMap.values();
 	}
 

@@ -55,7 +55,7 @@ public class JoinFacet {
 			throws SearchLibException {
 		try {
 			ReaderAbstract readerAbstract = resultSearch.getReader();
-			int maxDoc = readerAbstract.maxDoc();
+			int maxDoc = (int) readerAbstract.maxDoc();
 			for (FacetField facetField : facetFieldList) {
 				DocIdInterface facetCollector;
 				Facet facet = resultSearch.getFacetList().getByField(

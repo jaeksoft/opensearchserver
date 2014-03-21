@@ -87,8 +87,15 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public IndexStatistics getStatistics() throws IOException {
-		return new IndexStatistics();
+	public IndexStatistics getStatistics() throws IOException,
+			SearchLibException {
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			return index.getStatistics(error);
+		} finally {
+			IOUtils.close(error);
+		}
 	}
 
 	@Override
@@ -242,9 +249,14 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public int numDocs() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long numDocs() throws SearchLibException {
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			return index.numDocs(error);
+		} finally {
+			IOUtils.close(error);
+		}
 	}
 
 	@Override
@@ -275,9 +287,14 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public int maxDoc() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+	public long maxDoc() throws IOException, SearchLibException {
+		OsseErrorHandler error = null;
+		try {
+			error = new OsseErrorHandler();
+			return index.maxDoc(error);
+		} finally {
+			IOUtils.close(error);
+		}
 	}
 
 	@Override

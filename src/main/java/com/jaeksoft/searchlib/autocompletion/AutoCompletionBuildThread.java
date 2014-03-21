@@ -82,7 +82,7 @@ public class AutoCompletionBuildThread extends
 		IndexStatistics stats = autoCompClient.getStatistics();
 		if (stats == null)
 			return 0;
-		return stats.getNumDocs();
+		return (int) stats.getNumDocs();
 	}
 
 	final private int indexBuffer(int docCount, List<IndexDocument> buffer)

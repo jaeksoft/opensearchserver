@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -114,11 +115,47 @@ public class OsseIndex {
 	public void close(OsseErrorHandler err) {
 		if (indexPtr == 0)
 			return;
-		ExecutionToken et = FunctionTimer.newExecutionToken(
-				"OSSCLib_MsIndex_Close", " ", Integer.toString(0));
-		if (!LIB.OSSCLib_MsIndex_Close(indexPtr, err.getPointer()))
-			Logging.warn(err.getError());
+		ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsIndex_Close");
+		boolean res = LIB.OSSCLib_MsIndex_Close(indexPtr, err.getPointer());
 		et.end();
+		if (!res)
+			Logging.warn(err.getError());
+	}
+
+	public void deleteAll(OsseErrorHandler err) throws SearchLibException {
+		ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsIndex_DeleteAllDocs");
+		boolean res = LIB.OSSCLib_MsIndex_DeleteAllDocs(indexPtr, 0,
+				err.getPointer());
+		et.end();
+		if (!res)
+			err.throwError();
+	}
+
+	private long getNumberOfDocs(OsseErrorHandler err)
+			throws SearchLibException {
+		ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsIndex_GetNumberOfDocsEx");
+		long res = LIB.OSSCLib_MsIndex_GetNumberOfDocs(indexPtr,
+				err.getPointer());
+		et.end();
+		if (res == -1)
+			err.throwError();
+		return res;
+	}
+
+	public IndexStatistics getStatistics(OsseErrorHandler error)
+			throws SearchLibException {
+		return new IndexStatistics(getNumberOfDocs(error), 0, 0);
+	}
+
+	public long numDocs(OsseErrorHandler error) throws SearchLibException {
+		return getNumberOfDocs(error);
+	}
+
+	public long maxDoc(OsseErrorHandler error) throws SearchLibException {
+		return 0;
 	}
 
 	@Override
@@ -152,4 +189,5 @@ public class OsseIndex {
 	public long getPointer() {
 		return indexPtr;
 	}
+
 }

@@ -61,6 +61,8 @@ public class OsseFastStringArray extends Pointer implements Closeable {
 		for (OsseTerm term : terms)
 			pointers[i++] = new Pointer(term.memory.getPeer() + term.offset);
 		termPointers.write(0, pointers, 0, termCount);
+		System.out.println("OsseFastStringArray terms pointers: "
+				+ pointers.length);
 	}
 
 	@Override

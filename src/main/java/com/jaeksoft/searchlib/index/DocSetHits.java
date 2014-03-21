@@ -87,7 +87,7 @@ public class DocSetHits {
 			ParseException, SyntaxError, SearchLibException {
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
-				params.reader.maxDoc(), params.forFilterHits);
+				(int) params.reader.maxDoc(), params.forFilterHits);
 		if (params.isScoreRequired)
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
 		if (params.isDistanceRequired)

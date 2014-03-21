@@ -67,7 +67,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		IndexStatistics stats = client.getStatistics();
 		if (stats == null)
 			return null;
-		return stats.getNumDocs();
+		return (int) stats.getNumDocs();
 	}
 
 	public long getLastModified() {

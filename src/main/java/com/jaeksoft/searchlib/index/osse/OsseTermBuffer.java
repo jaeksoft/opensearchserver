@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index.osse;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -40,7 +41,7 @@ import com.jaeksoft.searchlib.index.osse.memory.DisposableMemory;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class OsseTermBuffer {
+public class OsseTermBuffer implements Closeable {
 
 	public final class OsseTerm {
 
@@ -123,7 +124,7 @@ public class OsseTermBuffer {
 	}
 
 	final public void reset() {
-		release();
+		close();
 		terms.clear();
 		offsets.clear();
 		positionIncrements.clear();
@@ -132,7 +133,8 @@ public class OsseTermBuffer {
 		newByteBuffer(16384);
 	}
 
-	final public void release() {
+	@Override
+	final public void close() {
 		for (DisposableMemory byteArray : byteArrays)
 			byteArray.close();
 	}
