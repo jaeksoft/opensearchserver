@@ -4,7 +4,7 @@ This API returns the content of a search template.
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/morelikethis/{template_name}```
+**URL:** ```/services/rest/index/{index_name}/morelikethis/template/{template_name}```
 
 **Method:** ```GET```
 
@@ -68,14 +68,14 @@ The search template was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-    Template not found: my_search
+    Template not found: my_mlt
     
 
 ### Sample call
 
 **Using CURL:**
 
-    curl -XGET http://localhost:9090/services/rest/index/my_index/morelikethis/my_mlt
+    curl -XGET http://localhost:9090/services/rest/index/my_index/morelikethis/template/my_mlt
     
 
 **Using jQuery:**
@@ -83,7 +83,7 @@ The search template was not returned. The reason is provided in the content.
     $.ajax({ 
        type: "GET",
        dataType: "json",
-       url: "http://localhost:9090/services/rest/index/my_index/morelikethis/my_mlt"
+       url: "http://localhost:9090/services/rest/index/my_index/morelikethis/template/my_mlt"
     }).done(function (data) {
        console.log(data);
     });

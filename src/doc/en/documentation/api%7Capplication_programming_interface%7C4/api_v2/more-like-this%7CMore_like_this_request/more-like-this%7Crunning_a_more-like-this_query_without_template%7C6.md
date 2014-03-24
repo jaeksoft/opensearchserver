@@ -1,4 +1,4 @@
-Use this API to search documents using a "More Like This" request.
+Use this API to search documents using a "More Like This" request without a template.
 
 **Requirement:** OpenSearchServer v1.5.3
 
