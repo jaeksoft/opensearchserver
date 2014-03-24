@@ -1,10 +1,10 @@
-Autocompletion uses a combination of Javascript / AJAX and PHP.
+The autocompletion function uses a combination of Javascript / AJAX and PHP.
 
-A Javascript script must call a PHP script each time there is a change in the search input. This can for example be done by using jQuery UI autocomplete feature, with the `remote datasource` option: http://jqueryui.com/autocomplete/#remote.
+A Javascript script must call a PHP script every time there is a change in the search input. One possible way to do this is using jQuery's UI autocomplete feature, with the `remote datasource` option activated. More information about this option can be found at http://jqueryui.com/autocomplete/#remote.
 
-PHP script is responsible for calling OpenSearchServer to get some search suggestion and return them to Javascript script, encoded in JSON for instance.
+The role of said PHP script is to call OpenSearchServer to get search suggestions, and return them to the Javascript script. In a typical use case these would be encoded in JSON.
 
-PHP script could look like this one:
+Here is an example of such a PHP script:
 
 ```php
 require_once(dirname(__FILE__).'/oss_api.class.php');
@@ -21,13 +21,13 @@ if(!empty($keywords)) {
   $result = $search->autocomplete($keywords, 20);    //ask for 20 suggestions
 
   $result = str_replace("\r\n", "\n", $result);      
-  $result_array = explode("\n", $result);            //this API return data in plain text, one suggestion by line
+  $result_array = explode("\n", $result);            //this API returns data in plain text, one suggestion per line
   $count = count($result_array)-1;
   for($i=0;$i<$count;$i++) {
     $completions[] = array('value' => $result_array[$i]);
   }
   
-  return json_encode($completions);                   //encode array in JSON for facilitating its use in Javascript
+  return json_encode($completions);                   //encodes the array in JSON to facilitate its use in Javascript
 }
 return '';
 ```
