@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlElements;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
@@ -113,8 +114,10 @@ public class MoreLikeThisQuery extends QueryAbstract {
 		rows = request.getRows();
 	}
 
-	public void apply(MoreLikeThisRequest request) {
-		super.apply(request);
+	@Override
+	public void apply(AbstractRequest req) {
+		super.apply(req);
+		MoreLikeThisRequest request = (MoreLikeThisRequest) req;
 		if (docQuery != null)
 			request.setDocQuery(docQuery);
 		if (likeText != null)
