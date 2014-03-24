@@ -1,13 +1,13 @@
-It is easy to create a pagination with the OssPaging class.
+The OssPaging class makes pagination easy.
 
-Let's start with the example code from [our page explaining a basic query.](Run-a-query-with-different-parameters).
+In this example we will reuse the sample code from [our page explaining a basic query.](Run-a-query-with-different-parameters).
 
-We will need to improve this code by adding:
-* a way to get the current page from the URL;
-* an "offset" in the query to OpenSearchServer, so it can return the appropriate documents;
-* display of the pagination links.
+We are now going to improve this code by adding:
+* a way to get the current results page from the URL;
+* an offset value in the query to OpenSearchServer, so it can return the appropriate documents;
+* a way to display the pagination links.
 
-Let's write this code:
+Here is the additional code:
 
 ```php 
 require_once(dirname(__FILE__).'/oss_api.class.php');
@@ -21,8 +21,8 @@ $oss_key = '98hg72de4f27cefbcb7a771335b98735e'
 $oss_api = new OssApi($oss_url, $oss_index, $oss_login, $oss_key);
 
 
-$start_offset = (isset($_GET['p'])) ? $_GET['p'] : 0;    //retrieve current page from URL, defaults to 0.
-$number_by_page = 10;                                    //let's say we want 10 documents by page
+$start_offset = (isset($_GET['p'])) ? $_GET['p'] : 0;    //retrieves the current page from URL, defaults to 0.
+$number_by_page = 10;                                    //sets the display to 10 documents per page
 
 $xmlResult = $oss_search->query('open')
                         ->lang('en')
@@ -55,17 +55,17 @@ foreach($results as $result) {
 print '</ul>';
 
 
-$ossPaging = new OssPaging($xmlResult);                   //create an OssPaging object
+$ossPaging = new OssPaging($xmlResult);                   //creates an OssPaging object
 if ($ossPaging->getResultPrev() < $ossPaging->getResultCurrentPage()) {
   $url = $ossPaging->getPageBaseURI() . ($ossPaging->getResultPrev());
-  print '<a href="'.$url.'">Previous page</a>';           //display a link to previous page
+  print '<a href="'.$url.'">Previous page</a>';           //displays a link to the previous page
 }
 if ($ossPaging->getResultNext() > $ossPaging->getResultCurrentPage()) {
   $url = $ossPaging->getPageBaseURI() . ($ossPaging->getResultNext());
-  print '<a href="'.$url.'">Next page</a>';               //display a link to next page
+  print '<a href="'.$url.'">Next page</a>';               //displays a link to the next page
 }
 ```
 
-This is of course a basic example of what can be done with `OssPaging` class. We could improve it by creating "First" and "Last" link by example, or by displaying links to several pages, before and after the current one.
+This is just a basic example of what can be done with the `OssPaging` class. We could improve on this by creating links to the first and to the last page of results, or by offering links to several results pages preceding or following the current one.
 
-This can be done by using other methods from `OssPaging`: `getResultTotal()`, `getResultLow()`, `getResultHigh()`, etc.
+To do so, simply use other methods within `OssPaging`: `getResultTotal()`, `getResultLow()`, `getResultHigh()`, etc.
