@@ -44,14 +44,14 @@ public interface RestMoreLikeThis {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/")
+	@Path("/template")
 	public QueryTemplateResultList moreLikeThisTemplateList(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
+	@Path("/template/{template_name}")
 	public MoreLikeThisTemplateResult moreLikeThisTemplateGet(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -60,7 +60,7 @@ public interface RestMoreLikeThis {
 	@PUT
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
+	@Path("/template/{template_name}")
 	public CommonResult moreLikeThisTemplateSet(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -69,7 +69,7 @@ public interface RestMoreLikeThis {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
+	@Path("/template/{template_name}")
 	public DocumentsResult moreLikeThisTemplate(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
@@ -86,7 +86,7 @@ public interface RestMoreLikeThis {
 	@DELETE
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/{template_name}")
+	@Path("/template/{template_name}")
 	public CommonResult moreLikeThisTemplateDelete(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
