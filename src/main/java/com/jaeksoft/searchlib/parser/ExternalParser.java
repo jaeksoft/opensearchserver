@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
@@ -183,6 +184,10 @@ public class ExternalParser {
 						results.error);
 			}
 			parser.setExternalResults(results);
+		} catch (ExecuteException e) {
+			if (err != null)
+				Logging.error(err.toString("UTF-8"));
+			throw e;
 		} finally {
 			IOUtils.close(configWriter, err, out);
 		}

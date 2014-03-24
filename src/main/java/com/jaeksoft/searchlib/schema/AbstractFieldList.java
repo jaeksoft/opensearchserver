@@ -245,11 +245,12 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		}
 	}
 
-	public void toNameList(List<String> nameList) {
+	public List<String> toNameList(List<String> nameList) {
 		rwl.r.lock();
 		try {
 			for (String fieldName : fieldMap.keySet())
 				nameList.add(fieldName);
+			return nameList;
 		} finally {
 			rwl.r.unlock();
 		}
