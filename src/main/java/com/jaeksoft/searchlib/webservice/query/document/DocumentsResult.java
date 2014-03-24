@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.result.ResultDocuments;
+import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -48,7 +48,8 @@ public class DocumentsResult {
 		documents = null;
 	}
 
-	public DocumentsResult(ResultDocuments result) throws SearchLibException {
+	public DocumentsResult(ResultDocumentsInterface<?> result)
+			throws SearchLibException {
 		documents = new ArrayList<DocumentResult>(0);
 		DocumentResult.populateDocumentList(result, documents);
 	}

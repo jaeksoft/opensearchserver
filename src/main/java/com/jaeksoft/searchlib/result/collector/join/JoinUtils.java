@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.result.collector.join;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinItem.JoinType;
@@ -41,7 +43,7 @@ public class JoinUtils {
 			FieldCacheIndex doc2StringIndex, int joinResultSize,
 			final int joinResultPos, Timer timer, JoinType joinType,
 			OuterCollector outerCollector, ReaderAbstract foreignReader)
-			throws NoCollectorException {
+			throws NoCollectorException, IOException {
 
 		if (docs.getSize() == 0 && outerCollector == null)
 			return docs;
@@ -125,7 +127,8 @@ public class JoinUtils {
 	final private static void innerJoin(JoinDocCollector docs1,
 			FieldCacheIndex doc1StringIndex, DocIdInterface docs2,
 			FieldCacheIndex doc2StringIndex, float scores2[],
-			int joinResultPos, OuterCollector outerCollector) {
+			int joinResultPos, OuterCollector outerCollector)
+			throws IOException {
 		float score2 = 1.0F;
 		int i1 = 0;
 		int i2 = 0;

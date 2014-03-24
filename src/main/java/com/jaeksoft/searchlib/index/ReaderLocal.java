@@ -295,7 +295,7 @@ public class ReaderLocal extends ReaderAbstract {
 	}
 
 	@Override
-	public final int maxDoc() throws IOException {
+	public final long maxDoc() throws IOException {
 		rwl.r.lock();
 		try {
 			return indexSearcher.maxDoc();
@@ -305,7 +305,7 @@ public class ReaderLocal extends ReaderAbstract {
 	}
 
 	@Override
-	public final int numDocs() {
+	public final long numDocs() {
 		rwl.r.lock();
 		try {
 			return indexReader.numDocs();

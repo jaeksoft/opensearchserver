@@ -50,30 +50,6 @@ public interface RestCommand {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/online/{index}/json")
-	public CommonResult onlineJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/online/{index}/xml")
-	public CommonResult onlineXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/offline/{index}/json")
-	public CommonResult offlineJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/offline/{index}/xml")
-	public CommonResult offlineXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/reload/{index}/json")
 	public CommonResult reloadJSON(@PathParam("index") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);

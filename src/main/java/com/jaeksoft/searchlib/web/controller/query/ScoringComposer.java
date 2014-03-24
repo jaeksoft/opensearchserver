@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.scoring.AdvancedScoreItem;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Scoring.Type;
 
+@AfterCompose(superclass = true)
 public class ScoringComposer extends AbstractQueryController {
 
 	private AdvancedScoreItem currentScoreItem;

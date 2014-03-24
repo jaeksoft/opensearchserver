@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
@@ -43,7 +44,8 @@ public class ScoreBufferAdvancedCollector extends ScoreBufferCollector {
 			final AdvancedScore advancedScore,
 			final DocSetHitBaseCollector base,
 			final ScoreBufferCollector scoreBufferCollector,
-			final DistanceCollector distanceCollector) throws IOException {
+			final DistanceCollector distanceCollector) throws IOException,
+			SearchLibException {
 		super(base);
 		this.scoreBufferCollector = scoreBufferCollector;
 		AdvancedScoreItem[] scoreItems = advancedScore.getArray();

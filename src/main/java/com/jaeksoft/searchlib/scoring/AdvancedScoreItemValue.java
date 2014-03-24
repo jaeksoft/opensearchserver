@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.scoring;
 
 import java.io.IOException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
 import com.jaeksoft.searchlib.index.docvalue.DocValueType;
@@ -43,7 +44,8 @@ public class AdvancedScoreItemValue {
 
 	public AdvancedScoreItemValue(final ReaderAbstract reader,
 			final AdvancedScoreItem scoreItem,
-			final DistanceCollector distanceCollector) throws IOException {
+			final DistanceCollector distanceCollector) throws IOException,
+			SearchLibException {
 		String fieldName = scoreItem.getFieldName();
 		switch (scoreItem.getType()) {
 		case FIELD_ORDER:
@@ -59,7 +61,7 @@ public class AdvancedScoreItemValue {
 			throw new IOException("Unknown score function");
 		}
 		weight = (float) scoreItem.getWeight();
-		valueArray = new FloatBufferedArray(reader.maxDoc());
+		valueArray = new FloatBufferedArray((int) reader.maxDoc());
 		maxValue = 0;
 		finalArray = null;
 	}

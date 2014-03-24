@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -61,6 +60,10 @@ import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.classifier.Classifier;
 import com.jaeksoft.searchlib.classifier.ClassifierManager;
+import com.jaeksoft.searchlib.cluster.ClusterManager;
+import com.jaeksoft.searchlib.cluster.ClusterNotification;
+import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
+import com.jaeksoft.searchlib.cluster.VersionFile;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
@@ -113,6 +116,8 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public abstract class Config implements ThreadFactory {
+
+	private final VersionFile versionFile;
 
 	private IndexAbstract index = null;
 
@@ -227,6 +232,8 @@ public abstract class Config implements ThreadFactory {
 				throw new SearchLibException(
 						"Indx not found. The index path is not a directory.");
 
+			versionFile = new VersionFile(indexDir);
+
 			File configFile = new File(indexDirectory, "config.xml");
 
 			if (configXmlResourceName != null) {
@@ -264,6 +271,8 @@ public abstract class Config implements ThreadFactory {
 			indexAbstract.addUpdateInterface(getLearnerManager());
 			indexAbstract.addUpdateInterface(getAuthManager());
 
+			ClusterManager.getInstance().openClient(indexDir);
+
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (DOMException e) {
@@ -296,6 +305,7 @@ public abstract class Config implements ThreadFactory {
 			TransformerConfigurationException, SAXException,
 			SearchLibException, XPathExpressionException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
+		versionFile.lock();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -312,16 +322,20 @@ public abstract class Config implements ThreadFactory {
 				iptl.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
-			cfr.rotate();
+			cfr.rotate(versionFile);
+			ClusterManager.notify(new ClusterNotification(Type.CLOSE_CLIENT,
+					indexDir));
 		} finally {
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
-	public void saveParsers() throws SearchLibException {
+	public void saveParsers() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -329,7 +343,9 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getParserSelector().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
@@ -342,13 +358,15 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
-	public void saveJobs() throws SearchLibException {
+	public void saveJobs() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "jobs.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			JobList jobList = getJobList();
 			rwl.w.lock();
@@ -357,12 +375,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				jobList.writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
@@ -371,6 +389,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -379,6 +398,7 @@ public abstract class Config implements ThreadFactory {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -386,20 +406,24 @@ public abstract class Config implements ThreadFactory {
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 				getReplicationList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
-	public void saveRequests() throws SearchLibException {
+	public void saveRequests() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -407,12 +431,12 @@ public abstract class Config implements ThreadFactory {
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 				getRequestMap().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -420,6 +444,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -625,11 +650,12 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveClassifier(Classifier classifier)
-			throws SearchLibException, UnsupportedEncodingException {
+			throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -637,12 +663,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				classifier.writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
@@ -650,6 +676,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 
 	}
@@ -660,25 +687,30 @@ public abstract class Config implements ThreadFactory {
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
-				cfr.delete();
+				cfr.delete(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
 	public void saveLearner(Learner learner) throws SearchLibException,
-			UnsupportedEncodingException {
+			IOException {
 		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -686,12 +718,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				learner.writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
@@ -699,6 +731,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 
 	}
@@ -709,16 +742,20 @@ public abstract class Config implements ThreadFactory {
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
-				cfr.delete();
+				cfr.delete(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -751,11 +788,12 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveDatabaseCrawlList() throws SearchLibException {
+	public void saveDatabaseCrawlList() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"databaseCrawlList.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -763,12 +801,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getDatabaseCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -776,6 +814,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -807,10 +846,11 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveRestCrawlList() throws SearchLibException {
+	public void saveRestCrawlList() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "restCrawlList.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -818,12 +858,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getRestCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -831,6 +871,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -1129,12 +1170,12 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void save(Renderer renderer) throws SearchLibException,
-			UnsupportedEncodingException {
+	public void save(Renderer renderer) throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
 				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -1142,12 +1183,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				renderer.writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} catch (TransformerConfigurationException e) {
 				throw new SearchLibException(e);
 			} catch (SAXException e) {
-				throw new SearchLibException(e);
-			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
 				rwl.w.unlock();
@@ -1155,31 +1196,31 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 
 	}
 
-	public void delete(Renderer renderer) throws SearchLibException {
+	public void delete(Renderer renderer) throws SearchLibException,
+			IOException {
+		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
+				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
-		ConfigFileRotation cfr = null;
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
-				cfr = configFiles
-						.get(getRendererDirectory(),
-								URLEncoder.encode(renderer.getName(), "UTF-8")
-										+ ".xml");
-				cfr.delete();
-			} catch (IOException e) {
-				throw new SearchLibException(e);
+				cfr.delete(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
 		} finally {
 			longTermLock.rl.unlock();
-			if (cfr != null)
-				cfr.abort();
+			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -1554,11 +1595,12 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveSiteMapList() throws SearchLibException {
+	public void saveSiteMapList() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-sitemap.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -1566,12 +1608,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getSiteMapList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -1579,6 +1621,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -1601,11 +1644,12 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveUrlFilterList() throws SearchLibException {
+	public void saveUrlFilterList() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-urlfilter.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -1613,12 +1657,12 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getUrlFilterList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
+				ClusterManager.notify(new ClusterNotification(
+						Type.CLOSE_CLIENT, indexDir));
 			} finally {
 				rwl.w.unlock();
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
@@ -1626,6 +1670,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 
@@ -1863,21 +1908,21 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	private void closeQuiet() {
+
+		try {
+			ClusterManager.getInstance().closeClient(indexDir);
+		} catch (Throwable e) {
+			Logging.warn(e.getMessage(), e);
+		}
+
 		try {
 			getIndexAbstract().close();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Logging.warn(e.getMessage(), e);
 		}
 		try {
 			getLogReportManager().close();
-		} catch (Exception e) {
-			Logging.warn(e.getMessage(), e);
-		}
-		try {
-			StatisticsList statList = getStatisticsList();
-			if (statList != null)
-				statList.save(getStatStorage());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			Logging.warn(e.getMessage(), e);
 		}
 	}

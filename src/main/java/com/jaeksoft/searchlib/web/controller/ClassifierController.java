@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -159,8 +158,7 @@ public class ClassifierController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onSave() throws SearchLibException,
-			UnsupportedEncodingException {
+	public void onSave() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return;

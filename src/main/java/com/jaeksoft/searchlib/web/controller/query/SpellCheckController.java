@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckFieldList;
 
+@AfterCompose(superclass = true)
 public class SpellCheckController extends AbstractQueryController {
 
 	private transient TreeSet<String> fieldLeft;

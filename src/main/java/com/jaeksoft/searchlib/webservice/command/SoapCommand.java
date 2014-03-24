@@ -40,14 +40,6 @@ public interface SoapCommand {
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult online(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
-
-	public CommonResult offline(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
-
 	public CommonResult truncate(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);

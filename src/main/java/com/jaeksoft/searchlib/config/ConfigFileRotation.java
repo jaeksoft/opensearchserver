@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,8 @@ import java.io.PrintWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import com.jaeksoft.searchlib.cluster.VersionFile;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
 public class ConfigFileRotation {
@@ -65,11 +67,11 @@ public class ConfigFileRotation {
 	private void freeTempPrintWriter() {
 		if (tempPrintWriter == null)
 			return;
-		tempPrintWriter.close();
+		IOUtils.close(tempPrintWriter);
 		tempPrintWriter = null;
 	}
 
-	public void abort() {
+	public void abort() throws IOException {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -78,7 +80,7 @@ public class ConfigFileRotation {
 		}
 	}
 
-	public void rotate() throws IOException {
+	public void rotate(VersionFile versionFile) throws IOException {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -89,12 +91,13 @@ public class ConfigFileRotation {
 			if (masterFile.exists())
 				FileUtils.moveFile(masterFile, oldFile);
 			FileUtils.moveFile(tempFile, masterFile);
+			versionFile.increment();
 		} finally {
 			lock.rl.unlock();
 		}
 	}
 
-	public void delete() throws IOException {
+	public void delete(VersionFile versionFile) throws IOException {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -102,6 +105,7 @@ public class ConfigFileRotation {
 				oldFile.delete();
 			if (masterFile.exists())
 				FileUtils.moveFile(masterFile, oldFile);
+			versionFile.increment();
 		} finally {
 			lock.rl.unlock();
 		}

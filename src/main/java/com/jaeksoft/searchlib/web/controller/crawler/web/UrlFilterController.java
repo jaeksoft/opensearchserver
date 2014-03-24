@@ -23,6 +23,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
+
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -52,7 +54,7 @@ public class UrlFilterController extends CrawlerController {
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			getUrlFilterList().remove(urlFilterItem);
 			getClient().saveUrlFilterList();
 			onCancel();
@@ -133,7 +135,8 @@ public class UrlFilterController extends CrawlerController {
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		if (selectedFilter != null)
 			currentFilter.copyTo(selectedFilter);
 		else

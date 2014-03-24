@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -49,9 +50,9 @@ public interface UpdateInterfaces {
 	public static interface Delete extends UpdateInterfaces {
 
 		public void delete(final String field, final String value)
-				throws SearchLibException;
+				throws SearchLibException, IOException;
 
 		public void delete(final String field, final Collection<String> values)
-				throws SearchLibException;
+				throws SearchLibException, IOException;
 	}
 }

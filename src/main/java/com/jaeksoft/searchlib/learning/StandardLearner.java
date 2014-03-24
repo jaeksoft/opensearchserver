@@ -123,7 +123,8 @@ public class StandardLearner implements LearnerInterface {
 		}
 		TermVectorCache termVectorCache = ((IndexLucene) learnerClient
 				.getIndex()).getTermVectorCache();
-		termVectorCache.setMaxSize(learnerClient.getStatistics().getNumDocs());
+		termVectorCache.setMaxSize((int) learnerClient.getStatistics()
+				.getNumDocs());
 		return boostMap.values();
 	}
 
@@ -233,7 +234,7 @@ public class StandardLearner implements LearnerInterface {
 	@Override
 	public void remove(Client client, String searchRequest, String field,
 			Collection<String> values, FieldMap sourceFieldMap)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			checkIndex(sourceFieldMap);

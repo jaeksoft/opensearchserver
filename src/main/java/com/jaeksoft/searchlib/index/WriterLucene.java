@@ -176,7 +176,7 @@ public class WriterLucene extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (updated) {
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(document);
@@ -215,7 +215,7 @@ public class WriterLucene extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			if (count > 0) {
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 				if (afterUpdateList != null)
 					for (UpdateInterfaces.After afterUpdate : afterUpdateList)
 						afterUpdate.update(documents);
@@ -301,18 +301,18 @@ public class WriterLucene extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexLucene.getStatistics().getNumDocs();
+			long l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(new Term(field, value));
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
 					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
 						afterDelete.delete(field, value);
-			return l;
+			return (int) l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -348,19 +348,19 @@ public class WriterLucene extends WriterAbstract {
 			int i = 0;
 			for (String value : values)
 				terms[i++] = new Term(field, value);
-			int l = indexLucene.getStatistics().getNumDocs();
+			long l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(terms);
 			close(indexWriter);
 			indexWriter = null;
 			if (terms.length > 0)
-				indexLucene.reload();
+				indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			if (l > 0)
 				if (afterDeleteList != null)
 					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
 						afterDelete.delete(field, values);
-			return l;
+			return (int) l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -410,14 +410,14 @@ public class WriterLucene extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int l = indexLucene.getStatistics().getNumDocs();
+			long l = indexLucene.getStatistics().getNumDocs();
 			indexWriter = open();
 			indexWriter.deleteDocuments(query.getQuery());
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
-			return l;
+			return (int) l;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
@@ -447,7 +447,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.deleteAll();
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 		} catch (CorruptIndexException e) {
 			throw new SearchLibException(e);
 		} catch (LockObtainFailedException e) {
@@ -477,7 +477,7 @@ public class WriterLucene extends WriterAbstract {
 			indexWriter.addIndexes(directory.getDirectory());
 			close(indexWriter);
 			indexWriter = null;
-			indexLucene.reload();
+			indexLucene.reloadNoLock();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

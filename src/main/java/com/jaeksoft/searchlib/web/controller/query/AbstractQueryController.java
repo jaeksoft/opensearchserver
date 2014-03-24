@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.web.controller.query;
 
 import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.GlobalCommand;
 
 import com.jaeksoft.searchlib.Client;
@@ -144,18 +143,14 @@ public abstract class AbstractQueryController extends CommonController {
 	}
 
 	@Override
-	@GlobalCommand
-	public void eventEditRequest(
-			@BindingParam("request") AbstractRequest request)
+	public void eventEditRequest(AbstractRequest request)
 			throws SearchLibException {
 		super.eventEditRequest(request);
 		reload();
 	}
 
 	@Override
-	@GlobalCommand
-	public void eventEditRequestResult(
-			@BindingParam("result") AbstractResult<?> result)
+	public void eventEditRequestResult(AbstractResult<?> result)
 			throws SearchLibException {
 		super.eventEditRequestResult(result);
 		reload();

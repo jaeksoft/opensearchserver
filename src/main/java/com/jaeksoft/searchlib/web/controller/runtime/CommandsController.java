@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -131,7 +131,7 @@ public class CommandsController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onReloadClient() throws SearchLibException {
+	public void onReloadClient() throws SearchLibException, IOException {
 		synchronized (this) {
 			getClient().reload();
 		}
@@ -140,22 +140,6 @@ public class CommandsController extends CommonController {
 	@Command
 	@NotifyChange("*")
 	public void onTimer() throws SearchLibException {
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onOnline() throws SearchLibException {
-		synchronized (this) {
-			getClient().setOnline(true);
-		}
-	}
-
-	@Command
-	@NotifyChange("*")
-	public void onOffline() throws SearchLibException {
-		synchronized (this) {
-			getClient().setOnline(false);
-		}
 	}
 
 	@Command
@@ -174,22 +158,11 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public String getOnlineStatus() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			return client.isOnline() ? "Online" : "Offline";
-		}
-	}
-
 	public String getOptimizeStatus() throws SearchLibException, IOException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			if (!client.isOnline())
-				return "Unknown";
 			if (client.isOptimizing())
 				return "Running";
 			IndexStatistics stats = client.getStatistics();
@@ -199,26 +172,11 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public boolean isOnline() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return false;
-			return client.isOnline();
-		}
-	}
-
-	public boolean isOffline() throws SearchLibException {
-		return !isOnline();
-	}
-
 	public String getDocumentNumber() throws SearchLibException, IOException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			if (!client.isOnline())
-				return "Unknown";
 			IndexStatistics stats = client.getStatistics();
 			if (stats == null)
 				return null;
@@ -311,26 +269,6 @@ public class CommandsController extends CommonController {
 	public String getOptimizeJsonApi() throws UnsupportedEncodingException,
 			SearchLibException {
 		return CommandImpl.getOptimizeJSON(getLoggedUser(), getClient());
-	}
-
-	public String getOnlineXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOnlineXML(getLoggedUser(), getClient());
-	}
-
-	public String getOnlineJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOnlineJSON(getLoggedUser(), getClient());
-	}
-
-	public String getOfflineXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOfflineXML(getLoggedUser(), getClient());
-	}
-
-	public String getOfflineJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOfflineJSON(getLoggedUser(), getClient());
 	}
 
 	public String getTruncateXmlApi() throws UnsupportedEncodingException,

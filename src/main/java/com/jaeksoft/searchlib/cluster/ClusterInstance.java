@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,28 +24,27 @@
 
 package com.jaeksoft.searchlib.cluster;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.List;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jaeksoft.searchlib.util.JsonUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@JsonInclude(Include.NON_NULL)
 public class ClusterInstance {
 
+	private final String id;
 	private URI uri = null;
-	private Integer id = null;
-	private String login = null;
-	private String apiKey = null;
-	private ClusterStatus status = ClusterStatus.UNKNOWN;
-	private Long statusTime = null;
-	private int allowedConnectionTimeOut = 1000;
+	private ClusterStatus status = ClusterStatus.OFFLINE;
+	private Long fileTime = null;
+
+	public ClusterInstance(String id) {
+		this.id = id;
+	}
+
+	public ClusterInstance() {
+		this(null);
+	}
 
 	/**
 	 * @return the instanceUrl
@@ -55,42 +54,20 @@ public class ClusterInstance {
 	}
 
 	/**
-	 * @param instanceUrl
-	 *            the instanceUrl to set
-	 * @throws URISyntaxException
+	 * @param uri
+	 *            the uri to set
 	 */
-	public void setUri(String instanceUrl) throws URISyntaxException {
-		this.uri = new URI(instanceUrl);
+	public void setUri(URI uri) {
+		this.uri = uri;
 	}
 
 	/**
-	 * @return the login
+	 * 
+	 * @return if the instance is online
 	 */
-	public String getLogin() {
-		return login;
-	}
-
-	/**
-	 * @param login
-	 *            the login to set
-	 */
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
-	/**
-	 * @return the apiKey
-	 */
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	/**
-	 * @param apiKey
-	 *            the apiKey to set
-	 */
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
+	@JsonIgnore
+	public boolean isOnline() {
+		return status == ClusterStatus.ONLINE;
 	}
 
 	/**
@@ -100,74 +77,30 @@ public class ClusterInstance {
 		return status;
 	}
 
-	/**
-	 * @return the statusTime
-	 */
-	public Long getStatusTime() {
-		return statusTime;
+	public void setStatus(ClusterStatus status) {
+		this.status = status;
 	}
 
 	/**
-	 * @return the allowedConnectionTimeOut
+	 * @return the fileTime
 	 */
-	public int getAllowedConnectionTimeOut() {
-		return allowedConnectionTimeOut;
+	Long getFileTime() {
+		return fileTime;
 	}
 
 	/**
-	 * @param allowedConnectionTimeOut
-	 *            the allowedConnectionTimeOut to set
+	 * @param fileTime
+	 *            the fileTime to set
 	 */
-	public void setAllowedConnectionTimeOut(int allowedConnectionTimeOut) {
-		this.allowedConnectionTimeOut = allowedConnectionTimeOut;
+	void setFileTime(Long fileTime) {
+		this.fileTime = fileTime;
 	}
 
 	/**
-	 * @return the instanceId
+	 * @return the hardwareAddress
 	 */
-	public Integer getId() {
+	public String getId() {
 		return id;
-	}
-
-	// TODO
-	public void checkStatus() {
-
-	}
-
-	private final static TypeReference<List<ClusterInstance>> ClusterInstanceListTypeRef = new TypeReference<List<ClusterInstance>>() {
-	};
-
-	/**
-	 * Read the a list of instances stored in JSON format
-	 * 
-	 * @param file
-	 * @return
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	final static List<ClusterInstance> readList(File file)
-			throws JsonParseException, JsonMappingException, IOException {
-		if (!file.exists())
-			return null;
-		return JsonUtils.getObject(file, ClusterInstanceListTypeRef);
-	}
-
-	/**
-	 * Write a list of instances in JSON format
-	 * 
-	 * @param clusterInstances
-	 *            A collection of cluster instances
-	 * @param file
-	 *            The destination file
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	final static void writeList(Collection<ClusterInstance> clusterInstances,
-			File file) throws JsonGenerationException, JsonMappingException,
-			IOException {
-		JsonUtils.jsonToFile(clusterInstances, file);
 	}
 
 }

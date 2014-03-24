@@ -325,7 +325,7 @@ public class Learner implements InfoCallback {
 	}
 
 	public void remove(String field, Collection<String> values)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {

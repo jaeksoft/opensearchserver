@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,13 +27,17 @@ package com.jaeksoft.searchlib.index.osse;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.sun.jna.Structure;
 
 public class OsseTermOffset extends Structure {
 
-	public int ui32StartOffset;
-	public int ui32EndOffset;
+	final public int ui32StartOffset;
+	final public int ui32EndOffset;
+
+	public OsseTermOffset(int start, int end) {
+		this.ui32StartOffset = start;
+		this.ui32EndOffset = end;
+	}
 
 	private final static List<?> fieldOrderList = Arrays.asList(new String[] {
 			"ui32StartOffset", "ui32EndOffset" });
@@ -41,15 +45,6 @@ public class OsseTermOffset extends Structure {
 	@Override
 	protected List<?> getFieldOrder() {
 		return fieldOrderList;
-	}
-
-	public final void set(TokenTerm tokenTerm) {
-		ui32StartOffset = tokenTerm.start;
-		ui32EndOffset = tokenTerm.end;
-	}
-
-	public static final OsseTermOffset[] getNewArray(int size) {
-		return (OsseTermOffset[]) new OsseTermOffset().toArray(size);
 	}
 
 }

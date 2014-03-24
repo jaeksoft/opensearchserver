@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.schema.SchemaField;
 
+@AfterCompose(superclass = true)
 public class MoreLikeThisController extends AbstractQueryController {
 
 	private transient List<String> fieldsLeft;

@@ -54,7 +54,7 @@ public abstract class ReaderAbstract implements ReaderInterface {
 		this.indexConfig = indexConfig;
 	}
 
-	public abstract int numDocs();
+	public abstract long numDocs() throws IOException, SearchLibException;
 
 	public abstract void search(Query query, Filter filter, Collector collector)
 			throws IOException;
@@ -82,7 +82,7 @@ public abstract class ReaderAbstract implements ReaderInterface {
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException;
 
-	public abstract int maxDoc() throws IOException;
+	public abstract long maxDoc() throws IOException, SearchLibException;
 
 	final public DocValueInterface getDocValueInterface(final String field,
 			final DocValueType type) throws IOException {

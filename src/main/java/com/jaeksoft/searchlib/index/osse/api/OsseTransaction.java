@@ -25,19 +25,21 @@
 package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.Closeable;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.CharacterCodingException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.memory.DocumentRecord;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
@@ -54,7 +56,7 @@ public class OsseTransaction implements Closeable {
 
 	public final MemoryBuffer memoryBuffer;
 
-	private final Map<String, Pointer> fieldPointerMap;
+	private final Map<String, Long> fieldPointerMap;
 
 	public OsseTransaction(OsseIndex index, Collection<FieldInfo> fieldInfos,
 			int maxBufferSize) throws SearchLibException {
@@ -68,10 +70,10 @@ public class OsseTransaction implements Closeable {
 		if (transactPtr == 0)
 			err.throwError();
 		if (fieldInfos != null) {
-			fieldPointerMap = new TreeMap<String, Pointer>();
+			fieldPointerMap = new TreeMap<String, Long>();
 			for (FieldInfo fieldInfo : fieldInfos)
-				fieldPointerMap.put(fieldInfo.name, new Pointer(
-						getExistingField(fieldInfo)));
+				fieldPointerMap
+						.put(fieldInfo.name, getExistingField(fieldInfo));
 		} else
 			fieldPointerMap = null;
 	}
@@ -88,6 +90,7 @@ public class OsseTransaction implements Closeable {
 			FunctionTimer.dumpExecutionInfo(true);
 	}
 
+	@Deprecated
 	final public int newDocumentId() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
@@ -184,7 +187,8 @@ public class OsseTransaction implements Closeable {
 	// err.throwError();
 	// }
 
-	final public void updateTerms(final int documentId,
+	@Deprecated
+	final public void updateTerms_(final int documentId,
 			final FieldInfo fieldInfo, final OsseTermBuffer buffer)
 			throws SearchLibException {
 		OsseFastStringArray ofsa = null;
@@ -194,21 +198,42 @@ public class OsseTransaction implements Closeable {
 			final ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
 			final int res = OsseIndex.LIB
-					.OSSCLib_MsTransact_Document_AddStringTerms(Memory
-							.nativeValue(fieldPointerMap.get(fieldInfo.name)),
-							documentId, Memory.nativeValue(ofsa), termCount,
+					.OSSCLib_MsTransact_Document_AddStringTerms(
+							fieldPointerMap.get(fieldInfo.name), documentId,
+							Memory.nativeValue(ofsa), termCount,
 							err.getPointer());
 			et.end();
 			if (res != termCount)
 				err.throwError();
-			buffer.release();
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
-		} catch (CharacterCodingException e) {
-			throw new SearchLibException(e);
 		} finally {
 			if (ofsa != null)
 				ofsa.close();
+		}
+	}
+
+	final public void updateDocument(final MemoryBuffer memoryBuffer,
+			final OsseTermBuffer termBuffer, final Schema schema,
+			final IndexDocument indexDocument) throws SearchLibException,
+			IOException {
+		DocumentRecord documentRecord = null;
+		try {
+			termBuffer.reset();
+			documentRecord = new DocumentRecord(memoryBuffer, termBuffer,
+					schema, fieldPointerMap, indexDocument);
+			final ExecutionToken et = FunctionTimer
+					.newExecutionToken("OSSCLib_MsTransact_AddEntireNewDocument");
+			final int res = OsseIndex.LIB
+					.OSSCLib_MsTransact_AddEntireNewDocument(transactPtr,
+							documentRecord.getNumberOfField(),
+							documentRecord.getFieldPtrArrayPointer(),
+							documentRecord.getNumberOfTermsArrayPointer(),
+							documentRecord.getTermArrayPointer(),
+							err.getPointer());
+			et.end();
+			if (res == 0)
+				err.throwError();
+		} finally {
+			IOUtils.close(documentRecord);
 		}
 	}
 

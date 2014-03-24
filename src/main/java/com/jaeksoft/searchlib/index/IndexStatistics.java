@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,9 +30,9 @@ import org.apache.lucene.index.IndexReader;
 
 public class IndexStatistics {
 
-	private int maxDoc;
-	private int numDocs;
-	private int numDeletedDocs;
+	private long maxDoc;
+	private long numDocs;
+	private long numDeletedDocs;
 	private boolean hasDeletions;
 	private boolean isOptimized;
 
@@ -52,6 +52,14 @@ public class IndexStatistics {
 		isOptimized = indexReader.isOptimized();
 	}
 
+	public IndexStatistics(long maxDoc, long numDocs, long numDeletedDocs) {
+		this.maxDoc = maxDoc;
+		this.numDocs = numDocs;
+		this.numDeletedDocs = numDeletedDocs;
+		this.hasDeletions = numDeletedDocs > 0;
+		this.isOptimized = true;
+	}
+
 	protected void add(IndexStatistics stats) {
 		maxDoc += stats.maxDoc;
 		numDocs += stats.numDocs;
@@ -62,15 +70,15 @@ public class IndexStatistics {
 			isOptimized = stats.isOptimized;
 	}
 
-	final public int getMaxDoc() throws IOException {
+	final public long getMaxDoc() throws IOException {
 		return maxDoc;
 	}
 
-	final public int getNumDocs() {
+	final public long getNumDocs() {
 		return numDocs;
 	}
 
-	final public int getNumDeletedDocs() {
+	final public long getNumDeletedDocs() {
 		return numDeletedDocs;
 	}
 

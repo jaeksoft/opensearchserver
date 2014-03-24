@@ -24,17 +24,24 @@
 
 package com.jaeksoft.searchlib.index.osse;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
 import com.jaeksoft.searchlib.index.osse.memory.DisposableMemory;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class OsseTermBuffer {
+public class OsseTermBuffer implements Closeable {
 
 	public final class OsseTerm {
 
@@ -65,69 +72,71 @@ public class OsseTermBuffer {
 				throw e;
 			}
 		}
+
 	}
 
-	final OsseTermOffset[] offsets;
-	final OsseTerm[] terms;
-	final int[] positionIncrements;
-	final int bufferSize;
-	int termCount;
+	final List<OsseTermOffset> offsets;
+	final List<OsseTerm> terms;
+	final List<Integer> positionIncrements;
 
 	private final MemoryBuffer memoryBuffer;
-	private final DisposableMemory[] byteArrays;
+	private final List<DisposableMemory> byteArrays;
 
-	private int byteArrayCount;
 	private DisposableMemory currentByteArray;
 	private ByteBuffer currentByteBuffer;
 
 	private final CharsetEncoder encoder;
 	private final int maxBytesPerChar;
 
-	public OsseTermBuffer(final MemoryBuffer memoryBuffer, final int bufferSize) {
+	public OsseTermBuffer(final MemoryBuffer memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
-		this.bufferSize = bufferSize;
-		this.terms = new OsseTerm[bufferSize];
-		this.offsets = OsseTermOffset.getNewArray(bufferSize);
-		this.positionIncrements = new int[bufferSize];
-		this.byteArrays = new DisposableMemory[bufferSize];
+		this.terms = new ArrayList<OsseTerm>(1);
+		this.offsets = new ArrayList<OsseTermOffset>(1);
+		this.positionIncrements = new ArrayList<Integer>(1);
+		this.byteArrays = new ArrayList<DisposableMemory>(1);
 		this.encoder = StringUtils.CharsetUTF8.newEncoder();
 		this.maxBytesPerChar = (int) encoder.maxBytesPerChar();
-		this.byteArrayCount = 0;
 		reset();
 	}
 
 	public OsseTermBuffer(final MemoryBuffer memoryBuffer, final String term)
 			throws IOException {
-		this(memoryBuffer, 1);
+		this(memoryBuffer);
 		addTerm(term);
 	}
 
 	final public void addTerm(final char[] charArray, final int charLength)
 			throws IOException {
-		terms[termCount++] = new OsseTerm(charArray, charLength);
+		terms.add(new OsseTerm(charArray, charLength));
 	}
 
 	final public void addTerm(final String term) throws IOException {
-		terms[termCount++] = new OsseTerm(term);
+		terms.add(new OsseTerm(term));
+	}
+
+	final public void addTerm(final CharTermAttribute termAtt,
+			final OffsetAttribute offsetAtt,
+			final PositionIncrementAttribute posIncrAtt) throws IOException {
+		terms.add(new OsseTerm(termAtt.buffer(), termAtt.length()));
+		offsets.add(new OsseTermOffset(offsetAtt.startOffset(), offsetAtt
+				.endOffset()));
+		positionIncrements.add(posIncrAtt.getPositionIncrement());
 	}
 
 	final public void reset() {
-		release();
-		termCount = 0;
+		close();
+		terms.clear();
+		offsets.clear();
+		positionIncrements.clear();
 		currentByteArray = null;
 		currentByteBuffer = null;
 		newByteBuffer(16384);
 	}
 
-	final public void release() {
-		for (int i = 0; i < byteArrayCount; i++) {
-			DisposableMemory byteArray = byteArrays[i];
-			if (byteArray == null)
-				break;
+	@Override
+	final public void close() {
+		for (DisposableMemory byteArray : byteArrays)
 			byteArray.close();
-			byteArrays[i] = null;
-		}
-		byteArrayCount = 0;
 	}
 
 	final private void checkByteBuffer(final int charLength) {
@@ -140,19 +149,19 @@ public class OsseTermBuffer {
 		currentByteArray = memoryBuffer.getNewBufferItem(length < 16384 ? 16384
 				: length);
 		currentByteBuffer = currentByteArray.getByteBuffer();
-		byteArrays[byteArrayCount++] = currentByteArray;
+		byteArrays.add(currentByteArray);
 	}
 
-	final public OsseTerm[] getTerms() {
+	final public List<OsseTerm> getTerms() {
 		return terms;
 	}
 
 	final public int getTermCount() {
-		return termCount;
+		return terms.size();
 	}
 
 	final public int getByteArrayCount() {
-		return byteArrayCount;
+		return byteArrays.size();
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,20 +24,10 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.zkoss.bind.BindUtils;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.WebApps;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventQueues;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.scheduler.JobItem;
-import com.jaeksoft.searchlib.user.User;
 
 public enum PushEvent {
 
@@ -54,7 +44,7 @@ public enum PushEvent {
 	/**
 	 * An index has been switched
 	 */
-	eventClientSwitch(EventQueues.DESKTOP),
+	eventClientSwitch(EventQueues.APPLICATION),
 
 	/**
 	 * The user logs out
@@ -98,48 +88,27 @@ public enum PushEvent {
 
 	private final String scope;
 
+	public final static String QUEUE_NAME = "oss";
+
 	private PushEvent(String scope) {
 		this.scope = scope;
 	}
 
 	public void publish() {
-		if (Executions.getCurrent() == null)
-			return;
-		Logging.debug("publish " + name());
-		BindUtils.postGlobalCommand(null, scope, name(), null);
+		publish(null);
 	}
 
-	private void publish(String name, Object data) {
-		if (Executions.getCurrent() == null)
-			return;
-		Map<String, Object> map = new TreeMap<String, Object>();
-		map.put(name, data);
-		Logging.debug("publish " + name() + " " + data);
-		BindUtils.postGlobalCommand(null, scope, name(), map);
+	public void publish(Object data) {
+		Event event = new Event(name(), null, data);
+		if (EventQueues.DESKTOP.equals(scope)) {
+			if (Executions.getCurrent() == null)
+				return;
+			EventQueues.lookup(QUEUE_NAME, true).publish(event);
+		} else if (EventQueues.APPLICATION.equals(scope)) {
+			if (WebApps.getCurrent() == null)
+				return;
+			EventQueues.lookup(QUEUE_NAME, WebApps.getCurrent(), true).publish(
+					event);
+		}
 	}
-
-	public void publish(Client client) {
-		publish("client", client);
-	}
-
-	public void publish(User user) {
-		publish("user", user);
-	}
-
-	public void publish(AbstractRequest request) {
-		publish("request", request);
-	}
-
-	public void publish(AbstractResult<?> result) {
-		publish("result", result);
-	}
-
-	public void publish(JobItem jobItem) {
-		publish("jobItem", jobItem);
-	}
-
-	public void publish(FilePathItem filePathItem) {
-		publish("filePathItem", filePathItem);
-	}
-
 }

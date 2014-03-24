@@ -129,10 +129,11 @@ public interface LearnerInterface {
 	 * @param values
 	 * @param sourceFieldMap
 	 * @throws SearchLibException
+	 * @throws IOException
 	 */
 	public void remove(Client client, String searchRequest, String field,
 			Collection<String> values, FieldMap sourceFieldMap)
-			throws SearchLibException;
+			throws SearchLibException, IOException;
 
 	/**
 	 * Return the list of field required by the learner when learning

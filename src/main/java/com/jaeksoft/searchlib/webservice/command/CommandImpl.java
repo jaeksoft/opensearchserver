@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,8 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 			return new CommonResult(true, "optimize");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
+		} catch (IOException e) {
+			throw new WebServiceException(e);
 		}
 	}
 
@@ -71,6 +73,8 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 			client.deleteAll();
 			return new CommonResult(true, "truncate");
 		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 	}
@@ -85,27 +89,7 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 			return new CommonResult(true, "merge");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
-		}
-	}
-
-	@Override
-	public CommonResult online(String use, String login, String key) {
-		try {
-			Client client = getClient(use, login, key);
-			client.setOnline(true);
-			return new CommonResult(true, "online");
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		}
-	}
-
-	@Override
-	public CommonResult offline(String use, String login, String key) {
-		try {
-			Client client = getClient(use, login, key);
-			client.setOnline(false);
-			return new CommonResult(true, "offline");
-		} catch (SearchLibException e) {
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 	}
@@ -117,6 +101,8 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 			client.reload();
 			return new CommonResult(true, "reload");
 		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (IOException e) {
 			throw new WebServiceException(e);
 		}
 	}
@@ -140,50 +126,6 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 	public static String getOptimizeJSON(User user, Client client)
 			throws UnsupportedEncodingException {
 		return RestApplication.getRestURL("/command/optimize/{index}/json",
-				user, client);
-	}
-
-	@Override
-	public CommonResult onlineJSON(String use, String login, String key) {
-		return online(use, login, key);
-	}
-
-	@Override
-	public CommonResult onlineXML(String use, String login, String key) {
-		return online(use, login, key);
-	}
-
-	public static String getOnlineXML(User user, Client client)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/command/online/{index}/xml", user,
-				client);
-	}
-
-	public static String getOnlineJSON(User user, Client client)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/command/online/{index}/json", user,
-				client);
-	}
-
-	@Override
-	public CommonResult offlineJSON(String use, String login, String key) {
-		return offline(use, login, key);
-	}
-
-	@Override
-	public CommonResult offlineXML(String use, String login, String key) {
-		return offline(use, login, key);
-	}
-
-	public static String getOfflineXML(User user, Client client)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/command/offline/{index}/xml", user,
-				client);
-	}
-
-	public static String getOfflineJSON(User user, Client client)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/command/offline/{index}/json",
 				user, client);
 	}
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,8 @@ import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
 import com.jaeksoft.searchlib.cluster.ClusterManager;
+import com.jaeksoft.searchlib.cluster.ClusterNotification;
+import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
@@ -95,8 +97,9 @@ public class ClientCatalog {
 	 * 
 	 * @param data_directory
 	 *            The directory which contain the indexes
+	 * @throws IOException
 	 */
-	public static final void init(File data_directory) {
+	public static final void init(File data_directory) throws IOException {
 		StartStopListener.start(data_directory);
 	}
 
@@ -108,18 +111,18 @@ public class ClientCatalog {
 		StartStopListener.shutdown();
 	}
 
-	private static final Client getClient(File indexDirectory)
-			throws SearchLibException {
-
+	private static final Client getClient(File indexDirectory,
+			boolean openIfNotLoaded) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
+			if (!openIfNotLoaded)
+				return null;
 		} finally {
 			rwl.r.unlock();
 		}
-
 		rwl.w.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
@@ -134,16 +137,24 @@ public class ClientCatalog {
 		}
 	}
 
-	public static final void openAll() {
+	private static final void closeClient(File indexDirectory) {
+		rwl.r.lock();
+		try {
+			Client client = CLIENTS.get(indexDirectory);
+			if (client == null)
+				return;
+		} finally {
+			rwl.r.unlock();
+		}
 		rwl.w.lock();
 		try {
-
-			for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-				Logging.info("OSS loads index " + catalogItem.getIndexName());
-				getClient(catalogItem.getIndexName());
-			}
-		} catch (SearchLibException e) {
-			Logging.error(e);
+			Client client = CLIENTS.get(indexDirectory);
+			if (client == null)
+				return;
+			System.out.println("Closing client " + indexDirectory.getName());
+			client.close();
+			CLIENTS.remove(indexDirectory);
+			PushEvent.eventClientSwitch.publish(client);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -218,12 +229,30 @@ public class ClientCatalog {
 		return new LastModifiedAndSize(file, false);
 	}
 
+	public static final Client getLoadedClient(String indexName)
+			throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				indexName), false);
+	}
+
 	public static final Client getClient(String indexName)
 			throws SearchLibException {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				indexName), true);
+	}
+
+	public static final void closeClient(String indexName)
+			throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		closeClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 				indexName));
 	}
 
@@ -408,14 +437,17 @@ public class ClientCatalog {
 			IOException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
+		ClientFactory.INSTANCE.versionFile.lock();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
-			cfr.rotate();
+			cfr.rotate(ClientFactory.INSTANCE.versionFile);
+			ClusterManager.notify(new ClusterNotification(Type.RELOAD_USER));
 		} finally {
 			cfr.abort();
+			ClientFactory.INSTANCE.versionFile.release();
 		}
 	}
 

@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.learning;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -108,8 +107,7 @@ public class LearnerManager implements UpdateInterfaces.After,
 		}
 	}
 
-	public void add(Learner item) throws SearchLibException,
-			UnsupportedEncodingException {
+	public void add(Learner item) throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
 			if (learnerMap.get(item.getName()) != null)
@@ -122,8 +120,7 @@ public class LearnerManager implements UpdateInterfaces.After,
 		}
 	}
 
-	public void set(Learner item) throws SearchLibException,
-			UnsupportedEncodingException {
+	public void set(Learner item) throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
 			if (learnerMap.get(item.getName()) == null)
@@ -190,7 +187,8 @@ public class LearnerManager implements UpdateInterfaces.After,
 	}
 
 	@Override
-	public void delete(String field, String value) throws SearchLibException {
+	public void delete(String field, String value) throws SearchLibException,
+			IOException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;
@@ -202,7 +200,7 @@ public class LearnerManager implements UpdateInterfaces.After,
 
 	@Override
 	public void delete(String field, Collection<String> values)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Learner[] learners = getActiveArray();
 		if (learners == null)
 			return;

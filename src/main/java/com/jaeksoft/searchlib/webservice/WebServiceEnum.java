@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
 import com.jaeksoft.searchlib.webservice.query.document.DocumentsImpl;
+import com.jaeksoft.searchlib.webservice.query.morelikethis.MoreLikeThisImpl;
 import com.jaeksoft.searchlib.webservice.query.namedEntity.NamedEntityImpl;
 import com.jaeksoft.searchlib.webservice.query.search.SearchImpl;
 import com.jaeksoft.searchlib.webservice.query.spellcheck.SpellcheckImpl;
@@ -72,6 +73,8 @@ public enum WebServiceEnum {
 	Learner(LearnerImpl.class, "/learner"),
 
 	Monitor(MonitorImpl.class, "/monitor"),
+
+	MoreLikeThis(MoreLikeThisImpl.class, "/morelikethis"),
 
 	NamedEntity(NamedEntityImpl.class, "/namedentity"),
 
