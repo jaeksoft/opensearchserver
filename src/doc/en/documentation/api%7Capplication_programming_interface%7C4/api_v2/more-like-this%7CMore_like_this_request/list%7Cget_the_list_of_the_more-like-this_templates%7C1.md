@@ -4,7 +4,7 @@ This API returns the templates. A templates is a query stored with its parameter
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/morelikethis```
+**URL:** ```/services/rest/index/{index_name}/morelikethis/template```
 
 **Method:** ```GET```
 
@@ -47,7 +47,7 @@ The list was not returned. The reason is provided in the content.
 
 **Using CURL:**
 
-    curl -XGET http://localhost:9090/services/rest/index/my_index/morelikethis
+    curl -XGET http://localhost:9090/services/rest/index/my_index/morelikethis/template
     
 
 **Using jQuery:**
@@ -55,7 +55,7 @@ The list was not returned. The reason is provided in the content.
     $.ajax({ 
        type: "GET",
        dataType: "json",
-       url: "http://localhost:9090/services/rest/index/my_index/morelikethis"
+       url: "http://localhost:9090/services/rest/index/my_index/morelikethis/template"
     }).done(function (data) {
        console.log(data);
     });

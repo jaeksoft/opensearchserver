@@ -4,7 +4,7 @@ Use this API to delete a MoreLikeThis template.
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/morelikethis/{template_name}```
+**URL:** ```/services/rest/index/{index_name}/morelikethis/template/{template_name}```
 
 **Method:** ```DELETE```
 
@@ -43,7 +43,7 @@ The deletion failed. The reason is provided in the content.
 
 **Using CURL:**
 
-    curl -XDELETE http://localhost:9090/services/rest/index/my_index/morelikethis/my_mlt
+    curl -XDELETE http://localhost:9090/services/rest/index/my_index/morelikethis/template/my_mlt
     
 
 **Using jQuery:**
@@ -51,7 +51,7 @@ The deletion failed. The reason is provided in the content.
     $.ajax({ 
        type: "DELETE",
        dataType: "json",
-       url: "http://localhost:9090/services/rest/index/my_index/morelikethis/my_mlt
+       url: "http://localhost:9090/services/rest/index/my_index/morelikethis/template/my_mlt
     }).done(function (data) {
         console.log(data);
     });
