@@ -332,7 +332,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				filter.setNegative(negative);
 		}
 
-		protected abstract FilterAbstract<?> newFilter();
+		public abstract FilterAbstract<?> newFilter();
 
 	}
 
@@ -364,7 +364,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		protected FilterAbstract<?> newFilter() {
+		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.QueryFilter();
 			apply(filter);
 			return filter;
@@ -405,7 +405,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		protected FilterAbstract<?> newFilter() {
+		@XmlTransient
+		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.TermFilter();
 			apply(filter);
 			return filter;
@@ -451,7 +452,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		protected FilterAbstract<?> newFilter() {
+		@XmlTransient
+		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.GeoFilter();
 			apply(filter);
 			return filter;
@@ -504,7 +506,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		protected FilterAbstract<?> newFilter() {
+		@XmlTransient
+		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.RelativeDateFilter();
 			apply(filter);
 			return filter;
@@ -539,7 +542,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
-	private List<Filter> newFilterList(FilterList filterList) {
+	public static List<Filter> newFilterList(FilterList filterList) {
 		if (filterList == null)
 			return null;
 		if (filterList.size() == 0)
