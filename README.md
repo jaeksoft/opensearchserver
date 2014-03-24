@@ -10,7 +10,7 @@ OpenSearchServer is a powerful, enterprise-class, search engine program. Using t
 Quickstart
 ----------
 ### One requirement
-You need to have a JAVA 6 (or newer) runtime on your server
+You need to have a JAVA 7.0_51 (or newer) runtime on your server
 
 ### Download the last ZIP or the TAR.GZ archive:
 http://www.open-search-server.com/download
