@@ -43,6 +43,7 @@ import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
+import com.jaeksoft.searchlib.sort.DescScoreSorter;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
@@ -74,8 +75,13 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 			scores = null;
 			return;
 		}
+
 		docs = dsh.getCollector(DocIdInterface.class);
+
+		new DescScoreSorter(docs).quickSort(timer);
+
 		scores = dsh.getCollector(ScoreInterface.class);
+
 		fieldNameSet = new TreeSet<String>();
 		request.getReturnFieldList().populate(fieldNameSet);
 	}
