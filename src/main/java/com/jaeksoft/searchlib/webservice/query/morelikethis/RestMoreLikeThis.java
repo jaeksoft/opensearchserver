@@ -37,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
 
 @Path("/index/{index_name}/morelikethis")
 public interface RestMoreLikeThis {
@@ -70,7 +69,7 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public DocumentsResult moreLikeThisTemplate(
+	public MoreLikeThisResult moreLikeThisTemplate(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, MoreLikeThisQuery query);
@@ -79,7 +78,8 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public DocumentsResult moreLikeThis(@PathParam("index_name") String index,
+	public MoreLikeThisResult moreLikeThis(
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			MoreLikeThisQuery query);
 

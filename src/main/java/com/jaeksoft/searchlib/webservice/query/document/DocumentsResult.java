@@ -50,8 +50,8 @@ public class DocumentsResult {
 
 	public DocumentsResult(ResultDocumentsInterface<?> result)
 			throws SearchLibException {
-		documents = new ArrayList<DocumentResult>(0);
-		DocumentResult.populateDocumentList(result, documents);
+		documents = DocumentResult.populateDocumentList(result,
+				new ArrayList<DocumentResult>(0));
 	}
 
 }
