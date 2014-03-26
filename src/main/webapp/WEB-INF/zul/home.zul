@@ -50,6 +50,16 @@
 			</row>
 		</rows>
 	</grid>
+	<div visible="@load(!home.ossDataExists)"
+		style="color: #FF0000; text-align: center">
+		<separator height="10" />
+		<label>
+			There is an issue with the data directory. Please check that
+			the OPENSEARCHSERVER_DATA environment variable points to a
+			valid directory.
+		</label>
+		<label value="@load(home.ossDataPath)" />
+	</div>
 	<separator height="10" />
 	<listbox selectedItem="@bind(home.clientName)" mold="paging"
 		pageSize="20" model="@load(home.clientCatalog)">
