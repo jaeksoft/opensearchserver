@@ -256,6 +256,8 @@ public class ClientCatalog {
 		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
 				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
+		if (files == null)
+			return null;
 		for (File file : files) {
 			if (!file.isDirectory())
 				continue;

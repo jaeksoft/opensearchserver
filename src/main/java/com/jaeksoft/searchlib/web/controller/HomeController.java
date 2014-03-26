@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.template.TemplateList;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 @AfterCompose(superclass = true)
 public class HomeController extends CommonController {
@@ -184,4 +185,16 @@ public class HomeController extends CommonController {
 		catalogItem.computeInfos();
 	}
 
+	public boolean isOssDataExists() {
+		if (StartStopListener.OPENSEARCHSERVER_DATA_FILE == null)
+			return false;
+		return StartStopListener.OPENSEARCHSERVER_DATA_FILE.isDirectory()
+				&& StartStopListener.OPENSEARCHSERVER_DATA_FILE.exists();
+	}
+
+	public String getOssDataPath() {
+		if (!isOssDataExists())
+			return null;
+		return StartStopListener.OPENSEARCHSERVER_DATA_FILE.getAbsolutePath();
+	}
 }
