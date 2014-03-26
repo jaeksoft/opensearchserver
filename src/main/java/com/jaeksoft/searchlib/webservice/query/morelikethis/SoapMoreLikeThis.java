@@ -29,7 +29,6 @@ import javax.jws.WebService;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
 
 @WebService(name = "MoreLikeThis")
 public interface SoapMoreLikeThis {
@@ -51,7 +50,7 @@ public interface SoapMoreLikeThis {
 			@WebParam(name = "key") String key,
 			@WebParam(name = "template") String template);
 
-	public DocumentsResult moreLikeThisTemplate(
+	public MoreLikeThisResult moreLikeThisTemplate(
 			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
@@ -65,7 +64,8 @@ public interface SoapMoreLikeThis {
 			@WebParam(name = "template") String template,
 			@WebParam(name = "query") MoreLikeThisQuery query);
 
-	public DocumentsResult moreLikeThis(@WebParam(name = "index") String index,
+	public MoreLikeThisResult moreLikeThis(
+			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
 			@WebParam(name = "query") MoreLikeThisQuery query);
