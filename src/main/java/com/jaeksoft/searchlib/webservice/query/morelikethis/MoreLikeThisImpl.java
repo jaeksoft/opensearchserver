@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
 
 public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 		SoapMoreLikeThis {
@@ -67,7 +66,7 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 	}
 
 	@Override
-	public DocumentsResult moreLikeThisTemplate(String index, String login,
+	public MoreLikeThisResult moreLikeThisTemplate(String index, String login,
 			String key, String template, MoreLikeThisQuery query) {
 		try {
 			MoreLikeThisRequest request = (MoreLikeThisRequest) super
@@ -75,16 +74,18 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 							RequestTypeEnum.MoreLikeThisRequest);
 			if (query != null)
 				query.apply(request);
-			return new DocumentsResult(
+			return new MoreLikeThisResult(
 					(ResultMoreLikeThis) client.request(request));
 		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
 
 	@Override
-	public DocumentsResult moreLikeThis(String index, String login, String key,
-			MoreLikeThisQuery query) {
+	public MoreLikeThisResult moreLikeThis(String index, String login,
+			String key, MoreLikeThisQuery query) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
 					Role.GROUP_INDEX);
@@ -92,7 +93,7 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 			MoreLikeThisRequest request = new MoreLikeThisRequest(client);
 			if (query != null)
 				query.apply(request);
-			return new DocumentsResult(
+			return new MoreLikeThisResult(
 					(ResultMoreLikeThis) client.request(request));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);

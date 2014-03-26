@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.webservice.query.morelikethis;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -39,18 +42,23 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_EMPTY)
 public class MoreLikeThisResult extends CommonResult {
+
+	final public String query;
 
 	@XmlElement(name = "document")
 	final public List<DocumentResult> documents;
 
 	public MoreLikeThisResult() {
 		documents = null;
+		query = null;
 	}
 
 	public MoreLikeThisResult(ResultMoreLikeThis result)
-			throws SearchLibException {
-		documents = new ArrayList<DocumentResult>(0);
-		DocumentResult.populateDocumentList(result, documents);
+			throws SearchLibException, IOException {
+		query = result.getRequest().getQuery().toString();
+		documents = DocumentResult.populateDocumentList(result,
+				new ArrayList<DocumentResult>(0));
 	}
 }

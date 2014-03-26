@@ -148,7 +148,7 @@ public class DocumentResult {
 
 	}
 
-	public final static void populateDocumentList(
+	public final static List<DocumentResult> populateDocumentList(
 			ResultDocumentsInterface<?> result, List<DocumentResult> documents)
 			throws SearchLibException {
 		int start = result.getRequestStart();
@@ -167,5 +167,6 @@ public class DocumentResult {
 					joinResultDocuments);
 			documents.add(documentResult);
 		}
+		return documents;
 	}
 }
