@@ -30,7 +30,7 @@ case $1 in
 start)
         echo "Starting OpenSearchServer ..."
         if [ ! -f $SERVER_PID ]; then
-            if start-stop-daemon -c daemon -o --start -m -b --pidfile $SERVER_PID --exec "/usr/bin/java" -- $SERVER_OPTS >>$SERVER_LOG 2>&1; then
+            if start-stop-daemon -c daemon -o --no-close --start -m -b --pidfile $SERVER_PID --exec "/usr/bin/java" -- $SERVER_OPTS >>$SERVER_LOG 2>&1; then
                 echo "OpenSearchServer started ..."
             fi
         else
