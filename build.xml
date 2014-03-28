@@ -51,7 +51,7 @@
 		<mkdir dir="${temp}/data" />
 		<java fork="true" jar="target/${productsrc}-war-exec.jar" dir="${temp}" spawn="true">
 			<env key="OPENSEARCHSERVER_DATA" value="${temp}/data" />
-			<arg line="-httpPort 9090" />
+			<arg line="-httpPort 9090 -uriEncoding UTF-8" />
 		</java>
 		<waitfor maxwait="120" maxwaitunit="second" checkevery="2" checkeveryunit="second">
 			<http url="${oss_testing_instance}" />
