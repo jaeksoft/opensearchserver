@@ -1,4 +1,4 @@
-This API returns the templates. A templates is a query stored with its parameters. It can be easily recalled using its name.
+This API returns templates. A template is a query stored with its parameters. It can be easily re-called using its name.
 
 **Requirement:** OpenSearchServer v1.5.3
 
@@ -13,7 +13,7 @@ This API returns the templates. A templates is a query stored with its parameter
 - Accept: ```application/xml```
 
 ### Success response
-The field list is returned either in JSON or in XML format.
+The field list is returned either in JSON format or in XML format.
 
 **HTTP code:**
 200
@@ -40,7 +40,7 @@ The list was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-    An internal error occurred
+    An internal error occurred.
     
 
 ### Sample call
