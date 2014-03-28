@@ -16,7 +16,7 @@ This API returns the content of a search template.
 - Accept: ```application/json``` or ```application/xml```
 
 ### Success response
-The field is returned either in JSON or in XML format
+The field is returned either in JSON format or in XML format.
 
 **HTTP code:**
 200
