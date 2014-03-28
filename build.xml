@@ -28,6 +28,7 @@
 	<property name="dist" location="dist" />
 	<property name="licenses" location="licenses" />
 	<property name="shelldir" location="shell" />
+	<property name="libextdir" location="lib/ext" />
 	<property name="product" value="opensearchserver" />
 	<property name="env.BUILD_NUMBER" value="" />
 	<property name="oss_testing_instance" value="http://localhost:9090" />
@@ -91,6 +92,8 @@
 		<mkdir dir="${dist}/${product}" />
 		<mkdir dir="${dist}/${product}/data" />
 		<mkdir dir="${dist}/${product}/logs" />
+		<mkdir dir="${dist}/${product}/lib" />
+		<mkdir dir="${dist}/${product}/lib/ext" />
 
 		<copy tofile="${dist}/${product}/${product}.jar">
 			<fileset file="target/${productsrc}-war-exec.jar" />
@@ -113,6 +116,10 @@
 			<fileset file="README.md" />
 			<fileset file="CHANGELOG.txt.gz" />
 			<fileset dir="${shelldir}" />
+		</copy>
+
+		<copy todir="${dist}/${product}/lib/ext">
+			<fileset dir="${libextdir}" />
 		</copy>
 
 		<!-- Check executable file flag for batches -->

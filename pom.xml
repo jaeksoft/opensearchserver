@@ -598,6 +598,14 @@
 									</mapper>
 								</data>
 								<data>
+									<src>${basedir}/lib/ext</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/opensearchserver</prefix>
+									</mapper>
+								</data>
+								<data>
 									<src>${basedir}/src/deb/data/copyright</src>
 									<type>file</type>
 									<mapper>
