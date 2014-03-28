@@ -307,6 +307,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.woodstox</groupId>
@@ -546,14 +547,9 @@
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.1</version>
-				<configuration>
-					<path>/</path>
-					<uriEncoding>UTF-8</uriEncoding>
-					<port>9090</port>
-				</configuration>
 				<executions>
 					<execution>
-						<id>tomcat-run</id>
+						<id>tomcat-package</id>
 						<goals>
 							<goal>exec-war-only</goal>
 						</goals>
@@ -603,35 +599,25 @@
 							</extraDependencies>
 						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
 					<execution>
-						<id>oss-start</id>
-						<phase>pre-integration-test</phase>
+						<id>tomcat-run</id>
 						<goals>
 							<goal>run</goal>
 						</goals>
+						<phase>pre-integration-test</phase>
 						<configuration>
-							<tasks>
-								<ant antfile="${basedir}/build.xml" target="start" />
-							</tasks>
+							<path>/</path>
+							<uriEncoding>UTF-8</uriEncoding>
+							<port>9090</port>
+							<fork>true</fork>
 						</configuration>
 					</execution>
 					<execution>
-						<id>oss-stop</id>
-						<phase>post-integration-test</phase>
+						<id>tomcat-shutdown</id>
 						<goals>
-							<goal>run</goal>
+							<goal>shutdown</goal>
 						</goals>
-						<configuration>
-							<tasks>
-								<ant antfile="${basedir}/build.xml" target="stop" />
-							</tasks>
-						</configuration>
+						<phase>post-integration-test</phase>
 					</execution>
 				</executions>
 			</plugin>
