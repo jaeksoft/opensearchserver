@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import com.google.common.net.InternetDomainName;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -57,10 +58,13 @@ public class PatternItem {
 
 	private Pattern pattern;
 
+	private String topPrivateDomain;
+
 	public PatternItem() {
 		status = Status.UNDEFINED;
 		sPattern = null;
 		pattern = null;
+		topPrivateDomain = null;
 	}
 
 	public PatternItem(URL url) {
@@ -90,10 +94,7 @@ public class PatternItem {
 	public void setPattern(String s) {
 		sPattern = s.trim();
 		pattern = StringUtils.wildcardPattern(s);
-	}
-
-	public final String getPatternWithoutWildcard() {
-		return StringUtils.replace(sPattern, "*", "");
+		topPrivateDomain = null;
 	}
 
 	/**
@@ -103,7 +104,8 @@ public class PatternItem {
 	 */
 	public final URL tryExtractURL() {
 		try {
-			return LinkUtils.newEncodedURL(getPatternWithoutWildcard());
+			return LinkUtils.newEncodedURL(StringUtils.replace(sPattern, "*",
+					""));
 		} catch (MalformedURLException e) {
 			Logging.warn("Unable to extract URL from " + sPattern);
 			return null;
@@ -113,12 +115,35 @@ public class PatternItem {
 		}
 	}
 
-	public String getHost() throws MalformedURLException {
-		return new URL(getPatternWithoutWildcard()).getHost();
+	public String getTopPrivateDomainOrHost() throws MalformedURLException {
+		if (topPrivateDomain != null)
+			return topPrivateDomain;
+		String host = new URL(StringUtils.replace(sPattern, "*", "a"))
+				.getHost();
+		try {
+			InternetDomainName domainName = InternetDomainName.from(host);
+			topPrivateDomain = domainName.topPrivateDomain().toString();
+		} catch (IllegalStateException e) {
+			topPrivateDomain = new URL(StringUtils.replace(sPattern, "*", ""))
+					.getHost();
+		}
+		return topPrivateDomain;
 	}
 
 	public String getPattern() {
 		return sPattern;
 	}
 
+	public final static void main(String[] args) throws MalformedURLException {
+		PatternItem item = new PatternItem("http://*.open-search-server.com/*");
+		System.out.println(item.getTopPrivateDomainOrHost());
+		System.out.println(item
+				.match("http://www.open-search-server.com/download"));
+		System.out.println(!item
+				.match("http://open-search-server.com/download"));
+		System.out.println(!item
+				.match("https://www.open-search-server.com/download"));
+		System.out.println(!item
+				.match("https://www.open-search-server.com/download"));
+	}
 }
