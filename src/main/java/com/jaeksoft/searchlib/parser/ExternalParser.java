@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,7 @@ import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
 import com.jaeksoft.searchlib.util.ExecuteUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -61,6 +62,27 @@ public class ExternalParser {
 	private final static String FILE_PARSER_CONFIG = "parserConfig.xml";
 	private final static String FILE_PARSER_RESULTS = "parserResults.xml";
 	private final static String FILE_PARSER_ENCODING = "UTF-8";
+
+	private final static String ADDITIONAL_CLASSPATH;
+
+	static {
+		String s = System.getProperty("oss.externalparser.classpath");
+		if (!StringUtils.isEmpty(s)) {
+			boolean bEndsWithStar = s.endsWith("*");
+			File f = new File(bEndsWithStar ? s.substring(0, s.length() - 2)
+					: s);
+			ADDITIONAL_CLASSPATH = f.getAbsolutePath()
+					+ (bEndsWithStar ? "/*" : "");
+			if (!f.exists()) {
+				System.err
+						.println("WARNING: oss.externalparser.classpath does not exist: "
+								+ ADDITIONAL_CLASSPATH);
+			}
+			System.out.println("oss.externalparser.classpath set to:"
+					+ ADDITIONAL_CLASSPATH);
+		} else
+			ADDITIONAL_CLASSPATH = null;
+	}
 
 	@JsonInclude(Include.NON_EMPTY)
 	final public static class Command {
@@ -169,8 +191,12 @@ public class ExternalParser {
 			// Execute
 			out = new ByteArrayOutputStream();
 			err = new ByteArrayOutputStream();
-			int statusCode = ExecuteUtils.command(tempDir, "java", true, true,
-					out, err, 3600000L, ExternalParser.class.getName());
+			String classPath = ExecuteUtils.getClassPath();
+			if (!StringUtils.isEmpty(ADDITIONAL_CLASSPATH))
+				classPath = StringUtils.fastConcat(classPath,
+						SystemUtils.PATH_SEPARATOR, ADDITIONAL_CLASSPATH);
+			int statusCode = ExecuteUtils.command(tempDir, "java", classPath,
+					true, out, err, 3600000L, ExternalParser.class.getName());
 			if (statusCode != 0)
 				throw new SearchLibException(err.toString("UTF-8"));
 			File fileParserResults = new File(tempDir, FILE_PARSER_RESULTS);
