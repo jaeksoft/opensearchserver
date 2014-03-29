@@ -178,6 +178,8 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public ProxyHandler getProxyHandler() throws SearchLibException {
 		synchronized (this) {
+			if (!proxyEnabled.getValue())
+				return null;
 			if (proxyHandler != null)
 				return proxyHandler;
 			proxyHandler = new ProxyHandler(this);
