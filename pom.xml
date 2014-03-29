@@ -507,6 +507,7 @@
 						</goals>
 						<phase>package</phase>
 						<configuration>
+							<path>/</path>
 							<extraDependencies>
 								<extraDependency>
 									<groupId>mysql</groupId>
