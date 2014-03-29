@@ -17,4 +17,4 @@ rem Any JAVA option. Often used to allocate more memory. Uncomment this line to 
 rem set JAVA_OPTS=-Xms1G -Xmx1G
 
 rem Starting the server
-java %JAVA_OPTS% -jar opensearchserver.jar -extractDirectory server -httpPort %SERVER_PORT% -uriEncoding UTF-8
+java %JAVA_OPTS% -jar opensearchserver.jar -extractDirectory server -httpPort %SERVER_PORT% -uriEncoding UTF-8 -Doss.externalparser.classpath=%cd%/lib/ext/*
