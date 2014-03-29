@@ -20,9 +20,11 @@ export OPENSEARCHSERVER_DATA
 export OPENSEARCHSERVER_MULTIDATA
 
 OPENSEARCHSERVER_DIR=/var/lib/opensearchserver
-OPENSEARCHSERVER_JAR=/usr/share/opensearchserver/opensearchserver.jar
+OPENSEARCHSERVER_SHARE=/usr/share/opensearchserver/
+OPENSEARCHSERVER_EXT=$OPENSEARCHSERVER_SHARE/lib/ext
+OPENSEARCHSERVER_JAR=$OPENSEARCHSERVER_SHARE/opensearchserver.jar
 SERVER_DIR=$OPENSEARCHSERVER_DIR/server
-SERVER_OPTS="$JAVA_OPTS -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8"
+SERVER_OPTS="$JAVA_OPTS -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8 -Doss.externalparser.classpath=$OPENSEARCHSERVER_EXT/*"
 SERVER_LOG=/var/log/opensearchserver/server.out
 SERVER_PID="/var/run/opensearchserver.pid"
 
