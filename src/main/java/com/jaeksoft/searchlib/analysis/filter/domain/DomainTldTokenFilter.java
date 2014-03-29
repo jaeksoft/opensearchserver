@@ -48,7 +48,7 @@ public class DomainTldTokenFilter extends CommonDomainTokenFilter {
 			InternetDomainName domainName = InternetDomainName.from(url
 					.getHost());
 			termAtt.setEmpty();
-			termAtt.append(domainName.topPrivateDomain().name());
+			termAtt.append(domainName.topPrivateDomain().toString());
 		} catch (MalformedURLException e) {
 			if (silent)
 				return false;
