@@ -44,7 +44,7 @@ public class PdfCrack {
 		try {
 			out = new ByteArrayOutputStream();
 			err = new ByteArrayOutputStream();
-			ExecuteUtils.command(null, pdfCrackCommandLine, false, false, out,
+			ExecuteUtils.command(null, pdfCrackCommandLine, null, false, out,
 					err, 3600000L, "-f",
 					StringUtils.fastConcat("\"", file.getAbsolutePath(), "\""));
 			br = new BufferedReader(new StringReader(out.toString()));

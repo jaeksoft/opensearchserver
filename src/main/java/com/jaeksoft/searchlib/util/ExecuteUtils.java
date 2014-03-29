@@ -53,13 +53,13 @@ public class ExecuteUtils {
 	}
 
 	final public static int command(File workingDirectory, String cmd,
-			boolean putClassPath, boolean setJavaTempDir,
+			String classpath, boolean setJavaTempDir,
 			OutputStream outputStream, OutputStream errorStream, Long timeOut,
 			String... arguments) throws ExecuteException, IOException {
 		Map<String, String> envMap = null;
-		if (putClassPath) {
+		if (classpath != null) {
 			envMap = new HashMap<String, String>();
-			envMap.put("CLASSPATH", ExecuteUtils.getClassPath());
+			envMap.put("CLASSPATH", classpath);
 		}
 		CommandLine commandLine = new CommandLine(cmd);
 		if (setJavaTempDir)
