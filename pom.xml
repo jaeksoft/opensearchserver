@@ -603,7 +603,7 @@
 									<type>directory</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/usr/share/opensearchserver</prefix>
+										<prefix>/usr/share/opensearchserver/ext</prefix>
 									</mapper>
 								</data>
 								<data>
