@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.common.net.InternetDomainName;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -159,8 +160,8 @@ public class PatternManager {
 
 	private int delPatternWithoutLock(String sPattern)
 			throws MalformedURLException, URISyntaxException {
-		String host = new PatternItem(sPattern).getHost();
-		List<PatternItem> itemList = patternMap.get(host);
+		String mapKey = new PatternItem(sPattern).getTopPrivateDomainOrHost();
+		List<PatternItem> itemList = patternMap.get(mapKey);
 		if (itemList == null)
 			return 0;
 		int count = 0;
@@ -223,11 +224,11 @@ public class PatternManager {
 
 	private void addPatternWithoutLock(PatternItem patternItem)
 			throws MalformedURLException, URISyntaxException {
-		String host = patternItem.getHost();
-		List<PatternItem> itemList = patternMap.get(host);
+		String mapKey = patternItem.getTopPrivateDomainOrHost();
+		List<PatternItem> itemList = patternMap.get(mapKey);
 		if (itemList == null) {
 			itemList = new ArrayList<PatternItem>();
-			patternMap.put(host, itemList);
+			patternMap.put(mapKey, itemList);
 		}
 		itemList.add(patternItem);
 	}
@@ -307,7 +308,8 @@ public class PatternManager {
 			throws MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
-			List<PatternItem> patternList = patternMap.get(pattern.getHost());
+			List<PatternItem> patternList = patternMap.get(pattern
+					.getTopPrivateDomainOrHost());
 			if (patternList == null)
 				return null;
 			String sPattern = pattern.getPattern();
@@ -320,10 +322,21 @@ public class PatternManager {
 		}
 	}
 
+	final private String getTopDomainOrHost(URL url) {
+		try {
+			InternetDomainName domainName = InternetDomainName.from(url
+					.getHost());
+			return domainName.topPrivateDomain().toString();
+		} catch (IllegalStateException e) {
+			return url.getHost();
+		}
+	}
+
 	final public boolean matchPattern(URL url) {
 		rwl.r.lock();
 		try {
-			List<PatternItem> patternList = patternMap.get(url.getHost());
+			List<PatternItem> patternList = patternMap
+					.get(getTopDomainOrHost(url));
 			if (patternList == null)
 				return false;
 			String sUrl = url.toExternalForm();

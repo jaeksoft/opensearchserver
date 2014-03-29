@@ -95,6 +95,7 @@ public class RobotsTxtCache {
 		UrlItem urlItem = config.getUrlManager().getNewUrlItem(
 				RobotsTxt.getRobotsUrl(url).toExternalForm());
 		String robotsKey = urlItem.getUrl();
+		System.out.println("robotsKey : " + robotsKey);
 		synchronized (robotsTxtList) {
 			checkExpiration(System.currentTimeMillis());
 			if (reloadRobotsTxt)
