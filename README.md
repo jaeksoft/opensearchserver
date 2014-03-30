@@ -2,7 +2,7 @@ OpenSearchServer
 ================
 http://www.open-search-server.com
 
-Copyright Emmanuel Keller / Jaeksoft (2008-2013)
+Copyright Emmanuel Keller / Jaeksoft (2008-2014)
 This software is licensed under the GPL v3.
 
 OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.
@@ -10,7 +10,7 @@ OpenSearchServer is a powerful, enterprise-class, search engine program. Using t
 Quickstart
 ----------
 ### One requirement
-You need to have a JAVA 7.0_51 (or newer) runtime on your server
+You need to have a JAVA 1.7 (or newer) runtime on your server
 
 ### Download the last ZIP or the TAR.GZ archive:
 http://www.open-search-server.com/download
