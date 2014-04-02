@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import com.google.common.net.InternetDomainName;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -115,18 +114,17 @@ public class PatternItem {
 		}
 	}
 
-	public String getTopPrivateDomainOrHost() throws MalformedURLException {
+	public final static String getTopDomainOrHost(String host) {
+		String[] part = StringUtils.split(host, '.');
+		return part == null || part.length == 0 ? host : part[part.length - 1];
+	}
+
+	public String getTopDomainOrHost() throws MalformedURLException {
 		if (topPrivateDomain != null)
 			return topPrivateDomain;
 		String host = new URL(StringUtils.replace(sPattern, "*", "a"))
 				.getHost();
-		try {
-			InternetDomainName domainName = InternetDomainName.from(host);
-			topPrivateDomain = domainName.topPrivateDomain().toString();
-		} catch (IllegalStateException e) {
-			topPrivateDomain = new URL(StringUtils.replace(sPattern, "*", ""))
-					.getHost();
-		}
+		topPrivateDomain = getTopDomainOrHost(host);
 		return topPrivateDomain;
 	}
 
@@ -136,7 +134,7 @@ public class PatternItem {
 
 	public final static void main(String[] args) throws MalformedURLException {
 		PatternItem item = new PatternItem("http://*.open-search-server.com/*");
-		System.out.println(item.getTopPrivateDomainOrHost());
+		System.out.println(item.getTopDomainOrHost());
 		System.out.println(item
 				.match("http://www.open-search-server.com/download"));
 		System.out.println(!item
