@@ -48,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.net.InternetDomainName;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -160,7 +159,7 @@ public class PatternManager {
 
 	private int delPatternWithoutLock(String sPattern)
 			throws MalformedURLException, URISyntaxException {
-		String mapKey = new PatternItem(sPattern).getTopPrivateDomainOrHost();
+		String mapKey = new PatternItem(sPattern).getTopDomainOrHost();
 		List<PatternItem> itemList = patternMap.get(mapKey);
 		if (itemList == null)
 			return 0;
@@ -224,7 +223,7 @@ public class PatternManager {
 
 	private void addPatternWithoutLock(PatternItem patternItem)
 			throws MalformedURLException, URISyntaxException {
-		String mapKey = patternItem.getTopPrivateDomainOrHost();
+		String mapKey = patternItem.getTopDomainOrHost();
 		List<PatternItem> itemList = patternMap.get(mapKey);
 		if (itemList == null) {
 			itemList = new ArrayList<PatternItem>();
@@ -309,7 +308,7 @@ public class PatternManager {
 		rwl.r.lock();
 		try {
 			List<PatternItem> patternList = patternMap.get(pattern
-					.getTopPrivateDomainOrHost());
+					.getTopDomainOrHost());
 			if (patternList == null)
 				return null;
 			String sPattern = pattern.getPattern();
@@ -322,21 +321,14 @@ public class PatternManager {
 		}
 	}
 
-	final private String getTopDomainOrHost(URL url) {
-		try {
-			InternetDomainName domainName = InternetDomainName.from(url
-					.getHost());
-			return domainName.topPrivateDomain().toString();
-		} catch (IllegalStateException e) {
-			return url.getHost();
-		}
-	}
-
+	// TODO Matcher should be lock free
 	final public boolean matchPattern(URL url) {
 		rwl.r.lock();
 		try {
-			List<PatternItem> patternList = patternMap
-					.get(getTopDomainOrHost(url));
+			if (url == null)
+				return false;
+			List<PatternItem> patternList = patternMap.get(PatternItem
+					.getTopDomainOrHost(url.getHost()));
 			if (patternList == null)
 				return false;
 			String sUrl = url.toExternalForm();
