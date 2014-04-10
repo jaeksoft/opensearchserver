@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -36,6 +36,16 @@
 				<label value="Proxy Port :" />
 				<intbox id="proxyPort" cols="10"
 					value="@bind(proxy.properties.proxyPort.value)" />
+			</row>
+			<row>
+				<label value="Proxy username :" />
+				<textbox id="proxyUsername" cols="30"
+					value="@bind(proxy.properties.proxyUsername.value)" />
+			</row>
+			<row>
+				<label value="Proxy password :" />
+				<textbox id="proxyPassword" cols="30" type="password"
+					value="@bind(proxy.properties.proxyPassword.value)" />
 			</row>
 			<row>
 				<label value="Proxy exclusion :" />
