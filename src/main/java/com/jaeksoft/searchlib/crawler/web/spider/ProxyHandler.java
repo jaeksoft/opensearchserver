@@ -31,7 +31,11 @@ import java.net.URI;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,19 +44,35 @@ import com.jaeksoft.searchlib.util.IOUtils;
 
 public class ProxyHandler {
 
-	private HttpHost proxy = null;
+	final private HttpHost proxy;
 
-	private Set<String> exclusionSet = null;
+	final private Set<String> exclusionSet;
+
+	final private String username;
+
+	final private String password;
 
 	public ProxyHandler(WebPropertyManager webPropertyManager)
 			throws SearchLibException {
-		if (!webPropertyManager.getProxyEnabled().getValue())
+		if (!webPropertyManager.getProxyEnabled().getValue()) {
+			proxy = null;
+			exclusionSet = null;
+			username = null;
+			password = null;
 			return;
+		}
 		String proxyHost = webPropertyManager.getProxyHost().getValue();
 		int proxyPort = webPropertyManager.getProxyPort().getValue();
 		if (proxyHost == null || proxyHost.trim().length() == 0
-				|| proxyPort == 0)
+				|| proxyPort == 0) {
+			proxy = null;
+			exclusionSet = null;
+			username = null;
+			password = null;
 			return;
+		}
+		username = webPropertyManager.getProxyUsername().getValue();
+		password = webPropertyManager.getProxyPassword().getValue();
 		proxy = new HttpHost(proxyHost, proxyPort, "http");
 		exclusionSet = new TreeSet<String>();
 		String line;
@@ -74,12 +94,16 @@ public class ProxyHandler {
 		}
 	}
 
-	public void check(RequestConfig.Builder configBuilder, URI uri) {
+	public void check(RequestConfig.Builder configBuilder, URI uri,
+			CredentialsProvider credentialsProvider) {
 		if (proxy == null || uri == null)
 			return;
 		if (exclusionSet.contains(uri.getHost()))
 			return;
 		configBuilder.setProxy(proxy);
+		if (!StringUtils.isEmpty(username))
+			credentialsProvider.setCredentials(new AuthScope(proxy),
+					new UsernamePasswordCredentials(username, password));
 	}
 
 }

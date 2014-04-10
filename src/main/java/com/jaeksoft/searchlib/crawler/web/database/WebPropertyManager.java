@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,25 +37,27 @@ import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 public class WebPropertyManager extends AbstractPropertyManager implements
 		PropertyItemListener {
 
-	private PropertyItem<Integer> delayBetweenAccesses;
-	private PropertyItem<Integer> fetchInterval;
-	private PropertyItem<String> fetchIntervalUnit;
-	private PropertyItem<Integer> maxUrlPerHost;
-	private PropertyItem<Integer> maxUrlPerSession;
-	private PropertyItem<String> userAgent;
-	private PropertyItem<Boolean> exclusionEnabled;
-	private PropertyItem<Boolean> inclusionEnabled;
-	private PropertyItem<Boolean> robotsTxtEnabled;
-	private PropertyItem<String> screenshotBrowser;
-	private PropertyItem<String> screenshotMethod;
-	private PropertyItem<Integer> screenshotCaptureWidth;
-	private PropertyItem<Integer> screenshotCaptureHeight;
-	private PropertyItem<Integer> screenshotResizeWidth;
-	private PropertyItem<Integer> screenshotResizeHeight;
-	private PropertyItem<String> proxyHost;
-	private PropertyItem<Integer> proxyPort;
-	private PropertyItem<String> proxyExclusion;
-	private PropertyItem<Boolean> proxyEnabled;
+	final private PropertyItem<Integer> delayBetweenAccesses;
+	final private PropertyItem<Integer> fetchInterval;
+	final private PropertyItem<String> fetchIntervalUnit;
+	final private PropertyItem<Integer> maxUrlPerHost;
+	final private PropertyItem<Integer> maxUrlPerSession;
+	final private PropertyItem<String> userAgent;
+	final private PropertyItem<Boolean> exclusionEnabled;
+	final private PropertyItem<Boolean> inclusionEnabled;
+	final private PropertyItem<Boolean> robotsTxtEnabled;
+	final private PropertyItem<String> screenshotBrowser;
+	final private PropertyItem<String> screenshotMethod;
+	final private PropertyItem<Integer> screenshotCaptureWidth;
+	final private PropertyItem<Integer> screenshotCaptureHeight;
+	final private PropertyItem<Integer> screenshotResizeWidth;
+	final private PropertyItem<Integer> screenshotResizeHeight;
+	final private PropertyItem<String> proxyHost;
+	final private PropertyItem<Integer> proxyPort;
+	final private PropertyItem<String> proxyExclusion;
+	final private PropertyItem<Boolean> proxyEnabled;
+	final private PropertyItem<String> proxyUsername;
+	final private PropertyItem<String> proxyPassword;
 
 	private ProxyHandler proxyHandler = null;
 
@@ -86,9 +88,14 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyExclusion = newStringProperty("proxyExclusion", "");
 		proxyEnabled = newBooleanProperty("proxyEnabled", false);
+		proxyUsername = newStringProperty("proxyUsername", "");
+		proxyPassword = newStringProperty("proxyPassword", "");
 		proxyHost.addListener(this);
 		proxyPort.addListener(this);
 		proxyExclusion.addListener(this);
+		proxyEnabled.addListener(this);
+		proxyUsername.addListener(this);
+		proxyPassword.addListener(this);
 	}
 
 	public PropertyItem<String> getProxyHost() {
@@ -105,6 +112,14 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public PropertyItem<Integer> getProxyPort() {
 		return proxyPort;
+	}
+
+	public PropertyItem<String> getProxyUsername() {
+		return proxyUsername;
+	}
+
+	public PropertyItem<String> getProxyPassword() {
+		return proxyPassword;
 	}
 
 	public PropertyItem<Integer> getFetchInterval() {
@@ -171,7 +186,8 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
 		synchronized (this) {
 			if (prop == proxyHost || prop == proxyPort
-					|| prop == proxyExclusion)
+					|| prop == proxyExclusion || prop == proxyUsername
+					|| prop == proxyPassword)
 				proxyHandler = null;
 		}
 	}
@@ -186,4 +202,5 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 			return proxyHandler;
 		}
 	}
+
 }
