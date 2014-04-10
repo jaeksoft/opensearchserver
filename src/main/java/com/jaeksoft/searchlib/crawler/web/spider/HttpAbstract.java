@@ -149,16 +149,16 @@ public abstract class HttpAbstract {
 				.setStaleConnectionCheckEnabled(true)
 				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
 
-		URI uri = httpBaseRequest.getURI();
-		if (proxyHandler != null)
-			proxyHandler.check(configBuilber, uri);
-
-		httpBaseRequest.setConfig(configBuilber.build());
-
 		if (credentialItem == null)
 			credentialsProvider.clear();
 		else
 			credentialItem.setUpCredentials(credentialsProvider);
+
+		URI uri = httpBaseRequest.getURI();
+		if (proxyHandler != null)
+			proxyHandler.check(configBuilber, uri, credentialsProvider);
+
+		httpBaseRequest.setConfig(configBuilber.build());
 
 		httpClientContext = new HttpClientContext();
 
