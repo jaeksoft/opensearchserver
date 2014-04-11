@@ -28,6 +28,17 @@ SERVER_OPTS="$JAVA_OPTS -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR
 SERVER_LOG=/var/log/opensearchserver/server.out
 SERVER_PID="/var/run/opensearchserver.pid"
 
+usage ()
+{
+  echo "Usage : $0 {start|stop|restart}"
+  exit
+}
+
+if [ "$#" -ne 1 ]
+then
+  usage
+fi
+
 case $1 in
 start)
         echo "Starting OpenSearchServer ..."
