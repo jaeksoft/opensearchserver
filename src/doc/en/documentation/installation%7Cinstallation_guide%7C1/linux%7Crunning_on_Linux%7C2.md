@@ -1,4 +1,4 @@
-Until we provide a deb package please use this page for reference when installing OSS on a Debian-based system (Ubuntu, Xandros, etc.).
+Please use this page for reference when installing OSS on a Linux system (Ubuntu, CentOS, Xandros, etc.).
 
 The Short Version should be sufficient ; if not use the More Detailed Version.
 
