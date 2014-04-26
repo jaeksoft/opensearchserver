@@ -39,7 +39,7 @@ Ce crawleur prend en charge les protocoles HTTP / HTTPS. Il a vocation à indexe
 -	**Protocole robots.txt** : OpenSearchServer respecte les directives du protocole robots.txt.
 -	**Extraction de données spécifiques** : Type MIME, URLs, etc.
  
-![Crawler web](fonctionalites/crawler_web.png)
+![Crawler web](fonctionnalites/crawler_web.png)
 
 ### Le crawleur de système de fichiers
 Ce crawleur a vocation à indexer les systèmes de fichiers locaux ou distants. Voici la liste des fonctionnalités:
@@ -47,7 +47,7 @@ Ce crawleur a vocation à indexer les systèmes de fichiers locaux ou distants. 
 -	Indexation des **fichiers distants** : Support des protocoles CIFS/SMB, FTP, FTPS.
 -	Le **File Browser** : Cette interface permet de parcourir la liste des fichiers et répertoires parcourus et de prendre connaissance d'informations utiles (indexé ou non, taille fichiers, type de document, etc.).
 
-![Crawler de système de fichiers - configuration d'un nouvel emplacement de crawl FTP](fonctionalites/crawler_files.png)
+![Crawler de système de fichiers - configuration d'un nouvel emplacement de crawl FTP](fonctionnalites/crawler_files.png)
 
 ### Le crawleur de base de données
 Ce crawleur a vocation à indexer les données structurées issues des tables de base de données. Voici la liste des fonctionnalités:
@@ -58,7 +58,7 @@ Ce crawleur a vocation à indexer les données structurées issues des tables de
 -	Conversion des **entités HTML**.
 -	Possibilité d'appliquer des **expressions régulières** avant indexation.
  
-![Crawler de base de données - configuration du processus de crawl](fonctionalites/crawler_db.png)
+![Crawler de base de données - configuration du processus de crawl](fonctionnalites/crawler_db.png)
 
 ### L'indexation par fichier XML
 Il est possible d'entrer des données sous forme de fichier XML. OpenSearchServer dispose de son propre format XML natif. Ce format à la fois simple et puissant pourra être généré très aisément, par exemple, par export puis application d'une transformation XSLT.
@@ -73,7 +73,7 @@ Le format natif permet notamment:
 
 Exemple de fichier au format XML natif :
 
-![Exemple de fichier XML](fonctionalites/example_xml.png)
+![Exemple de fichier XML](fonctionnalites/example_xml.png)
 
 ## Les parseurs
 Le rôle d'un parseur est **d'extraire les données** à indexer des documents rapatriés par les crawleurs présentés dans le chapitre précédent. Le parseur est **sélectionné automatiquement** en fonction soit du type MIME (quand le crawleur le fournit) soit en utilisant l'extension présente dans le nom du fichier. Pour chaque parseur, il est possible de limiter la taille maximum des fichiers à indexer.
@@ -97,7 +97,7 @@ Quelques exemples de formats additionnels:
 -	Microsoft VISIO
 -	Microsoft Outlook
 
-![Liste partielle des parsers disponibles](fonctionalites/parsers_list.png)
+![Liste partielle des parsers disponibles](fonctionnalites/parsers_list.png)
 
 Chaque parseur fournit un certain nombre d'informations qui sont ensuite réparties dans l'index. Par exemple, les parseurs Microsoft Office, OpenOffice, et PDF fournissent séparément le titre du document, son auteur et son contenu. Le parseur HTML/XHTML identifiera individuellement les liens présents, le titre de la page, etc.
 
@@ -107,13 +107,13 @@ Les valeurs fournies par le parser peuvent être **retravaillées par des expres
 
 Enfin il est possible d'assigner plusieurs valeurs à un même champ, ce qui aura pour effet de le **multivaluer**.
 
-![Configuration du parser HTML](fonctionalites/parsers_html.png)
-![Field mapping dans le parser HTML](fonctionalites/parsers_htmlmapping.png)
+![Configuration du parser HTML](fonctionnalites/parsers_html.png)
+![Field mapping dans le parser HTML](fonctionnalites/parsers_htmlmapping.png)
 
 ## Les analyseurs
 Les analyseurs ont vocation à traiter les informations textuelles issues des parseurs. Ils vont appliquer un certain nombre de traitements sémantiques et linguistiques permettant une amélioration significative de la pertinence des recherches, par exemple en autorisant la recherche avec des orthographes approximatives. Il est possible de créer un nombre illimité d'analyseur qui pourront ensuite être activés sur des champs spécifiques de l'index.
 
-![Analyseurs](fonctionalites/analyzers.png)
+![Analyseurs](fonctionnalites/analyzers.png)
 
 Les analyseurs se composent d'un tokenizer, chargé de découper les textes en `tokens`, et d'une succession de filtres configurable, qui effectuent différents traitement sur les textes découpés.
 
@@ -155,7 +155,7 @@ Fonctionnellement ce module est utilisé pour:
 -	Associer des mots-clés à des documents
 -	Maintenir des liens sponsorisés
 
-![Classifieur](fonctionalites/classifiers2.png)
+![Classifieur](fonctionnalites/classifiers2.png)
 
 ## Les learners
 Ce module se compose de deux parties. La première partie concerne **l'apprentissage**, à partir d'un corpus de nombreux documents déjà catégorisés. Ce corpus peut par exemple prendre la forme d'une base de données d'articles rattachés chacun à une catégorie. 
@@ -166,7 +166,7 @@ La seconde partie du module est ensuite utilisée typiquement au moment de l'ind
 
 Le module de requêtes permet la création d'un nombre illimité de modèles de requêtes. Chaque modèle de requêtes dispose de ses propres paramètres décrits ci-après. 
 
-![Liste des requêtes configurées sur un index](fonctionalites/queries_list.png)
+![Liste des requêtes configurées sur un index](fonctionnalites/queries_list.png)
 
 ## Deux types de requêtes
 
@@ -179,7 +179,7 @@ Chaque champ peut être configuré de 4 manières :
 - Phrase : les mots clés sont ici aussi nettoyés mais la recherche s'effectue en *mode "phrase"*.Par exemple la recherche de `lorem ipsum` se traduira par la recherche de `"lorem ipsum"`.
 - Term & Phrase : ce mode combine les deux modes précédent. Ainsi une recherche de `lorep ipsum` recherchera indépendemment `lorem` puis `ipsum` et également la phrase `"lorem ipsum"`.
 
-![Configuration d'une requête de type Search - fields](fonctionalites/query_searched_fields.png)
+![Configuration d'une requête de type Search - fields](fonctionnalites/query_searched_fields.png)
 
 ### Requête de type "Pattern"
 Dans le mode "Search (pattern)" c'est un langage de requête spécifique qui doit être utilisé afin d'indiquer quels champs seront à utiliser pour la recherche full-text.
@@ -212,15 +212,15 @@ Il s'agit du **comptage du nombre de résultats par entité**. Les entités peuv
 On pourra ainsi indiquer dans la page de résultats le nombre de résultats par site Internet, ou le nombre par concept, ou par période de temps, etc.
 Les facettes peuvent être calculées avant ou après regroupements (décrits ci-après).
 
-![Facettes](fonctionalites/moellon.png)
-![Définition des facettes](fonctionalites/facets.png)
+![Facettes](fonctionnalites/moellon.png)
+![Définition des facettes](fonctionnalites/facets.png)
 
 ### Filtres
 Cette fonction est souvent le corollaire des facettes. On peut filtrer une recherche en utilisant une sous-requête exprimée dans le langage de requêtes décrit plus haut.
 
 Par exemple, on peut donc filtrer une recherche sur un nom de domaine, sur une fourchette de temps, etc.
 
-![Configuration d'un filtre de date relatif](fonctionalites/query_filter_date_relative.png)
+![Configuration d'un filtre de date relatif](fonctionnalites/query_filter_date_relative.png)
 
 ## Regroupements
 
@@ -242,8 +242,8 @@ L'extrait de texte répond aux exigences suivantes:
 -	**Pertinence de l'extrait** : Le moteur s'attache à présenter la phrase la plus pertinente par rapport aux mots recherchés, la plus proche possible de la taille souhaitée.
 -	**Détection de phrase** : Le moteur s'applique à présenter un extrait de texte correspondant à un début de phrase (quand c'est possible).
 
-![Définition des snippets lors de la création d'une requête](fonctionalites/snippets.png)
-![Exemple de résultats de recherche présentés dans l'interface, avec des extraits de texte](fonctionalites/snippets_2.png)
+![Définition des snippets lors de la création d'une requête](fonctionnalites/snippets.png)
+![Exemple de résultats de recherche présentés dans l'interface, avec des extraits de texte](fonctionnalites/snippets_2.png)
 
 ## Ordonnancement
 
@@ -264,7 +264,7 @@ Les coordonnées peuvent être exprimées en degrés ou en radians et les distan
 
 Les sous-requêtes de promotion permettent d'influer sur le score des documents retournés et d'impacter ainsi la pertinence en fonction de paramètres métiers autres que la recherche full-text.
  
-![Configuration des sous-requêtes de promotions lors de la création d'une requête de recherche](fonctionalites/boosting.png)
+![Configuration des sous-requêtes de promotions lors de la création d'une requête de recherche](fonctionnalites/boosting.png)
 
 On peut simplement utiliser une sous-requête pour promouvoir ou dégrader des documents. Ainsi on pourra promouvoir les résultats d'un site Internet par rapport aux autres ou dégrader les documents appartenant à une catégorie.
 Il est possible de configurer plusieurs sous-requêtes pour mixer les règles de pertinence.
@@ -302,14 +302,14 @@ L'analyseur d'auto-complétion pré-configuré permet d'appliquer un traitement 
 
 Plusieurs index d'auto-complétion peuvent même être configurés, par exemple pour proposer aux utilisateurs à différents endroits des suggestions issues d'un même index mais de champs différents.
 
-![Auto-complétion](fonctionalites/autocompletion.png)
+![Auto-complétion](fonctionnalites/autocompletion.png)
 
 ## Page de recherche
 Le module Renderer intégré dans OpenSearchServer permet d'accéder facilement et très rapidement à **une page de recherche complète**. La page peut-être personnalisée facilement via l'écriture de feuilles de styles (CSS). Les informations à afficher pour chaque résultat peuvent être choisies précisément. Il est possible d'intégrer l'affichage d'images ou de liens.
 
 Le code prêt à l'emploi permet d'embarquer facilement la page de recherche dans une autre application via l'utilisation d'une iFrame.
 
-![Renderer](fonctionalites/renderer.png)
+![Renderer](fonctionnalites/renderer.png)
 
 ## Authentification
 Il est possible d'activer l'authentification sur les résultats de recherche. Ce module permet de filtrer les documents retournés par chaque recherche selon le profil des utilisateurs (username / groups), en confrontant ces informations aux valeurs enregistrées dans des champs spécifiques du schéma lors de l'indexation des documents. 
@@ -340,7 +340,7 @@ Voici la liste des tâches susceptibles d'être déclenchées par ce module:
 - Récupération de documents d’un autre index (local ou distant) et retraitement pour indexation 
 - Ré indexation des termes des index d’auto-complétion
 
-![Création d'une tâche programmée](fonctionalites/scheduler2.png)
+![Création d'une tâche programmée](fonctionnalites/scheduler2.png)
 
 ## Réplication et sauvegarde
 
@@ -350,13 +350,13 @@ La réplication est habituellement utilisée dans deux cas de figure:
 -	**La distribution** d'un index sur une grappe de serveurs. Les index sont mis à jour sur les serveurs de destination sans arrêt de service.
 -	**La sauvegarde** d'un index localement ou sur sur un serveur distant.
 
-![Réplication](fonctionalites/replication.png)
+![Réplication](fonctionnalites/replication.png)
 
 ## Supervision
 
 Le module de supervision met à disposition des données utiles au contrôle du bon fonctionnement du moteur de recherche comme l'occupation mémoire, l'espace disque disponible. Ces données sont visibles dans l'interface utilisateur. Une API XML/HTTP peut être interrogé pour intégrer un service d'alerte dans un outil de supervision standard.
  
-![Supervision](fonctionalites/runtime_system.png)
+![Supervision](fonctionnalites/runtime_system.png)
 
 ## Statistiques
 
