@@ -40,7 +40,7 @@ This crawler handles HTTP and HTTPS - and is thus used to crawl Internet, intran
 - **Robots.txt protocol**. OpenSearchServer obeys the robots.txt instructions.
 - **Extraction of specific data**. Specified MIME types, URLs, etc.
  
-![Crawler web](crawler_web.png)
+![Crawler web](functionalities/crawler_web.png)
 
 ### File system crawler
 This crawler will index local or remote file systems. It can:
@@ -48,7 +48,7 @@ This crawler will index local or remote file systems. It can:
 - Index **remote files** using the following protocols: CIFS/SMB, FTP, FTPS.
 - Browse **file attributes**. This parses files and folders and lists useful information (indexed or unindexed, file size, document type, etc.)
 
-![File system crawler - setting up a new FTP crawl area](crawler_files.png)
+![File system crawler - setting up a new FTP crawl area](functionalities/crawler_files.png)
 
 ### Database crawler
 This crawler indexes structured data from database tables. It can:
@@ -59,7 +59,7 @@ This crawler indexes structured data from database tables. It can:
 - Convert **HTML entities**.
 - Apply **regular expressions** before indexing.
  
-![Database crawler - configuring a crawling process](crawler_db.png)
+![Database crawler - configuring a crawling process](functionalities/crawler_db.png)
 
 ### XML file crawler
 Data can be uploaded as an XML file. OpenSearchServer offers it own native XML format. This simple but powerful format can easily be generated, for instance to export then apply an XSL transformation.
@@ -74,7 +74,7 @@ This native XML format can:
 
 Here is an example of a native OSS format XML file :
 
-![XML file example](example_xml.png)
+![XML file example](functionalities/example_xml.png)
 
 ## Parsers
 The job of a parser is to **extract data to be indexed** from the documents fetched by these crawlers. The parser is **automatically selected** according to the MIME type (if the crawler can find it) or the file extension. Each parser can be given a maximum size for the files to be indexed.
@@ -98,7 +98,7 @@ Such plugins include :
 - Microsoft VISIO files.
 - Microsoft Outlook files.
 
-![Incomplete list of available parsers](parsers_list.png)
+![Incomplete list of available parsers](functionalities/parsers_list.png)
 
 Each parser provides information that is integrated within the index. For instance, the Microsoft Office, OpenOffice and PDF parsers specifically provide a document's title, author and content. The HTML/XHTML parser identifies each link on the page, each page's title, etc.
 
@@ -106,13 +106,13 @@ A simple **field mapping system** can dispatch this data to specific fields, and
 
 Lastly, a field can be **multivalued**.
 
-![Configuring the XML parser](parsers_html.png)
-![Field mapping within the HTML parser](parsers_htmlmapping.png)
+![Configuring the XML parser](functionalities/parsers_html.png)
+![Field mapping within the HTML parser](functionalities/parsers_htmlmapping.png)
 
 ## Analyzers
 The analyzers process text information provided by the parsers. Their job is to apply semantic and linguistic treatments to make it easier for searches to find pertinent results. One example is finding slightly misspelled words. An unlimited number of analyzers can be defined, and applied to selected fields within the index.
 
-![Analyzers](analyzers.png)
+![Analyzers](functionalities/analyzers.png)
 
 Analyzers include a tokenizer, which hashes texts into `tokens`, and a series of configurable filters processing the tokenized texts. Such processes include:
 
@@ -153,7 +153,7 @@ In practice, this is usually used to :
 - Associate keywords to documents.
 - Managed sponsored links.
 
-![Classifier](classifiers2.png)
+![Classifier](functionalities/classifiers2.png)
 
 ## Learners
 This module has two parts. The first **learns by parsing documents that have already been categorised**. A typical corpus is a database of articles and categories.
@@ -163,7 +163,7 @@ The second part is usually used when indexing a document. The learner analyzes t
 # Queries
 The querying module can create any number of query templates, each with its own parameters.
 
-![List of queries configured for an index](queries_list.png)
+![List of queries configured for an index](functionalities/queries_list.png)
 
 ## Two kinds of queries
 
@@ -176,7 +176,7 @@ Each field can be configured in four ways:
 - Phrase: the query is cleaned up as above, but will search **for the whole phrase**. Thus a search for `lorem ipsum` will only search for `lorem ipsum`.
 - Term & Phrase: A combination of these two modes. Thus a search for `lorem ipsum` will run three successive searches for `lorem`, `ipsum` and finally `lorem ipsum`.
 
-![Setting up a Search - fields query](query_searched_fields.png)
+![Setting up a Search - fields query](functionalities/query_searched_fields.png)
 
 
 ### Pattern queries
@@ -212,15 +212,15 @@ Typical uses are providing the number of results per website on the search resul
 
 Facets can work singularly, or be grouped - see below.
 
-![Facets](moellon.png)
-![Defining facets](facets.png)
+![Facets](functionalities/moellon.png)
+![Defining facets](functionalities/facets.png)
 
 ### Filters
 This function usually goes hand-in-hand with facets. A search can be filtered using a subquery written in the same querying language used in the pattern queries section above.
 
 For instance, a search could be constrained to a domain name, a given timespan, etc.
 
-![Setting up a relative date filter](query_filter_date_relative.png)
+![Setting up a relative date filter](functionalities/query_filter_date_relative.png)
 
 ## Grouping
 Documents can be grouped to make the results list more intelligible and less repetitive. For instance, one might limit to three the maximum number of consecutive results from a given website.
@@ -239,8 +239,8 @@ Text snippets follow guidelines such as:
 - **Snippet relevance**. OpenSearchServer returns the phrase most relevant to the searched-for keywords, while staying close to the target length.
 - **Phrase detection**. OpenSearchServer attempts to return the beginning of a relevant sentence as a snippet.
 
-![Defining snippets while building a query](snippets.png)
-![Sample search results within the interface, using snippets](snippets_2.png)
+![Defining snippets while building a query](functionalities/snippets.png)
+![Sample search results within the interface, using snippets](functionalities/snippets_2.png)
 
 ## Sorting
 The default sorting of results for a search engine is done using the relevance score from the search algorithm (Vector Space Model). As previously discussed, this score can be refined using the querying language.
@@ -259,7 +259,7 @@ Coordinates can be expressed in degrees or in radians, and the distances in kilo
 ## Boosting subqueries
 Boosting subqueries tweak the relevance score of documents using arbitrary parameters.
 
-![Setting up boosting subqueries while building a search query](boosting.png)
+![Setting up boosting subqueries while building a search query](functionalities/boosting.png)
 
 These subqueries can both bolster or lower a document's score. Results from a given website can thus be promoted, or documents from a given category can have their score lowered.
 
@@ -294,14 +294,14 @@ OpenSearchServer comes with a pre-packaged auto-completion engine, processing th
 
 Multiple autocomplete indexes can be set up -- for instance to offer users from different areas suggestions drawing from different fields within the same index.
 
-![Autocompletion](autocompletion.png)
+![Autocompletion](functionalities/autocompletion.png)
 
 ## Search page rendering
 OpenSearchServer's Renderer module offers fast access to a **full search results page**. This page can easily be customised using Cascading Style Sheets. Which information should be displayed for each result can be precisely selected. Links and images can be embedded within results.
 
 OpenSearchServer's ready-to-use code can be used to embed the results page within another application, using an iFrame.
 
-![Renderer](renderer.png)
+![Renderer](functionalities/renderer.png)
 
 ## Authentication
 A sign-in procedure can be set up for the search results pages. This allows for sorting the search result based on user profiles (by username and/or by group), using values stored in specific fields of the schema during indexation.
@@ -330,7 +330,7 @@ The Scheduler module can run the following tasks:
 - Import documents from another index (local or distant) to be reprocessed for indexation.
 - Re-index words within autocomplete indexes.
 
-![Using the scheduler](scheduler2.png)
+![Using the scheduler](functionalities/scheduler2.png)
 
 ## Replicating, and creating backups
 The Replication module can copy an index on the same server, or on a remote server. This can be done manually or through the Scheduler.
@@ -339,12 +339,12 @@ Typical use cases for replication are:
 - **Distributing** an index over a servers cluster, without interrupting its functioning.
 - **Creating backups** locally or on a remote cluster.
 
-![Replication](replication.png)
+![Replication](functionalities/replication.png)
 
 ## Monitoring
 The Runtime module provides useful metrics such as memory use or free disk space, and is integrated within the GUI. An XML/HTTP API is available to interface with another monitoring application.
 
-![Monitoring](runtime_system.png)
+![Monitoring](functionalities/runtime_system.png)
 
 ## Statistics
 The statistics tool include two modules - the daily logs, and the visual interface.
