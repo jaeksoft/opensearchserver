@@ -42,7 +42,7 @@ An array of documents.
        }
     ]
     
-- _**lang**_ (optional): The lang of the document.
+- _**lang**_ (optional): The language of the document.
 - _**fields**_ (required): Array of fields.
   - _**name**_ (required): The name of the field.
   - _**value**_ (required): The content to index.
