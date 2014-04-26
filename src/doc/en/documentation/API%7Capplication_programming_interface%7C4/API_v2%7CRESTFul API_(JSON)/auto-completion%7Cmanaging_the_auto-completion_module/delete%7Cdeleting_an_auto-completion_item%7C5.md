@@ -1,4 +1,4 @@
-Use this API to remove the auto-completion item.
+Use this API to remove an auto-completion item.
 
 **Requirement:** OpenSearchServer v1.5
 
