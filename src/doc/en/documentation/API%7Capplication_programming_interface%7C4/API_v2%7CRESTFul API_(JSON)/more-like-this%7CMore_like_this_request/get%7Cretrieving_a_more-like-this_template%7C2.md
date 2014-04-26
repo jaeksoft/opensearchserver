@@ -1,4 +1,4 @@
-This API returns the content of a search template.
+This API returns the content of a MoreLikeThis template.
 
 **Requirement:** OpenSearchServer v1.5.3
 
@@ -61,7 +61,7 @@ The field is returned either in JSON format or in XML format.
 
 ### Error response
 
-The search template was not returned. The reason is provided in the content.
+The MoreLikeThis template was not returned. The reason is provided in the content.
 
 **HTTP code:**
 500, 404 (other than 200)
