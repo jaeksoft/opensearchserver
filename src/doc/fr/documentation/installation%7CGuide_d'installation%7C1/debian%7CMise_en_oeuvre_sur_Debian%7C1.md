@@ -1,12 +1,12 @@
-Utiliser cette page en référence si vous installez OSS sur un système d'exploitation Linux de type Debian avec le gestionnaire de package.
+Utilisez cette page comme référence si vous installez OSS sur un système d'exploitation Linux de type Debian avec le gestionnaire de package.
 
-Cette version simplifiée devrait être suffisante ; si ce n'est pas le cas lisez la version détaillée.
+La version simplifiée devrait être suffisante ; si ce n'est pas le cas lisez la version détaillée.
 
 ## Version simplifiée
 
 - Assurez-vous d'avoir installé une machine virtuelle Java en version 7 ou supérieure.
 - Téléchargez la dernière version stable [opensearchserver.deb](http://www.open-search-server.com/fr/telecharger/  "Téléchargement")
-- Installer en utilisant la commande suivante: `dpkg -i opensearchserver-X.X.X-bXXX.deb`
+- Installez en utilisant la commande suivante: `dpkg -i opensearchserver-X.X.X-bXXX.deb`
 - Démarrez le service avec: `service opensearchserver start`
 - Ouvrez votre navigateur favori avec l'URL [http://nomduserveur:9090](http://nomduserveur:9090) (remplacez **nomduserveur** by **localhost** s'il tourne sur votre server local)
 - Découvrez OpenSearchServer
@@ -21,7 +21,7 @@ Dans une fenêtre de commande, entrez la ligne suivante:
 
 Vérifiez que vous disposez d'une version 7 ou supérieure:
 
-- S'il ne s'agit pas d'une version 7 ou supérieures, vous devez mettre à jour votre machine virtuelle Java
+- S'il ne s'agit pas d'une version 7 ou supérieure, vous devez mettre à jour votre machine virtuelle Java
 - Si vous n'avez pas Java, installez-le (voir ci-dessous)
 
 ### Installer Java
@@ -34,13 +34,13 @@ Pour installer OpenJDK utilisez le gestionnaire de package:
 
 ### Installer OpenSearchServer
 
-Nous vous recommandons d'avoir toujours la dernière version d'OSS téléchargeable sur [SourceForge](http://www.open-search-server.com/fr/telecharger/ "Téléchargement").
+Nous vous recommandons d'avoir toujours la dernière version d'OSS, téléchargeable sur [SourceForge](http://www.open-search-server.com/fr/telecharger/ "Téléchargement").
 
 Téléchargez le package **opensearchserver-X.X.X-bXXX.deb** pour Debian, puis installez-le en utilisant la commande ci-dessous:
 
     dpkg -i opensearchserver-X.X.X-bXXX.deb
     
-Une fois installé vous aurez les répertoires suivants:
+Une fois le package installé vous aurez les répertoires suivants:
 
 - **/var/lib/opensearchserver**: Contient les données (index).
 - **/usr/share/opensearchserver**: Contient les fichiers binaires d'OSS.
@@ -69,7 +69,7 @@ Le fichier de configuration est localisé ici: **/etc/opensearchserver**.
 
 ### Changer le port d'écoute
 
-Si vous avez déjà un serveur utilisant le port tcp 9090, vous pouvez le modifier dans le fichier de configuration.
+Si le port tcp 9090 est déjà utilisé par un autre serveur, vous pouvez changer OSS de port dans le fichier de configuration.
 
 Identifiez la ligne contenant:
 
@@ -102,4 +102,4 @@ Décommentez-la, et modifiez la quantité de mémoire à votre convenance:
     
 Redémarrez OpenSearchServer.
 
-Sachez que si vous positionnez une valeur supérieure à la mémoire physique disponible, OpenSearchServer ne démarrera pas.
+Attention, si vous positionnez une valeur supérieure à la mémoire physique disponible, OpenSearchServer ne démarrera pas.
