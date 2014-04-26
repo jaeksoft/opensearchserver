@@ -10,7 +10,4 @@ Interested parties can refer to the Trademarks notice for this document.
 
 ####We are still building this documentation.
 
-Until we finish regrouping the documentation, the older documents are still available:
-
-- [Confluence documentation](http://www.open-search-server.com/confluence/display/EN/Home/)
-- [REST API documentation](https://github.com/jaeksoft/opensearchserver/wiki)
+Until we finish regrouping the documentation, the older documents are still available : [Confluence documentation](http://www.open-search-server.com/confluence/display/EN/Home/).
