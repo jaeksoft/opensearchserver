@@ -1,4 +1,4 @@
-Use this API to request the auto-completion index.
+Use this API to request an auto-completion index.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -16,7 +16,7 @@ Use this API to request the auto-completion index.
 - ***autocompletion\_name*** (required): The name of the auto-completion item.
 
 **QUERY parameters:**
-- _**prefix**_ (required): The characters used to find expressions in the auto-completion index
+- _**prefix**_ (required): The characters used to find expressions in the auto-completion index.
 - _**rows**_ (optional): The number of terms to return.
 
 ### Success response
