@@ -13,7 +13,7 @@ Use this API to check whether a list of synonyms exists.
 - _**list_name**_ (required): The name of the list to check.
 
 ### Success response
-Returns HTTP code 200 if list exist, 404 otherwise.
+Returns HTTP code 200 if the lists exist, and a 404 if it doesn't.
 
 ### Error response
 
