@@ -6,9 +6,9 @@ Cette version simplifiée devrait être suffisante ; si ce n'est pas le cas lise
 
 - Assurez-vous d'avoir installé une machine virtuelle Java en version 7 ou supérieure.
 - Téléchargez la dernière version stable [opensearchserver.deb](http://www.open-search-server.com/fr/telecharger/  "Téléchargement")
-- Installer en utilisant la commande suivante: `dpkg -i opensearchserver.deb`
+- Installer en utilisant la commande suivante: `dpkg -i opensearchserver-X.X.X-bXXX.deb`
 - Démarrez le service avec: `service opensearchserver start`
-- Ouvrez votre navigateur favori avec l'URL [http://yourserver:9090](http://yourserver:9090) (remplacez **yourserver** by **localhost** s'il tourne sur votre server local)
+- Ouvrez votre navigateur favori avec l'URL [http://nomduserveur:9090](http://nomduserveur:9090) (remplacez **nomduserveur** by **localhost** s'il tourne sur votre server local)
 - Découvrez OpenSearchServer
 
 ## Version détaillée
@@ -30,80 +30,76 @@ En tant que solution open-source, nous vous recommandons d'installer la dernièr
 
 Pour installer OpenJDK utilisez le gestionnaire de package:
 
-    apt-get install jdk
+    apt-get install openjdk-7-jdk
 
 ### Installer OpenSearchServer
 
 Nous vous recommandons d'avoir toujours la dernière version d'OSS téléchargeable sur [SourceForge](http://www.open-search-server.com/fr/telecharger/ "Téléchargement").
 
-Téléchargez le package **opensearchserver.deb** pour Debian, puis installez-le en utilisant la commande ci-dessous:
+Téléchargez le package **opensearchserver-X.X.X-bXXX.deb** pour Debian, puis installez-le en utilisant la commande ci-dessous:
 
-    dpkg -i opensearchserver.deb
+    dpkg -i opensearchserver-X.X.X-bXXX.deb
     
 Une fois installé vous aurez les répertoires suivants:
 
-- **/var/lib/opensearchserver**: Contains all your data (indexes).
-- **/usr/share/opensearchserver**: Contains all your OSS binaries.
+- **/var/lib/opensearchserver**: Contient les données (index).
+- **/usr/share/opensearchserver**: Contient les fichiers binaires d'OSS.
 
-You also get the following files:
-- **/etc/opensearchserver**: The configuration file of your OpenSearchServer instance
-- **/etc/init.d/opensearchserver**: The script used by the system to start and stop the OpenSearchServer instance.
+Vous trouverez également les fichiers suivants:
+- **/etc/opensearchserver**: Le fichier de configuration de votre instance OpenSearchServer
+- **/etc/init.d/opensearchserver**: Le script utilisé par le système pour démarrer et arrêter l'instance OpenSearchServer.
 
-### Running it
+### Démarrer
 
-Just use the service command:
+Utilisez la commande de service start:
 
-    services opensearchserver start
+    service opensearchserver start
     
-To access your OSS Back Office, open you browser (Firefox, Chromium, Opera, Safari...) and open the page [http://yourserver:9090](http://yourserver:9090)
+Pour accéder à l'interface d'administration OSS, lancez votre navigateur (Firefox, Chromium, Opera, Safari...) et ouvrez la page [http://nomduserveur:9090](http://nomduserveur:9090)
 
-If everything went right you'll see the OSS interface. If nothing is displaying and you are sure you followed this installation procedure correctly, check the troubleshooting section.
+### Arrêter
 
-So far, so good ? You can now go to the next step and create your first index.
+Utilisez la commande de service stop:
 
-### Stopping it
-
-Use the service command with the stop parameter:
-
-    services opensearchserver stop
+    service opensearchserver stop
     
 ## Configuration
 
-The configuration file is located at **/etc/opensearchserver**.
+Le fichier de configuration est localisé ici: **/etc/opensearchserver**.
 
-### Changing the listening port
+### Changer le port d'écoute
 
-If by chance you already have a server listening on the 9090 tcp port you'll have to make a change in the config files.
+Si vous avez déjà un serveur utilisant le port tcp 9090, vous pouvez le modifier dans le fichier de configuration.
 
-Locate the line starting with:
+Identifiez la ligne contenant:
 
     SERVER_PORT=9090
 
-Then change that to another port:
+Modifiez le port:
 
     SERVER_PORT=9091
 
-Restart your OpenSearchServer instance:
+Redémarrez votre instance OpenSearchServer:
 
-    services opensearchserver stop
-    services opensearchserver start
+    service opensearchserver stop
+    service opensearchserver start
 
-Your OpenSearchServer Back Office is now available at this address: [http://yourserver:9091](http://yourserver:9091)
+Votre interface d'administration OpenSearchServer est maintenant disponible sur cette adresse: [http://nomduserveur:9091](http://nomduserver:9091)
 
-### Changing the memory usage
+### Modifier l'allocation de mémoire:
 
-By default, OpenSearchServer don't set the memory allocation. It uses the default value from the Java Virtual Machine.
+Par défaut, OpenSearchServer ne défini pas la mémoire allouée. Il utilise l'allocation par défaut de la machine virtuelle Java.
 
-If you need to increase it, just edit the configuration file.
+Si vous souhaitez l'augmenter, modifiez le fichier de configuration comme suit:
 
-Locate the line with:
+Identifiez la ligne suivante:
 
     #JAVA_OPTS="-Xms1G -Xmx1G"
 
-Uncomment the line, and set the memory value as you need:
+Décommentez-la, et modifiez la quantité de mémoire à votre convenance:
 
     JAVA_OPTS="-Xms2G -Xmx2G"
     
-Restart OpenSearchServer.
+Redémarrez OpenSearchServer.
 
-Be aware that if you set a value greater than the physical memory available, OpenSearchServer will not start.
+Sachez que si vous positionnez une valeur supérieure à la mémoire physique disponible, OpenSearchServer ne démarrera pas.

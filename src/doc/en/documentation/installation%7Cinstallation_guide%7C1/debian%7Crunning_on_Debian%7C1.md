@@ -5,8 +5,8 @@ The Short Version should be sufficient ; if not use the More Detailed Version.
 ## Short version
 
 - Make sure you have a Java 7 Virtual Machine or newer correctly installed
-- Download the latest stable build [opensearchserver.deb](http://www.open-search-server.com/download/  "Download")
-- Install it with the following command: `dpkg -i opensearchserver.deb`
+- Download the latest stable build [opensearchserver-X.X.X-bXXX.deb](http://www.open-search-server.com/download/  "Download")
+- Install it with the following command: `dpkg -i opensearchserver-X.X.X-bXXX.deb`
 - Start the service using: `service opensearchserver start`
 - Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine)
 - Enjoy discovering OpenSearchServer
@@ -30,15 +30,15 @@ Our Open Source-friendly recommendation is that you install the latest OpenJDK (
 
 To install OpenJDK just use your favorite package manager:
 
-    apt-get install jdk
+    apt-get install openjdk-7-jdk
 
 ### Installing OpenSearchServer
 
 We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
 
-Please download the **opensearchserver.deb** package for Debian, then install it as in the example below:
+Please download the **opensearchserver-X.X.X-bXXX.deb** package for Debian, then install it as in the example below:
 
-    dpkg -i opensearchserver.deb
+    dpkg -i opensearchserver-X.X.X-bXXX.deb
     
 Once installed you will get the following folders:
 
@@ -53,19 +53,15 @@ You also get the following files:
 
 Just use the service command:
 
-    services opensearchserver start
+    service opensearchserver start
     
 To access your OSS Back Office, open you browser (Firefox, Chromium, Opera, Safari...) and open the page [http://yourserver:9090](http://yourserver:9090)
-
-If everything went right you'll see the OSS interface. If nothing is displaying and you are sure you followed this installation procedure correctly, check the troubleshooting section.
-
-So far, so good ? You can now go to the next step and create your first index.
 
 ### Stopping it
 
 Use the service command with the stop parameter:
 
-    services opensearchserver stop
+    service opensearchserver stop
     
 ## Configuration
 
@@ -85,8 +81,8 @@ Then change that to another port:
 
 Restart your OpenSearchServer instance:
 
-    services opensearchserver stop
-    services opensearchserver start
+    service opensearchserver stop
+    service opensearchserver start
 
 Your OpenSearchServer Back Office is now available at this address: [http://yourserver:9091](http://yourserver:9091)
 
