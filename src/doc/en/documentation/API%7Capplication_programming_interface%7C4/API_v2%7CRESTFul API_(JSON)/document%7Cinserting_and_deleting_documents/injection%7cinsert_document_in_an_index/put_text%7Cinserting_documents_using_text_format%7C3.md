@@ -1,6 +1,6 @@
-The TEXT API will read one document for each line in the TEXT file. A regular expression should be given. Each capture is one copied to a field of the schema.
+The TEXT API will read one document for each line in the TEXT file. A regular expression should be given. Each captured document will be added to a field of the schema.
 
-Use this API to put document in the index provided in TEXT plain format (CSV, TTL).
+Use this API to add to the index documents in plain TEXT formats (CSV, TTL).
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -20,7 +20,7 @@ Use this API to put document in the index provided in TEXT plain format (CSV, TT
 **Query parameters:**
 - _**pattern**_ (required): A regular expression pattern capturing the field in the text line.
 - _**field**_ (required): One field for each capture in the regular expression (field mapping).
-- _**langpos**_ (optional): The number of the capture containing the lang.
+- _**langpos**_ (optional): The number of the capture containing the language.
 - _**charset**_ (optional): The charset of the text (default is UTF-8).
 - _**buffersize**_ (optional): The size of the buffer when indexing the lines (default is 100).
 
