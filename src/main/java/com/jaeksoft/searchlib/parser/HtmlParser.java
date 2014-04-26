@@ -409,9 +409,11 @@ public class HtmlParser extends Parser {
 
 		URL canonicalURL = htmlProvider.getCanonicalLink(currentURL);
 		if (canonicalURL != null) {
-			addDetectedLink(canonicalURL.toExternalForm());
+			String canUrl = canonicalURL.toExternalForm();
+			addDetectedLink(canUrl);
 			if (ignoreNonCanonical) {
-				if (!canonicalURL.equals(currentURL)) {
+				String curUrl = currentURL.toExternalForm();
+				if (!canUrl.equals(curUrl)) {
 					isCanonical = false;
 					return;
 				}
