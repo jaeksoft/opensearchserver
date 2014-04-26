@@ -1,90 +1,88 @@
-Please use this page for reference when installing OSS on a Linux system (Ubuntu, CentOS, Xandros, etc.).
+Cette page est le document de référence pour installer OpenSearchServer sur un système Linux (Ubuntu, CentOS, Xandros, etc.).
 
-The Short Version should be sufficient ; if not use the More Detailed Version.
+La version courte ci-dessous est habituellement suffisante ; en cas de souci utilisez la version détaillée.
 
-## Short version
+## Version courte
 
-- Make sure you have a Java 6 Virtual Machine or newer correctly installed
-- Download the latest stable build [tar.gz](http://www.open-search-server.com/download/  "Download")
-- Deflate it and run start.sh, which you'll find within the OSS folder
-- Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine)
-- Enjoy discovering OpenSearchServer
+- Assurez-vous d'avoir une Java Virtual Machine dans sa version 6 ou plus récente
+- Téléchargez notre dernière version stable sur [tar.gz](http://www.open-search-server.com/download/  "Download")
+- Décompressez-la, puis lancez le start.sh qui se trouve dans le dossier OSS
+- Via votre navigateur préféré, ouvrez l'URL [http://votreserveur:9090](http://votreserveurr:9090) (remplacez **yourserver** par **localhost** si OSS tourne sur votre machine locale)
+- Bonne découverte d'OpenSearchServer !
 
-## More Detailed version
+## Version détaillée
 
-Install a Java runtime (JVM). Here are some commons JVMs:
+Installez une nouvelle instance Java - une JVM. Des JVMs connues sont :
 
 - OpenJDK (http://openjdk.java.net/)
 - Oracle/SUN Java (http://www.java.com/en/download/)
 - IBM Java (https://www.ibm.com/developerworks/java/jdk/")
 
-The following covers the same steps as above, in more detail.
+Nous allons maintenant refaire les étapes de la version courte, avec davantage d'explications.
 
-### Checking your Java version ###
+### Vérifier la version de Java ###
 
-In a shell, enter the command line
+Lancez un terminal et tapez :
 
     java -version
 
-Check whether your Java version is 6 or newer:
+- Si vous avez une version inférieure à 6, il faut la mettre à jour
+- Si aucune JVM n'est installée, il faut procéder à une installation
 
-- If your version is not Version 6 or greater you'll need to update your Java engine
-- If you don't have Java, install it (see below)
+### Installer Java
 
-### Installing Java
+En tant qu'acteurs open source, nous recommandons la dernière version d'OpenJDK (soit la 1.7.0 lors de l'écriture de cet article).
 
-Our Open Source-friendly recommendation is that you install the latest OpenJDK (1.7.0 as of this writing).
+Pour ce faire, suivez juste les instructions sur [le site openJDK](http://openjdk.java.net/install)
 
-To install OpenJDK just follow the instructions provided at [the openJDK site](http://openjdk.java.net/install)
+### Télécharger OpenSearchServer
 
-### Downloading OpenSearchServer
+Nous recommendons vivement de toujours utiliser la dernière version d'OSS disponible sur [SourceForge](http://www.open-search-server.com/download/ "Download").
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
-
-Please download the **tar.gz** package for Linux/BSD, then deflate it as in the example below:
+Téléchargez le package **tar.gz** pour Linux/BSD, puis décompressez-le comme suit :
 
     tar -xzvf open-search-server-1.5.tar.gz
     
-Once unzipped you'll get a folder called **opensearchserver**. All your OSS binaries (and your future data) will be stored within this folder.
+La résultate est un dossier **opensearchserver**. Tous les binaires se trouvent dans ce dossier, et vos données les y rejoindront.
 
-### Running it
+### Lancement
 
-Just launch the start.sh present in your OSS base folder to get the application running:
+Il suffit de lancer le start.sh dans le dossier OSS, comme suit :
 
     cd open-search-server
     ./start.sh
     
-To access your OSS Back Office, open you browser (Firefox, Chromium, Opera, Safari...) and open the page [http://yourserver:9090](http://yourserver:9090)
+Pour accéder à votre back office OSS, lancez un navigateur web (Firefox, Chromium, Opera, Safari...) à la page [http://votreserveur:9090](http://votreserveur:9090)
 
-If everything went right you'll see the OSS interface. If nothing is displaying and you are sure you followed this installation procedure correctly, check the troubleshooting section.
+Si tout c'est bien passé, vous voyez maintenant l'interface OSS. Si ce n'est pas le cas et que vous êtes certain d'avoir bien suivi la procédure, voir la section débuggage.
 
-So far, so good ? You can now go to the next step and create your first index.
+Une fois l'interface disponible, vous pouvez passer à l'étape suivante pour créer votre premier index.
 
-## Troubleshooting
+## Debuggage
 
-### Checking whether your 9090 port is free
+### Le port 9090 est-il libre ?
 
-If by chance you already have a server listening on the 9090 tcp port you'll have to make a change in the Catalina config files.
+Si il se trouve qu'un autre serveur utilise ce port, il va falloir indiquer un nouveau port dans les fichiers de configuration Catalina.
 
-To check whether the 9090 port is already occupied use the following command line:
+Première étape, vérifier si le port 9090 est bien occupé :
 
     netstat -an | grep :9090
    
-If you have a response resembling the one below, then your port isn't free:
+Si la réponse ressemble à ceci, alors ce port est déjà pris :
 
     TCP    0.0.0.0:9090           0.0.0.0:0              LISTENING       676
     
-If port 9090 is already being used, we suggest that you simply use another port for OpenSearchServer. To do so:
+Si c'est le cas, le plus simple est d'attribuer un nouveau port à OSS, comme suit :
 
-Open in you OSS folder the file **start.sh**
-Locate the line starting with:
+Dans le dossier OSS, ouvrez le fichier **start.sh**
+Trouvez la ligne qui commence par :
 
     SERVER_PORT=9090
 
-Then change that to:
+Et changez ce passage en :
 
     SERVER_PORT=9091
 
-Save your file and start OpenSearchServer with **start.sh**
+Sauvegardez le fichier et lancez OpenSearchServer en lançant **start.sh**
 
-Your OpenSearchServer Back Office is now available at this address: [http://yourserver:9091](http://yourserver:9091)
+Votre back office OpenSearch Server est maintenant joignable sur l'URL [http://votreserveur:9091](http://votreserveur:9091)
