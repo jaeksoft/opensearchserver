@@ -1,4 +1,4 @@
-**OpenSearchServer 1.5** introduces a new powerful scripting feature. It is now possible to drive a web browser (Firefox, PhantomJS) using a written script.
+**OpenSearchServer 1.5** introduces a powerful scripting feature. It is now possible to drive a web browser (Firefox, PhantomJS) using a written script.
 
 The new scripting feature can:
 
@@ -7,9 +7,9 @@ The new scripting feature can:
 * Extract data using an XPATH query, a CSS selector, or the ID of the web element,
 * Insert documents in an index.
 
-A set of REST APIs has been created to manage the scripts. Each script can be executed/stored/updated/deleted by calling it by its name.
+A set of REST APIs was created to manage the scripts. Each script can be executed/stored/updated/deleted by calling its name.
 
-This new feature is particularly useful when crawling websites protected by a login/password form, websites making heavy use of Javascript to display content -- or when the values that need to be indexed can only be defined by precise CSS or XPATH selectors.
+This new feature is particularly useful when crawling websites protected by a login/password form, websites making heavy use of Javascript to display content -- or when the values to be indexed can only be defined by precise CSS or XPATH selectors.
 
  
 
@@ -48,7 +48,7 @@ This script executes the following actions:
 * the script waits for one second,
 * an index document is created,
 * the fields `url` and `title` are set,
-* a CSS selector locates a text element in the web page. These elements are stored in the `content` field.
+* a CSS selector locates a text element within the web page. These elements are stored in the `content` field.
 * the document is inserted within the index.
 
 ## RESTful API
@@ -98,7 +98,7 @@ This script will extract all the root categories of the homepage of Dmoz.org. Th
 * `WEBDRIVER_OPEN`: open a web browser
 	* **parameter 1**: name of driver. Possible values: `PHANTOMJS`, `FIREFOX`.
 * `WEBDRIVER_CLOSE`: close the browser
-* `WEBDRIVER_NEW_WINDOW`: open a new window and keeps the session running
+* `WEBDRIVER_NEW_WINDOW`: open a new window and keep the session running
 * `WEBDRIVER_CLOSE_WINDOW`: close the current window
 * `WEBDRIVER_SET_TIMEOUTS`: define a timeout delay after which script execution will be stopped.
 	* **parameter 1**: delay, in seconds
@@ -131,13 +131,13 @@ This script will extract all the root categories of the homepage of Dmoz.org. Th
 	* **parameter 2**: regexp. The capture group will give the new variable its value.
 	* **parameter 3**: new variable name
 * `CSS_SELECTOR_DOWNLOAD`, `XPATH_SELECTOR_DOWNLOAD` : select an element and download the URL within the `href` attribute. Selected element must be an `<a`.
-	* **parameter 1**: directory into which the file will be download. It will be fully (recursively) created if it does not exist. Variables can be used within this parameter.
+	* **parameter 1**: directory into which the file will be downloaded. It will be fully (recursively) created if it does not exist. Variables can be used within this parameter.
 	* **parameter 2**: selector, CSS or XPATH depending on the command.
 * `WEBDRIVER_DOWNLOAD`: download the current file indicated by the `{url}` variable.
 	* **parameter 1**: directory into which the file will be downloaded. It will be fully (recursively) created if it does not exist. Variables can be used within this parameter.
 * `PARSER_MERGE`: merge every PDF document from a directory to a new PDF document.
-	* **parameter 1**: name of the PDF parser. Value can only be "PDF parser" at the moment.
-	* **parameter 2**: directory that contains PDF files to merge.
+	* **parameter 1**: name of the PDF parser. Value can only be "PDF parser" at this stage.
+	* **parameter 2**: directory that contains the PDF files to merge.
 	* **parameter 3**: full path (including filename) to the PDF to be created
 * `SEARCH_TEMPLATE_JSON`: execute a query on the index and run an action depending on the result.
 	* **parameter 1**: name of the query template to use for the search
