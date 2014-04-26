@@ -1,53 +1,49 @@
-Installing OSS on a Mac is very straightforward. The Short Version below should be sufficient ; if not use the More Detailed Version.
+Installer OpenSearchServer sur un Mac est très simple. La version courte ci-dessous est habituellement suffisante ; en cas de souci utilisez la version détaillée.
 
-## Short Version
+## Version courte
 
-- Make sure you have JAVA 6 or newer correctly installed
-- Download the latest stable build [tar.gz](http://www.open-search-server.com/home/download/ "download")
-- Deflate it and run **start.sh**, which you'll find within the OSS folder
-- Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine)
-- Enjoy discovering OpenSearchServer
+- Assurez-vous d'avoir une Java Virtual Machine dans sa version 6 ou plus récente
+- Téléchargez notre dernière version stable sur [tar.gz](http://www.open-search-server.com/download/  "Download")
+- Décompressez-la, puis lancez le start.sh qui se trouve dans le dossier OSS
+- Via votre navigateur préféré, ouvrez l'URL [http://votreserveur:9090](http://votreserveurr:9090) (remplacez **yourserver** par **localhost** si OSS tourne sur votre machine locale)
+- Bonne découverte d'OpenSearchServer !
 
-## More Detailed Version
-The following covers the same steps as above, in more detail.
+## Version détaillée
+Nous allons maintenant refaire les étapes de la version courte, avec davantage d'explications.
 
-### Checking your Java version ###
+### Vérifier la version de Java ###
 
-In a shell, enter the command line
+Lancez un terminal et tapez :
 
     java -version
 
-Check whether your Java version is 6 or newer:
+- Si vous avez une version inférieure à 6, il faut la mettre à jour
+- Si aucune JVM n'est installée, il faut procéder à une installation (voir plus loin)
 
-- If your version is not Version 6 or greater you'll need to update your Java engine
-- If you don't have Java, install it (see below)
+### Télécharger OSS
 
-### Downloading OSS
+Nous recommendons vivement de toujours utiliser la dernière version d'OSS disponible sur [SourceForge](http://www.open-search-server.com/download/ "Download").
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
-
-Please download the **tar.gz** or **zip** package, then deflate it as in the example below:
+Téléchargez le package **tar.gz** pour Linux/BSD, puis décompressez-le comme suit :
 
     tar -xzvf open-search-server-1.5.tar.gz
     
-or
+ou
 
 	unzip open-search-server-1.5.zip
     
-Once unzipped you'll get a folder called **opensearchserver**. All your OSS binaries (and your future data) will be stored within this folder.
+La résultante est un dossier **opensearchserver**. Tous les binaires se trouvent dans ce dossier, et vos données les y rejoindront.
 
-### Running it
-At this stage, running OSS on Mac still requires one command line. This means you have to use the Terminal application, which is in the Utilities folder within the Applications folder of your Mac.
+### Lancement
+Pour l'instant, il reste nécessaire d'utiliser une ligne de commande pour lancer OSS sous Mac. Pour ce faire, il faut utiliser l'application Terminal qui se trouve dans le dossier Utilitaires - qui se trouve lui-même dans le dossier Applications de votre Mac.
 
-Using the Terminal, go to your newly-downloaded OpenSearchServer folder. Once there, launch the Start application by typing in **./start.sh**. That's it!
+Dans le Terminal, rendez-vous dans votre dossier OpenSearchServer fraîchement installé, puis lancez l'application Start en tapant **./start.sh**. Et voilà !
 
-#### Running it without knowing anything about Terminal mode
+#### Si vous ne connaissez rien au Terminal
+Si vous n'avez jamais utilisé le Terminal de votre Mac, il est possible que vous ne sachiez pas comment vous rendre dans le dossier OpenSearch Server. Heureusement, il y a juste deux commandes Unix de base à connaître :
 
-If you have never used the Terminal before, you may not know how to go to the OpenSearchServer folder. This is simple, as you'll only need to understand the basics of two simple Unix-style commands:
+- si vous tapez ls (lettre L puis lettre S, formant l'abbréviation du mot "liste"), le Terminal affiche tous les fichiers et dossiers du dossier où vous vous trouvez afin que vous puissiez vous orienter.
+- si vous tapez cd (abbréviation de "change directory"), le Terminall rentre dans le dossier indiqué. Par exemple cd downloads rentre dans le dossier downloads qui se trouve dans le dossier actuellement ouvert. Vous pouvez ensuite refaire un ls pour voir son contenu.
+- cd suivi de deux points (cd ..) remonte d'un niveau dans l'arborescence.
 
-- if you type ls (the letter L and the letter S, short for "list"), the Terminal will list all the files and folders in the folder you're currently in. This allows you to know where you are and what you can access.
-- if you type cd (short for "change directory"), the Terminal will go the place you specify (for instance cd downloads to enter the "downloads" directory).
-
-Thus, if you type **ls** and see that the folder you are currently in has a folder called **Downloads**, typing **cd Downloads** will take you within that folder. There, a typical user would type ls again to see whether the OpenSearchServer folder is indeed there.
-
-Typing **cd opensearchserver** will take the user into the OpenSearchServer folder, where the **start.sh** file we're looking for is located.
+Naviguez ainsi jusqu'à trouver le dossier OpenSearchServer, tapez **cd opensearchserver**, et faîtes un ls pour voir le fichier **start.sh** que nous recherchons.
