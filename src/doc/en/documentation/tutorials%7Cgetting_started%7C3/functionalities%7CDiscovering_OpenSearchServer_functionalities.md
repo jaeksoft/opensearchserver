@@ -31,7 +31,7 @@ This crawler handles HTTP and HTTPS - and is thus used to crawl Internet, intran
 - **Website list**. A list of URLs, which can include wildcards (noted with a * character). This allows for the full or partial indexation of a website.
 - **Exclusion list**. Another list of URLs that can use wildcards, but this one excludes pages from being indexed.
 - **URL parameters filtering**. It is possible to ignore unimportant data in URLs (for instance, session parameters)
-- **URLs browser**. This interface is used to review all known URLs and their status (index, unindexed, 404 error, etc.)
+- **URLs browser**. This interface is used to review all known URLs and their status (indexed, unindexed, 404 error, etc.)
 - **Crawl process manager**. This interface is used to monitor the indexation process - number of simultaneous threads, crawling speed for each site, number of pages per session, etc.
 - **Manual crawling**. Used to test the indexation of a given URL.
 - **Proxy**. An HTTP and/or HTTPS proxy can be used while indexing.
