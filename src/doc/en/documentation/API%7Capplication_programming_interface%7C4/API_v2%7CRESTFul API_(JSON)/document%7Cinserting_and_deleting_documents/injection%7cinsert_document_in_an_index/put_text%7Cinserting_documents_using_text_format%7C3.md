@@ -1,4 +1,4 @@
-The TEXT API will read one document for each line in the TEXT file. A regular expression should be given. Each captured document will be added to a field of the schema.
+The TEXT API will read one document for each line in the TEXT file. A regular expression must be provided to determine what will captured. Each capture is copied to a field of the schema.
 
 Use this API to add to the index documents in plain TEXT formats (CSV, TTL).
 
