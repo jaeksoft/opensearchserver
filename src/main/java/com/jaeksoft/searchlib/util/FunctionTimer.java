@@ -165,7 +165,7 @@ public class FunctionTimer {
 			globalTotalTime += (double) fullTotalTime / 1000;
 			System.out.println(StringUtils.fastConcat("Total time: ",
 					Double.toString(fullTotalTime / 1000))
-					+ " / " + Double.toString((long) globalTotalTime));
+					+ " / " + Double.toString(globalTotalTime));
 			break;
 		}
 		if (reset)
