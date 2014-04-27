@@ -54,13 +54,24 @@ public class OsseTransaction implements Closeable {
 
 	private OsseErrorHandler err;
 
+	public final MemoryBuffer internalMemoryBuffer;
 	public final MemoryBuffer memoryBuffer;
+
+	public final OsseTermBuffer termBuffer;
 
 	private final Map<String, Long> fieldPointerMap;
 
-	public OsseTransaction(OsseIndex index, Collection<FieldInfo> fieldInfos,
-			int maxBufferSize) throws SearchLibException {
-		memoryBuffer = new MemoryBuffer();
+	public OsseTransaction(OsseIndex index, MemoryBuffer memoryBuffer,
+			Collection<FieldInfo> fieldInfos, int maxBufferSize)
+			throws SearchLibException {
+		if (memoryBuffer == null) {
+			internalMemoryBuffer = new MemoryBuffer();
+			this.memoryBuffer = internalMemoryBuffer;
+		} else {
+			internalMemoryBuffer = null;
+			this.memoryBuffer = memoryBuffer;
+		}
+		termBuffer = new OsseTermBuffer(this.memoryBuffer);
 		err = new OsseErrorHandler();
 		final ExecutionToken et = FunctionTimer.newExecutionToken(
 				"OSSCLib_MsTransact_Begin ", Long.toString(index.getPointer()));
@@ -211,14 +222,13 @@ public class OsseTransaction implements Closeable {
 		}
 	}
 
-	final public void updateDocument(final MemoryBuffer memoryBuffer,
-			final OsseTermBuffer termBuffer, final Schema schema,
+	final public void updateDocument(final Schema schema,
 			final IndexDocument indexDocument) throws SearchLibException,
 			IOException {
 		DocumentRecord documentRecord = null;
 		try {
 			termBuffer.reset();
-			documentRecord = new DocumentRecord(memoryBuffer, termBuffer,
+			documentRecord = new DocumentRecord(termBuffer, memoryBuffer,
 					schema, fieldPointerMap, indexDocument);
 			final ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsTransact_AddEntireNewDocument");
@@ -250,19 +260,15 @@ public class OsseTransaction implements Closeable {
 	@Override
 	final public void close() {
 		try {
-			try {
-				if (transactPtr != 0)
-					rollback();
-			} catch (SearchLibException e) {
-				Logging.warn(e);
-			}
-			if (err != null) {
-				IOUtils.close(err);
-				err = null;
-			}
-		} finally {
-			memoryBuffer.close();
+			if (transactPtr != 0)
+				rollback();
+		} catch (Throwable e) {
+			Logging.warn(e);
+		}
+		IOUtils.close(termBuffer, internalMemoryBuffer);
+		if (err != null) {
+			IOUtils.close(err);
+			err = null;
 		}
 	}
-
 }

@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.jna.Memory;
 
 public class DocumentRecord implements Closeable {
@@ -62,7 +63,7 @@ public class DocumentRecord implements Closeable {
 	private OsseUint64Array ola = null;
 	private OsseUint32Array oia = null;
 
-	public DocumentRecord(MemoryBuffer memoryBuffer, OsseTermBuffer termBuffer,
+	public DocumentRecord(OsseTermBuffer termBuffer, MemoryBuffer memoryBuffer,
 			Schema schema, Map<String, Long> fieldPointerMap,
 			IndexDocument document) throws SearchLibException, IOException {
 		this.termBuffer = termBuffer;
@@ -98,8 +99,14 @@ public class DocumentRecord implements Closeable {
 			return;
 		fieldPtrArray.add(currentFieldPtr);
 		numberOfTermsArray.add(currentNumberOfTerms);
-		System.out.println("FIELD " + currentFieldPtr + " "
-				+ currentNumberOfTerms);
+	}
+
+	@Override
+	final public String toString() {
+		return StringUtils.fastConcat(this.hashCode(),
+				" numberOfTermsArray.size: ", numberOfTermsArray.size()
+						+ " termBuffer:", termBuffer.getTermCount(), '/',
+				termBuffer.getByteArrayCount());
 	}
 
 	final private void addTerm(final String term) throws IOException {
@@ -143,7 +150,6 @@ public class DocumentRecord implements Closeable {
 	public long getTermArrayPointer() {
 		if (ofsa == null)
 			ofsa = new OsseFastStringArray(memoryBuffer, termBuffer);
-		System.out.println("TermBuffer " + termBuffer.getTermCount());
 		return Memory.nativeValue(ofsa);
 	}
 

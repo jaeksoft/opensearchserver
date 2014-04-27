@@ -118,6 +118,7 @@ public class OsseTermBuffer implements Closeable {
 			final OffsetAttribute offsetAtt,
 			final PositionIncrementAttribute posIncrAtt) throws IOException {
 		terms.add(new OsseTerm(termAtt.buffer(), termAtt.length()));
+
 		offsets.add(new OsseTermOffset(offsetAtt.startOffset(), offsetAtt
 				.endOffset()));
 		positionIncrements.add(posIncrAtt.getPositionIncrement());
@@ -128,6 +129,7 @@ public class OsseTermBuffer implements Closeable {
 		terms.clear();
 		offsets.clear();
 		positionIncrements.clear();
+		byteArrays.clear();
 		currentByteArray = null;
 		currentByteBuffer = null;
 		newByteBuffer(16384);

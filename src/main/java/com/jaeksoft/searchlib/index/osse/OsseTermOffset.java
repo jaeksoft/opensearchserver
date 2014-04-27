@@ -27,9 +27,7 @@ package com.jaeksoft.searchlib.index.osse;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.jna.Structure;
-
-public class OsseTermOffset extends Structure {
+public class OsseTermOffset {
 
 	final public int ui32StartOffset;
 	final public int ui32EndOffset;
@@ -42,7 +40,6 @@ public class OsseTermOffset extends Structure {
 	private final static List<?> fieldOrderList = Arrays.asList(new String[] {
 			"ui32StartOffset", "ui32EndOffset" });
 
-	@Override
 	protected List<?> getFieldOrder() {
 		return fieldOrderList;
 	}
