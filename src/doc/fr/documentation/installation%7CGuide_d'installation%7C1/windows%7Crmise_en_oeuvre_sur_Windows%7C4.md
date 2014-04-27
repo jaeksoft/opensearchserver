@@ -1,86 +1,86 @@
-## Short Version
+## Version courte
 
-- Make sure you have JAVA 6 or newer correctly installed
-- Download the latest stable build [zip](http://www.open-search-server.com/download/ "Download")
-- Deflate it and run **start.bat**, which you'll find within the OpenSearchServer folder
-- Open your favorite browser with the url [http://yourserver:9090](http://yourserver:9090) (your server being **localhost** if it's running on your local machine)
-- Enjoy discovering OpenSearchServer
+- Assurez-vous d'avoir JAVA 6 ou plus récent
+- Téléchargez la dernière version stable [zip](http://www.open-search-server.com/download/ "Download")
+- Décompressez-la et lancez **start.bat**, qui se trouve dans le dossier OpenSearchServer
+- Via un navigateur web ouvrez l'URL [http://votreserveur:9090](http://votreserveur:9090) (votre serveur étant **localhost** si jamais vous exécutez OSS en local)
+- Bonne découverte d'OpenSearchServer !
 
-## More Detailed Version
+## Version détaillée
 
-The following covers the same steps as above, in more detail.
+Nous allons maintenant refaire les étapes de la version courte, avec davantage d'explications.
 
-### Checking your version of Java
+### Vérifier sa version de Java
 
-- Go to this [page](http://www.java.com/en/download/installed.jsp) to know which version of Java is running on your computer
-- If your version is not a Version 6 or greater, you will need to update your Java engine
-- If the web page states that you don't have any Java machine, please install one
+- Allez sur cette [page](http://www.java.com/en/download/installed.jsp) pour savoir quelle version de Java tourne sur votre machine
+- Si ce n'est pas une version 6 ou plus récente, il faut faire une mise à jour
+- Si la page web indique que vous n'avez pas d'instance Java, il faut en installer une
 
-In the latter two cases, you will be presented with a **Free Java Download** button. Just go ahead - press it and follow the provided instructions.
+Dans les deux cas, la page vous propose un bouton pour télécharger gratuitement Java. Cliquez dessus et suivez les instructions.
 
-### Downloading OpenSearchServer
+### Télécharger OpenSearchServer
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
+Nous recommendons vivement de toujours utiliser la dernière version d'OSS disponible sur [SourceForge](http://www.open-search-server.com/download/ "Download").
 
-Please download the **ZIP** package for Windows and unzip it on your disk.
+Téléchargez le package **ZIP** pour Windows et dézipez le sur votre disque.
 
-When the file is unzipped you'll get a folder **opensearchserver**. All your OSS binaries (and your future data) will be stored in this folder.
+Dans le dossier dézipé se trouve un dossier **opensearchserver**. Tous les binaires se trouvent dans ce dossier, et vos données les y rejoindront.
 
-### Running it
+### Lancement
 
-Just launch the **start.bat** file in your OpenSearchServer base folder.
+Lancez le fichier **start.bat** qui se trouve directement dans le dossier OpenSearchServer.
 
-To access your OSS Back Office, open you browser (Firefox, Chromium, Opera, Safari...) and open the page [http://yourserver:9090](http://yourserver:9090)
+Pour accéder à votre back office OSS, lancez un navigateur web (Firefox, Chromium, Opera, Safari...) à la page [http://votreserveur:9090](http://votreserveur:9090)
 
-If everything went right you'll see the OpenSearchServer interface. If nothing gets displayed and you're certain you've done everything right, please check the troubleshooting section.
+Si tout c'est bien passé, vous voyez maintenant l'interface OSS. Si ce n'est pas le cas et que vous êtes certain d'avoir bien suivi la procédure, voir la section débuggage.
 
-## Troubleshooting
+## Débuggage
 
-This section reviews the possible causes for trouble. You only need to go through them if things are not going right.
+Si tout c'est bien passé cette partie vous est inutile. Dans le cas contraire nous allons voir les causes possibles.
 
-### Checking the environnement variables
+### Vérifier les variables d'environement
 
-- Right click **My Computer**
-- Select **Properties**
-- Select **Advanced** tab
-- Select **Environment Variables**
+- Clic droit sur **Ordinateur**
+- Choisir **Propriétés** dans le menu
+- Onglet **Avancé** - ou page **Paramètres système avancés**
+- Bouton **Variables d'environnement...**
 
-You will see a list of variables. What you need is either a **JRE_HOME** or **JAVA_HOME** variable, depending on the type of Java engine you are running.
+La fenêtre suivante présente une liste de variables. Celle qui nous intéresse s'appelle soit **JRE_HOME** soit **JAVA_HOME**, selon le type d'instance Java sur cet ordinateur.
 
-If the correct variable is present, please check that it targets the correct folder.
+Si la bonne variable est présente, vérifiez qu'elle cible le bon dossier
 
-If the desired variable is not present, create it thus:
+Si elle n'est pas présente, il faut la créer comme suit :
 
-- If you have a JRE, create or update the environment variable **JRE_HOME**. Set it to target the folder where your Java JRE is, for example **C:\Program Files\Java\jre1.7.0_51**
-- If you have a JDK, create or update the environment variable **JAVA_HOME**. Set it to target the folder where your Java JDK is, for example **C:\Program Files\Java\jdk1.7.0_51**
+- Si vous avez une JRE, créez ou mettez à jour la variable **JRE_HOME**. Dirigez-la vers le dossier où se trouve votre JRE Java, par exemple **C:\Program Files\Java\jre1.7.0_51**
+- Si vous avez un JDK, créez ou mettez à jour la variable **JAVA_HOME**. Dirigez-la vers le dossier où se trouve votre JDK, par exemple **C:\Program Files\Java\jdk1.7.0_51**
 
-Once you have done that try again to launch OpenSearchServer through **start.bat**.
+Une fois ceci fait vous pouvez relancer OpenSearchServer en lançant **start.bat**.
 
-If you have Java, do not see the variable *and* do not remember whether you have a JDK or JRE, go to the Start menu, Click Run, type cmd to call up the command line interface, and type java -version to see what's installed.
+Si vous avez Java, que vous ne voyez pas la variable *et* que vous ne savez plus si vous avez un JDK ou une JRE, allez dans le menu Démarrer, cliquez sur l'Invite de commandes, et tapez java -version pour voir ce qui est installé.
 
-### Checking whether your 9090 port is free
+### Vérifier que le port 9090 est libre
 
-If by chance you already have a server listening on the 9090 tcp port you'll have to change it in the **start.bat** config files.
+Si il se trouve que vous avez déjà un serveur qui utilise le port TCP 9090, il va falloir faire une modification dans les fichiers de configuration de **start.bat**
 
-To check whether the 9090 port is already occupied use the following command line:
+Commencez par vérifier si le port 9090 est occupé via la ligne de commande suivante :
 
     netstat -o -n -a | findstr 0.0:9090
     
-If you have a response resembling the one below, your port isn't free:
+Si la réponse ressemble à ceci, alors ce port est déjà pris :
 
     TCP    0.0.0.0:9090           0.0.0.0:0              LISTENING       676
     
-If port 9090 is already being used, we suggest that you simply use another port for OpenSearchServer. To do so:
+Si c'est le cas, le plus simple est d'attribuer un nouveau port à OSS, comme suit :
 
-Edit in you OpenSearchServer folder the file **start.bat**
-Locate the line starting with:
+Ouvrez le fichier **start.bat** dans le dossier OpenSearchServer pour le modifier.
+Trouvez la ligne qui commence par :
 
     SERVER_PORT=9090
 
-Then change that to:
+Et changez ce passage en :
 
     SERVER_PORT=9091
 
-Save your file and start OpenSearchServer with **start.bat**
+Sauvegardez le fichier et lancez OpenSearchServer en lançant **start.bat**
 
-Your OpenSearchServer Back Office is now available at this address: [http://yourserver:9091](http://yourserver:9091)
+Votre back office OpenSearch Server est maintenant joignable sur l'URL [http://votreserveur:9091](http://votreserveur:9091)
