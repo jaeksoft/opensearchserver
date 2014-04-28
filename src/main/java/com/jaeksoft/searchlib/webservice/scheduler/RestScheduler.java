@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -42,7 +44,8 @@ public interface RestScheduler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{scheduler_name}/run")
-	public CommonResult status(@PathParam("index_name") String use,
+	public CommonResult status(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("scheduler_name") String name);
 
@@ -50,7 +53,8 @@ public interface RestScheduler {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{scheduler_name}/run")
-	public CommonResult run(@PathParam("index_name") String use,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("scheduler_name") String name,
 			Map<String, String> variables);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -39,51 +41,57 @@ public interface RestCommand {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/optimize/{index}/json")
-	public CommonResult optimizeJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult optimizeJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/optimize/{index}/xml")
-	public CommonResult optimizeXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult optimizeXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/reload/{index}/json")
-	public CommonResult reloadJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult reloadJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/reload/{index}/xml")
-	public CommonResult reloadXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult reloadXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/truncate/{index}/json")
-	public CommonResult truncateJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult truncateJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/truncate/{index}/xml")
-	public CommonResult truncateXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult truncateXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/merge/{index}/json")
-	public CommonResult mergeJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("index") String index);
+	public CommonResult mergeJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("index") String index);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/merge/{index}/xml")
-	public CommonResult mergeXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("index") String index);
+	public CommonResult mergeXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("index") String index);
 
 }

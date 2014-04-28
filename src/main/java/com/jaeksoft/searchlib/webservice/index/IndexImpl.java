@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.naming.NamingException;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
@@ -42,10 +43,11 @@ import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
+public class IndexImpl extends CommonServices implements RestIndex {
 
 	@Override
-	public CommonResult deleteIndex(String login, String key, String indexName) {
+	public CommonResult deleteIndex(UriInfo uriInfo, String login, String key,
+			String indexName) {
 		try {
 			User user = getLoggedAdmin(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -63,8 +65,8 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult createIndex(String login, String key, String indexName,
-			TemplateList indexTemplateName, String remoteURI) {
+	public CommonResult createIndex(UriInfo uriInfo, String login, String key,
+			String indexName, TemplateList indexTemplateName, String remoteURI) {
 		try {
 			User user = getLoggedAdmin(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -87,14 +89,14 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult createIndex(String login, String key, String indexName,
-			String remoteURI) {
-		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX,
-				remoteURI);
+	public CommonResult createIndex(UriInfo uriInfo, String login, String key,
+			String indexName, String remoteURI) {
+		return createIndex(uriInfo, login, key, indexName,
+				TemplateList.EMPTY_INDEX, remoteURI);
 	}
 
 	@Override
-	public ResultIndexList indexList(String login, String key) {
+	public ResultIndexList indexList(UriInfo uriInfo, String login, String key) {
 		try {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -113,7 +115,8 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public CommonResult indexExists(String login, String key, String name) {
+	public CommonResult indexExists(UriInfo uriInfo, String login, String key,
+			String name) {
 		try {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();

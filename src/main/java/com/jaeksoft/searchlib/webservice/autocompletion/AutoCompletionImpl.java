@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -40,7 +41,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class AutoCompletionImpl extends CommonServices implements
-		SoapAutoCompletion, RestAutoCompletion {
+		RestAutoCompletion {
 
 	private AutoCompletionItem getAutoCompItem(AutoCompletionManager manager,
 			String name) throws SearchLibException, IOException {
@@ -52,12 +53,13 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public CommonResult set(String index, String login, String key,
-			String name, List<String> fields, Integer rows) {
+	public CommonResult set(UriInfo uriInfo, String index, String login,
+			String key, String name, List<String> fields, Integer rows) {
 		if ((fields == null || fields.size() == 0) && rows == null)
-			return build(index, login, key, name);
+			return build(uriInfo, index, login, key, name);
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			AutoCompletionItem updateCompItem = manager.getItem(name);
@@ -86,10 +88,10 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public CommonResult build(String index, String login, String key,
-			String name) {
+	public CommonResult build(UriInfo uriInfo, String index, String login,
+			String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionItem autoCompItem = getAutoCompItem(
@@ -107,10 +109,11 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public AutoCompletionResult query(String index, String login, String key,
-			String name, String prefix, Integer rows) {
+	public AutoCompletionResult query(UriInfo uriInfo, String index,
+			String login, String key, String name, String prefix, Integer rows) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionItem autoCompItem = getAutoCompItem(
 					client.getAutoCompletionManager(), name);
@@ -125,16 +128,17 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public AutoCompletionResult queryPost(String index, String login,
-			String key, String name, String prefix, Integer rows) {
-		return query(index, login, key, name, prefix, rows);
+	public AutoCompletionResult queryPost(UriInfo uriInfo, String index,
+			String login, String key, String name, String prefix, Integer rows) {
+		return query(uriInfo, index, login, key, name, prefix, rows);
 	}
 
 	@Override
-	public CommonResult delete(String index, String login, String key,
-			String name) {
+	public CommonResult delete(UriInfo uriInfo, String index, String login,
+			String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			AutoCompletionItem autoCompItem = getAutoCompItem(manager, name);
@@ -151,9 +155,11 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			return new CommonListResult(manager.getItems());

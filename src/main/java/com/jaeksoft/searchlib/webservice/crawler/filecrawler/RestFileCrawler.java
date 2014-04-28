@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,7 +30,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -41,55 +43,63 @@ public interface RestFileCrawler {
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/run/once/{index}/xml")
-	public CommonResult runOnceXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult runOnceXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/run/once/{index}/json")
-	public CommonResult runOnceJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult runOnceJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/run/forever/{index}/xml")
-	public CommonResult runForeverXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult runForeverXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/run/forever/{index}/json")
-	public CommonResult runForeverJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult runForeverJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/stop/{index}/xml")
-	public CommonResult stopXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult stopXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/stop/{index}/json")
-	public CommonResult stopJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult stopJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/status/{index}/xml")
-	public CommonResult statusXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult statusXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/status/{index}/json")
-	public CommonResult statusJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult statusJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/localfile/{index}/xml")
-	public CommonResult injectLocalFileRepositoryXML(
+	public CommonResult injectLocalFileRepositoryXML(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String filePath,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
@@ -100,7 +110,7 @@ public interface RestFileCrawler {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/localfile/{index}/json")
-	public CommonResult injectLocalFileRepositoryJSON(
+	public CommonResult injectLocalFileRepositoryJSON(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String filePath,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
@@ -111,23 +121,23 @@ public interface RestFileCrawler {
 	@DELETE
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/localfile/{index}/xml")
-	public CommonResult removeLocalFileRepositoryXML(
+	public CommonResult removeLocalFileRepositoryXML(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path);
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/localfile/{index}/json")
-	public CommonResult removeLocalFileRepositoryJSON(
+	public CommonResult removeLocalFileRepositoryJSON(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path);
 
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/smb/{index}/xml")
-	public CommonResult injectSmbRepositoryXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult injectSmbRepositoryXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
 			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
 			@QueryParam("enabled") Boolean enabled,
@@ -139,9 +149,9 @@ public interface RestFileCrawler {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/smb/{index}/json")
-	public CommonResult injectSmbRepositoryJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult injectSmbRepositoryJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
 			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
 			@QueryParam("enabled") Boolean enabled,
@@ -153,27 +163,27 @@ public interface RestFileCrawler {
 	@DELETE
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/smb/{index}/xml")
-	public CommonResult removeSmbRepositoryXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult removeSmbRepositoryXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/smb/{index}/json")
-	public CommonResult removeSmbRepositoryJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult removeSmbRepositoryJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
 			@QueryParam("domain") String domain, @QueryParam("host") String host);
 
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/ftp/{index}/xml")
-	public CommonResult injectFtpRepositoryXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult injectFtpRepositoryXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
 			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
 			@QueryParam("enabled") Boolean enabled,
@@ -185,9 +195,9 @@ public interface RestFileCrawler {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/ftp/{index}/json")
-	public CommonResult injectFtpRepositoryJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult injectFtpRepositoryJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
 			@QueryParam("includeSubDirectory") Boolean withSubDirectory,
 			@QueryParam("enabled") Boolean enabled,
@@ -199,25 +209,25 @@ public interface RestFileCrawler {
 	@DELETE
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/ftp/{index}/xml")
-	public CommonResult removeFtpRepositoryXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult removeFtpRepositoryXML(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/ftp/{index}/json")
-	public CommonResult removeFtpRepositoryJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("path") String path,
+	public CommonResult removeFtpRepositoryJSON(@Context UriInfo uriInfo,
+			@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
 			@QueryParam("host") String host, @QueryParam("ssl") boolean ssl);
 
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/inject/swift/{index}/xml")
-	public CommonResult injectSwiftRepositoryXML(
+	public CommonResult injectSwiftRepositoryXML(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
@@ -234,7 +244,7 @@ public interface RestFileCrawler {
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/inject/swift/{index}/json")
-	public CommonResult injectSwiftRepositoryJSON(
+	public CommonResult injectSwiftRepositoryJSON(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("ignoreHiddenFile") Boolean ignoreHiddenFile,
@@ -251,7 +261,7 @@ public interface RestFileCrawler {
 	@DELETE
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/repository/remove/swift/{index}/xml")
-	public CommonResult removeSwiftRepositoryXML(
+	public CommonResult removeSwiftRepositoryXML(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
@@ -260,7 +270,7 @@ public interface RestFileCrawler {
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/repository/remove/swift/{index}/json")
-	public CommonResult removeSwiftRepositoryJSON(
+	public CommonResult removeSwiftRepositoryJSON(@Context UriInfo uriInfo,
 			@PathParam("index") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,

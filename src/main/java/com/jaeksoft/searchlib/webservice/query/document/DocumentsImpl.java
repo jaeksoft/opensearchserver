@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,26 +42,27 @@ import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 public class DocumentsImpl extends CommonQuery implements RestDocuments {
 
 	@Override
-	public QueryTemplateResultList documentsTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
+	public QueryTemplateResultList documentsTemplateList(UriInfo uriInfo,
+			String index, String login, String key) {
+		return super.queryTemplateList(uriInfo, index, login, key,
 				RequestTypeEnum.DocumentsRequest);
 	}
 
 	@Override
-	public DocumentsTemplateResult documentsTemplateGet(String index,
-			String login, String key, String template) {
+	public DocumentsTemplateResult documentsTemplateGet(UriInfo uriInfo,
+			String index, String login, String key, String template) {
 		DocumentsRequest request = (DocumentsRequest) super.queryTemplateGet(
-				index, login, key, template, RequestTypeEnum.DocumentsRequest);
+				uriInfo, index, login, key, template,
+				RequestTypeEnum.DocumentsRequest);
 		return new DocumentsTemplateResult(request);
 	}
 
 	@Override
-	public DocumentsResult documentsTemplate(String index, String login,
-			String key, String template, DocumentsQuery query) {
+	public DocumentsResult documentsTemplate(UriInfo uriInfo, String index,
+			String login, String key, String template, DocumentsQuery query) {
 		try {
 			DocumentsRequest request = (DocumentsRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.DocumentsRequest);
 			if (query != null)
 				query.apply(request);
@@ -71,19 +74,20 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 	}
 
 	@Override
-	public CommonResult documentsTemplateSet(String index, String login,
-			String key, String template, DocumentsQuery query) {
-		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+	public CommonResult documentsTemplateSet(UriInfo uriInfo, String index,
+			String login, String key, String template, DocumentsQuery query) {
+		Client client = getLoggedClient(uriInfo, index, login, key,
+				Role.INDEX_UPDATE);
 		DocumentsRequest request = new DocumentsRequest(client);
 		return queryTemplateSet(client, index, login, key, template, query,
 				request);
 	}
 
 	@Override
-	public DocumentsResult documentsSearch(String index, String login,
-			String key, DocumentsQuery query) {
+	public DocumentsResult documentsSearch(UriInfo uriInfo, String index,
+			String login, String key, DocumentsQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			DocumentsRequest request = new DocumentsRequest(client);
@@ -101,9 +105,9 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 	}
 
 	@Override
-	public CommonResult documentsTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
+	public CommonResult documentsTemplateDelete(UriInfo uriInfo, String index,
+			String login, String key, String template) {
+		return queryTemplateDelete(uriInfo, index, login, key, template,
 				RequestTypeEnum.DocumentsRequest);
 	}
 

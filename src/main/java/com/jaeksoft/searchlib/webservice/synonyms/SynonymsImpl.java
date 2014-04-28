@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.webservice.synonyms;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.synonym.SynonymsManager;
@@ -31,7 +33,7 @@ import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
+public class SynonymsImpl implements RestSynonyms {
 
 	private class SynonymsDirectoryImpl extends
 			AbstractDirectoryImpl<String, SynonymsManager> {
@@ -44,32 +46,37 @@ public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
-		return new SynonymsDirectoryImpl().list(index, login, key);
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
+		return new SynonymsDirectoryImpl().list(uriInfo, index, login, key);
 	}
 
 	@Override
-	public CommonResult set(String index, String login, String key,
-			String name, String content) {
+	public CommonResult set(UriInfo uriInfo, String index, String login,
+			String key, String name, String content) {
+		return new SynonymsDirectoryImpl().set(uriInfo, index, login, key,
+				name, content);
+	}
+
+	@Override
+	public String get(UriInfo uriInfo, String index, String login, String key,
+			String name) {
 		return new SynonymsDirectoryImpl()
-				.set(index, login, key, name, content);
+				.get(uriInfo, index, login, key, name);
 	}
 
 	@Override
-	public String get(String index, String login, String key, String name) {
-		return new SynonymsDirectoryImpl().get(index, login, key, name);
+	public CommonResult exists(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new SynonymsDirectoryImpl().exists(uriInfo, index, login, key,
+				name);
 	}
 
 	@Override
-	public CommonResult exists(String index, String login, String key,
-			String name) {
-		return new SynonymsDirectoryImpl().exists(index, login, key, name);
-	}
-
-	@Override
-	public CommonResult delete(String index, String login, String key,
-			String name) {
-		return new SynonymsDirectoryImpl().delete(index, login, key, name);
+	public CommonResult delete(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new SynonymsDirectoryImpl().delete(uriInfo, index, login, key,
+				name);
 	}
 
 }

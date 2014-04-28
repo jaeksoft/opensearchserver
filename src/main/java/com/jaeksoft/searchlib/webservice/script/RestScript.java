@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.script.ScriptLine;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
@@ -48,27 +50,31 @@ public interface RestScript {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON })
 	@Path("/")
-	public CommonResult run(@PathParam("index_name") String use,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<ScriptLine> scriptLines);
 
 	@GET
 	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonListResult list(@PathParam("index_name") String index,
+	public CommonListResult list(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Path("/{script_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public List<ScriptLine> get(@PathParam("index_name") String index,
+	public List<ScriptLine> get(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name);
 
 	@GET
 	@Path("/{script_name}/run")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult run(@PathParam("index_name") String index,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name);
 
@@ -76,14 +82,16 @@ public interface RestScript {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{script_name}/run")
-	public CommonResult run(@PathParam("index_name") String index,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name, Map<String, String> variables);
 
 	@HEAD
 	@Path("/{script_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult exists(@PathParam("index_name") String index,
+	public CommonResult exists(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name);
 
@@ -91,14 +99,16 @@ public interface RestScript {
 	@Path("/{script_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult set(@PathParam("index_name") String index,
+	public CommonResult set(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name, List<ScriptLine> scriptLines);
 
 	@DELETE
 	@Path("/{script_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult delete(@PathParam("index_name") String index,
+	public CommonResult delete(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("script_name") String name);
 }

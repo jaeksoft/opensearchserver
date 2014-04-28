@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -44,20 +46,23 @@ public interface RestStopWords {
 	@GET
 	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonListResult list(@PathParam("index_name") String index,
+	public CommonListResult list(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Path("/{stopwords_name}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String get(@PathParam("index_name") String index,
+	public String get(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("stopwords_name") String name);
 
 	@HEAD
 	@Path("/{stopwords_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult exists(@PathParam("index_name") String index,
+	public CommonResult exists(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("stopwords_name") String name);
 
@@ -65,14 +70,16 @@ public interface RestStopWords {
 	@Path("/{stopwords_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes(MediaType.TEXT_PLAIN)
-	public CommonResult set(@PathParam("index_name") String index,
+	public CommonResult set(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("stopwords_name") String name, String content);
 
 	@DELETE
 	@Path("/{stopwords_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult delete(@PathParam("index_name") String index,
+	public CommonResult delete(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("stopwords_name") String name);
 

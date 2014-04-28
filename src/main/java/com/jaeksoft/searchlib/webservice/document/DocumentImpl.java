@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -49,17 +50,16 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class DocumentImpl extends CommonServices implements SoapDocument,
-		RestDocument {
+public class DocumentImpl extends CommonServices implements RestDocument {
 
 	private final static String UPDATED_COUNT = "updatedCount";
 	private final static String DELETED_COUNT = "deletedCount";
 
 	@Override
-	public CommonResult deleteByQuery(String index, String login, String key,
-			String query) {
+	public CommonResult deleteByQuery(UriInfo uriInfo, String index,
+			String login, String key, String query) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractSearchRequest request = new SearchPatternRequest(client);
@@ -77,10 +77,10 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 	}
 
 	@Override
-	public CommonResult deleteByValue(String index, String login, String key,
-			String field, List<String> values) {
+	public CommonResult deleteByValue(UriInfo uriInfo, String index,
+			String login, String key, String field, List<String> values) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
@@ -104,10 +104,10 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 	}
 
 	@Override
-	public CommonResult deleteByValue(String index, String login, String key,
-			String field, String values) {
+	public CommonResult deleteByValue(UriInfo uriInfo, String index,
+			String login, String key, String field, String values) {
 		String[] valueArray = StringUtils.split(values, '/');
-		return deleteByValue(index, login, key, field,
+		return deleteByValue(uriInfo, index, login, key, field,
 				Arrays.asList(valueArray));
 	}
 
@@ -128,10 +128,10 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 	}
 
 	@Override
-	public CommonResult update(String index, String login, String key,
-			List<DocumentUpdate> documents) {
+	public CommonResult update(UriInfo uriInfo, String index, String login,
+			String key, List<DocumentUpdate> documents) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			int count = updateDocument(client, documents);
@@ -157,11 +157,12 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 	}
 
 	@Override
-	public CommonResult update(String index, String login, String key,
-			String capturePattern, List<String> fields, Integer langPosition,
-			String charset, Integer bufferSize, InputStream inputStream) {
+	public CommonResult update(UriInfo uriInfo, String index, String login,
+			String key, String capturePattern, List<String> fields,
+			Integer langPosition, String charset, Integer bufferSize,
+			InputStream inputStream) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			CommonResult result = new CommonResult(true, null);

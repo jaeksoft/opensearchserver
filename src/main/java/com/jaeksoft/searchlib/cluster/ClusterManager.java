@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -209,6 +210,32 @@ public class ClusterManager {
 			File file = getClientFile(indexDir);
 			if (!file.exists())
 				file.createNewFile();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * Return the list of instances which already opened the client
+	 * 
+	 * @param indexDir
+	 *            The directory of the client
+	 * @return
+	 */
+	public String[] getClientInstances(File indexDir) {
+		rwl.r.lock();
+		try {
+			File dir = getClientDir(indexDir);
+			return dir.list(FileFileFilter.FILE);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public ClusterInstance getInstance(String id) {
+		rwl.r.lock();
+		try {
+			return instancesMap.get(id);
 		} finally {
 			rwl.r.unlock();
 		}

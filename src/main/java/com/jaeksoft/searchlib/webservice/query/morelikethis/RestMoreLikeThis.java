@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
@@ -45,14 +47,14 @@ public interface RestMoreLikeThis {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template")
 	public QueryTemplateResultList moreLikeThisTemplateList(
-			@PathParam("index_name") String index,
+			@Context UriInfo uriInfo, @PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
 	public MoreLikeThisTemplateResult moreLikeThisTemplateGet(
-			@PathParam("index_name") String index,
+			@Context UriInfo uriInfo, @PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);
 
@@ -60,7 +62,7 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public CommonResult moreLikeThisTemplateSet(
+	public CommonResult moreLikeThisTemplateSet(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, MoreLikeThisQuery query);
@@ -69,7 +71,7 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public MoreLikeThisResult moreLikeThisTemplate(
+	public MoreLikeThisResult moreLikeThisTemplate(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, MoreLikeThisQuery query);
@@ -78,7 +80,7 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public MoreLikeThisResult moreLikeThis(
+	public MoreLikeThisResult moreLikeThis(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			MoreLikeThisQuery query);
@@ -87,7 +89,7 @@ public interface RestMoreLikeThis {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public CommonResult moreLikeThisTemplateDelete(
+	public CommonResult moreLikeThisTemplateDelete(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);

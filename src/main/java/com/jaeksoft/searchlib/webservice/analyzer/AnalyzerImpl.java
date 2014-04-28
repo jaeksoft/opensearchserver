@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,14 +41,15 @@ import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
-		RestAnalyzer {
+public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 
 	@Override
-	public AnalyzerResult test(String index, String login, String key,
-			String name, LanguageEnum lang, FilterScope scope, String text) {
+	public AnalyzerResult test(UriInfo uriInfo, String index, String login,
+			String key, String name, LanguageEnum lang, FilterScope scope,
+			String text) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (scope == null)
 				scope = FilterScope.QUERY;
@@ -86,9 +89,10 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 	}
 
 	@Override
-	public AnalyzerResult testPost(String index, String login, String key,
-			String name, LanguageEnum lang, FilterScope scope, String text) {
-		return test(index, login, key, name, lang, scope, text);
+	public AnalyzerResult testPost(UriInfo uriInfo, String index, String login,
+			String key, String name, LanguageEnum lang, FilterScope scope,
+			String text) {
+		return test(uriInfo, index, login, key, name, lang, scope, text);
 	}
 
 }

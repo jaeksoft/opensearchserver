@@ -36,7 +36,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -47,13 +49,15 @@ public interface RestAutoCompletion {
 	@GET
 	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonListResult list(@PathParam("index_name") String index,
+	public CommonListResult list(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public AutoCompletionResult query(@PathParam("index_name") String index,
+	public AutoCompletionResult query(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("autocomp_name") String name,
 			@QueryParam("prefix") String prefix,
@@ -63,7 +67,7 @@ public interface RestAutoCompletion {
 	@Path("/{autocomp_name}")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public AutoCompletionResult queryPost(
+	public AutoCompletionResult queryPost(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@FormParam("login") String login, @FormParam("key") String key,
 			@PathParam("autocomp_name") String name,
@@ -72,7 +76,8 @@ public interface RestAutoCompletion {
 	@PUT
 	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult set(@PathParam("index_name") String index,
+	public CommonResult set(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("autocomp_name") String name,
 			@QueryParam("field") List<String> fields,
@@ -81,14 +86,16 @@ public interface RestAutoCompletion {
 	@DELETE
 	@Path("/{autocomp_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult delete(@PathParam("index_name") String index,
+	public CommonResult delete(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("autocomp_name") String name);
 
 	@PUT
 	@Path("/{autocomp_name}/build")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult build(@PathParam("index_name") String index,
+	public CommonResult build(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("autocomp_name") String name);
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -46,13 +48,14 @@ public interface RestSpellCheck {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public QueryTemplateResultList spellcheckTemplateList(
-			@PathParam("index_name") String index,
+			@Context UriInfo uriInfo, @PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public SpellcheckResult spellcheck(@PathParam("index_name") String index,
+	public SpellcheckResult spellcheck(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
 			@QueryParam("language") LanguageEnum lang,
@@ -62,7 +65,7 @@ public interface RestSpellCheck {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public SpellcheckResult spellcheckPost(
+	public SpellcheckResult spellcheckPost(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@FormParam("login") String login, @FormParam("key") String key,
 			@PathParam("template_name") String template,
@@ -73,7 +76,7 @@ public interface RestSpellCheck {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public CommonResult spellcheckTemplateDelete(
+	public CommonResult spellcheckTemplateDelete(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);

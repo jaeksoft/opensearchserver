@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -46,27 +48,30 @@ public interface RestWebCrawler {
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/run")
-	public CommonResult run(@PathParam("index_name") String use,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("once") boolean once);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/run")
-	public CommonResult stop(@PathParam("index_name") String use,
+	public CommonResult stop(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/run")
-	public CommonResult status(@PathParam("index_name") String use,
+	public CommonResult status(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
-	public CommonResult injectPatternsInclusion(
+	public CommonResult injectPatternsInclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("replace") boolean replaceAll, List<String> injectList);
@@ -75,7 +80,7 @@ public interface RestWebCrawler {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
-	public CommonResult deletePatternsInclusion(
+	public CommonResult deletePatternsInclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<String> deleteList);
@@ -83,7 +88,7 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
-	public CommonListResult extractPatternsInclusion(
+	public CommonListResult extractPatternsInclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
@@ -92,7 +97,7 @@ public interface RestWebCrawler {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/exclusion")
-	public CommonResult injectPatternsExclusion(
+	public CommonResult injectPatternsExclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("replace") boolean replaceAll, List<String> injectList);
@@ -101,7 +106,7 @@ public interface RestWebCrawler {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/exclusion")
-	public CommonResult deletePatternsExclusion(
+	public CommonResult deletePatternsExclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<String> deleteList);
@@ -109,7 +114,7 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/exclusion")
-	public CommonListResult extractPatternsExclusion(
+	public CommonListResult extractPatternsExclusion(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
@@ -117,14 +122,16 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/crawl")
-	public CommonResult crawl(@PathParam("index_name") String use,
+	public CommonResult crawl(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("url") String url);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/crawl")
-	public CommonResult crawlPost(@PathParam("index_name") String use,
+	public CommonResult crawlPost(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@FormParam("url") String url);
 
@@ -132,7 +139,8 @@ public interface RestWebCrawler {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/urls")
-	public CommonResult injectUrls(@PathParam("index_name") String use,
+	public CommonResult injectUrls(@Context UriInfo uriInfo,
+			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("replace") boolean replaceAll, List<String> urls);
 

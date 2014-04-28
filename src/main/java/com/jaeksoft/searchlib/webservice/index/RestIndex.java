@@ -30,7 +30,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -41,8 +43,8 @@ public interface RestIndex {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}/template/{template}")
-	public CommonResult createIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key,
+	public CommonResult createIndex(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("index_name") String name,
 			@PathParam("template") TemplateList template,
 			@QueryParam("remote_uri") String remoteURI);
@@ -50,27 +52,29 @@ public interface RestIndex {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
-	public CommonResult createIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key,
+	public CommonResult createIndex(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("index_name") String name,
 			@QueryParam("remote_uri") String remoteURI);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
-	public CommonResult deleteIndex(@QueryParam("login") String login,
-			@QueryParam("key") String key, @PathParam("index_name") String name);
+	public CommonResult deleteIndex(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("index_name") String name);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public ResultIndexList indexList(@QueryParam("login") String login,
-			@QueryParam("key") String key);
+	public ResultIndexList indexList(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
-	public CommonResult indexExists(@QueryParam("login") String login,
-			@QueryParam("key") String key, @PathParam("index_name") String name);
+	public CommonResult indexExists(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("index_name") String name);
 
 }

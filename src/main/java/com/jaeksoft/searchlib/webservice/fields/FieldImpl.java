@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,13 +41,14 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class FieldImpl extends CommonServices implements SoapField, RestField {
+public class FieldImpl extends CommonServices implements RestField {
 
 	@Override
-	public CommonResult setField(String use, String login, String key,
-			String field_name, SchemaFieldRecord schemaFieldRecord) {
+	public CommonResult setField(UriInfo uriInfo, String use, String login,
+			String key, String field_name, SchemaFieldRecord schemaFieldRecord) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (schemaFieldRecord == null)
 				throw new CommonServiceException(Status.BAD_REQUEST,
@@ -74,10 +76,11 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public CommonResult setField(String use, String login, String key,
-			List<SchemaFieldRecord> schemaFieldRecords) {
+	public CommonResult setField(UriInfo uriInfo, String use, String login,
+			String key, List<SchemaFieldRecord> schemaFieldRecords) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (schemaFieldRecords == null)
 				throw new CommonServiceException(Status.BAD_REQUEST,
@@ -101,10 +104,11 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public CommonResult deleteField(String use, String login, String key,
-			String deleteField) {
+	public CommonResult deleteField(UriInfo uriInfo, String use, String login,
+			String key, String deleteField) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			String message = delete(client, use, deleteField);
 			return new CommonResult(true, message);
@@ -131,10 +135,11 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public CommonResult setDefaultUniqueField(String use, String login,
-			String key, String defaultField, String uniqueField) {
+	public CommonResult setDefaultUniqueField(UriInfo uriInfo, String use,
+			String login, String key, String defaultField, String uniqueField) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
 
@@ -172,9 +177,11 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public ResultFieldList getFieldList(String use, String login, String key) {
+	public ResultFieldList getFieldList(UriInfo uriInfo, String use,
+			String login, String key) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			List<SchemaFieldRecord> fieldList = new ArrayList<SchemaFieldRecord>();
@@ -192,10 +199,11 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public ResultField getFieldList(String use, String login, String key,
-			String field) {
+	public ResultField getFieldList(UriInfo uriInfo, String use, String login,
+			String key, String field) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			SchemaField schemaField = schema.getFieldList().get(field);

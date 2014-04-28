@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.query.namedEntity;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -40,27 +42,27 @@ import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 
 	@Override
-	public QueryTemplateResultList namedEntityTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
+	public QueryTemplateResultList namedEntityTemplateList(UriInfo uriInfo,
+			String index, String login, String key) {
+		return super.queryTemplateList(uriInfo, index, login, key,
 				RequestTypeEnum.NamedEntityExtractionRequest);
 	}
 
 	@Override
-	public NamedEntityTemplateResult namedEntityTemplateGet(String index,
-			String login, String key, String template) {
+	public NamedEntityTemplateResult namedEntityTemplateGet(UriInfo uriInfo,
+			String index, String login, String key, String template) {
 		NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) super
-				.queryTemplateGet(index, login, key, template,
+				.queryTemplateGet(uriInfo, index, login, key, template,
 						RequestTypeEnum.NamedEntityExtractionRequest);
 		return new NamedEntityTemplateResult(request);
 	}
 
 	@Override
-	public NamedEntityResult namedEntityTemplate(String index, String login,
-			String key, String template, NamedEntityQuery query) {
+	public NamedEntityResult namedEntityTemplate(UriInfo uriInfo, String index,
+			String login, String key, String template, NamedEntityQuery query) {
 		try {
 			NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.NamedEntityExtractionRequest);
 			if (query != null)
 				query.apply(request);
@@ -72,11 +74,11 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 	}
 
 	@Override
-	public NamedEntityResult namedEntityTemplate(String index, String login,
-			String key, String template, String text) {
+	public NamedEntityResult namedEntityTemplate(UriInfo uriInfo, String index,
+			String login, String key, String template, String text) {
 		try {
 			NamedEntityExtractionRequest request = (NamedEntityExtractionRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.NamedEntityExtractionRequest);
 			if (text != null)
 				request.setText(text);
@@ -88,9 +90,10 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 	}
 
 	@Override
-	public CommonResult namedEntityTemplateSet(String index, String login,
-			String key, String template, NamedEntityQuery query) {
-		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+	public CommonResult namedEntityTemplateSet(UriInfo uriInfo, String index,
+			String login, String key, String template, NamedEntityQuery query) {
+		Client client = getLoggedClient(uriInfo, index, login, key,
+				Role.INDEX_UPDATE);
 		NamedEntityExtractionRequest request = new NamedEntityExtractionRequest(
 				client);
 		return queryTemplateSet(client, index, login, key, template, query,
@@ -98,10 +101,10 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 	}
 
 	@Override
-	public NamedEntityResult namedEntitySearch(String index, String login,
-			String key, NamedEntityQuery query) {
+	public NamedEntityResult namedEntitySearch(UriInfo uriInfo, String index,
+			String login, String key, NamedEntityQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			NamedEntityExtractionRequest request = new NamedEntityExtractionRequest(
@@ -120,9 +123,9 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 	}
 
 	@Override
-	public CommonResult namedEntityTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
+	public CommonResult namedEntityTemplateDelete(UriInfo uriInfo,
+			String index, String login, String key, String template) {
+		return queryTemplateDelete(uriInfo, index, login, key, template,
 				RequestTypeEnum.NamedEntityExtractionRequest);
 	}
 

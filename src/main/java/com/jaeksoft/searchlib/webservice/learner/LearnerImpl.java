@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.learner;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -36,8 +38,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class LearnerImpl extends CommonServices implements SoapLearner,
-		RestLearner {
+public class LearnerImpl extends CommonServices implements RestLearner {
 
 	public static enum LearnerMode {
 		classify, similar;
@@ -53,13 +54,13 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 	}
 
 	@Override
-	public LearnerResult classify(String index_name, String login, String key,
-			String learner_name, int max_rank, double min_score,
-			LearnerMode mode, String text) {
+	public LearnerResult classify(UriInfo uriInfo, String index_name,
+			String login, String key, String learner_name, int max_rank,
+			double min_score, LearnerMode mode, String text) {
 		try {
 			if (mode == null)
 				mode = LearnerMode.classify;
-			Client client = getLoggedClient(index_name, login, key,
+			Client client = getLoggedClient(uriInfo, index_name, login, key,
 					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			Learner learner = getLearner(client, learner_name);
@@ -85,18 +86,18 @@ public class LearnerImpl extends CommonServices implements SoapLearner,
 	}
 
 	@Override
-	public LearnerResult classifyPost(String index_name, String login,
-			String key, String learner_name, int max_rank, double min_score,
-			LearnerMode mode, String text) {
-		return classify(index_name, login, key, learner_name, max_rank,
-				min_score, mode, text);
+	public LearnerResult classifyPost(UriInfo uriInfo, String index_name,
+			String login, String key, String learner_name, int max_rank,
+			double min_score, LearnerMode mode, String text) {
+		return classify(uriInfo, index_name, login, key, learner_name,
+				max_rank, min_score, mode, text);
 	}
 
 	@Override
-	public CommonResult learn(String index, String login, String key,
-			String learner_name) {
+	public CommonResult learn(UriInfo uriInfo, String index, String login,
+			String key, String learner_name) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			Learner learner = getLearner(client, learner_name);

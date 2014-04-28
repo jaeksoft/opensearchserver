@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,30 +23,51 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.naming.NamingException;
+import javax.ws.rs.RedirectionException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class CommonServices {
 
 	protected Client client = null;
 	protected User user = null;
 
-	private final void checkClientAndUser(String use, String login, String key)
-			throws SearchLibException, NamingException {
+	private final void checkClientAndUser(UriInfo uriInfo, String use,
+			String login, String key) throws SearchLibException,
+			NamingException, RedirectionException, URISyntaxException {
 		if (!ClientCatalog.getUserList().isEmpty()) {
 			user = ClientCatalog.authenticateKey(login, key);
 			if (user == null)
 				throw new CommonServiceException("Authentication failed");
+		}
+		client = ClientCatalog.getLoadedClient(use);
+		if (client != null)
+			return;
+		ClusterInstance instance = ClientCatalog.getAnyClusterInstance(use);
+		if (instance != null) {
+			URI uri = instance.getUri();
+			String src = uriInfo.getRequestUri().toString()
+					.substring(uriInfo.getBaseUri().toString().length());
+			uri = new URI(StringUtils.fastConcat(uri.toString(),
+					"/services/rest", src));
+			throw new RedirectionException(Response.Status.TEMPORARY_REDIRECT,
+					uri);
 		}
 		client = ClientCatalog.getClient(use);
 		if (client == null)
@@ -73,10 +94,10 @@ public class CommonServices {
 		return user;
 	}
 
-	protected final Client getLoggedClient(String use, String login,
-			String key, Role role) {
+	protected final Client getLoggedClient(UriInfo uriInfo, String use,
+			String login, String key, Role role) throws RedirectionException {
 		try {
-			checkClientAndUser(use, login, key);
+			checkClientAndUser(uriInfo, use, login, key);
 			if (user == null)
 				return client;
 			if (user.hasRole(client.getIndexName(), role))
@@ -86,13 +107,16 @@ public class CommonServices {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {
 			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new CommonServiceException(e);
 		}
 	}
 
-	protected final Client getLoggedClientAnyRole(String use, String login,
-			String key, Role... roles) {
+	protected final Client getLoggedClientAnyRole(UriInfo uriInfo, String use,
+			String login, String key, Role... roles)
+			throws RedirectionException {
 		try {
-			checkClientAndUser(use, login, key);
+			checkClientAndUser(uriInfo, use, login, key);
 			if (user == null)
 				return client;
 			if (user.hasAnyRole(client.getIndexName(), roles))
@@ -102,13 +126,16 @@ public class CommonServices {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {
 			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
+			throw new CommonServiceException(e);
 		}
 	}
 
-	protected final Client getLoggedClientAllRoles(String use, String login,
-			String key, Role... roles) {
+	protected final Client getLoggedClientAllRoles(UriInfo uriInfo, String use,
+			String login, String key, Role... roles)
+			throws RedirectionException {
 		try {
-			checkClientAndUser(use, login, key);
+			checkClientAndUser(uriInfo, use, login, key);
 			if (user == null)
 				return client;
 			if (user.hasAllRole(client.getIndexName(), roles))
@@ -117,6 +144,8 @@ public class CommonServices {
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {
+			throw new CommonServiceException(e);
+		} catch (URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -146,4 +175,5 @@ public class CommonServices {
 			this(Response.Status.INTERNAL_SERVER_ERROR, e);
 		}
 	}
+
 }
