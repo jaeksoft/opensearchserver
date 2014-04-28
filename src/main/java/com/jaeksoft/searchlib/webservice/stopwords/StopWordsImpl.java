@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.webservice.stopwords;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.stopwords.StopWordsManager;
@@ -31,7 +33,7 @@ import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class StopWordsImpl implements RestStopWords, SoapStopWords {
+public class StopWordsImpl implements RestStopWords {
 
 	private class StopWordsDirectoryImpl extends
 			AbstractDirectoryImpl<String, StopWordsManager> {
@@ -44,32 +46,37 @@ public class StopWordsImpl implements RestStopWords, SoapStopWords {
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
-		return new StopWordsDirectoryImpl().list(index, login, key);
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
+		return new StopWordsDirectoryImpl().list(uriInfo, index, login, key);
 	}
 
 	@Override
-	public CommonResult set(String index, String login, String key,
-			String name, String content) {
-		return new StopWordsDirectoryImpl().set(index, login, key, name,
-				content);
+	public CommonResult set(UriInfo uriInfo, String index, String login,
+			String key, String name, String content) {
+		return new StopWordsDirectoryImpl().set(uriInfo, index, login, key,
+				name, content);
 	}
 
 	@Override
-	public String get(String index, String login, String key, String name) {
-		return new StopWordsDirectoryImpl().get(index, login, key, name);
-	}
-
-	@Override
-	public CommonResult exists(String index, String login, String key,
+	public String get(UriInfo uriInfo, String index, String login, String key,
 			String name) {
-		return new StopWordsDirectoryImpl().exists(index, login, key, name);
+		return new StopWordsDirectoryImpl().get(uriInfo, index, login, key,
+				name);
 	}
 
 	@Override
-	public CommonResult delete(String index, String login, String key,
-			String name) {
-		return new StopWordsDirectoryImpl().delete(index, login, key, name);
+	public CommonResult exists(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new StopWordsDirectoryImpl().exists(uriInfo, index, login, key,
+				name);
+	}
+
+	@Override
+	public CommonResult delete(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new StopWordsDirectoryImpl().delete(uriInfo, index, login, key,
+				name);
 	}
 
 }

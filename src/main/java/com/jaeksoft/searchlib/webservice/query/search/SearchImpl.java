@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,40 +41,40 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
+public class SearchImpl extends CommonQuery implements RestSearch {
 
 	@Override
-	public QueryTemplateResultList searchTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
+	public QueryTemplateResultList searchTemplateList(UriInfo uriInfo,
+			String index, String login, String key) {
+		return super.queryTemplateList(uriInfo, index, login, key,
 				RequestTypeEnum.SearchRequest,
 				RequestTypeEnum.SearchFieldRequest);
 	}
 
 	@Override
-	public SearchTemplateResult searchTemplateGet(String index, String login,
-			String key, String template) {
+	public SearchTemplateResult searchTemplateGet(UriInfo uriInfo,
+			String index, String login, String key, String template) {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) super
-				.queryTemplateGet(index, login, key, template,
+				.queryTemplateGet(uriInfo, index, login, key, template,
 						RequestTypeEnum.SearchRequest,
 						RequestTypeEnum.SearchFieldRequest);
 		return new SearchTemplateResult(searchRequest);
 	}
 
 	@Override
-	public CommonResult searchTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
+	public CommonResult searchTemplateDelete(UriInfo uriInfo, String index,
+			String login, String key, String template) {
+		return queryTemplateDelete(uriInfo, index, login, key, template,
 				RequestTypeEnum.SearchRequest,
 				RequestTypeEnum.SearchFieldRequest);
 	}
 
 	@Override
-	public SearchResult searchPatternTemplate(String index, String login,
-			String key, String template, SearchPatternQuery query) {
+	public SearchResult searchPatternTemplate(UriInfo uriInfo, String index,
+			String login, String key, String template, SearchPatternQuery query) {
 		try {
 			SearchPatternRequest searchRequest = (SearchPatternRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.SearchRequest);
 			if (query != null)
 				query.apply(searchRequest);
@@ -84,20 +86,21 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 	}
 
 	@Override
-	public CommonResult searchPatternTemplateSet(String index, String login,
-			String key, String template, SearchPatternQuery query) {
-		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+	public CommonResult searchPatternTemplateSet(UriInfo uriInfo, String index,
+			String login, String key, String template, SearchPatternQuery query) {
+		Client client = getLoggedClient(uriInfo, index, login, key,
+				Role.INDEX_UPDATE);
 		SearchPatternRequest searchRequest = new SearchPatternRequest(client);
 		return queryTemplateSet(client, index, login, key, template, query,
 				searchRequest);
 	}
 
 	@Override
-	public SearchResult searchFieldTemplate(String index, String login,
-			String key, String template, SearchFieldQuery query) {
+	public SearchResult searchFieldTemplate(UriInfo uriInfo, String index,
+			String login, String key, String template, SearchFieldQuery query) {
 		try {
 			SearchFieldRequest searchRequest = (SearchFieldRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.SearchFieldRequest);
 			if (query != null)
 				query.apply(searchRequest);
@@ -109,19 +112,20 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 	}
 
 	@Override
-	public CommonResult searchFieldTemplateSet(String index, String login,
-			String key, String template, SearchFieldQuery query) {
-		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+	public CommonResult searchFieldTemplateSet(UriInfo uriInfo, String index,
+			String login, String key, String template, SearchFieldQuery query) {
+		Client client = getLoggedClient(uriInfo, index, login, key,
+				Role.INDEX_UPDATE);
 		SearchFieldRequest searchRequest = new SearchFieldRequest(client);
 		return queryTemplateSet(client, index, login, key, template, query,
 				searchRequest);
 	}
 
 	@Override
-	public SearchResult searchPattern(String index, String login, String key,
-			SearchPatternQuery query) {
+	public SearchResult searchPattern(UriInfo uriInfo, String index,
+			String login, String key, SearchPatternQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SearchPatternRequest searchRequest = new SearchPatternRequest(
@@ -140,10 +144,10 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 	}
 
 	@Override
-	public SearchResult searchField(String index, String login, String key,
-			SearchFieldQuery query) {
+	public SearchResult searchField(UriInfo uriInfo, String index,
+			String login, String key, SearchFieldQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SearchFieldRequest searchRequest = new SearchFieldRequest(client);

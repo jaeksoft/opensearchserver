@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
@@ -44,14 +46,14 @@ public interface RestSearch {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template")
-	public QueryTemplateResultList searchTemplateList(
+	public QueryTemplateResultList searchTemplateList(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public SearchTemplateResult searchTemplateGet(
+	public SearchTemplateResult searchTemplateGet(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);
@@ -59,7 +61,7 @@ public interface RestSearch {
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/template/{template_name}")
-	public CommonResult searchTemplateDelete(
+	public CommonResult searchTemplateDelete(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);
@@ -68,7 +70,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/pattern/{template_name}")
-	public SearchResult searchPatternTemplate(
+	public SearchResult searchPatternTemplate(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
@@ -78,7 +80,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/pattern/{template_name}")
-	public CommonResult searchPatternTemplateSet(
+	public CommonResult searchPatternTemplateSet(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
@@ -88,7 +90,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/field/{template_name}")
-	public SearchResult searchFieldTemplate(
+	public SearchResult searchFieldTemplate(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, SearchFieldQuery query);
@@ -97,7 +99,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/field/{template_name}")
-	public CommonResult searchFieldTemplateSet(
+	public CommonResult searchFieldTemplateSet(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, SearchFieldQuery query);
@@ -106,7 +108,8 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/pattern")
-	public SearchResult searchPattern(@PathParam("index_name") String index,
+	public SearchResult searchPattern(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchPatternQuery query);
 
@@ -114,7 +117,8 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/field")
-	public SearchResult searchField(@PathParam("index_name") String index,
+	public SearchResult searchField(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchFieldQuery query);
 

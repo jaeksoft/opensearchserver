@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -73,10 +74,10 @@ public class CommonQuery extends CommonServices {
 		return (T) request;
 	}
 
-	protected QueryTemplateResultList queryTemplateList(String index,
-			String login, String key, RequestTypeEnum... types) {
+	protected QueryTemplateResultList queryTemplateList(UriInfo uriInfo,
+			String index, String login, String key, RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return new QueryTemplateResultList(client.getRequestMap()
@@ -112,10 +113,10 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected CommonResult queryTemplateDelete(String index, String login,
-			String key, String template, RequestTypeEnum... types) {
+	protected CommonResult queryTemplateDelete(UriInfo uriInfo, String index,
+			String login, String key, String template, RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (template == null)
@@ -147,10 +148,10 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected AbstractRequest queryTemplateGet(String index, String login,
-			String key, String template, RequestTypeEnum... types) {
+	protected AbstractRequest queryTemplateGet(UriInfo uriInfo, String index,
+			String login, String key, String template, RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (template == null)

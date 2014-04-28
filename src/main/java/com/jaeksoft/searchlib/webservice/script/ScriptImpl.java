@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.script;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.MapUtils;
 
@@ -80,10 +82,10 @@ public class ScriptImpl extends CommonServices implements RestScript {
 			}
 		}
 
-		protected CommonResult run(String index, String login, String key,
-				List<ScriptLine> scriptLines) {
+		protected CommonResult run(UriInfo uriInfo, String index, String login,
+				String key, List<ScriptLine> scriptLines) {
 			try {
-				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				getLoggedClient(uriInfo, index, login, key, Role.SCRIPT_RUN);
 				ClientFactory.INSTANCE.properties.checkApi();
 				return run(scriptLines, null);
 			} catch (InterruptedException e) {
@@ -93,10 +95,10 @@ public class ScriptImpl extends CommonServices implements RestScript {
 			}
 		}
 
-		protected CommonResult run(String index, String login, String key,
-				String name, Map<String, String> vars) {
+		protected CommonResult run(UriInfo uriInfo, String index, String login,
+				String key, String name, Map<String, String> vars) {
 			try {
-				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				getLoggedClient(uriInfo, index, login, key, Role.SCRIPT_RUN);
 				ClientFactory.INSTANCE.properties.checkApi();
 				Variables variables = MapUtils.isEmpty(vars) ? null
 						: new Variables(vars);
@@ -112,51 +114,57 @@ public class ScriptImpl extends CommonServices implements RestScript {
 	}
 
 	@Override
-	public CommonResult run(String index, String login, String key,
-			List<ScriptLine> scriptLines) {
-		return new ScriptDirectoryImpl().run(index, login, key, scriptLines);
+	public CommonResult run(UriInfo uriInfo, String index, String login,
+			String key, List<ScriptLine> scriptLines) {
+		return new ScriptDirectoryImpl().run(uriInfo, index, login, key,
+				scriptLines);
 
 	}
 
 	@Override
-	public CommonResult run(String index, String login, String key, String name) {
-		return new ScriptDirectoryImpl().run(index, login, key, name, null);
+	public CommonResult run(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new ScriptDirectoryImpl().run(uriInfo, index, login, key, name,
+				null);
 	}
 
 	@Override
-	public CommonResult run(String index, String login, String key,
-			String name, Map<String, String> variables) {
-		return new ScriptDirectoryImpl()
-				.run(index, login, key, name, variables);
+	public CommonResult run(UriInfo uriInfo, String index, String login,
+			String key, String name, Map<String, String> variables) {
+		return new ScriptDirectoryImpl().run(uriInfo, index, login, key, name,
+				variables);
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
-		return new ScriptDirectoryImpl().list(index, login, key);
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
+		return new ScriptDirectoryImpl().list(uriInfo, index, login, key);
 	}
 
 	@Override
-	public List<ScriptLine> get(String index, String login, String key,
-			String name) {
-		return new ScriptDirectoryImpl().get(index, login, key, name);
+	public List<ScriptLine> get(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new ScriptDirectoryImpl().get(uriInfo, index, login, key, name);
 	}
 
 	@Override
-	public CommonResult exists(String index, String login, String key,
-			String name) {
-		return new ScriptDirectoryImpl().exists(index, login, key, name);
+	public CommonResult exists(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new ScriptDirectoryImpl().exists(uriInfo, index, login, key,
+				name);
 	}
 
 	@Override
-	public CommonResult set(String index, String login, String key,
-			String name, List<ScriptLine> scriptLines) {
-		return new ScriptDirectoryImpl().set(index, login, key, name,
+	public CommonResult set(UriInfo uriInfo, String index, String login,
+			String key, String name, List<ScriptLine> scriptLines) {
+		return new ScriptDirectoryImpl().set(uriInfo, index, login, key, name,
 				scriptLines);
 	}
 
 	@Override
-	public CommonResult delete(String index, String login, String key,
-			String name) {
-		return new ScriptDirectoryImpl().delete(index, login, key, name);
+	public CommonResult delete(UriInfo uriInfo, String index, String login,
+			String key, String name) {
+		return new ScriptDirectoryImpl().delete(uriInfo, index, login, key,
+				name);
 	}
 }

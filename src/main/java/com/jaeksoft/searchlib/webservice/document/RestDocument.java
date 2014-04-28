@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -44,7 +46,8 @@ public interface RestDocument {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult update(@PathParam("index_name") String index,
+	public CommonResult update(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<DocumentUpdate> documents);
 
@@ -52,7 +55,8 @@ public interface RestDocument {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult update(@PathParam("index_name") String index,
+	public CommonResult update(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("pattern") String pattern,
 			@QueryParam("field") List<String> fields,
@@ -64,7 +68,8 @@ public interface RestDocument {
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}/{values:.+}")
-	public CommonResult deleteByValue(@PathParam("index_name") String index,
+	public CommonResult deleteByValue(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field,
 			@PathParam("values") String values);
@@ -73,14 +78,16 @@ public interface RestDocument {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}/")
-	public CommonResult deleteByValue(@PathParam("index_name") String index,
+	public CommonResult deleteByValue(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field, List<String> values);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult deleteByQuery(@PathParam("index_name") String index,
+	public CommonResult deleteByQuery(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("query") String query);
 

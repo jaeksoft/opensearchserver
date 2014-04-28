@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl.LearnerMode;
@@ -43,7 +45,8 @@ public interface RestLearner {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public LearnerResult classify(@PathParam("index_name") String index_name,
+	public LearnerResult classify(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index_name,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("learner_name") String learner_name,
 			@QueryParam("max_rank") int max_rank,
@@ -54,7 +57,7 @@ public interface RestLearner {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public LearnerResult classifyPost(
+	public LearnerResult classifyPost(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index_name,
 			@FormParam("login") String login, @FormParam("key") String key,
 			@PathParam("learner_name") String learner_name,
@@ -64,7 +67,8 @@ public interface RestLearner {
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult learn(@PathParam("index_name") String index,
+	public CommonResult learn(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("learner_name") String name);
 

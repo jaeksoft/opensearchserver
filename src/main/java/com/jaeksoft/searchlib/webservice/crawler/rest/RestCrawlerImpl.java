@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -42,14 +43,14 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
-		RestRestCrawler {
+public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_REST_CRAWLER);
 			List<String> nameList = new ArrayList<String>(0);
 			RestCrawlItem[] items = client.getRestCrawlList().getArray();
@@ -67,11 +68,12 @@ public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
 	}
 
 	@Override
-	public CommonResult run(String index, String login, String key,
-			String crawl_name, Boolean returnIds, Map<String, String> variables) {
+	public CommonResult run(UriInfo uriInfo, String index, String login,
+			String key, String crawl_name, Boolean returnIds,
+			Map<String, String> variables) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.REST_CRAWLER_EXECUTE);
 			RestCrawlItem restCrawlItem = client.getRestCrawlList().get(
 					crawl_name);

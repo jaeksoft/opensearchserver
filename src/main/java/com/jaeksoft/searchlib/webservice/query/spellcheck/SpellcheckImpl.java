@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.query.spellcheck;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -38,21 +40,22 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class SpellcheckImpl extends CommonQuery implements RestSpellCheck,
-		SoapSpellCheck {
+public class SpellcheckImpl extends CommonQuery implements RestSpellCheck {
 
 	@Override
-	public QueryTemplateResultList spellcheckTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
+	public QueryTemplateResultList spellcheckTemplateList(UriInfo uriInfo,
+			String index, String login, String key) {
+		return super.queryTemplateList(uriInfo, index, login, key,
 				RequestTypeEnum.SpellCheckRequest);
 	}
 
 	@Override
-	public SpellcheckResult spellcheck(String index, String login, String key,
-			String template, LanguageEnum lang, String query) {
+	public SpellcheckResult spellcheck(UriInfo uriInfo, String index,
+			String login, String key, String template, LanguageEnum lang,
+			String query) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SpellCheckRequest spellCheckRequest = (SpellCheckRequest) getRequest(
 					client, template, SpellCheckRequest.class);
@@ -75,15 +78,16 @@ public class SpellcheckImpl extends CommonQuery implements RestSpellCheck,
 	}
 
 	@Override
-	public SpellcheckResult spellcheckPost(String index, String login,
-			String key, String template, LanguageEnum lang, String query) {
-		return spellcheck(index, login, key, template, lang, query);
+	public SpellcheckResult spellcheckPost(UriInfo uriInfo, String index,
+			String login, String key, String template, LanguageEnum lang,
+			String query) {
+		return spellcheck(uriInfo, index, login, key, template, lang, query);
 	}
 
 	@Override
-	public CommonResult spellcheckTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
+	public CommonResult spellcheckTemplateDelete(UriInfo uriInfo, String index,
+			String login, String key, String template) {
+		return queryTemplateDelete(uriInfo, index, login, key, template,
 				RequestTypeEnum.SpellCheckRequest);
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.scheduler;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -36,8 +38,7 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class SchedulerImpl extends CommonServices implements RestScheduler,
-		SoapScheduler {
+public class SchedulerImpl extends CommonServices implements RestScheduler {
 
 	private JobItem getJobItem(Client client, String name)
 			throws SearchLibException {
@@ -49,9 +50,10 @@ public class SchedulerImpl extends CommonServices implements RestScheduler,
 	}
 
 	@Override
-	public CommonResult status(String use, String login, String key, String name) {
+	public CommonResult status(UriInfo uriInfo, String use, String login,
+			String key, String name) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, use, login, key,
 					Role.GROUP_SCHEDULER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return new SchedulerResult(getJobItem(client, name));
@@ -66,10 +68,11 @@ public class SchedulerImpl extends CommonServices implements RestScheduler,
 	}
 
 	@Override
-	public CommonResult run(String use, String login, String key, String name,
-			Map<String, String> variables) {
+	public CommonResult run(UriInfo uriInfo, String use, String login,
+			String key, String name, Map<String, String> variables) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.SCHEDULER_RUN);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.SCHEDULER_RUN);
 			ClientFactory.INSTANCE.properties.checkApi();
 			JobItem jobItem = getJobItem(client, name);
 			TaskManager.getInstance().executeJob(client, jobItem,

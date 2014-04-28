@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.webservice.query.morelikethis;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.UriInfo;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -37,40 +39,41 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
-		SoapMoreLikeThis {
+public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis {
 
 	@Override
-	public QueryTemplateResultList moreLikeThisTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
+	public QueryTemplateResultList moreLikeThisTemplateList(UriInfo uriInfo,
+			String index, String login, String key) {
+		return super.queryTemplateList(uriInfo, index, login, key,
 				RequestTypeEnum.MoreLikeThisRequest);
 	}
 
 	@Override
-	public MoreLikeThisTemplateResult moreLikeThisTemplateGet(String index,
-			String login, String key, String template) {
+	public MoreLikeThisTemplateResult moreLikeThisTemplateGet(UriInfo uriInfo,
+			String index, String login, String key, String template) {
 		MoreLikeThisRequest request = (MoreLikeThisRequest) super
-				.queryTemplateGet(index, login, key, template,
+				.queryTemplateGet(uriInfo, index, login, key, template,
 						RequestTypeEnum.MoreLikeThisRequest);
 		return new MoreLikeThisTemplateResult(request);
 	}
 
 	@Override
-	public CommonResult moreLikeThisTemplateSet(String index, String login,
-			String key, String template, MoreLikeThisQuery query) {
-		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
+	public CommonResult moreLikeThisTemplateSet(UriInfo uriInfo, String index,
+			String login, String key, String template, MoreLikeThisQuery query) {
+		Client client = getLoggedClient(uriInfo, index, login, key,
+				Role.INDEX_UPDATE);
 		MoreLikeThisRequest request = new MoreLikeThisRequest(client);
 		return queryTemplateSet(client, index, login, key, template, query,
 				request);
 	}
 
 	@Override
-	public MoreLikeThisResult moreLikeThisTemplate(String index, String login,
-			String key, String template, MoreLikeThisQuery query) {
+	public MoreLikeThisResult moreLikeThisTemplate(UriInfo uriInfo,
+			String index, String login, String key, String template,
+			MoreLikeThisQuery query) {
 		try {
 			MoreLikeThisRequest request = (MoreLikeThisRequest) super
-					.queryTemplateGet(index, login, key, template,
+					.queryTemplateGet(uriInfo, index, login, key, template,
 							RequestTypeEnum.MoreLikeThisRequest);
 			if (query != null)
 				query.apply(request);
@@ -84,10 +87,10 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 	}
 
 	@Override
-	public MoreLikeThisResult moreLikeThis(String index, String login,
-			String key, MoreLikeThisQuery query) {
+	public MoreLikeThisResult moreLikeThis(UriInfo uriInfo, String index,
+			String login, String key, MoreLikeThisQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			MoreLikeThisRequest request = new MoreLikeThisRequest(client);
@@ -105,9 +108,9 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
 	}
 
 	@Override
-	public CommonResult moreLikeThisTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
+	public CommonResult moreLikeThisTemplateDelete(UriInfo uriInfo,
+			String index, String login, String key, String template) {
+		return queryTemplateDelete(uriInfo, index, login, key, template,
 				RequestTypeEnum.MoreLikeThisRequest);
 	}
 }

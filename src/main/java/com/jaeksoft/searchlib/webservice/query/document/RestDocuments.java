@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,7 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
@@ -45,14 +47,14 @@ public interface RestDocuments {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public QueryTemplateResultList documentsTemplateList(
-			@PathParam("index_name") String index,
+			@Context UriInfo uriInfo, @PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
 	public DocumentsTemplateResult documentsTemplateGet(
-			@PathParam("index_name") String index,
+			@Context UriInfo uriInfo, @PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);
 
@@ -60,7 +62,7 @@ public interface RestDocuments {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public DocumentsResult documentsTemplate(
+	public DocumentsResult documentsTemplate(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, DocumentsQuery query);
@@ -69,7 +71,7 @@ public interface RestDocuments {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public CommonResult documentsTemplateSet(
+	public CommonResult documentsTemplateSet(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, DocumentsQuery query);
@@ -78,7 +80,7 @@ public interface RestDocuments {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public DocumentsResult documentsSearch(
+	public DocumentsResult documentsSearch(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			DocumentsQuery query);
@@ -87,7 +89,7 @@ public interface RestDocuments {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
-	public CommonResult documentsTemplateDelete(
+	public CommonResult documentsTemplateDelete(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template);

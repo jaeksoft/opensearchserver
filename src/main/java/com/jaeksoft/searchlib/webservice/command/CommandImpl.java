@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.command;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.ws.rs.core.UriInfo;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
@@ -37,12 +38,12 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
 
-public class CommandImpl extends CommonServices implements SoapCommand,
-		RestCommand {
+public class CommandImpl extends CommonServices implements RestCommand {
 
-	private Client getClient(String use, String login, String key) {
+	private Client getClient(UriInfo uriInfo, String use, String login,
+			String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, use, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return client;
@@ -53,10 +54,10 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
-	public CommonResult optimize(String use, String login, String key) {
+	public CommonResult optimize(UriInfo uriInfo, String use, String login,
+			String key) {
 		try {
-			Client client = getClient(use, login, key);
+			Client client = getClient(uriInfo, use, login, key);
 			client.optimize();
 			return new CommonResult(true, "optimize");
 		} catch (SearchLibException e) {
@@ -66,10 +67,10 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
-	public CommonResult truncate(String use, String login, String key) {
+	public CommonResult truncate(UriInfo uriInfo, String use, String login,
+			String key) {
 		try {
-			Client client = getClient(use, login, key);
+			Client client = getClient(uriInfo, use, login, key);
 			client.deleteAll();
 			return new CommonResult(true, "truncate");
 		} catch (SearchLibException e) {
@@ -79,12 +80,12 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
-	public CommonResult merge(String use, String login, String key, String index) {
+	public CommonResult merge(UriInfo uriInfo, String use, String login,
+			String key, String index) {
 		try {
-			Client client = getClient(use, login, key);
-			Client sourceClient = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_INDEX);
+			Client client = getClient(uriInfo, use, login, key);
+			Client sourceClient = getLoggedClientAnyRole(uriInfo, index, login,
+					key, Role.GROUP_INDEX);
 			client.mergeData(sourceClient);
 			return new CommonResult(true, "merge");
 		} catch (SearchLibException e) {
@@ -94,10 +95,10 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
-	public CommonResult reload(String use, String login, String key) {
+	public CommonResult reload(UriInfo uriInfo, String use, String login,
+			String key) {
 		try {
-			Client client = getClient(use, login, key);
+			Client client = getClient(uriInfo, use, login, key);
 			client.reload();
 			return new CommonResult(true, "reload");
 		} catch (SearchLibException e) {
@@ -108,13 +109,15 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 	}
 
 	@Override
-	public CommonResult optimizeJSON(String use, String login, String key) {
-		return optimize(use, login, key);
+	public CommonResult optimizeJSON(UriInfo uriInfo, String use, String login,
+			String key) {
+		return optimize(uriInfo, use, login, key);
 	}
 
 	@Override
-	public CommonResult optimizeXML(String use, String login, String key) {
-		return optimize(use, login, key);
+	public CommonResult optimizeXML(UriInfo uriInfo, String use, String login,
+			String key) {
+		return optimize(uriInfo, use, login, key);
 	}
 
 	public static String getOptimizeXML(User user, Client client)
@@ -130,13 +133,15 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 	}
 
 	@Override
-	public CommonResult reloadJSON(String use, String login, String key) {
-		return reload(use, login, key);
+	public CommonResult reloadJSON(UriInfo uriInfo, String use, String login,
+			String key) {
+		return reload(uriInfo, use, login, key);
 	}
 
 	@Override
-	public CommonResult reloadXML(String use, String login, String key) {
-		return reload(use, login, key);
+	public CommonResult reloadXML(UriInfo uriInfo, String use, String login,
+			String key) {
+		return reload(uriInfo, use, login, key);
 	}
 
 	public static String getReloadXML(User user, Client client)
@@ -152,13 +157,15 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 	}
 
 	@Override
-	public CommonResult truncateJSON(String use, String login, String key) {
-		return truncate(use, login, key);
+	public CommonResult truncateJSON(UriInfo uriInfo, String use, String login,
+			String key) {
+		return truncate(uriInfo, use, login, key);
 	}
 
 	@Override
-	public CommonResult truncateXML(String use, String login, String key) {
-		return truncate(use, login, key);
+	public CommonResult truncateXML(UriInfo uriInfo, String use, String login,
+			String key) {
+		return truncate(uriInfo, use, login, key);
 	}
 
 	public static String getTruncateXML(User user, Client client)
@@ -174,15 +181,15 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 	}
 
 	@Override
-	public CommonResult mergeJSON(String use, String login, String key,
-			String index) {
-		return merge(use, login, key, index);
+	public CommonResult mergeJSON(UriInfo uriInfo, String use, String login,
+			String key, String index) {
+		return merge(uriInfo, use, login, key, index);
 	}
 
 	@Override
-	public CommonResult mergeXML(String use, String login, String key,
-			String index) {
-		return merge(use, login, key, index);
+	public CommonResult mergeXML(UriInfo uriInfo, String use, String login,
+			String key, String index) {
+		return merge(uriInfo, use, login, key, index);
 	}
 
 	public static String getMergeXML(User user, Client client, String index)

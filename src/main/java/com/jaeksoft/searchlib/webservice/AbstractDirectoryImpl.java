@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.webservice;
 import java.io.IOException;
 
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -39,9 +40,11 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 
 	protected abstract T getManager(Client client) throws SearchLibException;
 
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractDirectoryManager<?> manager = getManager(client);
 			return new CommonListResult(manager.getList());
@@ -54,10 +57,10 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 		}
 	}
 
-	public CommonResult set(String index, String login, String key,
-			String name, V content) {
+	public CommonResult set(UriInfo uriInfo, String index, String login,
+			String key, String name, V content) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractDirectoryManager<V> manager = getManager(client);
@@ -84,9 +87,10 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 		return manager.getContent(name);
 	}
 
-	public V get(String index, String login, String key, String name) {
+	public V get(UriInfo uriInfo, String index, String login, String key,
+			String name) {
 		try {
-			getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			getLoggedClient(uriInfo, index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return get(name);
 		} catch (InterruptedException e) {
@@ -98,10 +102,11 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 		}
 	}
 
-	public CommonResult exists(String index, String login, String key,
-			String name) {
+	public CommonResult exists(UriInfo uriInfo, String index, String login,
+			String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractDirectoryManager<?> manager = getManager(client);
 			if (!manager.exists(name))
@@ -117,10 +122,10 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 		}
 	}
 
-	public CommonResult delete(String index, String login, String key,
-			String name) {
+	public CommonResult delete(UriInfo uriInfo, String index, String login,
+			String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractDirectoryManager<V> manager = getManager(client);

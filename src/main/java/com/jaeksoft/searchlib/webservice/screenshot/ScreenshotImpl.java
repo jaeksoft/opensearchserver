@@ -31,6 +31,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.ClientFactory;
@@ -38,13 +39,12 @@ import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotThread;
 import com.jaeksoft.searchlib.webservice.ApiIdentifier;
 import com.jaeksoft.searchlib.webservice.CommonServices;
-import com.jaeksoft.searchlib.webservice.screenshot.RestScreenshot;
 
 public class ScreenshotImpl extends CommonServices implements RestScreenshot {
 
 	@Override
-	public byte[] captureScreenshotAPI(String login, String key, URL url,
-			Integer browserWidth, Integer browserHeight,
+	public byte[] captureScreenshotAPI(UriInfo uriInfo, String login,
+			String key, URL url, Integer browserWidth, Integer browserHeight,
 			Integer reductionPercent, Boolean visiblePartOnly, Integer wait,
 			HttpServletRequest request) {
 		try {

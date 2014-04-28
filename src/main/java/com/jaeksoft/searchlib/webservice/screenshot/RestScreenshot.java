@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,14 +31,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/screenshot")
 public interface RestScreenshot {
 
 	@GET
 	@Produces("image/png")
-	public byte[] captureScreenshotAPI(@QueryParam("login") String login,
-			@QueryParam("key") String key, @QueryParam("url") URL url,
+	public byte[] captureScreenshotAPI(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("url") URL url,
 			@QueryParam("width") Integer browserWidth,
 			@QueryParam("height") Integer browserHeight,
 			@QueryParam("reduction") Integer reductionPercent,

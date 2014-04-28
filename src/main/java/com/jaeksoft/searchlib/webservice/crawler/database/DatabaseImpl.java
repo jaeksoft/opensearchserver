@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -44,14 +45,14 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class DatabaseImpl extends CommonServices implements SoapDatabase,
-		RestDatabase {
+public class DatabaseImpl extends CommonServices implements RestDatabase {
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_DATABASE_CRAWLER);
 			List<String> nameList = new ArrayList<String>(0);
 			DatabaseCrawlAbstract[] items = client.getDatabaseCrawlList()
@@ -70,11 +71,11 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 	}
 
 	@Override
-	public CommonResult run(String index, String login, String key,
-			String databaseName, Map<String, String> variables) {
+	public CommonResult run(UriInfo uriInfo, String index, String login,
+			String key, String databaseName, Map<String, String> variables) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.DATABASE_CRAWLER_START_STOP);
 			if (StringUtils.isEmpty(databaseName))
 				throw new CommonServiceException(

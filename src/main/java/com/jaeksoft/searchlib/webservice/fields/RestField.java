@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -45,7 +47,8 @@ public interface RestField {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult setField(@PathParam("index_name") String index,
+	public CommonResult setField(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<SchemaFieldRecord> schemaFieldRecord);
 
@@ -53,7 +56,8 @@ public interface RestField {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")
-	public CommonResult setField(@PathParam("index_name") String index,
+	public CommonResult setField(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String fieldName,
 			SchemaFieldRecord schemaFieldRecord);
@@ -61,14 +65,15 @@ public interface RestField {
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")
-	public CommonResult deleteField(@PathParam("index_name") String index,
+	public CommonResult deleteField(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonResult setDefaultUniqueField(
+	public CommonResult setDefaultUniqueField(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("default") String defaultField,
@@ -77,13 +82,15 @@ public interface RestField {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public ResultFieldList getFieldList(@PathParam("index_name") String index,
+	public ResultFieldList getFieldList(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{field_name}")
-	public ResultField getFieldList(@PathParam("index_name") String index,
+	public ResultField getFieldList(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("field_name") String field);
 

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,6 +47,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
+import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.cluster.ClusterNotification;
 import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
@@ -212,13 +214,20 @@ public class ClientCatalog {
 		return calculateInstanceSize();
 	}
 
+	private static final File getClientDir(String indexName)
+			throws SearchLibException {
+		if (!isValidIndexName(indexName))
+			throw new SearchLibException("The name '" + indexName
+					+ "' is not allowed");
+		return new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, indexName);
+	}
+
 	public static final LastModifiedAndSize getLastModifiedAndSize(
 			String indexName) throws SearchLibException {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
-		File file = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				indexName);
+		File file = getClientDir(indexName);
 		if (!file.exists())
 			return null;
 		return new LastModifiedAndSize(file, false);
@@ -226,29 +235,17 @@ public class ClientCatalog {
 
 	public static final Client getLoadedClient(String indexName)
 			throws SearchLibException {
-		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
-		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				indexName), false);
+		return getClient(getClientDir(indexName), false);
 	}
 
 	public static final Client getClient(String indexName)
 			throws SearchLibException {
-		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
-		return getClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				indexName), true);
+		return getClient(getClientDir(indexName), true);
 	}
 
 	public static final void closeClient(String indexName)
 			throws SearchLibException {
-		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
-		closeClient(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				indexName));
+		closeClient(getClientDir(indexName));
 	}
 
 	public static final Set<ClientCatalogItem> getClientCatalog(User user)
@@ -307,6 +304,17 @@ public class ClientCatalog {
 	public static synchronized final ClusterManager getClusterManager()
 			throws SearchLibException {
 		return ClusterManager.getInstance();
+	}
+
+	public static ClusterInstance getAnyClusterInstance(String indexName)
+			throws SearchLibException {
+		File clientDir = getClientDir(indexName);
+		ClusterManager clusterManager = getClusterManager();
+		String[] instanceIds = clusterManager.getClientInstances(clientDir);
+		if (instanceIds == null || instanceIds.length == 0)
+			return null;
+		return clusterManager.getInstance(instanceIds[ThreadLocalRandom
+				.current().nextInt(instanceIds.length)]);
 	}
 
 	final private static boolean isValidIndexName(String name) {

@@ -32,7 +32,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -43,14 +45,16 @@ public interface RestDatabase {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonListResult list(@PathParam("index_name") String index,
+	public CommonListResult list(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@PUT
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{crawl_name}/run")
-	public CommonResult run(@PathParam("index_name") String index,
+	public CommonResult run(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("crawl_name") String name, Map<String, String> variables);
 
