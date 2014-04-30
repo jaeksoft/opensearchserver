@@ -51,7 +51,7 @@
 					<label value="@load(index.indexConfig.searchCache)" />
 					<label value="@load(index.indexConfig.filterCache)" />
 					<label value="@load(index.indexConfig.fieldCache)" />
-					<label value="@load(index.indexConfig.remoteUri)" />
+					<label value="@load(index.indexConfig.remoteURI)" />
 					<label value="@load(index.indexConfig.keyField)" />
 					<label
 						value="@load(index.indexConfig.keyMd5RegExp)" />
