@@ -26,6 +26,24 @@
 	</a>
 </div>
 
+<!-- Zendesk -->
+<script type="text/javascript" src="//assets.zendesk.com/external/zenbox/v2.6/zenbox.js"></script>
+<style type="text/css" media="screen, projection">
+  @import url(//assets.zendesk.com/external/zenbox/v2.6/zenbox.css);
+</style>
+<script type="text/javascript">
+  if (typeof(Zenbox) !== "undefined") {
+    Zenbox.init({
+      dropboxID:   "20250872",
+      url:         "https://opensearchserver.zendesk.com",
+      tabTooltip:  "Feedback",
+      tabImageURL: "https://assets.zendesk.com/external/zenbox/images/tab_feedback_right.png",
+      tabColor:    "black",
+      tabPosition: "Right"
+    });
+  }
+</script>
+
 <!-- Production -->
 <script src="https://code.jquery.com/jquery.js"></script>
 <script
