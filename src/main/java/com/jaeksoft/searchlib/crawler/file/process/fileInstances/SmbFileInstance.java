@@ -30,7 +30,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -52,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.Security
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class SmbFileInstance extends FileInstanceAbstract implements
 		SecurityInterface {
@@ -83,19 +83,19 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	protected SmbFile getSmbFile() throws MalformedURLException {
 		if (smbFileStore != null)
 			return smbFileStore;
-		URL url = getURI().toURL();
+		String context = StringUtils.fastConcat("smb://", getFilePathItem()
+				.getHost());
 		if (filePathItem.isGuest()) {
-			if (Logging.isDebug)
-				Logging.debug("SMB Connect to (without auth) " + url);
-			smbFileStore = new SmbFile(url);
+			smbFileStore = new SmbFile(context, getPath());
 		} else {
 			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
 					filePathItem.getDomain(), filePathItem.getUsername(),
 					filePathItem.getPassword());
-			if (Logging.isDebug)
-				Logging.debug("SMB Connect to (with auth) " + url);
-			smbFileStore = new SmbFile(url, auth);
+			smbFileStore = new SmbFile(context, getPath(), auth);
 		}
+		if (Logging.isDebug)
+			Logging.debug("SMB Connect to (without auth) "
+					+ smbFileStore.getURL().toString());
 		return smbFileStore;
 	}
 
