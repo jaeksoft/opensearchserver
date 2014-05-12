@@ -155,6 +155,7 @@ For example, one could decide to restrict documents to the ones having "politics
 The example solution discussed above does not allow for this - each link filters on one specific value.
 
 So here is an example of how to do it:
+
 ```php
 
 // $facets holds the list of values returned by the query
@@ -249,6 +250,7 @@ As you remember from the previous _"Apply filter"_ section, you can retrieve the
 When looking at results, most users expect to see for a given facet the number of results they _**could**_ get if they added another filter to their search.
 Here is an example : an index contains 5 documents with `category=politics` and 5 other documents with `category=usa`.
 By filtering on `category=politics` only 5 documents would be displayed to the users. Assuming no minimum count parameter, facets returned for this search would be:
+
 ```xml
 
   <faceting>
@@ -256,6 +258,7 @@ By filtering on `category=politics` only 5 documents would be displayed to the u
       <facet name="politics">5</facet>
       <facet name="usa">0</facet>
 ```
+
 since 0 documents match both categories.
 
 The displayed results would look like this:
