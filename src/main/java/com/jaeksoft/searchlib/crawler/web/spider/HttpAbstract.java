@@ -40,16 +40,24 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestSchemeFactory;
+import org.apache.http.impl.auth.KerberosSchemeFactory;
+import org.apache.http.impl.auth.SPNegoSchemeFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -64,6 +72,7 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 
 public abstract class HttpAbstract {
 
@@ -96,6 +105,15 @@ public abstract class HttpAbstract {
 
 		this.proxyHandler = proxyHandler;
 
+		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder
+				.<AuthSchemeProvider> create()
+				.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
+				.register(AuthSchemes.BASIC, new BasicSchemeFactory())
+				.register(AuthSchemes.DIGEST, new DigestSchemeFactory())
+				.register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
+				.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory())
+				.build();
+
 		credentialsProvider = new BasicCredentialsProvider();
 		builder.setDefaultCredentialsProvider(credentialsProvider);
 
@@ -103,6 +121,7 @@ public abstract class HttpAbstract {
 		builder.setDefaultCookieStore(cookieStore);
 
 		builder.setDefaultCredentialsProvider(credentialsProvider);
+		builder.setDefaultAuthSchemeRegistry(authSchemeRegistry);
 
 		httpClient = builder.build();
 
