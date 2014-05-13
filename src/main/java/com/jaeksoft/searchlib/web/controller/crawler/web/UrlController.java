@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -65,6 +65,8 @@ public class UrlController extends CommonController {
 		EXPORT_TXT("Export URLs"),
 
 		XML_SITEMAP("Export XML SiteMap"),
+
+		EXPORT_CRAWLCACHE("Export CrawlCache"),
 
 		SET_TO_UNFETCHED("Set selected URLs to Unfetched"),
 
@@ -503,8 +505,28 @@ public class UrlController extends CommonController {
 				return;
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportURLs(searchRequest);
-			Filedownload.save(new FileInputStream(file),
-					"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
+			try {
+				Filedownload.save(new FileInputStream(file),
+						"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
+			} finally {
+				file.delete();
+			}
+		}
+	}
+
+	public void onExportCrawlCache() throws SearchLibException, IOException {
+		synchronized (this) {
+			UrlManager urlManager = getUrlManager();
+			if (urlManager == null)
+				return;
+			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
+			File file = urlManager.exportCrawlCache(searchRequest);
+			try {
+				Filedownload.save(new FileInputStream(file), "application/zip",
+						"OSS_Crawl_Export.zip");
+			} finally {
+				file.delete();
+			}
 		}
 	}
 
@@ -623,6 +645,9 @@ public class UrlController extends CommonController {
 				break;
 			case EXPORT_TXT:
 				onExportURLs();
+				break;
+			case EXPORT_CRAWLCACHE:
+				onExportCrawlCache();
 				break;
 			case XML_SITEMAP:
 				onExportSiteMap();
