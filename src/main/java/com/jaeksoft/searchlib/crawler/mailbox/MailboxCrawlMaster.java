@@ -27,8 +27,9 @@ package com.jaeksoft.searchlib.crawler.mailbox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.util.Variables;
 
 ;
 
@@ -44,11 +45,12 @@ public class MailboxCrawlMaster extends
 		return new MailboxCrawlThread[size];
 	}
 
-	public MailboxCrawlThread getNewCrawlThread(Client client,
-			FieldMapCrawlItem<?, MailboxCrawlThread, ?> crawlItem,
-			TaskLog taskLog) {
+	@Override
+	public MailboxCrawlThread getNewThread(Client client,
+			ThreadItem<?, MailboxCrawlThread> crawlItem, Variables variables,
+			InfoCallback infoCallback) {
 		return new MailboxCrawlThread(client, this,
-				(MailboxCrawlItem) crawlItem, taskLog);
+				(MailboxCrawlItem) crawlItem, variables, infoCallback);
 	}
 
 }

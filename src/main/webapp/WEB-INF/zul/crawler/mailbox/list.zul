@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -20,8 +20,8 @@
 		<button label="New mailbox..." onClick="@command('onNew')" />
 	</toolbar>
 	<panelchildren>
-		<listbox model="@load(mbctrl.mailboxList)" mold="paging"
-			pageSize="20">
+		<listbox model="@load(mbctrl.mailboxCrawlList.array)"
+			mold="paging" pageSize="20">
 			<listhead>
 				<listheader label="Name" hflex="min" />
 				<listheader label="Last execution time" hflex="min" />
@@ -46,18 +46,17 @@
 					<listcell>
 						<hbox align="center">
 							<button tooltiptext="Edit the mailbox item"
-								label="Edit"
-								onClick="@command('edit', mailboxItem=mailboxItem)" />
+								label="Edit" onClick="@command('edit', crawlitem=mailboxItem)" />
 							<space />
 							<button
 								tooltiptext="Execute the crawl process"
 								disabled="@load(mailboxItem.thread)"
 								image="/images/action_check.png"
-								onClick="@command('execute', mailboxItem=mailboxItem)" />
+								onClick="@command('execute', crawlitem=mailboxItem)" />
 							<space />
 							<button tooltiptext="Delete crawl process"
 								image="/images/action_delete.png"
-								onClick="@command('delete', mailboxItem=mailboxItem)" />
+								onClick="@command('delete', crawlitem=mailboxItem)" />
 						</hbox>
 					</listcell>
 				</listitem>
