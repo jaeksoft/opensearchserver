@@ -204,7 +204,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 */
 	public final static String base64encode(String text)
 			throws UnsupportedEncodingException {
-		if (text == null)
+		if (isEmpty(text))
 			return null;
 		return Base64.encodeBase64URLSafeString(text.getBytes("UTF-8"));
 	}
@@ -216,7 +216,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @return a decoded string
 	 */
 	public final static String base64decode(String base64String) {
-		if (base64String == null)
+		if (isEmpty(base64String))
 			return null;
 		return new String(Base64.decodeBase64(base64String));
 	}
