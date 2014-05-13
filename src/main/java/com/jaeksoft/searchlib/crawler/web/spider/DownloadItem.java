@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +35,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CRC32;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -43,6 +47,7 @@ import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class DownloadItem {
 
@@ -420,6 +425,60 @@ public class DownloadItem {
 			IOUtils.copy(contentInputStream, bos);
 		} finally {
 			IOUtils.close(bos, fos);
+		}
+	}
+
+	public void writeToZip(ZipArchiveOutputStream zipOutput) throws IOException {
+		if (contentInputStream == null)
+			return;
+		String[] domainParts = StringUtils.split(uri.getHost(), '.');
+		StringBuilder path = new StringBuilder();
+		for (int i = domainParts.length - 1; i >= 0; i--) {
+			path.append(domainParts[i]);
+			path.append('/');
+		}
+		String[] pathParts = StringUtils.split(uri.getPath(), '/');
+		for (int i = 0; i < pathParts.length - 1; i++) {
+			if (StringUtils.isEmpty(pathParts[i]))
+				continue;
+			path.append(pathParts[i]);
+			path.append('/');
+		}
+		if (contentDispositionFilename != null)
+			path.append(contentDispositionFilename);
+		else {
+			String lastPart = pathParts == null || pathParts.length == 0 ? null
+					: pathParts[pathParts.length - 1];
+			if (StringUtils.isEmpty(lastPart))
+				path.append("index");
+			else
+				path.append(lastPart);
+		}
+		if (uri.getPath().endsWith("/"))
+			path.append("/_index");
+		String query = uri.getQuery();
+		String fragment = uri.getFragment();
+		if (!StringUtils.isEmpty(query) || !StringUtils.isEmpty(fragment)) {
+			CRC32 crc32 = new CRC32();
+			if (!StringUtils.isEmpty(query))
+				crc32.update(query.getBytes());
+			if (!StringUtils.isEmpty(fragment))
+				crc32.update(fragment.getBytes());
+			path.append('.');
+			path.append(crc32.getValue());
+		}
+		ZipArchiveEntry zipEntry = new ZipArchiveEntry(path.toString());
+		zipOutput.putArchiveEntry(zipEntry);
+		BufferedInputStream bis = null;
+		byte[] buffer = new byte[65536];
+		try {
+			bis = new BufferedInputStream(contentInputStream);
+			int l;
+			while ((l = bis.read(buffer)) != -1)
+				zipOutput.write(buffer, 0, l);
+			zipOutput.closeArchiveEntry();
+		} finally {
+			IOUtils.close(bis);
 		}
 	}
 }

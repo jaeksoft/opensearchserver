@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,13 +41,18 @@ import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
@@ -57,6 +62,7 @@ import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -672,6 +678,50 @@ public class UrlManager extends AbstractManager {
 				pw.close();
 		}
 		return tempFile;
+	}
+
+	public File exportCrawlCache(AbstractSearchRequest searchRequest)
+			throws IOException, SearchLibException {
+		File tempFile = null;
+		ZipArchiveOutputStream zipOutput = null;
+		CrawlCacheManager crawlCacheManager = ClientCatalog
+				.getCrawlCacheManager();
+		if (crawlCacheManager.isDisabled())
+			throw new SearchLibException("The crawlCache is disabled.");
+		try {
+			tempFile = File
+					.createTempFile("OSS_web_crawler_crawlcache", ".zip");
+			zipOutput = new ZipArchiveOutputStream(tempFile);
+			int currentPos = 0;
+			List<UrlItem> uList = new ArrayList<UrlItem>();
+			for (;;) {
+				int totalSize = (int) getUrlList(searchRequest, currentPos,
+						1000, uList);
+				if (uList.size() == 0)
+					break;
+				for (UrlItem u : uList) {
+					DownloadItem downloadItem = crawlCacheManager.loadCache(u
+							.getURL().toURI());
+					if (downloadItem == null)
+						continue;
+					downloadItem.writeToZip(zipOutput);
+				}
+				uList.clear();
+				currentPos += 1000;
+				if (currentPos >= totalSize)
+					break;
+			}
+			zipOutput.close();
+			zipOutput = null;
+			return tempFile;
+		} catch (JSONException e) {
+			throw new IOException(e);
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		} finally {
+			if (zipOutput != null)
+				IOUtils.closeQuietly(zipOutput);
+		}
 	}
 
 	public File exportSiteMap(AbstractSearchRequest searchRequest)
