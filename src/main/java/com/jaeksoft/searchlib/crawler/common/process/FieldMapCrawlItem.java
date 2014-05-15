@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.util.map.SourceField;
 public abstract class FieldMapCrawlItem<I extends FieldMapCrawlItem<I, T, M>, T extends CrawlThreadAbstract<T, M>, M extends CrawlMasterAbstract<M, T>>
 		extends ThreadItem<I, T> {
 
-	protected final FieldMapGeneric<SourceField, CommonFieldTarget> fieldMap;
+	private final FieldMapGeneric<SourceField, CommonFieldTarget> fieldMap;
 
 	protected FieldMapCrawlItem(M crawlMaster,
 			FieldMapGeneric<SourceField, CommonFieldTarget> fieldMap) {

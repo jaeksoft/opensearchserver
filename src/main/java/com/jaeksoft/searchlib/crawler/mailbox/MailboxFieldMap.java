@@ -24,14 +24,19 @@
 
 package com.jaeksoft.searchlib.crawler.mailbox;
 
+import java.io.IOException;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
+import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
+import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class MailboxFieldMap extends
 		FieldMapGeneric<SourceField, CommonFieldTarget> {
@@ -59,6 +64,29 @@ public class MailboxFieldMap extends
 				return true;
 		}
 		return false;
+	}
+
+	private void addFieldContent(FieldContent fc, TargetField targetField,
+			IndexDocument target) throws IOException {
+		if (fc == null)
+			return;
+		targetField.add(fc.getValues(), target);
+	}
+
+	public void mapIndexDocument(IndexDocument source, IndexDocument target)
+			throws IOException {
+		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
+			SourceField sourceField = link.getSource();
+			if (sourceField.isUnique()) {
+				FieldContent fc = sourceField.getUniqueString(source);
+				if (fc == null)
+					fc = sourceField.getUniqueString(target);
+				addFieldContent(fc, link.getTarget(), target);
+			} else {
+				String value = sourceField.getConcatString(source, target);
+				link.getTarget().add(value, target);
+			}
+		}
 	}
 
 }

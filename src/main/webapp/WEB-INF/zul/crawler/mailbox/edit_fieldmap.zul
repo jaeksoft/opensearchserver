@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,10 +14,10 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<listbox width="99%" selectedItem="@bind(dbCrawlList.selectedField)"
-	model="@load(dbCrawlList.currentCrawl.fieldMap.list)">
+<listbox width="99%" selectedItem="@bind(mbctrl.selectedField)"
+	model="@load(mbctrl.currentCrawl.fieldMap.list)">
 	<listhead>
-		<listheader label="SQL column" align="center" width="180px" />
+		<listheader label="Selector" align="center" />
 		<listheader label="Index field" align="center" width="180px" />
 		<listheader width="50px" label="Tags" tooltiptext="Remove tag"
 			align="center" />
@@ -27,21 +27,21 @@
 			tooltiptext="Replace pattern" align="center" />
 		<listheader width="50px" label="Entities"
 			tooltiptext="Convert HTML entities" align="center" />
-		<listheader width="50px" label="File"
-			tooltiptext="Contains a file path" align="center" />
-		<listheader label="File path prefix" align="center" />
-		<listheader width="50px" label="URL"
-			tooltiptext="Crawl the given URL" align="center" />
-		<listheader width="130px" label="Action" align="center" />
+		<listheader />
 	</listhead>
 	<auxhead>
 		<auxheader align="center">
-			<textbox width="95%" value="@bind(dbCrawlList.sqlColumn)" />
+			<listbox mold="select"
+				model="@load(mbctrl.mailboxCrawlerFields)"
+				selectedItem="@bind(mbctrl.sourceFieldName)">
+				<template name="model" var="urlField">
+					<listitem label="@load(urlField)" />
+				</template>
+			</listbox>
 		</auxheader>
 		<auxheader align="center">
-			<listbox mold="select"
-				model="@load(dbCrawlList.indexFieldList)"
-				selectedItem="@bind(dbCrawlList.selectedIndexField)">
+			<listbox mold="select" model="@load(mbctrl.indexFieldList)"
+				selectedItem="@bind(mbctrl.selectedIndexField)">
 				<template name="model">
 					<listitem label="@load(each)" />
 				</template>
@@ -49,42 +49,29 @@
 		</auxheader>
 		<auxheader align="center">
 			<checkbox tooltiptext="remove tags"
-				checked="@bind(dbCrawlList.currentFieldTarget.removeTag)" />
+				checked="@bind(mbctrl.currentFieldTarget.removeTag)" />
 		</auxheader>
 		<auxheader align="center">
 			<textbox width="95%"
 				tooltiptext="Regular expression find pattern"
-				value="@bind(dbCrawlList.currentFieldTarget.findRegexpTag)" />
+				value="@bind(mbctrl.currentFieldTarget.findRegexpTag)" />
 		</auxheader>
 		<auxheader align="center">
 			<textbox width="95%"
 				tooltiptext="Regular expression replace pattern"
-				value="@bind(dbCrawlList.currentFieldTarget.replaceRegexpTag)" />
+				value="@bind(mbctrl.currentFieldTarget.replaceRegexpTag)" />
 		</auxheader>
 		<auxheader align="center">
 			<checkbox tooltiptext="convert HTML entities"
-				checked="@bind(dbCrawlList.currentFieldTarget.convertHtmlEntities)" />
+				checked="@bind(mbctrl.currentFieldTarget.convertHtmlEntities)" />
 		</auxheader>
 		<auxheader align="center">
-			<checkbox tooltiptext="File path"
-				checked="@bind(dbCrawlList.currentFieldTarget.filePath)" />
-		</auxheader>
-		<auxheader align="center">
-			<textbox width="95%"
-				disabled="@load(dbCrawlList.currentFieldTarget.notFilePath)"
-				value="@bind(dbCrawlList.currentFieldTarget.filePathPrefix)" />
-		</auxheader>
-		<auxheader align="center">
-			<checkbox tooltiptext="Crawl the given URL"
-				checked="@bind(dbCrawlList.currentFieldTarget.crawlUrl)" />
-		</auxheader>
-		<auxheader align="center">
-			<hbox visible="@load(dbCrawlList.fieldSelected)">
+			<hbox visible="@load(mbctrl.fieldSelected)">
 				<button label="Cancel"
 					onClick="@command('onCancelField')" />
 				<button label="Save" onClick="@command('onSaveField')" />
 			</hbox>
-			<hbox visible="@load(dbCrawlList.noFieldSelected)">
+			<hbox visible="@load(mbctrl.noFieldSelected)">
 				<button label="add" onClick="@command('onSaveField')" />
 			</hbox>
 		</auxheader>
@@ -102,15 +89,6 @@
 			<listcell>
 				<checkbox disabled="true"
 					checked="@load(fieldlink.target.convertHtmlEntities)" />
-			</listcell>
-			<listcell>
-				<checkbox disabled="true"
-					checked="@load(fieldlink.target.filePath)" />
-			</listcell>
-			<listcell label="@load(fieldlink.target.filePathPrefix)" />
-			<listcell>
-				<checkbox disabled="true"
-					checked="@load(fieldlink.target.crawlUrl)" />
 			</listcell>
 			<listcell>
 				<button tooltiptext="Remove"
