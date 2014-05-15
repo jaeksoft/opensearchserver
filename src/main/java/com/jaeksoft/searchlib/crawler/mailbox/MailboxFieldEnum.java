@@ -34,7 +34,9 @@ public enum MailboxFieldEnum {
 
 	subject,
 
-	from,
+	from_address,
+
+	from_personal,
 
 	content_type,
 
@@ -44,13 +46,21 @@ public enum MailboxFieldEnum {
 
 	send_date,
 
-	recipient_to,
+	recipient_to_address,
 
-	recipient_cc,
+	recipient_to_personal,
 
-	recipient_bcc,
+	recipient_cc_address,
 
-	reply_to,
+	recipient_cc_personal,
+
+	recipient_bcc_address,
+
+	recipient_bcc_personal,
+
+	reply_to_address,
+
+	reply_to_personal,
 
 	flags;
 

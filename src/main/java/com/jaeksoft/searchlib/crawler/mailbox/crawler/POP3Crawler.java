@@ -67,8 +67,9 @@ public class POP3Crawler extends MailboxAbstractCrawler {
 	public void readMessage(IndexDocument document, Folder folder,
 			Message message) throws MessagingException {
 		super.readMessage(document, folder, message);
-		if (folder instanceof POP3Folder)
+		if (folder instanceof POP3Folder) {
 			document.addString(MailboxFieldEnum.message_id.name(),
 					((POP3Folder) folder).getUID(message));
+		}
 	}
 }
