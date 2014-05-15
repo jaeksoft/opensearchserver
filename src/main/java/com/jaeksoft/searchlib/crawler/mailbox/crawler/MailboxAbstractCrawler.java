@@ -28,12 +28,12 @@ import java.io.IOException;
 import java.util.Date;
 
 import javax.mail.Address;
-import javax.mail.FetchProfile;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import com.jaeksoft.searchlib.Logging;
@@ -65,14 +65,10 @@ public abstract class MailboxAbstractCrawler {
 		folder.open(Folder.READ_ONLY);
 		String folderFullName = folder.getFullName();
 		try {
-			int count = folder.getMessageCount();
+			System.out.println("FOLDER: " + folder.getClass().getName() + " "
+					+ folderFullName);
 			Message[] messages = folder.getMessages();
-			FetchProfile fp = new FetchProfile();
-			fp.add(FetchProfile.Item.ENVELOPE);
-			fp.add("X-mailer");
-			folder.fetch(messages, fp);
-			for (int i = 0; i < count; i++) {
-				Message message = messages[i];
+			for (Message message : messages) {
 				IndexDocument document = new IndexDocument(item.getLang());
 				document.addString(MailboxFieldEnum.folder.name(),
 						folderFullName);
@@ -113,12 +109,17 @@ public abstract class MailboxAbstractCrawler {
 	}
 
 	private void putAddresses(IndexDocument document, Address[] addresses,
-			String field) {
+			String fieldEmail, String fieldPersonal) {
 		if (addresses == null)
 			return;
 		for (Address address : addresses) {
-			if (address != null)
-				document.addString(field, address.toString());
+			if (address == null)
+				continue;
+			if (!(address instanceof InternetAddress))
+				continue;
+			InternetAddress ia = (InternetAddress) address;
+			document.addString(fieldEmail, ia.getAddress());
+			document.addString(fieldPersonal, ia.getPersonal());
 		}
 	}
 
@@ -131,15 +132,21 @@ public abstract class MailboxAbstractCrawler {
 					((MimeMessage) message).getContentID());
 		document.addString(MailboxFieldEnum.subject.name(),
 				message.getSubject());
-		putAddresses(document, message.getFrom(), MailboxFieldEnum.from.name());
+		putAddresses(document, message.getFrom(),
+				MailboxFieldEnum.from_address.name(),
+				MailboxFieldEnum.from_personal.name());
 		putAddresses(document, message.getReplyTo(),
-				MailboxFieldEnum.reply_to.name());
+				MailboxFieldEnum.reply_to_address.name(),
+				MailboxFieldEnum.reply_to_personal.name());
 		putAddresses(document, message.getRecipients(RecipientType.TO),
-				MailboxFieldEnum.recipient_to.name());
+				MailboxFieldEnum.recipient_to_address.name(),
+				MailboxFieldEnum.recipient_to_personal.name());
 		putAddresses(document, message.getRecipients(RecipientType.CC),
-				MailboxFieldEnum.recipient_cc.name());
+				MailboxFieldEnum.recipient_cc_address.name(),
+				MailboxFieldEnum.recipient_cc_personal.name());
 		putAddresses(document, message.getRecipients(RecipientType.BCC),
-				MailboxFieldEnum.recipient_bcc.name());
+				MailboxFieldEnum.recipient_bcc_address.name(),
+				MailboxFieldEnum.recipient_bcc_personal.name());
 		Date dt = message.getSentDate();
 		if (dt != null)
 			document.addString(MailboxFieldEnum.send_date.name(), dt.toString());
