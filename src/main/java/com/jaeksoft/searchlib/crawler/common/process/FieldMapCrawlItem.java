@@ -43,7 +43,7 @@ public abstract class FieldMapCrawlItem<I extends FieldMapCrawlItem<I, T, M>, T 
 	@Override
 	public void copyTo(I crawlItem) {
 		super.copyTo(crawlItem);
-		this.fieldMap.copyTo(crawlItem.fieldMap);
+		this.fieldMap.copyTo(crawlItem.getFieldMap());
 	}
 
 	/**
