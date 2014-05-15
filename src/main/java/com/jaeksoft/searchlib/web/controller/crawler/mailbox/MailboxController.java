@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
@@ -52,6 +53,10 @@ public class MailboxController
 
 	public String[] getServerProtocols() {
 		return MailboxProtocolEnum.labelArray;
+	}
+
+	public String[] getMailboxCrawlerFields() {
+		return MailboxFieldEnum.labelArray;
 	}
 
 	@Override
@@ -73,7 +78,9 @@ public class MailboxController
 	@Override
 	protected void doDelete(MailboxCrawlItem crawlItem)
 			throws SearchLibException {
-		getClient().getMailboxCrawlList().remove(crawlItem);
+		Client client = getClient();
+		client.getMailboxCrawlList().remove(crawlItem);
+		client.saveMailboxCrawlList();
 	}
 
 	@Override
