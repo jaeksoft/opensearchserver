@@ -68,6 +68,8 @@ import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
@@ -169,6 +171,10 @@ public abstract class Config implements ThreadFactory {
 	private RestCrawlMaster restCrawlMaster = null;
 
 	private RestCrawlList restCrawlList = null;
+
+	private MailboxCrawlMaster mailboxCrawlMaster = null;
+
+	private MailboxCrawlList mailboxCrawlList = null;
 
 	private ScreenshotManager screenshotManager = null;
 
@@ -834,6 +840,63 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
+	public MailboxCrawlList getMailboxCrawlList() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (mailboxCrawlList != null)
+				return mailboxCrawlList;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (mailboxCrawlList != null)
+				return mailboxCrawlList;
+			mailboxCrawlList = MailboxCrawlList.fromXml(
+					getMailboxCrawlMaster(), new File(indexDir,
+							"mailboxCrawlList.xml"));
+			return mailboxCrawlList;
+		} catch (ParserConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (XPathExpressionException e) {
+			throw new SearchLibException(e);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void saveMailboxCrawlList() throws SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(indexDir,
+				"mailboxCrawlList.xml");
+		if (!longTermLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
+		try {
+			rwl.w.lock();
+			try {
+				XmlWriter xmlWriter = new XmlWriter(
+						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				getMailboxCrawlList().writeXml(xmlWriter);
+				xmlWriter.endDocument();
+				cfr.rotate();
+			} finally {
+				rwl.w.unlock();
+			}
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (TransformerConfigurationException e) {
+			throw new SearchLibException(e);
+		} catch (SAXException e) {
+			throw new SearchLibException(e);
+		} finally {
+			longTermLock.rl.unlock();
+			cfr.abort();
+		}
+	}
+
 	protected WebCrawlMaster getNewWebCrawlMaster() throws SearchLibException {
 		return new WebCrawlMaster(this);
 	}
@@ -907,6 +970,24 @@ public abstract class Config implements ThreadFactory {
 			if (restCrawlMaster != null)
 				return restCrawlMaster;
 			return restCrawlMaster = new RestCrawlMaster(this);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public MailboxCrawlMaster getMailboxCrawlMaster() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (mailboxCrawlMaster != null)
+				return mailboxCrawlMaster;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (mailboxCrawlMaster != null)
+				return mailboxCrawlMaster;
+			return mailboxCrawlMaster = new MailboxCrawlMaster(this);
 		} finally {
 			rwl.w.unlock();
 		}
