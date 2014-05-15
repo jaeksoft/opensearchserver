@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -136,7 +136,9 @@ public class RestCrawlController
 
 	@Override
 	protected void doDelete(RestCrawlItem crawlItem) throws SearchLibException {
-		getClient().getRestCrawlList().remove(crawlItem);
+		Client client = getClient();
+		client.getRestCrawlList().remove(crawlItem);
+		client.saveRestCrawlList();
 	}
 
 	@Override

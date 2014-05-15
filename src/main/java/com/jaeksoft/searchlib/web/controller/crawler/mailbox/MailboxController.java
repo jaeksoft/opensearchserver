@@ -29,10 +29,15 @@ import javax.naming.NamingException;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 
 @AfterCompose(superclass = true)
@@ -40,48 +45,110 @@ public class MailboxController
 		extends
 		CommonFieldTargetCrawlerController<MailboxCrawlItem, MailboxCrawlThread, MailboxCrawlMaster> {
 
+	private transient MailboxCrawlList crawlList = null;
+
 	public MailboxController() throws SearchLibException, NamingException {
 		super();
-		// TODO Auto-generated constructor stub
+	}
+
+	public String[] getServerProtocols() {
+		return MailboxProtocolEnum.labelArray;
+	}
+
+	public String[] getMailboxCrawlerFields() {
+		return MailboxFieldEnum.labelArray;
+	}
+
+	@Override
+	protected void reset() throws SearchLibException {
+		super.reset();
+		crawlList = null;
+	}
+
+	public MailboxCrawlList getMailboxCrawlList() throws SearchLibException {
+		if (crawlList != null)
+			return crawlList;
+		Client client = getClient();
+		if (client == null)
+			return null;
+		crawlList = client.getMailboxCrawlList();
+		return crawlList;
 	}
 
 	@Override
 	protected void doDelete(MailboxCrawlItem crawlItem)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-
+		Client client = getClient();
+		client.getMailboxCrawlList().remove(crawlItem);
+		client.saveMailboxCrawlList();
 	}
 
 	@Override
 	protected MailboxCrawlItem newCrawlItem(MailboxCrawlItem crawl) {
-		// TODO Auto-generated method stub
-		return null;
+		return crawl.duplicate();
 	}
 
 	@Override
 	public boolean isCrawlerEditRights() throws SearchLibException {
-		// TODO Auto-generated method stub
-		return false;
+		return super.isMailboxCrawlerEditRights();
 	}
 
 	@Override
 	@Command
 	public void onSave() throws InterruptedException, SearchLibException {
-		// TODO Auto-generated method stub
-
+		getMailboxCrawlList();
+		if (getSelectedCrawl() != null)
+			getCurrentCrawl().copyTo(getSelectedCrawl());
+		else {
+			if (crawlList.get(getCurrentCrawl().getName()) != null) {
+				new AlertController("The crawl name is already used");
+				return;
+			}
+			crawlList.add(getCurrentCrawl());
+		}
+		getClient().saveMailboxCrawlList();
+		onCancel();
 	}
 
 	@Override
 	@Command
 	public void onNew() throws SearchLibException {
-		// TODO Auto-generated method stub
+		MailboxCrawlItem oldCurrentCrawl = getCurrentCrawl();
+		setSelectedCrawl(null);
+		MailboxCrawlItem newCrawl = new MailboxCrawlItem(getCrawlMaster());
+		setCurrentCrawl(newCrawl);
+		if (oldCurrentCrawl != null)
+			oldCurrentCrawl.copyTo(newCrawl);
+		newCrawl.setName(null);
+		reload();
+	}
 
+	@Override
+	@Command
+	public void reload() throws SearchLibException {
+		crawlList = null;
+		super.reload();
 	}
 
 	@Override
 	public MailboxCrawlMaster getCrawlMaster() throws SearchLibException {
-		// TODO Auto-generated method stub
-		return null;
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getMailboxCrawlMaster();
 	}
 
+	@Override
+	public boolean isRefresh() throws SearchLibException {
+		MailboxCrawlMaster crawlMaster = getCrawlMaster();
+		if (crawlMaster == null)
+			return false;
+		return crawlMaster.getThreadsCount() > 0;
+	}
+
+	@Override
+	@Command
+	public void onTimer() throws SearchLibException {
+		reload();
+	}
 }
