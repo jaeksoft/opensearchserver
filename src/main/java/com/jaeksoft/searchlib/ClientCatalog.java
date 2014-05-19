@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -67,6 +66,7 @@ import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.util.map.LockedMap;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
@@ -353,8 +353,9 @@ public class ClientCatalog {
 				CLIENTS.remove(client.getDirectory());
 				client.close();
 				client.delete();
-		} else {
-			FileUtils.deleteDirectory(indexDir);
+			} else {
+				FileUtils.deleteDirectory(indexDir);
+			}
 		}
 	}
 
