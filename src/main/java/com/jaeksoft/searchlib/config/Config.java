@@ -910,11 +910,12 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveMailboxCrawlList() throws SearchLibException {
+	public void saveMailboxCrawlList() throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"mailboxCrawlList.xml");
 		if (!longTermLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
+		versionFile.lock();
 		try {
 			rwl.w.lock();
 			try {
@@ -922,7 +923,7 @@ public abstract class Config implements ThreadFactory {
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getMailboxCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
-				cfr.rotate();
+				cfr.rotate(versionFile);
 			} finally {
 				rwl.w.unlock();
 			}
@@ -935,6 +936,7 @@ public abstract class Config implements ThreadFactory {
 		} finally {
 			longTermLock.rl.unlock();
 			cfr.abort();
+			versionFile.release();
 		}
 	}
 

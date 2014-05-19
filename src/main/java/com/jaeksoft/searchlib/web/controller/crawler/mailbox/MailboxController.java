@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.mailbox;
 
+import java.io.IOException;
+
 import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.AfterCompose;
@@ -77,7 +79,7 @@ public class MailboxController
 
 	@Override
 	protected void doDelete(MailboxCrawlItem crawlItem)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Client client = getClient();
 		client.getMailboxCrawlList().remove(crawlItem);
 		client.saveMailboxCrawlList();
@@ -95,7 +97,8 @@ public class MailboxController
 
 	@Override
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException {
+	public void onSave() throws InterruptedException, SearchLibException,
+			IOException {
 		getMailboxCrawlList();
 		if (getSelectedCrawl() != null)
 			getCurrentCrawl().copyTo(getSelectedCrawl());
