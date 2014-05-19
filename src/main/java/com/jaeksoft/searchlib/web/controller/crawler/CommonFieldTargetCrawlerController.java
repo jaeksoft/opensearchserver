@@ -77,7 +77,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		}
 
 		@Override
-		protected void onYes() throws SearchLibException {
+		protected void onYes() throws SearchLibException, IOException {
 			doDelete(deleteCrawl);
 			onCancel();
 		}
@@ -88,7 +88,8 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		super();
 	}
 
-	protected abstract void doDelete(C crawlItem) throws SearchLibException;
+	protected abstract void doDelete(C crawlItem) throws SearchLibException,
+			IOException;
 
 	@Override
 	protected void reset() throws SearchLibException {
