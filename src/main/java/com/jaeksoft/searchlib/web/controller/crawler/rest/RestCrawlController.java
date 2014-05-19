@@ -135,7 +135,8 @@ public class RestCrawlController
 	}
 
 	@Override
-	protected void doDelete(RestCrawlItem crawlItem) throws SearchLibException {
+	protected void doDelete(RestCrawlItem crawlItem) throws SearchLibException,
+			IOException {
 		Client client = getClient();
 		client.getRestCrawlList().remove(crawlItem);
 		client.saveRestCrawlList();
