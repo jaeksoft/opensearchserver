@@ -116,9 +116,9 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 public abstract class Config implements ThreadFactory {
 
-	private IndexAbstract index = null;
+	private final IndexAbstract index;
 
-	private Schema schema = null;
+	private final Schema schema;
 
 	private RequestMap requests = null;
 
@@ -192,9 +192,7 @@ public abstract class Config implements ThreadFactory {
 
 	protected final File indexDir;
 
-	protected final ReadWriteLock rwl = new ReadWriteLock();
-
-	protected final SimpleLock longTermLock = new SimpleLock();
+	protected final SimpleLock replicationLock = new SimpleLock();
 
 	private ReplicationList replicationList = null;
 
@@ -290,12 +288,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public File getDirectory() {
-		rwl.r.lock();
-		try {
-			return indexDir;
-		} finally {
-			rwl.r.unlock();
-		}
+		return indexDir;
 	}
 
 	private void saveConfigWithoutLock() throws IOException,
@@ -324,12 +317,14 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
+	private final ReadWriteLock parsersLock = new ReadWriteLock();
+
 	public void saveParsers() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			parsersLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -343,21 +338,23 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				parsersLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock jobsLock = new ReadWriteLock();
+
 	public void saveJobs() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "jobs.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			JobList jobList = getJobList();
-			rwl.w.lock();
+			jobsLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -371,22 +368,24 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				jobsLock.w.unlock();
 			}
 			jobList.checkExecution();
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock replicationsLock = new ReadWriteLock();
+
 	public void saveReplicationList() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			replicationsLock.w.lock();
 			try {
 				PrintWriter pw = cfr.getTempPrintWriter("UTF-8");
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
@@ -394,20 +393,20 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				replicationsLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void saveRequests() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			requestsLock.w.lock();
 			try {
 				PrintWriter pw = cfr.getTempPrintWriter("UTF-8");
 				XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
@@ -415,7 +414,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				requestsLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -424,21 +423,23 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock configLock = new ReadWriteLock();
+
 	public void saveConfig() throws SearchLibException {
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			configLock.w.lock();
 			try {
 				saveConfigWithoutLock();
 				schema.recompileAnalyzers();
 			} finally {
-				rwl.w.unlock();
+				configLock.w.unlock();
 			}
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -449,7 +450,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 		}
 		PushEvent.eventSchemaChange.publish((Client) this);
 	}
@@ -472,15 +473,17 @@ public abstract class Config implements ThreadFactory {
 		return new Thread(threadGroup, target);
 	}
 
+	private final ReadWriteLock threadPoolLock = new ReadWriteLock();
+
 	public ExecutorService getThreadPool() {
-		rwl.r.lock();
+		threadPoolLock.r.lock();
 		try {
 			if (threadPool != null)
 				return threadPool;
 		} finally {
-			rwl.r.unlock();
+			threadPoolLock.r.unlock();
 		}
-		rwl.w.lock();
+		threadPoolLock.w.lock();
 		try {
 			if (threadPool != null)
 				return threadPool;
@@ -490,16 +493,16 @@ public abstract class Config implements ThreadFactory {
 			threadPool = Executors.newCachedThreadPool(this);
 			return threadPool;
 		} finally {
-			rwl.w.unlock();
+			threadPoolLock.w.unlock();
 		}
 	}
 
 	public ThreadGroup getThreadGroup() {
-		rwl.r.lock();
+		threadPoolLock.r.lock();
 		try {
 			return threadGroup;
 		} finally {
-			rwl.r.unlock();
+			threadPoolLock.r.unlock();
 		}
 	}
 
@@ -514,15 +517,17 @@ public abstract class Config implements ThreadFactory {
 		return directory;
 	}
 
+	private final ReadWriteLock classifiersLock = new ReadWriteLock();
+
 	public ClassifierManager getClassifierManager() throws SearchLibException {
-		rwl.r.lock();
+		classifiersLock.r.lock();
 		try {
 			if (classifierManager != null)
 				return classifierManager;
 		} finally {
-			rwl.r.unlock();
+			classifiersLock.r.unlock();
 		}
-		rwl.w.lock();
+		classifiersLock.w.lock();
 		try {
 			if (classifierManager != null)
 				return classifierManager;
@@ -540,7 +545,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			classifiersLock.w.unlock();
 		}
 	}
 
@@ -551,15 +556,17 @@ public abstract class Config implements ThreadFactory {
 		return directory;
 	}
 
+	private final ReadWriteLock learnersLock = new ReadWriteLock();
+
 	public LearnerManager getLearnerManager() throws SearchLibException {
-		rwl.r.lock();
+		learnersLock.r.lock();
 		try {
 			if (learnerManager != null)
 				return learnerManager;
 		} finally {
-			rwl.r.unlock();
+			learnersLock.r.unlock();
 		}
-		rwl.w.lock();
+		learnersLock.w.lock();
 		try {
 			if (learnerManager != null)
 				return learnerManager;
@@ -577,19 +584,21 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			learnersLock.w.unlock();
 		}
 	}
 
+	private final ReadWriteLock authLock = new ReadWriteLock();
+
 	public AuthManager getAuthManager() throws IOException {
-		rwl.r.lock();
+		authLock.r.lock();
 		try {
 			if (authManager != null)
 				return authManager;
 		} finally {
-			rwl.r.unlock();
+			authLock.r.unlock();
 		}
-		rwl.w.lock();
+		authLock.w.lock();
 		try {
 			if (authManager != null)
 				return authManager;
@@ -600,7 +609,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new IOException(e);
 		} finally {
-			rwl.w.unlock();
+			authLock.w.unlock();
 		}
 	}
 
@@ -611,22 +620,24 @@ public abstract class Config implements ThreadFactory {
 		return directory;
 	}
 
+	private final ReadWriteLock reportsLock = new ReadWriteLock();
+
 	public ReportsManager getReportsManager() throws SearchLibException {
-		rwl.r.lock();
+		reportsLock.r.lock();
 		try {
 			if (reportsManager != null)
 				return reportsManager;
 		} finally {
-			rwl.r.unlock();
+			reportsLock.r.unlock();
 		}
-		rwl.w.lock();
+		reportsLock.w.lock();
 		try {
 			if (reportsManager != null)
 				return reportsManager;
 			reportsManager = new ReportsManager(this, getReportsDirectory());
 			return reportsManager;
 		} finally {
-			rwl.w.unlock();
+			reportsLock.w.unlock();
 		}
 	}
 
@@ -634,10 +645,10 @@ public abstract class Config implements ThreadFactory {
 			throws SearchLibException, UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			classifiersLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -651,10 +662,10 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				classifiersLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 
@@ -664,17 +675,17 @@ public abstract class Config implements ThreadFactory {
 			throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			classifiersLock.w.lock();
 			try {
 				cfr.delete();
 			} finally {
-				rwl.w.unlock();
+				classifiersLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -683,10 +694,10 @@ public abstract class Config implements ThreadFactory {
 			UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			learnersLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -700,10 +711,10 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				learnersLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 
@@ -713,30 +724,32 @@ public abstract class Config implements ThreadFactory {
 			IOException {
 		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			learnersLock.w.lock();
 			try {
 				cfr.delete();
 			} finally {
-				rwl.w.unlock();
+				learnersLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock databaseLock = new ReadWriteLock();
+
 	public DatabaseCrawlList getDatabaseCrawlList() throws SearchLibException {
-		rwl.r.lock();
+		databaseLock.r.lock();
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
 		} finally {
-			rwl.r.unlock();
+			databaseLock.r.unlock();
 		}
-		rwl.w.lock();
+		databaseLock.w.lock();
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
@@ -753,17 +766,17 @@ public abstract class Config implements ThreadFactory {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			databaseLock.w.unlock();
 		}
 	}
 
 	public void saveDatabaseCrawlList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"databaseCrawlList.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			databaseLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -771,7 +784,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				databaseLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -780,20 +793,22 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock restCrawlLock = new ReadWriteLock();
+
 	public RestCrawlList getRestCrawlList() throws SearchLibException {
-		rwl.r.lock();
+		restCrawlLock.r.lock();
 		try {
 			if (restCrawlList != null)
 				return restCrawlList;
 		} finally {
-			rwl.r.unlock();
+			restCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		restCrawlLock.w.lock();
 		try {
 			if (restCrawlList != null)
 				return restCrawlList;
@@ -809,16 +824,16 @@ public abstract class Config implements ThreadFactory {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			restCrawlLock.w.unlock();
 		}
 	}
 
 	public void saveRestCrawlList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "restCrawlList.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			restCrawlLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -826,7 +841,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				restCrawlLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -835,20 +850,22 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	private final ReadWriteLock mailboxCrawlLock = new ReadWriteLock();
+
 	public MailboxCrawlList getMailboxCrawlList() throws SearchLibException {
-		rwl.r.lock();
+		mailboxCrawlLock.r.lock();
 		try {
 			if (mailboxCrawlList != null)
 				return mailboxCrawlList;
 		} finally {
-			rwl.r.unlock();
+			mailboxCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		mailboxCrawlLock.w.lock();
 		try {
 			if (mailboxCrawlList != null)
 				return mailboxCrawlList;
@@ -865,17 +882,17 @@ public abstract class Config implements ThreadFactory {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			mailboxCrawlLock.w.unlock();
 		}
 	}
 
 	public void saveMailboxCrawlList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"mailboxCrawlList.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			mailboxCrawlLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -883,7 +900,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				mailboxCrawlLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -892,7 +909,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
@@ -901,113 +918,117 @@ public abstract class Config implements ThreadFactory {
 		return new WebCrawlMaster(this);
 	}
 
+	private final ReadWriteLock webCrawlLock = new ReadWriteLock();
+
 	public WebCrawlMaster getWebCrawlMaster() throws SearchLibException {
-		rwl.r.lock();
+		webCrawlLock.r.lock();
 		try {
 			if (webCrawlMaster != null)
 				return webCrawlMaster;
 		} finally {
-			rwl.r.unlock();
+			webCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		webCrawlLock.w.lock();
 		try {
 			if (webCrawlMaster != null)
 				return webCrawlMaster;
 			return webCrawlMaster = getNewWebCrawlMaster();
 		} finally {
-			rwl.w.unlock();
+			webCrawlLock.w.unlock();
 		}
 	}
 
+	private final ReadWriteLock fileCrawlLock = new ReadWriteLock();
+
 	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			if (fileCrawlMaster != null)
 				return fileCrawlMaster;
 		} finally {
-			rwl.r.unlock();
+			fileCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		fileCrawlLock.w.lock();
 		try {
 			if (fileCrawlMaster != null)
 				return fileCrawlMaster;
 			fileCrawlMaster = new CrawlFileMaster(this);
 			return fileCrawlMaster;
 		} finally {
-			rwl.w.unlock();
+			fileCrawlLock.w.unlock();
 		}
 	}
 
 	public DatabaseCrawlMaster getDatabaseCrawlMaster()
 			throws SearchLibException {
-		rwl.r.lock();
+		databaseLock.r.lock();
 		try {
 			if (databaseCrawlMaster != null)
 				return databaseCrawlMaster;
 		} finally {
-			rwl.r.unlock();
+			databaseLock.r.unlock();
 		}
-		rwl.w.lock();
+		databaseLock.w.lock();
 		try {
 			if (databaseCrawlMaster != null)
 				return databaseCrawlMaster;
 			return databaseCrawlMaster = new DatabaseCrawlMaster(this);
 		} finally {
-			rwl.w.unlock();
+			databaseLock.w.unlock();
 		}
 	}
 
 	public RestCrawlMaster getRestCrawlMaster() throws SearchLibException {
-		rwl.r.lock();
+		restCrawlLock.r.lock();
 		try {
 			if (restCrawlMaster != null)
 				return restCrawlMaster;
 		} finally {
-			rwl.r.unlock();
+			restCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		restCrawlLock.w.lock();
 		try {
 			if (restCrawlMaster != null)
 				return restCrawlMaster;
 			return restCrawlMaster = new RestCrawlMaster(this);
 		} finally {
-			rwl.w.unlock();
+			restCrawlLock.w.unlock();
 		}
 	}
 
 	public MailboxCrawlMaster getMailboxCrawlMaster() throws SearchLibException {
-		rwl.r.lock();
+		mailboxCrawlLock.r.lock();
 		try {
 			if (mailboxCrawlMaster != null)
 				return mailboxCrawlMaster;
 		} finally {
-			rwl.r.unlock();
+			mailboxCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		mailboxCrawlLock.w.lock();
 		try {
 			if (mailboxCrawlMaster != null)
 				return mailboxCrawlMaster;
 			return mailboxCrawlMaster = new MailboxCrawlMaster(this);
 		} finally {
-			rwl.w.unlock();
+			mailboxCrawlLock.w.unlock();
 		}
 	}
 
 	public ReplicationMaster getReplicationMaster() {
-		rwl.r.lock();
+		replicationsLock.r.lock();
 		try {
 			if (replicationMaster != null)
 				return replicationMaster;
 		} finally {
-			rwl.r.unlock();
+			replicationsLock.r.unlock();
 		}
-		rwl.w.lock();
+		replicationsLock.w.lock();
 		try {
 			if (replicationMaster != null)
 				return replicationMaster;
 			return replicationMaster = new ReplicationMaster(this);
 		} finally {
-			rwl.w.unlock();
+			replicationsLock.w.unlock();
 		}
 	}
 
@@ -1018,14 +1039,14 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	final public ParserSelector getParserSelector() throws SearchLibException {
-		rwl.r.lock();
+		parsersLock.r.lock();
 		try {
 			if (parserSelector != null)
 				return parserSelector;
 		} finally {
-			rwl.r.unlock();
+			parsersLock.r.unlock();
 		}
-		rwl.w.lock();
+		parsersLock.w.lock();
 		try {
 			if (parserSelector != null)
 				return parserSelector;
@@ -1051,36 +1072,36 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			parsersLock.w.unlock();
 		}
 	}
 
 	public TaskEnum getJobTaskEnum() {
-		rwl.r.lock();
+		jobsLock.r.lock();
 		try {
 			if (taskEnum != null)
 				return taskEnum;
 		} finally {
-			rwl.r.unlock();
+			jobsLock.r.unlock();
 		}
-		rwl.w.lock();
+		jobsLock.w.lock();
 		try {
 			taskEnum = new TaskEnum();
 			return taskEnum;
 		} finally {
-			rwl.w.unlock();
+			jobsLock.w.unlock();
 		}
 	}
 
 	public JobList getJobList() throws SearchLibException {
-		rwl.r.lock();
+		jobsLock.r.lock();
 		try {
 			if (jobList != null)
 				return jobList;
 		} finally {
-			rwl.r.unlock();
+			jobsLock.r.unlock();
 		}
-		rwl.w.lock();
+		jobsLock.w.lock();
 		try {
 			if (jobList != null)
 				return jobList;
@@ -1097,19 +1118,19 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			jobsLock.w.unlock();
 		}
 	}
 
 	public ReplicationList getReplicationList() throws SearchLibException {
-		rwl.r.lock();
+		replicationsLock.r.lock();
 		try {
 			if (replicationList != null)
 				return replicationList;
 		} finally {
-			rwl.r.unlock();
+			replicationsLock.r.unlock();
 		}
-		rwl.w.lock();
+		replicationsLock.w.lock();
 		try {
 			if (replicationList != null)
 				return replicationList;
@@ -1127,25 +1148,27 @@ public abstract class Config implements ThreadFactory {
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			replicationsLock.w.unlock();
 		}
 	}
 
+	private final ReadWriteLock screenshotLock = new ReadWriteLock();
+
 	public ScreenshotManager getScreenshotManager() throws SearchLibException {
-		rwl.r.lock();
+		screenshotLock.r.lock();
 		try {
 			if (screenshotManager != null)
 				return screenshotManager;
 		} finally {
-			rwl.r.unlock();
+			screenshotLock.r.unlock();
 		}
-		rwl.w.lock();
+		screenshotLock.w.lock();
 		try {
 			if (screenshotManager != null)
 				return screenshotManager;
 			return screenshotManager = new ScreenshotManager(this);
 		} finally {
-			rwl.w.unlock();
+			screenshotLock.w.unlock();
 		}
 	}
 
@@ -1156,16 +1179,18 @@ public abstract class Config implements ThreadFactory {
 		return directory;
 	}
 
+	private final ReadWriteLock apiLock = new ReadWriteLock();
+
 	public ApiManager getApiManager() throws SearchLibException,
 			TransformerConfigurationException {
-		rwl.r.lock();
+		apiLock.r.lock();
 		try {
 			if (apiManager != null)
 				return apiManager;
 		} finally {
-			rwl.r.unlock();
+			apiLock.r.unlock();
 		}
-		rwl.w.lock();
+		apiLock.w.lock();
 		try {
 			if (apiManager != null)
 				return apiManager;
@@ -1179,19 +1204,21 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			apiLock.w.unlock();
 		}
 	}
 
+	private final ReadWriteLock rendererLock = new ReadWriteLock();
+
 	public RendererManager getRendererManager() throws SearchLibException {
-		rwl.r.lock();
+		rendererLock.r.lock();
 		try {
 			if (rendererManager != null)
 				return rendererManager;
 		} finally {
-			rwl.r.unlock();
+			rendererLock.r.unlock();
 		}
-		rwl.w.lock();
+		rendererLock.w.lock();
 		try {
 			if (rendererManager != null)
 				return rendererManager;
@@ -1206,7 +1233,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			rendererLock.w.unlock();
 		}
 	}
 
@@ -1214,10 +1241,10 @@ public abstract class Config implements ThreadFactory {
 			UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
 				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			rendererLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -1231,21 +1258,21 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				rendererLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 
 	}
 
 	public void delete(Renderer renderer) throws SearchLibException {
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		ConfigFileRotation cfr = null;
 		try {
-			rwl.w.lock();
+			rendererLock.w.lock();
 			try {
 				cfr = configFiles
 						.get(getRendererDirectory(),
@@ -1255,10 +1282,10 @@ public abstract class Config implements ThreadFactory {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			} finally {
-				rwl.w.unlock();
+				rendererLock.w.unlock();
 			}
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			if (cfr != null)
 				cfr.abort();
 		}
@@ -1276,16 +1303,18 @@ public abstract class Config implements ThreadFactory {
 		return index;
 	}
 
+	private final ReadWriteLock pluginLock = new ReadWriteLock();
+
 	public IndexPluginTemplateList getIndexPluginTemplateList()
 			throws SearchLibException {
-		rwl.r.lock();
+		pluginLock.r.lock();
 		try {
 			if (indexPluginTemplateList != null)
 				return indexPluginTemplateList;
 		} finally {
-			rwl.r.unlock();
+			pluginLock.r.unlock();
 		}
-		rwl.w.lock();
+		pluginLock.w.lock();
 		try {
 			if (indexPluginTemplateList != null)
 				return indexPluginTemplateList;
@@ -1299,7 +1328,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			pluginLock.w.unlock();
 		}
 
 	}
@@ -1308,15 +1337,17 @@ public abstract class Config implements ThreadFactory {
 		return new File(getDirectory(), "statstore");
 	}
 
+	private final ReadWriteLock statisticsLock = new ReadWriteLock();
+
 	public StatisticsList getStatisticsList() throws SearchLibException {
-		rwl.r.lock();
+		statisticsLock.r.lock();
 		try {
 			if (statisticsList != null)
 				return statisticsList;
 		} finally {
-			rwl.r.unlock();
+			statisticsLock.r.unlock();
 		}
-		rwl.w.lock();
+		statisticsLock.w.lock();
 		try {
 			if (statisticsList != null)
 				return statisticsList;
@@ -1337,19 +1368,19 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			statisticsLock.w.unlock();
 		}
 	}
 
 	public LogReportManager getLogReportManager() throws SearchLibException {
-		rwl.r.lock();
+		reportsLock.r.lock();
 		try {
 			if (logReportManager != null)
 				return logReportManager;
 		} finally {
-			rwl.r.unlock();
+			reportsLock.r.unlock();
 		}
-		rwl.w.lock();
+		reportsLock.w.lock();
 		try {
 			if (logReportManager != null)
 				return logReportManager;
@@ -1357,20 +1388,22 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			reportsLock.w.unlock();
 		}
 	}
 
+	private final ReadWriteLock autocompletionLock = new ReadWriteLock();
+
 	public AutoCompletionManager getAutoCompletionManager()
 			throws SearchLibException {
-		rwl.r.lock();
+		autocompletionLock.r.lock();
 		try {
 			if (autoCompletionManager != null)
 				return autoCompletionManager;
 		} finally {
-			rwl.r.unlock();
+			autocompletionLock.r.unlock();
 		}
-		rwl.w.lock();
+		autocompletionLock.w.lock();
 		try {
 			if (autoCompletionManager != null)
 				return autoCompletionManager;
@@ -1380,7 +1413,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			autocompletionLock.w.unlock();
 		}
 	}
 
@@ -1400,15 +1433,17 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
+	public final ReadWriteLock requestsLock = new ReadWriteLock();
+
 	public RequestMap getRequestMap() throws SearchLibException {
-		rwl.r.lock();
+		requestsLock.r.lock();
 		try {
 			if (requests != null)
 				return requests;
 		} finally {
-			rwl.r.unlock();
+			requestsLock.r.unlock();
 		}
-		rwl.w.lock();
+		requestsLock.w.lock();
 		try {
 			if (requests != null)
 				return requests;
@@ -1440,7 +1475,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			requestsLock.w.unlock();
 		}
 	}
 
@@ -1450,15 +1485,17 @@ public abstract class Config implements ThreadFactory {
 		return new UrlManager();
 	}
 
+	public final ReadWriteLock urlLock = new ReadWriteLock();
+
 	final public UrlManager getUrlManager() throws SearchLibException {
-		rwl.r.lock();
+		urlLock.r.lock();
 		try {
 			if (urlManager != null)
 				return urlManager;
 		} finally {
-			rwl.r.unlock();
+			urlLock.r.unlock();
 		}
-		rwl.w.lock();
+		urlLock.w.lock();
 		try {
 			if (urlManager != null)
 				return urlManager;
@@ -1476,172 +1513,188 @@ public abstract class Config implements ThreadFactory {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			urlLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock scriptLock = new ReadWriteLock();
+
 	public ScriptManager getScriptManager() throws SearchLibException {
-		rwl.r.lock();
+		scriptLock.r.lock();
 		try {
 			if (scriptManager != null)
 				return scriptManager;
 		} finally {
-			rwl.r.unlock();
+			scriptLock.r.unlock();
 		}
-		rwl.w.lock();
+		scriptLock.w.lock();
 		try {
 			if (scriptManager != null)
 				return scriptManager;
 			return scriptManager = new ScriptManager(this, new File(indexDir,
 					"scripts"));
 		} finally {
-			rwl.w.unlock();
+			scriptLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock stopWordsLock = new ReadWriteLock();
+
 	public StopWordsManager getStopWordsManager() throws SearchLibException {
-		rwl.r.lock();
+		stopWordsLock.r.lock();
 		try {
 			if (stopWordsManager != null)
 				return stopWordsManager;
 		} finally {
-			rwl.r.unlock();
+			stopWordsLock.r.unlock();
 		}
-		rwl.w.lock();
+		stopWordsLock.w.lock();
 		try {
 			if (stopWordsManager != null)
 				return stopWordsManager;
 			return stopWordsManager = new StopWordsManager(this, new File(
 					indexDir, "stopwords"));
 		} finally {
-			rwl.w.unlock();
+			stopWordsLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock synonymsLock = new ReadWriteLock();
+
 	public SynonymsManager getSynonymsManager() throws SearchLibException {
-		rwl.r.lock();
+		synonymsLock.r.lock();
 		try {
 			if (synonymsManager != null)
 				return synonymsManager;
 		} finally {
-			rwl.r.unlock();
+			synonymsLock.r.unlock();
 		}
-		rwl.w.lock();
+		synonymsLock.w.lock();
 		try {
 			if (synonymsManager != null)
 				return synonymsManager;
 			return synonymsManager = new SynonymsManager(this, new File(
 					indexDir, "synonyms"));
 		} finally {
-			rwl.w.unlock();
+			synonymsLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock inclusionLock = new ReadWriteLock();
+
 	public PatternManager getInclusionPatternManager()
 			throws SearchLibException {
-		rwl.r.lock();
+		inclusionLock.r.lock();
 		try {
 			if (inclusionPatternManager != null)
 				return inclusionPatternManager;
 		} finally {
-			rwl.r.unlock();
+			inclusionLock.r.unlock();
 		}
-		rwl.w.lock();
+		inclusionLock.w.lock();
 		try {
 			if (inclusionPatternManager != null)
 				return inclusionPatternManager;
 			return inclusionPatternManager = new PatternManager(indexDir,
 					"patterns.xml");
 		} finally {
-			rwl.w.unlock();
+			inclusionLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock exclusionLock = new ReadWriteLock();
+
 	public PatternManager getExclusionPatternManager()
 			throws SearchLibException {
-		rwl.r.lock();
+		exclusionLock.r.lock();
 		try {
 			if (exclusionPatternManager != null)
 				return exclusionPatternManager;
 		} finally {
-			rwl.r.unlock();
+			exclusionLock.r.unlock();
 		}
-		rwl.w.lock();
+		exclusionLock.w.lock();
 		try {
 			if (exclusionPatternManager != null)
 				return exclusionPatternManager;
 			return exclusionPatternManager = new PatternManager(indexDir,
 					"patterns_exclusion.xml");
 		} finally {
-			rwl.w.unlock();
+			exclusionLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock credentialLock = new ReadWriteLock();
+
 	public CredentialManager getWebCredentialManager()
 			throws SearchLibException {
-		rwl.r.lock();
+		credentialLock.r.lock();
 		try {
 			if (webCredentialManager != null)
 				return webCredentialManager;
 		} finally {
-			rwl.r.unlock();
+			credentialLock.r.unlock();
 		}
-		rwl.w.lock();
+		credentialLock.w.lock();
 		try {
 			if (webCredentialManager != null)
 				return webCredentialManager;
 			return webCredentialManager = new CredentialManager(indexDir,
 					"web_credentials.xml");
 		} finally {
-			rwl.w.unlock();
+			credentialLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock cookieLock = new ReadWriteLock();
+
 	public CookieManager getWebCookieManager() throws SearchLibException {
-		rwl.r.lock();
+		cookieLock.r.lock();
 		try {
 			if (webCookieManager != null)
 				return webCookieManager;
 		} finally {
-			rwl.r.unlock();
+			cookieLock.r.unlock();
 		}
-		rwl.w.lock();
+		cookieLock.w.lock();
 		try {
 			if (webCookieManager != null)
 				return webCookieManager;
 			return webCookieManager = new CookieManager(indexDir,
 					"web_cookies.xml");
 		} finally {
-			rwl.w.unlock();
+			cookieLock.w.unlock();
 		}
 	}
 
+	public final ReadWriteLock siteMapLock = new ReadWriteLock();
+
 	public SiteMapList getSiteMapList() throws SearchLibException {
-		rwl.r.lock();
+		siteMapLock.r.lock();
 		try {
 			if (siteMapList != null)
 				return siteMapList;
 		} finally {
-			rwl.r.unlock();
+			siteMapLock.r.unlock();
 		}
-		rwl.w.lock();
+		siteMapLock.w.lock();
 		try {
 			if (siteMapList != null)
 				return siteMapList;
 			return siteMapList = new SiteMapList(indexDir,
 					"webcrawler-sitemap.xml");
 		} finally {
-			rwl.w.unlock();
+			siteMapLock.w.unlock();
 		}
 	}
 
 	public void saveSiteMapList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-sitemap.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			siteMapLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -1649,7 +1702,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				siteMapLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -1658,37 +1711,39 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
+	public final ReadWriteLock urlFilterLock = new ReadWriteLock();
+
 	public UrlFilterList getUrlFilterList() throws SearchLibException {
-		rwl.r.lock();
+		urlFilterLock.r.lock();
 		try {
 			if (urlFilterList != null)
 				return urlFilterList;
 		} finally {
-			rwl.r.unlock();
+			urlFilterLock.r.unlock();
 		}
-		rwl.w.lock();
+		urlFilterLock.w.lock();
 		try {
 			if (urlFilterList != null)
 				return urlFilterList;
 			return urlFilterList = new UrlFilterList(indexDir,
 					"webcrawler-urlfilter.xml");
 		} finally {
-			rwl.w.unlock();
+			urlFilterLock.w.unlock();
 		}
 	}
 
 	public void saveUrlFilterList() throws SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir,
 				"webcrawler-urlfilter.xml");
-		if (!longTermLock.rl.tryLock())
+		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
-			rwl.w.lock();
+			urlFilterLock.w.lock();
 			try {
 				XmlWriter xmlWriter = new XmlWriter(
 						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -1696,7 +1751,7 @@ public abstract class Config implements ThreadFactory {
 				xmlWriter.endDocument();
 				cfr.rotate();
 			} finally {
-				rwl.w.unlock();
+				urlFilterLock.w.unlock();
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -1705,45 +1760,40 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 			cfr.abort();
 		}
 	}
 
 	public void push(ReplicationThread replicationThread)
 			throws SearchLibException {
-		longTermLock.rl.lock();
+		replicationLock.rl.lock();
 		try {
-			rwl.r.lock();
-			try {
-				replicationThread.push();
-			} catch (MalformedURLException e) {
-				throw new SearchLibException(e);
-			} catch (URISyntaxException e) {
-				throw new SearchLibException(e);
-			} finally {
-				rwl.r.unlock();
-			}
+			replicationThread.push();
+		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (URISyntaxException e) {
+			throw new SearchLibException(e);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 		}
 	}
 
 	public FilePathManager getFilePathManager() throws SearchLibException {
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			if (filePatternManager != null)
 				return filePatternManager;
 		} finally {
-			rwl.r.unlock();
+			fileCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		fileCrawlLock.w.lock();
 		try {
 			if (filePatternManager != null)
 				return filePatternManager;
 			return filePatternManager = new FilePathManager(this, indexDir);
 		} finally {
-			rwl.w.unlock();
+			fileCrawlLock.w.unlock();
 		}
 	}
 
@@ -1754,14 +1804,14 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	final public FileManager getFileManager() throws SearchLibException {
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			if (fileManager != null)
 				return fileManager;
 		} finally {
-			rwl.r.unlock();
+			fileCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		fileCrawlLock.w.lock();
 		try {
 			if (fileManager != null)
 				return fileManager;
@@ -1771,19 +1821,19 @@ public abstract class Config implements ThreadFactory {
 		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			fileCrawlLock.w.unlock();
 		}
 	}
 
 	public WebPropertyManager getWebPropertyManager() throws SearchLibException {
-		rwl.r.lock();
+		webCrawlLock.r.lock();
 		try {
 			if (webPropertyManager != null)
 				return webPropertyManager;
 		} finally {
-			rwl.r.unlock();
+			webCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		webCrawlLock.w.lock();
 		try {
 			if (webPropertyManager != null)
 				return webPropertyManager;
@@ -1792,20 +1842,20 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			webCrawlLock.w.unlock();
 		}
 	}
 
 	public FilePropertyManager getFilePropertyManager()
 			throws SearchLibException {
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			if (filePropertyManager != null)
 				return filePropertyManager;
 		} finally {
-			rwl.r.unlock();
+			fileCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		fileCrawlLock.w.lock();
 		try {
 			if (filePropertyManager != null)
 				return filePropertyManager;
@@ -1814,7 +1864,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			fileCrawlLock.w.unlock();
 		}
 	}
 
@@ -1832,35 +1882,37 @@ public abstract class Config implements ThreadFactory {
 		return request;
 	}
 
+	private ReadWriteLock robotsLock = new ReadWriteLock();
+
 	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException,
 			ClassNotFoundException {
-		rwl.r.lock();
+		robotsLock.r.lock();
 		try {
 			if (robotsTxtCache != null)
 				return robotsTxtCache;
 		} finally {
-			rwl.r.unlock();
+			robotsLock.r.unlock();
 		}
-		rwl.w.lock();
+		robotsLock.w.lock();
 		try {
 			if (robotsTxtCache != null)
 				return robotsTxtCache;
 			return robotsTxtCache = new RobotsTxtCache();
 		} finally {
-			rwl.w.unlock();
+			robotsLock.w.unlock();
 		}
 	}
 
 	public FieldMap getWebCrawlerFieldMap() throws SearchLibException {
-		rwl.r.lock();
+		webCrawlLock.r.lock();
 		try {
 			if (webCrawlerFieldMap != null)
 				return webCrawlerFieldMap;
 
 		} finally {
-			rwl.r.unlock();
+			webCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		webCrawlLock.w.lock();
 		try {
 			if (webCrawlerFieldMap != null)
 				return webCrawlerFieldMap;
@@ -1875,19 +1927,19 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			webCrawlLock.w.unlock();
 		}
 	}
 
 	public FieldMap getFileCrawlerFieldMap() throws SearchLibException {
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			if (fileCrawlerFieldMap != null)
 				return fileCrawlerFieldMap;
 		} finally {
-			rwl.r.unlock();
+			fileCrawlLock.r.unlock();
 		}
-		rwl.w.lock();
+		fileCrawlLock.w.lock();
 		try {
 			if (fileCrawlerFieldMap != null)
 				return fileCrawlerFieldMap;
@@ -1902,7 +1954,7 @@ public abstract class Config implements ThreadFactory {
 		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
-			rwl.w.unlock();
+			fileCrawlLock.w.unlock();
 		}
 	}
 
@@ -1912,15 +1964,35 @@ public abstract class Config implements ThreadFactory {
 		boolean isDatabaseCrawlMaster;
 		boolean isUrlManager;
 		boolean isAutoCompletionManager;
-		rwl.r.lock();
+		fileCrawlLock.r.lock();
 		try {
 			isFileCrawlMaster = fileCrawlMaster != null;
+		} finally {
+			fileCrawlLock.r.unlock();
+		}
+		webCrawlLock.r.lock();
+		try {
 			isWebCrawlMaster = webCrawlMaster != null;
+		} finally {
+			webCrawlLock.r.unlock();
+		}
+		databaseLock.r.lock();
+		try {
 			isDatabaseCrawlMaster = databaseCrawlMaster != null;
+		} finally {
+			databaseLock.r.unlock();
+		}
+		urlLock.r.lock();
+		try {
 			isUrlManager = urlManager != null;
+		} finally {
+			urlLock.r.unlock();
+		}
+		autocompletionLock.r.lock();
+		try {
 			isAutoCompletionManager = autoCompletionManager != null;
 		} finally {
-			rwl.r.unlock();
+			autocompletionLock.r.unlock();
 		}
 		if (isFileCrawlMaster)
 			fileCrawlMaster.abort();
@@ -1970,18 +2042,13 @@ public abstract class Config implements ThreadFactory {
 		} catch (SearchLibException e) {
 			Logging.warn(e.getMessage(), e);
 		}
-		longTermLock.rl.lock();
+		replicationLock.rl.lock();
 		try {
-			rwl.w.lock();
-			try {
-				closeQuiet();
-				if (trashDir != null)
-					indexDir.renameTo(trashDir);
-			} finally {
-				rwl.w.unlock();
-			}
+			closeQuiet();
+			if (trashDir != null)
+				indexDir.renameTo(trashDir);
 		} finally {
-			longTermLock.rl.unlock();
+			replicationLock.rl.unlock();
 		}
 	}
 
@@ -1994,7 +2061,13 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void delete() throws IOException {
-		FileUtils.deleteDirectory(getDirectory());
+		if (!replicationLock.rl.tryLock())
+			throw new IOException("Replication in process");
+		try {
+			FileUtils.deleteDirectory(getDirectory());
+		} finally {
+			replicationLock.rl.unlock();
+		}
 	}
 
 }
