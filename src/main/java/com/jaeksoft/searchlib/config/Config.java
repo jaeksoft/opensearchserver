@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.InvalidPropertiesFormatException;
@@ -197,7 +196,7 @@ public abstract class Config implements ThreadFactory {
 
 	protected final File indexDir;
 
-	protected final SimpleLock replicationLock = new SimpleLock();
+	private final SimpleLock replicationLock = new SimpleLock();
 
 	private ReplicationList replicationList = null;
 
@@ -1817,10 +1816,6 @@ public abstract class Config implements ThreadFactory {
 		replicationLock.rl.lock();
 		try {
 			replicationThread.push();
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
 		} finally {
 			replicationLock.rl.unlock();
 		}
