@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -89,6 +89,14 @@ public class PushServlet extends AbstractServlet {
 						XML_CALL_KEY_STATUS_OK);
 				return;
 			}
+			if (CALL_XML_CMD_ABORT.equals(cmd)) {
+				transaction
+						.addXmlResponse(CALL_XML_KEY_CMD, CALL_XML_CMD_ABORT);
+				ClientCatalog.receive_abort(client);
+				transaction.addXmlResponse(XML_CALL_KEY_STATUS,
+						XML_CALL_KEY_STATUS_OK);
+				return;
+			}
 			String filePath = transaction
 					.getParameterString(CALL_XML_CMD_FILEPATH);
 			Long lastModified = transaction
@@ -139,6 +147,7 @@ public class PushServlet extends AbstractServlet {
 	private final static String CALL_XML_CMD_MERGE = "merge";
 	private final static String CALL_XML_CMD_EXISTS = "exists";
 	private final static String CALL_XML_CMD_FILEPATH = "filePath";
+	private final static String CALL_XML_CMD_ABORT = "abort";
 
 	private static String getPushTargetUrl(Client client,
 			ReplicationItem replicationItem, String cmd, File sourceFile)
@@ -211,6 +220,11 @@ public class PushServlet extends AbstractServlet {
 	public static void call_merge(ReplicationItem replicationItem)
 			throws SearchLibException {
 		call(replicationItem, CALL_XML_CMD_MERGE);
+	}
+
+	public static void call_abort(ReplicationItem replicationItem)
+			throws SearchLibException {
+		call(replicationItem, CALL_XML_CMD_ABORT);
 	}
 
 	public static boolean call_file_exist(Client client,

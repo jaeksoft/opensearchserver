@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,14 +65,17 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private final ReplicationType replicationType;
 
+	private final long initVersion;
+
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, InfoCallback infoCallback)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		super(client, replicationMaster, replicationItem);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.replicationType = replicationItem.getReplicationType();
 		this.client = client;
+		initVersion = client.getIndex().getVersion();
 		totalSize = 0;
 		filesSent = 0;
 		checkedSize = 0;
@@ -88,7 +89,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		try {
 			if (checkedSize == 0 || totalSize == 0)
 				return 0;
-			int p = (int) (checkedSize / totalSize) * 100;
+			int p = (int) ((checkedSize / totalSize) * 100);
 			return p;
 		} finally {
 			rwl.r.unlock();
@@ -153,20 +154,29 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 			setInfo("Completed");
 	}
 
-	public void push() throws SearchLibException, MalformedURLException,
-			URISyntaxException {
+	public void push() throws SearchLibException {
 		ReplicationItem replicationItem = getReplicationItem();
-		setTotalSize(new LastModifiedAndSize(sourceDirectory, false).getSize());
-		addCheckedSize(sourceDirectory.length());
-		PushServlet.call_init(getReplicationItem());
-		new RecursiveDirectoryBrowser(sourceDirectory, this);
-		switch (replicationItem.getReplicationType().getFinalMode()) {
-		case MERGE:
-			PushServlet.call_merge(replicationItem);
-			break;
-		case SWITCH:
-			PushServlet.call_switch(replicationItem);
-			break;
+		try {
+			setTotalSize(new LastModifiedAndSize(sourceDirectory, false)
+					.getSize());
+			addCheckedSize(sourceDirectory.length());
+			PushServlet.call_init(getReplicationItem());
+			new RecursiveDirectoryBrowser(sourceDirectory, this);
+			checkVersion();
+			switch (replicationItem.getReplicationType().getFinalMode()) {
+			case MERGE:
+				PushServlet.call_merge(replicationItem);
+				break;
+			case SWITCH:
+				PushServlet.call_switch(replicationItem);
+				break;
+			}
+		} catch (Throwable t) {
+			PushServlet.call_abort(replicationItem);
+			if (t instanceof SearchLibException)
+				throw (SearchLibException) t;
+			else
+				throw new SearchLibException(t);
 		}
 	}
 
@@ -213,9 +223,16 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 				+ FileUtils.byteCountToDisplaySize(getBytesSent()) + " sent";
 	}
 
+	private void checkVersion() throws SearchLibException, IOException {
+		if (initVersion != client.getIndex().getVersion())
+			throw new SearchLibException(
+					"Replication process aborted. The index has changed.");
+	}
+
 	@Override
 	public void file(File file) throws SearchLibException {
 		try {
+			checkVersion();
 			ReplicationItem replicationItem = getReplicationItem();
 			long length = file.length();
 			if (file.isFile()) {
