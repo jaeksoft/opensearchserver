@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.replication;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -44,8 +46,12 @@ public class ReplicationMaster extends
 			ThreadItem<?, ReplicationThread> replicationItem,
 			Variables variables, InfoCallback infoCallback)
 			throws SearchLibException {
-		return new ReplicationThread(client, this,
-				(ReplicationItem) replicationItem, infoCallback);
+		try {
+			return new ReplicationThread(client, this,
+					(ReplicationItem) replicationItem, infoCallback);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override

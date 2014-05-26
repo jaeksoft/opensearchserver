@@ -70,7 +70,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	protected ReplicationThread(Client client,
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, InfoCallback infoCallback)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		super(client, replicationMaster, replicationItem);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.replicationType = replicationItem.getReplicationType();
@@ -223,7 +223,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 				+ FileUtils.byteCountToDisplaySize(getBytesSent()) + " sent";
 	}
 
-	private void checkVersion() throws SearchLibException {
+	private void checkVersion() throws SearchLibException, IOException {
 		if (initVersion != client.getIndex().getVersion())
 			throw new SearchLibException(
 					"Replication process aborted. The index has changed.");
