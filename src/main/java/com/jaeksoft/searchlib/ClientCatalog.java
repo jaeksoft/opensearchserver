@@ -521,6 +521,17 @@ public class ClientCatalog {
 		FileUtils.deleteDirectory(tempDir);
 	}
 
+	public static void receive_abort(Client client) throws IOException {
+		File tempDir = getTempReceiveDir(client);
+		File trashDir = getTrashReceiveDir(client);
+		synchronized (ClientCatalog.class) {
+			if (tempDir.exists())
+				FileUtils.deleteDirectory(tempDir);
+			if (trashDir.exists())
+				FileUtils.deleteDirectory(trashDir);
+		}
+	}
+
 	public static final void receive_dir(Client client, String filePath)
 			throws IOException {
 		File rootDir = getTempReceiveDir(client);
