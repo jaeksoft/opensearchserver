@@ -10,7 +10,7 @@ Our schema has 3 fields :
   
 ![Details of 3 fields](xpath_2_schema.png)
 
-![Unique and default fields](xpath_3_schema_2.png)
+![Unique and default fields](xpath_3_schema2.png)
 
 # Parser
 
