@@ -1,0 +1,15 @@
+{
+	"title": "OpenSearchServer documentation",
+	"links": {
+        "home": "http://www.opensearchserver.com/"
+    },
+    "plugins": ["disqus", "ga"],
+    "pluginsConfig": {
+        "disqus": {
+            "shortName": "opensearchserver"
+        },
+        "ga": {
+            "token": "UA-562876-6"
+        }
+    }
+}
