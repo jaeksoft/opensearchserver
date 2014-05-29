@@ -1,3 +1,5 @@
+## How to sort on specific field then on relevance
+
 Documents can easily be sorted based on one field, for instance price:
 
     {

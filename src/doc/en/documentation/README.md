@@ -4,7 +4,9 @@ Integrating OpenSearchServer (OSS) as a search engine can be done within minutes
 
 This wiki documents the process and is constantly being updated, fixed and polished. All constructive contributions are of course welcome!
 
-Its two main content areas are a/ a series of quick-start guides teaching the basics, and b/ the documentation proper with more in-depths resources.
+The main content areas are:
+* a series of quick-start guides teaching the basics,
+* the documentation proper with more in-depths resources.
 
 Interested parties can refer to the Trademarks notice for this document.
 

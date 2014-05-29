@@ -1,3 +1,5 @@
+## Deleting inclusion patterns
+
 Use this API to delete wildcards patterns from the inclusion list.
 
 **Requirement:** OpenSearchServer v1.5

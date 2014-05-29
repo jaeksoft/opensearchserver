@@ -1,6 +1,6 @@
-OpenSearchServer supports geolocation requests. Once coordinates (longitude and latitude) have been embedded within indexed documents, it is possible to filter these based on whether they lie within a defined geographic rectangle.
-
 ## Indexing your document with Geolocation information
+
+OpenSearchServer supports geolocation requests. Once coordinates (longitude and latitude) have been embedded within indexed documents, it is possible to filter these based on whether they lie within a defined geographic rectangle.
 
 ### Preparing the schema
 

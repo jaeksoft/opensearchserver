@@ -1,4 +1,6 @@
-## Bad credential
+## Known exceptions and error messages
+
+### Bad credential
 
 **Error:**
 
@@ -14,7 +16,7 @@ http://localhost:8080/select?user=index1&login=admin&key=54a51ee4f27cbbcb7a77135
 
 See also: [https://github.com/jaeksoft/opensearchserver/wiki/Authentication](https://github.com/jaeksoft/opensearchserver/wiki/Authentication)
 
-## Expected to get a directory path
+### Expected to get a directory path
 
 **Error:**
 
@@ -30,7 +32,7 @@ http://localhost:8080/select?user=index1
 
 Index `index1` should be present in the list of indexes.
  
-## PHP Library: OSS_API won't work whitout curl extension
+### PHP Library: OSS_API won't work whitout curl extension
 
 **Error :**  
  

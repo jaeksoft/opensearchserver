@@ -1,6 +1,5 @@
-### REST Crawler API
+### WEB Crawler - Inclusion Pattern API
 
-The REST crawler index data exposed by a JSON REST web service.
-
-* [Get the listing of the crawler items](list.md)
-* [Executing a REST crawler item](run.md)
+* [Inserting inclusion patterns](insert.md)
+* [Listing inclusion patterns](list.md)
+* [Deleting inclusion patterns](delete.md)

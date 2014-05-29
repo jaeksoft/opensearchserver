@@ -1,3 +1,5 @@
+## Listing inclusion patterns
+
 This API returns the inclusion pattern list.
 
 **Requirement:** OpenSearchServer v1.5
