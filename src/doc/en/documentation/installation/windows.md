@@ -1,3 +1,5 @@
+## Installation on Windows
+
 ## Short Version
 
 - Make sure you have JAVA 6 or newer correctly installed
