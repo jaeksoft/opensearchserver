@@ -18,6 +18,8 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.jaeksoft.searchlib.Logging;
 
 /**
@@ -116,27 +118,27 @@ public class ActiveDirectory implements Closeable {
 	private void findGroups(Collection<ADGroup> groups,
 			Collection<ADGroup> collector, Set<String> searchedGroups)
 			throws NamingException {
+		if (CollectionUtils.isEmpty(groups))
+			return;
 		List<ADGroup> newGroups = new ArrayList<ADGroup>();
 		for (ADGroup group : groups) {
+			if (searchedGroups.contains(group.cn))
+				continue;
+			collector.add(group);
+			searchedGroups.add(group.cn);
 			NamingEnumeration<SearchResult> result = findGroup(group.cn);
 			Attributes attrs = getAttributes(result);
 			if (attrs == null)
 				continue;
 			collectMemberOf(attrs, newGroups);
 		}
-		collector.addAll(newGroups);
-		for (ADGroup newGroup : newGroups) {
-			if (searchedGroups.contains(newGroup.cn))
-				continue;
-			searchedGroups.add(newGroup.cn);
-			findGroups(groups, collector, searchedGroups);
-		}
-		newGroups.clear();
+		findGroups(newGroups, collector, searchedGroups);
 	}
 
-	public void findGroups(Collection<ADGroup> collector)
-			throws NamingException {
-		List<ADGroup> groups = new ArrayList<ADGroup>(collector);
+	public void findUserGroups(Attributes userAttrs,
+			Collection<ADGroup> collector) throws NamingException {
+		List<ADGroup> groups = new ArrayList<ADGroup>();
+		ActiveDirectory.collectMemberOf(userAttrs, groups);
 		TreeSet<String> searchedGroups = new TreeSet<String>();
 		findGroups(groups, collector, searchedGroups);
 	}
