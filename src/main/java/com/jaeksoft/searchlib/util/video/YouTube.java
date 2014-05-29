@@ -67,6 +67,9 @@ public class YouTube {
 
 		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL),
 				null);
+		if (downloadItem.getStatusCode() != 200)
+			throw new IOException("Wrong HTTP code for " + url.toString()
+					+ " (" + downloadItem.getStatusCode() + ")");
 		InputStream inputStream = null;
 		try {
 			inputStream = downloadItem.getContentInputStream();
@@ -115,12 +118,8 @@ public class YouTube {
 			IllegalStateException, SearchLibException {
 
 		HttpDownloader downloader = new HttpDownloader("OpenSearchServer",
-				false, null);
-		String[] urls = {
-				"http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
-				"http://www.youtube.com/watch?v=HmQk3ovfiF0&feature=g-all-f",
-				"http://www.youtube.com/v/HmQk3ovfiF0&feature=g-all-f",
-				"http://www.youtube.com/v/Ig1WxMI9bxQ&hl=fr&fs=1&color1=0x2b405b&color2=0x6b8ab6",
+				true, null);
+		String[] urls = { "http://www.youtube.com/watch?h=test&v=O04CHuJaPWc",
 				"http://www.youtube.com/v/Ig1WxMI9bxQ?hl=fr" };
 		for (String u : urls) {
 			URL url = LinkUtils.newEncodedURL(u);
