@@ -35,7 +35,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.cxf.helpers.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -145,7 +144,7 @@ public class Learner implements InfoCallback {
 		this(client);
 		if (!file.exists())
 			return;
-		Document document = DOMUtils.readXml(new StreamSource(file));
+		Document document = DomUtils.readXml(new StreamSource(file), false);
 		Node rootNode = DomUtils.getFirstNode(document,
 				LEARNER_ITEM_ROOT_NODE_NAME);
 		if (rootNode == null)
