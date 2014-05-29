@@ -1,3 +1,5 @@
+## Mac OS X installation
+
 Installing OSS on a Mac is very straightforward. The Short Version below should be sufficient ; if not use the More Detailed Version.
 
 ## Short Version

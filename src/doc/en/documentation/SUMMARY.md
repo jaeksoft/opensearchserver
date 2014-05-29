@@ -1,6 +1,6 @@
 # Summary
 
-* Installation Guide
+* [Installation Guide](installation/README.md)
     * [Debian](installation/debian.md)
     * [Linux (generic)](installation/linux.md)
     * [Mac OS X](installation/mac_os_x.md)
@@ -22,6 +22,8 @@
 		* [Geolocation](geolocation.md)
 		* [Searching into words](how_to_allow_search_into_words.md)
 		* [Sorting on field](how_to_sort_on_specific_field_then_on_relevance.md)
+	* Parsing
+		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
 * Clients libraries
 	* [PHP Client](clients/php_client/README.md)
 		* [Running a query with different parameters](clients/php_client/query_parameters.md)
