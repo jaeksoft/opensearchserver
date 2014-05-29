@@ -1,3 +1,5 @@
+## How to check the environment variables on Windows
+
 1. Right click **My Computer**.
 2. Select **Properties**.
 3. Select **Advanced tab**.

@@ -1,3 +1,5 @@
+## How to exclude some part of Web page from crawling
+
 OpenSearchServer allows you to exclude certain parts of a webpage from being crawled.
 
 ### Excluding content using opensearchserver.ignore CSS class

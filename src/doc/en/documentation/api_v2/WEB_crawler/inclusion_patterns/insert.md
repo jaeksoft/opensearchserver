@@ -1,3 +1,5 @@
+## Inserting inclusion patterns
+
 Use this API to insert patterns in the inclusion list.
 
 **Requirement:** OpenSearchServer v1.5

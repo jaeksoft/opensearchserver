@@ -1,3 +1,5 @@
+## How to install Tesseract-3 on Debian
+
 OpenSearchServer requires Tesseract 3 -- but by default Debian only provides version 2.x. Here is how to setup Tesseract 3.x using the sources.
 
 **Install the compiler tools: g++ and make**

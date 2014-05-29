@@ -1,3 +1,5 @@
+## How to reset forgotten username or password
+
 If you forgot your user name, or your password (or both!), do the following:
 
 1. Close the Tomcat server by closing the cmd prompt window.

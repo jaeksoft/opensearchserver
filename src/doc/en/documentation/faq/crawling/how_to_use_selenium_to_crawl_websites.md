@@ -1,3 +1,5 @@
+## How to use Selenium to crawl websites
+
 **OpenSearchServer 1.5** introduces a powerful scripting feature. It is now possible to drive a web browser (Firefox, PhantomJS) using a written script.
 
 The new scripting feature can:
