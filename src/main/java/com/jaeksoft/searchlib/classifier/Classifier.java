@@ -33,7 +33,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.memory.MemoryIndex;
 import org.w3c.dom.Document;
@@ -128,7 +127,7 @@ public class Classifier implements Comparable<Classifier> {
 		this();
 		if (!file.exists())
 			return;
-		Document document = DOMUtils.readXml(new StreamSource(file));
+		Document document = DomUtils.readXml(new StreamSource(file), false);
 		Node rootNode = DomUtils.getFirstNode(document,
 				CLASSIFIER_ITEM_ROOTNODE_NAME);
 		if (rootNode == null)
