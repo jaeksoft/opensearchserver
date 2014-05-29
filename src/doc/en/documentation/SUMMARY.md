@@ -19,9 +19,9 @@
 		* [Known error messages](faq/installation/known_exceptions_and_error_messages.md)
 		* [Out of memory issue](out_of_memory_issue.md)
 	* [Querying](faq/querying/README.md)
-		* [Geolocation](geolocation.md)
-		* [Searching into words](how_to_allow_search_into_words.md)
-		* [Sorting on field](how_to_sort_on_specific_field_then_on_relevance.md)
+		* [Geolocation](faq/querying/geolocation.md)
+		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
+		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
 	* Parsing
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
 * Clients libraries
