@@ -1,4 +1,4 @@
-### FAQ: Querying
+## FAQ: Querying
 
 * [Indexing your document with Geolocation information](geolocation.md)
 * [How to allow search into words](how_to_allow_search_into_words.md)

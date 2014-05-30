@@ -5,10 +5,10 @@
     * [Linux (generic)](installation/linux.md)
     * [Mac OS X](installation/mac_os_x.md)
     * [Windows](installation/windows.md)
-* Getting started
+* [Getting started](tutorials/README.md)
 	* [Discovering](tutorials/functionalities.md)
 	* [Crawling a website](tutorials/crawling_a_website.md)
-* Frequently Asked Questions
+* [Frequently Asked Questions](faq/README.md)
 	* [Crawling](faq/crawling/README.md)
 		* [Excluding part of Web page](faq/crawling/how_to_exclude_some_part_of_webpage_from_crawling.md)
 		* [Using Selenium](faq/crawling/how_to_use_selenium_to_crawl_websites.md)
@@ -22,9 +22,9 @@
 		* [Geolocation](faq/querying/geolocation.md)
 		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
-	* Parsing
+	* [Parsing](faq/parsing/README.md)
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
-* Clients libraries
+* [Clients libraries](clients/README.md)
 	* [PHP Client](clients/php_client/README.md)
 		* [Running a query with different parameters](clients/php_client/query_parameters.md)
 		* [Using autocompletion](clients/php_client/autocompletion.md)

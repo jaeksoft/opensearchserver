@@ -1,4 +1,4 @@
-### FAQ: Installation
+## FAQ: Installation
 
 * [How to check the environment variables on Windows](how_to_check_the_environment_variables_on_Windows.md)
 * [How to install Tesseract-3 on Debian](how_to_install_Tesseract-3_on_Debian.md)

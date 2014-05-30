@@ -1,4 +1,4 @@
-### Search Template API
+## Search Template API
 
 Use this API to manage the search request templates.
 
