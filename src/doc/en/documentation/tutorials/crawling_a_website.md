@@ -1,3 +1,5 @@
+## Crawling a website
+
 This quick OpenSearchServer 1.5.0 tutorial will teach you how to:
 
 * **crawl a website**
@@ -18,7 +20,7 @@ This tutorial uses an example website, which has four URLs:
 
 This tutorial assumes that you have already [installed OpenSearchServer](http://www.open-search-server.com/install-opensearchserver/), which takes about three minutes.
 
-## A few definitions
+### A few definitions
 
 Let's review some key concepts about search engines:
 
@@ -39,9 +41,9 @@ This picture shows these main concepts:
 
 So far, so good? Let's start working with our example site.
 
-## Set up the index and the crawler
+### Set up the index and the crawler
 
-### Index creation and configuration
+#### Index creation and configuration
 
 Let's start by creating an `index`. An index is the heart of OpenSearchServer. It will store every submitted `document`.
 
@@ -72,7 +74,7 @@ The index has been automatically created with numerous fields. As you can see so
 
 ![Fields of the schema](3.schema_fields.png)
 
-### HTML parser configuration
+#### HTML parser configuration
 
 The `HTML parser` tells the crawler in which fields of the schema to store each bit of information found on a web page.
 
@@ -83,7 +85,7 @@ Here again you can see that many mappings have already been configured. On the l
 
 ![Field mapping](4.parser_mapping.png)
 
-### Crawl configuration
+#### Crawl configuration
 
 The web crawler needs to be configured in order to crawl our example pages.
 
@@ -104,7 +106,7 @@ Since every news page linked on the main page has an URL that starts this way, t
 
 ![Pattern d'URL](6.crawler_patterns_en.png)
 
-### Crawl start
+#### Crawl start
 
 To start the crawler, select the `Crawl process` tab. There, several parameters can be adjusted. For example write `7` in the field `Delay between each successive access, in seconds:`, `5` in the field `Fetch interval between re-fetches:` and select `minutes` in the following list. 
 
@@ -116,9 +118,9 @@ The process automaticaly reports its status in the area below.
 
 > The tab `Manual crawl` allows you to easily test a crawler on a specific URL.
 
-## Search content and customize relevancy
+### Search content and customize relevancy
 
-### Full-text search query
+#### Full-text search query
 
 Click on the `Query` tab. Click on the `Edit` button corresponding to the `search` line.
 
@@ -138,7 +140,7 @@ You can also easily add some `facets-based filtering` to this query. To do so go
 
 To save these modifiations click on the `Save` button in the top right corner of the page.
 
-### Build a search page
+#### Build a search page
 
 So far you have created an index, crawled some pages to feed this index, and configured a query for this index.
 
@@ -163,11 +165,3 @@ Try to search for something - for instance `Worldcup 2040`. Voilà! The relevant
 You can also test that autocompletion is working, and see that the `host` facet is there on the left!
 
 > You can use the `Testing` tab to get the code you can embed into the search form on your website 
-
-## What's next?
-
-These are just some of the numerous features of OpenSearchServer.
-
-You could now read our [documentation center](http://www.open-search-server.com/confluence/display/EN/Home), to browse through OSS's parameters and features.
-
-Don't forget to check [our APIs](https://github.com/jaeksoft/opensearchserver/wiki)! These will allow you to easily build a powerful customized application!

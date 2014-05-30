@@ -1,4 +1,4 @@
-# Discovering OpenSearchServer functionalities
+# Discovering the main concepts
 
 OpenSearchServer (OSS) is a search engine running on a Windows, Linux or Solaris server.
 
