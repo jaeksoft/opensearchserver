@@ -1,4 +1,4 @@
-### Synonyms API
+## Synonyms API
 
 Use this API to search documents using a pattern query.
 

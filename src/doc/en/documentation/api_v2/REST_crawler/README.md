@@ -1,4 +1,4 @@
-### REST Crawler API
+## REST Crawler API
 
 The REST crawler index data exposed by a JSON REST web service.
 

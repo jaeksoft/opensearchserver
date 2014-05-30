@@ -1,4 +1,4 @@
-### WEB Crawler - Exclusion Pattern API
+## WEB Crawler - Exclusion Pattern API
 
 * [Inserting exclusion patterns](insert.md)
 * [Listing exclusion patterns](list.md)

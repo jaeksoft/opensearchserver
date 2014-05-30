@@ -10,6 +10,16 @@ The main content areas are:
 
 Interested parties can refer to the Trademarks notice for this document.
 
-#### We are still building this documentation.
+The main chapters are:
 
-Until we finish regrouping the documentation, the older documents are still available : [Confluence documentation](http://www.open-search-server.com/confluence/display/EN/Home/).
+* [Installation Guide](installation/README.md)
+* [Getting started](tutorials/README.md)
+* [Frequently Asked Questions](faq/README.md)
+* [Clients libraries](clients/README.md)
+* [API v1 (XML/HTTP)](api_v1/README.md)
+* [API v2 (RESTFul JSON)](api_v2/README.md)
+
+We are still building this documentation. Feel free to send feedback (positive or negative).
+
+Until we finish regrouping the documentation, the older documents are still available :  
+[Confluence documentation](http://www.open-search-server.com/confluence/display/EN/Home/).
