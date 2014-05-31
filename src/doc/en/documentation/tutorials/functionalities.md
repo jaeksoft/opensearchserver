@@ -68,7 +68,7 @@ This native XML format can:
 - Index **embedded attachments** within the XML file (using base64 encoding).
 - Index **local files** by following a given path.
 - Index **attached remote files** by opening a given URL.
-- Automatically prune HTML tags.
+- Automatically prune **HTML tags**.
 - Convert **HTML entities**.
 - Apply a **regular expression** on each field before indexing it.
 
