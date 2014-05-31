@@ -48,8 +48,11 @@ import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 public abstract class CommonRestAPI {
 
 	public WebClient client() {
-		return WebClient.create(IntegrationTest.SERVER_URL,
+		WebClient webClient = WebClient.create(IntegrationTest.SERVER_URL,
 				Collections.singletonList(new JacksonJsonProvider()));
+		WebClient.getConfig(webClient).getRequestContext()
+				.put("use.async.http.conduit", Boolean.TRUE);
+		return webClient;
 	}
 
 	public <T extends CommonResult> T checkCommonResult(Response response,
