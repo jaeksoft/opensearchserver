@@ -18,7 +18,7 @@ Use this API to retrieve all synonyms from a list.
 - _**list_name**_ (required): The name of the target list.
 
 ### Success response
-All synonymes within the list are returned. One group of synonyms by line, each synonym separated by a comma:
+All synonyms within the list are returned. One group of synonyms by line, each synonym separated by a comma:
 
     
 couch,divan,sofa
