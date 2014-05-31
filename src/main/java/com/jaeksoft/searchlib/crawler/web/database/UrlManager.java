@@ -155,8 +155,6 @@ public class UrlManager extends AbstractManager {
 						+ already);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
@@ -549,8 +547,6 @@ public class UrlManager extends AbstractManager {
 			dbClient.updateDocument(indexDocument);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
@@ -571,8 +567,6 @@ public class UrlManager extends AbstractManager {
 			if (documents.size() > 0)
 				dbClient.updateDocuments(documents);
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -700,8 +694,11 @@ public class UrlManager extends AbstractManager {
 				if (uList.size() == 0)
 					break;
 				for (UrlItem u : uList) {
-					DownloadItem downloadItem = crawlCacheManager.loadCache(u
-							.getURL().toURI());
+					URL url = u.getURL();
+					if (url == null)
+						continue;
+					DownloadItem downloadItem = crawlCacheManager.loadCache(url
+							.toURI());
 					if (downloadItem == null)
 						continue;
 					downloadItem.writeToZip(zipOutput);

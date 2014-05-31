@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -45,10 +43,12 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class UrlItem {
 
 	private String urlString;
+	private URL url;
 	private String contentDispositionFilename;
 	private String contentBaseType;
 	private String contentTypeCharset;
@@ -56,7 +56,6 @@ public class UrlItem {
 	private String contentEncoding;
 	private String lang;
 	private String langMethod;
-	private URL cachedUrl;
 	private String host;
 	private List<String> subhost;
 	private Date when;
@@ -81,7 +80,7 @@ public class UrlItem {
 
 	protected UrlItem() {
 		urlString = null;
-		cachedUrl = null;
+		url = null;
 		contentDispositionFilename = null;
 		contentBaseType = null;
 		contentTypeCharset = null;
@@ -251,10 +250,6 @@ public class UrlItem {
 		this.host = host;
 	}
 
-	public void checkHost() throws MalformedURLException, URISyntaxException {
-		setHost(getURL().getHost());
-	}
-
 	public FetchStatus getFetchStatus() {
 		if (fetchStatus == null)
 			return FetchStatus.UN_FETCHED;
@@ -413,23 +408,19 @@ public class UrlItem {
 		return responseCode;
 	}
 
-	public URL getURL() throws MalformedURLException {
-		synchronized (this) {
-			if (cachedUrl == null)
-				cachedUrl = new URL(urlString);
-			return cachedUrl;
-		}
-	}
-
 	public String getUrl() {
 		return urlString;
+	}
+
+	public URL getURL() {
+		return url;
 	}
 
 	public void setUrl(String url) {
 		synchronized (this) {
 			this.urlString = url;
+			this.url = LinkUtils.getURL(urlString, false);
 			checkUrlWhen();
-			cachedUrl = null;
 		}
 	}
 
@@ -555,13 +546,11 @@ public class UrlItem {
 		return subhost;
 	}
 
-	public void populate(IndexDocument indexDocument)
-			throws URISyntaxException, IOException {
+	public void populate(IndexDocument indexDocument) throws IOException {
 		indexDocument.setString(UrlItemFieldEnum.INSTANCE.url.getName(),
 				getUrl());
 		indexDocument.setString(UrlItemFieldEnum.INSTANCE.when.getName(),
 				whenDateFormat.format(when));
-		URL url = getURL();
 		if (url != null) {
 			indexDocument.setString(UrlItemFieldEnum.INSTANCE.host.getName(),
 					url.getHost());

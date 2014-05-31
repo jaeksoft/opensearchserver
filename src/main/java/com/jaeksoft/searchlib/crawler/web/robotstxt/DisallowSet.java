@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -61,11 +60,10 @@ public class DisallowSet {
 	 * @param url
 	 * @return
 	 */
-	protected boolean isAllowed(URL url) {
+	protected boolean isAllowed(String path) {
 		synchronized (this) {
 			if (set == null)
 				return true;
-			String path = url.getFile();
 			if ("".equals(path))
 				path = "/";
 			Iterator<String> i = set.iterator();

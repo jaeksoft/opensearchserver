@@ -87,6 +87,10 @@ public class RobotsTxt {
 		Integer code = crawl.getUrlItem().getResponseCode();
 		if (code == null)
 			return RobotsTxtStatus.ERROR;
+		URL url = urlItem.getURL();
+		if (url == null)
+			throw new MalformedURLException("Malformed URL: "
+					+ urlItem.getUrl());
 		switch (code) {
 		case 400:
 		case 404:
@@ -103,7 +107,7 @@ public class RobotsTxt {
 			disallowSet = disallowList.get("*");
 		if (disallowSet == null)
 			return RobotsTxtStatus.ALLOW;
-		if (disallowSet.isAllowed(urlItem.getURL()))
+		if (disallowSet.isAllowed(url.getFile()))
 			return RobotsTxtStatus.ALLOW;
 		return RobotsTxtStatus.DISALLOW;
 	}
