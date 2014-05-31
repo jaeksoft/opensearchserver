@@ -1,6 +1,6 @@
 The OssPaging class makes pagination easy.
 
-In this example we will reuse the sample code from [our page explaining a basic query.](Run-a-query-with-different-parameters).
+In this example we will reuse the sample code from [our page explaining a basic query.](Run-a-query-with-different-parameters)
 
 We are now going to improve this code by adding:
 * a way to get the current results page from the URL;
