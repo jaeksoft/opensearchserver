@@ -1,6 +1,6 @@
 ## Make an auto-completion query
 
-Use this API to request an auto-completion index.
+Use this API to query an auto-completion index.
 
 **Requirement:** OpenSearchServer v1.5
 
