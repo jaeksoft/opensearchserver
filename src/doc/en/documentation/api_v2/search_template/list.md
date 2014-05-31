@@ -1,6 +1,6 @@
 ## Getting the list of the search templates
 
-This API returns the templates. A templates is a query stored with its parameters. It can be easily recalled using its name.
+This API returns the templates. A template is a query stored with its parameters. It can be easily recalled using its name.
 
 **Requirement:** OpenSearchServer v1.5
 
