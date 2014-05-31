@@ -20,7 +20,7 @@ To index content, OpenSearchServer can deploy the following:
 - **learners** parsing indexed documents to deduce their categories
 
 ## Crawlers
-OpenSearchServer offers four kind of crawlers
+OpenSearchServer offers four kinds of crawlers
 - Web crawlers
 - File system crawlers
 - Database crawlers
