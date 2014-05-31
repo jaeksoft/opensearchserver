@@ -1,4 +1,4 @@
-## How to exclude some part of Web page from crawling
+## How to exclude part of a Web page from being crawled
 
 OpenSearchServer allows you to exclude certain parts of a webpage from being crawled.
 
