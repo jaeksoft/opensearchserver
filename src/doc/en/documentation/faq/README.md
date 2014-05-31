@@ -1,4 +1,4 @@
-## Frequently Asked Question
+## Frequently Asked Questions
 
 * [Crawling](crawling/README.md)
 * [Installation](installation/README.md)
