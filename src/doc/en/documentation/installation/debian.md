@@ -98,7 +98,7 @@ Locate the line with:
 
     #JAVA_OPTS="-Xms1G -Xmx1G"
 
-Uncomment the line, and set the memory value as you need:
+Uncomment the line, and set the memory value as needed:
 
     JAVA_OPTS="-Xms2G -Xmx2G"
     
