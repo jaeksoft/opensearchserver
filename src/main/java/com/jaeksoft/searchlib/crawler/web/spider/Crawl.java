@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -139,8 +139,11 @@ public class Crawl {
 			return;
 		}
 		String fileName = urlItem.getContentDispositionFilename();
-		if (fileName == null)
-			fileName = FilenameUtils.getName(urlItem.getURL().getFile());
+		if (fileName == null) {
+			URL url = urlItem.getURL();
+			if (url != null)
+				fileName = FilenameUtils.getName(url.getFile());
+		}
 		IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument);
 		Date parserStartDate = new Date();
@@ -242,8 +245,13 @@ public class Crawl {
 			InputStream is = null;
 			DownloadItem downloadItem = null;
 			try {
-				URI uri = urlItem.getURL().toURI();
-				URL url = uri.toURL();
+				URL url = urlItem.getURL();
+				if (url == null)
+					throw new MalformedURLException("Malformed URL: "
+							+ urlItem.getUrl());
+				// URL normalisation
+				URI uri = url.toURI();
+				url = uri.toURL();
 
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(url);
@@ -504,6 +512,8 @@ public class Crawl {
 					.getArray();
 			String parentUrl = urlItem.getUrl();
 			URL currentURL = urlItem.getURL();
+			if (currentURL == null)
+				return discoverLinks;
 			discoverLinks = new ArrayList<LinkItem>();
 			if (redirectUrlLocation != null) {
 				addDiscoverLink(urlManager, inclusionManager, exclusionManager,
