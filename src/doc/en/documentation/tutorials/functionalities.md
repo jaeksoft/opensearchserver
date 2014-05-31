@@ -151,7 +151,7 @@ This module adds data to an indexed document. A series of queries is executed, a
 In practice, this is usually used to :
 - Automatically sort indexed documents (by assigning them to a group of sites, a category...).
 - Associate keywords to documents.
-- Managed sponsored links.
+- Manage sponsored links.
 
 ![Classifier](functionalities/classifiers2.png)
 
