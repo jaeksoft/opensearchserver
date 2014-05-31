@@ -146,4 +146,16 @@ public class LinkUtils {
 			map.put(parameter.getName(), parameter.getValue());
 		return map;
 	}
+
+	public final static URL getURL(String urlString, boolean logError) {
+		if (StringUtils.isEmpty(urlString))
+			return null;
+		try {
+			return new URL(urlString);
+		} catch (MalformedURLException e) {
+			if (logError)
+				Logging.warn("Malformed URL: " + e);
+			return null;
+		}
+	}
 }
