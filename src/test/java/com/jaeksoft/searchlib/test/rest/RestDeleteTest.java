@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.test.rest;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,17 +51,18 @@ public class RestDeleteTest extends CommonRestAPI {
 
 	@Test
 	public void testB_RestAPIDeleteByField() throws ClientProtocolException,
-			IOException {
+			IOException, InterruptedException, ExecutionException {
 		Response response = client()
 				.path("/services/rest/index/{index_name}/document/id/1/2",
 						IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).delete();
+				.accept(MediaType.APPLICATION_JSON).async().delete().get();
 		String info = checkCommonResult(response, CommonResult.class, 200).info;
 		assertTrue("Wrong info: " + info, info.startsWith("2 document"));
 	}
 
 	@Test
 	public void testC_RestAPIDeleteByJson() {
+
 		Response response = client()
 				.path("/services/rest/index/{index_name}/document/id",
 						IntegrationTest.INDEX_NAME)
