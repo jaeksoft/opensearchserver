@@ -1,6 +1,6 @@
 ## Out of memory issue
 
-By default, OpenSearchServer only uses 256 megabytes of RAM. This is not enough for advanced uses. To allow OSS to use more memory, add two lines at the start.sh file.
+By default, OpenSearchServer only uses 256 megabytes of RAM. This is not enough for advanced uses. To allow OSS to use more memory, add two lines to the start.sh file.
 
 ### Allowing more RAM
 
