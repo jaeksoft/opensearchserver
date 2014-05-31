@@ -250,7 +250,7 @@ Sorting can also be based on a given field, just like with a database. A typical
 Scores and fields can also be mixed. For instance, results with an identical score could be sorted in chronological order.
 
 ## Geolocation
-**Geolocation filters** can easily be integrated to a query, provided that the schema of the index includes location fields (latitude and longitude).
+**Geolocation filters** can easily be integrated into a query, provided that the schema of the index includes location fields (latitude and longitude).
 
 With such a filter, only the documents within a given geographical rectangle will be returned. Distance between the documents and the central point will also be computed and returned.
 
