@@ -16,7 +16,7 @@ $oss_api = new OssApi($oss_url, $oss_index, $oss_login, $oss_key);
 Now we're going to search:
 * for the keyword `open`
 * using the pre-defined OpenSearchServer `search` query template
-  * this query being pre-configured in OpenSearchServer, its paramaters are already set -- search pattern or fields to search in, returned fields, snippets, etc. 
+  * this query being pre-configured in OpenSearchServer, its parameters are already set -- search pattern or fields to search in, returned fields, snippets, etc. 
   * however, the PHP code allows for passing additional parameters, and for overwriting existing parameters
 * among documents that have a `date`
 * among documents with a value within the `visibilty` field that is not zero
