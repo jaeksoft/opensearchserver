@@ -1,6 +1,6 @@
 # XML file
 
-One file containing 3 documents. We want to create one document in our index for each document of the file.
+In this example, we have one file containing three documents. Our goal is to create one document in the index for each document in the file.
 
 ![XML file used in this example](xpath_1_xmlfile.png)
 
@@ -14,54 +14,55 @@ Our schema has 3 fields :
 
 # Parser
 
-Delete any existing parser handling XML files. For example here the default « XML » parser is deleted:
- 
+Delete any existing parser handling XML files. In this example, the default « XML » parser gets deleted:
+
 ![Delete parser XML](xpath_4_parser_delete.png)
 
 Create a new « XML (XPATH) » parser :
 
 ![Create new parser](xpath_5_parser_new.png)
  
-Give this new parser a name and write « /documents/document » in field « XPATH request for documents » as it is the XPATH request to access each document:
+Name this new parser and write « /documents/document » in the field « XPATH request for documents » - since this is the XPATH request to access each document:
 
 ![Create new parser](xpath_6_parser_1.png)
  
-In tab « Supported extension » add « xml » :
+In the tab « Supported extension », add « xml » :
 
 ![Create new parser](xpath_7_parser_2.png)
  
-In tab « Supported MIME type » add handling for theses types :
+In the tab « Supported MIME type », add handling for the following types :
 * application/xhtml+xml
 * application/xml
 * text/xml
-In tab « Field mapping » configure this mapping :
+
+In the tab « Field mapping », configure this mapping :
  
 ![Create new parser](xpath_8_parser_3.png)
 
-This tell the parser to fetch :
-* /documents/document/date into field « date »
-* /documents/document/id into field « id »
-* /documents/document/title into field « title »
+This tells the parser to fetch :
+* /documents/document/date into the « date » field
+* /documents/document/id into the « id » field
+* /documents/document/title into the « title » field
 
 Click « Create » :
 
 ![Create new parser](xpath_9_parser_4.png)
  
-# Crawl file
+# Crawl the file
 
-For example place your file in a folder and configure a new file crawler :
+In this example, we place the file in a folder then configure a new file crawler :
 
 ![Configure file crawler](xpath_10_crawler.png)
  
-Launch crawler :
+We launch the crawler :
 
 ![Launch file crawler](xpath_11_crawler_2.png)
  
-File is now indexed. Check index’s info on main page:
+The file is now indexed. Check the information about the index on the main page:
  
 ![Check index info](xpath_12_indexinfo.png)
 
-Index now has 3 documents.
+The index now includes three documents.
 
 # Query documents
 
