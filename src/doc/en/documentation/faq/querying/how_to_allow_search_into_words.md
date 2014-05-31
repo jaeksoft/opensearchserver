@@ -1,4 +1,4 @@
-## How to allow search into words
+## Searching within words
 
 Let's assume thay you have multiple indexed pages containing the word "ultraviolet". However, you would like to return this document when a user only searches for "ultra" or "violet".
 
