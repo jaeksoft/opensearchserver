@@ -78,7 +78,7 @@ The index has been automatically created with numerous fields. As you can see so
 
 The `HTML parser` tells the crawler in which fields of the schema to store each bit of information found on a web page.
 
-Click on the tab `Parser list` under the tab `Schema`. This pages lists every available parser. Click on the `Edit` button for the line `HTML parser`.
+Click on the tab `Parser list` under the tab `Schema`. This page lists every available parser. Click on the `Edit` button for the line `HTML parser`.
 Then click on the `Field mapping` tab.
 
 Here again you can see that many mappings have already been configured. On the left of each line is an information the parser extracts from the page, and next is the field of the schema in which this information goes. 
