@@ -119,7 +119,7 @@ In this code example, the links were built using the parameter `f`, which indica
 
 ## Applying filters
 
-Applying filters is straightforward: we need to get facetq valueq from the URL and add a `filter()` call to the `oss_search` object, just like we did in the [Using pagination to navigate through results](Using-pagination-to-navigate-through-results) page.
+Applying filters is straightforward: we need to get facets values from the URL and add a `filter()` call to the `oss_search` object, just like we did in the [Using pagination to navigate through results](Using-pagination-to-navigate-through-results) page.
 
 Here is an example:
 
