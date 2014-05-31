@@ -55,7 +55,7 @@ This crawler indexes structured data from database tables. It can:
 - Access most databases through JDBC: MySQL, SQLServer, PostgreSQL, Oracle, Sybase, DB2...
 - Index using **SQL queries**, and handle join clauses by recognising their primary keys.
 - Index **attachments** whose local path or URL are given in the schema.
-- **Prune HTML tags** before indexing.
+- Prune **HTML tags** before indexing.
 - Convert **HTML entities**.
 - Apply **regular expressions** before indexing.
  
