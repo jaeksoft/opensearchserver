@@ -1,6 +1,6 @@
 The autocompletion function uses a combination of Javascript / AJAX and PHP.
 
-A Javascript script must call a PHP script every time there is a change in the search input. One possible way to do this is using jQuery's UI autocomplete feature, with the `remote datasource` option activated. More information about this option can be found at http://jqueryui.com/autocomplete/#remote.
+A Javascript script must call a PHP script every time there is a change in the search input. One way to do so is to use jQuery's UI autocomplete feature, with the `remote datasource` option activated. More information about this option can be found at http://jqueryui.com/autocomplete/#remote.
 
 The role of said PHP script is to call OpenSearchServer to get search suggestions, and return them to the Javascript script. In a typical use case these would be encoded in JSON.
 
