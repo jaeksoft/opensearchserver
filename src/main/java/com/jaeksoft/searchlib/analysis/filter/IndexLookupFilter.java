@@ -149,8 +149,8 @@ public class IndexLookupFilter extends FilterFactory {
 		private final void extractTokens(TokenTerm tokenTerm, int docId,
 				ResultDocument resultDoc) {
 			for (String returnField : returnFields) {
-				FieldValueItem[] fieldValueItems = resultDoc
-						.getValueArray(returnField);
+				List<FieldValueItem> fieldValueItems = resultDoc
+						.getValues(returnField);
 				if (fieldValueItems == null)
 					continue;
 				for (FieldValueItem fieldValueItem : fieldValueItems)

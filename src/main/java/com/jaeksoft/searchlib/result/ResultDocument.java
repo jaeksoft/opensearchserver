@@ -107,7 +107,7 @@ public class ResultDocument {
 			FieldValue fieldValue = documentFields.get(fieldName);
 			if (fieldValue != null)
 				isHighlighted = field.getSnippets(docId, reader,
-						fieldValue.getValueArray(), snippets, t);
+						fieldValue.getValueList(), snippets, t);
 			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
 					fieldName, snippets, isHighlighted);
 			snippetFields.put(fieldName, snippetFieldValue);
@@ -156,28 +156,28 @@ public class ResultDocument {
 		return snippetFields;
 	}
 
-	public FieldValueItem[] getValueArray(AbstractField<?> field) {
+	public List<FieldValueItem> getValues(AbstractField<?> field) {
 		if (field == null)
 			return null;
-		return getValueArray(field.getName());
+		return getValues(field.getName());
 	}
 
-	public FieldValueItem[] getValueArray(String fieldName) {
+	public List<FieldValueItem> getValues(String fieldName) {
 		if (fieldName == null)
 			return null;
 		FieldValue fieldValue = returnFields.get(fieldName);
 		if (fieldValue == null)
 			return null;
-		return fieldValue.getValueArray();
+		return fieldValue.getValueList();
 	}
 
 	public String getValueContent(AbstractField<?> field, int pos) {
-		FieldValueItem[] values = getValueArray(field);
+		List<FieldValueItem> values = getValues(field);
 		if (values == null)
 			return null;
-		if (pos >= values.length)
+		if (pos >= values.size())
 			return null;
-		return values[pos].getValue();
+		return values.get(pos).getValue();
 	}
 
 	public String getValueContent(String fieldName, int pos) {
@@ -187,45 +187,45 @@ public class ResultDocument {
 		return getValueContent(field, pos);
 	}
 
-	final public FieldValueItem[] getSnippetArray(SnippetField field) {
+	final public List<FieldValueItem> getSnippetValues(SnippetField field) {
 		if (field == null)
 			return null;
-		return getSnippetArray(field.getName());
+		return getSnippetValues(field.getName());
 	}
 
-	final public FieldValueItem[] getSnippetValue(SnippetField field) {
+	final public List<FieldValueItem> getSnippetValue(SnippetField field) {
 		if (field == null)
 			return null;
-		return getSnippetArray(field.getName());
+		return getSnippetValues(field.getName());
 	}
 
-	final public FieldValueItem[] getSnippetArray(String fieldName) {
+	final public List<FieldValueItem> getSnippetValues(String fieldName) {
 		SnippetFieldValue fieldValue = snippetFields.get(fieldName);
 		if (fieldValue == null)
 			return null;
-		return fieldValue.getValueArray();
+		return fieldValue.getValueList();
 	}
 
-	public FieldValueItem[] getSnippetList(String fieldName) {
+	public List<FieldValueItem> getSnippetList(String fieldName) {
 		SnippetFieldValue snippetFieldValue = snippetFields.get(fieldName);
 		if (snippetFieldValue == null)
 			return null;
-		return snippetFieldValue.getValueArray();
+		return snippetFieldValue.getValueList();
 	}
 
-	final public FieldValueItem[] getSnippetList(AbstractField<?> field) {
+	final public List<FieldValueItem> getSnippetList(AbstractField<?> field) {
 		if (field == null)
 			return null;
 		return getSnippetList(field.getName());
 	}
 
 	final public FieldValueItem getSnippet(String fieldName, int pos) {
-		FieldValueItem[] values = getSnippetArray(fieldName);
+		List<FieldValueItem> values = getSnippetValues(fieldName);
 		if (values == null)
 			return null;
-		if (pos >= values.length)
+		if (pos >= values.size())
 			return null;
-		return values[pos];
+		return values.get(pos);
 	}
 
 	final public String getSnippetContent(String fieldName, int pos) {
@@ -246,8 +246,8 @@ public class ResultDocument {
 			if (fieldValue == null)
 				returnFields.put(fieldName, fieldValue);
 			else
-				fieldValue.addIfStringDoesNotExist(newFieldValue
-						.getValueArray());
+				fieldValue
+						.addIfStringDoesNotExist(newFieldValue.getValueList());
 		}
 		for (SnippetFieldValue newFieldValue : rd.snippetFields.values()) {
 			String fieldName = newFieldValue.getName();
@@ -255,8 +255,8 @@ public class ResultDocument {
 			if (fieldValue == null)
 				snippetFields.put(fieldName, fieldValue);
 			else
-				fieldValue.addIfStringDoesNotExist(newFieldValue
-						.getValueArray());
+				fieldValue
+						.addIfStringDoesNotExist(newFieldValue.getValueList());
 		}
 	}
 

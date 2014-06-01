@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,8 +36,6 @@ public class FieldValueItem {
 	final public Float boost;
 
 	final public FieldValueOriginEnum origin;
-
-	final public static FieldValueItem[] emptyArray = new FieldValueItem[0];
 
 	public FieldValueItem(FieldValueOriginEnum origin, String value) {
 		this.value = value;
@@ -116,11 +114,11 @@ public class FieldValueItem {
 	}
 
 	final public static List<String> buildArrayList(
-			FieldValueItem[] fieldValueItemArray) {
-		if (fieldValueItemArray == null)
+			List<FieldValueItem> fieldValueItems) {
+		if (fieldValueItems == null)
 			return null;
-		List<String> list = new ArrayList<String>(fieldValueItemArray.length);
-		for (FieldValueItem item : fieldValueItemArray)
+		List<String> list = new ArrayList<String>(fieldValueItems.size());
+		for (FieldValueItem item : fieldValueItems)
 			list.add(item.value);
 		return list;
 	}

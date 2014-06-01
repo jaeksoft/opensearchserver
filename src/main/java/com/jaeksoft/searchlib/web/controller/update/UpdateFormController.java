@@ -123,7 +123,7 @@ public class UpdateFormController extends CommonController {
 				return fieldDocumentList;
 			fieldDocumentList = new ArrayList<FieldDocument>();
 			for (FieldContent fieldContent : getIndexDocument()) {
-				if (fieldContent.getValues().length > 0)
+				if (fieldContent.hasContent())
 					fieldDocumentList.add(new FieldDocument(fieldContent));
 			}
 			return fieldDocumentList;
@@ -147,7 +147,7 @@ public class UpdateFormController extends CommonController {
 		private FieldDocument(FieldContent fieldContent) {
 			fieldName = fieldContent.getField();
 			fieldValueList = new ArrayList<FieldValue>(
-					fieldContent.getValues().length);
+					fieldContent.getValueCount());
 			int i = 0;
 			for (@SuppressWarnings("unused")
 			FieldValueItem valueItem : fieldContent.getValues())

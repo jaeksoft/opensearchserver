@@ -36,6 +36,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
@@ -311,6 +312,20 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			SearchLibException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Map<String, FieldValue> getDocumentStoredField(int docId)
+			throws IOException, SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TermPositions getTermPositions() throws IOException,
+			SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.renderer;
 
+import java.util.List;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -164,14 +166,14 @@ public class RendererField {
 		return fieldType;
 	}
 
-	private String[] getValues(FieldValueItem[] fieldValueItemArray,
+	private String[] getValues(List<FieldValueItem> fieldValueItems,
 			boolean replace) {
-		if (fieldValueItemArray == null)
+		if (fieldValueItems == null)
 			return null;
 		replace = replace && !StringUtils.isEmpty(pattern);
-		String[] fields = new String[fieldValueItemArray.length];
+		String[] fields = new String[fieldValueItems.size()];
 		int i = 0;
-		for (FieldValueItem fieldValueItem : fieldValueItemArray) {
+		for (FieldValueItem fieldValueItem : fieldValueItems) {
 			String value = fieldValueItem.value;
 			if (value != null && replace)
 				value = value.replaceAll(pattern, replacement);
@@ -184,9 +186,9 @@ public class RendererField {
 		if (fieldType == RendererFieldType.FIELD) {
 			boolean replace = StringUtils.isEmpty(urlFieldName)
 					|| (urlFieldName != null && urlFieldName.equals(fieldName));
-			return getValues(resultDocument.getValueArray(fieldName), replace);
+			return getValues(resultDocument.getValues(fieldName), replace);
 		} else if (fieldType == RendererFieldType.SNIPPET)
-			return getValues(resultDocument.getSnippetArray(fieldName), false);
+			return getValues(resultDocument.getSnippetValues(fieldName), false);
 		return null;
 	}
 

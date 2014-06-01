@@ -283,9 +283,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public boolean getSnippets(final int docId, final ReaderInterface reader,
-			final FieldValueItem[] values, final List<FieldValueItem> snippets,
-			final Timer parentTimer) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+			final List<FieldValueItem> values,
+			final List<FieldValueItem> snippets, final Timer parentTimer)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 
 		if (values == null)
 			return false;

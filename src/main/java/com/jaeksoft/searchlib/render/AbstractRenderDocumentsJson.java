@@ -26,8 +26,9 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -118,9 +119,9 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 	private void renderField(ResultDocument doc, ReturnField field,
 			ArrayList<JSONObject> jsonFieldList) throws IOException {
 		String fieldName = field.getName();
-		FieldValueItem[] values = doc.getValueArray(field);
+		List<FieldValueItem> values = doc.getValues(field);
 		JSONObject jsonField = new JSONObject();
-		if (ArrayUtils.isEmpty(values))
+		if (CollectionUtils.isEmpty(values))
 			return;
 		for (FieldValueItem v : values) {
 			jsonField.put("name", fieldName);
@@ -136,10 +137,10 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 	private void renderSnippetValue(ResultDocument doc, SnippetField field,
 			ArrayList<JSONObject> jsonSnippetList) throws IOException {
 		String fieldName = field.getName();
-		FieldValueItem[] snippets = doc.getSnippetArray(field);
-		JSONObject jsonSnippet = new JSONObject();
+		List<FieldValueItem> snippets = doc.getSnippetValues(field);
 		if (snippets == null)
 			return;
+		JSONObject jsonSnippet = new JSONObject();
 		boolean highlighted = doc.isHighlighted(field.getName());
 		for (FieldValueItem snippet : snippets) {
 			jsonSnippet.put("name", fieldName);
