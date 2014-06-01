@@ -84,7 +84,7 @@ public class DocumentUpdate {
 		lang = indexDocument.getLang();
 		List<Field> fieldList = new ArrayList<Field>();
 		for (FieldContent fieldContent : indexDocument) {
-			FieldValueItem[] fieldValueItems = fieldContent.getValues();
+			List<FieldValueItem> fieldValueItems = fieldContent.getValues();
 			if (fieldValueItems == null)
 				continue;
 			String fieldName = fieldContent.getField();

@@ -38,6 +38,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.json.JSONException;
@@ -472,6 +473,19 @@ public class IndexLucene extends IndexAbstract {
 	}
 
 	@Override
+	final public TermPositions getTermPositions() throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getTermPositions();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	final public TermFreqVector getTermFreqVector(final int docId,
 			final String field) throws IOException, SearchLibException {
 		versionFile.sharedLock();
@@ -649,6 +663,19 @@ public class IndexLucene extends IndexAbstract {
 			}
 		} finally {
 			versionFile.release();
+		}
+	}
+
+	@Override
+	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+			throws IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getDocumentStoredField(docId);
+			return null;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

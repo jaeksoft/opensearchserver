@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -208,7 +208,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 				return fieldList.get(index);
 			} else if (parent instanceof FieldValue) {
 				FieldValue fieldValue = (FieldValue) parent;
-				return fieldValue.getValueArray()[index];
+				return fieldValue.getValueList().get(index);
 			}
 			return null;
 		}
@@ -309,7 +309,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 		new Treecell(fieldValue.getLabel()).setParent(treerow);
 		Treecell treecell;
 		if (fieldValue.getValuesCount() > 0)
-			treecell = new Treecell(fieldValue.getValueArray()[0].getValue());
+			treecell = new Treecell(fieldValue.getValueList().get(0).getValue());
 		else
 			treecell = new Treecell();
 		treecell.setParent(treerow);

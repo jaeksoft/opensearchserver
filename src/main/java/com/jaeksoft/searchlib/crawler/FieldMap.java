@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -120,7 +120,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			IndexDocument target) throws IOException {
 		if (fc == null)
 			return;
-		targetField.add(fc.getValues(), target);
+		targetField.addFieldValueItems(fc.getValues(), target);
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target)
@@ -134,7 +134,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				addFieldContent(fc, link.getTarget(), target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				link.getTarget().add(value, target);
+				link.getTarget().addValue(value, target);
 			}
 		}
 	}
@@ -144,11 +144,11 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
 			SourceField sourceField = link.getSource();
 			if (sourceField.isUnique()) {
-				FieldValueItem[] fvi = sourceField.getUniqueString(source);
-				link.getTarget().add(fvi, target);
+				List<FieldValueItem> fvi = sourceField.getUniqueString(source);
+				link.getTarget().addFieldValueItems(fvi, target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				link.getTarget().add(value, target);
+				link.getTarget().addValue(value, target);
 			}
 		}
 	}

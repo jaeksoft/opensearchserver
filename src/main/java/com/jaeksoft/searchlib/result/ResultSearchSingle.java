@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -46,6 +47,7 @@ import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class ResultSearchSingle extends AbstractResultSearch {
 
@@ -231,6 +233,12 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	@Override
+	public void populate(List<IndexDocumentResult> indexDocuments)
+			throws IOException, SearchLibException {
+		throw new SearchLibException("Method not available");
 	}
 
 }

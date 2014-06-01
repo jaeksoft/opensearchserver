@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,8 @@
  **/
 
 package com.jaeksoft.searchlib.web.model;
+
+import java.util.List;
 
 import org.zkoss.zkplus.databind.BindingListModel;
 import org.zkoss.zul.Grid;
@@ -58,12 +60,18 @@ public class FieldContentModel implements BindingListModel<FieldValueItem> {
 
 	@Override
 	public FieldValueItem getElementAt(int index) {
-		return fieldContent.getValues()[index];
+		List<FieldValueItem> values = fieldContent.getValues();
+		if (values == null)
+			return null;
+		return values.get(index);
 	}
 
 	@Override
 	public int getSize() {
-		return fieldContent.getValues().length;
+		List<FieldValueItem> values = fieldContent.getValues();
+		if (values == null)
+			return 0;
+		return values.size();
 	}
 
 	@Override
