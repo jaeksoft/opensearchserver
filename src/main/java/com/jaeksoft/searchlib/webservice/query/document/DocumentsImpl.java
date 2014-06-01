@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -67,8 +69,10 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			if (query != null)
 				query.apply(request);
 			return new DocumentsResult(
-					(ResultDocuments) client.request(request));
+					(ResultDocuments) client.request(request), false);
 		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -94,7 +98,8 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			if (query != null)
 				query.apply(request);
 			return new DocumentsResult(
-					(ResultDocuments) client.request(request));
+					(ResultDocuments) client.request(request),
+					CollectionUtils.isEmpty(query.returnedFields));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

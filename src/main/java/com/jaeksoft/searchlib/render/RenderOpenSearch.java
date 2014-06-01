@@ -29,6 +29,7 @@ package com.jaeksoft.searchlib.render;
  */
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,39 +164,41 @@ public class RenderOpenSearch implements Render {
 			throws IOException, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 		String fieldName = field.getName();
-		FieldValueItem[] values = doc.getValueArray(field);
+		List<FieldValueItem> values = doc.getValues(field);
 		String openSearchtitleField = getFieldMap("opensearch", "title");
 		String openSearchDescriptionField = getFieldMap("opensearch",
 				"description");
 		String openSearchUrlField = getFieldMap("opensearch", "url");
-		for (FieldValueItem v : values) {
+		if (values != null)
+			for (FieldValueItem v : values) {
 
-			if (openSearchtitleField != null
-					&& openSearchtitleField.equalsIgnoreCase(fieldName)) {
-				writer.print("\t<title>");
-				writer.print(StringEscapeUtils.escapeXml(v.getValue()));
-				writer.println("</title>");
-			} else if (openSearchDescriptionField != null
-					&& openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
-				writer.print("\t<description>");
-				writer.print(StringEscapeUtils.escapeXml(v.getValue()));
-				writer.println("</description>");
-			} else if (openSearchUrlField != null
-					&& openSearchUrlField.equalsIgnoreCase(fieldName)) {
-				writer.print("\t<link>");
-				writer.print(StringEscapeUtils.escapeXml(v.getValue()));
-				writer.println("</link>");
-			} else {
-				writer.print("\t\t<OpenSearchServer:");
-				writer.print(fieldName);
-				writer.print('>');
+				if (openSearchtitleField != null
+						&& openSearchtitleField.equalsIgnoreCase(fieldName)) {
+					writer.print("\t<title>");
+					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.println("</title>");
+				} else if (openSearchDescriptionField != null
+						&& openSearchDescriptionField
+								.equalsIgnoreCase(fieldName)) {
+					writer.print("\t<description>");
+					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.println("</description>");
+				} else if (openSearchUrlField != null
+						&& openSearchUrlField.equalsIgnoreCase(fieldName)) {
+					writer.print("\t<link>");
+					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.println("</link>");
+				} else {
+					writer.print("\t\t<OpenSearchServer:");
+					writer.print(fieldName);
+					writer.print('>');
 
-				writer.print(xmlTextRender(v.getValue()));
-				writer.print("</OpenSearchServer:");
-				writer.print(fieldName);
-				writer.print('>');
+					writer.print(xmlTextRender(v.getValue()));
+					writer.print("</OpenSearchServer:");
+					writer.print(fieldName);
+					writer.print('>');
+				}
 			}
-		}
 
 	}
 
@@ -209,7 +212,7 @@ public class RenderOpenSearch implements Render {
 			throws IOException, XPathExpressionException,
 			ParserConfigurationException, SAXException {
 		String fieldName = field.getName();
-		FieldValueItem[] snippets = doc.getSnippetArray(field);
+		List<FieldValueItem> snippets = doc.getSnippetValues(field);
 		if (snippets == null)
 			return;
 		String openSearchtitleField = getFieldMap("opensearch", "title");

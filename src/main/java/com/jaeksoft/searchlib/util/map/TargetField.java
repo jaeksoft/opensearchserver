@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -155,8 +155,8 @@ public class TargetField implements Comparable<TargetField> {
 		cachedAnalyzer = a.getIndexAnalyzer();
 	}
 
-	public void add(FieldValueItem[] fieldValueItems, IndexDocument document)
-			throws IOException {
+	public void addFieldValueItems(List<FieldValueItem> fieldValueItems,
+			IndexDocument document) throws IOException {
 		if (fieldValueItems == null)
 			return;
 		FieldContent fc = document.getFieldContent(getBoostedName());
@@ -169,7 +169,8 @@ public class TargetField implements Comparable<TargetField> {
 		}
 	}
 
-	public void add(String value, IndexDocument document) throws IOException {
+	public void addValue(String value, IndexDocument document)
+			throws IOException {
 		if (value == null)
 			return;
 		FieldContent fc = document.getFieldContent(getBoostedName());
@@ -180,7 +181,7 @@ public class TargetField implements Comparable<TargetField> {
 			cachedAnalyzer.populate(value, fc);
 	}
 
-	public void add(List<String> values, IndexDocument document)
+	public void addValues(List<String> values, IndexDocument document)
 			throws IOException {
 		if (values == null)
 			return;

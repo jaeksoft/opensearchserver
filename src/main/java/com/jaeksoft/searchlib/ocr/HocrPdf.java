@@ -129,11 +129,11 @@ public class HocrPdf {
 		pages = new TreeMap<Long, HocrPage>();
 	}
 
-	public HocrPdf(FieldValueItem[] valueArray) throws SearchLibException {
+	public HocrPdf(List<FieldValueItem> values) throws SearchLibException {
 		this();
-		if (valueArray == null)
+		if (values == null)
 			return;
-		for (FieldValueItem fieldValueItem : valueArray) {
+		for (FieldValueItem fieldValueItem : values) {
 			if (fieldValueItem == null)
 				continue;
 			if (fieldValueItem.getValue() == null)

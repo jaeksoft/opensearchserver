@@ -28,10 +28,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -45,8 +47,15 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
 
 public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 		ResultDocumentsInterface<AbstractRequest> {
@@ -100,6 +109,37 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public void populate(List<IndexDocumentResult> indexDocuments)
+			throws IOException, SearchLibException {
+		SchemaFieldList schemaFieldList = request.getConfig().getSchema()
+				.getFieldList();
+		for (Integer docId : docList) {
+			IndexDocumentResult indexDocument = new IndexDocumentResult(
+					schemaFieldList.size());
+			Map<String, FieldValue> storedFieldMap = reader
+					.getDocumentStoredField(docId);
+			for (SchemaField schemaField : schemaFieldList) {
+				String fieldName = schemaField.getName();
+				List<IndexTerm> indexTermList = null;
+				if (schemaField.checkIndexed(Indexed.YES)) {
+					if (schemaField.getTermVector() == TermVector.NO) {
+						indexTermList = IndexTerm.toList(reader, fieldName,
+								docId);
+					} else {
+						TermFreqVector termFreqVector = reader
+								.getTermFreqVector(docId, fieldName);
+						indexTermList = IndexTerm.toList(termFreqVector);
+					}
+				}
+				IndexField indexField = new IndexField(fieldName,
+						storedFieldMap.get(fieldName), indexTermList);
+				indexDocument.add(indexField);
+			}
+			indexDocuments.add(indexDocument);
 		}
 	}
 

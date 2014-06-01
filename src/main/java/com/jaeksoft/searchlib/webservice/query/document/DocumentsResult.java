@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.document;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,14 +45,24 @@ public class DocumentsResult {
 	@XmlElement(name = "document")
 	final public List<DocumentResult> documents;
 
+	@XmlElement(name = "indexDocument")
+	final public List<IndexDocumentResult> indexDocuments;
+
 	public DocumentsResult() {
 		documents = null;
+		indexDocuments = null;
 	}
 
-	public DocumentsResult(ResultDocumentsInterface<?> result)
-			throws SearchLibException {
-		documents = DocumentResult.populateDocumentList(result,
-				new ArrayList<DocumentResult>(0));
+	public DocumentsResult(ResultDocumentsInterface<?> result,
+			boolean indexDocument) throws SearchLibException, IOException {
+		if (indexDocument) {
+			documents = null;
+			indexDocuments = new ArrayList<IndexDocumentResult>(1);
+			result.populate(indexDocuments);
+		} else {
+			documents = DocumentResult.populateDocumentList(result,
+					new ArrayList<DocumentResult>(1));
+			indexDocuments = null;
+		}
 	}
-
 }

@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
@@ -120,9 +122,9 @@ public class TaskPullFields extends TaskPullAbstract {
 					break;
 
 				for (ResultDocument document : result) {
-					FieldValueItem[] fieldValueItems = document
-							.getValueArray(executionData.sourceField);
-					if (fieldValueItems == null)
+					List<FieldValueItem> fieldValueItems = document
+							.getValues(executionData.sourceField);
+					if (CollectionUtils.isEmpty(fieldValueItems))
 						continue;
 
 					IndexDocument mappedDocument = new IndexDocument(

@@ -32,9 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -149,6 +151,16 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return indexReader.termDocs(term);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public TermPositions getTermPositions() throws IOException {
+		rwl.r.lock();
+		try {
+			return indexReader.termPositions();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -387,7 +399,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			final Set<String> fieldNameSet) throws IOException {
 		rwl.r.lock();
 		try {
-			FieldSelector selector = new SetFieldSelector(fieldNameSet);
+			FieldSelector selector = new FieldSelectors.SetFieldSelector(
+					fieldNameSet);
 			return indexReader.document(docId, selector);
 		} catch (IllegalArgumentException e) {
 			throw e;
@@ -403,7 +416,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		List<Document> documents = new ArrayList<Document>(docIds.length);
 		rwl.r.lock();
 		try {
-			FieldSelector selector = new SetFieldSelector(fieldNameSet);
+			FieldSelector selector = new FieldSelectors.SetFieldSelector(
+					fieldNameSet);
 			for (int docId : docIds)
 				documents.add(indexReader.document(docId, selector));
 			return documents;
@@ -494,6 +508,44 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		DocSetHits dsh = new DocSetHits(new Params(this, searchRequest,
 				filterHits), timer);
 		return dsh;
+	}
+
+	@Override
+	final public Map<String, FieldValue> getDocumentStoredField(final int docId)
+			throws IOException {
+		rwl.r.lock();
+		try {
+			Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
+			Document doc = indexReader.document(docId,
+					FieldSelectors.LoadFieldSelector.INSTANCE);
+			String currentFieldName = null;
+			FieldValue currentFieldValue = null;
+			for (Fieldable field : doc.getFields()) {
+				if (!field.isStored())
+					continue;
+				FieldValue fieldValue = null;
+				String fieldName = field.name();
+				if (currentFieldName != null
+						&& currentFieldName.equals(fieldName))
+					fieldValue = currentFieldValue;
+				else {
+					fieldValue = documentFields.get(fieldName);
+					if (fieldValue == null) {
+						fieldValue = new FieldValue(fieldName);
+						documentFields.put(fieldName, fieldValue);
+					}
+					currentFieldName = fieldName;
+					currentFieldValue = fieldValue;
+				}
+				currentFieldValue.addValue(new FieldValueItem(
+						FieldValueOriginEnum.STORAGE, field.stringValue()));
+			}
+			return documentFields;
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	@Override
