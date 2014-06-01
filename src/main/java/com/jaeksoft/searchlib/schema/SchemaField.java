@@ -127,7 +127,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 				field.setBoost(boost);
 			return field;
 		} catch (java.lang.NullPointerException e) {
-			throw new NullPointerException("Erreur on field " + name);
+			throw new NullPointerException("Error on field " + name);
 		}
 	}
 

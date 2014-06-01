@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -116,7 +116,7 @@ public class ParserFieldTarget extends TargetField {
 	}
 
 	@Override
-	final public void add(FieldValueItem[] fieldValueItems,
+	final public void addFieldValueItems(List<FieldValueItem> fieldValueItems,
 			IndexDocument targetDocument) throws IOException {
 		if (fieldValueItems == null)
 			return;
@@ -143,7 +143,7 @@ public class ParserFieldTarget extends TargetField {
 				values.set(pos++, value);
 			}
 		}
-		add(values, targetDocument);
+		addValues(values, targetDocument);
 	}
 
 	/**

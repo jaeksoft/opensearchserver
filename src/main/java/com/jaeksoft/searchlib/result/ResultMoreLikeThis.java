@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -45,6 +46,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.sort.DescScoreSorter;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		implements ResultDocumentsInterface<MoreLikeThisRequest> {
@@ -185,6 +187,12 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	@Override
 	public int getCollapsedDocCount() {
 		return 0;
+	}
+
+	@Override
+	public void populate(List<IndexDocumentResult> indexDocuments)
+			throws IOException, SearchLibException {
+		throw new SearchLibException("Method not available");
 	}
 
 }

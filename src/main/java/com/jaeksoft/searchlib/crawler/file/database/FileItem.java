@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -114,8 +114,7 @@ public class FileItem extends FileInfo {
 		setDirectory(doc.getValueContent(
 				FileItemFieldEnum.INSTANCE.directory.getName(), 0));
 		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValueArray(FileItemFieldEnum.INSTANCE.subDirectory
-						.getName())));
+				.getValues(FileItemFieldEnum.INSTANCE.subDirectory.getName())));
 
 		setLang(doc.getValueContent(FileItemFieldEnum.INSTANCE.lang.getName(),
 				0));
@@ -130,15 +129,13 @@ public class FileItem extends FileInfo {
 				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
 
 		setUserAllow(FieldValueItem.buildArrayList(doc
-				.getValueArray(FileItemFieldEnum.INSTANCE.userAllow.getName())));
+				.getValues(FileItemFieldEnum.INSTANCE.userAllow.getName())));
 		setUserDeny(FieldValueItem.buildArrayList(doc
-				.getValueArray(FileItemFieldEnum.INSTANCE.userDeny.getName())));
-		setGroupAllow(FieldValueItem
-				.buildArrayList(doc
-						.getValueArray(FileItemFieldEnum.INSTANCE.groupAllow
-								.getName())));
+				.getValues(FileItemFieldEnum.INSTANCE.userDeny.getName())));
+		setGroupAllow(FieldValueItem.buildArrayList(doc
+				.getValues(FileItemFieldEnum.INSTANCE.groupAllow.getName())));
 		setGroupDeny(FieldValueItem.buildArrayList(doc
-				.getValueArray(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
+				.getValues(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance)

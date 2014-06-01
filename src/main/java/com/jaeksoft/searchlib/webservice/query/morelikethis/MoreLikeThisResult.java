@@ -59,6 +59,6 @@ public class MoreLikeThisResult extends CommonResult {
 			throws SearchLibException, IOException {
 		query = result.getRequest().getQuery().toString();
 		documents = DocumentResult.populateDocumentList(result,
-				new ArrayList<DocumentResult>(0));
+				new ArrayList<DocumentResult>(1));
 	}
 }

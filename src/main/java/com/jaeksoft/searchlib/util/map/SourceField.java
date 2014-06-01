@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,8 @@
  **/
 
 package com.jaeksoft.searchlib.util.map;
+
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -108,8 +110,8 @@ public class SourceField implements Comparable<SourceField> {
 		return source.getField(names[0]);
 	}
 
-	final public FieldValueItem[] getUniqueString(ResultDocument source) {
-		return source.getValueArray(names[0]);
+	final public List<FieldValueItem> getUniqueString(ResultDocument source) {
+		return source.getValues(names[0]);
 	}
 
 	final public String getConcatString(IndexDocument source,
