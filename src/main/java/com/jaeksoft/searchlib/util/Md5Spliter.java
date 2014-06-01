@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -75,14 +76,15 @@ public class Md5Spliter {
 			this.keyPattern = Pattern.compile(keyPattern);
 	}
 
-	public boolean acceptAnyKey(FieldValueItem[] keys)
+	public boolean acceptAnyKey(List<FieldValueItem> keys)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		if (keyPattern == null)
 			return true;
-		for (FieldValueItem key : keys)
-			if (keyPattern.matcher(getMD5Hash(key.getValue(), "gisi"))
-					.matches())
-				return true;
+		if (keys != null)
+			for (FieldValueItem key : keys)
+				if (keyPattern.matcher(getMD5Hash(key.getValue(), "gisi"))
+						.matches())
+					return true;
 		return false;
 	}
 

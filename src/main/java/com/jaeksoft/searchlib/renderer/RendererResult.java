@@ -94,8 +94,8 @@ public class RendererResult {
 
 		HocrPdf hocrPdf = null;
 		if (hocrField != null) {
-			FieldValueItem[] fieldValueItem = resultDocument
-					.getValueArray(hocrField);
+			List<FieldValueItem> fieldValueItem = resultDocument
+					.getValues(hocrField);
 			if (fieldValueItem != null)
 				hocrPdf = new HocrPdf(fieldValueItem);
 		}

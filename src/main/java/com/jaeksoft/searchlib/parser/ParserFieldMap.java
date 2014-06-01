@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -86,8 +86,8 @@ public class ParserFieldMap extends
 			FieldContent fc = link.getSource().getUniqueString(source);
 			ParserFieldTarget fieldTarget = link.getTarget();
 			if (fc != null) {
-				FieldValueItem[] values = fc.getValues();
-				fieldTarget.add(values, target);
+				List<FieldValueItem> values = fc.getValues();
+				fieldTarget.addFieldValueItems(values, target);
 			}
 		}
 	}
@@ -101,16 +101,17 @@ public class ParserFieldMap extends
 			Object obj = xpp.evaluate(xmlForXPath, link.getSource()
 					.getUniqueName());
 			if (obj instanceof Node) {
-				fieldTarget.add(DomUtils.getText((Node) obj), target);
+				fieldTarget.addValue(DomUtils.getText((Node) obj), target);
 			} else if (obj instanceof NodeList) {
 				NodeList nodeList = (NodeList) obj;
 				int length = nodeList.getLength();
 				for (int i = 0; i < length; i++)
-					fieldTarget.add(DomUtils.getText(nodeList.item(i)), target);
+					fieldTarget.addValue(DomUtils.getText(nodeList.item(i)),
+							target);
 			} else if (obj instanceof String) {
-				fieldTarget.add((String) obj, target);
+				fieldTarget.addValue((String) obj, target);
 			} else if (obj instanceof Object) {
-				fieldTarget.add(obj.toString(), target);
+				fieldTarget.addValue(obj.toString(), target);
 			}
 		}
 	}

@@ -24,10 +24,14 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 		Iterable<ResultDocument> {
@@ -40,6 +44,9 @@ public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException;
+
+	public void populate(List<IndexDocumentResult> indexDocuments)
+			throws IOException, SearchLibException;
 
 	public float getScore(int pos);
 

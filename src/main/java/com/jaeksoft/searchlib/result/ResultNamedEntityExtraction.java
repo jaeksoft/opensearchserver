@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class ResultNamedEntityExtraction extends
 		AbstractResult<AbstractRequest> implements
@@ -72,6 +74,12 @@ public class ResultNamedEntityExtraction extends
 		if (docList == null || pos < 0 || pos > docList.size())
 			return null;
 		return docList.get(pos);
+	}
+
+	@Override
+	public void populate(List<IndexDocumentResult> indexDocuments)
+			throws IOException, SearchLibException {
+		throw new SearchLibException("Method not available");
 	}
 
 	public void resolvePositions(String namedEntityField,

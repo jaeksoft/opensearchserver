@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 
@@ -70,8 +71,14 @@ public interface ReaderInterface {
 			final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException;
 
+	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+			throws IOException, SearchLibException;
+
 	public TermFreqVector getTermFreqVector(final int docId, final String field)
 			throws IOException, SearchLibException;
+
+	public TermPositions getTermPositions() throws IOException,
+			SearchLibException;
 
 	public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException, SearchLibException;

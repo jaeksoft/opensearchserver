@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -307,7 +307,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
 	}
 
-	public void addFieldValueArray(String field, FieldValueItem[] values) {
+	public void addFieldValueList(String field, List<FieldValueItem> values) {
 		if (values == null)
 			return;
 		for (FieldValueItem value : values)
@@ -331,7 +331,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void add(String field, FieldContent fieldContent) {
 		if (fieldContent == null)
 			return;
-		addFieldValueArray(field, fieldContent.getValues());
+		addFieldValueList(field, fieldContent.getValues());
 	}
 
 	private void addIfNotAlreadyHere(FieldContent fieldContent) {
@@ -370,14 +370,14 @@ public class IndexDocument implements Iterable<FieldContent> {
 		addStringList(field, values);
 	}
 
-	public void setFieldValueItems(String field, FieldValueItem[] values) {
+	public void setFieldValueItems(String field, List<FieldValueItem> values) {
 		FieldContent fc = fields.get(field);
 		if (fc != null)
 			fc.clear();
-		addFieldValueArray(field, values);
+		addFieldValueList(field, values);
 	}
 
-	public void setSameValueItems(String field, FieldValueItem[] values) {
+	public void setSameValueItems(String field, List<FieldValueItem> values) {
 		FieldContent fc = getFieldContent(field);
 		fc.setValueItems(values);
 	}

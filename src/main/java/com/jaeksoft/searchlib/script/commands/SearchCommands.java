@@ -110,9 +110,10 @@ public class SearchCommands {
 								.values()) {
 							if (fieldValue.getValuesCount() == 0)
 								continue;
-							documentVariables.put(StringUtils.fastConcat(
-									"search:", fieldValue.getName()),
-									fieldValue.getValueArray()[0].getValue());
+							documentVariables
+									.put(StringUtils.fastConcat("search:",
+											fieldValue.getName()), fieldValue
+											.getValueList().get(0).getValue());
 						}
 						documentVariables.put("search:score",
 								Float.toString(result.getScore(pos++)));

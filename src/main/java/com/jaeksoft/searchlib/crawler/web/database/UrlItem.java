@@ -115,12 +115,9 @@ public class UrlItem {
 		setUrl(doc.getValueContent(UrlItemFieldEnum.INSTANCE.url.getName(), 0));
 		setHost(doc
 				.getValueContent(UrlItemFieldEnum.INSTANCE.host.getName(), 0));
-		setSubHost(doc.getValueArray(UrlItemFieldEnum.INSTANCE.subhost
-				.getName()));
-		addOutLinks(doc.getValueArray(UrlItemFieldEnum.INSTANCE.outlink
-				.getName()));
-		addInLinks(doc
-				.getValueArray(UrlItemFieldEnum.INSTANCE.inlink.getName()));
+		setSubHost(doc.getValues(UrlItemFieldEnum.INSTANCE.subhost.getName()));
+		addOutLinks(doc.getValues(UrlItemFieldEnum.INSTANCE.outlink.getName()));
+		addInLinks(doc.getValues(UrlItemFieldEnum.INSTANCE.inlink.getName()));
 		setContentDispositionFilename(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.contentDispositionFilename.getName(),
 				0));
@@ -160,8 +157,7 @@ public class UrlItem {
 				UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(), 0));
 		setOrigin(LinkItem.findOrigin(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.origin.getName(), 0)));
-		addHeaders(doc.getValueArray(UrlItemFieldEnum.INSTANCE.headers
-				.getName()));
+		addHeaders(doc.getValues(UrlItemFieldEnum.INSTANCE.headers.getName()));
 		setBacklinkCount(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), 0));
 		instanceId = doc.getValueContent(
@@ -170,7 +166,7 @@ public class UrlItem {
 				UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
 	}
 
-	private void addHeaders(FieldValueItem[] headersList) {
+	private void addHeaders(List<FieldValueItem> headersList) {
 		if (headersList == null)
 			return;
 		if (headers == null)
@@ -191,7 +187,7 @@ public class UrlItem {
 		return inLinks;
 	}
 
-	public void setSubHost(FieldValueItem[] subhostlist) {
+	public void setSubHost(List<FieldValueItem> subhostlist) {
 		this.subhost = null;
 		if (subhostlist == null)
 			return;
@@ -206,7 +202,7 @@ public class UrlItem {
 		outLinks.clear();
 	}
 
-	public void addOutLinks(FieldValueItem[] linkList) {
+	public void addOutLinks(List<FieldValueItem> linkList) {
 		if (linkList == null)
 			return;
 		if (outLinks == null)
@@ -227,7 +223,7 @@ public class UrlItem {
 		inLinks.clear();
 	}
 
-	public void addInLinks(FieldValueItem[] linkList) {
+	public void addInLinks(List<FieldValueItem> linkList) {
 		if (linkList == null)
 			return;
 		if (inLinks == null)
