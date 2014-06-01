@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,9 +32,15 @@ import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
+import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskWebCrawlerStop extends TaskAbstract {
+
+	final private TaskPropertyDef propTimeOut = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Time out (minutes)", "TimeOut", null, 10);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propTimeOut, };
 
 	@Override
 	public String getName() {
@@ -43,7 +49,7 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 
 	@Override
 	public TaskPropertyDef[] getPropertyList() {
-		return null;
+		return taskPropertyDefs;
 	}
 
 	@Override
@@ -54,6 +60,8 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propTimeOut)
+			return "10";
 		return null;
 	}
 
@@ -65,9 +73,11 @@ public class TaskWebCrawlerStop extends TaskAbstract {
 			taskLog.setInfo("Was not running");
 			return;
 		}
+		String p = properties.getValue(propTimeOut);
+		int timeoutMinutes = p == null ? 10 : Integer.parseInt(p);
 		crawlMaster.abort();
-		if (!crawlMaster.waitForEnd(600))
-			taskLog.setInfo("Not stopped after 10 minutes");
+		if (!crawlMaster.waitForEnd(60 * timeoutMinutes))
+			taskLog.setInfo("Not stopped after " + timeoutMinutes + " minutes");
 		else
 			taskLog.setInfo("Stopped");
 	}

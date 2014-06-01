@@ -202,7 +202,7 @@ public class Crawl {
 			FieldContent fieldContent = result
 					.getFieldContent(ParserFieldEnum.meta_robots);
 			if (fieldContent != null) {
-				FieldValueItem[] fieldValues = fieldContent.getValues();
+				List<FieldValueItem> fieldValues = fieldContent.getValues();
 				if (fieldValues != null) {
 					for (FieldValueItem item : result.getFieldContent(
 							ParserFieldEnum.meta_robots).getValues())

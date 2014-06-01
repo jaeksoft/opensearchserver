@@ -70,7 +70,7 @@ public class MailboxFieldMap extends
 			IndexDocument target) throws IOException {
 		if (fc == null)
 			return;
-		targetField.add(fc.getValues(), target);
+		targetField.addFieldValueItems(fc.getValues(), target);
 	}
 
 	public void mapIndexDocument(IndexDocument source, IndexDocument target)
@@ -84,7 +84,7 @@ public class MailboxFieldMap extends
 				addFieldContent(fc, link.getTarget(), target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				link.getTarget().add(value, target);
+				link.getTarget().addValue(value, target);
 			}
 		}
 	}

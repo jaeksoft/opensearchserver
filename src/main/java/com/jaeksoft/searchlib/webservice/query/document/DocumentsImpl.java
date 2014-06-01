@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.io.IOException;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -64,8 +66,10 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			if (query != null)
 				query.apply(request);
 			return new DocumentsResult(
-					(ResultDocuments) client.request(request));
+					(ResultDocuments) client.request(request), false);
 		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -90,7 +94,8 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			if (query != null)
 				query.apply(request);
 			return new DocumentsResult(
-					(ResultDocuments) client.request(request));
+					(ResultDocuments) client.request(request),
+					CollectionUtils.isEmpty(query.returnedFields));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

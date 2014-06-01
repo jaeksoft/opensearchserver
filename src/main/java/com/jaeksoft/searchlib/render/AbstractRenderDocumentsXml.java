@@ -25,9 +25,10 @@
 package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -149,8 +150,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 
 	private void renderField(ResultDocument doc, String fieldName)
 			throws IOException {
-		FieldValueItem[] values = doc.getValueArray(fieldName);
-		if (ArrayUtils.isEmpty(values)) {
+		List<FieldValueItem> values = doc.getValues(fieldName);
+		if (CollectionUtils.isEmpty(values)) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print("\"/>");
@@ -174,8 +175,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 
 	private void renderSnippetValue(ResultDocument doc, String fieldName)
 			throws IOException {
-		FieldValueItem[] snippets = doc.getSnippetArray(fieldName);
-		if (snippets == null || snippets.length == 0) {
+		List<FieldValueItem> snippets = doc.getSnippetValues(fieldName);
+		if (CollectionUtils.isEmpty(snippets)) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
 			writer.print("\"/>");

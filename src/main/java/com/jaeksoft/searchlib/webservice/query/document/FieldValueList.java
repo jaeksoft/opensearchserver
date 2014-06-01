@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,9 +56,11 @@ public class FieldValueList {
 
 	public FieldValueList(FieldValue fieldValue) {
 		this.fieldName = fieldValue.getName();
-		values = new ArrayList<String>();
-		for (FieldValueItem item : fieldValue.getValueArray())
-			values.add(item.getValue());
+		List<FieldValueItem> valueList = fieldValue.getValueList();
+		values = new ArrayList<String>(valueList == null ? 0 : valueList.size());
+		if (valueList != null)
+			for (FieldValueItem item : fieldValue.getValueList())
+				values.add(item.getValue());
 	}
 
 	protected FieldValueList(String fieldName) {

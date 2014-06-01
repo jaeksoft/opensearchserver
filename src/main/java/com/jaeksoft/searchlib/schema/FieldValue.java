@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,23 +24,25 @@
 
 package com.jaeksoft.searchlib.schema;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 public class FieldValue extends AbstractField<FieldValue> {
 
 	private static final long serialVersionUID = -6131981428734961071L;
 
-	private FieldValueItem[] valueArray;
+	private List<FieldValueItem> valueList;
 
 	public FieldValue() {
+		valueList = null;
 	}
 
 	public FieldValue(String name) {
 		super(name);
-		valueArray = FieldValueItem.emptyArray;
+		valueList = null;
 	}
 
 	@Override
@@ -50,7 +52,8 @@ public class FieldValue extends AbstractField<FieldValue> {
 
 	public FieldValue(FieldValue field) {
 		this(field.name);
-		this.valueArray = field.valueArray;
+		this.valueList = field.valueList == null ? null
+				: new ArrayList<FieldValueItem>(field.valueList);
 	}
 
 	public FieldValue(String fieldName, FieldValueItem[] values) {
@@ -64,64 +67,92 @@ public class FieldValue extends AbstractField<FieldValue> {
 	}
 
 	public int getValuesCount() {
-		if (valueArray == null)
+		if (valueList == null)
 			return 0;
-		return valueArray.length;
+		return valueList.size();
 	}
 
-	public FieldValueItem[] getValueArray() {
-		return valueArray;
+	public List<FieldValueItem> getValueList() {
+		return valueList;
+	}
+
+	public List<String> getValueStringList() {
+		if (valueList == null)
+			return null;
+		List<String> values = new ArrayList<String>(valueList.size());
+		for (FieldValueItem valueItem : valueList)
+			if (valueItem.value != null)
+				values.add(valueItem.value);
+		return values;
 	}
 
 	public String[] getNewStringArray() {
-		if (valueArray == null)
+		if (valueList == null || valueList.size() == 0)
 			return null;
-		if (valueArray.length == 0)
-			return null;
-		String[] values = new String[valueArray.length];
+		String[] values = new String[valueList.size()];
 		int i = 0;
-		for (FieldValueItem value : valueArray)
+		for (FieldValueItem value : valueList)
 			values[i++] = value.getValue();
 		return values;
 	}
 
 	final public void populate(final Collection<String> list) {
-		if (valueArray == null)
+		if (valueList == null || valueList.size() == 0)
 			return;
-		if (valueArray.length == 0)
-			return;
-		for (FieldValueItem fvi : valueArray)
+		for (FieldValueItem fvi : valueList)
 			list.add(fvi.value);
 	}
 
 	public void setValues(List<FieldValueItem> values) {
 		if (values == null || values.size() == 0) {
-			valueArray = FieldValueItem.emptyArray;
+			valueList = null;
 			return;
 		}
-		valueArray = new FieldValueItem[values.size()];
-		values.toArray(valueArray);
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(values.size());
+		else
+			valueList.clear();
+		valueList.addAll(values);
 	}
 
 	public void setValues(FieldValueItem[] values) {
-		valueArray = values;
+		if (values == null || values.length == 0) {
+			valueList = null;
+			return;
+		}
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(values.length);
+		else
+			valueList.clear();
+		for (FieldValueItem value : values)
+			valueList.add(value);
 	}
 
-	public void addValues(FieldValueItem... value) {
-		valueArray = ArrayUtils.addAll(valueArray, value);
+	public void addValues(FieldValueItem... values) {
+		if (values != null)
+			for (FieldValueItem value : values)
+				valueList.add(value);
+	}
+
+	public void addValue(FieldValueItem value) {
+		if (value == null)
+			return;
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(1);
+		valueList.add(value);
 	}
 
 	public void addIfStringDoesNotExist(FieldValueItem value) {
 		if (value == null)
 			return;
-		for (FieldValueItem valueItem : valueArray)
+		for (FieldValueItem valueItem : valueList)
 			if (value.equals(valueItem))
 				return;
-		valueArray = ArrayUtils.add(valueArray, value);
+		valueList.add(value);
 	}
 
-	public void addIfStringDoesNotExist(FieldValueItem[] values) {
-		if (valueArray == null) {
+	public void addIfStringDoesNotExist(List<FieldValueItem> values) {
+		if (CollectionUtils.isEmpty(valueList)) {
 			setValues(values);
 			return;
 		}
@@ -139,7 +170,7 @@ public class FieldValue extends AbstractField<FieldValue> {
 			sb.append(')');
 			if (c == 1) {
 				sb.append(' ');
-				sb.append(valueArray[0].getValue());
+				sb.append(valueList.get(0).getValue());
 			}
 		}
 		return sb.toString();

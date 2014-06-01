@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,23 +29,34 @@ import java.util.Set;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
 
-public class SetFieldSelector implements FieldSelector {
+public class FieldSelectors {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4722731991166993080L;
+	public static class SetFieldSelector implements FieldSelector {
 
-	private final Set<String> fieldSet;
+		private static final long serialVersionUID = -4722731991166993080L;
 
-	public SetFieldSelector(Set<String> fieldSet) {
-		this.fieldSet = fieldSet;
+		private final Set<String> fieldSet;
+
+		public SetFieldSelector(Set<String> fieldSet) {
+			this.fieldSet = fieldSet;
+		}
+
+		@Override
+		public FieldSelectorResult accept(String fieldName) {
+			return fieldSet.contains(fieldName) ? FieldSelectorResult.LOAD
+					: FieldSelectorResult.NO_LOAD;
+		}
 	}
 
-	@Override
-	public FieldSelectorResult accept(String fieldName) {
-		return fieldSet.contains(fieldName) ? FieldSelectorResult.LOAD
-				: FieldSelectorResult.NO_LOAD;
-	}
+	public static class LoadFieldSelector implements FieldSelector {
 
+		private static final long serialVersionUID = -3715252854746008002L;
+
+		public final static LoadFieldSelector INSTANCE = new LoadFieldSelector();
+
+		@Override
+		public FieldSelectorResult accept(String fieldName) {
+			return FieldSelectorResult.LOAD;
+		}
+	}
 }

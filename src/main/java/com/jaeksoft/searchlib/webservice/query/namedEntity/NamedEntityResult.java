@@ -53,7 +53,7 @@ public class NamedEntityResult {
 
 	public NamedEntityResult(ResultNamedEntityExtraction result)
 			throws SearchLibException {
-		documents = new ArrayList<DocumentResult>(0);
+		documents = new ArrayList<DocumentResult>(1);
 		DocumentResult.populateDocumentList(result, documents);
 		enrichedText = result.getEnrichedText();
 	}

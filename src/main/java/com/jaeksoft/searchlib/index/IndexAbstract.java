@@ -36,6 +36,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.xml.sax.SAXException;
@@ -611,6 +612,19 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		}
 	}
 
+	@Override
+	final public TermPositions getTermPositions() throws IOException,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getTermPositions();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("indices");
 		indexConfig.writeXmlConfig(xmlWriter);
@@ -650,6 +664,19 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			}
 		} finally {
 			versionFile.release();
+		}
+	}
+
+	@Override
+	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+			throws IOException, SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getDocumentStoredField(docId);
+			return null;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 

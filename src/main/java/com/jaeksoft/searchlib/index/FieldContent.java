@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,8 @@
 
 package com.jaeksoft.searchlib.index;
 
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.External.Collecter;
@@ -32,10 +33,10 @@ import com.jaeksoft.searchlib.util.External.Collecter;
 public class FieldContent implements Collecter<FieldValueItem> {
 
 	private String field;
-	private FieldValueItem[] values;
+	private List<FieldValueItem> values;
 
 	public FieldContent() {
-		values = FieldValueItem.emptyArray;
+		values = null;
 	}
 
 	public FieldContent(final String field) {
@@ -48,23 +49,31 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	final public void add(final FieldValueItem value) {
-		values = ArrayUtils.add(values, value);
+		if (values == null)
+			values = new ArrayList<FieldValueItem>(1);
+		values.add(value);
 	}
 
 	public final void addIfNotAlreadyHere(final FieldValueItem value) {
-		for (FieldValueItem v : values)
-			if (value.equals(v))
-				return;
+		if (values != null)
+			for (FieldValueItem v : values)
+				if (value.equals(v))
+					return;
 		add(value);
 	}
 
 	final public void addIfNotAlreadyHere(final FieldContent fc2) {
-		for (FieldValueItem v : fc2.values)
-			addIfNotAlreadyHere(v);
+		if (fc2.values != null)
+			for (FieldValueItem v : fc2.values)
+				addIfNotAlreadyHere(v);
 	}
 
 	final public void add(final FieldContent fc2) {
-		values = ArrayUtils.addAll(values, fc2.values);
+		if (fc2.values == null)
+			return;
+		if (values == null)
+			values = new ArrayList<FieldValueItem>(1);
+		values.addAll(fc2.values);
 	}
 
 	@Override
@@ -73,31 +82,43 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	final public void clear() {
-		values = FieldValueItem.emptyArray;
+		values = null;
 	}
 
-	final public void setValueItems(final FieldValueItem[] values) {
-		this.values = values;
+	final public void setValueItems(List<FieldValueItem> valueItems) {
+		if (valueItems == null)
+			return;
+		if (values == null)
+			values = new ArrayList<FieldValueItem>();
+		else
+			values.clear();
+		values.addAll(valueItems);
 	}
 
 	final public FieldValueItem getValue(final int pos) {
 		if (values == null)
 			return null;
-		if (pos >= values.length)
+		if (pos >= values.size())
 			return null;
-		return values[pos];
+		return values.get(pos);
 	}
 
 	final public void setValue(final int pos, final FieldValueItem value) {
-		values[pos] = value;
+		values.set(pos, value);
 	}
 
-	final public FieldValueItem[] getValues() {
+	final public List<FieldValueItem> getValues() {
 		return values;
 	}
 
+	final public int getValueCount() {
+		if (values == null)
+			return 0;
+		return values.size();
+	}
+
 	final public boolean hasContent() {
-		return values.length > 0;
+		return getValueCount() > 0;
 	}
 
 	public final String getMergedValues(final String separator) {
@@ -131,17 +152,25 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	}
 
 	final public void remove(int index) {
-		values = ArrayUtils.remove(values, index);
+		values.remove(index);
 	}
 
 	final public boolean isEquals(FieldContent fc) {
 		if (!field.equals(fc.getField()))
 			return false;
-		if (values.length != fc.values.length)
+		if (values == null) {
+			if (fc.values == null)
+				return true;
+			else
+				return false;
+		}
+		if (fc.values == null)
+			return false;
+		if (values.size() != fc.values.size())
 			return false;
 		int i = 0;
 		for (FieldValueItem v1 : values) {
-			FieldValueItem v2 = fc.values[i++];
+			FieldValueItem v2 = fc.values.get(i++);
 			if (v1 == null) {
 				if (v2 != null)
 					return false;
@@ -159,11 +188,11 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
-		sb.append(values.length);
+		sb.append(values == null ? 0 : values.size());
 		sb.append(')');
-		if (values.length > 0) {
+		if (values != null && values.size() > 0) {
 			sb.append(':');
-			sb.append(values[0].getValue());
+			sb.append(values.get(0).getValue());
 		}
 		return sb.toString();
 	}
@@ -172,7 +201,7 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		StringBuilder sb = new StringBuilder();
 		sb.append(field);
 		sb.append('(');
-		sb.append(values.length);
+		sb.append(values == null ? 0 : values.size());
 		sb.append(')');
 		return sb.toString();
 	}
