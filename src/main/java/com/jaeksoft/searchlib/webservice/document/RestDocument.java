@@ -38,6 +38,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 @Path("/index/{index_name}/document")
 public interface RestDocument {
@@ -50,6 +51,15 @@ public interface RestDocument {
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			List<DocumentUpdate> documents);
+
+	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/raw")
+	public CommonResult updateRaw(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			List<IndexDocumentResult> indexDocuments);
 
 	@PUT
 	@Consumes(MediaType.TEXT_PLAIN)

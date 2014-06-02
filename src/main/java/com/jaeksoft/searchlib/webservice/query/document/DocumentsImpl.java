@@ -97,6 +97,10 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			DocumentsRequest request = new DocumentsRequest(client);
 			if (query != null)
 				query.apply(request);
+			if (CollectionUtils.isEmpty(query.returnedFields)
+					&& CollectionUtils.isEmpty(query.uniqueKeys))
+				return new DocumentsResult(client.getIndexAbstract()
+						.getDocTerms(client.getSchema().getUniqueField()));
 			return new DocumentsResult(
 					(ResultDocuments) client.request(request),
 					CollectionUtils.isEmpty(query.returnedFields));

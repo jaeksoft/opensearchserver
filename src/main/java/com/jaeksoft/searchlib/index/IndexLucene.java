@@ -67,6 +67,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class IndexLucene extends IndexAbstract {
 
@@ -311,6 +312,21 @@ public class IndexLucene extends IndexAbstract {
 			}
 		} finally {
 			versionFile.release();
+		}
+	}
+
+	@Override
+	public int updateIndexDocuments(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (writer != null)
+				return writer.updateIndexDocuments(schema, documents);
+			else
+				return 0;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -619,6 +635,19 @@ public class IndexLucene extends IndexAbstract {
 			if (reader != null)
 				if (reader instanceof ReaderLocal)
 					return ((ReaderLocal) reader).getTermVectorCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public String[] getDocTerms(String field) throws SearchLibException,
+			IOException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getDocTerms(field);
 			return null;
 		} finally {
 			rwl.r.unlock();

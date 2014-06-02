@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class DocumentImpl extends CommonServices implements RestDocument {
 
@@ -152,6 +153,28 @@ public class DocumentImpl extends CommonServices implements RestDocument {
 		} catch (ClassNotFoundException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult updateRaw(UriInfo uriInfo, String index, String login,
+			String key, List<IndexDocumentResult> indexDocuments) {
+		try {
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (indexDocuments == null || indexDocuments.size() == 0)
+				throw new CommonServiceException(Status.NO_CONTENT,
+						"No documents");
+			int count = client.updateIndexDocuments(indexDocuments);
+			return new CommonResult(true, count + " document(s) updated")
+					.addDetail(UPDATED_COUNT, count);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
