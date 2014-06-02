@@ -328,4 +328,11 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		return null;
 	}
 
+	@Override
+	public String[] getDocTerms(String field) throws IOException,
+			SearchLibException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

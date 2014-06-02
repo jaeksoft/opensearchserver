@@ -48,13 +48,18 @@ public class DocumentsResult {
 	@XmlElement(name = "indexDocument")
 	final public List<IndexDocumentResult> indexDocuments;
 
+	@XmlElement(name = "k")
+	final public String[] uniqueKeys;
+
 	public DocumentsResult() {
 		documents = null;
 		indexDocuments = null;
+		uniqueKeys = null;
 	}
 
 	public DocumentsResult(ResultDocumentsInterface<?> result,
 			boolean indexDocument) throws SearchLibException, IOException {
+		uniqueKeys = null;
 		if (indexDocument) {
 			documents = null;
 			indexDocuments = new ArrayList<IndexDocumentResult>(1);
@@ -64,5 +69,11 @@ public class DocumentsResult {
 					new ArrayList<DocumentResult>(1));
 			indexDocuments = null;
 		}
+	}
+
+	public DocumentsResult(String[] uniqueKeys) {
+		this.documents = null;
+		this.indexDocuments = null;
+		this.uniqueKeys = uniqueKeys;
 	}
 }

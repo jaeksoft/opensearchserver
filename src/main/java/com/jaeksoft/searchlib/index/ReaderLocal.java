@@ -55,6 +55,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.util.OpenBitSet;
 import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
@@ -428,15 +429,44 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
+	final private StringIndex getStringIndexNoLock(String fieldName)
+			throws IOException {
+		return org.apache.lucene.search.FieldCache.DEFAULT.getStringIndex(
+				indexReader, fieldName);
+	}
+
 	@Override
 	final public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException {
 		rwl.r.lock();
 		try {
-			StringIndex si = org.apache.lucene.search.FieldCache.DEFAULT
-					.getStringIndex(indexReader, fieldName);
+			StringIndex si = getStringIndexNoLock(fieldName);
 			return new FieldCacheIndex(indexReader.getVersion(), si.lookup,
 					si.order);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public String[] getDocTerms(final String fieldName)
+			throws SearchLibException, IOException {
+		rwl.r.lock();
+		try {
+			StringIndex si = getStringIndexNoLock(fieldName);
+			OpenBitSet bitSet = new OpenBitSet(si.order.length);
+			for (int doc = 0; doc < si.order.length; doc++) {
+				if (!indexReader.isDeleted(doc)) {
+					bitSet.fastSet(si.order[doc]);
+				}
+			}
+			String[] result = new String[(int) bitSet.cardinality()];
+			int i = 0;
+			int j = 0;
+			for (String term : si.lookup)
+				if (bitSet.fastGet(i++))
+					result[j++] = term;
+			return result;
 		} finally {
 			rwl.r.unlock();
 		}

@@ -30,6 +30,7 @@ import java.util.Collection;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public interface WriterInterface {
 
@@ -55,6 +56,10 @@ public interface WriterInterface {
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException,
 			IOException;
+
+	public int updateIndexDocuments(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException;
 
 	public void optimize() throws SearchLibException, IOException;
 

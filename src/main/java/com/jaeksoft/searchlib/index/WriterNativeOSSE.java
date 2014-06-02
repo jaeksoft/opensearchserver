@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class WriterNativeOSSE extends WriterAbstract {
 
@@ -251,6 +252,14 @@ public class WriterNativeOSSE extends WriterAbstract {
 	public void close() {
 		index.close(error);
 		IOUtils.close(error);
+	}
+
+	@Override
+	public int updateIndexDocuments(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
