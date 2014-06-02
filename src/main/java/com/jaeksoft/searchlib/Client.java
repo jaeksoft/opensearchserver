@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class Client extends Config {
 
@@ -95,6 +96,22 @@ public class Client extends Config {
 			Schema schema = getSchema();
 			document.prepareCopyOf(schema);
 			return getIndexAbstract().updateDocument(schema, document);
+		} finally {
+			getStatisticsList().addUpdate(timer);
+		}
+	}
+
+	public int updateIndexDocuments(
+			Collection<IndexDocumentResult> indexDocuments)
+			throws SearchLibException, IOException {
+		Timer timer = new Timer("Update " + indexDocuments.size()
+				+ " documents");
+		try {
+			checkMaxStorageLimit();
+			checkMaxDocumentLimit();
+			Schema schema = getSchema();
+			return getIndexAbstract().updateIndexDocuments(schema,
+					indexDocuments);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}

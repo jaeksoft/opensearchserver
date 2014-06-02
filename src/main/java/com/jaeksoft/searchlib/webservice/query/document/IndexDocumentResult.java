@@ -50,6 +50,10 @@ public class IndexDocumentResult {
 
 	public final List<IndexField> fields;
 
+	public IndexDocumentResult() {
+		this(10);
+	}
+
 	public IndexDocumentResult(int size) {
 		fields = new ArrayList<IndexField>(size);
 	}
@@ -65,6 +69,10 @@ public class IndexDocumentResult {
 		public final String field;
 		public final List<String> stored;
 		public final List<IndexTerm> terms;
+
+		public IndexField() {
+			this(null, null, null);
+		}
 
 		public IndexField(String field, FieldValue storedFieldValue,
 				List<IndexTerm> terms) {
@@ -84,6 +92,10 @@ public class IndexDocumentResult {
 		public final int[] p;
 		public final int[] s;
 		public final int[] e;
+
+		public IndexTerm() {
+			this(null, 0, null, null);
+		}
 
 		private IndexTerm(String term, int frequency, int[] positions,
 				TermVectorOffsetInfo[] offsetInfos) {

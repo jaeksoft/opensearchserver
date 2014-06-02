@@ -84,6 +84,9 @@ public interface ReaderInterface {
 	public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException, SearchLibException;
 
+	public String[] getDocTerms(String field) throws IOException,
+			SearchLibException;
+
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
