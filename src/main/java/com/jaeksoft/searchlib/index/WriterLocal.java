@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
@@ -46,8 +47,10 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.SearchLibException.UniqueKeyMissing;
+import com.jaeksoft.searchlib.analysis.AbstractAnalyzer;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.IndexDocumentAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -58,6 +61,9 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.SimpleLock;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
 
 public class WriterLocal extends WriterAbstract {
 
@@ -149,16 +155,22 @@ public class WriterLocal extends WriterAbstract {
 		PerFieldAnalyzer pfa = schema.getIndexPerFieldAnalyzer(document
 				.getLang());
 
+		updateDocNoLock(uniqueField, indexWriter, pfa, doc);
+		return true;
+	}
+
+	final private void updateDocNoLock(SchemaField uniqueField,
+			IndexWriter indexWriter, AbstractAnalyzer analyzer, Document doc)
+			throws UniqueKeyMissing, CorruptIndexException, IOException {
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
 			String uniqueFieldValue = doc.get(uniqueFieldName);
 			if (uniqueFieldValue == null)
 				throw new UniqueKeyMissing(uniqueFieldName);
 			indexWriter.updateDocument(new Term(uniqueFieldName,
-					uniqueFieldValue), doc, pfa);
+					uniqueFieldValue), doc, analyzer);
 		} else
-			indexWriter.addDocument(doc, pfa);
-		return true;
+			indexWriter.addDocument(doc, analyzer);
 	}
 
 	private boolean updateDocumentNoLock(Schema schema, IndexDocument document)
@@ -237,7 +249,46 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private static Document getLuceneDocument(Schema schema,
+	private int updateIndexDocumentsNoLock(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException {
+		IndexWriter indexWriter = null;
+		try {
+			int count = 0;
+			indexWriter = open();
+			SchemaField uniqueField = schema.getFieldList().getUniqueField();
+			for (IndexDocumentResult document : documents) {
+				Document doc = getLuceneDocument(schema, document);
+				IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(
+						document);
+				updateDocNoLock(uniqueField, indexWriter, analyzer, doc);
+				count++;
+			}
+			close(indexWriter);
+			indexWriter = null;
+			if (count > 0)
+				indexSingle.reload();
+			return count;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			close(indexWriter);
+		}
+	}
+
+	@Override
+	public int updateIndexDocuments(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException {
+		lock.rl.lock();
+		try {
+			return updateIndexDocumentsNoLock(schema, documents);
+		} finally {
+			lock.rl.unlock();
+		}
+	}
+
+	final private static Document getLuceneDocument(Schema schema,
 			IndexDocument document) throws IOException, SearchLibException {
 		schema.getIndexPerFieldAnalyzer(document.getLang());
 		Document doc = new Document();
@@ -262,6 +313,28 @@ public class WriterLocal extends WriterAbstract {
 							continue;
 					doc.add(field.getLuceneField(value, valueItem.getBoost()));
 				}
+			}
+		}
+		return doc;
+	}
+
+	final private static Document getLuceneDocument(Schema schema,
+			IndexDocumentResult document) {
+		if (CollectionUtils.isEmpty(document.fields))
+			return null;
+		SchemaFieldList schemaFieldList = schema.getFieldList();
+		Document doc = new Document();
+		for (IndexField indexField : document.fields) {
+			SchemaField field = schemaFieldList.get(indexField.field);
+			if (field == null)
+				continue;
+			if (indexField.stored != null) {
+				for (String value : indexField.stored)
+					doc.add(field.getLuceneField(value, null));
+			} else {
+				if (indexField.terms != null)
+					for (IndexTerm term : indexField.terms)
+						doc.add(field.getLuceneField(term.t, null));
 			}
 		}
 		return doc;
