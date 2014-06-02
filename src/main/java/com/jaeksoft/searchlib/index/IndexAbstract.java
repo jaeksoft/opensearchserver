@@ -65,6 +65,7 @@ import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public abstract class IndexAbstract implements ReaderInterface, WriterInterface {
 
@@ -316,6 +317,23 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			}
 		} finally {
 			versionFile.release();
+		}
+	}
+
+	@Override
+	public int updateIndexDocuments(Schema schema,
+			Collection<IndexDocumentResult> documents)
+			throws SearchLibException {
+		rwl.r.lock();
+		try {
+			int d = 0;
+			if (writer != null) {
+				d = writer.updateIndexDocuments(schema, documents);
+				sendNotifReloadData();
+			}
+			return d;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -619,6 +637,19 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		try {
 			if (reader != null)
 				return reader.getTermPositions();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public String[] getDocTerms(String field) throws SearchLibException,
+			IOException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				return reader.getDocTerms(field);
 			return null;
 		} finally {
 			rwl.r.unlock();
