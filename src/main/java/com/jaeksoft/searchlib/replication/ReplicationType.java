@@ -47,7 +47,9 @@ public enum ReplicationType {
 	SCHEMA_ONLY("Schema only", FinalMode.MERGE,
 			ReplicationItem.NOT_PUSHED_DATA_FOLDERS,
 			ReplicationItem.NOT_PUSHED_PATH, ReplicationItem.NOT_PUSHED_INDEX,
-			ReplicationItem.NOT_PUSHED_DATA_PATH);
+			ReplicationItem.NOT_PUSHED_DATA_PATH),
+
+	MAIN_DATA_COPY("Main data copy", null, null);
 
 	public enum FinalMode {
 		SWITCH, MERGE;
@@ -90,6 +92,8 @@ public enum ReplicationType {
 
 	final public void addNotPushedPath(final File sourceDirectory,
 			final List<File> filesNotPushed, final List<File> dirsNotPushed) {
+		if (notPushedPaths == null)
+			return;
 		for (String[] notPushedPath : notPushedPaths) {
 			for (String path : notPushedPath) {
 				File f = new File(sourceDirectory, path);
