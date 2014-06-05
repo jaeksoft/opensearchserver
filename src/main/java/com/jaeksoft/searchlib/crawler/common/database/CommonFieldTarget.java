@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
 
@@ -215,7 +216,7 @@ public class CommonFieldTarget extends TargetField {
 		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(
 				findRegexpTag).matcher("");
 		if (replaceRegexpTag == null)
-			replaceRegexpTag = "";
+			replaceRegexpTag = StringUtils.EMPTY;
 	}
 
 	public final String applyRegexPattern(String text) {

@@ -88,7 +88,7 @@ public class TermController extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		synchronized (this) {
-			searchTerm = "";
+			searchTerm = StringUtils.EMPTY;
 			termList = null;
 			fieldList = null;
 			currentField = null;

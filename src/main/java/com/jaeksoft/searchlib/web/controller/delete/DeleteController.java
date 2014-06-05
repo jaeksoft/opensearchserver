@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -137,7 +138,7 @@ public class DeleteController extends CommonController {
 				client, getLoggedUser());
 		String q = request.getQueryString();
 		if (q == null)
-			q = "";
+			q = StringUtils.EMPTY;
 		else
 			q = q.replaceAll("\n", " ");
 		sb.append("&q=");
