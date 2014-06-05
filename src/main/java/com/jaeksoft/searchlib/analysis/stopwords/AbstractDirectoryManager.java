@@ -33,6 +33,7 @@ import org.apache.commons.io.FileUtils;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class AbstractDirectoryManager<T> {
 
@@ -69,7 +70,7 @@ public abstract class AbstractDirectoryManager<T> {
 					: new String[files.length];
 			int i = 0;
 			if (addEmptyOne)
-				list[i++] = "";
+				list[i++] = StringUtils.EMPTY;
 			for (File file : files)
 				list[i++] = file.getName();
 			return list;

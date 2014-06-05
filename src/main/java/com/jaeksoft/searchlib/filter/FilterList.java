@@ -132,7 +132,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	public void addFromServlet(ServletTransaction transaction, String prefix) {
 		if (prefix == null)
-			prefix = "";
+			prefix = StringUtils.EMPTY;
 		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(
 				prefix, "fq")), false);
 		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(

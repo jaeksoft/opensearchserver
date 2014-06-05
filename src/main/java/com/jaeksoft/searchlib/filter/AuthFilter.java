@@ -89,7 +89,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 		AuthManager auth = request.getConfig().getAuthManager();
 		String user = request.getUser();
 		if (user == null)
-			user = "";
+			user = StringUtils.EMPTY;
 		Collection<String> groups = request.getGroups();
 
 		BooleanQuery booleanQuery = new BooleanQuery(true);
