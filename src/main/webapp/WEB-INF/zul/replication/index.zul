@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -60,6 +60,14 @@
 							width="95%" />
 						<label
 							value="API Key for authentication (or empty if no rights are required)" />
+					</row>
+					<row>
+						<label value="Search Request: " />
+						<combobox
+							value="@bind(replication.item.searchRequest)"
+							model="@load(replication.searchRequests)" />
+						<label
+							value="A Search request designing which documents are copied (only for data-only)" />
 					</row>
 				</rows>
 				<foot>

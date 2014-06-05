@@ -52,6 +52,7 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 	private final FilterListCacheKey filterListCacheKey;
 	private final String boostQueryCacheKey;
 	private final String advancedScoreCacheKey;
+	private final String geoParametersCacheKey;
 
 	public DocSetHitCacheKey(SchemaField defaultField, Analyzer analyzer,
 			Query query, boolean isScoreRequired, boolean isDistanceRequired,
@@ -68,6 +69,7 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 				analyzer, request);
 		boostQueryCacheKey = BoostQuery.getCacheKey(boostQueries);
 		advancedScoreCacheKey = AdvancedScore.getCacheKey(advancedScore);
+		geoParametersCacheKey = GeoParameters.getCacheKey(geoParameters);
 	}
 
 	public DocSetHitCacheKey(AbstractSearchRequest searchRequest,
@@ -100,6 +102,8 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 		if ((c = boostQueryCacheKey.compareTo(r.boostQueryCacheKey)) != 0)
 			return c;
 		if ((c = advancedScoreCacheKey.compareTo(r.advancedScoreCacheKey)) != 0)
+			return c;
+		if ((c = geoParametersCacheKey.compareTo(r.geoParametersCacheKey)) != 0)
 			return c;
 		return 0;
 	}
