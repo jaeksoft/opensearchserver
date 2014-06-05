@@ -96,24 +96,6 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		}
 	}
 
-	public int getFilesSent() {
-		rwl.r.lock();
-		try {
-			return filesSent;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public long getBytesSent() {
-		rwl.r.lock();
-		try {
-			return bytesSent;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	private void incFilesSent(long bytesSent) {
 		rwl.w.lock();
 		try {
@@ -138,8 +120,12 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	@Override
 	public void runner() throws Exception {
 		setInfo("Running");
-		initNotPushedList();
-		client.push(this);
+		if (replicationType == ReplicationType.MAIN_DATA_COPY)
+			throw new Exception("Not yet implemented");
+		else {
+			initNotPushedList();
+			client.push(this);
+		}
 	}
 
 	@Override
@@ -218,9 +204,14 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	}
 
 	public String getStatInfo() {
-		return getProgress() + "% completed - " + getFilesSent()
-				+ " file(s) sent - "
-				+ FileUtils.byteCountToDisplaySize(getBytesSent()) + " sent";
+		rwl.r.lock();
+		try {
+			return getProgress() + "% completed - " + filesSent
+					+ " file(s) sent - "
+					+ FileUtils.byteCountToDisplaySize(bytesSent) + " sent";
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	private void checkVersion() throws SearchLibException {

@@ -277,7 +277,7 @@ public class User implements Comparable<User> {
 		try {
 			if (apiKey != null)
 				return apiKey;
-			apiKey = "";
+			apiKey = StringUtils.EMPTY;
 			if (name != null || password != null)
 				if (name.length() > 0 && password.length() > 0)
 					apiKey = DigestUtils.md5Hex("ossacc" + name + password);

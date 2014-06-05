@@ -30,6 +30,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -42,7 +43,7 @@ public class RendererSort {
 	private final static String RENDERER_FIELD_ATTR_LABEL = "label";
 
 	public RendererSort() {
-		label = "";
+		label = StringUtils.EMPTY;
 		sort = "-score";
 	}
 

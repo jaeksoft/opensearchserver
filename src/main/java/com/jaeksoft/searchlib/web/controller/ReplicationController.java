@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -41,6 +43,7 @@ import com.jaeksoft.searchlib.replication.ReplicationItem;
 import com.jaeksoft.searchlib.replication.ReplicationList;
 import com.jaeksoft.searchlib.replication.ReplicationMaster;
 import com.jaeksoft.searchlib.replication.ReplicationType;
+import com.jaeksoft.searchlib.request.RequestTypeEnum;
 
 @AfterCompose(superclass = true)
 public class ReplicationController extends CommonController {
@@ -142,6 +145,17 @@ public class ReplicationController extends CommonController {
 		if (client == null)
 			return null;
 		return client.getReplicationMaster();
+	}
+
+	public List<String> getSearchRequests() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		List<String> nameList = new ArrayList<String>();
+		client.getRequestMap().getNameList(nameList,
+				RequestTypeEnum.SearchFieldRequest,
+				RequestTypeEnum.SearchRequest);
+		return nameList;
 	}
 
 	@Command

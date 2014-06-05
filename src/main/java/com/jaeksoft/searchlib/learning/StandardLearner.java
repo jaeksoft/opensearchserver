@@ -72,8 +72,8 @@ public class StandardLearner implements LearnerInterface {
 	private static final String[] SOURCE_FIELDS = { FIELD_SOURCE_DATA,
 			FIELD_SOURCE_TARGET, FIELD_SOURCE_NAME, FIELD_SOURCE_CUSTOM };
 
-	private static final String FIELD_TARGET_LABEL = "";
-	private static final String FIELD_TARGET_SCORE = "";
+	private static final String FIELD_TARGET_LABEL = StringUtils.EMPTY;
+	private static final String FIELD_TARGET_SCORE = StringUtils.EMPTY;
 
 	private final String[] TARGET_FIELDS = { FIELD_TARGET_LABEL,
 			FIELD_TARGET_SCORE };
