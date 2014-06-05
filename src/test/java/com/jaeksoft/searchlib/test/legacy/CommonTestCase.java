@@ -43,6 +43,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
 /**
@@ -52,8 +53,8 @@ import com.jaeksoft.searchlib.util.XPathParser;
 public class CommonTestCase {
 	public static String INDEX_NAME = "oss";
 	public static String SERVER_URL = "http://localhost:8080/jenkins-oss-1.5-testing/";
-	public static String USER_NAME = "";
-	public static String API_KEY = "";
+	public static String USER_NAME = StringUtils.EMPTY;
+	public static String API_KEY = StringUtils.EMPTY;
 
 	public static String SCHEMA_API = "schema";
 	public static String PATTERN_API = "pattern";

@@ -299,4 +299,23 @@ public class GeoParameters implements Comparable<GeoParameters> {
 		return 0;
 	}
 
+	final public static String getCacheKey(GeoParameters geo) {
+		if (geo == null)
+			return StringUtils.EMPTY;
+		StringBuilder sb = new StringBuilder();
+		sb.append(geo.latitudeField);
+		sb.append('|');
+		sb.append(geo.longitudeField);
+		sb.append('|');
+		sb.append(geo.latitude);
+		sb.append('|');
+		sb.append(geo.longitude);
+		sb.append('|');
+		if (geo.coordUnit != null)
+			sb.append(geo.coordUnit.ordinal());
+		sb.append('|');
+		if (geo.distanceReturn != null)
+			sb.append(geo.distanceReturn.ordinal());
+		return sb.toString();
+	}
 }
