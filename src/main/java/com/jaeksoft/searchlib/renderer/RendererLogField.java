@@ -29,6 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -47,7 +48,7 @@ public class RendererLogField {
 	private RendererLogParameterEnum logParameterEnum;
 
 	public RendererLogField() {
-		this.customlogItem = "";
+		this.customlogItem = StringUtils.EMPTY;
 	}
 
 	public RendererLogField(RendererLogField logReportField) {

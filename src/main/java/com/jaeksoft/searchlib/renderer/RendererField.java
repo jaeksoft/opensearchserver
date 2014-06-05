@@ -72,10 +72,10 @@ public class RendererField {
 	private final static String RENDERER_FIELD_ATTR_REGEXP_REPLACE = "regexpReplace";
 
 	public RendererField() {
-		fieldName = "";
+		fieldName = StringUtils.EMPTY;
 		fieldType = RendererFieldType.FIELD;
-		oldStyle = "";
-		urlFieldName = "";
+		oldStyle = StringUtils.EMPTY;
+		urlFieldName = StringUtils.EMPTY;
 		widgetName = RendererWidgets.TEXT;
 		pattern = null;
 		replacement = null;
