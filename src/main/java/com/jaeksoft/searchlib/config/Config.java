@@ -1766,7 +1766,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void push(ReplicationThread replicationThread)
 			throws SearchLibException {
-		replicationLock.rl.lock();
+		if (!replicationLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			replicationThread.push();
 		} finally {
