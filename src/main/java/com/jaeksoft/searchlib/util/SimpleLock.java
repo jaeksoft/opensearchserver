@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 final public class SimpleLock {
 
-	final public ReentrantLock rl = new ReentrantLock(false);
+	final public ReentrantLock rl = new ReentrantLock(true);
 
 }

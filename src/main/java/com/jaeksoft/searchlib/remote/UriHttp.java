@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,13 +28,15 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.xml.sax.SAXException;
 
@@ -44,12 +46,15 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public abstract class UriHttp {
 
-	private HttpClient httpClient = null;
-	protected HttpResponse httpResponse = null;
+	private CloseableHttpClient httpClient = null;
+	protected CloseableHttpResponse httpResponse = null;
 	protected HttpEntity httpEntity = null;
+	protected final RequestConfig requestConfig;
 
 	protected UriHttp() {
-		httpClient = new DefaultHttpClient();
+		httpClient = HttpClients.createDefault();
+		requestConfig = RequestConfig.custom().setSocketTimeout(10000)
+				.setConnectTimeout(10000).build();
 	}
 
 	protected void execute(HttpUriRequest request)
@@ -88,10 +93,14 @@ public abstract class UriHttp {
 			}
 		} catch (IOException e) {
 			Logging.warn(e.getMessage(), e);
+			httpEntity = null;
 		}
-		httpEntity = null;
+		if (httpResponse != null) {
+			IOUtils.closeQuietly(httpResponse);
+			httpResponse = null;
+		}
 		if (httpClient != null) {
-			httpClient.getConnectionManager().shutdown();
+			IOUtils.closeQuietly(httpClient);
 			httpClient = null;
 		}
 	}

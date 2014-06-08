@@ -53,7 +53,6 @@ import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
-import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
@@ -66,9 +65,9 @@ import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.util.map.LockedMap;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
@@ -79,8 +78,11 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
  */
 public class ClientCatalog {
 
-	private static transient volatile LockedMap<File, Client> CLIENTS = new LockedMap<File, Client>(
-			new TreeMap<File, Client>());
+	private static transient volatile TreeMap<File, Client> CLIENTS = new TreeMap<File, Client>();
+
+	private static transient volatile TreeSet<File> OLD_CLIENTS = new TreeSet<File>();
+
+	private static final ReadWriteLock clientsLock = new ReadWriteLock();
 
 	private static final ReadWriteLock usersLock = new ReadWriteLock();
 
@@ -114,45 +116,63 @@ public class ClientCatalog {
 		StartStopListener.shutdown();
 	}
 
+	private static final boolean isOldClient(File indexDirectory) {
+		clientsLock.r.lock();
+		try {
+			return OLD_CLIENTS.contains(indexDirectory);
+		} finally {
+			clientsLock.r.unlock();
+		}
+	}
+
 	private static final Client getClient(File indexDirectory,
 			boolean openIfNotLoaded) throws SearchLibException {
-		Client client = CLIENTS.get(indexDirectory);
-		if (client != null)
-			return client;
+		clientsLock.r.lock();
+		try {
+			Client client = CLIENTS.get(indexDirectory);
+			if (client != null)
+				return client;
+		} finally {
+			clientsLock.r.unlock();
+		}
+		int i = 60;
+		while (isOldClient(indexDirectory) && i > 0) {
+			ThreadUtils.sleepMs(500);
+			i--;
+		}
+		if (i == 0)
+			throw new SearchLibException("Time out while getting "
+					+ indexDirectory);
 		if (!openIfNotLoaded)
 			return null;
-		synchronized (ClientCatalog.class) {
-			client = CLIENTS.get(indexDirectory);
+		clientsLock.w.lock();
+		try {
+			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
 			client = ClientFactory.INSTANCE.newClient(indexDirectory, true,
 					false);
 			CLIENTS.put(indexDirectory, client);
 			return client;
-		}
-	}
-
-	private static final void closeClient(File indexDirectory) {
-		synchronized (ClientCatalog.class) {
-			Client client = CLIENTS.get(indexDirectory);
-			if (client == null)
-				return;
-			System.out.println("Closing client " + indexDirectory.getName());
-			client.close();
-			CLIENTS.remove(indexDirectory);
-			PushEvent.eventClientSwitch.publish(client);
+		} finally {
+			clientsLock.w.unlock();
 		}
 	}
 
 	public static final void closeAll() {
 		synchronized (ClientCatalog.class) {
-			for (Client client : CLIENTS.valueList()) {
-				if (client == null)
-					continue;
-				Logging.info("OSS unloads index " + client.getIndexName());
-				client.close();
+			clientsLock.w.lock();
+			try {
+				for (Client client : CLIENTS.values()) {
+					if (client == null)
+						continue;
+					Logging.info("OSS unloads index " + client.getIndexName());
+					client.close();
+				}
+				CLIENTS.clear();
+			} finally {
+				clientsLock.w.unlock();
 			}
-			CLIENTS.clear();
 			rendererResults.release();
 		}
 	}
@@ -160,13 +180,15 @@ public class ClientCatalog {
 	public static final long countAllDocuments() throws IOException,
 			SearchLibException {
 		long count = 0;
-		for (Client client : CLIENTS.valueList()) {
-			if (client.isTrueReplicate())
-				continue;
-			IndexStatistics stats = client.getStatistics();
-			if (stats == null)
-				continue;
-			count += stats.getNumDocs();
+		clientsLock.r.lock();
+		try {
+			for (Client client : CLIENTS.values()) {
+				if (client.isTrueReplicate())
+					continue;
+				count += client.getStatistics().getNumDocs();
+			}
+		} finally {
+			clientsLock.r.unlock();
 		}
 		return count;
 	}
@@ -215,7 +237,21 @@ public class ClientCatalog {
 
 	public static final void closeClient(String indexName)
 			throws SearchLibException {
-		closeClient(getClientDir(indexName));
+		Client client = null;
+		clientsLock.w.lock();
+		try {
+			File indexDirectory = getClientDir(indexName);
+			client = CLIENTS.get(indexName);
+			if (client == null)
+				return;
+			System.out.println("Closing client " + indexDirectory.getName());
+			client.close();
+			CLIENTS.remove(indexDirectory);
+		} finally {
+			clientsLock.w.unlock();
+		}
+		if (client != null)
+			PushEvent.eventClientSwitch.publish(client);
 	}
 
 	public static final Set<ClientCatalogItem> getClientCatalog(User user)
@@ -354,13 +390,18 @@ public class ClientCatalog {
 			throw new SearchLibException("Operation not permitted");
 		File indexDir = getClientDir(indexName);
 		synchronized (ClientCatalog.class) {
-			Client client = CLIENTS.get(indexDir);
-			if (client != null) {
-				CLIENTS.remove(client.getDirectory());
-				client.close();
-				client.delete();
-			} else {
-				FileUtils.deleteDirectory(indexDir);
+			clientsLock.r.lock();
+			try {
+				Client client = CLIENTS.get(indexDir);
+				if (client != null) {
+					CLIENTS.remove(client.getDirectory());
+					client.close();
+					client.delete();
+				} else {
+					FileUtils.deleteDirectory(indexDir);
+				}
+			} finally {
+				clientsLock.r.unlock();
 			}
 		}
 	}
@@ -484,40 +525,62 @@ public class ClientCatalog {
 		rootDir.mkdir();
 	}
 
+	private static void lockClientDir(File clientDir) {
+		clientsLock.w.lock();
+		try {
+			CLIENTS.remove(clientDir);
+			OLD_CLIENTS.add(clientDir);
+		} finally {
+			clientsLock.w.unlock();
+		}
+	}
+
+	private static void unlockClientDir(File clientDir, Client newClient) {
+		clientsLock.w.lock();
+		try {
+			if (newClient != null)
+				CLIENTS.put(clientDir, newClient);
+			OLD_CLIENTS.remove(clientDir);
+		} finally {
+			clientsLock.w.unlock();
+		}
+	}
+
 	public static void receive_switch(WebApp webapp, Client client)
 			throws SearchLibException, NamingException, IOException {
 		File trashDir = getTrashReceiveDir(client);
 		File clientDir = client.getDirectory();
 		if (trashDir.exists())
 			FileUtils.deleteDirectory(trashDir);
-		synchronized (ClientCatalog.class) {
+		Client newClient = null;
+		lockClientDir(clientDir);
+		try {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
-			CLIENTS.remove(clientDir);
-			Client newClient = ClientFactory.INSTANCE.newClient(clientDir,
-					true, true);
+			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
 			newClient.writeReplCheck();
-			CLIENTS.put(clientDir, newClient);
-			PushEvent.eventClientSwitch.publish(client);
+		} finally {
+			unlockClientDir(clientDir, newClient);
 		}
-		client.close();
+		PushEvent.eventClientSwitch.publish(client);
 		FileUtils.deleteDirectory(trashDir);
 	}
 
 	public static void receive_merge(WebApp webapp, Client client)
 			throws SearchLibException, IOException {
-		File clientDir = client.getDirectory();
 		File tempDir = getTempReceiveDir(client);
-		synchronized (ClientCatalog.class) {
+		File clientDir = client.getDirectory();
+		Client newClient = null;
+		lockClientDir(clientDir);
+		try {
 			client.close();
-			CLIENTS.remove(clientDir);
 			new ReplicationMerge(tempDir, clientDir);
-			Client newClient = ClientFactory.INSTANCE.newClient(clientDir,
-					true, true);
+			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
 			newClient.writeReplCheck();
-			CLIENTS.put(clientDir, newClient);
-			PushEvent.eventClientSwitch.publish(client);
+		} finally {
+			unlockClientDir(clientDir, newClient);
 		}
+		PushEvent.eventClientSwitch.publish(client);
 		FileUtils.deleteDirectory(tempDir);
 	}
 
