@@ -2,6 +2,7 @@ package com.jaeksoft.searchlib.util.example;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -36,7 +38,6 @@ public class DiscussionReader {
 	private final static class DiscussionItem {
 
 		private final int type;
-		// private final String hour;
 		private final String message;
 
 		// private final String timeStamp;
@@ -44,20 +45,16 @@ public class DiscussionReader {
 		private DiscussionItem(int discussion_pos, int message_pos,
 				List<String> discussionItem) {
 			type = Integer.parseInt(discussionItem.get(0));
-			// hour = discussionItem.get(1);
 			message = StringEscapeUtils.unescapeHtml(StringUtils
 					.removeTag(discussionItem.get(2)));
-			/*
-			 * if (discussionItem.size() > 3) timeStamp = discussionItem.get(3);
-			 * else timeStamp = null;
-			 */
 		}
 
 	}
 
+	private static List<DocumentUpdate> indexDocumentUpdates = new ArrayList<DocumentUpdate>();
 	private static WebClient webClient = null;
-
 	private static String indexName = null;
+	private static int conversationCount = 0;
 
 	private final static DocumentUpdate getDocumentUpdate(String question,
 			String answer, String conversation, int pos) {
@@ -71,13 +68,20 @@ public class DiscussionReader {
 		return documentUpdate;
 	}
 
-	private final static void index(List<DocumentUpdate> documents)
+	private final static void checkResponse(Response response)
 			throws IOException {
-		if (CollectionUtils.isEmpty(documents)) {
-			System.out.println("Empty conversation");
+		if (response.getStatus() != 200)
+			throw new IOException(response.getStatus() + " "
+					+ response.getStatusInfo().getReasonPhrase());
+
+	}
+
+	private final static void index(boolean bForce) throws IOException {
+		if (!bForce && indexDocumentUpdates.size() < 256)
 			return;
-		}
-		String json = JsonUtils.toJsonString(documents);
+		if (indexDocumentUpdates.isEmpty())
+			return;
+		String json = JsonUtils.toJsonString(indexDocumentUpdates);
 		Response response = null;
 		try {
 			webClient.reset();
@@ -85,14 +89,13 @@ public class DiscussionReader {
 					.path("/services/rest/index/{index_name}/document",
 							indexName).accept(MediaType.APPLICATION_JSON)
 					.type(MediaType.APPLICATION_JSON).put(json);
-			if (response.getStatus() != 200)
-				throw new IOException(response.getStatus() + " "
-						+ response.getStatusInfo().getReasonPhrase());
+			checkResponse(response);
 		} finally {
 			if (response != null)
 				response.close();
 		}
-		System.out.println(documents.size() + " " + json.length());
+		indexDocumentUpdates.clear();
+		System.out.println("Indexed conversations: " + conversationCount);
 	}
 
 	// Type 2 = question
@@ -100,7 +103,6 @@ public class DiscussionReader {
 
 	private final static void buildQA(List<DiscussionItem> discussion)
 			throws IOException {
-		List<DocumentUpdate> documentUpdates = new ArrayList<DocumentUpdate>();
 		StringBuilder sbConv = new StringBuilder();
 		for (DiscussionItem discussionItem : discussion) {
 			if (discussionItem.type == 2 || discussionItem.type == 1) {
@@ -129,32 +131,31 @@ public class DiscussionReader {
 					sbAnswer = new StringBuilder();
 				sbAnswer.append(discussionItem.message);
 				sbAnswer.append(". ");
-				addQA(documentUpdates, sbQuestion.toString(),
-						discussionItem.message, conversation, pos);
+				addQA(sbQuestion.toString(), discussionItem.message,
+						conversation, pos);
 				lastType = 1;
 				break;
 			default:
 				break;
 			}
 		}
-		index(documentUpdates);
+		index(false);
 	}
 
-	private final static void addQA(List<DocumentUpdate> documentUpdates,
-			String question, String answer, String conversation, int pos) {
+	private final static void addQA(String question, String answer,
+			String conversation, int pos) {
 		if (question == null || answer == null)
 			return;
 		question = question.trim();
 		answer = answer.trim();
 		if (question.isEmpty() || answer.isEmpty())
 			return;
-		documentUpdates.add(getDocumentUpdate(question, answer, conversation,
-				pos));
+		indexDocumentUpdates.add(getDocumentUpdate(question, answer,
+				conversation, pos));
 	}
 
 	private final static void readJson(int discussion_pos, Date date,
-			String json) throws JsonParseException, JsonMappingException,
-			IOException {
+			String json) throws JsonMappingException, IOException {
 		json = StringUtils.replaceChars(json, "\u0000", "");
 		json = StringUtils.replaceChars(json, "\\'", "'");
 		json = StringUtils.replaceChars(json, "\r\t\n\u000b", "     ");
@@ -173,7 +174,7 @@ public class DiscussionReader {
 	private final static int readCsv(String path) throws Exception {
 		FileReader fileReader = null;
 		CSVReader csvReader = null;
-		int currentLine = 0;
+		conversationCount = 0;
 		String currentJson = null;
 		try {
 			fileReader = new FileReader(path);
@@ -182,16 +183,22 @@ public class DiscussionReader {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(
 					"yyyy-MM-dd HH:mm:ss");
 			while ((nextLine = csvReader.readNext()) != null) {
-				if (++currentLine == 1)
+				if (++conversationCount == 1)
 					continue;
 				currentJson = nextLine[0];
 				Date date = dateFormat.parse(nextLine[1]);
-				readJson(currentLine, date, currentJson);
+				try {
+					readJson(conversationCount, date, currentJson);
+				} catch (JsonParseException e) {
+					System.err.println("Error in line: " + conversationCount
+							+ " " + e.getMessage());
+				}
 			}
-			return currentLine;
+			index(true);
+			return conversationCount;
 		} catch (Exception e) {
-			System.err.println("Error in line: " + currentLine + " "
-					+ currentJson);
+			System.err.println("Error in line: " + conversationCount + " "
+					+ e.getMessage() + " " + currentJson);
 			throw e;
 		} finally {
 			IOUtils.close(csvReader, fileReader);
@@ -206,11 +213,73 @@ public class DiscussionReader {
 		return webClient;
 	}
 
+	private final static String getResource(String name) throws IOException {
+		InputStream is = DiscussionReader.class.getResourceAsStream(name);
+		return IOUtils.toString(is);
+	}
+
+	private final static void reCreateIndex() throws IOException {
+		Response response = null;
+		try {
+			// Delete old index
+			webClient.reset();
+			response = webClient
+					.path("/services/rest/index/{index_name}", indexName)
+					.accept(MediaType.APPLICATION_JSON).delete();
+			checkResponse(response);
+			response.close();
+			response = null;
+			// Create index
+			webClient.reset();
+			response = webClient
+					.path("/services/rest/index/{index_name}/template/{template_name}",
+							indexName, TemplateList.EMPTY_INDEX.name())
+					.accept(MediaType.APPLICATION_JSON).post(null);
+			checkResponse(response);
+			response.close();
+			response = null;
+			// Create schema
+			String json = getResource("schema.json");
+			webClient.reset();
+			response = webClient
+					.path("/services/rest/index/{index_name}/field", indexName)
+					.accept(MediaType.APPLICATION_JSON)
+					.type(MediaType.APPLICATION_JSON).put(json);
+			checkResponse(response);
+			response.close();
+			response = null;
+			// Set default field
+			webClient.reset();
+			response = webClient.accept(MediaType.APPLICATION_JSON)
+					.path("/services/rest/index/{index_name}/field", indexName)
+					.query("default", "question").post(null);
+			checkResponse(response);
+			response.close();
+			response = null;
+			// Create query
+			json = getResource("query.json");
+			webClient.reset();
+			response = webClient
+					.path("/services/rest/index/{index_name}/search/field/{request_name}",
+							indexName, "search")
+					.accept(MediaType.APPLICATION_JSON)
+					.type(MediaType.APPLICATION_JSON).put(json);
+			checkResponse(response);
+			response.close();
+			response = null;
+		} finally {
+			if (response != null)
+				response.close();
+		}
+	}
+
 	public final static void main(String[] args) throws Exception {
 		webClient = getWebClient(args[0]);
 		indexName = args[1];
+		reCreateIndex();
 		int i = readCsv(args[2]);
 		webClient.close();
 		System.out.println(i + " lines.");
+		System.exit(1);
 	}
 }
