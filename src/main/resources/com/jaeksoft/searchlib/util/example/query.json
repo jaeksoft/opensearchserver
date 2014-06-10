@@ -1,0 +1,49 @@
+{
+        "start": 0,
+        "rows": 10,
+        "lang": "FRENCH",
+        "operator": "OR",
+        "emptyReturnsAll": false,
+        "returnedFields": [
+            "question",
+            "answer"
+        ],
+        "searchFields": [
+            {
+                "field": "question",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 10,
+                "phraseBoost": 10
+            },
+            {
+                "field": "question_exact",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 10,
+                "phraseBoost": 10
+            },
+            {
+                "field": "conversation",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 0.2,
+                "phraseBoost": 0.2
+            },
+            {
+                "field": "conversation_exact",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 0.2,
+                "phraseBoost": 0.2
+            },
+            {
+                "field": "answer",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 1,
+                "phraseBoost": 1
+            },
+            {
+                "field": "answer_exact",
+                "mode": "TERM_AND_PHRASE",
+                "boost": 1,
+                "phraseBoost": 1
+            }
+        ]
+}
