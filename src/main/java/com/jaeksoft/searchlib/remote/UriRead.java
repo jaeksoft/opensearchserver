@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,6 +34,7 @@ public class UriRead extends UriHttp {
 
 	public UriRead(URI uri) throws HttpException, IOException {
 		HttpGet httpGet = new HttpGet(uri.toASCIIString());
+		httpGet.setConfig(requestConfig);
 		httpGet.addHeader("Connection", "close");
 		execute(httpGet);
 	}

@@ -222,6 +222,8 @@ public abstract class Config implements ThreadFactory {
 
 	private AuthManager authManager = null;
 
+	private boolean isClosed = false;
+
 	protected Config(File indexDirectory, String configXmlResourceName,
 			boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
@@ -1813,7 +1815,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void push(ReplicationThread replicationThread)
 			throws SearchLibException {
-		replicationLock.rl.lock();
+		if (!replicationLock.rl.tryLock())
+			throw new SearchLibException("Replication in process");
 		try {
 			replicationThread.push();
 		} finally {
@@ -2089,6 +2092,15 @@ public abstract class Config implements ThreadFactory {
 				indexDir.renameTo(trashDir);
 		} finally {
 			replicationLock.rl.unlock();
+		}
+		synchronized (this) {
+			isClosed = true;
+		}
+	}
+
+	public boolean isClosed() {
+		synchronized (this) {
+			return isClosed;
 		}
 	}
 

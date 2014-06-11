@@ -61,14 +61,6 @@
 						<label
 							value="API Key for authentication (or empty if no rights are required)" />
 					</row>
-					<row>
-						<label value="Search Request: " />
-						<combobox
-							value="@bind(replication.item.searchRequest)"
-							model="@load(replication.searchRequests)" />
-						<label
-							value="A Search request designing which documents are copied (only for data-only)" />
-					</row>
 				</rows>
 				<foot>
 					<footer span="3">
