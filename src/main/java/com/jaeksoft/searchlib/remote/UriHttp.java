@@ -36,7 +36,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.xml.sax.SAXException;
 
@@ -52,9 +52,11 @@ public abstract class UriHttp {
 	protected final RequestConfig requestConfig;
 
 	protected UriHttp() {
-		httpClient = HttpClients.createDefault();
-		requestConfig = RequestConfig.custom().setSocketTimeout(10000)
-				.setConnectTimeout(10000).build();
+		final int timeOut = 30;
+		requestConfig = RequestConfig.custom().setSocketTimeout(timeOut * 1000)
+				.setConnectTimeout(timeOut * 1000).build();
+		httpClient = HttpClientBuilder.create()
+				.setDefaultRequestConfig(requestConfig).build();
 	}
 
 	protected void execute(HttpUriRequest request)
