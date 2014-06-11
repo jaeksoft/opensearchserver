@@ -63,8 +63,6 @@ public class ReplicationItem extends
 
 	private ReplicationType replicationType;
 
-	private String searchRequest = null;
-
 	public final static String[] NOT_PUSHED_DATA_FOLDERS = { "index" };
 
 	public final static String[] NOT_PUSHED_DATA_PATH = { "screenshot" };
@@ -110,7 +108,6 @@ public class ReplicationItem extends
 			setApiKey(StringUtils.base64decode(encodedApiKey));
 		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
 				node, "replicationType")));
-		setSearchRequest(XPathParser.getAttributeString(node, "search"));
 		updateName();
 	}
 
@@ -140,7 +137,7 @@ public class ReplicationItem extends
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"login", login, "apiKey", encodedApiKey, "replicationType",
-					replicationType.name(), "search", searchRequest);
+					replicationType.name());
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -273,31 +270,6 @@ public class ReplicationItem extends
 		}
 	}
 
-	/**
-	 * @return the searchRequest
-	 */
-	public String getSearchRequest() {
-		rwl.r.lock();
-		try {
-			return searchRequest;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	/**
-	 * @param searchRequest
-	 *            the searchRequest to set
-	 */
-	public void setSearchRequest(String searchRequest) {
-		rwl.w.lock();
-		try {
-			this.searchRequest = searchRequest;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
 	public void copy(ReplicationItem item) {
 		rwl.w.lock();
 		try {
@@ -309,7 +281,6 @@ public class ReplicationItem extends
 			this.apiKey = item.apiKey;
 			this.replicationType = item.replicationType;
 			this.cachedUrl = null;
-			this.searchRequest = item.searchRequest;
 		} finally {
 			rwl.w.unlock();
 		}

@@ -75,6 +75,11 @@ public class DocumentUpdate {
 		}
 	}
 
+	public DocumentUpdate(LanguageEnum lang) {
+		this.lang = lang;
+		fields = new ArrayList<Field>();
+	}
+
 	public DocumentUpdate() {
 		lang = LanguageEnum.UNDEFINED;
 		fields = null;

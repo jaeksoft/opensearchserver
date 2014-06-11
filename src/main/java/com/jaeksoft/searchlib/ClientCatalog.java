@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -358,19 +358,27 @@ public class ClientCatalog {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		File indexDir = getIndexDirectory(indexName);
+		Client client = null;
 		synchronized (ClientCatalog.class) {
 			clientsLock.r.lock();
 			try {
-				Client client = CLIENTS.get(indexDir);
-				if (client != null) {
-					CLIENTS.remove(client.getDirectory());
-					client.close();
-					client.delete();
-				} else {
-					FileUtils.deleteDirectory(indexDir);
-				}
+				client = CLIENTS.get(indexDir);
 			} finally {
 				clientsLock.r.unlock();
+			}
+			if (client != null) {
+				client.close();
+				client.delete();
+			} else
+				FileUtils.deleteDirectory(indexDir);
+			if (client != null) {
+				clientsLock.w.lock();
+				try {
+					CLIENTS.remove(client.getDirectory());
+				} finally {
+					clientsLock.w.unlock();
+				}
+				PushEvent.eventClientSwitch.publish(client);
 			}
 		}
 	}

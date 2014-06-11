@@ -156,7 +156,14 @@ public abstract class CommonController implements EventInterface {
 	}
 
 	public Client getClient() throws SearchLibException {
-		return (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
+		Client client = (Client) getAttribute(ScopeAttribute.CURRENT_CLIENT);
+		if (client == null)
+			return null;
+		if (client.isClosed()) {
+			client = ClientCatalog.getClient(client.getIndexName());
+			setClient(client);
+		}
+		return client;
 	}
 
 	protected void setClient(Client client) {
@@ -317,8 +324,11 @@ public abstract class CommonController implements EventInterface {
 		Client currentClient = getClient();
 		if (currentClient == null)
 			return;
-		if (!client.getIndexName().equals(currentClient.getIndexName()))
+		String indexName = client.getIndexName();
+		if (!indexName.equals(currentClient.getIndexName()))
 			return;
+		Client newClient = ClientCatalog.getClient(indexName);
+		setClient(newClient);
 		refresh();
 	}
 
