@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ public class UriWriteObject extends UriHttp {
 
 	public UriWriteObject(URI uri, Externalizable object) throws IOException {
 		HttpPut httpPut = new HttpPut(uri.toASCIIString());
+		httpPut.setConfig(requestConfig);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		swo = new StreamWriteObject(baos);
 		swo.write(object);
