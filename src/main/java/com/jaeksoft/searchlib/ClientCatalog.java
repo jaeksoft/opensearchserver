@@ -389,19 +389,27 @@ public class ClientCatalog {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		File indexDir = getClientDir(indexName);
+		Client client = null;
 		synchronized (ClientCatalog.class) {
 			clientsLock.r.lock();
 			try {
-				Client client = CLIENTS.get(indexDir);
-				if (client != null) {
-					CLIENTS.remove(client.getDirectory());
-					client.close();
-					client.delete();
-				} else {
-					FileUtils.deleteDirectory(indexDir);
-				}
+				client = CLIENTS.get(indexDir);
 			} finally {
 				clientsLock.r.unlock();
+			}
+			if (client != null) {
+				client.close();
+				client.delete();
+			} else
+				FileUtils.deleteDirectory(indexDir);
+			if (client != null) {
+				clientsLock.w.lock();
+				try {
+					CLIENTS.remove(client.getDirectory());
+				} finally {
+					clientsLock.w.unlock();
+				}
+				PushEvent.eventClientSwitch.publish(client);
 			}
 		}
 	}
