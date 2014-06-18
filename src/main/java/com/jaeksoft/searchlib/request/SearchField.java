@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -211,9 +211,9 @@ public class SearchField implements Cloneable {
 
 			tqf.sortByOffset();
 
-			TermQueryFilter.includeChilds(tqf.termQueryItems);
+			TermQueryFilter.includeChildrenBrothers(tqf.termQueryItems);
 			for (TermQueryItem termQueryItem : tqf.termQueryItems)
-				termQueryItem.includeChilds();
+				termQueryItem.includeChildrenBrothers();
 			return tqf.termQueryItems;
 		} finally {
 			IOUtils.close(tqf, ts, analyzer);
@@ -225,7 +225,7 @@ public class SearchField implements Cloneable {
 		BooleanQuery booleanQuery = new BooleanQuery();
 		for (TermQueryItem termQueryItem : termQueryItems) {
 			if (termQueryItem.parent == null)
-				booleanQuery.add(termQueryItem.getQuery(occur), occur);
+				booleanQuery.add(termQueryItem.getQuery(null, occur), occur);
 		}
 		return booleanQuery;
 	}
