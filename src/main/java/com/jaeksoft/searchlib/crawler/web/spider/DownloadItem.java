@@ -153,7 +153,7 @@ public class DownloadItem {
 			contentEncoding = json.getString(KEY_CONTENT_ENCODING);
 
 		if (json.has(KEY_CONTENT_LOCATION))
-			contentLocation = json.getString(KEY_CONTENT_ENCODING);
+			contentLocation = json.getString(KEY_CONTENT_LOCATION);
 
 		if (json.has(KEY_STATUS_CODE))
 			statusCode = json.getInt(KEY_STATUS_CODE);
