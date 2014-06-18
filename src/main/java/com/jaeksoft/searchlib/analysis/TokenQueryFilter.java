@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -63,6 +63,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		public final int start;
 		public final int end;
 		public List<TermQueryItem> children;
+		public List<TermQueryItem> brothers;
 		public TermQueryItem parent;
 
 		public TermQueryItem(final String term, final int start, final int end) {
@@ -70,6 +71,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			this.start = start;
 			this.end = end;
 			this.children = null;
+			this.brothers = null;
 			this.parent = null;
 		}
 
@@ -86,21 +88,34 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 				sb.append(" father");
 			if (parent != null)
 				sb.append(" child");
+			if (brothers != null)
+				sb.append(" brothers");
 			return sb.toString();
 		}
 
-		public final boolean includes(final TermQueryItem next) {
+		public final boolean isEquals(final TermQueryItem next) {
+			return next.start == start && next.end == end;
+		}
+
+		public final boolean isIncludes(final TermQueryItem next) {
 			return next.start >= start && next.end <= end;
 		}
 
 		public final void addChild(final TermQueryItem next) {
 			if (children == null)
-				children = new ArrayList<TermQueryItem>(0);
+				children = new ArrayList<TermQueryItem>(1);
 			children.add(next);
 			next.parent = this;
 		}
 
-		public final Query getTermOrPhraseQuery() throws IOException {
+		public final void addBrother(final TermQueryItem next) {
+			if (brothers == null)
+				brothers = new ArrayList<TermQueryItem>(1);
+			brothers.add(next);
+			next.parent = this;
+		}
+
+		private final Query getTermOrPhraseQuery() throws IOException {
 			if (analyzer != null) {
 				List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>(1);
 				analyzer.justTokenize(term, tokenTerms);
@@ -118,31 +133,34 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			return termQuery;
 		}
 
-		private final Query getChildBooleanQuery(final Occur occur)
-				throws IOException {
-			if (children.size() == 1)
-				return children.get(0).getTermOrPhraseQuery();
-			BooleanQuery booleanQuery = new BooleanQuery();
-			for (TermQueryItem child : children)
-				booleanQuery.add(child.getTermOrPhraseQuery(), occur);
+		public final Query getQuery(BooleanQuery parentBooleanQuery,
+				final Occur occur) throws IOException {
+			Query localQuery = getTermOrPhraseQuery();
+			if (children == null && brothers == null)
+				return localQuery;
+			BooleanQuery booleanQuery = parentBooleanQuery == null ? new BooleanQuery()
+					: parentBooleanQuery;
+			booleanQuery.add(localQuery, Occur.SHOULD);
+			if (brothers != null)
+				for (TermQueryItem brother : brothers)
+					booleanQuery.add(brother.getQuery(booleanQuery, occur),
+							Occur.SHOULD);
+			if (children != null) {
+				BooleanQuery childrenBooleanQuery = new BooleanQuery();
+				for (TermQueryItem child : children)
+					childrenBooleanQuery.add(
+							child.getQuery(childrenBooleanQuery, occur), occur);
+				booleanQuery.add(childrenBooleanQuery, Occur.SHOULD);
+			}
 			return booleanQuery;
 		}
 
-		public final Query getQuery(final Occur occur) throws IOException {
-			if (children == null)
-				return getTermOrPhraseQuery();
-			BooleanQuery booleanQuery = new BooleanQuery();
-			booleanQuery.add(getTermOrPhraseQuery(), Occur.SHOULD);
-			booleanQuery.add(getChildBooleanQuery(occur), Occur.SHOULD);
-			return booleanQuery;
-		}
-
-		public void includeChilds() {
+		public void includeChildrenBrothers() {
 			if (children == null)
 				return;
-			TermQueryFilter.includeChilds(children);
+			TermQueryFilter.includeChildrenBrothers(children);
 			for (TermQueryItem child : children)
-				child.includeChilds();
+				child.includeChildrenBrothers();
 		}
 	}
 
@@ -196,7 +214,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			return item1.start - item2.start;
 		}
 
-		public final static void includeChilds(
+		public final static void includeChildrenBrothers(
 				List<TermQueryItem> termQueryItems) {
 			Iterator<TermQueryItem> iterator = termQueryItems.iterator();
 			if (!iterator.hasNext())
@@ -204,7 +222,10 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			TermQueryItem current = iterator.next();
 			while (iterator.hasNext()) {
 				TermQueryItem next = iterator.next();
-				if (current.includes(next)) {
+				if (current.isEquals(next)) {
+					current.addBrother(next);
+					iterator.remove();
+				} else if (current.isIncludes(next)) {
 					current.addChild(next);
 					iterator.remove();
 				} else
