@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -508,17 +508,20 @@ public class ReaderLocal extends ReaderAbstract {
 	@Override
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			SearchLibException {
 		rwl.r.lock();
 		try {
-
 			Schema schema = searchRequest.getConfig().getSchema();
 			SchemaField defaultField = schema.getFieldList().getDefaultField();
 
 			return searchCache.get(this, searchRequest, schema, defaultField,
 					timer);
-
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} catch (ClassNotFoundException e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
