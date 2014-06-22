@@ -24,7 +24,10 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+>>>>>>> dbd8701... Implements #710
 import java.util.ArrayList;
 import java.util.List;
 

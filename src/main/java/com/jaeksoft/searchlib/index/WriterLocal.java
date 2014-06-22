@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -491,7 +492,11 @@ public class WriterLocal extends WriterAbstract {
 				indexReader.deleteDocument(id);
 			indexReader.close();
 			indexReader = null;
+<<<<<<< HEAD
 			indexSingle.reloadNoLock();
+=======
+			indexSingle.reload();
+>>>>>>> dbd8701... Implements #710
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
 		} catch (IOException e) {
@@ -501,7 +506,11 @@ public class WriterLocal extends WriterAbstract {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} finally {
+<<<<<<< HEAD
 			IOUtils.close(indexReader);
+=======
+			IOUtils.closeQuietly(indexReader);
+>>>>>>> dbd8701... Implements #710
 		}
 	}
 
