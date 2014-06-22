@@ -92,6 +92,10 @@ public interface ReaderInterface {
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException;
 
+	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
+			Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException;
+
 	public void putTermVectors(final int[] docIds, final String field,
 			final Collection<String[]> termVectors) throws IOException,
 			SearchLibException;

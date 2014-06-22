@@ -99,6 +99,7 @@ public interface RestDocument {
 	public CommonResult deleteByQuery(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("query") String query);
+			@QueryParam("query") String query,
+			@QueryParam("template") String template);
 
 }
