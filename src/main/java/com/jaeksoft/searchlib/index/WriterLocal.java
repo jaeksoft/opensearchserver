@@ -32,8 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -475,15 +477,20 @@ public class WriterLocal extends WriterAbstract {
 		return count;
 	}
 
+	@SuppressWarnings("deprecation")
 	private int deleteDocumentsNoLock(AbstractSearchRequest query)
 			throws SearchLibException {
-		IndexWriter indexWriter = null;
+		IndexReader indexReader = null;
 		try {
+			DocSetHits dsh = indexSingle.searchDocSet(query, null);
+			int[] ids = dsh.getIds();
 			int l = indexSingle.getStatistics().getNumDocs();
-			indexWriter = open();
-			indexWriter.deleteDocuments(query.getQuery());
-			close(indexWriter);
-			indexWriter = null;
+			indexReader = IndexReader
+					.open(indexDirectory.getDirectory(), false);
+			for (int id : ids)
+				indexReader.deleteDocument(id);
+			indexReader.close();
+			indexReader = null;
 			indexSingle.reload();
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
@@ -494,7 +501,7 @@ public class WriterLocal extends WriterAbstract {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} finally {
-			close(indexWriter);
+			IOUtils.closeQuietly(indexReader);
 		}
 	}
 

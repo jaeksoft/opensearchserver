@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,6 +49,7 @@ public interface SoapDocument {
 	public CommonResult deleteByQuery(@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "query") String query);
+			@WebParam(name = "query") String query,
+			@WebParam(name = "template") String template);
 
 }
