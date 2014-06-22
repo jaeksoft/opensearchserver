@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -58,13 +59,27 @@ public class DocumentImpl extends CommonServices implements RestDocument {
 
 	@Override
 	public CommonResult deleteByQuery(UriInfo uriInfo, String index,
-			String login, String key, String query) {
+			String login, String key, String query, String template) {
 		try {
+			boolean bQuery = !StringUtils.isEmpty(query);
+			boolean bSearchTemplate = !StringUtils.isEmpty(template);
+			if (!bQuery && !bSearchTemplate)
+				throw new CommonServiceException(
+						"Missing parameter: query or template");
 			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AbstractSearchRequest request = new SearchPatternRequest(client);
-			request.setQueryString(query);
+			AbstractSearchRequest request = null;
+			if (bQuery) {
+				request = new SearchPatternRequest(client);
+				request.setQueryString(query);
+			} else if (bSearchTemplate) {
+				AbstractRequest abstractRequest = client
+						.getNewRequest(template);
+				if (!(abstractRequest instanceof AbstractSearchRequest))
+					throw new CommonServiceException("Wrong request type");
+				request = (AbstractSearchRequest) abstractRequest;
+			}
 			int count = client.deleteDocuments(request);
 			return new CommonResult(true, count + " document(s) deleted")
 					.addDetail(DELETED_COUNT, count);

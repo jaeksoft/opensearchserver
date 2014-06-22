@@ -577,6 +577,25 @@ public class IndexLucene extends IndexAbstract {
 	}
 
 	@Override
+	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
+			Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
+		versionFile.sharedLock();
+		try {
+			rwl.r.lock();
+			try {
+				if (reader != null)
+					return reader.searchDocSet(searchRequest, timer);
+				return null;
+			} finally {
+				rwl.r.unlock();
+			}
+		} finally {
+			versionFile.release();
+		}
+	}
+
+	@Override
 	public long getVersion() throws SearchLibException, IOException {
 		versionFile.sharedLock();
 		try {
