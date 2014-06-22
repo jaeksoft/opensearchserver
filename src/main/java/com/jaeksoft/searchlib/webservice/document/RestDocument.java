@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -91,6 +91,7 @@ public interface RestDocument {
 	@Path("/")
 	public CommonResult deleteByQuery(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("query") String query);
+			@QueryParam("query") String query,
+			@QueryParam("template") String template);
 
 }

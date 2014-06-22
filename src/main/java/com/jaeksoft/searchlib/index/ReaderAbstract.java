@@ -67,12 +67,6 @@ public abstract class ReaderAbstract implements ReaderInterface {
 			AbstractSearchRequest searchRequest, Schema schema,
 			SchemaField defaultField, PerFieldAnalyzer analyzer, Timer timer)
 			throws IOException, ParseException, SyntaxError,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException;
-
-	public abstract DocSetHits searchDocSet(
-			AbstractSearchRequest searchRequest, Timer timer)
-			throws IOException, ParseException, SyntaxError,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 

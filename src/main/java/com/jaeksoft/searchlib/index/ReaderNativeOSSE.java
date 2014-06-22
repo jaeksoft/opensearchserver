@@ -205,8 +205,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	@Override
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws SearchLibException, IOException, SyntaxError,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException {
+			ParseException {
 		rwl.r.lock();
 		try {
 

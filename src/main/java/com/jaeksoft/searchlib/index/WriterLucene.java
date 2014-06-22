@@ -34,6 +34,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -60,6 +61,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
@@ -479,13 +481,17 @@ public class WriterLucene extends WriterAbstract {
 
 	private int deleteDocumentsNoLock(AbstractSearchRequest query)
 			throws SearchLibException {
-		IndexWriter indexWriter = null;
+		IndexReader indexReader = null;
 		try {
+			DocSetHits dsh = indexLucene.searchDocSet(query, null);
+			int[] ids = dsh.getIds();
 			long l = indexLucene.getStatistics().getNumDocs();
-			indexWriter = open();
-			indexWriter.deleteDocuments(query.getQuery());
-			close(indexWriter);
-			indexWriter = null;
+			indexReader = IndexReader
+					.open(indexDirectory.getDirectory(), false);
+			for (int id : ids)
+				indexReader.deleteDocument(id);
+			indexReader.close();
+			indexReader = null;
 			indexLucene.reloadNoLock();
 			l = l - indexLucene.getStatistics().getNumDocs();
 			return (int) l;
@@ -496,7 +502,7 @@ public class WriterLucene extends WriterAbstract {
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
 		} finally {
-			close(indexWriter);
+			IOUtils.closeQuietly(indexReader);
 		}
 	}
 
