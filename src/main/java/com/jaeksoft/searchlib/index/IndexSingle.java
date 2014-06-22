@@ -476,6 +476,21 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
+	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
+			Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				return reader.searchDocSet(searchRequest, timer);
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
 	final public boolean isOnline() {
 		rwl.r.lock();
 		try {

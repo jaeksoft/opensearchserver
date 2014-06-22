@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -58,13 +59,27 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 
 	@Override
 	public CommonResult deleteByQuery(String index, String login, String key,
-			String query) {
+			String query, String template) {
 		try {
+			boolean bQuery = !StringUtils.isEmpty(query);
+			boolean bSearchTemplate = !StringUtils.isEmpty(template);
+			if (!bQuery && !bSearchTemplate)
+				throw new CommonServiceException(
+						"Missing parameter: query or template");
 			Client client = getLoggedClient(index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AbstractSearchRequest request = new SearchPatternRequest(client);
-			request.setQueryString(query);
+			AbstractSearchRequest request = null;
+			if (bQuery) {
+				request = new SearchPatternRequest(client);
+				request.setQueryString(query);
+			} else if (bSearchTemplate) {
+				AbstractRequest abstractRequest = client
+						.getNewRequest(template);
+				if (!(abstractRequest instanceof AbstractSearchRequest))
+					throw new CommonServiceException("Wrong request type");
+				request = (AbstractSearchRequest) abstractRequest;
+			}
 			int count = client.deleteDocuments(request);
 			return new CommonResult(true, count + " document(s) deleted")
 					.addDetail(DELETED_COUNT, count);
