@@ -249,8 +249,11 @@ public class IndexLucene extends IndexAbstract {
 		try {
 			rwl.r.lock();
 			try {
-				int d = writer.deleteDocuments(query);
-				sendNotifReloadData();
+				int d = 0;
+				if (writer != null) {
+					writer.deleteDocuments(query);
+					sendNotifReloadData();
+				}
 				return d;
 			} finally {
 				rwl.r.unlock();
