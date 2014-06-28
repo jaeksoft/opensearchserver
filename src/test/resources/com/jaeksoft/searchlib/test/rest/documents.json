@@ -19,5 +19,54 @@
       { "name": "id", "value": 3 },
       { "name": "content", "value": "Hallo Welt!", "boost": 1 }
      ]
+   },
+   {
+    "lang": "ITALIAN",
+    "fields": [
+      { "name": "id", "value": 4 },
+      { "name": "content", "value": "Ciao mondo!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "SPANISH",
+    "fields": [
+      { "name": "id", "value": 5 },
+      { "name": "content", "value": "Hola mundo!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "NORWEGIAN",
+    "fields": [
+      { "name": "id", "value": 6 },
+      { "name": "content", "value": "Hallo verden!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "SWEDISH",
+    "fields": [
+      { "name": "id", "value": 7 },
+      { "name": "content", "value": "Hallå världen!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "DANISH",
+    "fields": [
+      { "name": "id", "value": 8 },
+      { "name": "content", "value": "Hej verden!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "DUTCH",
+    "fields": [
+      { "name": "id", "value": 9 },
+      { "name": "content", "value": "Hello wereld!", "boost": 1 }
+     ]
+   },
+   {
+    "lang": "PORTUGUESE",
+    "fields": [
+      { "name": "id", "value": 10 },
+      { "name": "content", "value": "Olá mundo!", "boost": 1 }
+     ]
    }
 ]

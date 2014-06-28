@@ -56,21 +56,71 @@ public class RestDeleteTest extends CommonRestAPI {
 				.path("/services/rest/index/{index_name}/document/id/1/2",
 						IntegrationTest.INDEX_NAME)
 				.accept(MediaType.APPLICATION_JSON).async().delete().get();
-		String info = checkCommonResult(response, CommonResult.class, 200).info;
-		assertTrue("Wrong info: " + info, info.startsWith("2 document"));
+		CommonResult result = checkCommonResult(response, CommonResult.class,
+				200);
+		assertTrue("Wrong info: " + result.info,
+				result.info.startsWith("2 document"));
+		checkCommonResultDetail(result, "deletedCount", "2");
 	}
 
 	@Test
 	public void testC_RestAPIDeleteByJson() {
-
 		Response response = client()
 				.path("/services/rest/index/{index_name}/document/id",
 						IntegrationTest.INDEX_NAME)
 				.accept(MediaType.APPLICATION_JSON)
 				.type(MediaType.APPLICATION_JSON)
 				.invoke("DELETE", "[\"2\",\"3\"]");
-		String info = checkCommonResult(response, CommonResult.class, 200).info;
-		// TODO Resolve: DELETE invokation does not pass the body
-		// assertTrue("Wrong info: " + info, info.startsWith("1 document"));
+		CommonResult result = checkCommonResult(response, CommonResult.class,
+				200);
+		assertTrue("Wrong info: " + result.info,
+				result.info.startsWith("1 document"));
+		checkCommonResultDetail(result, "deletedCount", "1");
+	}
+
+	@Test
+	public void testD_RestAPIDeleteByJsonQueryUnique() {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/documents",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON)
+				.invoke("DELETE", "{ \"values\": [4, 5] }");
+		CommonResult result = checkCommonResult(response, CommonResult.class,
+				200);
+		assertTrue("Wrong info: " + result.info,
+				result.info.startsWith("2 document"));
+		checkCommonResultDetail(result, "deletedCount", "2");
+	}
+
+	@Test
+	public void testE_RestAPIDeleteByJsonQueryField() {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/documents",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON)
+				.invoke("DELETE",
+						"{ \"field\": \"content\", \"values\": [\"hallo\"] }");
+		CommonResult result = checkCommonResult(response, CommonResult.class,
+				200);
+		assertTrue("Wrong info: " + result.info,
+				result.info.startsWith("1 document"));
+		checkCommonResultDetail(result, "deletedCount", "1");
+	}
+
+	@Test
+	public void testF_RestAPIDeleteByJsonUniqueReverse() {
+		Response response = client()
+				.path("/services/rest/index/{index_name}/documents",
+						IntegrationTest.INDEX_NAME)
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON)
+				.invoke("DELETE", "{ \"reverse\": true, \"values\": [10] }");
+		CommonResult result = checkCommonResult(response, CommonResult.class,
+				200);
+		assertTrue("Wrong info: " + result.info,
+				result.info.startsWith("3 document"));
+		checkCommonResultDetail(result, "deletedCount", "3");
 	}
 }
