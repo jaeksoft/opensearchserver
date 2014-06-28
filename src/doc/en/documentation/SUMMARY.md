@@ -17,7 +17,7 @@
 		* [Tesseract-3 on Debian](faq/installation/how_to_install_Tesseract-3_on_Debian.md)
 		* [Reset username or password](faq/installation/how_to_reset_forgotten_username_or_password.md)
 		* [Known error messages](faq/installation/known_exceptions_and_error_messages.md)
-		* [Out of memory issue](out_of_memory_issue.md)
+		* [Out of memory issue](faq/installation/out_of_memory_issue.md)
 	* [Querying](faq/querying/README.md)
 		* [Geolocation](faq/querying/geolocation.md)
 		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
