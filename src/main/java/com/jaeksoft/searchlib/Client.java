@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -300,33 +300,24 @@ public class Client extends Config {
 		return deleteCount;
 	}
 
-	public int deleteDocument(String field, String value)
-			throws SearchLibException {
-		Timer timer = new Timer("Delete document " + field + ": " + value);
-		try {
-			return getIndexAbstract().deleteDocument(getSchema(), field, value);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
-	}
-
 	public int deleteDocuments(String field, Collection<String> values)
 			throws SearchLibException {
-		Timer timer = new Timer("Delete " + values.size() + " documents("
-				+ field + ")");
-		try {
-			return getIndexAbstract().deleteDocuments(getSchema(), field,
-					values);
-		} finally {
-			getStatisticsList().addDelete(timer);
-		}
+		return deleteDocuments(new DocumentsRequest(this, field, values, false));
 	}
 
-	public int deleteDocuments(AbstractSearchRequest searchRequest)
+	public int deleteDocument(String field, String value)
+			throws SearchLibException {
+		DocumentsRequest request = new DocumentsRequest(this, field, null,
+				false);
+		request.getValues().add(value);
+		return deleteDocuments(request);
+	}
+
+	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
-			return getIndexAbstract().deleteDocuments(searchRequest);
+			return getIndexAbstract().deleteDocuments(request);
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}

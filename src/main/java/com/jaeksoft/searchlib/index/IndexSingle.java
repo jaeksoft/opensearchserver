@@ -71,7 +71,7 @@ public class IndexSingle extends IndexAbstract {
 
 	final private IndexDirectory indexDirectory;
 
-	private final ReaderInterface reader;
+	private final ReaderLocal reader;
 	private final WriterInterface writer;
 
 	private volatile boolean online;
@@ -164,36 +164,6 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer != null)
-				return writer.deleteDocument(schema, field, value);
-			else
-				return 0;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer != null)
-				return writer.deleteDocuments(schema, field, values);
-			else
-				return 0;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
 	public void deleteAll() throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -206,12 +176,12 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(AbstractSearchRequest query)
+	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			return writer.deleteDocuments(query);
+			return writer.deleteDocuments(request);
 		} finally {
 			rwl.r.unlock();
 		}

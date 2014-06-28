@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -40,13 +41,19 @@ import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DocumentsQuery extends QueryAbstract {
 
-	final public List<String> uniqueKeys;
+	final public String field;
+
+	final public Collection<String> values;
 
 	final public List<String> returnedFields;
 
+	final public Boolean reverse;
+
 	public DocumentsQuery() {
-		uniqueKeys = null;
+		field = null;
+		values = null;
 		returnedFields = null;
+		reverse = false;
 	}
 
 	public DocumentsQuery(DocumentsRequest request) {
@@ -56,16 +63,22 @@ public class DocumentsQuery extends QueryAbstract {
 			rfl.toNameList(returnedFields);
 		} else
 			returnedFields = null;
-		uniqueKeys = new ArrayList<String>(request.getUniqueKeyList());
+		values = request.getUniqueKeyList();
+		reverse = request.isReverse();
+		field = request.getField();
 	}
 
 	@Override
 	protected void apply(AbstractRequest req) {
 		super.apply(req);
 		DocumentsRequest request = (DocumentsRequest) req;
-		if (uniqueKeys != null)
-			request.addUniqueKeys(uniqueKeys);
+		if (field != null)
+			request.setField(field);
+		if (values != null)
+			request.addValues(values);
 		if (returnedFields != null)
 			request.addReturnFields(returnedFields);
+		if (reverse != null)
+			request.setReverse(reverse);
 	}
 }

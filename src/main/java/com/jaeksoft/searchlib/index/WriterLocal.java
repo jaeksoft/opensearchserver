@@ -26,13 +26,9 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
@@ -45,7 +41,6 @@ import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
 
-import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.SearchLibException.UniqueKeyMissing;
@@ -57,11 +52,15 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
@@ -368,149 +367,60 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private int deleteDocumentNoLock(String field, String value)
-			throws SearchLibException {
-		IndexWriter indexWriter = null;
-		try {
-			int l = indexSingle.getStatistics().getNumDocs();
-			indexWriter = open();
-			indexWriter.deleteDocuments(new Term(field, value));
-			close(indexWriter);
-			indexWriter = null;
-			indexSingle.reload();
-			l = l - indexSingle.getStatistics().getNumDocs();
-			if (l > 0)
-				if (afterDeleteList != null)
-					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
-						afterDelete.delete(field, value);
-			return l;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			close(indexWriter);
-		}
-	}
-
-	private String getSchemaFieldOrUnique(Schema schema, String field) {
-		SchemaField schemaField = field != null ? schema.getFieldList().get(
-				field) : schema.getFieldList().getUniqueField();
-		return schemaField == null ? null : schemaField.getName();
-	}
-
-	@Override
-	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException {
-		field = getSchemaFieldOrUnique(schema, field);
-		if (field == null)
-			return 0;
-		lock.rl.lock();
-		try {
-			return deleteDocumentNoLock(field, value);
-		} finally {
-			lock.rl.unlock();
-		}
-	}
-
-	private int deleteDocumentsNoLock(String field, Collection<String> values)
-			throws SearchLibException {
-		IndexWriter indexWriter = null;
-		try {
-			Term[] terms = new Term[values.size()];
-			int i = 0;
-			for (String value : values)
-				terms[i++] = new Term(field, value);
-			int l = indexSingle.getStatistics().getNumDocs();
-			indexWriter = open();
-			indexWriter.deleteDocuments(terms);
-			close(indexWriter);
-			indexWriter = null;
-			if (terms.length > 0)
-				indexSingle.reload();
-			l = l - indexSingle.getStatistics().getNumDocs();
-			if (l > 0)
-				if (afterDeleteList != null)
-					for (UpdateInterfaces.Delete afterDelete : afterDeleteList)
-						afterDelete.delete(field, values);
-			return l;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			close(indexWriter);
-		}
-	}
-
-	@Override
-	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException {
-		field = getSchemaFieldOrUnique(schema, field);
-		if (field == null)
-			return 0;
-		int countNonNullValues = 0;
-		for (String value : values)
-			if (value != null)
-				countNonNullValues++;
-		if (countNonNullValues == 0)
-			return 0;
-		int maxClauseCount = ClientFactory.INSTANCE
-				.getBooleanQueryMaxClauseCount().getValue();
-
-		Iterator<String> valueIterator = values.iterator();
-
-		int count = 0;
-		while (valueIterator.hasNext()) {
-			List<String> termList = new ArrayList<String>();
-			while (valueIterator.hasNext() && termList.size() < maxClauseCount) {
-				String value = valueIterator.next();
-				if (value == null)
-					continue;
-				termList.add(value);
-			}
-			if (termList.size() == 0)
-				continue;
-			lock.rl.lock();
-			try {
-				count += deleteDocumentsNoLock(field, termList);
-			} finally {
-				lock.rl.unlock();
-			}
-		}
-		return count;
-	}
-
 	@SuppressWarnings("deprecation")
-	private int deleteDocumentsNoLock(AbstractSearchRequest query)
-			throws SearchLibException {
+	private int deleteDocumentsNoLock(int[] ids) throws IOException,
+			SearchLibException {
+		if (ids == null || ids.length == 0)
+			return 0;
 		IndexReader indexReader = null;
 		try {
-			DocSetHits dsh = indexSingle.searchDocSet(query, null);
-			int[] ids = dsh.getIds();
 			int l = indexSingle.getStatistics().getNumDocs();
 			indexReader = IndexReader
 					.open(indexDirectory.getDirectory(), false);
 			for (int id : ids)
-				indexReader.deleteDocument(id);
+				if (!indexReader.isDeleted(id))
+					indexReader.deleteDocument(id);
 			indexReader.close();
 			indexReader = null;
 			indexSingle.reload();
 			l = l - indexSingle.getStatistics().getNumDocs();
 			return l;
+		} finally {
+			IOUtils.close(indexReader);
+		}
+	}
+
+	private int deleteDocumentsNoLock(AbstractRequest request)
+			throws SearchLibException {
+		try {
+			int[] ids = null;
+			if (request instanceof AbstractSearchRequest) {
+				DocSetHits dsh = indexSingle.searchDocSet(
+						(AbstractSearchRequest) request, null);
+				if (dsh != null)
+					ids = dsh.getIds();
+			} else if (request instanceof DocumentsRequest) {
+				ResultDocuments result = (ResultDocuments) indexSingle
+						.request(request);
+				if (result != null)
+					ids = result.getDocIdArray();
+			}
+			return deleteDocumentsNoLock(ids);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
-		} finally {
-			IOUtils.closeQuietly(indexReader);
 		}
 	}
 
 	@Override
-	public int deleteDocuments(AbstractSearchRequest query)
+	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException {
 		lock.rl.lock();
 		try {
-			return deleteDocumentsNoLock(query);
+			return deleteDocumentsNoLock(request);
 		} finally {
 			lock.rl.unlock();
 		}

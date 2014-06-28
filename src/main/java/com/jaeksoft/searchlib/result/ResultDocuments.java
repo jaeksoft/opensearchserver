@@ -25,15 +25,18 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -49,10 +52,12 @@ import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Indexed;
+import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.array.IntBufferedArray;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
@@ -62,10 +67,10 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 
 	transient private ReaderInterface reader = null;
 	final private TreeSet<String> fieldNameSet;
-	final private List<Integer> docList;
+	final private int[] docArray;
 
-	public ResultDocuments(ReaderInterface reader, AbstractRequest request,
-			TreeSet<String> fieldNameSet, List<Integer> docList) {
+	private ResultDocuments(ReaderInterface reader, AbstractRequest request,
+			TreeSet<String> fieldNameSet, int[] docArray) {
 		super(request);
 		this.reader = reader;
 		this.fieldNameSet = fieldNameSet == null ? new TreeSet<String>()
@@ -74,34 +79,73 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 				&& request instanceof RequestInterfaces.ReturnedFieldInterface)
 			((RequestInterfaces.ReturnedFieldInterface) request)
 					.getReturnFieldList().populate(this.fieldNameSet);
-		this.docList = new ArrayList<Integer>(docList);
+		this.docArray = docArray;
+	}
+
+	public ResultDocuments(ReaderInterface reader, AbstractRequest request,
+			TreeSet<String> fieldNameSet, List<Integer> docList) {
+		this(reader, request, fieldNameSet, toDocArray(docList));
+	}
+
+	private final static int[] toDocArray(List<Integer> docList) {
+		if (CollectionUtils.isEmpty(docList))
+			return null;
+		int[] docArray = new int[docList.size()];
+		int i = 0;
+		for (Integer docId : docList)
+			docArray[i++] = docId;
+		return docArray;
 	}
 
 	public ResultDocuments(ReaderLocal reader, DocumentsRequest request)
-			throws IOException {
-		this(reader, request, null, request.getDocList());
-		SchemaField uniqueField = request.getConfig().getSchema()
-				.getFieldList().getUniqueField();
-		if (uniqueField != null) {
-			String uniqueFieldName = uniqueField.getName();
-			for (String uniqueKey : request.getUniqueKeyList()) {
-				TermDocs termDocs = reader.getTermDocs(new Term(
-						uniqueFieldName, uniqueKey));
-				if (termDocs != null)
-					while (termDocs.next())
-						docList.add(termDocs.doc());
-				termDocs.close();
-			}
+			throws IOException, SearchLibException {
+		this(reader, request, null, toDocArray(reader, request));
+	}
+
+	private final static int[] toDocArray(ReaderLocal reader,
+			DocumentsRequest request) throws IOException {
+		SchemaField schemaField = null;
+		Schema schema = request.getConfig().getSchema();
+		String field = request.getField();
+		if (!StringUtils.isEmpty(field)) {
+			schemaField = schema.getField(field);
+			if (schemaField == null)
+				throw new IOException("Field not found: " + field);
+		} else {
+			schemaField = schema.getFieldList().getUniqueField();
+			if (schemaField == null)
+				throw new IOException("No unique field");
 		}
+		int maxDoc = reader.getStatistics().getMaxDoc();
+		OpenBitSet bitSet = new OpenBitSet(maxDoc);
+		String fieldName = schemaField.getName();
+		for (String uniqueKey : request.getUniqueKeyList()) {
+			TermDocs termDocs = reader.getTermDocs(new Term(fieldName,
+					uniqueKey));
+			if (termDocs != null)
+				while (termDocs.next())
+					bitSet.fastSet(termDocs.doc());
+			termDocs.close();
+		}
+		if (request.isReverse())
+			bitSet.flip(0, maxDoc);
+		IntBufferedArray intBufferArray = new IntBufferedArray(
+				(int) bitSet.cardinality());
+		DocIdSetIterator iterator = bitSet.iterator();
+		int docId;
+		while ((docId = iterator.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
+			if (!reader.isDeletedNoLock(docId))
+				intBufferArray.add(docId);
+		return intBufferArray.getFinalArray();
 	}
 
 	@Override
 	public ResultDocument getDocument(int pos, Timer timer)
 			throws SearchLibException {
-		if (docList == null || pos < 0 || pos > docList.size())
+		if (docArray == null || pos < 0 || pos > docArray.length)
 			return null;
 		try {
-			return new ResultDocument(fieldNameSet, docList.get(pos), reader,
+			return new ResultDocument(fieldNameSet, docArray[pos], reader,
 					getScore(pos), null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -117,7 +161,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 			throws IOException, SearchLibException {
 		SchemaFieldList schemaFieldList = request.getConfig().getSchema()
 				.getFieldList();
-		for (Integer docId : docList) {
+		for (int docId : docArray) {
 			IndexDocumentResult indexDocument = new IndexDocumentResult(
 					schemaFieldList.size());
 			Map<String, FieldValue> storedFieldMap = reader
@@ -160,9 +204,9 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 
 	@Override
 	public int getNumFound() {
-		if (docList == null)
+		if (docArray == null)
 			return 0;
-		return docList.size();
+		return docArray.length;
 	}
 
 	@Override
@@ -188,7 +232,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 
 	@Override
 	public int getDocumentCount() {
-		return docList.size();
+		return docArray == null ? 0 : docArray.length;
 	}
 
 	@Override
@@ -198,12 +242,16 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 
 	@Override
 	public int getRequestRows() {
-		return docList.size();
+		return docArray == null ? 0 : docArray.length;
 	}
 
 	@Override
 	public DocIdInterface getDocs() {
 		return null;
+	}
+
+	public int[] getDocIdArray() {
+		return docArray;
 	}
 
 	@Override
