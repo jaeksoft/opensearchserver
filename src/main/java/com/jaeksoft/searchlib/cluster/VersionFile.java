@@ -36,6 +36,8 @@ public class VersionFile {
 
 	private RandomAccessFile readRaf = null;
 
+	private Thread writeOwner = null;
+
 	private long version = 0;
 
 	public final static String FILENAME = "version";
@@ -49,8 +51,11 @@ public class VersionFile {
 	public void sharedLock() throws IOException {
 		if (readRaf != null)
 			return;
-		if (writeRaf != null)
+		if (writeRaf != null) {
+			if (writeOwner == Thread.currentThread())
+				return;
 			throw new IOException("Already open for write");
+		}
 		readRaf = new RandomAccessFile(file, "r");
 		readRaf.getChannel().lock(0, readRaf.length(), true);
 		version = readRaf.length() == 0 ? 0 : readRaf.readLong();
@@ -68,6 +73,7 @@ public class VersionFile {
 		writeRaf = new RandomAccessFile(file, "rw");
 		writeRaf.getChannel().lock();
 		version = writeRaf.length() == 0 ? 0 : writeRaf.readLong();
+		writeOwner = Thread.currentThread();
 	}
 
 	public void increment() throws IOException {
@@ -83,6 +89,7 @@ public class VersionFile {
 		if (writeRaf != null) {
 			writeRaf.close();
 			writeRaf = null;
+			writeOwner = null;
 		}
 	}
 }

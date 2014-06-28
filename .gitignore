@@ -1,9 +1,8 @@
 /dist
 /.settings
 /.classpath
-.DS_Store
-.DS_Store?
 /.project
 /temp
 /bin
 /target
+.DS_Store

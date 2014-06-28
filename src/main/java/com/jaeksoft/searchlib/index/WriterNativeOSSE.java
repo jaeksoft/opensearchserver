@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -217,29 +217,15 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Override
+	public long deleteDocuments(AbstractRequest request)
+			throws SearchLibException, IOException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
 	public void deleteAll() throws SearchLibException {
 		index.deleteAll(error);
-	}
-
-	@Override
-	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int deleteDocuments(AbstractSearchRequest query)
-			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override
