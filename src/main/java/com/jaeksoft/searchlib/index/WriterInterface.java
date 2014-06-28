@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
@@ -36,13 +36,7 @@ public interface WriterInterface {
 
 	public void deleteAll() throws SearchLibException, IOException;
 
-	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException, IOException;
-
-	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException, IOException;
-
-	public int deleteDocuments(AbstractSearchRequest query)
+	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException, IOException;
 
 	public void addUpdateInterface(UpdateInterfaces updateInterface)
