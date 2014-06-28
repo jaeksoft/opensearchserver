@@ -90,6 +90,12 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 
 	@Override
 	public CommonResult createIndex(String login, String key, String indexName,
+			TemplateList indexTemplateName, String remoteURI) {
+		return createIndex(login, key, indexName, IndexType.LUCENE, remoteURI);
+	}
+
+	@Override
+	public CommonResult createIndex(String login, String key, String indexName,
 			IndexType type, String remoteURI) {
 		return createIndex(login, key, indexName, TemplateList.EMPTY_INDEX,
 				type, remoteURI);

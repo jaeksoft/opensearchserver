@@ -107,7 +107,7 @@ public class TaskDeleteQuery extends TaskAbstract {
 			request = (AbstractSearchRequest) abstractRequest;
 		}
 		taskLog.setInfo("Deletion request");
-		int i = client.deleteDocuments(request);
+		long i = client.deleteDocuments(request);
 		taskLog.setInfo(i + " document(s) deleted");
 	}
 }

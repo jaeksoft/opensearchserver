@@ -54,8 +54,10 @@ public class DocumentsRequest extends AbstractRequest implements
 		RequestInterfaces.ReturnedFieldInterface {
 
 	private List<Integer> docList;
-	private List<String> uniqueKeyList;
+	private String field;
+	private Collection<String> values;
 	private ReturnFieldList returnFieldList;
+	private boolean reverse;
 
 	public DocumentsRequest() {
 		super(null, RequestTypeEnum.DocumentsRequest);
@@ -65,20 +67,31 @@ public class DocumentsRequest extends AbstractRequest implements
 		super(config, RequestTypeEnum.DocumentsRequest);
 	}
 
+	public DocumentsRequest(Config config, String field,
+			Collection<String> values, boolean reverse) {
+		super(config, RequestTypeEnum.DocumentsRequest);
+		this.field = field;
+		this.values = values;
+		this.reverse = reverse;
+	}
+
 	@Override
 	protected void setDefaultValues() {
 		super.setDefaultValues();
+		this.field = null;
 		this.docList = new ArrayList<Integer>(0);
-		this.uniqueKeyList = new ArrayList<String>(0);
+		this.values = new ArrayList<String>(0);
 		this.returnFieldList = new ReturnFieldList();
+		this.reverse = false;
 	}
 
 	@Override
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		DocumentsRequest docsRequest = (DocumentsRequest) request;
+		this.field = docsRequest.field;
 		this.docList = new ArrayList<Integer>(docsRequest.docList);
-		this.uniqueKeyList = new ArrayList<String>(docsRequest.uniqueKeyList);
+		this.values = new ArrayList<String>(docsRequest.values);
 		this.returnFieldList = new ReturnFieldList(docsRequest.returnFieldList);
 	}
 
@@ -119,16 +132,20 @@ public class DocumentsRequest extends AbstractRequest implements
 		}
 	}
 
-	public void addUniqueKeys(Collection<String> uniqueKeys) {
-		if (uniqueKeys == null)
+	public void addValues(Collection<String> values) {
+		if (values == null)
 			return;
 		rwl.w.lock();
 		try {
-			for (String uniqueKey : uniqueKeys)
-				uniqueKeyList.add(uniqueKey);
+			for (String value : values)
+				this.values.add(value);
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	public void addUniqueKeys(Collection<String> uniqueKeys) {
+		addValues(values);
 	}
 
 	@Override
@@ -153,7 +170,7 @@ public class DocumentsRequest extends AbstractRequest implements
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node n = nodes.item(i);
 				if (n != null)
-					uniqueKeyList.add(xpp.getNodeString(n, false));
+					values.add(xpp.getNodeString(n, false));
 			}
 		}
 
@@ -166,6 +183,7 @@ public class DocumentsRequest extends AbstractRequest implements
 			if (field != null)
 				returnFieldList.put(field);
 		}
+		field = XPathParser.getAttributeString(requestNode, "field");
 	}
 
 	@Override
@@ -173,7 +191,8 @@ public class DocumentsRequest extends AbstractRequest implements
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
-					getRequestName(), XML_ATTR_TYPE, getType().name());
+					getRequestName(), XML_ATTR_TYPE, getType().name(), "field",
+					field);
 
 			if (docList.size() > 0) {
 				xmlWriter.startElement("docs");
@@ -183,9 +202,9 @@ public class DocumentsRequest extends AbstractRequest implements
 				}
 				xmlWriter.endElement();
 			}
-			if (uniqueKeyList.size() > 0) {
+			if (values.size() > 0) {
 				xmlWriter.startElement("uniqueKeys");
-				for (String key : uniqueKeyList) {
+				for (String key : values) {
 					xmlWriter.startElement("key");
 					xmlWriter.textNode(key);
 					xmlWriter.endElement();
@@ -232,9 +251,16 @@ public class DocumentsRequest extends AbstractRequest implements
 				if (value != null) {
 					value = value.trim();
 					if (value.length() > 0)
-						uniqueKeyList.add(value);
+						this.values.add(value);
 				}
 		}
+		String value;
+		if ((value = transaction.getParameterString("field")) != null)
+			field = value;
+
+		Boolean b;
+		if ((b = transaction.getParameterBoolean("reverse")) != null)
+			reverse = b;
 	}
 
 	@Override
@@ -256,7 +282,7 @@ public class DocumentsRequest extends AbstractRequest implements
 		rwl.r.lock();
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append("Fields:");
+			sb.append("Returned Fields:");
 			sb.append(returnFieldList.toString());
 			sb.append(" - Document id(s):");
 			for (Integer id : docList) {
@@ -264,10 +290,14 @@ public class DocumentsRequest extends AbstractRequest implements
 				sb.append(id);
 				sb.append(']');
 			}
-			sb.append(" - Unique key(s):");
-			for (String uniq : uniqueKeyList) {
+			if (field != null) {
+				sb.append(" - Field:");
+				sb.append(field);
+			}
+			sb.append(" - Value(s):");
+			for (String value : values) {
 				sb.append(" [");
-				sb.append(uniq);
+				sb.append(value);
 				sb.append(']');
 			}
 			return sb.toString();
@@ -285,13 +315,47 @@ public class DocumentsRequest extends AbstractRequest implements
 		}
 	}
 
-	public List<String> getUniqueKeyList() {
+	public Collection<String> getValues() {
 		rwl.r.lock();
 		try {
-			return uniqueKeyList;
+			return values;
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public Collection<String> getUniqueKeyList() {
+		return getValues();
+	}
+
+	/**
+	 * @return the reverse
+	 */
+	public boolean isReverse() {
+		return reverse;
+	}
+
+	/**
+	 * @param reverse
+	 *            the reverse to set
+	 */
+	public void setReverse(boolean reverse) {
+		this.reverse = reverse;
+	}
+
+	/**
+	 * @return the field
+	 */
+	public String getField() {
+		return field;
+	}
+
+	/**
+	 * @param field
+	 *            the field to set
+	 */
+	public void setField(String field) {
+		this.field = field;
 	}
 
 }

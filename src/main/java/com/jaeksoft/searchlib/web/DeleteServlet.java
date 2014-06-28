@@ -50,7 +50,7 @@ public class DeleteServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
-	private int deleteUniqDoc(Client client, String field, String value)
+	private long deleteUniqDoc(Client client, String field, String value)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
@@ -58,7 +58,7 @@ public class DeleteServlet extends AbstractServlet {
 
 	}
 
-	private int deleteByQuery(Client client, String q)
+	private long deleteByQuery(Client client, String q)
 			throws SearchLibException, IOException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, ParseException,
 			SyntaxError, URISyntaxException, InterruptedException {
@@ -80,7 +80,7 @@ public class DeleteServlet extends AbstractServlet {
 
 			String uniq = transaction.getParameterString("uniq");
 			String q = transaction.getParameterString("q");
-			Integer result = null;
+			Long result = null;
 			if (uniq != null)
 				result = deleteUniqDoc(client, null, uniq);
 			else if (q != null)

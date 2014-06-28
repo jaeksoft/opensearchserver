@@ -178,6 +178,10 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
+	final public boolean isDeletedNoLock(final int docId) {
+		return indexReader.isDeleted(docId);
+	}
+
 	public void putTermFreqVectors(final int[] docIds, final String field,
 			final Collection<TermFreqVector> termFreqVectors)
 			throws IOException {
