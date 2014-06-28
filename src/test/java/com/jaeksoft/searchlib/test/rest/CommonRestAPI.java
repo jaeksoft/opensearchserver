@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.test.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +64,13 @@ public abstract class CommonRestAPI {
 		assertNotNull(commonResult.successful);
 		assertEquals(true, commonResult.successful);
 		return commonResult;
+	}
+
+	public void checkCommonResultDetail(CommonResult commonResult,
+			String detail, String expectedValue) {
+		String value = commonResult.details.get(detail);
+		assertTrue("Wrong result detail : " + value,
+				expectedValue.equals(value));
 	}
 
 	public String getResource(String name) throws IOException {

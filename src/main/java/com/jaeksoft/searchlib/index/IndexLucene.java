@@ -183,48 +183,6 @@ public class IndexLucene extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocument(Schema schema, String field, String value)
-			throws SearchLibException, IOException {
-		versionFile.lock();
-		try {
-			rwl.r.lock();
-			try {
-				int d = 0;
-				if (writer != null) {
-					d = writer.deleteDocument(schema, field, value);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
-			}
-		} finally {
-			versionFile.release();
-		}
-	}
-
-	@Override
-	public int deleteDocuments(Schema schema, String field,
-			Collection<String> values) throws SearchLibException, IOException {
-		versionFile.lock();
-		try {
-			rwl.r.lock();
-			try {
-				int d = 0;
-				if (writer != null) {
-					d = writer.deleteDocuments(schema, field, values);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
-			}
-		} finally {
-			versionFile.release();
-		}
-	}
-
-	@Override
 	public void deleteAll() throws SearchLibException, IOException {
 		versionFile.lock();
 		try {
@@ -243,7 +201,7 @@ public class IndexLucene extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(AbstractSearchRequest query)
+	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException, IOException {
 		versionFile.lock();
 		try {
@@ -251,7 +209,7 @@ public class IndexLucene extends IndexAbstract {
 			try {
 				int d = 0;
 				if (writer != null) {
-					writer.deleteDocuments(query);
+					d = writer.deleteDocuments(request);
 					sendNotifReloadData();
 				}
 				return d;

@@ -88,6 +88,15 @@ public interface RestDocuments {
 	@DELETE
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/")
+	public CommonResult documentsDelete(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			DocumentsQuery query);
+
+	@DELETE
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{template_name}")
 	public CommonResult documentsTemplateDelete(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,

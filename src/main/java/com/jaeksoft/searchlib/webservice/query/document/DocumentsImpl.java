@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.document.DocumentImpl;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
@@ -98,12 +99,34 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 			if (query != null)
 				query.apply(request);
 			if (CollectionUtils.isEmpty(query.returnedFields)
-					&& CollectionUtils.isEmpty(query.uniqueKeys))
+					&& CollectionUtils.isEmpty(query.values))
 				return new DocumentsResult(client.getIndexAbstract()
 						.getDocTerms(client.getSchema().getUniqueField()));
 			return new DocumentsResult(
 					(ResultDocuments) client.request(request),
 					CollectionUtils.isEmpty(query.returnedFields));
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult documentsDelete(UriInfo uriInfo, String index,
+			String login, String key, DocumentsQuery query) {
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			DocumentsRequest request = new DocumentsRequest(client);
+			if (query != null)
+				query.apply(request);
+			int count = client.deleteDocuments(request);
+			return new CommonResult(true, count + " document(s) deleted")
+					.addDetail(DocumentImpl.DELETED_COUNT, count);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

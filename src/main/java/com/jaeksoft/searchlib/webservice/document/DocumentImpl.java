@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
@@ -54,8 +55,8 @@ import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class DocumentImpl extends CommonServices implements RestDocument {
 
-	private final static String UPDATED_COUNT = "updatedCount";
-	private final static String DELETED_COUNT = "deletedCount";
+	public final static String UPDATED_COUNT = "updatedCount";
+	public final static String DELETED_COUNT = "deletedCount";
 
 	@Override
 	public CommonResult deleteByQuery(UriInfo uriInfo, String index,
@@ -107,7 +108,8 @@ public class DocumentImpl extends CommonServices implements RestDocument {
 						"Field not found: " + field);
 			int count = 0;
 			if (!CollectionUtils.isEmpty(values))
-				count = client.deleteDocuments(schemaField.getName(), values);
+				count = client.deleteDocuments(new DocumentsRequest(client,
+						schemaField.getName(), values, false));
 			return new CommonResult(true, count + " document(s) deleted by "
 					+ schemaField.getName()).addDetail(DELETED_COUNT, count);
 		} catch (SearchLibException e) {
