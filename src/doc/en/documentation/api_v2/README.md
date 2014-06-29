@@ -2,6 +2,7 @@
 
 API v2 is the new REST API. RESTFUL implementation using this API allows for controlling every feature of OpenSearchServer. API v2 frequently receives upgrades and new features.
 
+* [Authentication](authentication.md)
 * [Auto-completion](auto-completion/README.md)
 * [Document](document/README.md): insert and delete records.
 * [Field](field/README.md): manage the schema.
