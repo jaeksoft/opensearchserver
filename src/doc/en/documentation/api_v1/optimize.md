@@ -1,6 +1,6 @@
 ## Optimize API
 
-_**This API is deprecated, have a look at the [new RESTFul API](/api_v2/README.html)**_
+_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
 
     http://{server_name}:9090/optimize
 
