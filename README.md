@@ -1,6 +1,6 @@
 OpenSearchServer
 ================
-http://www.open-search-server.com
+http://www.opensearchserver.com
 
 Copyright Emmanuel Keller / Jaeksoft (2008-2014)
 This software is licensed under the GPL v3.
@@ -13,7 +13,7 @@ Quickstart
 You need to have a JAVA 1.7 (or newer) runtime on your server
 
 ### Download the last ZIP or the TAR.GZ archive:
-http://www.open-search-server.com/download
+http://www.opensearchserver.com/#download
 
 ### Deflate the content to get the following files:
 - ```FILE``` opensearchserver.jar -> the main library
@@ -41,9 +41,8 @@ http://localhost:9090
 
 Useful links
 ------------
-+ Download binaries: http://www.open-search-server.com/download
-+ The documentation of the RESTFul API: https://github.com/jaeksoft/opensearchserver/wiki 
-+ The user guide: http://www.open-search-server.com/documentation
++ Download binaries: http://www.opensearchserver.com/#download
++ The documentation: http://www.opensearchserver.com/documentation 
 + Issues (bugs, enhancements): https://github.com/jaeksoft/opensearchserver/issues
 
 Features
