@@ -1,12 +1,12 @@
-## Creating or updating one field
+## Creating or updating fields
 
-Use this API to create a new field -- or update an existing field.
+Use this API to create fields -- or update existing fields.
 
 **Requirement:** OpenSearchServer v1.5
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/field/{field_name}```
+**URL:** ```/services/rest/index/{index_name}/field```
 
 **Method:** ```PUT```
 
@@ -17,21 +17,34 @@ Use this API to create a new field -- or update an existing field.
 
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
-- _**field_name**_ (required): The name of the field.
 
 **Raw data (PUT):**
 
-    {
-      "name": "autocomplete",
-      "analyzer": "AutoCompletionAnalyzer",
-      "indexed": "YES",
-      "stored": "NO",
-      "termVector": "NO",
-      "copyOf": [
-        "content",
-        "title"
-      ]
-    }
+    [
+      {
+        "name": "title",
+        "analyzer": "TextAnalyzer",
+        "indexed": "YES",
+        "stored": "YES",
+        "termVector": "POSITIONS_OFFSETS"
+      },
+      {
+        "name": "content",
+        "analyzer": "TextAnalyzer",
+        "indexed": "YES"
+        "stored": "YES",
+       	"termVector": "POSITIONS_OFFSETS"
+      },
+      {
+        "name": "autocomplete",
+        "analyzer": "AutoCompletionAnalyzer",
+        "indexed": "YES",
+        "copyOf": [
+          "content",
+          "title"
+        ]
+      }
+    ] 
 
 - name: The name of the field.
 - analyzer: The name of the analyzer.
@@ -50,7 +63,7 @@ The field has been created or updated.
     
     {
         "successful": true,
-        "info": "Added Field autocomplete"
+        "info": "Added Fields"
     }
 
 
@@ -66,5 +79,5 @@ The creation/update failed. The reason is provided in the content.
 **Using CURL:**
 
     curl -XPUT -H "Content-Type: application/json" \
-        -d '{"name":"my_field","analyzer":"TextAnalyzer", "indexed":"YES"}' \
-        http://localhost:8080/services/rest/index/my_index/field/autocomplete
+        -d '[{"name":"my_field","analyzer":"TextAnalyzer", "indexed":"YES"}]' \
+        http://localhost:8080/services/rest/index/my_index/field
