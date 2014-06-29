@@ -14,6 +14,7 @@ The main chapters are:
 
 * [Installation Guide](installation/README.md)
 * [Getting started](tutorials/README.md)
+* [Compile and build](building_opensearchserver.md)
 * [Frequently Asked Questions](faq/README.md)
 * [Clients libraries](clients/README.md)
 * [API v1 (XML/HTTP)](api_v1/README.md)
