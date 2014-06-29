@@ -13,6 +13,7 @@ Users can be created in tab `Privileges` in OpenSearchServer interface. API keys
 * List indexes: 
 
 `curl -XGET http://localhost:9090/services/rest/index?login=lorem&key=08762e43getye0042f875e86eaiu687f`
+
 * Update document in JSON: 
 
 ```shell
