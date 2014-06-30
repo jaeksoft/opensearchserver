@@ -70,17 +70,10 @@ public class DocumentImpl extends CommonServices implements SoapDocument,
 			Client client = getLoggedClient(index, login, key,
 					Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AbstractSearchRequest request = null;
-			if (bQuery) {
-				request = new SearchPatternRequest(client);
-				request.setQueryString(query);
-			} else if (bSearchTemplate) {
-				AbstractRequest abstractRequest = client
-						.getNewRequest(template);
-				if (!(abstractRequest instanceof AbstractSearchRequest))
-					throw new CommonServiceException("Wrong request type");
-				request = (AbstractSearchRequest) abstractRequest;
-			}
+			AbstractRequest request = bSearchTemplate ? client
+					.getNewRequest(template) : new SearchPatternRequest(client);
+			if (bQuery && request instanceof AbstractSearchRequest)
+				((AbstractSearchRequest) request).setQueryString(query);
 			long count = client.deleteDocuments(request);
 			return new CommonResult(true, count + " document(s) deleted")
 					.addDetail(DELETED_COUNT, count);
