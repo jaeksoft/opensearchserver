@@ -59,6 +59,7 @@
 		* [Inserting (JSON)](api_v2/document/put_json.md)
 		* [Inserting (TEXT)](api_v2/document/put_text.md)
 		* [Deleting by field](api_v2/document/delete_by_field.md)
+		* [Deleting by query](api_v2/document/delete_by_query.md)
 		* [Deleting (JSON)](api_v2/document/delete_by_JSON.md)
 	* [Field (CRUD)](api_v2/field/README.md)
 		* [List](api_v2/field/list.md)

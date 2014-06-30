@@ -1,12 +1,12 @@
-## Deleting document by field content
+## Deleting document by query
 
-Use this API to delete documents that contain the values listed in a specific field. These values are passed as parameters.
+Use this API to delete documents matching a given query or search template.
 
 **Requirement:** OpenSearchServer v1.5
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/document/{field_name}/{value1}/{value2}/...```
+**URL:** ```/services/rest/index/{index_name}/document/```
 
 **Method:** ```DELETE```
 
@@ -15,8 +15,10 @@ Use this API to delete documents that contain the values listed in a specific fi
 
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
-- _**field_name**_ (required): The name of the field used to identify the documents to delete.
-- _**value**_ (required): A list of values.
+
+**Query parameters:**
+- _**template**_ : The name of a search request.
+- _**query**_ : A query pattern.
 
 ### Success response
 The document has been deleted.
@@ -29,19 +31,17 @@ The document has been deleted.
 ```json
 {
     "successful": true,
-    "info": "2 document(s) deleted by my_field"
+    "info": "2 document(s) deleted"
 }
 ```
+    
 
 ### Error response
 
 The deletion failed. The reason is provided in the content.
 
 **HTTP code:**
-404, 500
-
-    Field not found: my_field
-    
+404, 500    
 
 ### Sample call
 
@@ -49,5 +49,6 @@ The deletion failed. The reason is provided in the content.
 
 ```shell
 curl -XDELETE \  
-    http://localhost:8080/services/rest/index/my_index/document/my_field/3/4
+    http://localhost:8080/services/rest/index/my_index/document?template=my_search
 ```
+    
