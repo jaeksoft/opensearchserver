@@ -1,17 +1,17 @@
 ## WEB Crawler API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/webcrawler
 
-The web crawler API performs following actions starts or stops,the web crawler.
+The web crawler API can start or stop the web crawler.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 - _**action**_: The action to perform: start, stop, and know status of the index.
-- _**runOnce**_: The runOnce parameter is to specify the crawler should run only once or forever. This is an boolean parameter.
+- _**runOnce**_: The runOnce parameter is to specify whether the crawler should run only once, or forever. This is a Boolean parameter.
 
 ### Example
 
