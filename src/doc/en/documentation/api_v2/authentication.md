@@ -1,8 +1,8 @@
 ## RESTFul API authentication
 
-If you created a user, each API call requires to pass a `login` and an `API key`.
+As soon as one user gets created, every API call requires passing both a `login` and an `API key`.
 
-Users can be created in tab `Privileges` in OpenSearchServer interface. API keys are automatically generated.
+Users can be created in the `Privileges` tab of the OpenSearchServer interface. API keys are automatically generated.
 
 **URL parameters:**
 - _**login**_ (required): Login of the user
