@@ -1,25 +1,25 @@
 ## Index API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/update
 
-API Update is the interface to insert/update documents into an index of the OpenSearchServer search engine.
+API Update is the interface for inserting/updating documents in an OpenSearchServer search engine index.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 
 
 ### Posting a XML file
 
-One easy way to populate data is to upload an XML file using a post or a put http request. Then you have to post the file using a post or a put http request.
-In our example we use CURL:
+One easy way to populate data is to upload a XML file using a post or a put http request, then to post this file using a post or a put http request.
+In this example we'll use CURL:
 
     curl -o log.out -H "Content-type: text/xml; charset=utf-8" -T documents.xml "http://localhost:9090/update?use=indexName"
     
-The XML format is described below
+And here is the XML format:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -46,20 +46,18 @@ The XML format is described below
 
 ### Using PHP
 
-The request is done using the PHP5 method OssApi::update (see the examples above).
-This class can be downloaded along with OpenSearchServer source code, and found here: oss_api.class.php.
+The request is done using the PHP5 method OssApi::update. This class can be downloaded along with the OpenSearchServer source code, under the name oss_api.class.php.
 
 
-#### Example
+#### Examples
 
-The following creates an instance of the OSS_IndexDocument class. This object can carry one or more documents to index 
-Stopping the FileCrawler instance
+The following creates an instance of the OSS_IndexDocument class. This object can carry one or more documents to index.
 
 ```php
 $index = new OssIndexDocument();
 ```
 
-The following adds a document
+The following adds a document:
 
 ```php
 $document = $index->newDocument('en');
@@ -75,7 +73,7 @@ $document->newField('meta', 'Open Source');
 $document->newField('meta', 'Search Engine'); // Multi value field
 ```
 
-The following inserts the document(s) within the index.
+The following inserts the document(s) within the index:
 
 ```php
 $server = new OssApi('http://localhost:9090', 'indexName');
