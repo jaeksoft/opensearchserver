@@ -80,6 +80,9 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 	private DomHtmlNode getDomHtmlNode() throws ParserConfigurationException {
 		Document document = new DomSerializer(cleaner.getProperties(), true)
 				.createDOM(rootTagNode);
+		String lang = rootTagNode.getAttributeByName("lang");
+		if (lang != null)
+			document.getDocumentElement().setAttribute("lang", lang);
 		return new DomHtmlNode(document);
 	}
 
