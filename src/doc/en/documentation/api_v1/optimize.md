@@ -1,19 +1,19 @@
 ## Optimize API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/optimize
 
-It optimizes the index.
+This API optimizes the index.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 
-### Example
+### Examples
 
-HTTP Request:
+HTTP request:
 
     http://localhost:9090/optimize?use=index1 
 
