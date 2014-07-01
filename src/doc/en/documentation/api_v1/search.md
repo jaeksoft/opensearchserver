@@ -1,64 +1,63 @@
 ## Search API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/select
 
 The Search/Select API is used to query and search the OpenSearchServer index.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 - _**q or query**_ (optional): The query or keyword need to be searched.
-- _**qt (query template)**_ (required): The query template name which is used to load a pre-loaded settings for search.
-- _**start**_ (optional): The start parameter specifies that from which document the result need to be displayed.
-  - If the start value is 0 - The search result starts from 0.
-  - If the start value is 10 - The search result starts from 10.
-- _**rows**_ (optional): The rows parameter specifies the number of documents need to be returned.
-- _**lang**_ (optional):The language specified search. OpenSearchServer searches for particular document. For default is searches with all languages. The language can be "en"or "fr" which is an ISO 639-1 format.For more refer http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
-- _**collapse.mode**_ (collapse.mode): Collapsing the search result document.
-  - off : No collapsing .
-  - optimized: The consecutive documents will be collapsed with with specified field.
-  - full: All the document with same fields collapsed.
+- _**qt (query template)**_ (required): The name of the query template used to load predefined settings for search.
+- _**start**_ (optional): This specifies from which document the results will be displayed.
+  - If the start value is 0 - The search results start from document #0.
+  - If the start value is 10 - The search results start from document #10.
+- _**rows**_ (optional): This specifies the number of documents to be returned.
+- _**lang**_ (optional): A language restriction for this search. By default, OpenSearchServer searches among documents in all languages. The language can be given using the ISO 639-1 format, such as "en" or "fr". See http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes for more.
+- _**collapse.mode**_ (optional): There are three ways of collapsing the search result documents:
+  - off : No collapsing.
+  - optimized: Consecutive documents will be collapsed if they share the specified field.
+  - full: All documents sharing the specified field get collapsed.
 - _**collapse.field**_ (optional): The field for collapsing the returned search documents.
-- _**collapse.max**_ (optional): The collapse.max parameter specifies the number of consecutive documents needed for collapsing.
-- _**rf or fl (returned field)**_ (optional): The rf fields sets the fields that need to be returned.
-- _**fq (filter query)**_ (optional): Adds a filter to the current call. The parameters can be used several times in the same call for successive filters. Example: This filter will keep only the documents which fit this query: &fq=color:green.
-- _**fqn (negative filter query)**_ (optional): Adds a negative filter. The parameters can be used several times. Example: This filter will remove any documents which fit this query: &fqn=color:red.
-- _**sort**_ (optional): Controls the order of the results. Use the abbreviation + ou - to sort in ascending or descending order.
+- _**collapse.max**_ (optional): This specifies the number of consecutive documents that will trigger collapsing.
+- _**rf or fl (returned field)**_ (optional): This sets the fields that need to be returned.
+- _**fq (filter query)**_ (optional): Adds a filter to the current call. The parameters can be used several times in the same call for successive filters. Here is an example filter that only keeps the documents fitting the query: &fq=color:green.
+- _**fqn (negative filter query)**_ (optional): Adds a negative filter. The parameters can be used several times. Here is an example filter that removes all documents fitting the query: &fqn=color:red.
+- _**sort**_ (optional): Controls the order of the results. Use the abbreviation + or - to sort in ascending or descending order.
 - _**facet**_ (optional): Enables faceting for the field passed as a parameter. You can add a number in parentheses to specify the minimum count.
-- _**facet.multi**_ (optional): Same as with parameter facet, for use with fields containing multiple values (multi-valued fields).
+- _**facet.multi**_ (optional): Same as with the facet parameter, but for fields containing multiple values (multi-valued fields).
 
 
-### Example
+### Examples
 
 **HTTP Request:**
 
-To search a keyword "a word" in french language:
+Searching for the keyword "a word" in French language documents:
 
     http://localhost:9090/select?use=index1&query=a+word&qt=template1&lang=fr
  
-Search with collapse mode:
+Searching with the collapse mode activated:
 
     http://localhost:9090/select?use=index1&query=a+word&qt=template1&collapse.mode=optimized&collapse.field=hostname&collapse.max=3
  
-Search documents with return fields:
+Searching documents using return fields:
 
     http://localhost:9090/select?use=index1&query=a+word&qt=template1&rf=date&rf=color
  
-Search documents with filters:
+Searching documents using filters:
 
     http://localhost:9090/select?use=index1&query=a+word&qt=template1&fq=date:20101201&fq=color:red
  
-Search documents with facets:
+Searching documents using facets:
 
     http://localhost:9090/select?use=index1&query=a+word&qt=template1&facet=color&facet.multi=date(1)
 
 **Using PHP:**
 
-To search a keyword "a word" in french language:
-
+Searching for the keyword "a word" in French language documents:
 ```php
 $search = new OssSearch('http://localhost:9090', 'index1');$result = $search->template('template1')
                  ->query('a word')
@@ -66,7 +65,7 @@ $search = new OssSearch('http://localhost:9090', 'index1');$result = $search->te
                  ->execute();
 ```
  
-Search with collapse mode:
+Searching with the collapse mode activated:
 
 ```php
 $search = new OssSearch('http://localhost:9090', 'index1');
@@ -78,7 +77,7 @@ $result = $search->template('template1')
                  ->execute();
 ```
 
-Search documents with filter:
+Searching documents using filters:
 
 ```php
 $search = new OssSearch('http://localhost:9090', 'index1');$result = $search->template('template1')
@@ -87,8 +86,7 @@ $search = new OssSearch('http://localhost:9090', 'index1');$result = $search->te
                  ->execute();
 ```
 
-Search documents with facets:
-
+Searching documents using facets:
 ```php
 $search = new OssSearch('http://localhost:9090', 'index1');
 $result = $search->template('template1')
