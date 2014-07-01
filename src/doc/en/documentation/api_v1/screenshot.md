@@ -1,22 +1,22 @@
 ## Screenshot API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/screenshot
 
-The screenshot API performs actions like getting the screenshot,capturing the screenshot or checking the screenshot if present.
+The screenshot API can capture screenshots, get screenshots, or check whether a screenshot exists.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
-- _**url**_ (required): The url Parameter denotes the URL that need to be captured.
-- _**action**_ (required): The action parameter is an ENUM field having the following options:
-  - capture: It captures the screenshot of the given URL.
-  - image: It get the image of the given URL.If the URL was already captured.
-  - check: It checks the URL is already captured or not.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
+- _**url**_ (required): The URL parameter denotes the URL to be captured.
+- _**action**_ (required): The action parameter is an ENUM field with the following options:
+  - capture: Captures a screenshot of the given URL.
+  - image: Gets an already-existing image of the indicated URL.
+  - check: Checks whether the URL was already captured.
 
-### Example
+### Examples
 
 HTTP Request:
 
