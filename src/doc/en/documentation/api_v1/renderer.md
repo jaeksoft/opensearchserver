@@ -1,21 +1,21 @@
 ## Renderer API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/renderer
 
-This API renders an HTML search box that can be embedded easily in a website easily.
+This API renders a HTML search box, which you can then readily embed in a website.
 
 **Parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
-- _**name**_ (required): The name parameter denotes the name of the renderer . This name will be available after creating an render-er item
-- _**query**_ (required): This query parameter denotes the query that need to be searched in index similar to q parameter
-- _**page**_ (required): This page parameter denotes that which page needs to be displayed
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
+- _**name**_ (required): The name parameter denotes the name of the renderer. This name will be available after creating a renderer item.
+- _**query**_ (required): The query parameter denotes the query that needs to be searched in index similar to a parameter.
+- _**page**_ (required): The page parameter denotes which page needs to be displayed.
 
 ### Example
 
-HTTP Request:
+HTTP request:
 
     http://localhost:9090/renderer?use=index1&name=default&query=opensearchserver
