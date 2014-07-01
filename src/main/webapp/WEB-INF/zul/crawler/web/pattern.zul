@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,17 +23,17 @@
 		<separator />
 		<label>For example:</label>
 		<label>
-			Enter http://www.open-search-server.com if you only want to
+			Enter http://www.opensearchserver.com if you only want to
 			crawl the home page
 		</label>
 		<label>
-			Enter http://www.open-search-server.com/* if you want to
-			crawl all the content
+			Enter http://www.opensearchserver.com/* if you want to crawl
+			all the content
 		</label>
 		<label>
-			Enter http://www.open-search-server.com/*wiki* if you only
-			wish to crawl URLs containing the word "wiki" within the
-			open-search-server.com domain.
+			Enter http://www.opensearchserver.com/*support* if you only
+			wish to crawl URLs containing the word "support" within the
+			opensearchserver.com domain.
 		</label>
 		<textbox multiline="true" rows="10" width="100%"
 			value="@bind(pattern.pattern)" />
