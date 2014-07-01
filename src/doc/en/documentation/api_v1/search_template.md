@@ -1,43 +1,43 @@
 ## Search Template API
 
-_**This API is deprecated, have a look at the [new RESTFul API](../api_v2/README.html)**_
+_**This API is deprecated, please refer to the [new RESTFul API](../api_v2/README.html)**_ instead.
 
     http://{server_name}:9090/searchtemplate
 
-The Search Template API is used to create, delete, setreturnfields, setsnippetfield,Search Template is for querying the index.
+The Search Template API is used to create and delete templates, set return fields, and set snippet fields.
 
 **Global parameters:**
-- _**use**_ (required): It is the index name
-- _**login**_ (optional): The login parameter. This is required once you create a user.
-- _**key**_ (optional): The key parameter related to the login (api key). This is required once you create a user.
+- _**use**_ (required): The name of the index.
+- _**login**_ (optional): The login parameter. This becomes required once you create a user.
+- _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 - _**cmd**_ (optional): The action to perform: create, delete, setreturnfields, setsnippetfield.
 
 **Parameters for template creation:**
-- _**qt.name**_ (required): The name of the query Template or Search Template.
-- _**qt.query**_ (required): The Pattern Query of the search Template.
-- _**qt.operator**_ (required): The default Operator for search it can be AND or OR search.
-- _**qt.rows**_ (required): The number of rows to be return.
-- _**qt.slop**_ (required): The tolerance for words between the terms being searched.
-- _**qt.lang**_ (required): The language to be searched.
+- _**qt.name**_ (required): The name of the query template or search template.
+- _**qt.query**_ (required): The pattern query of the search template.
+- _**qt.operator**_ (required): The default operator for search. It can be set to AND or OR.
+- _**qt.rows**_ (required): The number of rows to be returned.
+- _**qt.slop**_ (required): The tolerance for the number of words between the terms being searched.
+- _**qt.lang**_ (required): The language of the documents to be searched in.
 
 **Parameters for template deletion:**
-- _**qt.name**_ (required): The name of the query Template or Search Template to be deleted.
+- _**qt.name**_ (required): The name of the query template or search template to be deleted.
 
 **Parameters for setting return fields:**
-- _**qt.name**_ (required): The name of the query Template or Search Template.
-- _**qt.returnfield**_ (required): The name of the Field to be returned.
+- _**qt.name**_ (required): The name of the query template or search template.
+- _**qt.returnfield**_ (required): The name of the field to be returned.
 
 **Parameters for setting snippet fields:**
-- _**qt.name**_ (required): The name of the query Template or Search Template.
+- _**qt.name**_ (required): The name of the query template or search template.
 - _**qt.maxSnippetSize**_ (required): The maximum size of the snippet.
-- _**qt.tag**_ (required): The HTML tag to be highlighted on search keyword.
-- _**qt.Snippetfield**_ (required): The name of the field to be set as Snippet.
-- _**qt.fragmenter**_ (required): Fragmenter is one in which how the snippet is spitted into chunks. It is an enum value listed below:
+- _**qt.tag**_ (required): The HTML tag to use to highlight search keywords.
+- _**qt.Snippetfield**_ (required): The name of the field to be set as a snippet.
+- _**qt.fragmenter**_ (required): Determines how the snippet is splitted into chunks. It is an ENUM value among the following options:
   - NoFragmenter: Indiscriminately quotes the field from its beginning.
-  - SizeFragmenter: It centres the snippet on the target terms, then extends the snippet rightward and leftward until it hits the maximum allowed size.
-  - SentenceFragmenter: It centres the snippet on the target terms, then extends the snippet rightward and leftward in a way that strives to preserve the sentences in the text.
+  - SizeFragmenter: Centers the snippet on the target terms, then extends the snippet rightward and leftward until it hits the maximum allowed size.
+  - SentenceFragmenter: Centers the snippet on the target terms, then extends the snippet rightward and leftward in a way that strives to preserve the sentences in the text.
 
-### Example
+### Examples
 
 **HTTP Request:**
 
