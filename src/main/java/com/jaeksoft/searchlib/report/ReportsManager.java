@@ -146,7 +146,7 @@ public class ReportsManager {
 			searchRequest.setPatternQuery("keywordsExact:($$)");
 			searchRequest.setQueryString(topKeywords);
 		} else
-			searchRequest.setQueryString("*:*");
+			searchRequest.setEmptyReturnsAll(true);
 		return searchRequest;
 	}
 

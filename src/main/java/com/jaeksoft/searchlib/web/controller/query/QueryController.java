@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -92,14 +93,13 @@ public final class QueryController extends AbstractQueryController {
 		}
 		if (request instanceof AbstractSearchRequest) {
 			String q = ((AbstractSearchRequest) request).getQueryString();
-			if (q == null || q.length() == 0)
-				q = "*:*";
 			sb.append("&q=");
-			sb.append(URLEncoder.encode(q, "UTF-8"));
+			if (!StringUtils.isEmpty(q))
+				sb.append(URLEncoder.encode(q, "UTF-8"));
 		} else if (request instanceof SpellCheckRequest) {
 			String q = ((SpellCheckRequest) request).getQueryString();
 			sb.append("&q=");
-			if (q != null)
+			if (!StringUtils.isEmpty(q))
 				sb.append(URLEncoder.encode(q, "UTF-8"));
 		} else if (request instanceof MoreLikeThisRequest) {
 			String q = ((MoreLikeThisRequest) request).getDocQuery();
