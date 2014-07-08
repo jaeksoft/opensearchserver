@@ -76,10 +76,10 @@ public class LinkUtils {
 			Logging.info(e.getMessage());
 			return null;
 		} catch (URISyntaxException e) {
-			Logging.info(e.getMessage());
+			Logging.info(e.getMessage(), e);
 			return null;
 		} catch (IllegalArgumentException e) {
-			Logging.info(e.getMessage());
+			Logging.info(e.getMessage(), e);
 			return null;
 		}
 	}

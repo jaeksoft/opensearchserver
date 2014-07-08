@@ -1,5 +1,6 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererSort"%>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <div class="osscmnrdr oss-input-div">
 	<form id="osssearchform" method="get" autocomplete="off"
 		action="renderer">
@@ -22,7 +23,8 @@
 			}
 		%>
 		<input class="osscmnrdr ossinputrdr" size="60" type="text"
-			id="osssearchbox" name="query" value="<%=query%>"
+			id="osssearchbox" name="query"
+			value="<%=StringEscapeUtils.escapeXml(query)%>"
 			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
 			autocomplete="off" /> <input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />

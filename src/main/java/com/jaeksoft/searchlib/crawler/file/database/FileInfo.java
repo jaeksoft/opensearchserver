@@ -263,6 +263,8 @@ public class FileInfo {
 			return true;
 		if (fileType == null)
 			return true;
+		if (newFileInfo.fileSystemDate == null)
+			return true;
 		if (fileSystemDate.longValue() != newFileInfo.fileSystemDate
 				.longValue())
 			return true;
