@@ -82,11 +82,11 @@ public class ClusterNotification {
 				switch (type) {
 				case CLOSE_CLIENT:
 					ActionServlet.close(clusterInstance.getUri(),
-							indexDir.getName(), login, apiKey);
+							indexDir.getName(), login, apiKey, 120);
 					break;
 				case RELOAD_DATA:
 					ActionServlet.reload(clusterInstance.getUri(),
-							indexDir.getName(), login, apiKey);
+							indexDir.getName(), login, apiKey, 120);
 					break;
 				default:
 					Logging.warn("Nothing to do");
