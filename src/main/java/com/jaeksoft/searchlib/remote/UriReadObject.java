@@ -33,8 +33,9 @@ public class UriReadObject extends UriRead {
 
 	private StreamReadObject sro;
 
-	public UriReadObject(URI uri) throws IOException, HttpException {
-		super(uri);
+	public UriReadObject(final int timeOut, URI uri) throws IOException,
+			HttpException {
+		super(timeOut, uri);
 		sro = new StreamReadObject(httpEntity.getContent());
 	}
 

@@ -61,6 +61,13 @@
 						<label
 							value="API Key for authentication (or empty if no rights are required)" />
 					</row>
+					<row>
+						<label value="Time out: " />
+						<intbox
+							value="@bind(replication.item.secTimeOut)" width="95%" />
+						<label
+							value="Maximum timeout (seconds) in case of any latency" />
+					</row>
 				</rows>
 				<foot>
 					<footer span="3">
@@ -97,6 +104,7 @@
 					<listheader label="Instance URL" />
 					<listheader label="Replication type" hflex="min" />
 					<listheader label="Index Name" hflex="min" />
+					<listheader label="Timeout" hflex="min" />
 					<listheader label="Last execution time" hflex="min" />
 					<listheader label="Duration"
 						tooltiptext="last duration time" hflex="min" />
@@ -112,6 +120,7 @@
 						<listcell
 							label="@load(item.replicationType.label)" />
 						<listcell label="@load(item.indexName)" />
+						<listcell label="@load(item.secTimeOut)" />
 						<listcell
 							label="@load(item.lastThread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
 						<listcell
