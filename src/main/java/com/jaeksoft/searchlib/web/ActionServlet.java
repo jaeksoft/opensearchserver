@@ -80,8 +80,11 @@ public class ActionServlet extends AbstractServlet {
 	}
 
 	public static void close(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey, "action=close"));
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=close"));
 	}
 
 	public static void online(URI uri, String indexName, String login,
