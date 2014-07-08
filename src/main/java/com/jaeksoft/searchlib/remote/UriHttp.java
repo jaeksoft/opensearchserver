@@ -51,10 +51,10 @@ public abstract class UriHttp {
 	protected HttpEntity httpEntity = null;
 	protected final RequestConfig requestConfig;
 
-	protected UriHttp() {
-		final int timeOut = 30;
-		requestConfig = RequestConfig.custom().setSocketTimeout(timeOut * 1000)
-				.setConnectTimeout(timeOut * 1000).build();
+	protected UriHttp(final int secTimeOut) {
+		final int timeOut = secTimeOut * 1000;
+		requestConfig = RequestConfig.custom().setSocketTimeout(timeOut)
+				.setConnectTimeout(timeOut).build();
 		httpClient = HttpClientBuilder.create()
 				.setDefaultRequestConfig(requestConfig).build();
 	}
