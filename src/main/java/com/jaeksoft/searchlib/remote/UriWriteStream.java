@@ -34,7 +34,9 @@ import org.apache.http.entity.FileEntity;
 
 public class UriWriteStream extends UriHttp {
 
-	public UriWriteStream(URI uri, File file) throws IOException {
+	public UriWriteStream(final int timeOut, URI uri, File file)
+			throws IOException {
+		super(timeOut);
 		HttpPut httpPut = new HttpPut(uri.toASCIIString());
 		httpPut.setConfig(requestConfig);
 		FileEntity fre = new FileEntity(file, ContentType.DEFAULT_BINARY);

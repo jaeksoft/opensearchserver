@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -65,25 +65,35 @@ public class ActionServlet extends AbstractServlet {
 	}
 
 	public static void optimize(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey,
-				"action=optimize"));
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=optimize"));
 	}
 
 	public static void reload(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey, "action=reload"));
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=reload"));
 	}
 
 	public static void online(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey, "action=online"));
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=online"));
 	}
 
 	public static void offline(URI uri, String indexName, String login,
-			String apikey) throws SearchLibException, URISyntaxException {
-		call(buildUri(uri, "/action", indexName, login, apikey,
-				"action=offline"));
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=offline"));
 	}
 
 }
