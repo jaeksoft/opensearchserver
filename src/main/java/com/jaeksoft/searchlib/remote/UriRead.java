@@ -32,7 +32,9 @@ import org.apache.http.client.methods.HttpGet;
 
 public class UriRead extends UriHttp {
 
-	public UriRead(URI uri) throws HttpException, IOException {
+	public UriRead(final int timeOut, URI uri) throws HttpException,
+			IOException {
+		super(timeOut);
 		HttpGet httpGet = new HttpGet(uri.toASCIIString());
 		httpGet.setConfig(requestConfig);
 		httpGet.addHeader("Connection", "close");
