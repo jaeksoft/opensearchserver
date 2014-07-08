@@ -63,6 +63,8 @@ public class ReplicationItem extends
 
 	private ReplicationType replicationType;
 
+	private int secTimeOut = 120;
+
 	public final static String[] NOT_PUSHED_DATA_FOLDERS = { "index" };
 
 	public final static String[] NOT_PUSHED_DATA_PATH = { "screenshot" };
@@ -108,6 +110,7 @@ public class ReplicationItem extends
 			setApiKey(StringUtils.base64decode(encodedApiKey));
 		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
 				node, "replicationType")));
+		setSecTimeOut(XPathParser.getAttributeValue(node, "timeOut"));
 		updateName();
 	}
 
@@ -137,7 +140,8 @@ public class ReplicationItem extends
 			xmlWriter.startElement("replicationItem", "instanceUrl",
 					instanceUrl.toExternalForm(), "indexName", indexName,
 					"login", login, "apiKey", encodedApiKey, "replicationType",
-					replicationType.name());
+					replicationType.name(), "timeOut",
+					Integer.toString(secTimeOut));
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -280,6 +284,7 @@ public class ReplicationItem extends
 			this.login = item.login;
 			this.apiKey = item.apiKey;
 			this.replicationType = item.replicationType;
+			this.secTimeOut = item.secTimeOut;
 			this.cachedUrl = null;
 		} finally {
 			rwl.w.unlock();
@@ -354,6 +359,31 @@ public class ReplicationItem extends
 	@Override
 	public int compareTo(ReplicationItem item) {
 		return getName().compareTo(item.getName());
+	}
+
+	/**
+	 * @return the secTimeOut
+	 */
+	public int getSecTimeOut() {
+		rwl.r.lock();
+		try {
+			return secTimeOut;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param secTimeOut
+	 *            the secTimeOut to set
+	 */
+	public void setSecTimeOut(int secTimeOut) {
+		rwl.w.lock();
+		try {
+			this.secTimeOut = secTimeOut == 0 ? 120 : secTimeOut;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 }

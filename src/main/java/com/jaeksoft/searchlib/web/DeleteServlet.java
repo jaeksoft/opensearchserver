@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -93,10 +93,13 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	public static boolean delete(URI uri, String indexName, String login,
-			String apikey, String uniqueField) throws SearchLibException {
+			String apikey, String uniqueField, int secTimeOut)
+			throws SearchLibException {
 		try {
-			XPathParser xpp = call(buildUri(uri, "/delete", indexName, login,
-					apikey, "uniq=" + uniqueField));
+			XPathParser xpp = call(
+					secTimeOut,
+					buildUri(uri, "/delete", indexName, login, apikey, "uniq="
+							+ uniqueField));
 			return "OK".equals(xpp
 					.getNodeString("/response/entry[@key='Status'"));
 		} catch (IllegalStateException e) {
@@ -109,10 +112,13 @@ public class DeleteServlet extends AbstractServlet {
 	}
 
 	public static boolean deleteDocument(URI uri, String indexName,
-			String login, String apikey, int docId) throws SearchLibException {
+			String login, String apikey, int docId, int secTimeOut)
+			throws SearchLibException {
 		try {
-			XPathParser xpp = call(buildUri(uri, "/delete", indexName, login,
-					apikey, "id=" + docId));
+			XPathParser xpp = call(
+					secTimeOut,
+					buildUri(uri, "/delete", indexName, login, apikey, "id="
+							+ docId));
 			return "OK".equals(xpp
 					.getNodeString("/response/entry[@key='Status'"));
 		} catch (SearchLibException e) {
