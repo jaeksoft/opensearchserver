@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -215,10 +215,11 @@ public abstract class AbstractServlet extends HttpServlet {
 				+ value);
 	}
 
-	protected static XPathParser call(URI uri) throws SearchLibException {
+	protected static XPathParser call(final int secTimeOut, URI uri)
+			throws SearchLibException {
 		UriRead uriRead = null;
 		try {
-			uriRead = new UriRead(uri);
+			uriRead = new UriRead(secTimeOut, uri);
 			if (uriRead.getResponseCode() != 200)
 				throw new IOException(uri + " returns "
 						+ uriRead.getResponseMessage() + "("
@@ -240,11 +241,11 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	protected static String sendObject(URI uri, Externalizable object)
-			throws IOException {
+	protected static String sendObject(int secTimeOut, URI uri,
+			Externalizable object) throws IOException {
 		UriWriteObject writeObject = null;
 		try {
-			writeObject = new UriWriteObject(uri, object);
+			writeObject = new UriWriteObject(secTimeOut, uri, object);
 			if (writeObject.getResponseCode() != 200)
 				throw new IOException(writeObject.getResponseCode() + " "
 						+ writeObject.getResponseMessage() + ")");
@@ -255,11 +256,11 @@ public abstract class AbstractServlet extends HttpServlet {
 		}
 	}
 
-	protected static Externalizable sendReceiveObject(URI uri,
+	protected static Externalizable sendReceiveObject(int secTimeOut, URI uri,
 			Externalizable object) throws IOException, ClassNotFoundException {
 		UriWriteObject uwo = null;
 		try {
-			uwo = new UriWriteObject(uri, object);
+			uwo = new UriWriteObject(secTimeOut, uri, object);
 			if (uwo.getResponseCode() != 200)
 				throw new IOException(uwo.getResponseMessage());
 			return uwo.getResponseObject();

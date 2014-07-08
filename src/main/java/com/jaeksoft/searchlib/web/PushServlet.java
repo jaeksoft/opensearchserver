@@ -183,9 +183,9 @@ public class PushServlet extends AbstractServlet {
 				+ URLEncoder.encode(cmd, "UTF-8");
 	}
 
-	private static XPathParser call(URI uri, String cmd)
+	private static XPathParser call(URI uri, String cmd, int secTimeOut)
 			throws SearchLibException {
-		XPathParser xpp = AbstractServlet.call(uri);
+		XPathParser xpp = AbstractServlet.call(secTimeOut, uri);
 		if (xpp == null)
 			throw new SearchLibException("No XML response");
 		checkCallError(xpp);
@@ -197,7 +197,8 @@ public class PushServlet extends AbstractServlet {
 	private static XPathParser call(ReplicationItem replicationItem, String cmd)
 			throws SearchLibException {
 		try {
-			return call(new URI(getPushTargetUrl(replicationItem, cmd)), cmd);
+			return call(new URI(getPushTargetUrl(replicationItem, cmd)), cmd,
+					replicationItem.getSecTimeOut());
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -233,7 +234,8 @@ public class PushServlet extends AbstractServlet {
 		try {
 			String url = getPushTargetUrl(client, replicationItem,
 					CALL_XML_CMD_EXISTS, file);
-			XPathParser xpp = call(new URI(url), CALL_XML_CMD_EXISTS);
+			XPathParser xpp = call(new URI(url), CALL_XML_CMD_EXISTS,
+					replicationItem.getSecTimeOut());
 			String result = getCallKeyValue(xpp, CALL_XML_KEY_EXISTS);
 			if (result == null)
 				throw new SearchLibException("Cannot check if file exists: "
@@ -255,7 +257,8 @@ public class PushServlet extends AbstractServlet {
 		try {
 			String url = getPushTargetUrl(client, replicationItem, null, file);
 			URI uri = new URI(url);
-			uriWriteStream = new UriWriteStream(uri, file);
+			uriWriteStream = new UriWriteStream(
+					replicationItem.getSecTimeOut(), uri, file);
 			XPathParser xpp = uriWriteStream.getXmlContent();
 			checkCallError(xpp);
 			checkCallStatusOK(xpp);
@@ -283,7 +286,7 @@ public class PushServlet extends AbstractServlet {
 			throws SearchLibException {
 		try {
 			call(new URI(getPushTargetUrl(client, replicationItem, null, file)),
-					CALL_XML_CMD_FILEPATH);
+					CALL_XML_CMD_FILEPATH, replicationItem.getSecTimeOut());
 		} catch (UnsupportedEncodingException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

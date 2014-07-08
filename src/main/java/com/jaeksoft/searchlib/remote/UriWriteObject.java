@@ -37,7 +37,9 @@ public class UriWriteObject extends UriHttp {
 	private StreamWriteObject swo = null;
 	private StreamReadObject sro = null;
 
-	public UriWriteObject(URI uri, Externalizable object) throws IOException {
+	public UriWriteObject(final int timeOut, URI uri, Externalizable object)
+			throws IOException {
+		super(timeOut);
 		HttpPut httpPut = new HttpPut(uri.toASCIIString());
 		httpPut.setConfig(requestConfig);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
