@@ -88,7 +88,7 @@ public class JobItem extends ExecutionAbstract {
 				this.setActive(job.isActive());
 				tasks.clear();
 				for (TaskItem task : job.tasks)
-					tasks.add(task);
+					tasks.add(new TaskItem(task));
 				cron.copy(job.getCron());
 			} finally {
 				job.rwl.r.unlock();
