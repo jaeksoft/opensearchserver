@@ -147,7 +147,8 @@ public class OsseIndex {
 
 	public IndexStatistics getStatistics(OsseErrorHandler error)
 			throws SearchLibException {
-		return new IndexStatistics(getNumberOfDocs(error), 0, 0);
+		long nb = getNumberOfDocs(error);
+		return new IndexStatistics(nb, nb, 0);
 	}
 
 	public long numDocs(OsseErrorHandler error) throws SearchLibException {

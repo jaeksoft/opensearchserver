@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.index.osse.api;
 
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 import com.sun.jna.ptr.IntByReference;
@@ -38,6 +37,8 @@ public class OsseJNALibrary {
 	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET = 0x00000002;
 	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION = 0x00000004;
 	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1 = 0x00000040;
+	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_STORED = 0x00000100;
+	final public static int OSSCLIB_FIELD_UI32FIELDFLAGS_STORED_COMPRESSED = 0x00000200;
 
 	final public static int OSSCLIB_QCURSOR_UI32BOP_OR = 0x00000000;
 	final public static int OSSCLIB_QCURSOR_UI32BOP_AND = 0x00000001;

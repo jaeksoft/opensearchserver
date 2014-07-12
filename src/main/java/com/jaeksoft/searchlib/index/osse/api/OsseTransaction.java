@@ -26,14 +26,20 @@ package com.jaeksoft.searchlib.index.osse.api;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.CharacterCodingException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.lucene.analysis.TokenStream;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
+import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
 import com.jaeksoft.searchlib.index.osse.memory.DocumentRecord;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
@@ -101,7 +107,6 @@ public class OsseTransaction implements Closeable {
 			FunctionTimer.dumpExecutionInfo(true);
 	}
 
-	@Deprecated
 	final public int newDocumentId() throws SearchLibException {
 		final ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_MsTransact_Document_GetNewDocId");
@@ -136,12 +141,22 @@ public class OsseTransaction implements Closeable {
 		int flag = 0;
 		switch (schemaField.getTermVector()) {
 		case YES:
-			flag += OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
 			break;
 		case POSITIONS_OFFSETS:
-			flag = OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
 					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
 					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
+			break;
+		default:
+			break;
+		}
+		switch (schemaField.getStored()) {
+		case YES:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED;
+			break;
+		case COMPRESS:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED_COMPRESSED;
 			break;
 		default:
 			break;
@@ -182,30 +197,51 @@ public class OsseTransaction implements Closeable {
 		return transactFieldPtr;
 	}
 
-	// final public void updateTerms(final int documentId,
-	// final FieldInfo fieldInfo, final OsseTermBuffer buffer)
-	// throws SearchLibException {
-	// final ExecutionToken et = FunctionTimer
-	// .newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
-	// final int termCount = buffer.getTermCount();
-	// final int res = OsseIndex.LIB
-	// .OSSCLib_MsTransact_Document_AddStringTermsJ(
-	// Memory.nativeValue(fieldPointerMap.get(fieldInfo.name)),
-	// documentId, buffer.getTerms(), termCount,
-	// err.getPointer());
-	// et.end();
-	// if (res != termCount)
-	// err.throwError();
-	// }
+	/**
+	 * 
+	 * @param transaction
+	 * @param documentPtr
+	 * @param fieldPtr
+	 * @param value
+	 * @throws SearchLibException
+	 * @throws CharacterCodingException
+	 */
+	final public void updateTerm(final int documentId, final FieldInfo field,
+			final String value) throws SearchLibException, IOException {
+		if (value == null || value.length() == 0)
+			return;
+		termBuffer.reset();
+		termBuffer.addTerm(value);
+		// termBuffer.offsets[0].ui32StartOffset = 0;
+		// termBuffer.offsets[0].ui32EndOffset = value.length();
+		// termBuffer.positionIncrements[0] = 1;
+		updateTerms(documentId, field);
+	}
 
-	@Deprecated
-	final public void updateTerms_(final int documentId,
-			final FieldInfo fieldInfo, final OsseTermBuffer buffer)
-			throws SearchLibException {
+	final public void updateTerms(final int documentId, final FieldInfo field,
+			final CompiledAnalyzer compiledAnalyzer, final String value)
+			throws IOException, SearchLibException {
+		StringReader stringReader = null;
+		OsseTokenTermUpdate ottu = null;
+		try {
+			stringReader = new StringReader(value);
+			TokenStream tokenStream = compiledAnalyzer.tokenStream(null,
+					stringReader);
+			ottu = new OsseTokenTermUpdate(termBuffer, tokenStream);
+			while (ottu.incrementToken())
+				;
+			ottu.close();
+		} finally {
+			IOUtils.close(stringReader, ottu);
+		}
+	}
+
+	final public void updateTerms(final int documentId,
+			final FieldInfo fieldInfo) throws SearchLibException {
 		OsseFastStringArray ofsa = null;
 		try {
-			final int termCount = buffer.getTermCount();
-			ofsa = new OsseFastStringArray(memoryBuffer, buffer);
+			final int termCount = termBuffer.getTermCount();
+			ofsa = new OsseFastStringArray(memoryBuffer, termBuffer);
 			final ExecutionToken et = FunctionTimer
 					.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
 			final int res = OsseIndex.LIB
@@ -222,7 +258,8 @@ public class OsseTransaction implements Closeable {
 		}
 	}
 
-	final public void updateDocument(final Schema schema,
+	@Deprecated
+	final public void updateDocument1(final Schema schema,
 			final IndexDocument indexDocument) throws SearchLibException,
 			IOException {
 		DocumentRecord documentRecord = null;
