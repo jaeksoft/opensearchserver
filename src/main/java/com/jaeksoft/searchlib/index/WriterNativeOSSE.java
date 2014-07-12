@@ -25,22 +25,17 @@
 package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.CharacterCodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
-import com.jaeksoft.searchlib.index.osse.OsseTokenTermUpdate;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
@@ -98,52 +93,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 		}
 	}
 
-	/**
-	 * 
-	 * @param transaction
-	 * @param documentPtr
-	 * @param fieldPtr
-	 * @param value
-	 * @throws SearchLibException
-	 * @throws CharacterCodingException
-	 */
-	final private void updateTerm(final OsseTermBuffer termBuffer,
-			final OsseTransaction transaction, final int documentId,
-			final FieldInfo field, final String value)
-			throws SearchLibException, IOException {
-		if (value == null || value.length() == 0)
-			return;
-		termBuffer.reset();
-		termBuffer.addTerm(value);
-		// termBuffer.offsets[0].ui32StartOffset = 0;
-		// termBuffer.offsets[0].ui32EndOffset = value.length();
-		// termBuffer.positionIncrements[0] = 1;
-		transaction.updateTerms_(documentId, field, termBuffer);
-	}
-
-	@Deprecated
-	final private void updateTerms(final OsseTermBuffer termBuffer,
-			final OsseTransaction transaction, final int documentId,
-			final FieldInfo field, final CompiledAnalyzer compiledAnalyzer,
-			final String value) throws IOException, SearchLibException {
-		StringReader stringReader = null;
-		OsseTokenTermUpdate ottu = null;
-		try {
-			stringReader = new StringReader(value);
-			TokenStream tokenStream = compiledAnalyzer.tokenStream(null,
-					stringReader);
-			ottu = new OsseTokenTermUpdate(termBuffer, tokenStream);
-			while (ottu.incrementToken())
-				;
-			ottu.close();
-		} finally {
-			IOUtils.close(stringReader, ottu);
-		}
-	}
-
-	@Deprecated
-	final private void updateDoc_(final OsseTermBuffer termBuffer,
-			final OsseTransaction transaction,
+	final private void updateDoc(final OsseTransaction transaction,
 			final Map<String, FieldInfo> fieldMap, final Schema schema,
 			final IndexDocument document) throws SearchLibException,
 			IOException {
@@ -164,11 +114,10 @@ public class WriterNativeOSSE extends WriterAbstract {
 			for (FieldValueItem valueItem : fieldContent.getValues()) {
 				String value = valueItem.getValue();
 				if (compiledAnalyzer != null)
-					updateTerms(termBuffer, transaction, documentId, fieldInfo,
+					transaction.updateTerms(documentId, fieldInfo,
 							compiledAnalyzer, value);
 				else
-					updateTerm(termBuffer, transaction, documentId, fieldInfo,
-							value);
+					transaction.updateTerm(documentId, fieldInfo, value);
 			}
 		}
 	}
@@ -181,7 +130,24 @@ public class WriterNativeOSSE extends WriterAbstract {
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index, null, fieldMap.values(), 1);
-			transaction.updateDocument(schema, document);
+			updateDoc(transaction, fieldMap, schema, document);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			IOUtils.close(transaction);
+		}
+		return true;
+	}
+
+	@Deprecated
+	final public boolean updateDocument1(final Schema schema,
+			final IndexDocument document) throws SearchLibException {
+		OsseTransaction transaction = null;
+		try {
+			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
+					.getFieldList());
+			transaction = new OsseTransaction(index, null, fieldMap.values(), 1);
+			transaction.updateDocument1(schema, document);
 			transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -204,7 +170,7 @@ public class WriterNativeOSSE extends WriterAbstract {
 					documents.size());
 			int i = 0;
 			for (IndexDocument document : documents) {
-				transaction.updateDocument(schema, document);
+				updateDoc(transaction, fieldMap, schema, document);
 				i++;
 			}
 			transaction.commit();

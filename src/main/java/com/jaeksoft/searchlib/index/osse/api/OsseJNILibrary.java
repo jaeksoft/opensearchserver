@@ -81,6 +81,18 @@ public class OsseJNILibrary {
 			long hMsTransactField, int ui32DocId, long lplpsu8zTermArray,
 			int ui32NumberOfTerms, long hExtErrInfo);
 
+	public native boolean OSSCLib_MsTransact_Document_AddStringTerms_Offsets32(
+			long hMsTransactField, int ui32MsTransactDocId,
+			int ui32NumberOfTerms, long lplpsu8zTermArray,
+			long lpTermOffset32Array, long lpui32TermPosIncrArray,
+			long hExtErrInfo);
+
+	public native boolean OSSCLib_MsTransact_Document_AddStringTerms_Offsets64(
+			long hMsTransactField, int ui32MsTransactDocId,
+			int ui32NumberOfTerms, long jl_lplpsu8zTermArray,
+			long jl_lpTermOffset64Array, long jl_lpui32TermPosIncrArray,
+			long jl_hExtErrInfo);
+
 	public native boolean OSSCLib_MsTransact_RollBack(long hMsTransact,
 			long hExtErrInfo);
 
