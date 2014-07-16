@@ -1,6 +1,3 @@
-## REST Crawler API
+## WEB Crawler - URL database
 
-The REST crawler index data exposed by a JSON REST web service.
-
-* [Get the listing of the crawler items](list.md)
-* [Executing a REST crawler item](run.md)
+* [Injecting URL to crawl](inject.md)

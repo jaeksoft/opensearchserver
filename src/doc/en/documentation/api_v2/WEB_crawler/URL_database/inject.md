@@ -1,3 +1,5 @@
+## Injecting URL to crawl
+
 Use this API to insert URLs in the URL database.
 
 **Requirement:** OpenSearchServer v1.5

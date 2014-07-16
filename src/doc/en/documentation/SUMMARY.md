@@ -114,3 +114,5 @@
 			* [Insert](api_v2/WEB_crawler/exclusion_patterns/insert.md)
 			* [List](api_v2/WEB_crawler/exclusion_patterns/list.md)
 			* [Delete](api_v2/WEB_crawler/exclusion_patterns/delete.md)
+		* [URL Database](api_v2/WEB_crawler/URL_database/readme.md)
+			* [Injecting URL](api_v2/WEB_crawler/URL_database/inject.md)
