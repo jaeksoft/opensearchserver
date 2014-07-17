@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.http.cookie.ClientCookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -159,14 +158,9 @@ public class CookieItem {
 		if (basicClientCookie != null)
 			return basicClientCookie;
 		basicClientCookie = new BasicClientCookie(name, value);
-		basicClientCookie.setVersion(1);
-		String domain_attr = StringUtils.fastConcat(".", InternetDomainName
-				.from(extractUrl().getHost()).name());
+		String domain_attr = StringUtils.fastConcat(".",
+				InternetDomainName.from(extractUrl().getHost()));
 		basicClientCookie.setDomain(domain_attr);
-		basicClientCookie.setPath("/");
-		basicClientCookie.setSecure(true);
-		basicClientCookie.setAttribute(ClientCookie.VERSION_ATTR, "1");
-		basicClientCookie.setAttribute(ClientCookie.DOMAIN_ATTR, domain_attr);
 		return basicClientCookie;
 	}
 
