@@ -42,10 +42,10 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthSchemeProvider;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -84,7 +84,6 @@ public abstract class HttpAbstract {
 	private ProxyHandler proxyHandler;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
-	private BasicCookieStore cookieStore;
 	private CredentialsProvider credentialsProvider;
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
@@ -116,11 +115,6 @@ public abstract class HttpAbstract {
 
 		credentialsProvider = new BasicCredentialsProvider();
 		builder.setDefaultCredentialsProvider(credentialsProvider);
-
-		cookieStore = new BasicCookieStore();
-		builder.setDefaultCookieStore(cookieStore);
-
-		builder.setDefaultCredentialsProvider(credentialsProvider);
 		builder.setDefaultAuthSchemeRegistry(authSchemeRegistry);
 
 		httpClient = builder.build();
@@ -148,7 +142,10 @@ public abstract class HttpAbstract {
 			CredentialItem credentialItem, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, URISyntaxException {
 
+		CookieStore cookieStore = null;
+
 		if (!CollectionUtils.isEmpty(cookies)) {
+			cookieStore = new BasicCookieStore();
 			List<Cookie> cookieList = cookieStore.getCookies();
 			for (CookieItem cookie : cookies) {
 				Cookie newCookie = cookie.getCookie();
@@ -165,8 +162,7 @@ public abstract class HttpAbstract {
 		// Cookies uses browser compatibility
 		RequestConfig.Builder configBuilber = RequestConfig.custom()
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
-				.setStaleConnectionCheckEnabled(true)
-				.setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
+				.setStaleConnectionCheckEnabled(true);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
@@ -179,7 +175,9 @@ public abstract class HttpAbstract {
 
 		httpBaseRequest.setConfig(configBuilber.build());
 
-		httpClientContext = new HttpClientContext();
+		httpClientContext = HttpClientContext.create();
+		if (cookieStore != null)
+			httpClientContext.setCookieStore(cookieStore);
 
 		httpResponse = httpClient.execute(httpBaseRequest, httpClientContext);
 		if (httpResponse == null)
