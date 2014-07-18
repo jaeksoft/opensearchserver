@@ -26,23 +26,23 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.AbstractPatternNameValueManager;
-import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
 
-public class CookiesController extends AbstractNamedValueController<CookieItem> {
+public class HeadersController extends AbstractNamedValueController<HeaderItem> {
 
-	public CookiesController() throws SearchLibException {
+	public HeadersController() throws SearchLibException {
 		super();
 	}
 
 	@Override
-	protected AbstractPatternNameValueManager<CookieItem> getManager(
+	protected AbstractPatternNameValueManager<HeaderItem> getManager(
 			Client client) throws SearchLibException {
-		return client.getWebCookieManager();
+		return client.getWebHeaderManager();
 	}
 
 	@Override
-	protected CookieItem newItem() {
-		return new CookieItem();
+	protected HeaderItem newItem() {
+		return new HeaderItem();
 	}
 
 }
