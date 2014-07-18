@@ -25,8 +25,6 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
 import org.apache.http.message.BasicHeader;
 import org.w3c.dom.Node;
@@ -43,6 +41,10 @@ public class HeaderItem extends AbstractPatternNameValueItem {
 	public HeaderItem() {
 	}
 
+	public HeaderItem(String name, String value) {
+		super(null, name, value);
+	}
+
 	public HeaderItem(Node node) {
 		super(node);
 	}
@@ -53,8 +55,7 @@ public class HeaderItem extends AbstractPatternNameValueItem {
 		super.writeXml(NODE_NAME, xmlWriter);
 	}
 
-	public BasicHeader getHeader() throws MalformedURLException,
-			URISyntaxException {
+	public BasicHeader getHeader() {
 		if (basicHeader != null)
 			return basicHeader;
 		basicHeader = new BasicHeader(name, value);
