@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.io.FileUtils;
@@ -83,7 +82,7 @@ public class IcePdfParser extends Parser {
 	}
 
 	private void extractContent(ParserResultItem result, Document pdf)
-			throws IOException {
+			throws IOException, InterruptedException {
 		PInfo info = pdf.getInfo();
 		if (info != null) {
 			result.addField(ParserFieldEnum.title, info.getTitle());
@@ -218,11 +217,10 @@ public class IcePdfParser extends Parser {
 			return;
 		int emptyPageImages = 0;
 		for (int i = 0; i < pdf.getNumberOfPages(); i++) {
-			Vector<?> images = pdf.getPageImages(i);
+			List<Image> images = pdf.getPageImages(i);
 			if (images == null || images.size() == 0)
 				continue;
-			float rotation = pdf.getPageTree().getPage(i, null)
-					.getTotalRotation(0);
+			float rotation = pdf.getPageTree().getPage(i).getTotalRotation(0);
 			BufferedImage image = ImageUtils.toBufferedImage(pdf.getPageImage(
 					i, GraphicsRenderingHints.PRINT, Page.BOUNDARY_CROPBOX,
 					0.0f, 4.0F));
