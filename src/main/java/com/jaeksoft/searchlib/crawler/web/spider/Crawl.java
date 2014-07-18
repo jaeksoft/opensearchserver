@@ -256,7 +256,7 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(url);
 
-				List<CookieItem> cookieList = cookieManager.getCookies(url
+				List<CookieItem> cookieList = cookieManager.getItems(url
 						.toExternalForm());
 				downloadItem = ClientCatalog.getCrawlCacheManager().loadCache(
 						uri);
