@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,10 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 
 import com.jaeksoft.searchlib.Logging;
@@ -54,6 +57,18 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			return;
 		for (Closeable closeable : closeables)
 			closeQuietly(closeable);
+	}
+
+	public static final int copy(InputStream inputStream, File tempFile,
+			boolean bCloseInputStream) throws IOException {
+		FileOutputStream fos = new FileOutputStream(tempFile);
+		try {
+			return copy(inputStream, fos);
+		} finally {
+			close(fos);
+			if (bCloseInputStream)
+				close(inputStream);
+		}
 	}
 
 }

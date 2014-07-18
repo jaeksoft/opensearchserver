@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class RendererResults {
@@ -43,11 +44,12 @@ public class RendererResults {
 	}
 
 	final public RendererResult addResult(Client client, String serverBaseUrl,
-			Renderer renderer, String keywords) {
+			Renderer renderer, String keywords,
+			AuthPluginInterface.User loggedUser) {
 		rwl.w.lock();
 		try {
 			RendererResult rendererResult = new RendererResult(client,
-					serverBaseUrl, renderer, keywords);
+					serverBaseUrl, renderer, keywords, loggedUser);
 			results.put(rendererResult.hashCode(), rendererResult);
 			return rendererResult;
 		} finally {

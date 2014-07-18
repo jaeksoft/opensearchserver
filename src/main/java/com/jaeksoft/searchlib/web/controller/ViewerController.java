@@ -33,10 +33,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.NamingException;
+
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,6 +65,8 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 
 @AfterCompose(superclass = true)
@@ -100,12 +106,12 @@ public class ViewerController extends CommonController {
 		page = 1;
 		zoom = 100;
 		String h = getRequestParameter("h");
+		RendererResult result = null;
 		if (h != null) {
 			String p = getRequestParameter("p");
 			Integer hashCode = Integer.parseInt(h);
 			Integer pos = Integer.parseInt(p);
-			RendererResult result = ClientCatalog.getRendererResults().find(
-					hashCode);
+			result = ClientCatalog.getRendererResults().find(hashCode);
 			if (result == null)
 				return;
 			client = result.getClient();
@@ -122,7 +128,19 @@ public class ViewerController extends CommonController {
 		}
 		if ("file".equalsIgnoreCase(uri.getScheme()))
 			tempFile = new File(uri);
-		else {
+		else if ("smb".equalsIgnoreCase(uri.getScheme())) {
+			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
+			SmbFile smbFile;
+			String url = URLDecoder.decode(uri.toString(), "UTF-8");
+			if (result != null && result.getLoggedUser() != null) {
+				AuthPluginInterface.User user = result.getLoggedUser();
+				NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
+						result.getAuthDomain(), user.username, user.password);
+				smbFile = new SmbFile(uri.toURL(), auth);
+			} else
+				smbFile = new SmbFile(url);
+			IOUtils.copy(smbFile.getInputStream(), tempFile, true);
+		} else {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
 			downloadThread = new HttpDownloadThread(client, uri, tempFile, true);
 			downloadThread.execute();
