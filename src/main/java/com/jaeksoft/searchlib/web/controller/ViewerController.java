@@ -60,6 +60,7 @@ import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloadThread;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
@@ -126,9 +127,14 @@ public class ViewerController extends CommonController {
 			uri = new URI(u);
 			client = ClientCatalog.getClient(index);
 		}
-		if ("file".equalsIgnoreCase(uri.getScheme()))
-			tempFile = new File(uri);
-		else if ("smb".equalsIgnoreCase(uri.getScheme())) {
+		if ("file".equalsIgnoreCase(uri.getScheme())) {
+			try {
+				tempFile = new File(uri);
+			} catch (Throwable t) {
+				Logging.warn(t);
+				tempFile = new File(uri.getPath());
+			}
+		} else if ("smb".equalsIgnoreCase(uri.getScheme())) {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
 			NtlmPasswordAuthentication auth = null;
 			SmbFile smbFile;
@@ -144,8 +150,7 @@ public class ViewerController extends CommonController {
 							result.getAuthDomain(), result.getAuthUsername(),
 							result.getAuthPassword());
 			}
-			smbFile = auth != null ? new SmbFile(uri.toURL(), auth)
-					: new SmbFile(url);
+			smbFile = auth != null ? new SmbFile(url, auth) : new SmbFile(url);
 			IOUtils.copy(smbFile.getInputStream(), tempFile, true);
 		} else {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
