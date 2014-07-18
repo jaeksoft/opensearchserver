@@ -83,6 +83,7 @@ public abstract class AbstractPatternNameValueItem {
 		item.pattern = this.pattern;
 		item.name = this.name;
 		item.value = this.value;
+		item.changeEvent();
 	}
 
 	/**
@@ -109,6 +110,7 @@ public abstract class AbstractPatternNameValueItem {
 	 */
 	final public void setPattern(String pattern) {
 		this.pattern = pattern;
+		changeEvent();
 	}
 
 	/**
@@ -124,6 +126,7 @@ public abstract class AbstractPatternNameValueItem {
 	 */
 	final public void setName(String name) {
 		this.name = name;
+		changeEvent();
 	}
 
 	/**
@@ -139,10 +142,13 @@ public abstract class AbstractPatternNameValueItem {
 	 */
 	final public void setValue(String value) {
 		this.value = value;
+		changeEvent();
 	}
 
 	final public boolean match(String sUrl) {
 		return sUrl.startsWith(pattern);
 	}
+
+	protected abstract void changeEvent();
 
 }

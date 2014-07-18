@@ -72,4 +72,9 @@ public class CookieItem extends AbstractPatternNameValueItem {
 		return basicClientCookie;
 	}
 
+	@Override
+	protected void changeEvent() {
+		basicClientCookie = null;
+	}
+
 }
