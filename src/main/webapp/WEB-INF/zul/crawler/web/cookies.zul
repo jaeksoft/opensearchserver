@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -15,16 +15,17 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('cookies') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CookiesController')">
-	<panel title="@load(cookies.currentEditMode)" border="normal">
+	viewModel="@id('namevaluectrl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CookiesController')">
+	<panel title="@load(namevaluectrl.currentEditMode)"
+		border="normal">
 		<panelchildren>
-			<include src="/WEB-INF/zul/crawler/web/cookies_edit.zul" />
+			<include src="/WEB-INF/zul/crawler/web/namevalue_edit.zul" />
 		</panelchildren>
 	</panel>
 	<separator />
 	<panel title="List of existing cookies" border="normal">
 		<panelchildren>
-			<include src="/WEB-INF/zul/crawler/web/cookies_list.zul" />
+			<include src="/WEB-INF/zul/crawler/web/namevalue_list.zul" />
 		</panelchildren>
 	</panel>
 </window>
