@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -21,25 +21,25 @@
 	</columns>
 	<rows>
 		<row>
-			<label value="URL Pattern: " />
-			<textbox value="@bind(cookies.currentCookie.pattern)"
-				readonly="@load(cookies.selected)" cols="100" />
+			<label value="URL Prefix: " />
+			<textbox value="@bind(namevaluectrl.currentItem.pattern)"
+				readonly="@load(namevaluectrl.selected)" cols="100" />
 		</row>
 		<row>
 			<label value="Name: " />
-			<textbox value="@bind(cookies.currentCookie.name)"
+			<textbox value="@bind(namevaluectrl.currentItem.name)"
 				cols="80" />
 		</row>
 		<row>
 			<label value="Value: " />
-			<textbox value="@bind(cookies.currentCookie.value)"
+			<textbox value="@bind(namevaluectrl.currentItem.value)"
 				cols="100" rows="5" multiline="true" />
 		</row>
 	</rows>
 	<foot>
 		<footer span="2">
 			<vbox width="100%" align="center">
-				<hbox visible="@load(cookies.selected)">
+				<hbox visible="@load(namevaluectrl.selected)">
 					<button label="Cancel"
 						onClick="@command('onCancel')" />
 					<space width="10px" />
@@ -48,7 +48,7 @@
 					<button label="Delete"
 						onClick="@command('onDelete')" />
 				</hbox>
-				<hbox visible="@load(cookies.notSelected)">
+				<hbox visible="@load(namevaluectrl.notSelected)">
 					<button label="Create" onClick="@command('onSave')" />
 				</hbox>
 			</vbox>
