@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.RendererLogField;
 import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
@@ -91,7 +92,8 @@ public class RendererServlet extends AbstractServlet {
 			HttpServletRequest servletRequest = transaction.getRequest();
 			setLog(renderer, searchRequest, servletRequest);
 			searchRequest.setFromServlet(transaction, "");
-			renderer.configureAuthRequest(searchRequest, servletRequest);
+			AuthPluginInterface.User loggedUser = renderer
+					.configureAuthRequest(searchRequest, servletRequest);
 			if (query == null)
 				query = (String) transaction.getRequest().getSession()
 						.getAttribute("query");
@@ -110,11 +112,17 @@ public class RendererServlet extends AbstractServlet {
 				if (result != null) {
 					transaction.setRequestAttribute("paging",
 							new PagingSearchResult(result, 10));
-					transaction.setRequestAttribute(
-							"rendererResult",
-							ClientCatalog.getRendererResults().addResult(
-									client, serverBaseURL, renderer,
-									searchRequest.getQueryString()));
+					transaction
+							.setRequestAttribute(
+									"rendererResult",
+									ClientCatalog.getRendererResults()
+											.addResult(
+													client,
+													serverBaseURL,
+													renderer,
+													searchRequest
+															.getQueryString(),
+													loggedUser));
 				}
 				if (searchRequest.isFacet()) {
 					AbstractSearchRequest facetRequest = (AbstractSearchRequest) searchRequest

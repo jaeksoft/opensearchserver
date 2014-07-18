@@ -32,6 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -60,21 +61,26 @@ public class RendererResult {
 
 	private final long creationTime;
 
-	private Client client;
-	private StringBuilder sbUrl;
-	private String keywords;
+	final private Client client;
+	final private StringBuilder sbUrl;
+	final private String keywords;
 	private List<Item> items;
-	private String contentTypeField;
+	final private String contentTypeField;
 	private String filenameField;
 	private String hocrField;
+	final private AuthPluginInterface.User loggedUser;
+	final private String authDomain;
 
 	public RendererResult(Client client, String serverBaseUrl,
-			Renderer renderer, String keywords) {
+			Renderer renderer, String keywords,
+			AuthPluginInterface.User loggedUser) {
 		this.client = client;
 		this.keywords = keywords;
 		this.contentTypeField = renderer.getContentTypeField();
 		this.filenameField = renderer.getFilenameField();
 		this.hocrField = renderer.getHocrField();
+		this.loggedUser = loggedUser;
+		this.authDomain = renderer.getAuthDomain();
 		sbUrl = new StringBuilder(serverBaseUrl);
 		sbUrl.append("/viewer.zul?h=");
 		sbUrl.append(hashCode());
@@ -127,4 +133,19 @@ public class RendererResult {
 	final public long getCreationTime() {
 		return creationTime;
 	}
+
+	/**
+	 * @return the loggedUser
+	 */
+	public AuthPluginInterface.User getLoggedUser() {
+		return loggedUser;
+	}
+
+	/**
+	 * @return the authDomain
+	 */
+	public String getAuthDomain() {
+		return authDomain;
+	}
+
 }

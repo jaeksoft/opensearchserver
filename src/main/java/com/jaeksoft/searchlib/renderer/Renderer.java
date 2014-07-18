@@ -1209,12 +1209,13 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
-	public void configureAuthRequest(AbstractSearchRequest searchRequest,
+	public AuthPluginInterface.User configureAuthRequest(
+			AbstractSearchRequest searchRequest,
 			HttpServletRequest servletRequest) throws ParseException,
 			IOException, SearchLibException {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
-			return;
+			return null;
 		HttpSession session = servletRequest.getSession();
 		if (servletRequest.getParameter("logout") != null) {
 			session.removeAttribute(RENDERER_SESSION_USER);
@@ -1286,7 +1287,7 @@ public class Renderer implements Comparable<Renderer> {
 			sbNegativeFilter.append(')');
 			searchRequest.addFilter(sbNegativeFilter.toString(), true);
 		}
-
+		return user;
 	}
 
 	/**
