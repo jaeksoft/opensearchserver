@@ -130,15 +130,22 @@ public class ViewerController extends CommonController {
 			tempFile = new File(uri);
 		else if ("smb".equalsIgnoreCase(uri.getScheme())) {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
+			NtlmPasswordAuthentication auth = null;
 			SmbFile smbFile;
 			String url = URLDecoder.decode(uri.toString(), "UTF-8");
-			if (result != null && result.getLoggedUser() != null) {
+			if (result != null) {
 				AuthPluginInterface.User user = result.getLoggedUser();
-				NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
-						result.getAuthDomain(), user.username, user.password);
-				smbFile = new SmbFile(uri.toURL(), auth);
-			} else
-				smbFile = new SmbFile(url);
+				if (user != null)
+					auth = new NtlmPasswordAuthentication(
+							result.getAuthDomain(), user.username,
+							user.password);
+				else if (result.isAuthCredential())
+					auth = new NtlmPasswordAuthentication(
+							result.getAuthDomain(), result.getAuthUsername(),
+							result.getAuthPassword());
+			}
+			smbFile = auth != null ? new SmbFile(uri.toURL(), auth)
+					: new SmbFile(url);
 			IOUtils.copy(smbFile.getInputStream(), tempFile, true);
 		} else {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
