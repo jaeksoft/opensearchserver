@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,14 +36,14 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
-public class CookieManager extends AbstractPatternNameValueManager<CookieItem> {
+public class HeaderManager extends AbstractPatternNameValueManager<HeaderItem> {
 
-	public final static String XPP_PATH = "/cookies/cookie";
+	public final static String XPP_PATH = "/headers/header";
 
-	public final static String ITEM_NODE_NAME = "cookie";
-	public final static String ROOT_NODE_NAME = "cookies";
+	public final static String ITEM_NODE_NAME = "header";
+	public final static String ROOT_NODE_NAME = "headers";
 
-	public CookieManager(File indexDir, String filename)
+	public HeaderManager(File indexDir, String filename)
 			throws SearchLibException {
 		super(indexDir, filename);
 	}
@@ -61,8 +61,8 @@ public class CookieManager extends AbstractPatternNameValueManager<CookieItem> {
 	}
 
 	@Override
-	protected CookieItem getNewItem(Node node) {
-		return new CookieItem(node);
+	protected HeaderItem getNewItem(Node node) {
+		return new HeaderItem(node);
 	}
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,56 +25,46 @@
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.message.BasicHeader;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.google.common.net.InternetDomainName;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class CookieItem extends AbstractPatternNameValueItem {
+public class HeaderItem extends AbstractPatternNameValueItem {
 
-	private BasicClientCookie basicClientCookie = null;
+	public final static String NODE_NAME = "header";
 
-	public CookieItem() {
+	private BasicHeader basicHeader = null;
+
+	public HeaderItem() {
 	}
 
-	public CookieItem(BasicClientCookie basicClientCookie) {
-		this.pattern = null;
-		this.name = basicClientCookie.getName();
-		this.value = basicClientCookie.getValue();
-		this.basicClientCookie = basicClientCookie;
+	public HeaderItem(String name, String value) {
+		super(null, name, value);
 	}
 
-	public CookieItem(Node node) {
+	public HeaderItem(Node node) {
 		super(node);
-		basicClientCookie = null;
 	}
 
 	@Override
 	public void writeXml(XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException {
-		super.writeXml(CookieManager.ITEM_NODE_NAME, xmlWriter);
+		super.writeXml(NODE_NAME, xmlWriter);
 	}
 
-	public BasicClientCookie getCookie() throws MalformedURLException,
-			URISyntaxException {
-		if (basicClientCookie != null)
-			return basicClientCookie;
-		basicClientCookie = new BasicClientCookie(name, value);
-		String domain_attr = StringUtils.fastConcat(".",
-				InternetDomainName.from(extractUrl().getHost()));
-		basicClientCookie.setDomain(domain_attr);
-		return basicClientCookie;
+	public BasicHeader getHeader() {
+		if (basicHeader != null)
+			return basicHeader;
+		basicHeader = new BasicHeader(name, value);
+		return basicHeader;
 	}
 
 	@Override
 	protected void changeEvent() {
-		basicClientCookie = null;
+		basicHeader = null;
 	}
 
 }

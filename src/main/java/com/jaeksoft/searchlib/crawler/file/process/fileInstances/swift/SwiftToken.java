@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,16 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -76,14 +75,14 @@ public class SwiftToken {
 	private final String authToken;
 	private final String username;
 
-	private final List<Header> authHeaders;
+	private final List<HeaderItem> authHeaders;
 
 	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
 			String username, String password, AuthType authType, String tenant)
 			throws URISyntaxException, ClientProtocolException, IOException,
 			JSONException, SearchLibException {
 
-		authHeaders = new ArrayList<Header>(1);
+		authHeaders = new ArrayList<HeaderItem>(1);
 
 		DownloadItem downloadItem = null;
 		switch (authType) {
@@ -135,7 +134,7 @@ public class SwiftToken {
 		internalURL = intUrl;
 		publicURL = pubUrl;
 		this.username = username;
-		authHeaders.add(new BasicHeader(X_Auth_Token, authToken));
+		authHeaders.add(new HeaderItem(X_Auth_Token, authToken));
 	}
 
 	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
@@ -152,8 +151,8 @@ public class SwiftToken {
 		JSONObject json = new JSONObject();
 		json.put("auth", jsonAuth);
 		URI uri = new URI(authUrl + "/tokens");
-		List<Header> headers = new ArrayList<Header>(1);
-		headers.add(new BasicHeader("Accept", "application/json"));
+		List<HeaderItem> headers = new ArrayList<HeaderItem>(1);
+		headers.add(new HeaderItem("Accept", "application/json"));
 		return httpDownloader.post(uri, null, headers, null, new StringEntity(
 				json.toString(), ContentType.APPLICATION_JSON));
 	}
@@ -169,15 +168,16 @@ public class SwiftToken {
 		u.append("/credentials/openstack?tenantname=");
 		u.append(tenantname);
 		URI uri = new URI(u.toString());
-		List<Header> headers = new ArrayList<Header>(1);
-		headers.add(new BasicHeader("Accept", "application/json"));
+		List<HeaderItem> headers = new ArrayList<HeaderItem>(1);
+		headers.add(new HeaderItem("Accept", "application/json"));
 		return httpDownloader.get(uri, null, headers, null);
 	}
 
-	final public List<Header> getAuthTokenHeader(final List<Header> headerList) {
+	final public List<HeaderItem> getAuthTokenHeader(
+			final List<HeaderItem> headerList) {
 		if (headerList == null)
 			return this.authHeaders;
-		headerList.add(new BasicHeader(X_Auth_Token, authToken));
+		headerList.add(new HeaderItem(X_Auth_Token, authToken));
 		return headerList;
 	}
 
