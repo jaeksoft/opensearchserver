@@ -53,6 +53,8 @@ import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderManager;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
@@ -84,6 +86,7 @@ public class Crawl {
 	private HostUrlList hostUrlList;
 	private final UrlItem urlItem;
 	private CredentialManager credentialManager;
+	private HeaderManager headerManager;
 	private CookieManager cookieManager;
 	private CredentialItem credentialItem;
 	private String userAgent;
@@ -102,6 +105,7 @@ public class Crawl {
 			ParserSelector parserSelector) throws SearchLibException {
 		this.credentialManager = config.getWebCredentialManager();
 		this.cookieManager = config.getWebCookieManager();
+		this.headerManager = config.getWebHeaderManager();
 		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
@@ -256,17 +260,21 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null
 						: credentialManager.matchCredential(url);
 
-				List<CookieItem> cookieList = cookieManager.getItems(url
-						.toExternalForm());
+				String externalFormUrl = url.toExternalForm();
 				downloadItem = ClientCatalog.getCrawlCacheManager().loadCache(
 						uri);
 
 				boolean fromCache = (downloadItem != null);
 
-				if (!fromCache)
+				if (!fromCache) {
+
+					List<CookieItem> cookieList = cookieManager
+							.getItems(externalFormUrl);
+					List<HeaderItem> headerList = headerManager
+							.getItems(externalFormUrl);
 					downloadItem = httpDownloader.get(uri, credentialItem,
-							null, cookieList);
-				else if (Logging.isDebug)
+							headerList, cookieList);
+				} else if (Logging.isDebug)
 					Logging.debug("Crawl cache deliver: " + uri);
 
 				urlItem.setContentDispositionFilename(downloadItem
