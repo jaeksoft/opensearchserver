@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -14,20 +14,20 @@
 	copy of the GNU General Public License along with OpenSearchServer.
 	If not, see <http://www.gnu.org/licenses/>.
 -->
-<listbox model="@load(cookies.cookieList)"
-	selectedItem="@bind(cookies.selectedCookie)">
+<listbox model="@load(namevaluectrl.itemList)"
+	selectedItem="@bind(namevaluectrl.selectedItem)">
 	<listhead sizable="true">
-		<listheader label="Pattern" hflex="min" />
+		<listheader label="Prefix" hflex="min" />
 		<listheader label="Name" hflex="min" />
 		<listheader label="Value" hflex="min" />
 		<listheader />
 	</listhead>
-	<template name="model" var="cookie">
+	<template name="model" var="item">
 		<listitem>
-			<listcell label="@load(cookie.pattern)" />
-			<listcell label="@load(cookie.name)" />
+			<listcell label="@load(item.pattern)" />
+			<listcell label="@load(item.name)" />
 			<listcell>
-				<label value="@load(cookie.value)" multiline="true" />
+				<label value="@load(item.value)" multiline="true" />
 			</listcell>
 			<listcell />
 		</listitem>
@@ -35,9 +35,9 @@
 	<listfoot>
 		<listfooter span="4">
 			<paging id="paging" detailed="true"
-				totalSize="@load(cookies.totalSize)"
-				pageSize="@load(cookies.pageSize)"
-				activePage="@bind(cookies.activePage)" />
+				totalSize="@load(namevaluectrl.totalSize)"
+				pageSize="@load(namevaluectrl.pageSize)"
+				activePage="@bind(namevaluectrl.activePage)" />
 		</listfooter>
 	</listfoot>
 </listbox>
