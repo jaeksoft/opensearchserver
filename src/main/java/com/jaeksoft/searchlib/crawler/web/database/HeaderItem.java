@@ -62,4 +62,9 @@ public class HeaderItem extends AbstractPatternNameValueItem {
 		return basicHeader;
 	}
 
+	@Override
+	protected void changeEvent() {
+		basicHeader = null;
+	}
+
 }
