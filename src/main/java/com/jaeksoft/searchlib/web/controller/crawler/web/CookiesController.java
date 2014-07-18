@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -71,7 +71,7 @@ public class CookiesController extends CrawlerController {
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
 			CookieManager cookieManager = client.getWebCookieManager();
-			cookieManager.delCookie(deleteCookie);
+			cookieManager.delItem(deleteCookie);
 			onCancel();
 		}
 	}
@@ -122,7 +122,7 @@ public class CookiesController extends CrawlerController {
 					return null;
 				CookieManager cookieManager = client.getWebCookieManager();
 				cookieList = new ArrayList<CookieItem>(0);
-				totalSize = cookieManager.getCookies(null, getActivePage()
+				totalSize = cookieManager.getItems(null, getActivePage()
 						* getPageSize(), getPageSize(), cookieList);
 				return cookieList;
 			} catch (SearchLibException e) {
@@ -222,10 +222,10 @@ public class CookiesController extends CrawlerController {
 			return;
 		CookieManager cookieManager = client.getWebCookieManager();
 		if (selectedCookie == null) {
-			cookieManager.addCookie(currentCookie);
+			cookieManager.addItem(currentCookie);
 		} else {
 			currentCookie.copyTo(selectedCookie);
-			cookieManager.updateCookie(selectedCookie);
+			cookieManager.updateItem(selectedCookie);
 		}
 		onCancel();
 	}
