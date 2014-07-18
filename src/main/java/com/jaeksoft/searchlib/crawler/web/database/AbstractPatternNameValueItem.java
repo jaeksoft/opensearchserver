@@ -71,7 +71,8 @@ public abstract class AbstractPatternNameValueItem {
 		xmlWriter.startElement(nodeName, "name",
 				new String(StringUtils.base64encode(name)), "value",
 				new String(StringUtils.base64encode(value)));
-		xmlWriter.textNode(pattern);
+		if (pattern != null)
+			xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
 	}
 
