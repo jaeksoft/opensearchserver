@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -70,6 +71,8 @@ public class RendererResult {
 	private String hocrField;
 	final private AuthPluginInterface.User loggedUser;
 	final private String authDomain;
+	final private String authUsername;
+	final private String authPassword;
 
 	public RendererResult(Client client, String serverBaseUrl,
 			Renderer renderer, String keywords,
@@ -81,6 +84,8 @@ public class RendererResult {
 		this.hocrField = renderer.getHocrField();
 		this.loggedUser = loggedUser;
 		this.authDomain = renderer.getAuthDomain();
+		this.authUsername = renderer.getAuthUsername();
+		this.authPassword = renderer.getAuthPassword();
 		sbUrl = new StringBuilder(serverBaseUrl);
 		sbUrl.append("/viewer.zul?h=");
 		sbUrl.append(hashCode());
@@ -146,6 +151,25 @@ public class RendererResult {
 	 */
 	public String getAuthDomain() {
 		return authDomain;
+	}
+
+	/**
+	 * @return the authUsername
+	 */
+	public String getAuthUsername() {
+		return authUsername;
+	}
+
+	/**
+	 * @return the authPassword
+	 */
+	public String getAuthPassword() {
+		return authPassword;
+	}
+
+	public boolean isAuthCredential() {
+		return !StringUtils.isEmpty(authDomain)
+				&& !StringUtils.isEmpty(authUsername);
 	}
 
 }
