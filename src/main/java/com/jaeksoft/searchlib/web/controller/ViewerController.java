@@ -292,19 +292,23 @@ public class ViewerController extends CommonController {
 			float pageHeight = pd.getHeight();
 			if (keywords != null) {
 				PageText pageText = pdf.getPageViewText(pdfPage);
-				for (LineText lineText : pageText.getPageLines()) {
-					for (WordText wordText : lineText.getWords()) {
-						for (String keyword : keywords)
-							if (keyword.equalsIgnoreCase(wordText.getText())) {
-								Rectangle2D.Float rectf = wordText.getBounds();
-								Rectangle rect = new Rectangle();
-								rect.x = (int) (rectf.x * zoomFactor);
-								rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
-								rect.width = (int) (rectf.width * zoomFactor);
-								rect.height = (int) (rectf.height * zoomFactor);
-								boxList.add(rect);
-								break;
-							}
+				if (pageText != null) {
+					for (LineText lineText : pageText.getPageLines()) {
+						for (WordText wordText : lineText.getWords()) {
+							for (String keyword : keywords)
+								if (keyword
+										.equalsIgnoreCase(wordText.getText())) {
+									Rectangle2D.Float rectf = wordText
+											.getBounds();
+									Rectangle rect = new Rectangle();
+									rect.x = (int) (rectf.x * zoomFactor);
+									rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
+									rect.width = (int) (rectf.width * zoomFactor);
+									rect.height = (int) (rectf.height * zoomFactor);
+									boxList.add(rect);
+									break;
+								}
+						}
 					}
 				}
 				if (hocrPdf != null) {
