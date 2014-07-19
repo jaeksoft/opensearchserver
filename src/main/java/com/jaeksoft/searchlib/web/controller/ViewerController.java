@@ -293,21 +293,24 @@ public class ViewerController extends CommonController {
 			if (keywords != null) {
 				PageText pageText = pdf.getPageViewText(pdfPage);
 				if (pageText != null) {
-					for (LineText lineText : pageText.getPageLines()) {
-						for (WordText wordText : lineText.getWords()) {
-							for (String keyword : keywords)
-								if (keyword
-										.equalsIgnoreCase(wordText.getText())) {
-									Rectangle2D.Float rectf = wordText
-											.getBounds();
-									Rectangle rect = new Rectangle();
-									rect.x = (int) (rectf.x * zoomFactor);
-									rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
-									rect.width = (int) (rectf.width * zoomFactor);
-									rect.height = (int) (rectf.height * zoomFactor);
-									boxList.add(rect);
-									break;
-								}
+					List<LineText> lines = pageText.getPageLines();
+					if (lines != null) {
+						for (LineText lineText : lines) {
+							for (WordText wordText : lineText.getWords()) {
+								for (String keyword : keywords)
+									if (keyword.equalsIgnoreCase(wordText
+											.getText())) {
+										Rectangle2D.Float rectf = wordText
+												.getBounds();
+										Rectangle rect = new Rectangle();
+										rect.x = (int) (rectf.x * zoomFactor);
+										rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
+										rect.width = (int) (rectf.width * zoomFactor);
+										rect.height = (int) (rectf.height * zoomFactor);
+										boxList.add(rect);
+										break;
+									}
+							}
 						}
 					}
 				}
