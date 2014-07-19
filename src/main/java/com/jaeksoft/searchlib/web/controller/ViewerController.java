@@ -37,6 +37,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.naming.NamingException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -44,6 +45,8 @@ import jcifs.smb.SmbFile;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.pdfbox.exceptions.CryptographyException;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -278,7 +281,7 @@ public class ViewerController extends CommonController {
 		return downloadThread.getPercent();
 	}
 
-	private void loadPdf() throws PDFException, PDFSecurityException,
+	private void loadIcePdf() throws PDFException, PDFSecurityException,
 			IOException {
 		Document pdf = null;
 		try {
@@ -336,8 +339,77 @@ public class ViewerController extends CommonController {
 		}
 	}
 
-	public Image getCurrentImage() throws PDFException, PDFSecurityException,
-			IOException {
+	/**
+	 * gs -q -dFirstPage=3 -dLastPage=3 -dNOPAUSE -dBATCH -sDEVICE=jpeg -r72
+	 * -dEPSCrop -sOutputFile=out.jpg "document.pdf"
+	 * 
+	 * @throws IOException
+	 * @throws SearchLibException
+	 * @throws InterruptedException
+	 */
+	private void loadGS(String pdfPassword) throws IOException,
+			SearchLibException, InterruptedException {
+		File imageFile = null;
+		try {
+			File gsFile = new File("/usr/local/bin/gs");
+			if (!gsFile.exists())
+				gsFile = new File("/usr/bin/gs");
+			if (!gsFile.exists())
+				throw new IOException("GhostScript (gs) executable not found.");
+			imageFile = File.createTempFile("oss-viewer", ".jpg");
+			int factor = (int) ((72 * zoom) / 100);
+			if (factor > 2400)
+				factor = 2400;
+			List<String> args = new ArrayList<String>();
+			args.add(gsFile.getAbsolutePath());
+			args.add("-dNOPAUSE");
+			args.add("-dBATCH");
+			args.add("-sDEVICE=jpeg");
+			args.add("-dSAFER");
+			args.add("-r" + factor);
+			args.add("-dFirstPage=" + page);
+			args.add("-dLastPage=" + page);
+			if (pdfPassword != null)
+				args.add("-sPDFPassword=" + pdfPassword);
+			args.add("-sOutputFile=" + imageFile.getAbsolutePath());
+			args.add(tempFile.getAbsolutePath());
+			ProcessBuilder pb = new ProcessBuilder(args);
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+			synchronized (process) {
+				process.wait(120000);
+			}
+			String processResult = IOUtils.toString(process.getInputStream());
+			if (process.exitValue() != 0)
+				throw new IOException("Ghostscript failure: " + processResult);
+			if (imageFile.length() == 0)
+				throw new IOException("Ghosscript did not generate the image: "
+						+ processResult);
+			currentImage = ImageIO.read(imageFile);
+		} finally {
+			if (imageFile != null)
+				imageFile.exists();
+		}
+	}
+
+	private void loadPdfBox() throws IOException, CryptographyException,
+			SearchLibException, InterruptedException {
+		PDDocument document = null;
+		try {
+			document = PDDocument.load(tempFile);
+			// Trying to open with empty password
+			boolean isEncrypted = document.isEncrypted();
+			if (isEncrypted)
+				document.decrypt("");
+			numberOfPages = document.getNumberOfPages();
+			loadGS(isEncrypted ? "" : null);
+		} finally {
+			if (document != null)
+				IOUtils.close(document);
+		}
+	}
+
+	public Image getCurrentImage() throws SearchLibException {
 		if (currentImage != null)
 			return currentImage;
 		if (downloadThread != null) {
@@ -350,8 +422,19 @@ public class ViewerController extends CommonController {
 		}
 		if (tempFile == null)
 			return null;
-		loadPdf();
-		return currentImage;
+		try {
+			loadPdfBox();
+			return currentImage;
+		} catch (Exception e) {
+			Logging.warn(e);
+		}
+		try {
+			loadIcePdf();
+			return currentImage;
+		} catch (Exception e) {
+			Logging.error(e);
+			throw new SearchLibException("Unable to generate the image.", e);
+		}
 	}
 
 	public int getImageWidth() {
