@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,6 +40,8 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.lang3.SystemUtils;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ExecuteUtils {
@@ -85,5 +88,28 @@ public class ExecuteUtils {
 		}
 		return envMap != null ? executor.execute(commandLine, envMap)
 				: executor.execute(commandLine);
+	}
+
+	final public static int run(CommandLine cmdLine, int secTimeOut,
+			StringBuilder returnedText, int... expectedExitValues)
+			throws IOException, SearchLibException {
+		DefaultExecutor executor = new DefaultExecutor();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			Logging.info("Execute: " + cmdLine);
+			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
+			executor.setStreamHandler(streamHandler);
+			if (expectedExitValues != null && expectedExitValues.length > 0)
+				executor.setExitValues(expectedExitValues);
+			ExecuteWatchdog watchdog = new ExecuteWatchdog(secTimeOut * 1000);
+			executor.setWatchdog(watchdog);
+			int ev = executor.execute(cmdLine);
+			if (returnedText != null)
+				returnedText.append(baos.toString("UTF-8"));
+			return ev;
+		} finally {
+			if (baos != null)
+				IOUtils.closeQuietly(baos);
+		}
 	}
 }
