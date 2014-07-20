@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,13 +29,13 @@ import java.awt.image.RenderedImage;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.exec.CommandLine;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -199,14 +199,17 @@ public class OcrManager implements Closeable {
 			File file = new File(tesseractPath);
 			if (!file.exists())
 				throw new SearchLibException("The file don't exist");
-			CommandLine cmdLine = CommandLine.parse(tesseractPath);
+			List<String> args = new ArrayList<String>();
+			args.add(tesseractPath);
 			StringBuilder sbResult = new StringBuilder();
-			ExecuteUtils.run(cmdLine, 60, sbResult, 1);
+			ExecuteUtils.run(args, 60, sbResult, 1);
 			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
 				throw new SearchLibException("Wrong returned message: "
 						+ result);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
@@ -233,24 +236,26 @@ public class OcrManager implements Closeable {
 	}
 
 	public void ocerize(File input, File outputFile, LanguageEnum lang,
-			boolean hocr) throws SearchLibException, IOException {
+			boolean hocr) throws SearchLibException, IOException,
+			InterruptedException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
 				return;
 			if (tesseractPath == null || tesseractPath.length() == 0)
 				throw new SearchLibException("No path for the OCR");
-			CommandLine cmdLine = CommandLine.parse(tesseractPath);
-			cmdLine.addArgument(input.getAbsolutePath());
-			cmdLine.addArgument(checkOutputPath(outputFile, hocr));
+			List<String> args = new ArrayList<String>();
+			args.add(tesseractPath);
+			args.add(input.getAbsolutePath());
+			args.add(checkOutputPath(outputFile, hocr));
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
 			if (tle == null)
 				tle = defaultLanguage;
 			if (tle != null && tle != TesseractLanguageEnum.None)
-				cmdLine.addArgument("-l " + tle.option);
+				args.add("-l " + tle.option);
 			if (hocr)
-				cmdLine.addArgument("hocr");
-			int ev = ExecuteUtils.run(cmdLine, 3600, null, null);
+				args.add("hocr");
+			int ev = ExecuteUtils.run(args, 3600, null, null);
 			if (ev == 3)
 				Logging.warn("Image format not supported by Tesseract ("
 						+ input.getName() + ")");
