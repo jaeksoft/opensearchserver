@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -85,5 +85,29 @@ public class ExecuteUtils {
 		}
 		return envMap != null ? executor.execute(commandLine, envMap)
 				: executor.execute(commandLine);
+	}
+
+	final public static int run(List<String> args, int secTimeOut,
+			StringBuilder returnedText, int... expectedExitValues)
+			throws IOException, InterruptedException {
+		ProcessBuilder pb = new ProcessBuilder(args);
+		pb.redirectErrorStream(true);
+		Process process = pb.start();
+		synchronized (process) {
+			process.wait(secTimeOut * 1000);
+		}
+		IOUtils.copy(process.getInputStream(), returnedText, "UTF-8", true);
+		int exitValue = process.exitValue();
+		if (expectedExitValues != null) {
+			boolean found = false;
+			for (int expectedExitValue : expectedExitValues)
+				if (expectedExitValue == exitValue) {
+					found = true;
+					break;
+				}
+			if (!found)
+				throw new IOException("Wrong exit value: " + exitValue);
+		}
+		return exitValue;
 	}
 }
