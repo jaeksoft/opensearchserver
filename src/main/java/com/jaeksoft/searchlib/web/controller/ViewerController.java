@@ -24,9 +24,11 @@
 
 package com.jaeksoft.searchlib.web.controller;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,6 +49,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.CryptographyException;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -70,8 +74,10 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
+import com.jaeksoft.searchlib.util.ExecuteUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
+import com.jaeksoft.searchlib.util.PdfBoxHighlighter;
 
 @AfterCompose(superclass = true)
 public class ViewerController extends CommonController {
@@ -89,7 +95,7 @@ public class ViewerController extends CommonController {
 
 	private File tempFile;
 
-	private Image currentImage;
+	private BufferedImage currentImage;
 
 	private URI uri;
 
@@ -281,6 +287,46 @@ public class ViewerController extends CommonController {
 		return downloadThread.getPercent();
 	}
 
+	private void checkHocrHighlight(float pageWidth, float pageHeight,
+			List<Rectangle> boxList) {
+		if (hocrPdf == null || keywords == null)
+			return;
+		float zoomFactor = zoom / 100;
+		HocrPage page = hocrPdf.getPage(this.page - 1);
+		float xFactor = (pageWidth / page.getPageWidth()) * zoomFactor;
+		float yFactor = (pageHeight / page.getPageHeight()) * zoomFactor;
+		if (page != null)
+			for (String keyword : keywords)
+				page.addBoxes(keyword, boxList, xFactor, yFactor);
+	}
+
+	private void checkIcePdfHighlight(Document pdf, float pageHeight,
+			float zoomFactor, List<Rectangle> boxList) {
+		if (keywords == null)
+			return;
+		PageText pageText = pdf.getPageViewText(this.page - 1);
+		if (pageText != null) {
+			List<LineText> lines = pageText.getPageLines();
+			if (lines != null) {
+				for (LineText lineText : lines) {
+					for (WordText wordText : lineText.getWords()) {
+						for (String keyword : keywords)
+							if (keyword.equalsIgnoreCase(wordText.getText())) {
+								Rectangle2D.Float rectf = wordText.getBounds();
+								Rectangle rect = new Rectangle();
+								rect.x = (int) (rectf.x * zoomFactor);
+								rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
+								rect.width = (int) (rectf.width * zoomFactor);
+								rect.height = (int) (rectf.height * zoomFactor);
+								boxList.add(rect);
+								break;
+							}
+					}
+				}
+			}
+		}
+	}
+
 	private void loadIcePdf() throws PDFException, PDFSecurityException,
 			IOException {
 		Document pdf = null;
@@ -288,49 +334,16 @@ public class ViewerController extends CommonController {
 			int pdfPage = page - 1;
 			pdf = new Document();
 			pdf.setFile(tempFile.getAbsolutePath());
-			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
 			PDimension pd = pdf.getPageDimension(pdfPage, 0.0f);
 			float zoomFactor = zoom / 100;
 			float pageWidth = pd.getWidth();
 			float pageHeight = pd.getHeight();
-			if (keywords != null) {
-				PageText pageText = pdf.getPageViewText(pdfPage);
-				if (pageText != null) {
-					List<LineText> lines = pageText.getPageLines();
-					if (lines != null) {
-						for (LineText lineText : lines) {
-							for (WordText wordText : lineText.getWords()) {
-								for (String keyword : keywords)
-									if (keyword.equalsIgnoreCase(wordText
-											.getText())) {
-										Rectangle2D.Float rectf = wordText
-												.getBounds();
-										Rectangle rect = new Rectangle();
-										rect.x = (int) (rectf.x * zoomFactor);
-										rect.y = (int) ((pageHeight - rectf.y - rectf.height) * zoomFactor);
-										rect.width = (int) (rectf.width * zoomFactor);
-										rect.height = (int) (rectf.height * zoomFactor);
-										boxList.add(rect);
-										break;
-									}
-							}
-						}
-					}
-				}
-				if (hocrPdf != null) {
-					HocrPage page = hocrPdf.getPage(pdfPage);
-					float xFactor = (pageWidth / page.getPageWidth())
-							* zoomFactor;
-					float yFactor = (pageHeight / page.getPageHeight())
-							* zoomFactor;
-					if (page != null)
-						for (String keyword : keywords)
-							page.addBoxes(keyword, boxList, xFactor, yFactor);
-				}
-			}
-			currentImage = pdf.getPageImage(pdfPage,
+			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
+			checkIcePdfHighlight(pdf, pageHeight, zoomFactor, boxList);
+			currentImage = (BufferedImage) pdf.getPageImage(pdfPage,
 					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
 					zoom / 100);
+			checkHocrHighlight(pageWidth, pageHeight, boxList);
 			ImageUtils.yellowHighlight(currentImage, boxList);
 			numberOfPages = pdf.getNumberOfPages();
 		} finally {
@@ -356,16 +369,19 @@ public class ViewerController extends CommonController {
 				gsFile = new File("/usr/bin/gs");
 			if (!gsFile.exists())
 				throw new IOException("GhostScript (gs) executable not found.");
-			imageFile = File.createTempFile("oss-viewer", ".jpg");
-			int factor = (int) ((72 * zoom) / 100);
+			imageFile = File.createTempFile("oss-viewer", ".png");
+			float zoomFactor = zoom / 100;
+			int factor = (int) ((zoomFactor * zoom));
 			if (factor > 2400)
 				factor = 2400;
 			List<String> args = new ArrayList<String>();
 			args.add(gsFile.getAbsolutePath());
 			args.add("-dNOPAUSE");
 			args.add("-dBATCH");
-			args.add("-sDEVICE=jpeg");
+			args.add("-sDEVICE=png16m");
 			args.add("-dSAFER");
+			args.add("-dTextAlphaBits=4");
+			args.add("-dGraphicsAlphaBits=4");
 			args.add("-r" + factor);
 			args.add("-dFirstPage=" + page);
 			args.add("-dLastPage=" + page);
@@ -373,23 +389,26 @@ public class ViewerController extends CommonController {
 				args.add("-sPDFPassword=" + pdfPassword);
 			args.add("-sOutputFile=" + imageFile.getAbsolutePath());
 			args.add(tempFile.getAbsolutePath());
-			ProcessBuilder pb = new ProcessBuilder(args);
-			pb.redirectErrorStream(true);
-			Process process = pb.start();
-			synchronized (process) {
-				process.wait(120000);
-			}
-			String processResult = IOUtils.toString(process.getInputStream());
-			if (process.exitValue() != 0)
-				throw new IOException("Ghostscript failure: " + processResult);
+			StringBuilder returnedText = new StringBuilder();
+			ExecuteUtils.run(args, 180, returnedText, 0);
 			if (imageFile.length() == 0)
 				throw new IOException("Ghosscript did not generate the image: "
-						+ processResult);
+						+ returnedText);
 			currentImage = ImageIO.read(imageFile);
 		} finally {
 			if (imageFile != null)
 				imageFile.exists();
 		}
+	}
+
+	private void checkPdfBoxHighlight(PDDocument document,
+			List<Rectangle> boxList) throws IOException {
+		PdfBoxHighlighter pdfstripper = new PdfBoxHighlighter(keywords,
+				boxList, new Dimension(currentImage.getWidth(),
+						currentImage.getHeight()));
+		pdfstripper.setStartPage(page - 1);
+		pdfstripper.setEndPage(page);
+		pdfstripper.getText(document);
 	}
 
 	private void loadPdfBox() throws IOException, CryptographyException,
@@ -401,8 +420,15 @@ public class ViewerController extends CommonController {
 			boolean isEncrypted = document.isEncrypted();
 			if (isEncrypted)
 				document.decrypt("");
-			numberOfPages = document.getNumberOfPages();
 			loadGS(isEncrypted ? "" : null);
+			PDPage pdPage = (PDPage) document.getDocumentCatalog()
+					.getAllPages().get(page - 1);
+			PDRectangle pdRect = pdPage.getArtBox();
+			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
+			checkPdfBoxHighlight(document, boxList);
+			checkHocrHighlight(pdRect.getWidth(), pdRect.getHeight(), boxList);
+			ImageUtils.yellowHighlight(currentImage, boxList);
+			numberOfPages = document.getNumberOfPages();
 		} finally {
 			if (document != null)
 				IOUtils.close(document);

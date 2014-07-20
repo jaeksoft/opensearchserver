@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,8 +39,6 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.lang3.SystemUtils;
 
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class ExecuteUtils {
@@ -90,26 +87,27 @@ public class ExecuteUtils {
 				: executor.execute(commandLine);
 	}
 
-	final public static int run(CommandLine cmdLine, int secTimeOut,
+	final public static int run(List<String> args, int secTimeOut,
 			StringBuilder returnedText, int... expectedExitValues)
-			throws IOException, SearchLibException {
-		DefaultExecutor executor = new DefaultExecutor();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			Logging.info("Execute: " + cmdLine);
-			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
-			executor.setStreamHandler(streamHandler);
-			if (expectedExitValues != null && expectedExitValues.length > 0)
-				executor.setExitValues(expectedExitValues);
-			ExecuteWatchdog watchdog = new ExecuteWatchdog(secTimeOut * 1000);
-			executor.setWatchdog(watchdog);
-			int ev = executor.execute(cmdLine);
-			if (returnedText != null)
-				returnedText.append(baos.toString("UTF-8"));
-			return ev;
-		} finally {
-			if (baos != null)
-				IOUtils.closeQuietly(baos);
+			throws IOException, InterruptedException {
+		ProcessBuilder pb = new ProcessBuilder(args);
+		pb.redirectErrorStream(true);
+		Process process = pb.start();
+		synchronized (process) {
+			process.wait(secTimeOut * 1000);
 		}
+		IOUtils.copy(process.getInputStream(), returnedText, "UTF-8", true);
+		int exitValue = process.exitValue();
+		if (expectedExitValues != null) {
+			boolean found = false;
+			for (int expectedExitValue : expectedExitValues)
+				if (expectedExitValue == exitValue) {
+					found = true;
+					break;
+				}
+			if (!found)
+				throw new IOException("Wrong exit value: " + exitValue);
+		}
+		return exitValue;
 	}
 }
