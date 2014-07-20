@@ -77,7 +77,7 @@ import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.util.ExecuteUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
-import com.jaeksoft.searchlib.util.PdfBoxHighlighter;
+import com.jaeksoft.searchlib.util.PDFBoxHighlighter;
 
 @AfterCompose(superclass = true)
 public class ViewerController extends CommonController {
@@ -403,7 +403,7 @@ public class ViewerController extends CommonController {
 
 	private void checkPdfBoxHighlight(PDDocument document,
 			List<Rectangle> boxList) throws IOException {
-		PdfBoxHighlighter pdfstripper = new PdfBoxHighlighter(keywords,
+		PDFBoxHighlighter pdfstripper = new PDFBoxHighlighter(keywords,
 				boxList, new Dimension(currentImage.getWidth(),
 						currentImage.getHeight()));
 		pdfstripper.setStartPage(page - 1);
