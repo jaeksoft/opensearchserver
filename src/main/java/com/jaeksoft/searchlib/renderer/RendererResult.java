@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -60,21 +62,30 @@ public class RendererResult {
 
 	private final long creationTime;
 
-	private Client client;
-	private StringBuilder sbUrl;
-	private String keywords;
+	final private Client client;
+	final private StringBuilder sbUrl;
+	final private String keywords;
 	private List<Item> items;
-	private String contentTypeField;
+	final private String contentTypeField;
 	private String filenameField;
 	private String hocrField;
+	final private AuthPluginInterface.User loggedUser;
+	final private String authDomain;
+	final private String authUsername;
+	final private String authPassword;
 
 	public RendererResult(Client client, String serverBaseUrl,
-			Renderer renderer, String keywords) {
+			Renderer renderer, String keywords,
+			AuthPluginInterface.User loggedUser) {
 		this.client = client;
 		this.keywords = keywords;
 		this.contentTypeField = renderer.getContentTypeField();
 		this.filenameField = renderer.getFilenameField();
 		this.hocrField = renderer.getHocrField();
+		this.loggedUser = loggedUser;
+		this.authDomain = renderer.getAuthDomain();
+		this.authUsername = renderer.getAuthUsername();
+		this.authPassword = renderer.getAuthPassword();
 		sbUrl = new StringBuilder(serverBaseUrl);
 		sbUrl.append("/viewer.zul?h=");
 		sbUrl.append(hashCode());
@@ -127,4 +138,38 @@ public class RendererResult {
 	final public long getCreationTime() {
 		return creationTime;
 	}
+
+	/**
+	 * @return the loggedUser
+	 */
+	public AuthPluginInterface.User getLoggedUser() {
+		return loggedUser;
+	}
+
+	/**
+	 * @return the authDomain
+	 */
+	public String getAuthDomain() {
+		return authDomain;
+	}
+
+	/**
+	 * @return the authUsername
+	 */
+	public String getAuthUsername() {
+		return authUsername;
+	}
+
+	/**
+	 * @return the authPassword
+	 */
+	public String getAuthPassword() {
+		return authPassword;
+	}
+
+	public boolean isAuthCredential() {
+		return !StringUtils.isEmpty(authDomain)
+				&& !StringUtils.isEmpty(authUsername);
+	}
+
 }

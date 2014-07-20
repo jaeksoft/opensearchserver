@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,25 +26,21 @@ package com.jaeksoft.searchlib.ocr;
 
 import java.awt.Image;
 import java.awt.image.RenderedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.poi.util.IOUtils;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.util.ExecuteUtils;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
@@ -203,14 +199,17 @@ public class OcrManager implements Closeable {
 			File file = new File(tesseractPath);
 			if (!file.exists())
 				throw new SearchLibException("The file don't exist");
-			CommandLine cmdLine = CommandLine.parse(tesseractPath);
+			List<String> args = new ArrayList<String>();
+			args.add(tesseractPath);
 			StringBuilder sbResult = new StringBuilder();
-			run(cmdLine, 60, 1, sbResult);
+			ExecuteUtils.run(args, 60, sbResult, 1);
 			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
 				throw new SearchLibException("Wrong returned message: "
 						+ result);
 		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
@@ -237,24 +236,26 @@ public class OcrManager implements Closeable {
 	}
 
 	public void ocerize(File input, File outputFile, LanguageEnum lang,
-			boolean hocr) throws SearchLibException, IOException {
+			boolean hocr) throws SearchLibException, IOException,
+			InterruptedException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
 				return;
 			if (tesseractPath == null || tesseractPath.length() == 0)
 				throw new SearchLibException("No path for the OCR");
-			CommandLine cmdLine = CommandLine.parse(tesseractPath);
-			cmdLine.addArgument(input.getAbsolutePath());
-			cmdLine.addArgument(checkOutputPath(outputFile, hocr));
+			List<String> args = new ArrayList<String>();
+			args.add(tesseractPath);
+			args.add(input.getAbsolutePath());
+			args.add(checkOutputPath(outputFile, hocr));
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
 			if (tle == null)
 				tle = defaultLanguage;
 			if (tle != null && tle != TesseractLanguageEnum.None)
-				cmdLine.addArgument("-l " + tle.option);
+				args.add("-l " + tle.option);
 			if (hocr)
-				cmdLine.addArgument("hocr");
-			int ev = run(cmdLine, 3600, null, null);
+				args.add("hocr");
+			int ev = ExecuteUtils.run(args, 3600, null, null);
 			if (ev == 3)
 				Logging.warn("Image format not supported by Tesseract ("
 						+ input.getName() + ")");
@@ -283,32 +284,6 @@ public class OcrManager implements Closeable {
 			Logging.debug(imageFile);
 			if (imageFile != null)
 				FileUtils.deleteQuietly(imageFile);
-		}
-	}
-
-	private final int run(CommandLine cmdLine, int secTimeOut,
-			Integer expectedExitValue, StringBuilder returnedText)
-			throws IOException, SearchLibException {
-		DefaultExecutor executor = new DefaultExecutor();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			Logging.info("LOG OCR: " + cmdLine);
-			PumpStreamHandler streamHandler = new PumpStreamHandler(baos);
-			executor.setStreamHandler(streamHandler);
-			if (expectedExitValue != null)
-				executor.setExitValue(expectedExitValue);
-			ExecuteWatchdog watchdog = new ExecuteWatchdog(secTimeOut * 1000);
-			executor.setWatchdog(watchdog);
-			int ev = executor.execute(cmdLine);
-			if (expectedExitValue != null)
-				if (ev != expectedExitValue)
-					throw new SearchLibException("Bad exit value (" + ev + ") ");
-			if (returnedText != null)
-				returnedText.append(baos.toString("UTF-8"));
-			return ev;
-		} finally {
-			if (baos != null)
-				IOUtils.closeQuietly(baos);
 		}
 	}
 
