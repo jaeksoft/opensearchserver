@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -45,14 +44,11 @@ import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.ImageIcon;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Rotation;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.Logging;
 
@@ -148,9 +144,7 @@ public class ImageUtils {
 
 	public static final void yellowHighlight(Image image,
 			Collection<Rectangle> boxes) {
-		if (boxes == null)
-			return;
-		if (boxes.size() == 0)
+		if (CollectionUtils.isEmpty(boxes))
 			return;
 		Graphics2D g2d = (Graphics2D) image.getGraphics();
 		g2d.setPaint(Color.YELLOW);
@@ -242,32 +236,5 @@ public class ImageUtils {
 			Logging.warn(e);
 			return null;
 		}
-	}
-
-	public final static void readEncodedColorId(ImageInputStream iis)
-			throws IOException {
-		ImageReader reader = findImageReader("JPEG");
-		System.out.println(reader);
-		reader.setInput(iis);
-		Raster r = reader.readRaster(0, null);
-		IIOMetadata metadata = reader.getImageMetadata(0);
-		Node node = metadata.getAsTree("javax_imageio_jpeg_image_1.0");
-
-		Boolean isYCbCrA = null;
-
-		Node child = node.getFirstChild();
-		if (child != null) {
-			System.out.println(child.getNodeName()); // close current tag
-			while (child != null) { // emit child tags recursively
-				child = child.getNextSibling();
-			}
-		}
-	}
-
-	public static void main(String[] args) throws IOException {
-		FileImageInputStream fiis = new FileImageInputStream(
-				new File(
-						"/Users/ekeller/Documents/Jaeksoft/Compta/2012/carte_grise_jaeksoft.jpg"));
-		readEncodedColorId(fiis);
 	}
 }
