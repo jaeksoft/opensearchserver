@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,6 +46,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.swing.ImageIcon;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Rotation;
 
@@ -143,9 +144,7 @@ public class ImageUtils {
 
 	public static final void yellowHighlight(Image image,
 			Collection<Rectangle> boxes) {
-		if (boxes == null)
-			return;
-		if (boxes.size() == 0)
+		if (CollectionUtils.isEmpty(boxes))
 			return;
 		Graphics2D g2d = (Graphics2D) image.getGraphics();
 		g2d.setPaint(Color.YELLOW);
