@@ -35,7 +35,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.apache.pdfbox.util.TextPosition;
 
-public class PdfBoxHighlighter extends PDFTextStripper {
+public class PDFBoxHighlighter extends PDFTextStripper {
 
 	private final String[] keywords;
 	private final Collection<Rectangle> boxes;
@@ -43,7 +43,7 @@ public class PdfBoxHighlighter extends PDFTextStripper {
 	private float xFactor;
 	private float yFactor;
 
-	public PdfBoxHighlighter(String[] keywords, Collection<Rectangle> boxes,
+	public PDFBoxHighlighter(String[] keywords, Collection<Rectangle> boxes,
 			Dimension imageDimension) throws IOException {
 		this.keywords = keywords;
 		this.boxes = boxes;
