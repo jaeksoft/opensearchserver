@@ -45,8 +45,13 @@ public class FieldContentModel implements BindingListModel<FieldValueItem> {
 
 	@Override
 	public int indexOf(Object data) {
+		if (fieldContent == null)
+			return -1;
+		List<FieldValueItem> values = fieldContent.getValues();
+		if (values == null)
+			return -1;
 		int i = 0;
-		for (FieldValueItem valueItem : fieldContent.getValues())
+		for (FieldValueItem valueItem : values)
 			if (valueItem == data)
 				return i;
 			else
@@ -60,6 +65,8 @@ public class FieldContentModel implements BindingListModel<FieldValueItem> {
 
 	@Override
 	public FieldValueItem getElementAt(int index) {
+		if (fieldContent == null)
+			return null;
 		List<FieldValueItem> values = fieldContent.getValues();
 		if (values == null)
 			return null;
@@ -68,6 +75,8 @@ public class FieldContentModel implements BindingListModel<FieldValueItem> {
 
 	@Override
 	public int getSize() {
+		if (fieldContent == null)
+			return 0;
 		List<FieldValueItem> values = fieldContent.getValues();
 		if (values == null)
 			return 0;
