@@ -1,4 +1,4 @@
-## Injecting URL to crawl
+## Injecting URLs to crawl
 
 Use this API to insert URLs in the URL database.
 
@@ -28,7 +28,7 @@ An array of patterns.
     
 
 ### Success response
-The URLs has been inserted.
+The URLs have been inserted.
 
 **HTTP code:**
 200
@@ -43,7 +43,7 @@ The URLs has been inserted.
 
 ### Error response
 
-The insertion failed. The reason is provided in the content.
+The insertion failed. The reason why is provided in the content.
 
 **HTTP code:**
 500
