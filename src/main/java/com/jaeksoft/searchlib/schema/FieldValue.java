@@ -129,9 +129,12 @@ public class FieldValue extends AbstractField<FieldValue> {
 	}
 
 	public void addValues(FieldValueItem... values) {
-		if (values != null)
-			for (FieldValueItem value : values)
-				valueList.add(value);
+		if (values == null || values.length == 0)
+			return;
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(values.length);
+		for (FieldValueItem value : values)
+			valueList.add(value);
 	}
 
 	public void addValue(FieldValueItem value) {
@@ -145,6 +148,8 @@ public class FieldValue extends AbstractField<FieldValue> {
 	public void addIfStringDoesNotExist(FieldValueItem value) {
 		if (value == null)
 			return;
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(1);
 		for (FieldValueItem valueItem : valueList)
 			if (value.equals(valueItem))
 				return;
