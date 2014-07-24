@@ -101,7 +101,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	public static final String replaceConsecutiveSpaces(String source,
 			String replace) {
-		if (source == null || source.length() == 0)
+		if (isEmpty(source))
 			return source;
 		StringBuilder target = new StringBuilder();
 		int l = source.length();
@@ -124,6 +124,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	public static final String removeTag(String text) {
+		if (isEmpty(text))
+			return text;
 		text = replaceConsecutiveSpaces(text, " ");
 		synchronized (removeScriptObjectStylePattern) {
 			text = removeScriptObjectStylePattern.matcher(text).replaceAll("");
