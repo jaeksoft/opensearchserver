@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
@@ -305,16 +306,23 @@ public class WriterLucene extends WriterAbstract {
 				@SuppressWarnings("resource")
 				CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null
 						: analyzer.getIndexAnalyzer();
-				for (FieldValueItem valueItem : fieldContent.getValues()) {
-					if (valueItem == null)
-						continue;
-					String value = valueItem.getValue();
-					if (value == null)
-						continue;
-					if (compiledAnalyzer != null)
-						if (!compiledAnalyzer.isAnyToken(fieldName, value))
-							continue;
-					doc.add(field.getLuceneField(value, valueItem.getBoost()));
+				if (fieldContent != null) {
+					List<FieldValueItem> valueItems = fieldContent.getValues();
+					if (valueItems != null) {
+						for (FieldValueItem valueItem : valueItems) {
+							if (valueItem == null)
+								continue;
+							String value = valueItem.getValue();
+							if (value == null)
+								continue;
+							if (compiledAnalyzer != null)
+								if (!compiledAnalyzer.isAnyToken(fieldName,
+										value))
+									continue;
+							doc.add(field.getLuceneField(value,
+									valueItem.getBoost()));
+						}
+					}
 				}
 			}
 		}
