@@ -1,3 +1,3 @@
 ## WEB Crawler - URL database
 
-* [Injecting URL to crawl](inject.md)
+* [Injecting URLs to crawl](inject.md)
