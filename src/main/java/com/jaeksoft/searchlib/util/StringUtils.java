@@ -101,6 +101,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	public static final String replaceConsecutiveSpaces(String source,
 			String replace) {
+		if (source == null || source.length() == 0)
+			return source;
 		StringBuilder target = new StringBuilder();
 		int l = source.length();
 		boolean consecutiveSpace = false;
