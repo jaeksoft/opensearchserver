@@ -160,6 +160,8 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 			IllegalAccessException {
 		if (dfTarget == null)
 			return;
+		if (StringUtils.isEmpty(content))
+			return;
 		if (dfTarget.isFilePath()) {
 			File file = new File(dfTarget.getFilePath(content));
 			if (file.exists()) {
