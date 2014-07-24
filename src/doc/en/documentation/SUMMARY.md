@@ -27,7 +27,7 @@
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
-	* [PHP - documentation for previous version](clients/php_client/README.md)
+	* [PHP - documentation for the previous version](clients/php_client/README.md)
 		* [Running a query with different parameters](clients/php_client/query_parameters.md)
 		* [Using autocompletion](clients/php_client/autocompletion.md)
 		* [Using pagination to navigate through results](clients/php_client/pagination.md)
