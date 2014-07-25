@@ -51,6 +51,7 @@ import org.apache.pdfbox.util.PDFMergerUtility;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassProperty;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
@@ -152,8 +153,8 @@ public class PdfParser extends Parser {
 			fileName = streamLimiter.getFile().getName();
 			pdf = PDDocument.loadNonSeq(streamLimiter.getFile(), null);
 			if (pdf.isEncrypted()) {
-				String pdfCrackCommandLine = getProperty(
-						ClassPropertyEnum.PDFCRACK_COMMANDLINE).getValue();
+				ClassProperty cp = getProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
+				String pdfCrackCommandLine = cp == null ? null : cp.getValue();
 				if (!StringUtils.isEmpty(pdfCrackCommandLine))
 					password = PdfCrack.findPassword(pdfCrackCommandLine,
 							streamLimiter.getFile());
