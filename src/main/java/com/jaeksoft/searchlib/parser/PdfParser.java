@@ -150,7 +150,7 @@ public class PdfParser extends Parser {
 		String password = null;
 		try {
 			fileName = streamLimiter.getFile().getName();
-			pdf = PDDocument.load(streamLimiter.getFile());
+			pdf = PDDocument.loadNonSeq(streamLimiter.getFile(), null);
 			if (pdf.isEncrypted()) {
 				String pdfCrackCommandLine = getProperty(
 						ClassPropertyEnum.PDFCRACK_COMMANDLINE).getValue();

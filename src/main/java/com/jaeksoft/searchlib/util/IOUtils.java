@@ -76,6 +76,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			String charsetName, boolean bCloseInputStream) throws IOException {
 		if (inputStream == null)
 			return 0;
+		if (sb == null)
+			sb = new StringBuilder();
 		Charset charset = Charset.forName(charsetName);
 		byte[] buffer = new byte[16384];
 		int totalLength = 0;
