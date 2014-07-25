@@ -157,6 +157,8 @@ public class FieldValue extends AbstractField<FieldValue> {
 	}
 
 	public void addIfStringDoesNotExist(List<FieldValueItem> values) {
+		if (values == null)
+			return;
 		if (CollectionUtils.isEmpty(valueList)) {
 			setValues(values);
 			return;
