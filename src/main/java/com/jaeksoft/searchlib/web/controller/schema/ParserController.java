@@ -378,13 +378,9 @@ public class ParserController extends CommonController {
 	}
 
 	@Command
-	public void onFieldMapItemRemove(
-			@BindingParam("fieldmapitem") GenericLink<SourceField, ParserFieldTarget> link)
-			throws SearchLibException, TransformerConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			ParserConfigurationException {
+	public void onFieldMapItemRemove() throws SearchLibException {
 		ParserFieldMap fieldMap = getFieldMap();
-		fieldMap.remove(link);
+		fieldMap.remove(this.selectedFieldMapItem);
 		onCancelFieldMapItem();
 	}
 
