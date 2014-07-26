@@ -24,14 +24,16 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -42,16 +44,13 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.encryption.BadSecurityHandlerException;
 import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.util.PDFMergerUtility;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.ClassProperty;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
@@ -59,9 +58,13 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.GhostScript;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PdfCrack;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils;
+import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils.TolerantPDFTextStripper;
 
 public class PdfParser extends Parser {
 
@@ -82,6 +85,7 @@ public class PdfParser extends Parser {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
+		addProperty(ClassPropertyEnum.GHOSTSCRIPT_BINARYPATH, "", null, 50, 1);
 		addProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE, "", null, 50, 1);
 	}
 
@@ -112,7 +116,7 @@ public class PdfParser extends Parser {
 		return time.toString();
 	}
 
-	private void extractContent(ParserResultItem result, PDDocument pdf)
+	private void extractMetaData(ParserResultItem result, PDDocument pdf)
 			throws IOException {
 		PDDocumentInformation info = pdf.getDocumentInformation();
 		if (info != null) {
@@ -128,19 +132,77 @@ public class PdfParser extends Parser {
 			if (d != null)
 				result.addField(ParserFieldEnum.modification_date, d);
 		}
+		int pages = pdf.getNumberOfPages();
+		result.addField(ParserFieldEnum.number_of_pages, pages);
 		PDDocumentCatalog catalog = pdf.getDocumentCatalog();
 		if (catalog != null) {
 			result.addField(ParserFieldEnum.language, catalog.getLanguage());
 		}
-		int pages = pdf.getNumberOfPages();
-		result.addField(ParserFieldEnum.number_of_pages, pages);
+	}
+
+	private int addLine(ParserResultItem result, String line) {
+		if (line == null)
+			return 0;
+		line = StringUtils.replaceConsecutiveSpaces(line, " ").trim();
+		int l = line.length();
+		if (l == 0)
+			return 0;
+		result.addField(ParserFieldEnum.content, line);
+		return line.length();
+	}
+
+	/**
+	 * Extract text content using PDFBox
+	 * 
+	 * @param result
+	 * @param pdf
+	 * @throws IOException
+	 */
+	private int extractTextContent(ParserResultItem result, PDDocument pdf)
+			throws IOException {
 		TolerantPDFTextStripper stripper = new TolerantPDFTextStripper();
 		String text = stripper.getText(pdf);
-		String[] frags = text.split("\\n");
-		for (String frag : frags)
-			result.addField(ParserFieldEnum.content, StringUtils
-					.replaceConsecutiveSpaces(frag, " ").trim());
-		result.langDetection(10000, ParserFieldEnum.content);
+		if (StringUtils.isEmpty(text))
+			return 0;
+		String[] lines = StringUtils.splitLines(text);
+		int characterCount = 0;
+		for (String line : lines)
+			characterCount += addLine(result, line);
+		return characterCount;
+	}
+
+	/**
+	 * Extract text content using Ghostscript
+	 * 
+	 * @param result
+	 * @param ghostScript
+	 * @param pdfFile
+	 * @param pdfPassword
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private int extractTextContent(ParserResultItem result,
+			GhostScript ghostScript, File pdfFile, String pdfPassword)
+			throws IOException, InterruptedException {
+		File textFile = null;
+		BufferedReader bufferedReader = null;
+		FileReader fileReader = null;
+		try {
+			textFile = File.createTempFile("oss_pdfparser", "txt");
+			ghostScript.extractText(pdfPassword, pdfFile, textFile);
+			fileReader = new FileReader(textFile);
+			bufferedReader = new BufferedReader(fileReader);
+			int characterCount = 0;
+			String line;
+			while ((line = bufferedReader.readLine()) != null)
+				characterCount += addLine(result, line);
+			return characterCount;
+		} finally {
+			IOUtils.close(bufferedReader, fileReader);
+			if (textFile != null)
+				if (textFile.exists())
+					textFile.delete();
+		}
 	}
 
 	@Override
@@ -150,11 +212,15 @@ public class PdfParser extends Parser {
 		String fileName = null;
 		String password = null;
 		try {
+			String ghostScriptBinaryPath = getStringProperty(ClassPropertyEnum.GHOSTSCRIPT_BINARYPATH);
+			GhostScript ghostScript = StringUtils
+					.isEmpty(ghostScriptBinaryPath) ? null : new GhostScript(
+					ghostScriptBinaryPath);
 			fileName = streamLimiter.getFile().getName();
-			pdf = PDDocument.loadNonSeq(streamLimiter.getFile(), null);
+			File pdfFile = streamLimiter.getFile();
+			pdf = PDDocument.loadNonSeq(pdfFile, null);
 			if (pdf.isEncrypted()) {
-				ClassProperty cp = getProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
-				String pdfCrackCommandLine = cp == null ? null : cp.getValue();
+				String pdfCrackCommandLine = getStringProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
 				if (!StringUtils.isEmpty(pdfCrackCommandLine))
 					password = PdfCrack.findPassword(pdfCrackCommandLine,
 							streamLimiter.getFile());
@@ -164,8 +230,17 @@ public class PdfParser extends Parser {
 			}
 			ParserResultItem result = getNewParserResultItem();
 			result.addField(ParserFieldEnum.pdfcrack_password, password);
-			extractContent(result, pdf);
-			extractImagesForOCR(result, pdf, lang);
+			extractMetaData(result, pdf);
+			int charCount;
+			if (ghostScript == null)
+				charCount = extractTextContent(result, pdf);
+			else
+				charCount = extractTextContent(result, ghostScript, pdfFile,
+						password);
+			if (charCount == 0)
+				extractImagesForOCR(result, pdf, lang, ghostScript, pdfFile,
+						password);
+			result.langDetection(10000, ParserFieldEnum.content);
 		} catch (SearchLibException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} catch (InterruptedException e) {
@@ -194,22 +269,42 @@ public class PdfParser extends Parser {
 		}
 	}
 
-	private int countCheckImage(PDPage page) throws IOException {
-		PDResources resources = page.getResources();
-		Map<String, PDXObjectImage> images = resources.getImages();
-		if (images == null)
-			return 0;
-		int count = 0;
-		for (PDXObjectImage image : images.values())
-			if (image.getRGBImage() == null)
-				Logging.warn("RGB image is null");
-			else
-				count++;
-		return count;
+	private HocrDocument doOcr(OcrManager ocr, LanguageEnum lang, File imageFile)
+			throws IOException, InterruptedException, SearchLibException {
+		File hocrFile = null;
+		try {
+			hocrFile = File.createTempFile("ossocr", ".html");
+			ocr.ocerize(imageFile, hocrFile, lang, true);
+			return new HocrDocument(hocrFile);
+		} finally {
+			if (hocrFile != null)
+				FileUtils.deleteQuietly(hocrFile);
+		}
+	}
+
+	private void ocrImageGhostcript(OcrManager ocr, HocrPdf hocrPdf,
+			ParserResultItem result, GhostScript ghostScript, File pdfFile,
+			String pdfPassword, LanguageEnum lang, int page)
+			throws IOException, InterruptedException, SearchLibException {
+		File imageFile = null;
+		try {
+			imageFile = File.createTempFile("oss_pdfparser", ".png");
+			ghostScript.generateImage(pdfPassword, page, pdfFile, 300,
+					imageFile);
+			Dimension dimension = ImageUtils.getDimensions(imageFile);
+			HocrPage hocrPage = hocrPdf.createPage(page - 1, dimension.width,
+					dimension.height);
+			hocrPage.addImage(doOcr(ocr, lang, imageFile));
+		} finally {
+			if (imageFile != null)
+				if (imageFile.exists())
+					imageFile.delete();
+		}
 	}
 
 	private void extractImagesForOCR(ParserResultItem result, PDDocument pdf,
-			LanguageEnum lang) throws IOException, SearchLibException,
+			LanguageEnum lang, GhostScript ghostScript, File pdfFile,
+			String pdfPassword) throws SearchLibException, IOException,
 			InterruptedException {
 		OcrManager ocr = ClientCatalog.getOcrManager();
 		if (ocr == null || ocr.isDisabled())
@@ -217,32 +312,39 @@ public class PdfParser extends Parser {
 		if (!getFieldMap().isMapped(ParserFieldEnum.ocr_content)
 				&& !getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			return;
+		HocrPdf hocrPdf = new HocrPdf();
 		List<?> pages = pdf.getDocumentCatalog().getAllPages();
 		Iterator<?> iter = pages.iterator();
-		HocrPdf hocrPdf = new HocrPdf();
 		int currentPage = 0;
 		int emptyPageImages = 0;
 		while (iter.hasNext()) {
 			currentPage++;
 			PDPage page = (PDPage) iter.next();
-			if (countCheckImage(page) == 0)
+			if (PDFBoxUtils.countCheckImage(page) == 0)
 				continue;
-			BufferedImage image = page.convertToImage(
-					BufferedImage.TYPE_INT_BGR, 300);
-			if (ImageUtils.checkIfManyColors(image)) {
-				HocrPage hocrPage = hocrPdf.createPage(currentPage - 1,
-						image.getWidth(), image.getHeight());
-				hocrPage.addImage(doOcr(ocr, lang, image));
-			} else
-				emptyPageImages++;
+			if (ghostScript == null) {
+				BufferedImage image = page.convertToImage(
+						BufferedImage.TYPE_INT_BGR, 300);
+				if (ImageUtils.checkIfManyColors(image)) {
+					HocrPage hocrPage = hocrPdf.createPage(currentPage - 1,
+							image.getWidth(), image.getHeight());
+					hocrPage.addImage(doOcr(ocr, lang, image));
+				} else
+					emptyPageImages++;
+			} else {
+				ocrImageGhostcript(ocr, hocrPdf, result, ghostScript, pdfFile,
+						pdfPassword, lang, currentPage);
+			}
 		}
 		if (currentPage > 0 && emptyPageImages == currentPage)
 			throw new SearchLibException("All pages are blank " + currentPage);
+
 		if (getFieldMap().isMapped(ParserFieldEnum.image_ocr_boxes))
 			hocrPdf.putHocrToParserField(result,
 					ParserFieldEnum.image_ocr_boxes);
 		if (getFieldMap().isMapped(ParserFieldEnum.ocr_content))
 			hocrPdf.putTextToParserField(result, ParserFieldEnum.ocr_content);
+
 	}
 
 	@Override

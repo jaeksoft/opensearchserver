@@ -89,10 +89,10 @@ public class ExecuteUtils {
 
 	final public static int run(List<String> args, int secTimeOut,
 			StringBuilder returnedText, int... expectedExitValues)
-			throws IOException, InterruptedException {
-		ProcessBuilder pb = new ProcessBuilder(args);
-		pb.redirectErrorStream(true);
-		Process process = pb.start();
+			throws InterruptedException, IOException {
+		ProcessBuilder processBuilder = new ProcessBuilder(args);
+		processBuilder.redirectErrorStream(true);
+		Process process = processBuilder.start();
 		synchronized (process) {
 			process.wait(secTimeOut * 1000);
 		}
@@ -106,8 +106,45 @@ public class ExecuteUtils {
 					break;
 				}
 			if (!found)
-				throw new IOException("Wrong exit value: " + exitValue);
+				throw new ExecutionException("Wrong exit value: " + exitValue,
+						exitValue, processBuilder, returnedText);
 		}
 		return exitValue;
+	}
+
+	public static class ExecutionException extends IOException {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -9085620726141484988L;
+
+		private final String commandLine;
+
+		private final int exitValue;
+
+		private final String returnedText;
+
+		private ExecutionException(String msg, int exitValue,
+				ProcessBuilder processBuilder, StringBuilder returnedText) {
+			super(msg);
+			this.exitValue = exitValue;
+			this.commandLine = processBuilder == null ? null : StringUtils
+					.join(processBuilder.command(), ' ');
+			this.returnedText = returnedText == null ? null : returnedText
+					.toString();
+		}
+
+		public String getReturnedText() {
+			return returnedText;
+		}
+
+		public String getCommandLine() {
+			return commandLine;
+		}
+
+		public int getExitValue() {
+			return exitValue;
+		}
 	}
 }
