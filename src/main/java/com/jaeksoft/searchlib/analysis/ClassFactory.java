@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -110,17 +110,30 @@ public abstract class ClassFactory {
 	}
 
 	protected float getFloatProperty(ClassPropertyEnum prop) {
-		String value = getProperty(prop).getValue();
+		ClassProperty cp = getProperty(prop);
+		if (cp == null)
+			return 1.0F;
+		String value = cp.getValue();
 		if (value == null)
 			return 1.0F;
 		return Float.parseFloat(value);
 	}
 
 	protected boolean getBooleanProperty(ClassPropertyEnum prop) {
-		String value = getProperty(prop).getValue();
+		ClassProperty cp = getProperty(prop);
+		if (cp == null)
+			return false;
+		String value = cp.getValue();
 		if (value == null)
 			return false;
 		return Boolean.parseBoolean(value);
+	}
+
+	protected String getStringProperty(ClassPropertyEnum prop) {
+		ClassProperty cp = getProperty(prop);
+		if (cp == null)
+			return null;
+		return cp.getValue();
 	}
 
 	final private void addProperty(final String name, final String value)

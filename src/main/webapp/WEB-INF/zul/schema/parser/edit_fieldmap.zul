@@ -56,13 +56,16 @@
 					<button label="Add"
 						onClick="@command('onSaveFieldMapItem')"
 						visible="@load(parser.fieldMapItemNotSelected)" />
-					<hlayout
+					<hlayout valign="middle"
 						visible="@load(parser.fieldMapItemSelected)">
 						<button label="Cancel"
 							onClick="@command('onCancelFieldMapItem')" />
 						<space />
 						<button label="Save"
 							onClick="@command('onSaveFieldMapItem')" />
+						<space />
+						<image src="/images/action_delete.png"
+							onClick="@command('onFieldMapItemRemove')" />
 					</hlayout>
 				</hbox>
 			</auxheader>
@@ -73,7 +76,6 @@
 			<listheader label="Capture Reg.Exp." />
 			<listheader label="Analyzer" hflex="min" />
 			<listheader label="Remove tags" hflex="min" />
-			<listheader label="Action" hflex="min" />
 		</listhead>
 		<template name="model" var="fieldmapitem">
 			<listitem>
@@ -83,10 +85,6 @@
 					label="@load(fieldmapitem.target.captureRegexp)" />
 				<listcell label="@load(fieldmapitem.target.analyzer)" />
 				<listcell label="@load(fieldmapitem.target.removeTag)" />
-				<listcell>
-					<image src="/images/action_delete.png"
-						onClick="@command('onFieldMapItemRemove', fieldmapitem=fieldmapitem)" />
-				</listcell>
 			</listitem>
 		</template>
 	</listbox>

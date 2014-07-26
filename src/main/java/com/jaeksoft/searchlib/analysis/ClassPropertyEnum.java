@@ -62,6 +62,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true, "pdfCrackCommandLine", "PDFCrack command line",
 			"The command line used to execute PDFCrack.");
 
+	public final static ClassPropertyEnum GHOSTSCRIPT_BINARYPATH = new ClassPropertyEnum(
+			true, "ghostscriptBinaryPath", "Ghostscript binary path",
+			"The path of the Ghostscript binary file.");
+
 	public final static ClassPropertyEnum HTML_PARSER = new ClassPropertyEnum(
 			true, "htmlParser", "HTML parser", "The HTML parser to use");
 
