@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
+import javax.imageio.stream.ImageInputStream;
+
 import com.jaeksoft.searchlib.Logging;
 
 public class IOUtils extends org.apache.commons.io.IOUtils {
@@ -50,6 +52,23 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 			return;
 		for (Closeable closeable : closeables)
 			closeQuietly(closeable);
+	}
+
+	public static final void close(ImageInputStream... closeables) {
+		if (closeables == null)
+			return;
+		for (ImageInputStream closeable : closeables)
+			closeQuietly(closeable);
+	}
+
+	public static final void closeQuietly(ImageInputStream closeable) {
+		if (closeable == null)
+			return;
+		try {
+			closeable.close();
+		} catch (IOException e) {
+			// We said Quietly
+		}
 	}
 
 	public static final void close(
