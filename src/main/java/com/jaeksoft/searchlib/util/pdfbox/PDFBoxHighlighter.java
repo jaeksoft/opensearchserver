@@ -21,7 +21,7 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.util;
+package com.jaeksoft.searchlib.util.pdfbox;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;

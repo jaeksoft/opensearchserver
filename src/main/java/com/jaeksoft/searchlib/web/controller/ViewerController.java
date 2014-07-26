@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -74,10 +74,11 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.renderer.RendererResult;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
-import com.jaeksoft.searchlib.util.ExecuteUtils;
+import com.jaeksoft.searchlib.util.ExecuteUtils.ExecutionException;
+import com.jaeksoft.searchlib.util.GhostScript;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
-import com.jaeksoft.searchlib.util.PDFBoxHighlighter;
+import com.jaeksoft.searchlib.util.pdfbox.PDFBoxHighlighter;
 
 @AfterCompose(superclass = true)
 public class ViewerController extends CommonController {
@@ -104,6 +105,8 @@ public class ViewerController extends CommonController {
 	private String[] keywords;
 
 	private HocrPdf hocrPdf;
+
+	private GhostScript ghostScript = null;
 
 	public ViewerController() throws SearchLibException, IOException,
 			NamingException, URISyntaxException {
@@ -357,47 +360,26 @@ public class ViewerController extends CommonController {
 	 * -dEPSCrop -sOutputFile=out.jpg "document.pdf"
 	 * 
 	 * @throws IOException
-	 * @throws SearchLibException
 	 * @throws InterruptedException
 	 */
 	private void loadGS(String pdfPassword) throws IOException,
-			SearchLibException, InterruptedException {
+			InterruptedException {
+		if (ghostScript == null)
+			ghostScript = new GhostScript(null);
 		File imageFile = null;
 		try {
-			File gsFile = new File("/usr/local/bin/gs");
-			if (!gsFile.exists())
-				gsFile = new File("/usr/bin/gs");
-			if (!gsFile.exists())
-				throw new IOException("GhostScript (gs) executable not found.");
 			imageFile = File.createTempFile("oss-viewer", ".png");
 			float zoomFactor = zoom / 100;
 			int factor = (int) ((zoomFactor * zoom));
 			if (factor > 2400)
 				factor = 2400;
-			List<String> args = new ArrayList<String>();
-			args.add(gsFile.getAbsolutePath());
-			args.add("-dNOPAUSE");
-			args.add("-dBATCH");
-			args.add("-sDEVICE=png16m");
-			args.add("-dSAFER");
-			args.add("-dTextAlphaBits=4");
-			args.add("-dGraphicsAlphaBits=4");
-			args.add("-r" + factor);
-			args.add("-dFirstPage=" + page);
-			args.add("-dLastPage=" + page);
-			if (pdfPassword != null)
-				args.add("-sPDFPassword=" + pdfPassword);
-			args.add("-sOutputFile=" + imageFile.getAbsolutePath());
-			args.add(tempFile.getAbsolutePath());
-			StringBuilder returnedText = new StringBuilder();
-			ExecuteUtils.run(args, 180, returnedText, 0);
-			if (imageFile.length() == 0)
-				throw new IOException("Ghosscript did not generate the image: "
-						+ returnedText);
+			ghostScript.generateImage(pdfPassword, page, tempFile, factor,
+					imageFile);
 			currentImage = ImageIO.read(imageFile);
 		} finally {
 			if (imageFile != null)
-				imageFile.exists();
+				if (imageFile.exists())
+					imageFile.delete();
 		}
 	}
 
@@ -415,7 +397,7 @@ public class ViewerController extends CommonController {
 			SearchLibException, InterruptedException {
 		PDDocument document = null;
 		try {
-			document = PDDocument.load(tempFile);
+			document = PDDocument.loadNonSeq(tempFile, null);
 			// Trying to open with empty password
 			boolean isEncrypted = document.isEncrypted();
 			if (isEncrypted)
@@ -451,6 +433,9 @@ public class ViewerController extends CommonController {
 		try {
 			loadPdfBox();
 			return currentImage;
+		} catch (ExecutionException e) {
+			Logging.warn(e.getCommandLine());
+			Logging.warn(e.getReturnedText());
 		} catch (Exception e) {
 			Logging.warn(e);
 		}

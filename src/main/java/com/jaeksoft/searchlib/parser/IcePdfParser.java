@@ -46,6 +46,7 @@ import org.icepdf.core.util.GraphicsRenderingHints;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassProperty;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.ocr.HocrDocument;
@@ -159,8 +160,8 @@ public class IcePdfParser extends Parser {
 			PdfCrackCallback pdfCrackCallback = null;
 			fileName = streamLimiter.getFile().getName();
 			pdf = new Document();
-			String pdfCrackCommandLine = getProperty(
-					ClassPropertyEnum.PDFCRACK_COMMANDLINE).getValue();
+			ClassProperty cp = getProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
+			String pdfCrackCommandLine = cp == null ? null : cp.getValue();
 			if (!StringUtils.isEmpty(pdfCrackCommandLine)) {
 				pdfCrackCallback = new PdfCrackCallback(pdfCrackCommandLine,
 						streamLimiter.getFile());

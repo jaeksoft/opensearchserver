@@ -124,12 +124,14 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	public final String getMergedValues(final String separator) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
-		for (FieldValueItem item : values) {
-			if (first)
-				first = false;
-			else
-				sb.append(separator);
-			sb.append(item.getValue());
+		if (values != null) {
+			for (FieldValueItem item : values) {
+				if (first)
+					first = false;
+				else
+					sb.append(separator);
+				sb.append(item.getValue());
+			}
 		}
 		return sb.toString();
 	}
@@ -137,15 +139,17 @@ public class FieldContent implements Collecter<FieldValueItem> {
 	final public String getMergedValues(final int max, final String separator) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
-		for (FieldValueItem item : values) {
-			if (first)
-				first = false;
-			else
-				sb.append(separator);
-			sb.append(item.getValue());
-			if (sb.length() > max) {
-				sb.setLength(max);
-				break;
+		if (values != null) {
+			for (FieldValueItem item : values) {
+				if (first)
+					first = false;
+				else
+					sb.append(separator);
+				sb.append(item.getValue());
+				if (sb.length() > max) {
+					sb.setLength(max);
+					break;
+				}
 			}
 		}
 		return sb.toString();
