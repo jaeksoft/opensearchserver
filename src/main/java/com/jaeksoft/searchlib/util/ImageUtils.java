@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -44,9 +45,11 @@ import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.stream.FileImageInputStream;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Rotation;
 
@@ -235,6 +238,20 @@ public class ImageUtils {
 		} catch (IOException e) {
 			Logging.warn(e);
 			return null;
+		}
+	}
+
+	public static Dimension getDimensions(File imageFile) throws IOException {
+		FileImageInputStream fiis = null;
+		try {
+			fiis = new FileImageInputStream(imageFile);
+			ImageReader imageReader = ImageIO.getImageReadersBySuffix(
+					FilenameUtils.getExtension(imageFile.getName())).next();
+			imageReader.setInput(fiis);
+			return new Dimension(imageReader.getWidth(0),
+					imageReader.getHeight(0));
+		} finally {
+			IOUtils.close(fiis);
 		}
 	}
 }
