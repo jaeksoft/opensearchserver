@@ -491,6 +491,7 @@
 						</manifest>
 						<manifestEntries>
 							<Implementation-Build>${buildNumber}</Implementation-Build>
+							<Specification-Version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</Specification-Version>
 						</manifestEntries>
 					</archive>
 					<webResources>
@@ -721,15 +722,6 @@
 								</source>
 							</sources>
       					</mapping>
-       					<mapping>
-        					<directory>/usr/share/opensearchserver</directory>
-        					<filemode>755</filemode>
-							<sources>
-								<source>
-									<location>src/deb/init.d/opensearchserver</location>
-								</source>
-							</sources>
-      					</mapping>
      					<mapping>
         					<directory>/usr/share/opensearchserver/ext</directory>
 							<sources>
@@ -776,7 +768,7 @@
 						<script>getent passwd opensearchserver >/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver</script>
 					</preinstallScriptlet>
 					<postinstallScriptlet>
-						<script>cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver</script>
+						<script>cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver &amp;&amp; chmod a+x /etc/init.d/opensearchserver</script>
 					</postinstallScriptlet>
                 </configuration>
             </plugin>
