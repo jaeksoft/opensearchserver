@@ -4,8 +4,7 @@
 <%
 	ResultDocument resultDocument = (ResultDocument) request
 			.getAttribute("resultDocument");
-	String[] values = (String[]) request.getAttribute("rendererValues");
-	String text = values != null && values.length > 0 ? values[0] : null;
+	String value = (String) request.getAttribute("rendererValue");
 	RendererField rendererField = (RendererField) request
 			.getAttribute("rendererField");
 	Integer fieldPos = (Integer) request.getAttribute("fieldPos");
@@ -14,8 +13,8 @@
 %>
 <a target="_top" href="<%=url%>"> <%
  	}
- 	if (text != null) {
- %> <img class="ossfieldrdr<%=fieldPos%>" src="<%=text%>"> <%
+ 	if (value != null) {
+ %> <img class="ossfieldrdr<%=fieldPos%>" src="<%=value%>"> <%
  	}
  	if (url != null) {
  %></a>
