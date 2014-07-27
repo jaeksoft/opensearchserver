@@ -30,8 +30,8 @@
 								.getFieldValue(resultDocument);
 						if (fieldValues != null) {
 							for (String fieldValue : fieldValues) {
-								request.setAttribute("rendererValues",
-										fieldValues);
+								request.setAttribute("rendererValue",
+										fieldValue);
 								request.setAttribute("rendererField",
 										rendererField);
 	%>
