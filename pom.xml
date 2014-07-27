@@ -750,16 +750,28 @@
  					<mappings>
       					<mapping>
         					<directory>/usr/share/opensearchserver</directory>
-        					<username>daemon</username>
+        					<username>opensearchserver</username>
         					<groupname>daemon</groupname>
 							<sources>
 								<source>
 									<location>${project.build.directory}/${project.build.finalName}-war-exec.jar</location>
 									<destination>opensearchserver.jar</destination>
 								</source>
+								<source>
+									<location>src/deb/init.d/opensearchserver</location>
+								</source>
 							</sources>
       					</mapping>
-      					<mapping>
+       					<mapping>
+        					<directory>/usr/share/opensearchserver</directory>
+        					<filemode>755</filemode>
+							<sources>
+								<source>
+									<location>src/deb/init.d/opensearchserver</location>
+								</source>
+							</sources>
+      					</mapping>
+     					<mapping>
         					<directory>/usr/share/opensearchserver/ext</directory>
 							<sources>
 								<source>
@@ -769,6 +781,7 @@
       					</mapping>
       					<mapping>
         					<directory>/etc</directory>
+        					<configuration>true</configuration>
 							<sources>
 								<source>
 									<location>src/deb/etc/opensearchserver</location>
@@ -776,18 +789,36 @@
 							</sources>
       					</mapping>
       					<mapping>
-        					<directory>/etc/init.d</directory>
-        					<filemode>755</filemode>
-							<sources>
-								<source>
-									<location>src/deb/init.d</location>
-								</source>
-							</sources>
+        					<directory>/var/log/opensearchserver</directory>
+        					<username>opensearchserver</username>
       					</mapping>
+     					<mapping>
+        					<directory>/var/lib/opensearchserver</directory>
+        					<username>opensearchserver</username>
+      					</mapping>
+      					<mapping>
+        					<directory>/var/lib/opensearchserver/data</directory>
+        					<username>opensearchserver</username>
+      					</mapping>
+						<mapping>
+							<directory>/var/lib/opensearchserver/data/logs</directory>
+        					<username>opensearchserver</username>
+							<sources>
+      							<softlinkSource>
+                					<location>/var/log/opensearchserver</location>
+								</softlinkSource>
+							</sources>
+						</mapping>
     				</mappings>
 					<requires>
-						<require>java-headless</require>
+						<require>java &gt;= 1.7.0</require>
 					</requires>
+					<preinstallScriptlet>
+						<script>getent passwd opensearchserver >/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver</script>
+					</preinstallScriptlet>
+					<postinstallScriptlet>
+						<script>cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver</script>
+					</postinstallScriptlet>
                 </configuration>
             </plugin>
 			<plugin>

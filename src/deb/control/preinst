@@ -1,0 +1,3 @@
+#!/bin/sh
+
+getent passwd opensearchserver >/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver
