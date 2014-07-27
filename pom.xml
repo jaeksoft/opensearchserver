@@ -491,6 +491,19 @@
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9</version>
+				<executions>
+					<execution>
+						<id>parse-version</id>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
 				<version>1.2</version>
 				<executions>
@@ -716,6 +729,67 @@
 					</execution>
 				</executions>
 			</plugin>
+           <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1-alpha-4</version>
+                <executions>
+                    <execution>
+                        <id>generate-rpm</id>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <license>GPLv3 (c) 2008-2014, Jaeksoft SARL</license>
+                    <group>Application/Internet</group>
+                    <packager>OpenSearchServer</packager>
+                    <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
+                    <prefix>/usr/local</prefix>
+ 					<mappings>
+      					<mapping>
+        					<directory>/usr/share/opensearchserver</directory>
+        					<username>daemon</username>
+        					<groupname>daemon</groupname>
+							<sources>
+								<source>
+									<location>${project.build.directory}/${project.build.finalName}-war-exec.jar</location>
+									<destination>opensearchserver.jar</destination>
+								</source>
+							</sources>
+      					</mapping>
+      					<mapping>
+        					<directory>/usr/share/opensearchserver/ext</directory>
+							<sources>
+								<source>
+									<location>lib/ext</location>
+								</source>
+							</sources>
+      					</mapping>
+      					<mapping>
+        					<directory>/etc</directory>
+							<sources>
+								<source>
+									<location>src/deb/etc/opensearchserver</location>
+								</source>
+							</sources>
+      					</mapping>
+      					<mapping>
+        					<directory>/etc/init.d</directory>
+        					<filemode>755</filemode>
+							<sources>
+								<source>
+									<location>src/deb/init.d</location>
+								</source>
+							</sources>
+      					</mapping>
+    				</mappings>
+					<requires>
+						<require>java-headless</require>
+					</requires>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
