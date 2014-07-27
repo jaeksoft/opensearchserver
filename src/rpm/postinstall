@@ -1,5 +1,0 @@
-%post
-mkdir /var/run/opensearchserver
-mkdir /var/log/opensearchserver
-mkdir -p /var/lib/opensearchserver/data
-ln -s /var/lib/opensearchserver/data/logs /var/log/opensearchserver
