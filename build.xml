@@ -44,6 +44,7 @@
 	</loadproperties>
 
 	<property name="productsrc" value="${product}-${Implementation-Version}" />
+	<property name="productsrcrpm" value="${product}-${Specification-Version}-1" />
 	<property name="productdest" value="${product}-${Implementation-Version}-b${env.BUILD_NUMBER}" />
 
 	<!-- Start OpenSearchServer using the embedded Tomcat -->
@@ -101,6 +102,10 @@
 
 		<copy tofile="${dist}/${productdest}.deb">
 			<fileset file="target/${productsrc}.deb" />
+		</copy>
+		
+		<copy tofile="${dist}/${productdest}.rpm">
+			<fileset file="target/rpm/opensearchserver/RPMS/noarch/${productsrcrpm}.noarch.rpm" />
 		</copy>
 
 		<copy tofile="${dist}/${productdest}.war">
