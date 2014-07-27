@@ -9,6 +9,7 @@ Description: full-text search-engine software
  API you will be able to integrate advanced full-text search capabilities in
  your application.
 Depends: default-jre-headless | java6-runtime-headless | java7-runtime-headless
+Recommends: ghostscript, tesseract-ocr
 Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
 Homepage: http://www.open-search-server.com
 Vcs-Git: https://github.com/jaeksoft/opensearchserver.git
