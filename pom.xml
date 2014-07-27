@@ -715,7 +715,7 @@
 									</paths>
 									<mapper>
 										<type>perm</type>
-										<user>daemon</user>
+										<user>opensearchserver</user>
 										<group>daemon</group>
 									</mapper>
 								</data>
