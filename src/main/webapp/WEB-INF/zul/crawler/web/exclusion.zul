@@ -70,4 +70,7 @@
 	</listbox>
 	<button label="delete" visible="@load(exclusion.selectionRemovable)"
 		onClick="@command('onDelete')" />
+	<button label="delete all"
+		visible="@load(exclusion.selectionRemovable)"
+		onClick="@command('onDeleteAll')" />
 </window>
