@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jaeksoft</groupId>
 	<artifactId>opensearchserver</artifactId>
@@ -13,7 +12,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<version>1.5.5-SNAPSHOT</version>
+	<version>1.5.5</version>
 	<scm>
 		<connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
 		<developerConnection>scm:git:git@github.com:jaeksoft/opensearchserver.git</developerConnection>
@@ -787,7 +786,7 @@
 						<require>java &gt;= 1.7.0</require>
 					</requires>
 					<preinstallScriptlet>
-						<script>getent passwd opensearchserver >/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver</script>
+						<script>getent passwd opensearchserver &gt;/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver</script>
 					</preinstallScriptlet>
 					<postinstallScriptlet>
 						<script>cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver &amp;&amp; chmod a+x /etc/init.d/opensearchserver</script>
