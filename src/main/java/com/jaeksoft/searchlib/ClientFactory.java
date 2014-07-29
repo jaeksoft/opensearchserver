@@ -34,7 +34,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.search.BooleanQuery;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.cluster.VersionFile;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.Sequence;
@@ -46,8 +45,6 @@ import com.jaeksoft.searchlib.web.StartStopListener;
 public class ClientFactory implements PropertyItemListener {
 
 	public static ClientFactory INSTANCE = null;
-
-	public final VersionFile versionFile;
 
 	public final InstanceProperties properties;
 
@@ -87,8 +84,6 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			versionFile = new VersionFile(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 			globalSequence = new Sequence(new File(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 					"globalSequence.txt"), 36);
