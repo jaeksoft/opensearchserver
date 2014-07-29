@@ -116,7 +116,8 @@ public class BeiderMorseCache extends
 		}
 		if (terms == null)
 			return null;
-		put(termKey, StringUtils.split(terms, '|'));
+		tokens = StringUtils.split(terms, '|');
+		put(termKey, tokens);
 		return tokens;
 	}
 
