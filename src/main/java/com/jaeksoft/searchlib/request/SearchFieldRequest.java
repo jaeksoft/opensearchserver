@@ -179,12 +179,12 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	 *            Set the boost for the phrase search
 	 */
 	public void addSearchField(String fieldName, Mode mode, double termBoost,
-			double phraseBoost) {
-		add(new SearchField(fieldName, mode, termBoost, phraseBoost));
+			double phraseBoost, Integer phraseSlop) {
+		add(new SearchField(fieldName, mode, termBoost, phraseBoost, phraseSlop));
 	}
 
 	public void addSearchField(String fieldName, double termBoost) {
-		add(new SearchField(fieldName, Mode.PATTERN, termBoost, 1.0));
+		add(new SearchField(fieldName, Mode.PATTERN, termBoost, 1.0, null));
 	}
 
 	public void remove(SearchField searchField) {

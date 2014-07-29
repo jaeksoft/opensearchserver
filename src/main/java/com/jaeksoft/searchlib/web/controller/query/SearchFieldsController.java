@@ -99,9 +99,9 @@ public class SearchFieldsController extends AbstractQueryController {
 		synchronized (this) {
 			if (selectedSearchField == null)
 				return;
-			getSearchFieldRequest()
-					.add(new SearchField(selectedSearchField, Mode.PATTERN,
-							1.0, 1.0));
+			getSearchFieldRequest().add(
+					new SearchField(selectedSearchField, Mode.PATTERN, 1.0,
+							1.0, null));
 		}
 	}
 

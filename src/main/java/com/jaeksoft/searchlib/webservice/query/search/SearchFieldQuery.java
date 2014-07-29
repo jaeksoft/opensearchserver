@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -79,12 +79,14 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		final public Mode mode;
 		final public Double boost;
 		final public Double phraseBoost;
+		final public Integer phraseSlop;
 
 		public SearchField() {
 			field = null;
 			mode = null;
 			boost = null;
 			phraseBoost = null;
+			phraseSlop = null;
 		}
 
 		public SearchField(
@@ -93,12 +95,13 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 			mode = searchField.getMode();
 			boost = searchField.getTermBoost();
 			phraseBoost = searchField.getPhraseBoost();
+			phraseSlop = searchField.getPhraseSlop();
 		}
 
 		@JsonIgnore
 		protected com.jaeksoft.searchlib.request.SearchField newSearchField() {
 			return new com.jaeksoft.searchlib.request.SearchField(field, mode,
-					boost, phraseBoost);
+					boost, phraseBoost, phraseSlop);
 		}
 	}
 
