@@ -58,25 +58,29 @@ public class SearchField implements Cloneable {
 	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE = "phrase";
 	public final static String SEARCHFIELD_ATTRIBUTE_TERM_BOOST = "boost";
 	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST = "phraseBoost";
+	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP = "phraseSlop";
 
 	private String field;
 	private Mode mode;
 	private double termBoost;
 	private double phraseBoost;
+	private Integer phraseSlop;
 
 	private SearchField(SearchField searchField) {
 		this.field = searchField.field;
 		this.mode = searchField.mode;
 		this.termBoost = searchField.termBoost;
 		this.phraseBoost = searchField.phraseBoost;
+		this.phraseSlop = searchField.phraseSlop;
 	}
 
 	public SearchField(String field, Mode mode, Double termBoost,
-			Double phraseBoost) {
+			Double phraseBoost, Integer phraseSlop) {
 		this.field = field;
 		this.mode = mode == null ? Mode.TERM : mode;
 		this.termBoost = termBoost == null ? 1.0F : termBoost;
 		this.phraseBoost = phraseBoost == null ? this.termBoost : phraseBoost;
+		this.phraseSlop = phraseSlop;
 	}
 
 	public SearchField(Node fieldNode) {
@@ -94,6 +98,8 @@ public class SearchField implements Cloneable {
 				SEARCHFIELD_ATTRIBUTE_TERM_BOOST, 1.0);
 		this.phraseBoost = DomUtils.getAttributeDouble(fieldNode,
 				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, this.termBoost);
+		this.phraseSlop = DomUtils.getAttributeInteger(fieldNode,
+				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, this.phraseSlop);
 	}
 
 	@Override
@@ -161,13 +167,30 @@ public class SearchField implements Cloneable {
 		this.phraseBoost = phraseBoost;
 	}
 
+	/**
+	 * @return the phrase slop
+	 */
+	public Integer getPhraseSlop() {
+		return phraseSlop;
+	}
+
+	/**
+	 * @param phrase
+	 *            slop the phrase slop to set
+	 */
+	public void setPhraseSlop(Integer phraseSlop) {
+		this.phraseSlop = phraseSlop;
+	}
+
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(SEARCHFIELD_NODE_NAME,
 				SEARCHFIELD_ATTRIBUTE_FIELD_NAME, field,
 				SEARCHFIELD_ATTRIBUTE_MODE, mode == null ? null : mode.name(),
 				SEARCHFIELD_ATTRIBUTE_TERM_BOOST, Double.toString(termBoost),
-				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST,
-				Double.toString(phraseBoost));
+				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, Double
+						.toString(phraseBoost),
+				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, phraseSlop == null ? null
+						: Integer.toString(phraseSlop));
 		xmlWriter.endElement();
 
 	}
@@ -181,6 +204,10 @@ public class SearchField implements Cloneable {
 		sb.append(termBoost);
 		sb.append("/");
 		sb.append(phraseBoost);
+		if (phraseSlop != null) {
+			sb.append("/");
+			sb.append(phraseSlop);
+		}
 		return sb.toString();
 	}
 
@@ -188,7 +215,8 @@ public class SearchField implements Cloneable {
 			final Occur occur, final int phraseSlop, final String queryString)
 			throws IOException {
 		QueryParser queryParser = new QueryParser(field, occur, analyzer,
-				phraseSlop, termBoost, phraseBoost);
+				this.phraseSlop != null ? this.phraseSlop : phraseSlop,
+				termBoost, phraseBoost);
 		return queryParser.parse(queryString);
 	}
 
@@ -231,13 +259,15 @@ public class SearchField implements Cloneable {
 	}
 
 	final private Query getPhraseQuery(
-			final List<TermQueryItem> termQueryItems, final Occur occur)
-			throws IOException {
+			final List<TermQueryItem> termQueryItems, final int phraseSlop,
+			final Occur occur) throws IOException {
 		PhraseQuery phraseQuery = new PhraseQuery();
 		for (TermQueryItem termQueryItem : termQueryItems)
 			if (termQueryItem.children == null)
 				phraseQuery.add(new Term(field, termQueryItem.term));
 		phraseQuery.setBoost((float) phraseBoost);
+		phraseQuery.setSlop(this.phraseSlop != null ? this.phraseSlop
+				: phraseSlop);
 		return phraseQuery;
 	}
 
@@ -264,13 +294,15 @@ public class SearchField implements Cloneable {
 						Occur.SHOULD);
 				break;
 			case PHRASE:
-				complexQuery.add(getPhraseQuery(termQueryItems, occur),
+				complexQuery.add(
+						getPhraseQuery(termQueryItems, phraseSlop, occur),
 						Occur.SHOULD);
 				break;
 			case TERM_AND_PHRASE:
 				complexQuery.add(getTermQuery(termQueryItems, occur),
 						Occur.SHOULD);
-				complexQuery.add(getPhraseQuery(termQueryItems, occur),
+				complexQuery.add(
+						getPhraseQuery(termQueryItems, phraseSlop, occur),
 						Occur.SHOULD);
 				break;
 			default:
