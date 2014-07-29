@@ -429,6 +429,11 @@
 			<artifactId>antlr4-runtime</artifactId>
 			<version>4.3</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -519,6 +524,23 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>library-package</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<classifier>library</classifier>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
@@ -689,29 +711,29 @@
 					</execution>
 				</executions>
 			</plugin>
-           <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-                <version>2.1-alpha-4</version>
-                <executions>
-                    <execution>
-                        <id>generate-rpm</id>
-                        <goals>
-                            <goal>rpm</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <license>GPLv3 (c) 2008-2014, Jaeksoft SARL</license>
-                    <group>Application/Internet</group>
-                    <packager>OpenSearchServer</packager>
-                    <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
-                    <prefix>/usr/local</prefix>
- 					<mappings>
-      					<mapping>
-        					<directory>/usr/share/opensearchserver</directory>
-        					<username>opensearchserver</username>
-        					<groupname>daemon</groupname>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.1-alpha-4</version>
+				<executions>
+					<execution>
+						<id>generate-rpm</id>
+						<goals>
+							<goal>rpm</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<license>GPLv3 (c) 2008-2014, Jaeksoft SARL</license>
+					<group>Application/Internet</group>
+					<packager>OpenSearchServer</packager>
+					<version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
+					<prefix>/usr/local</prefix>
+					<mappings>
+						<mapping>
+							<directory>/usr/share/opensearchserver</directory>
+							<username>opensearchserver</username>
+							<groupname>daemon</groupname>
 							<sources>
 								<source>
 									<location>${project.build.directory}/${project.build.finalName}-war-exec.jar</location>
@@ -721,57 +743,61 @@
 									<location>src/deb/init.d/opensearchserver</location>
 								</source>
 							</sources>
-      					</mapping>
-     					<mapping>
-        					<directory>/usr/share/opensearchserver/ext</directory>
+						</mapping>
+						<mapping>
+							<directory>/usr/share/opensearchserver/ext</directory>
 							<sources>
 								<source>
 									<location>lib/ext</location>
 								</source>
 							</sources>
-      					</mapping>
-      					<mapping>
-        					<directory>/etc</directory>
-        					<configuration>true</configuration>
+						</mapping>
+						<mapping>
+							<directory>/etc</directory>
+							<configuration>true</configuration>
 							<sources>
 								<source>
 									<location>src/deb/etc/opensearchserver</location>
 								</source>
 							</sources>
-      					</mapping>
-      					<mapping>
-        					<directory>/var/log/opensearchserver</directory>
-        					<username>opensearchserver</username>
-      					</mapping>
-     					<mapping>
-        					<directory>/var/lib/opensearchserver</directory>
-        					<username>opensearchserver</username>
-      					</mapping>
-      					<mapping>
-        					<directory>/var/lib/opensearchserver/data</directory>
-        					<username>opensearchserver</username>
-      					</mapping>
+						</mapping>
+						<mapping>
+							<directory>/var/log/opensearchserver</directory>
+							<username>opensearchserver</username>
+						</mapping>
+						<mapping>
+							<directory>/var/lib/opensearchserver</directory>
+							<username>opensearchserver</username>
+						</mapping>
+						<mapping>
+							<directory>/var/lib/opensearchserver/data</directory>
+							<username>opensearchserver</username>
+						</mapping>
 						<mapping>
 							<directory>/var/lib/opensearchserver/data/logs</directory>
-        					<username>opensearchserver</username>
+							<username>opensearchserver</username>
 							<sources>
-      							<softlinkSource>
-                					<location>/var/log/opensearchserver</location>
+								<softlinkSource>
+									<location>/var/log/opensearchserver</location>
 								</softlinkSource>
 							</sources>
 						</mapping>
-    				</mappings>
+					</mappings>
 					<requires>
 						<require>java &gt;= 1.7.0</require>
 					</requires>
 					<preinstallScriptlet>
-						<script>getent passwd opensearchserver >/dev/null || useradd -r -g daemon -d /var/lib/opensearchserver -s /bin/bash -c "OpenSearchServer" opensearchserver</script>
+						<script>getent passwd opensearchserver >/dev/null || useradd -r
+							-g daemon -d /var/lib/opensearchserver -s /bin/bash -c
+							"OpenSearchServer" opensearchserver</script>
 					</preinstallScriptlet>
 					<postinstallScriptlet>
-						<script>cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver &amp;&amp; chmod a+x /etc/init.d/opensearchserver</script>
+						<script>cp -f /usr/share/opensearchserver/opensearchserver
+							/etc/init.d/opensearchserver &amp;&amp; chmod a+x
+							/etc/init.d/opensearchserver</script>
 					</postinstallScriptlet>
-                </configuration>
-            </plugin>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
