@@ -50,7 +50,6 @@ import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.cluster.ClusterNotification;
 import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
-import com.jaeksoft.searchlib.cluster.VersionFile;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -78,8 +77,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	private final ReaderInterface reader;
 	private final WriterInterface writer;
 
-	protected final VersionFile versionFile;
-
 	protected IndexAbstract(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, SearchLibException {
 		this.indexConfig = indexConfig;
@@ -90,7 +87,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			if (!createIfNotExists) {
 				reader = null;
 				writer = null;
-				versionFile = null;
 				return;
 			}
 			if (!indexDir.exists())
@@ -99,7 +95,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		} else
 			indexDir = findIndexDirOrSub(indexDir);
 		initIndexDirectory(indexDir, bCreate);
-		versionFile = new VersionFile(indexDir);
 		writer = getNewWriter(indexConfig, bCreate);
 		reader = getNewReader(indexConfig);
 	}
@@ -156,21 +151,16 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	@Override
 	public void optimize() throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (writer == null)
-					return;
-				writer.optimize();
-				if (reader != null)
-					reader.reload();
-				sendNotifReloadData();
-			} finally {
-				rwl.r.unlock();
-			}
+			if (writer == null)
+				return;
+			writer.optimize();
+			if (reader != null)
+				reader.reload();
+			sendNotifReloadData();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -186,40 +176,30 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	@Override
 	public void deleteAll() throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (writer != null) {
-					writer.deleteAll();
-					sendNotifReloadData();
-				}
-			} finally {
-				rwl.r.unlock();
+			if (writer != null) {
+				writer.deleteAll();
+				sendNotifReloadData();
 			}
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public long deleteDocuments(AbstractRequest request)
 			throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				long d = 0;
-				if (writer != null) {
-					d = writer.deleteDocuments(request);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
+			long d = 0;
+			if (writer != null) {
+				d = writer.deleteDocuments(request);
+				sendNotifReloadData();
 			}
+			return d;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -238,21 +218,16 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				boolean b = false;
-				if (writer != null) {
-					b = writer.updateDocument(schema, document);
-					sendNotifReloadData();
-				}
-				return b;
-			} finally {
-				rwl.r.unlock();
+			boolean b = false;
+			if (writer != null) {
+				b = writer.updateDocument(schema, document);
+				sendNotifReloadData();
 			}
+			return b;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -260,21 +235,16 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException,
 			IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				int d = 0;
-				if (writer != null) {
-					d = writer.updateDocuments(schema, documents);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
+			int d = 0;
+			if (writer != null) {
+				d = writer.updateDocuments(schema, documents);
+				sendNotifReloadData();
 			}
+			return d;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -297,16 +267,11 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	@Override
 	public void reload() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				reloadNoLock();
-			} finally {
-				rwl.r.unlock();
-			}
+			reloadNoLock();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -317,36 +282,26 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	@Override
 	public AbstractResult<?> request(AbstractRequest request)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.request(request);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.request(request);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.explain(request, docId, bHtml);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.explain(request, docId, bHtml);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -380,89 +335,64 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	@Override
 	final public int getDocFreq(final Term term) throws SearchLibException,
 			IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getDocFreq(term);
-				return 0;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getDocFreq(term);
+			return 0;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermEnum();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermEnum();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum(final Term term)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermEnum(term);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermEnum(term);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermDocs getTermDocs(final Term term)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermDocs(term);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermDocs(term);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermFreqVector getTermFreqVector(final int docId,
 			final String field) throws IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermFreqVector(docId, field);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermFreqVector(docId, field);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -470,35 +400,25 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	final public void putTermVectors(final int[] docIds, final String field,
 			final Collection<String[]> termVectors) throws IOException,
 			SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					reader.putTermVectors(docIds, field, termVectors);
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				reader.putTermVectors(docIds, field, termVectors);
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getStringIndex(fieldName);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getStringIndex(fieldName);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -507,19 +427,14 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getFilterHits(defaultField, analyzer,
-							request, filter, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getFilterHits(defaultField, analyzer, request,
+						filter, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -527,35 +442,25 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.searchDocSet(searchRequest, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.searchDocSet(searchRequest, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public long getVersion() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader == null)
-					return 0;
-				return reader.getVersion();
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader == null)
+				return 0;
+			return reader.getVersion();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -641,18 +546,13 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	@Override
 	public Collection<?> getFieldNames() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getFieldNames();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getFieldNames();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -660,18 +560,13 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	final public Map<String, FieldValue> getDocumentFields(final int docId,
 			final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getDocumentFields(docId, fieldNameSet, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getDocumentFields(docId, fieldNameSet, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -703,18 +598,13 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 	@Override
 	public MoreLikeThis getMoreLikeThis() throws SearchLibException,
 			IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getMoreLikeThis();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getMoreLikeThis();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -724,28 +614,22 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		if (!(source instanceof IndexAbstract))
 			throw new SearchLibException("Unsupported operation");
 		IndexAbstract sourceIndex = (IndexAbstract) source;
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
+			if (writer == null)
+				return;
+			sourceIndex.rwl.r.lock();
 			try {
-				if (writer == null)
-					return;
-				sourceIndex.rwl.r.lock();
-				try {
-					writer.mergeData(sourceIndex.writer);
-					if (reader != null)
-						reader.reload();
-					sendNotifReloadData();
-				} finally {
-					sourceIndex.rwl.r.unlock();
-				}
+				writer.mergeData(sourceIndex.writer);
+				if (reader != null)
+					reader.reload();
+				sendNotifReloadData();
 			} finally {
-				rwl.r.unlock();
+				sourceIndex.rwl.r.unlock();
 			}
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
-
 	}
 
 	@Override
