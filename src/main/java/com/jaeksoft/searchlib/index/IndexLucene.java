@@ -53,7 +53,6 @@ import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.cluster.ClusterNotification;
 import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
-import com.jaeksoft.searchlib.cluster.VersionFile;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -80,8 +79,6 @@ public class IndexLucene extends IndexAbstract {
 	private final ReaderInterface reader;
 	private final WriterInterface writer;
 
-	private final VersionFile versionFile;
-
 	public IndexLucene(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, URISyntaxException,
 			SearchLibException, JSONException {
@@ -94,28 +91,19 @@ public class IndexLucene extends IndexAbstract {
 				indexDirectory = null;
 				reader = null;
 				writer = null;
-				versionFile = null;
 				return;
 			}
 			indexDir.mkdir();
 			bCreate = true;
 		} else
 			indexDir = findIndexDirOrSub(indexDir);
-		versionFile = new VersionFile(indexDir);
 		URI remoteURI = indexConfig.getRemoteURI();
 		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir)
 				: new IndexDirectory(remoteURI);
 		bCreate = bCreate || indexDirectory.isEmpty();
 		writer = new WriterLocal(indexConfig, this, indexDirectory);
-		if (bCreate) {
-			versionFile.lock();
-			try {
-				((WriterLocal) writer).create();
-				sendNotifReloadData();
-			} finally {
-				versionFile.release();
-			}
-		}
+		if (bCreate)
+			((WriterLocal) writer).create();
 		reader = new ReaderLocal(indexConfig, indexDirectory, true);
 	}
 
@@ -154,21 +142,16 @@ public class IndexLucene extends IndexAbstract {
 
 	@Override
 	public void optimize() throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (writer == null)
-					return;
-				writer.optimize();
-				if (reader != null)
-					reader.reload();
-				sendNotifReloadData();
-			} finally {
-				rwl.r.unlock();
-			}
+			if (writer == null)
+				return;
+			writer.optimize();
+			if (reader != null)
+				reader.reload();
+			sendNotifReloadData();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -184,40 +167,30 @@ public class IndexLucene extends IndexAbstract {
 
 	@Override
 	public void deleteAll() throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (writer != null) {
-					writer.deleteAll();
-					sendNotifReloadData();
-				}
-			} finally {
-				rwl.r.unlock();
+			if (writer != null) {
+				writer.deleteAll();
+				sendNotifReloadData();
 			}
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public int deleteDocuments(AbstractRequest request)
 			throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				int d = 0;
-				if (writer != null) {
-					d = writer.deleteDocuments(request);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
+			int d = 0;
+			if (writer != null) {
+				d = writer.deleteDocuments(request);
+				sendNotifReloadData();
 			}
+			return d;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -236,21 +209,16 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document)
 			throws SearchLibException, IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				boolean b = false;
-				if (writer != null) {
-					b = writer.updateDocument(schema, document);
-					sendNotifReloadData();
-				}
-				return b;
-			} finally {
-				rwl.r.unlock();
+			boolean b = false;
+			if (writer != null) {
+				b = writer.updateDocument(schema, document);
+				sendNotifReloadData();
 			}
+			return b;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -258,21 +226,16 @@ public class IndexLucene extends IndexAbstract {
 	public int updateDocuments(Schema schema,
 			Collection<IndexDocument> documents) throws SearchLibException,
 			IOException {
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				int d = 0;
-				if (writer != null) {
-					d = writer.updateDocuments(schema, documents);
-					sendNotifReloadData();
-				}
-				return d;
-			} finally {
-				rwl.r.unlock();
+			int d = 0;
+			if (writer != null) {
+				d = writer.updateDocuments(schema, documents);
+				sendNotifReloadData();
 			}
+			return d;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -293,16 +256,11 @@ public class IndexLucene extends IndexAbstract {
 
 	@Override
 	public void reload() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				reloadNoLock();
-			} finally {
-				rwl.r.unlock();
-			}
+			reloadNoLock();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -313,36 +271,26 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	public AbstractResult<?> request(AbstractRequest request)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.request(request);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.request(request);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.explain(request, docId, bHtml);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.explain(request, docId, bHtml);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -381,71 +329,51 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	final public int getDocFreq(final Term term) throws SearchLibException,
 			IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getDocFreq(term);
-				return 0;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getDocFreq(term);
+			return 0;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermEnum();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermEnum();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum(final Term term)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermEnum(term);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermEnum(term);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public TermDocs getTermDocs(final Term term)
 			throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermDocs(term);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermDocs(term);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -465,18 +393,13 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	final public TermFreqVector getTermFreqVector(final int docId,
 			final String field) throws IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getTermFreqVector(docId, field);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getTermFreqVector(docId, field);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -484,35 +407,25 @@ public class IndexLucene extends IndexAbstract {
 	final public void putTermVectors(final int[] docIds, final String field,
 			final Collection<String[]> termVectors) throws IOException,
 			SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					reader.putTermVectors(docIds, field, termVectors);
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				reader.putTermVectors(docIds, field, termVectors);
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public FieldCacheIndex getStringIndex(final String fieldName)
 			throws IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getStringIndex(fieldName);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getStringIndex(fieldName);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -521,19 +434,14 @@ public class IndexLucene extends IndexAbstract {
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getFilterHits(defaultField, analyzer,
-							request, filter, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getFilterHits(defaultField, analyzer, request,
+						filter, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -541,35 +449,25 @@ public class IndexLucene extends IndexAbstract {
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.searchDocSet(searchRequest, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.searchDocSet(searchRequest, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public long getVersion() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader == null)
-					return 0;
-				return reader.getVersion();
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader == null)
+				return 0;
+			return reader.getVersion();
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -641,18 +539,13 @@ public class IndexLucene extends IndexAbstract {
 
 	@Override
 	public Collection<?> getFieldNames() throws SearchLibException, IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getFieldNames();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getFieldNames();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -660,18 +553,13 @@ public class IndexLucene extends IndexAbstract {
 	final public Map<String, FieldValue> getDocumentFields(final int docId,
 			final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getDocumentFields(docId, fieldNameSet, timer);
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getDocumentFields(docId, fieldNameSet, timer);
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -703,18 +591,13 @@ public class IndexLucene extends IndexAbstract {
 	@Override
 	public MoreLikeThis getMoreLikeThis() throws SearchLibException,
 			IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (reader != null)
-					return reader.getMoreLikeThis();
-				return null;
-			} finally {
-				rwl.r.unlock();
-			}
+			if (reader != null)
+				return reader.getMoreLikeThis();
+			return null;
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
 	}
 
@@ -724,28 +607,22 @@ public class IndexLucene extends IndexAbstract {
 		if (!(source instanceof IndexLucene))
 			throw new SearchLibException("Unsupported operation");
 		IndexLucene sourceIndex = (IndexLucene) source;
-		versionFile.lock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
+			if (writer == null)
+				return;
+			sourceIndex.rwl.r.lock();
 			try {
-				if (writer == null)
-					return;
-				sourceIndex.rwl.r.lock();
-				try {
-					writer.mergeData(sourceIndex.writer);
-					if (reader != null)
-						reader.reload();
-					sendNotifReloadData();
-				} finally {
-					sourceIndex.rwl.r.unlock();
-				}
+				writer.mergeData(sourceIndex.writer);
+				if (reader != null)
+					reader.reload();
+				sendNotifReloadData();
 			} finally {
-				rwl.r.unlock();
+				sourceIndex.rwl.r.unlock();
 			}
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
-
 	}
 
 	@Override

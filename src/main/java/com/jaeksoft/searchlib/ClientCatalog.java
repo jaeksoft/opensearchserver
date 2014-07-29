@@ -454,17 +454,15 @@ public class ClientCatalog {
 			IOException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
-		ClientFactory.INSTANCE.versionFile.lock();
 		try {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
-			cfr.rotate(ClientFactory.INSTANCE.versionFile);
+			cfr.rotate();
 			ClusterManager.notify(new ClusterNotification(Type.RELOAD_USER));
 		} finally {
 			cfr.abort();
-			ClientFactory.INSTANCE.versionFile.release();
 		}
 	}
 

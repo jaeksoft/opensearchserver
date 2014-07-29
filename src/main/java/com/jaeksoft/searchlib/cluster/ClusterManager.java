@@ -62,8 +62,6 @@ public class ClusterManager {
 
 	public final static String OSS_CLUSTER_NODES_DIRNAME = ".oss_cluster_nodes";
 
-	public final VersionFile versionFile;
-
 	public final TreeMap<String, ClusterInstance> instancesMap;
 
 	public List<ClusterInstance> instancesList;
@@ -75,7 +73,6 @@ public class ClusterManager {
 		clusterDirectory = new File(instanceDataDir, OSS_CLUSTER_NODES_DIRNAME);
 		if (!clusterDirectory.exists())
 			clusterDirectory.mkdir();
-		versionFile = new VersionFile(clusterDirectory);
 		String instanceId = getInstanceId();
 		clusterFile = new File(clusterDirectory, instanceId);
 		if (clusterFile.exists() && clusterFile.length() > 0)
@@ -131,65 +128,47 @@ public class ClusterManager {
 	}
 
 	public Collection<ClusterInstance> getInstances() throws IOException {
-		versionFile.sharedLock();
+		rwl.r.lock();
 		try {
-			rwl.r.lock();
-			try {
-				if (instancesList != null
-						&& listVersion == versionFile.getVersion())
-					return instancesList;
-			} finally {
-				rwl.r.unlock();
-			}
-			rwl.w.lock();
-			try {
-				if (instancesList != null
-						&& listVersion == versionFile.getVersion())
-					return instancesList;
-				File[] files = clusterDirectory
-						.listFiles((FileFilter) FileFilterUtils
-								.fileFileFilter());
-				for (File file : files) {
-					String name = file.getName();
-					if (VersionFile.FILENAME.equals(name))
-						continue;
-					try {
-						instancesMap.put(name, JsonUtils.getObject(file,
-								ClusterInstance.class));
-					} catch (JsonParseException e) {
-						Logging.warn(e);
-					} catch (JsonMappingException e) {
-						Logging.warn(e);
-					} catch (IOException e) {
-						Logging.warn(e);
-					}
-				}
-				instancesList = new ArrayList<ClusterInstance>(
-						instancesMap.values());
-				listVersion = versionFile.getVersion();
+			if (instancesList != null)
 				return instancesList;
-			} finally {
-				rwl.w.unlock();
-			}
 		} finally {
-			versionFile.release();
+			rwl.r.unlock();
 		}
-
+		rwl.w.lock();
+		try {
+			if (instancesList != null)
+				return instancesList;
+			File[] files = clusterDirectory
+					.listFiles((FileFilter) FileFilterUtils.fileFileFilter());
+			for (File file : files) {
+				String name = file.getName();
+				try {
+					instancesMap.put(name,
+							JsonUtils.getObject(file, ClusterInstance.class));
+				} catch (JsonParseException e) {
+					Logging.warn(e);
+				} catch (JsonMappingException e) {
+					Logging.warn(e);
+				} catch (IOException e) {
+					Logging.warn(e);
+				}
+			}
+			instancesList = new ArrayList<ClusterInstance>(
+					instancesMap.values());
+			return instancesList;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void saveMe() throws JsonGenerationException, JsonMappingException,
 			IOException {
-		versionFile.lock();
+		rwl.w.lock();
 		try {
-			rwl.w.lock();
-			try {
-				JsonUtils.jsonToFile(me, clusterFile);
-				versionFile.increment();
-			} finally {
-				rwl.w.unlock();
-			}
+			JsonUtils.jsonToFile(me, clusterFile);
 		} finally {
-			versionFile.release();
+			rwl.w.unlock();
 		}
 	}
 
