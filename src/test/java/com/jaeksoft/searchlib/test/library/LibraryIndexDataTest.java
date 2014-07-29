@@ -99,12 +99,12 @@ public class LibraryIndexDataTest {
 
 		// In the field TITLE, we look for term and phrase, with a respective
 		// boost factor of 5 and 10.
-		request.addSearchField("title", Mode.TERM_AND_PHRASE, 5.0F, 10.0F);
+		request.addSearchField("title", Mode.TERM_AND_PHRASE, 5.0F, 10.0F, 2);
 		// In the field "titleExact", we look for terms, with a boost factor of
 		// 5.
 		request.addSearchField("titleExact", 5.0F);
 		// Same for "content" and "contentExact"
-		request.addSearchField("content", Mode.TERM_AND_PHRASE, 1.0F, 2.0F);
+		request.addSearchField("content", Mode.TERM_AND_PHRASE, 1.0F, 2.0F, 2);
 		request.addSearchField("contentExact", 1.0F);
 		// The "full" field contains both title and content terms
 		request.addSearchField("full", 1.0F);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -207,7 +207,7 @@ public class DomUtils {
 		return Boolean.parseBoolean(value);
 	}
 
-	final public static int getAttributeInteger(final Node node,
+	final public static Integer getAttributeInteger(final Node node,
 			final String name, final Integer defaultValue) {
 		String value = getAttributeText(node, name);
 		if (value == null)
