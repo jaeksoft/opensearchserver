@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import com.jaeksoft.searchlib.cluster.VersionFile;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
 
@@ -71,7 +70,7 @@ public class ConfigFileRotation {
 		tempPrintWriter = null;
 	}
 
-	public void abort() throws IOException {
+	public void abort() {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -80,7 +79,7 @@ public class ConfigFileRotation {
 		}
 	}
 
-	public void rotate(VersionFile versionFile) throws IOException {
+	public void rotate() throws IOException {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -91,13 +90,12 @@ public class ConfigFileRotation {
 			if (masterFile.exists())
 				FileUtils.moveFile(masterFile, oldFile);
 			FileUtils.moveFile(tempFile, masterFile);
-			versionFile.increment();
 		} finally {
 			lock.rl.unlock();
 		}
 	}
 
-	public void delete(VersionFile versionFile) throws IOException {
+	public void delete() throws IOException {
 		lock.rl.lock();
 		try {
 			freeTempPrintWriter();
@@ -105,7 +103,6 @@ public class ConfigFileRotation {
 				oldFile.delete();
 			if (masterFile.exists())
 				FileUtils.moveFile(masterFile, oldFile);
-			versionFile.increment();
 		} finally {
 			lock.rl.unlock();
 		}
