@@ -186,6 +186,14 @@ public class OsseIndex {
 					" - flags: ", Integer.toString(flags));
 		}
 
+		public boolean isOffsets() {
+			return (flags & OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET) == OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET;
+		}
+
+		public boolean isPositions() {
+			return (flags & OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION) == OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
+		}
+
 	}
 
 	public long getPointer() {

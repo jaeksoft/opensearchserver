@@ -249,7 +249,7 @@ public class OsseTransaction implements Closeable {
 		try {
 			final int termCount = termBuffer.getTermCount();
 			ofsa = new OsseFastStringArray(memoryBuffer, termBuffer);
-			if (termBuffer.hasOffsetOrPosIncr()) {
+			if (fieldInfo.isOffsets() && fieldInfo.isPositions()) {
 				offsets = new OsseUint32Array(memoryBuffer,
 						termBuffer.getOffsets());
 				positionIncrements = new OsseUint32Array(memoryBuffer,
