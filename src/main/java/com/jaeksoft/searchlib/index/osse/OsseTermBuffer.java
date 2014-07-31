@@ -166,10 +166,6 @@ public class OsseTermBuffer implements Closeable {
 		return byteArrays.size();
 	}
 
-	public boolean hasOffsetOrPosIncr() {
-		return offsets.getSize() > 0 || positionIncrements.getSize() > 0;
-	}
-
 	final public IntBufferedArrayList getOffsets() {
 		return offsets;
 	}

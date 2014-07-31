@@ -55,8 +55,10 @@ public class OsseUint32Array extends OsseAbstractArray {
 		int lastSize = integers.getCurrentSize();
 		for (int[] array : arrays) {
 			int length = (++arraysPos == arraysSize ? lastSize : array.length);
-			arrayPointer.write(offset, array, 0, length);
-			offset += length * 4;
+			for (int i = 0; i < length; i++) {
+				arrayPointer.setInt(offset, array[i]);
+				offset += 4;
+			}
 		}
 	}
 }
