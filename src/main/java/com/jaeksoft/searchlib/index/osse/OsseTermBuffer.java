@@ -40,6 +40,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import com.jaeksoft.searchlib.index.osse.memory.DisposableMemory;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayList;
 
 public class OsseTermBuffer implements Closeable {
 
@@ -75,9 +76,9 @@ public class OsseTermBuffer implements Closeable {
 
 	}
 
-	final List<OsseTermOffset> offsets;
 	final List<OsseTerm> terms;
-	final List<Integer> positionIncrements;
+	final IntBufferedArrayList offsets;
+	final IntBufferedArrayList positionIncrements;
 
 	private final MemoryBuffer memoryBuffer;
 	private final List<DisposableMemory> byteArrays;
@@ -91,8 +92,8 @@ public class OsseTermBuffer implements Closeable {
 	public OsseTermBuffer(final MemoryBuffer memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
 		this.terms = new ArrayList<OsseTerm>(1);
-		this.offsets = new ArrayList<OsseTermOffset>(1);
-		this.positionIncrements = new ArrayList<Integer>(1);
+		this.offsets = new IntBufferedArrayList(1000);
+		this.positionIncrements = new IntBufferedArrayList(500);
 		this.byteArrays = new ArrayList<DisposableMemory>(1);
 		this.encoder = StringUtils.CharsetUTF8.newEncoder();
 		this.maxBytesPerChar = (int) encoder.maxBytesPerChar();
@@ -119,8 +120,7 @@ public class OsseTermBuffer implements Closeable {
 			final PositionIncrementAttribute posIncrAtt) throws IOException {
 		terms.add(new OsseTerm(termAtt.buffer(), termAtt.length()));
 
-		offsets.add(new OsseTermOffset(offsetAtt.startOffset(), offsetAtt
-				.endOffset()));
+		offsets.add(offsetAtt.startOffset(), offsetAtt.endOffset());
 		positionIncrements.add(posIncrAtt.getPositionIncrement());
 	}
 
@@ -164,6 +164,18 @@ public class OsseTermBuffer implements Closeable {
 
 	final public int getByteArrayCount() {
 		return byteArrays.size();
+	}
+
+	public boolean hasOffsetOrPosIncr() {
+		return offsets.getSize() > 0 || positionIncrements.getSize() > 0;
+	}
+
+	final public IntBufferedArrayList getOffsets() {
+		return offsets;
+	}
+
+	final public IntBufferedArrayList getPositionIncrements() {
+		return positionIncrements;
 	}
 
 }

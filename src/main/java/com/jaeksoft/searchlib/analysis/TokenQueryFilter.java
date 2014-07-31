@@ -41,6 +41,7 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
 
 public abstract class TokenQueryFilter extends AbstractTermFilter {
@@ -133,6 +134,24 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			return termQuery;
 		}
 
+		/**
+		 * Check if the query has already be added
+		 * 
+		 * @param parent
+		 * @param child
+		 * @param occur
+		 * @param querySet
+		 */
+		private final void addBoolean(final BooleanQuery parent,
+				final Query child, final Occur occur) {
+			// TODO Should not occur. Design issue ?
+			if (System.identityHashCode(parent) != System
+					.identityHashCode(child))
+				parent.add(child, occur);
+			else
+				Logging.info("Risk of loop on boolean query");
+		}
+
 		public final Query getQuery(BooleanQuery parentBooleanQuery,
 				final Occur occur) throws IOException {
 			Query localQuery = getTermOrPhraseQuery();
@@ -140,17 +159,19 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 				return localQuery;
 			BooleanQuery booleanQuery = parentBooleanQuery == null ? new BooleanQuery()
 					: parentBooleanQuery;
-			booleanQuery.add(localQuery, Occur.SHOULD);
+			addBoolean(booleanQuery, localQuery, Occur.SHOULD);
 			if (brothers != null)
 				for (TermQueryItem brother : brothers)
-					booleanQuery.add(brother.getQuery(booleanQuery, occur),
-							Occur.SHOULD);
+					addBoolean(booleanQuery,
+							brother.getQuery(booleanQuery, occur), Occur.SHOULD);
 			if (children != null) {
 				BooleanQuery childrenBooleanQuery = new BooleanQuery();
-				for (TermQueryItem child : children)
-					childrenBooleanQuery.add(
-							child.getQuery(childrenBooleanQuery, occur), occur);
-				booleanQuery.add(childrenBooleanQuery, Occur.SHOULD);
+				for (TermQueryItem child : children) {
+					Query childQuery = child.getQuery(childrenBooleanQuery,
+							occur);
+					addBoolean(childrenBooleanQuery, childQuery, occur);
+				}
+				addBoolean(booleanQuery, childrenBooleanQuery, Occur.SHOULD);
 			}
 			return booleanQuery;
 		}

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -39,6 +40,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.osse.api.OsseErrorHandler;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex.FieldInfo;
+import com.jaeksoft.searchlib.index.osse.api.OsseJNALibrary;
 import com.jaeksoft.searchlib.index.osse.api.OsseTransaction;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -65,27 +67,65 @@ public class WriterNativeOSSE extends WriterAbstract {
 
 	}
 
+	final static int getFieldFlag(SchemaField schemaField)
+			throws SearchLibException {
+		int flag = 0;
+		switch (schemaField.getTermVector()) {
+		case YES:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
+			break;
+		case POSITIONS_OFFSETS:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
+					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_TERMFREQ
+					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
+					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
+			break;
+		default:
+			break;
+		}
+		switch (schemaField.getStored()) {
+		case YES:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED;
+			break;
+		case COMPRESS:
+			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED_COMPRESSED;
+			break;
+		default:
+			break;
+		}
+		return flag;
+	}
+
 	public Map<String, FieldInfo> checkSchemaFieldList(
 			SchemaFieldList schemaFieldList) throws SearchLibException {
 		Map<String, FieldInfo> fieldMap = index.getListOfFields(error);
-		List<FieldInfo> fieldsToDelete = new ArrayList<FieldInfo>(0);
+		Map<String, FieldInfo> fieldsToDelete = new TreeMap<String, FieldInfo>();
 		if (fieldMap != null)
 			for (FieldInfo fieldInfo : fieldMap.values())
 				if (schemaFieldList.get(fieldInfo.name) == null)
-					fieldsToDelete.add(fieldInfo);
+					fieldsToDelete.put(fieldInfo.name, fieldInfo);
 		List<SchemaField> fieldsToCreate = new ArrayList<SchemaField>(0);
-		for (SchemaField schemaField : schemaFieldList)
-			if (fieldMap == null || fieldMap.get(schemaField.getName()) == null)
-				fieldsToCreate.add(schemaField);
+		for (SchemaField schemaField : schemaFieldList) {
+			if (fieldMap != null) {
+				FieldInfo fieldInfo = fieldMap.get(schemaField.getName());
+				if (fieldInfo != null) {
+					if (fieldInfo.flags == getFieldFlag(schemaField))
+						continue;
+					fieldsToDelete.put(fieldInfo.name, fieldInfo);
+				}
+			}
+			fieldsToCreate.add(schemaField);
+		}
 		if (fieldsToDelete.size() == 0 && fieldsToCreate.size() == 0)
 			return fieldMap;
 		OsseTransaction transaction = null;
 		try {
 			transaction = new OsseTransaction(index, null, null, 0);
-			for (FieldInfo fieldToDelete : fieldsToDelete)
+			for (FieldInfo fieldToDelete : fieldsToDelete.values())
 				transaction.deleteField(fieldToDelete);
 			for (SchemaField schemaField : fieldsToCreate)
-				transaction.createField(schemaField);
+				transaction.createField(schemaField.getName(),
+						getFieldFlag(schemaField));
 			transaction.commit();
 			return index.getListOfFields(error);
 		} finally {

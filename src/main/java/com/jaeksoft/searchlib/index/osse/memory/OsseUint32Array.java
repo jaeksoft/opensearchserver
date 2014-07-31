@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.util.Collection;
 
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayList;
+
 /**
  * This class implements a fast UTF-8 String array *
  */
@@ -43,4 +45,18 @@ public class OsseUint32Array extends OsseAbstractArray {
 		}
 	}
 
+	public OsseUint32Array(MemoryBuffer memoryBuffer,
+			IntBufferedArrayList integers) {
+		super(memoryBuffer, integers.getSize(), 4);
+		int offset = 0;
+		Collection<int[]> arrays = integers.getArrays();
+		int arraysSize = arrays.size();
+		int arraysPos = 0;
+		int lastSize = integers.getCurrentSize();
+		for (int[] array : arrays) {
+			int length = (++arraysPos == arraysSize ? lastSize : array.length);
+			arrayPointer.write(offset, array, 0, length);
+			offset += length * 4;
+		}
+	}
 }
