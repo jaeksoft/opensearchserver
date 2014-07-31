@@ -251,10 +251,9 @@ public class SearchField implements Cloneable {
 	final private Query getTermQuery(final List<TermQueryItem> termQueryItems,
 			final Occur occur) throws IOException {
 		BooleanQuery booleanQuery = new BooleanQuery();
-		for (TermQueryItem termQueryItem : termQueryItems) {
+		for (TermQueryItem termQueryItem : termQueryItems)
 			if (termQueryItem.parent == null)
 				booleanQuery.add(termQueryItem.getQuery(null, occur), occur);
-		}
 		return booleanQuery;
 	}
 
