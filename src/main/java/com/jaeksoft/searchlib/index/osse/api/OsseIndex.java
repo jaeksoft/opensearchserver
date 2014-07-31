@@ -84,7 +84,7 @@ public class OsseIndex {
 		if (StringUtils.isEmpty(hFieldName))
 			error.throwError();
 		return new FieldInfo(hFieldName, ui32MsFieldId, fieldType.getValue(),
-				fieldType.getValue());
+				fieldFlags.getValue());
 	}
 
 	public Map<String, FieldInfo> getListOfFields(OsseErrorHandler error)
@@ -185,6 +185,7 @@ public class OsseIndex {
 					Integer.toString(id), " - type: ", Integer.toString(type),
 					" - flags: ", Integer.toString(flags));
 		}
+
 	}
 
 	public long getPointer() {

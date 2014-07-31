@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,8 +45,8 @@ import com.jaeksoft.searchlib.index.osse.memory.DocumentRecord;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
 import com.jaeksoft.searchlib.index.osse.memory.OsseFastStringArray;
 import com.jaeksoft.searchlib.index.osse.memory.OssePointerArray;
+import com.jaeksoft.searchlib.index.osse.memory.OsseUint32Array;
 import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -137,33 +137,6 @@ public class OsseTransaction implements Closeable {
 		return fieldId.getValue();
 	}
 
-	public void createField(SchemaField schemaField) throws SearchLibException {
-		int flag = 0;
-		switch (schemaField.getTermVector()) {
-		case YES:
-			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1;
-			break;
-		case POSITIONS_OFFSETS:
-			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_VSM1
-					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_OFFSET
-					| OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_POSITION;
-			break;
-		default:
-			break;
-		}
-		switch (schemaField.getStored()) {
-		case YES:
-			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED;
-			break;
-		case COMPRESS:
-			flag |= OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDFLAGS_STORED_COMPRESSED;
-			break;
-		default:
-			break;
-		}
-		createField(schemaField.getName(), flag);
-	}
-
 	final public void deleteField(FieldInfo field) throws SearchLibException {
 		OssePointerArray ossePointerArray = null;
 		try {
@@ -221,6 +194,7 @@ public class OsseTransaction implements Closeable {
 	final public void updateTerms(final int documentId, final FieldInfo field,
 			final CompiledAnalyzer compiledAnalyzer, final String value)
 			throws IOException, SearchLibException {
+		termBuffer.reset();
 		StringReader stringReader = null;
 		OsseTokenTermUpdate ottu = null;
 		try {
@@ -231,30 +205,61 @@ public class OsseTransaction implements Closeable {
 			while (ottu.incrementToken())
 				;
 			ottu.close();
+			updateTerms(documentId, field);
 		} finally {
 			IOUtils.close(stringReader, ottu);
 		}
 	}
 
-	final public void updateTerms(final int documentId,
+	final private void updateTerms(FieldInfo fieldInfo, int documentId,
+			OsseFastStringArray ofsa, int termCount) throws SearchLibException {
+		final ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
+		int res = OsseIndex.LIB.OSSCLib_MsTransact_Document_AddStringTerms(
+				fieldPointerMap.get(fieldInfo.name), documentId,
+				Memory.nativeValue(ofsa), termCount, err.getPointer());
+		et.end();
+		if (res != termCount)
+			err.throwError();
+	}
+
+	final private void updateTerms(FieldInfo fieldInfo, int documentId,
+			OsseFastStringArray ofsa, OsseUint32Array offsets,
+			OsseUint32Array positionIncrements, int termCount)
+			throws SearchLibException {
+		final ExecutionToken et = FunctionTimer
+				.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms_Offsets32");
+		boolean res = OsseIndex.LIB
+				.OSSCLib_MsTransact_Document_AddStringTerms_Offsets32(
+						fieldPointerMap.get(fieldInfo.name), documentId,
+						termCount, Memory.nativeValue(ofsa),
+						Memory.nativeValue(offsets),
+						Memory.nativeValue(positionIncrements),
+						err.getPointer());
+		et.end();
+		if (!res)
+			err.throwError();
+	}
+
+	final private void updateTerms(final int documentId,
 			final FieldInfo fieldInfo) throws SearchLibException {
 		OsseFastStringArray ofsa = null;
+		OsseUint32Array offsets = null;
+		OsseUint32Array positionIncrements = null;
 		try {
 			final int termCount = termBuffer.getTermCount();
 			ofsa = new OsseFastStringArray(memoryBuffer, termBuffer);
-			final ExecutionToken et = FunctionTimer
-					.newExecutionToken("OSSCLib_MsTransact_Document_AddStringTerms");
-			final int res = OsseIndex.LIB
-					.OSSCLib_MsTransact_Document_AddStringTerms(
-							fieldPointerMap.get(fieldInfo.name), documentId,
-							Memory.nativeValue(ofsa), termCount,
-							err.getPointer());
-			et.end();
-			if (res != termCount)
-				err.throwError();
+			if (termBuffer.hasOffsetOrPosIncr()) {
+				offsets = new OsseUint32Array(memoryBuffer,
+						termBuffer.getOffsets());
+				positionIncrements = new OsseUint32Array(memoryBuffer,
+						termBuffer.getPositionIncrements());
+				updateTerms(fieldInfo, documentId, ofsa, offsets,
+						positionIncrements, termCount);
+			} else
+				updateTerms(fieldInfo, documentId, ofsa, termCount);
 		} finally {
-			if (ofsa != null)
-				ofsa.close();
+			IOUtils.close(ofsa, offsets, positionIncrements);
 		}
 	}
 
