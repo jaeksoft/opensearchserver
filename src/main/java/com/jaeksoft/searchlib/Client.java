@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
@@ -301,17 +302,25 @@ public class Client extends Config {
 		return deleteCount;
 	}
 
+	private void checkField(String field) throws SearchLibException {
+		if (StringUtils.isEmpty(field))
+			throw new SearchLibException("No field has been given.");
+		if (getSchema().getField(field) == null)
+			throw new SearchLibException("The field " + field
+					+ " does not exist.");
+	}
+
 	public int deleteDocuments(String field, Collection<String> values)
 			throws SearchLibException, IOException {
+		checkField(field);
 		return deleteDocuments(new DocumentsRequest(this, field, values, false));
 	}
 
 	public int deleteDocument(String field, String value)
 			throws SearchLibException, IOException {
-		DocumentsRequest request = new DocumentsRequest(this, field, null,
-				false);
-		request.getValues().add(value);
-		return deleteDocuments(request);
+		List<String> values = new ArrayList<String>(1);
+		values.add(value);
+		return deleteDocuments(field, values);
 	}
 
 	public int deleteDocuments(AbstractRequest request)
