@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.w3c.dom.Node;
@@ -300,17 +301,25 @@ public class Client extends Config {
 		return deleteCount;
 	}
 
+	private void checkField(String field) throws SearchLibException {
+		if (StringUtils.isEmpty(field))
+			throw new SearchLibException("No field has been given.");
+		if (getSchema().getField(field) == null)
+			throw new SearchLibException("The field " + field
+					+ " does not exist.");
+	}
+
 	public int deleteDocuments(String field, Collection<String> values)
 			throws SearchLibException {
+		checkField(field);
 		return deleteDocuments(new DocumentsRequest(this, field, values, false));
 	}
 
 	public int deleteDocument(String field, String value)
 			throws SearchLibException {
-		DocumentsRequest request = new DocumentsRequest(this, field, null,
-				false);
-		request.getValues().add(value);
-		return deleteDocuments(request);
+		List<String> values = new ArrayList<String>(1);
+		values.add(value);
+		return deleteDocuments(field, values);
 	}
 
 	public int deleteDocuments(AbstractRequest request)
