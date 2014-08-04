@@ -39,6 +39,8 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -54,8 +56,12 @@ public class DeleteServlet extends AbstractServlet {
 			throws NoSuchAlgorithmException, IOException, URISyntaxException,
 			SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		return client.deleteDocument(field, value);
-
+		SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
+		SchemaField schemaField = field != null ? schemaFieldList.get(field)
+				: schemaFieldList.getUniqueField();
+		if (schemaField == null)
+			throw new SearchLibException("Field not found: " + field);
+		return client.deleteDocument(schemaField.getName(), value);
 	}
 
 	private long deleteByQuery(Client client, String q)
