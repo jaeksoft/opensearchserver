@@ -150,7 +150,7 @@ public class Logging {
 	}
 
 	public final static void error(Throwable e) {
-		if (noLogger(System.out, e.getMessage(), e))
+		if (noLogger(System.err, e.getMessage(), e))
 			return;
 		logger.error(e.getMessage(), e);
 	}
