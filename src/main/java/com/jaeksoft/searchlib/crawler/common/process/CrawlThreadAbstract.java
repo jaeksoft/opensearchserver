@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.common.process;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.process.ThreadItem;
@@ -90,6 +91,7 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 	public void release() {
 		Exception e = getException();
 		if (e != null) {
+			Logging.error(e.getMessage(), e);
 			setStatus(CrawlStatus.ERROR);
 			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
 		} else {
