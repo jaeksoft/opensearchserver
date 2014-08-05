@@ -118,7 +118,6 @@ public abstract class HttpAbstract {
 		builder.setDefaultAuthSchemeRegistry(authSchemeRegistry);
 
 		httpClient = builder.build();
-
 	}
 
 	protected void reset() {
@@ -162,7 +161,8 @@ public abstract class HttpAbstract {
 		// Cookies uses browser compatibility
 		RequestConfig.Builder configBuilber = RequestConfig.custom()
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
-				.setStaleConnectionCheckEnabled(true);
+				.setStaleConnectionCheckEnabled(true)
+				.setCircularRedirectsAllowed(true);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
@@ -194,14 +194,32 @@ public abstract class HttpAbstract {
 				return null;
 			try {
 				if (!redirectStrategy.isRedirected(httpBaseRequest,
-						httpResponse, httpClientContext))
-					return null;
+						httpResponse, httpClientContext)) {
+					Object redirects = httpClientContext
+							.getAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+					if (redirects == null)
+						return null;
+					if (redirects instanceof List<?>) {
+						List<?> redirectCollection = (List<?>) redirects;
+						if (CollectionUtils.isEmpty(redirectCollection))
+							return null;
+						redirects = redirectCollection.get(redirectCollection
+								.size() - 1);
+					}
+					if (redirects instanceof URI)
+						return ((URI) redirects);
+					else
+						return new URI(redirects.toString());
+				}
 				HttpUriRequest httpUri = redirectStrategy.getRedirect(
 						httpBaseRequest, httpResponse, httpClientContext);
 				if (httpUri == null)
 					return null;
 				return httpUri.getURI();
 			} catch (ProtocolException e) {
+				Logging.error(e);
+				return null;
+			} catch (URISyntaxException e) {
 				Logging.error(e);
 				return null;
 			}
@@ -299,7 +317,7 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	public final static void main(String[] argv) {
+	public static void main(String[] argv) throws IOException {
 		for (ThreadSafeDateFormat dateFormat : httpDatesFormats) {
 			try {
 				System.out.println(dateFormat.parse(
