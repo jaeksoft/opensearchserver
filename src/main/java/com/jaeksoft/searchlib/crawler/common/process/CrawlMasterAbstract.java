@@ -170,6 +170,7 @@ public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T
 	public void release() {
 		Exception e = getException();
 		if (e != null) {
+			Logging.error(e.getMessage(), e);
 			setStatus(CrawlStatus.ERROR);
 			setInfo(e.getMessage() == null ? e.toString() : e.getMessage());
 		} else {
