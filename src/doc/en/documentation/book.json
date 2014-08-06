@@ -3,7 +3,7 @@
 	"links": {
         "home": "http://www.opensearchserver.com/"
     },
-    "plugins": ["disqus", "ga", "piwik", "toc" , "toggle-chapters"],
+    "plugins": ["disqus", "ga", "piwik"],
     "pluginsConfig": {
         "disqus": {
             "shortName": "opensearchserver"
