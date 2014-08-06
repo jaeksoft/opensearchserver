@@ -58,22 +58,22 @@ The search field query either in JSON or XML format.
             "searchFields": [
                 {
                     "field": "title",
-                    "phrase": true,
+                    "mode": "TERM_AND_PHRASE",
                     "boost": 10
                 },
                 {
                     "field": "content",
-                    "phrase": true,
+                    "mode": "TERM_AND_PHRASE",
                     "boost": 1
                 },
                 {
                     "field": "titleExact",
-                    "phrase": true,
+                    "mode": "TERM_AND_PHRASE",
                     "boost": 10
                 },
                 {
                     "field": "contentExact",
-                    "phrase": true,
+                    "mode": "TERM_AND_PHRASE",
                     "boost": 1
                 }
             ]
