@@ -92,12 +92,13 @@
 		</listbox>
 	</vlayout>
 
-	<window title="@load(query.abstractRequest.nameType)"
-		visible="@load(query.editing)" border="normal">
+	<window visible="@load(query.editing)" border="normal">
 		<caption>
-			<button label="Cancel" onClick="@command('onCancel')" />
-			<space width="10px" />
-			<button label="Save" onClick="@command('onSave')" />
+			<hbox align="center">
+				<label value="@load(query.abstractRequest.nameType)" />
+				<button label="Cancel" onClick="@command('onCancel')" />
+				<button label="Save" onClick="@command('onSave')" />
+			</hbox>
 		</caption>
 		<include src="WEB-INF/zul/query/requestSearchPattern.zul"
 			visible="@load(query.editingSearchPattern)" />
