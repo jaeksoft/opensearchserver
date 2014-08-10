@@ -93,7 +93,8 @@
 	</vlayout>
 
 	<groupbox visible="@load(query.editing)" mold="3d">
-		<caption label="@load(query.abstractRequest.nameType)">
+		<caption>
+			<label value="@load(query.abstractRequest.nameType)" />
 			<space />
 			<button label="Cancel" onClick="@command('onCancel')" />
 			<button label="Save" onClick="@command('onSave')" />
@@ -112,7 +113,6 @@
 		<include src="WEB-INF/zul/query/requestDocuments.zul"
 			visible="@load(query.editingDocuments)" />
 		<vbox width="100%" align="center">
-			<separator />
 			<button label="Search" onClick="@command('onSearch')" />
 		</vbox>
 		<separator />
