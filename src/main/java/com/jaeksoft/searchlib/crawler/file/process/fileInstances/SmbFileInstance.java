@@ -57,8 +57,11 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		SecurityInterface {
 
 	static {
-		System.setProperty("java.protocol.handler.pkgs", "jcifs");
-		System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
+		if (StringUtils.isEmpty(System
+				.getProperty("java.protocol.handler.pkgs")))
+			System.setProperty("java.protocol.handler.pkgs", "jcifs");
+		if (StringUtils.isEmpty("jicfs.resolveOrder"))
+			System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
 	}
 
 	private SmbFile smbFileStore;
