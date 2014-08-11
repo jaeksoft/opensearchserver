@@ -131,7 +131,8 @@ public class HocrDocument {
 				}
 			}
 		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new SearchLibException("Unable to read ocr file: "
+					+ ocrFile.getAbsolutePath(), e);
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
