@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.ExecuteUtils.ExecutionException;
 import com.jaeksoft.searchlib.util.GhostScript;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
@@ -197,6 +198,9 @@ public class PdfParser extends Parser {
 			while ((line = bufferedReader.readLine()) != null)
 				characterCount += addLine(result, line);
 			return characterCount;
+		} catch (ExecutionException e) {
+			Logging.warn("Ghostscript returned: " + e.getReturnedText());
+			throw e;
 		} finally {
 			IOUtils.close(bufferedReader, fileReader);
 			if (textFile != null)
@@ -260,8 +264,11 @@ public class PdfParser extends Parser {
 			SearchLibException {
 		File hocrFile = null;
 		try {
-			hocrFile = File.createTempFile("ossocr", ".html");
+			hocrFile = File.createTempFile("ossocr",
+					"." + ocr.getHocrFileExtension());
 			ocr.ocerizeImage(image, hocrFile, lang, true);
+			if (hocrFile.length() == 0)
+				return null;
 			return new HocrDocument(hocrFile);
 		} finally {
 			if (hocrFile != null)
@@ -273,8 +280,11 @@ public class PdfParser extends Parser {
 			throws IOException, InterruptedException, SearchLibException {
 		File hocrFile = null;
 		try {
-			hocrFile = File.createTempFile("ossocr", ".html");
+			hocrFile = File.createTempFile("ossocr",
+					"." + ocr.getHocrFileExtension());
 			ocr.ocerize(imageFile, hocrFile, lang, true);
+			if (hocrFile.length() == 0)
+				return null;
 			return new HocrDocument(hocrFile);
 		} finally {
 			if (hocrFile != null)

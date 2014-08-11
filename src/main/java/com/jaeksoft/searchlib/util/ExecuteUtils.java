@@ -96,7 +96,8 @@ public class ExecuteUtils {
 		synchronized (process) {
 			process.wait(secTimeOut * 1000);
 		}
-		IOUtils.copy(process.getInputStream(), returnedText, "UTF-8", true);
+		returnedText = IOUtils.copy(process.getInputStream(), returnedText,
+				"UTF-8", true);
 		int exitValue = process.exitValue();
 		if (expectedExitValues != null) {
 			boolean found = false;

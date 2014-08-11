@@ -22,12 +22,12 @@
 			<image src="images/oss_logo_48.png" />
 			<label style="font-size: 1.2em"
 				value="@load(index.version)" />
-			<space width="60px" />
+			<space width="50px" />
 			<toolbarbutton target="_blank" label="Documentation"
-				href="http://www.open-search-server.com/documentation" />
+				href="http://www.opensearchserver.com/documentation" />
 			<toolbarbutton target="_blank" label="Support"
-				href="http://www.open-search-server.com/support" />
-			<space width="60px" />
+				href="http://www.opensearchserver.com/#support" />
+			<space width="50px" />
 			<label visible="@load(index.logged)" value="Connected as: " />
 			<label visible="@load(index.logged)"
 				value="@load(index.loggedUser.name)" />

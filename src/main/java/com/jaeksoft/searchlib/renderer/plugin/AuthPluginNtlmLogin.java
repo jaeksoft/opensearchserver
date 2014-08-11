@@ -99,8 +99,6 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
-			for (ADGroup group : groups)
-				Logging.warn("GROUP FOUND: " + group.cn);
 			return new User(userId, username, password,
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, username));

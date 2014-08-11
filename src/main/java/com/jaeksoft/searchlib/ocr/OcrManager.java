@@ -57,11 +57,15 @@ public class OcrManager implements Closeable {
 
 	private final static String OCR_PROPERTY_TESSERACT_PATH = "tesseractPath";
 
+	private final static String OCR_PROPERTY_HOCR_FILE_EXTENSION = "hocrFileExt";
+
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	private boolean enabled = false;
 
 	private String tesseractPath = null;
+
+	private String hocrFileExtension = "hocr";
 
 	private TesseractLanguageEnum defaultLanguage;
 
@@ -77,6 +81,8 @@ public class OcrManager implements Closeable {
 				OCR_PROPERTY_DEFAULT_LANGUAGE,
 				TesseractLanguageEnum.None.name()));
 		tesseractPath = properties.getProperty(OCR_PROPERTY_TESSERACT_PATH);
+		hocrFileExtension = properties.getProperty(
+				OCR_PROPERTY_HOCR_FILE_EXTENSION, "hocr");
 		setEnabled(enabled);
 	}
 
@@ -118,6 +124,9 @@ public class OcrManager implements Closeable {
 		if (defaultLanguage != null)
 			properties.setProperty(OCR_PROPERTY_DEFAULT_LANGUAGE,
 					defaultLanguage.name());
+		if (hocrFileExtension != null)
+			properties.setProperty(OCR_PROPERTY_HOCR_FILE_EXTENSION,
+					hocrFileExtension);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
@@ -188,8 +197,8 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	private final static Pattern tesseractCheckPattern = Pattern
-			.compile("Usage:.*tesseract.* imagename outputbase");
+	private final static Pattern tesseractCheckPattern = Pattern.compile(
+			"Usage:.*tesseract.* imagename.* outputbase", Pattern.DOTALL);
 
 	public void checkTesseract() throws SearchLibException {
 		rwl.r.lock();
@@ -220,15 +229,15 @@ public class OcrManager implements Closeable {
 			throws SearchLibException {
 		String outputPath = outputFile.getAbsolutePath();
 		if (hocr) {
-			if (!outputPath.endsWith(".html"))
+			if (!outputPath.endsWith(".html") && !outputPath.endsWith(".hocr"))
 				throw new SearchLibException(
-						"Output file must ends with .txt OR .html ("
+						"Output file must ends with .txt, .html or .hocr ("
 								+ outputPath + ")");
 			outputPath = outputPath.substring(0, outputPath.length() - 5);
 		} else {
 			if (!outputPath.endsWith(".txt"))
 				throw new SearchLibException(
-						"Output file must ends with .txt OR .html ("
+						"Output file must ends with .txt, .html or .hocr ("
 								+ outputPath + ")");
 			outputPath = outputPath.substring(0, outputPath.length() - 4);
 		}
@@ -310,6 +319,31 @@ public class OcrManager implements Closeable {
 		try {
 			this.defaultLanguage = defaultLanguage;
 			save();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * @return the hocrFileExtension
+	 */
+	public String getHocrFileExtension() {
+		rwl.r.lock();
+		try {
+			return hocrFileExtension;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param hocrFileExtension
+	 *            the hocrFileExtension to set
+	 */
+	public void setHocrFileExtension(String hocrFileExtension) {
+		rwl.w.lock();
+		try {
+			this.hocrFileExtension = hocrFileExtension;
 		} finally {
 			rwl.w.unlock();
 		}
