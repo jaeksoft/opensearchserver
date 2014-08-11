@@ -49,8 +49,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.CryptographyException;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -294,10 +292,9 @@ public class ViewerController extends CommonController {
 			List<Rectangle> boxList) {
 		if (hocrPdf == null || keywords == null)
 			return;
-		float zoomFactor = zoom / 100;
 		HocrPage page = hocrPdf.getPage(this.page - 1);
-		float xFactor = (pageWidth / page.getPageWidth()) * zoomFactor;
-		float yFactor = (pageHeight / page.getPageHeight()) * zoomFactor;
+		float xFactor = pageWidth / page.getPageWidth();
+		float yFactor = pageHeight / page.getPageHeight();
 		if (page != null)
 			for (String keyword : keywords)
 				page.addBoxes(keyword, boxList, xFactor, yFactor);
@@ -347,7 +344,7 @@ public class ViewerController extends CommonController {
 					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
 					zoom / 100);
 			checkHocrHighlight(pageWidth, pageHeight, boxList);
-			ImageUtils.yellowHighlight(currentImage, boxList);
+			ImageUtils.yellowHighlight(currentImage, boxList, 0.1F);
 			numberOfPages = pdf.getNumberOfPages();
 		} finally {
 			if (pdf != null)
@@ -403,13 +400,11 @@ public class ViewerController extends CommonController {
 			if (isEncrypted)
 				document.decrypt("");
 			loadGS(isEncrypted ? "" : null);
-			PDPage pdPage = (PDPage) document.getDocumentCatalog()
-					.getAllPages().get(page - 1);
-			PDRectangle pdRect = pdPage.getArtBox();
 			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
 			checkPdfBoxHighlight(document, boxList);
-			checkHocrHighlight(pdRect.getWidth(), pdRect.getHeight(), boxList);
-			ImageUtils.yellowHighlight(currentImage, boxList);
+			checkHocrHighlight(currentImage.getWidth(),
+					currentImage.getHeight(), boxList);
+			ImageUtils.yellowHighlight(currentImage, boxList, 0.1F);
 			numberOfPages = document.getNumberOfPages();
 		} finally {
 			if (document != null)
