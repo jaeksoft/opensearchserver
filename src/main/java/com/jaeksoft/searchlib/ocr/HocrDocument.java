@@ -40,6 +40,7 @@ import org.json.simple.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserResultItem;
@@ -131,8 +132,9 @@ public class HocrDocument {
 				}
 			}
 		} catch (IOException e) {
-			throw new SearchLibException("Unable to read ocr file: "
-					+ ocrFile.getAbsolutePath(), e);
+			Logging.error("Unable to read ocr file: " + ocrFile == null ? ""
+					: ocrFile.getAbsolutePath() + " " + ocrFile.length());
+			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
 		} catch (SAXException e) {
