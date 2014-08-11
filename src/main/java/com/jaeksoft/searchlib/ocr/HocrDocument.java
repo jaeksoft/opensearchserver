@@ -64,8 +64,7 @@ public class HocrDocument {
 		for (HtmlNodeAbstract<?> xwordNode : parentNode.getNodes("span")) {
 			if (!"ocrx_word".equals(xwordNode.getAttributeText("class")))
 				continue;
-			String word_bbox = parentNode.getAttributeText("title")
-					.substring(5);
+			String word_bbox = xwordNode.getAttributeText("title").substring(5);
 			String word = xwordNode.getText();
 			if (word == null)
 				continue;
