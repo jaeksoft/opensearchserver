@@ -188,8 +188,8 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	private final static Pattern tesseractCheckPattern = Pattern
-			.compile("Usage:.*tesseract.* imagename.* outputbase");
+	private final static Pattern tesseractCheckPattern = Pattern.compile(
+			"Usage:.*tesseract.* imagename.* outputbase", Pattern.DOTALL);
 
 	public void checkTesseract() throws SearchLibException {
 		rwl.r.lock();
