@@ -1230,7 +1230,7 @@ public class Renderer implements Comparable<Renderer> {
 			throw new NoUserException("No user found");
 
 		Logging.warn("USER authenticated: " + user.userId + " - "
-				+ user.username);
+				+ user.username + " " + user.usernames);
 		Logging.warn("Member of: " + user.groups);
 
 		session.setAttribute(RENDERER_SESSION_USER, user);
