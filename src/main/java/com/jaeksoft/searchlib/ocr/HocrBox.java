@@ -39,7 +39,10 @@ public class HocrBox {
 	final private int y1;
 
 	public HocrBox(String bbox) throws SearchLibException {
-		int i = 0;
+		int i = bbox.indexOf(';');
+		if (i != -1)
+			bbox = bbox.substring(0, i);
+		i = 0;
 		String[] array = StringUtils.split(bbox);
 		switch (array.length) {
 		case 5:
@@ -79,5 +82,9 @@ public class HocrBox {
 		int h = (int) ((y1 - y0) * yFactor);
 		Rectangle r = new Rectangle(x, y, w, h);
 		boxList.add(r);
+	}
+
+	public final static void main(String[] args) throws SearchLibException {
+		System.out.println(new HocrBox("343 129 548 152; baseline 0 -5"));
 	}
 }
