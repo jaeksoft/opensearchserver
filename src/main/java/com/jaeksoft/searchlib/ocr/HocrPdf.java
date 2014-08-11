@@ -80,6 +80,8 @@ public class HocrPdf {
 		}
 
 		public void addImage(HocrDocument hocrDocument) {
+			if (hocrDocument == null)
+				return;
 			imageList.add(hocrDocument);
 		}
 
