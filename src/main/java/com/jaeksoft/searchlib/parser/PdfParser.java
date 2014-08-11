@@ -264,7 +264,8 @@ public class PdfParser extends Parser {
 			SearchLibException {
 		File hocrFile = null;
 		try {
-			hocrFile = File.createTempFile("ossocr", ".html");
+			hocrFile = File.createTempFile("ossocr",
+					"." + ocr.getHocrFileExtension());
 			ocr.ocerizeImage(image, hocrFile, lang, true);
 			if (hocrFile.length() == 0)
 				return null;
@@ -279,7 +280,8 @@ public class PdfParser extends Parser {
 			throws IOException, InterruptedException, SearchLibException {
 		File hocrFile = null;
 		try {
-			hocrFile = File.createTempFile("ossocr", ".html");
+			hocrFile = File.createTempFile("ossocr",
+					"." + ocr.getHocrFileExtension());
 			ocr.ocerize(imageFile, hocrFile, lang, true);
 			if (hocrFile.length() == 0)
 				return null;
