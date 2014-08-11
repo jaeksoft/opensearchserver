@@ -262,6 +262,8 @@ public class PdfParser extends Parser {
 		try {
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerizeImage(image, hocrFile, lang, true);
+			if (hocrFile.length() == 0)
+				return null;
 			return new HocrDocument(hocrFile);
 		} finally {
 			if (hocrFile != null)
@@ -275,6 +277,8 @@ public class PdfParser extends Parser {
 		try {
 			hocrFile = File.createTempFile("ossocr", ".html");
 			ocr.ocerize(imageFile, hocrFile, lang, true);
+			if (hocrFile.length() == 0)
+				return null;
 			return new HocrDocument(hocrFile);
 		} finally {
 			if (hocrFile != null)
