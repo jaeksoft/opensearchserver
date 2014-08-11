@@ -334,7 +334,7 @@ public class WebDriverCommands {
 					for (WebElement element : elementSet) {
 						Rectangle box = browserDriver.getRectangle(element);
 						boxes.add(box);
-						ImageUtils.yellowHighlight(image, boxes);
+						ImageUtils.yellowHighlight(image, boxes, 1.0F);
 						String area = HTML_AREA.replace(SUBST_COORD,
 								ImageUtils.rectToCoordString(box, ','))
 								.replace(SUBST_ALT, "#" + (i++));
