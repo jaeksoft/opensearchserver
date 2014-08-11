@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.ocr.HocrPdf.HocrPage;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.ExecuteUtils.ExecutionException;
 import com.jaeksoft.searchlib.util.GhostScript;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
@@ -197,6 +198,9 @@ public class PdfParser extends Parser {
 			while ((line = bufferedReader.readLine()) != null)
 				characterCount += addLine(result, line);
 			return characterCount;
+		} catch (ExecutionException e) {
+			Logging.warn("Ghostscript returned: " + e.getReturnedText());
+			throw e;
 		} finally {
 			IOUtils.close(bufferedReader, fileReader);
 			if (textFile != null)
