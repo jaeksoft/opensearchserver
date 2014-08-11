@@ -27,18 +27,14 @@ package com.jaeksoft.searchlib.ocr;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -131,13 +127,9 @@ public class HocrDocument {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Logging.error("Unable to read ocr file: " + ocrFile == null ? ""
 					: ocrFile.getAbsolutePath() + " " + ocrFile.length());
-			throw new SearchLibException(e);
-		} catch (ParserConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
 			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(fis);
