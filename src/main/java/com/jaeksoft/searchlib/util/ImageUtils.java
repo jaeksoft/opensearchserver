@@ -146,7 +146,7 @@ public class ImageUtils {
 	}
 
 	public static final void yellowHighlight(Image image,
-			Collection<Rectangle> boxes) {
+			Collection<Rectangle> boxes, float outsetFactor) {
 		if (CollectionUtils.isEmpty(boxes))
 			return;
 		Graphics2D g2d = (Graphics2D) image.getGraphics();
@@ -155,8 +155,14 @@ public class ImageUtils {
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 				0.3f);
 		g2d.setComposite(ac);
-		for (Rectangle box : boxes)
+		for (Rectangle box : boxes) {
+			if (outsetFactor != 1.0F) {
+				box = new Rectangle(box);
+				box.grow((int) (box.getHeight() * outsetFactor),
+						(int) (box.getWidth() * outsetFactor));
+			}
 			g2d.fill(box);
+		}
 		g2d.setComposite(originalComposite);
 	}
 
