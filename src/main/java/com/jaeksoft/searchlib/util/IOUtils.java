@@ -91,23 +91,21 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 		}
 	}
 
-	public static final int copy(InputStream inputStream, StringBuilder sb,
-			String charsetName, boolean bCloseInputStream) throws IOException {
+	public static final StringBuilder copy(InputStream inputStream,
+			StringBuilder sb, String charsetName, boolean bCloseInputStream)
+			throws IOException {
 		if (inputStream == null)
-			return 0;
+			return sb;
 		if (sb == null)
 			sb = new StringBuilder();
 		Charset charset = Charset.forName(charsetName);
 		byte[] buffer = new byte[16384];
-		int totalLength = 0;
 		int length;
-		while ((length = inputStream.read(buffer)) != -1) {
+		while ((length = inputStream.read(buffer)) != -1)
 			sb.append(new String(buffer, 0, length, charset));
-			totalLength += length;
-		}
 		if (bCloseInputStream)
 			inputStream.close();
-		return totalLength;
+		return sb;
 	}
 
 }

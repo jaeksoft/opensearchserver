@@ -197,7 +197,8 @@ public class IcePdfParser extends Parser {
 				image = ImageUtils.toBufferedImage(image);
 				image = ImageUtils.rotate((BufferedImage) image, rotation);
 			}
-			hocrFile = File.createTempFile("ossocr", ".html");
+			hocrFile = File.createTempFile("ossocr",
+					"." + ocr.getHocrFileExtension());
 			ocr.ocerizeImage(image, hocrFile, lang, true);
 			return new HocrDocument(hocrFile);
 		} finally {
