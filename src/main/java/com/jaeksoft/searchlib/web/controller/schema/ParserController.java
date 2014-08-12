@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -533,6 +533,21 @@ public class ParserController extends CommonController {
 		getClient().saveParsers();
 	}
 
+	public String getWebFailOverParser() throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return null;
+		return parserSelector.getWebCrawlerFailOverParserName();
+	}
+
+	public void setWebFailOverParser(String value) throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return;
+		parserSelector.setWebCrawlerFailOverParserName(value);
+		getClient().saveParsers();
+	}
+
 	public String getFileDefaultParser() throws SearchLibException {
 		ParserSelector parserSelector = getParserSelector();
 		if (parserSelector == null)
@@ -546,6 +561,21 @@ public class ParserController extends CommonController {
 		if (parserSelector == null)
 			return;
 		parserSelector.setFileCrawlerDefaultParserName(value);
+		getClient().saveParsers();
+	}
+
+	public String getFileFailOverParser() throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return null;
+		return parserSelector.getFileCrawlerFailOverParserName();
+	}
+
+	public void setFileFailOverParser(String value) throws SearchLibException {
+		ParserSelector parserSelector = getParserSelector();
+		if (parserSelector == null)
+			return;
+		parserSelector.setFileCrawlerFailOverParserName(value);
 		getClient().saveParsers();
 	}
 
