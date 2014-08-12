@@ -228,7 +228,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			downloadItem.checkNoErrorList(200);
 			return parserSelector.parseStream(null, downloadItem.getFileName(),
 					downloadItem.getContentBaseType(), url,
-					downloadItem.getContentInputStream(), lang, null);
+					downloadItem.getContentInputStream(), lang, null, null);
 		} catch (RuntimeException e) {
 			throw new SearchLibException(
 					"Parser error while getting binary from URL: " + url, e);
