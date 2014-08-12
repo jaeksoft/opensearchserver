@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -24,10 +24,24 @@
 						model="@load(parser.parserSet)" />
 				</panelchildren>
 			</panel>
+			<panel title="Select failover web crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.webFailOverParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
 			<panel title="Select default file crawler parser"
 				border="normal">
 				<panelchildren>
 					<combobox value="@bind(parser.fileDefaultParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
+			<panel title="Select failover file crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.fileFailOverParser)"
 						model="@load(parser.parserSet)" />
 				</panelchildren>
 			</panel>
