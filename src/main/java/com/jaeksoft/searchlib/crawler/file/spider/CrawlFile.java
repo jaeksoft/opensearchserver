@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -88,7 +88,8 @@ public class CrawlFile {
 				parser = config.getParserSelector().parseFileInstance(
 						sourceDocument, fileItem.getFileName(), null, null,
 						fileInstance, null,
-						parserSelector.getFileCrawlerDefaultParser());
+						parserSelector.getFileCrawlerDefaultParser(),
+						parserSelector.getFileCrawlerFailOverParser());
 
 				if (parser == null)
 					fileItem.setParserStatus(ParserStatus.NOPARSER);
