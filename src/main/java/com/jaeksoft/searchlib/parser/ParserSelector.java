@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -65,8 +65,12 @@ public class ParserSelector {
 
 	private String fileCrawlerDefaultParserName;
 	private String webCrawlerDefaultParserName;
+	private String fileCrawlerFailOverParserName;
+	private String webCrawlerFailOverParserName;
 	private ParserFactory fileCrawlerDefaultParserFactory;
+	private ParserFactory fileCrawlerFailOverParserFactory;
 	private ParserFactory webCrawlerDefaultParserFactory;
+	private ParserFactory webCrawlerFailOverParserFactory;
 	private Map<String, ParserFactory> parserFactoryMap;
 	private ParserFactory[] parserFactoryArray;
 	private Map<String, Set<ParserFactory>> mimeTypeParserMap;
@@ -78,6 +82,8 @@ public class ParserSelector {
 		fileCrawlerDefaultParserName = null;
 		webCrawlerDefaultParserName = null;
 		fileCrawlerDefaultParserFactory = null;
+		webCrawlerFailOverParserFactory = null;
+		fileCrawlerFailOverParserFactory = null;
 		webCrawlerDefaultParserFactory = null;
 		parserTypeEnum = null;
 		mimeTypeParserMap = new TreeMap<String, Set<ParserFactory>>();
@@ -131,6 +137,26 @@ public class ParserSelector {
 		}
 	}
 
+	public void setFileCrawlerFailOverParserName(String parserName)
+			throws SearchLibException {
+		rwl.w.lock();
+		try {
+			fileCrawlerFailOverParserName = parserName;
+			rebuildParserMap();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getFileCrawlerFailOverParserName() {
+		rwl.r.lock();
+		try {
+			return fileCrawlerFailOverParserName;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public Parser getFileCrawlerDefaultParser() throws SearchLibException,
 			ClassNotFoundException {
 		rwl.r.lock();
@@ -139,6 +165,19 @@ public class ParserSelector {
 				return null;
 			return (Parser) ParserFactory
 					.create(fileCrawlerDefaultParserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public Parser getFileCrawlerFailOverParser() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
+		rwl.r.lock();
+		try {
+			if (fileCrawlerFailOverParserFactory == null)
+				return null;
+			return (Parser) ParserFactory
+					.create(fileCrawlerFailOverParserFactory);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -177,6 +216,39 @@ public class ParserSelector {
 		}
 	}
 
+	public void setWebCrawlerFailOverParserName(String parserName)
+			throws SearchLibException {
+		rwl.w.lock();
+		try {
+			webCrawlerFailOverParserName = parserName;
+			rebuildParserMap();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public String getWebCrawlerFailOverParserName() {
+		rwl.r.lock();
+		try {
+			return webCrawlerFailOverParserName;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public Parser getWebCrawlerFailOverParser() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SearchLibException {
+		rwl.r.lock();
+		try {
+			if (webCrawlerFailOverParserFactory == null)
+				return null;
+			return (Parser) ParserFactory
+					.create(webCrawlerFailOverParserFactory);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private void rebuildParserMap() throws SearchLibException {
 		extensionParserMap.clear();
 		mimeTypeParserMap.clear();
@@ -207,8 +279,12 @@ public class ParserSelector {
 			parserFactoryArray[i++] = parserFactory;
 		webCrawlerDefaultParserFactory = webCrawlerDefaultParserName == null ? null
 				: parserFactoryMap.get(webCrawlerDefaultParserName);
+		webCrawlerFailOverParserFactory = webCrawlerFailOverParserName == null ? null
+				: parserFactoryMap.get(webCrawlerFailOverParserName);
 		fileCrawlerDefaultParserFactory = fileCrawlerDefaultParserName == null ? null
 				: parserFactoryMap.get(fileCrawlerDefaultParserName);
+		fileCrawlerFailOverParserFactory = fileCrawlerFailOverParserName == null ? null
+				: parserFactoryMap.get(fileCrawlerFailOverParserName);
 	}
 
 	public void replaceParserFactory(ParserFactory oldParser,
@@ -337,15 +413,23 @@ public class ParserSelector {
 
 	private final static String WEB_CRAWLER_DEFAULT_ATTRIBUTE = "webCrawlerDefault";
 
+	private final static String FILE_CRAWLER_FAILOVER_ATTRIBUTE = "fileCrawlerFailOver";
+
+	private final static String WEB_CRAWLER_FAILOVER_ATTRIBUTE = "webCrawlerFailOvert";
+
 	private void fromXmlConfig(Config config, XPathParser xpp, Node parentNode)
 			throws XPathExpressionException, DOMException, IOException,
 			SearchLibException {
 
 		fileCrawlerDefaultParserName = XPathParser.getAttributeString(
 				parentNode, FILE_CRAWLER_DEFAULT_ATTRIBUTE);
+		fileCrawlerFailOverParserName = XPathParser.getAttributeString(
+				parentNode, FILE_CRAWLER_FAILOVER_ATTRIBUTE);
 
 		webCrawlerDefaultParserName = XPathParser.getAttributeString(
 				parentNode, WEB_CRAWLER_DEFAULT_ATTRIBUTE);
+		webCrawlerFailOverParserName = XPathParser.getAttributeString(
+				parentNode, WEB_CRAWLER_FAILOVER_ATTRIBUTE);
 
 		NodeList parserNodes = xpp.getNodeList(parentNode, "parser");
 		for (int i = 0; i < parserNodes.getLength(); i++) {
@@ -368,8 +452,12 @@ public class ParserSelector {
 		try {
 			xmlWriter.startElement("parsers", WEB_CRAWLER_DEFAULT_ATTRIBUTE,
 					webCrawlerDefaultParserName,
+					WEB_CRAWLER_FAILOVER_ATTRIBUTE,
+					webCrawlerFailOverParserName,
 					FILE_CRAWLER_DEFAULT_ATTRIBUTE,
-					fileCrawlerDefaultParserName);
+					fileCrawlerDefaultParserName,
+					FILE_CRAWLER_FAILOVER_ATTRIBUTE,
+					fileCrawlerFailOverParserName);
 			for (ParserFactory parser : parserFactoryMap.values())
 				parser.writeXmlConfig(xmlWriter);
 			xmlWriter.endElement();
@@ -403,8 +491,9 @@ public class ParserSelector {
 	}
 
 	private final Parser parserLoop(IndexDocument sourceDocument,
-			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser)
-			throws SearchLibException, ClassNotFoundException {
+			StreamLimiter streamLimiter, LanguageEnum lang, Parser parser,
+			Parser failOverParser) throws SearchLibException,
+			ClassNotFoundException {
 		try {
 			boolean externalParser = ClientFactory.INSTANCE.getExternalParser()
 					.getValue();
@@ -421,11 +510,16 @@ public class ParserSelector {
 					parser.doParserContent(sourceDocument, streamLimiter, lang);
 				if (parser.getError() == null)
 					return parser;
+				// Try any declared failover
 				ParserFactory parserFactory = getParserByName(parser
 						.getFailOverParserName());
-				if (parserFactory == null)
-					return parser;
-				Parser nextParser = getParser(parserFactory);
+				Parser nextParser = null;
+				if (parserFactory != null)
+					nextParser = getParser(parserFactory);
+				else { // Use the default failover if any
+					nextParser = failOverParser;
+					failOverParser = null;
+				}
 				if (nextParser == null)
 					return parser;
 				parser = nextParser;
@@ -438,14 +532,16 @@ public class ParserSelector {
 
 	public final Parser parseStream(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
-			InputStream inputStream, LanguageEnum lang, Parser defaultParser)
-			throws SearchLibException, IOException, ClassNotFoundException {
+			InputStream inputStream, LanguageEnum lang, Parser defaultParser,
+			Parser failOverParser) throws SearchLibException, IOException,
+			ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
 		if (parser == null)
 			return null;
 		StreamLimiter streamLimiter = new StreamLimiterInputStream(
 				parser.getSizeLimit(), inputStream, filename, url);
-		return parserLoop(sourceDocument, streamLimiter, lang, parser);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser,
+				failOverParser);
 	}
 
 	public final Parser parseFile(File file, LanguageEnum lang)
@@ -462,7 +558,7 @@ public class ParserSelector {
 			return null;
 		StreamLimiter streamLimiter = new StreamLimiterFile(
 				parser.getSizeLimit(), file);
-		return parserLoop(sourceDocument, streamLimiter, lang, parser);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser, null);
 	}
 
 	public final Parser parseBase64(IndexDocument sourceDocument,
@@ -474,19 +570,20 @@ public class ParserSelector {
 			return null;
 		StreamLimiter streamLimiter = new StreamLimiterBase64(base64text,
 				parser.getSizeLimit(), filename);
-		return parserLoop(sourceDocument, streamLimiter, lang, parser);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser, null);
 	}
 
 	public final Parser parseFileInstance(IndexDocument sourceDocument,
 			String filename, String contentBaseType, String url,
 			FileInstanceAbstract fileInstance, LanguageEnum lang,
-			Parser defaultParser) throws SearchLibException, IOException,
-			ClassNotFoundException {
+			Parser defaultParser, Parser failOverParser)
+			throws SearchLibException, IOException, ClassNotFoundException {
 		Parser parser = getParser(filename, contentBaseType, url, defaultParser);
 		if (parser == null)
 			return null;
 		StreamLimiter streamLimiter = new StreamLimiterFileInstance(
 				fileInstance, parser.getSizeLimit());
-		return parserLoop(sourceDocument, streamLimiter, lang, parser);
+		return parserLoop(sourceDocument, streamLimiter, lang, parser,
+				failOverParser);
 	}
 }
