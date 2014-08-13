@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
@@ -103,6 +104,14 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+
+		// Debugging
+		Enumeration<?> en = request.getHeaderNames();
+		while (en.hasMoreElements()) {
+			Object o = en.nextElement();
+			Logging.info("HEADER: " + o + ": "
+					+ request.getParameter(en.toString()));
+		}
 
 		Logging.info("HEADER X-OSS-REMOTE-USER: "
 				+ request.getHeader("X-OSS-REMOTE-USER"));
