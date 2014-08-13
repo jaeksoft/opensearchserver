@@ -35,7 +35,8 @@
 								request.setAttribute("rendererField",
 										rendererField);
 	%>
-	<div class="osscmnrdr ossfieldrdr<%=fieldPos%>">
+	<div
+		class="osscmnrdr ossfieldrdr<%=fieldPos%><%=rendererField.renderCssClass()%>">
 		<jsp:include page="<%=widget.getJspPath()%>" flush="true" />
 	</div>
 	<%
