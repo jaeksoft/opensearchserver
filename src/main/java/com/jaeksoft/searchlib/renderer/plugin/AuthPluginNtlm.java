@@ -103,7 +103,12 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+
+		Logging.info("HEADER X-OSS-REMOTE-USER: "
+				+ request.getHeader("X-OSS-REMOTE-USER"));
 		String remoteUser = request.getRemoteUser();
+		if (remoteUser == null)
+			remoteUser = request.getHeader("X-OSS-REMOTE-USER");
 		String userId = remoteUser;
 		Principal principal = request.getUserPrincipal();
 		String username = principal != null ? principal.getName() : remoteUser;
