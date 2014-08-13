@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
-import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -70,37 +67,6 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		return groups;
 	}
 
-	/*
-	 * The userId must be an SID (non-Javadoc)
-	 * 
-	 * @see
-	 * com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface#authGetGroups
-	 * (com.jaeksoft.searchlib.renderer.Renderer, java.lang.String)
-	 */
-	private String[] getGroups(Renderer renderer, String sidString)
-			throws IOException {
-		SID[] sids = null;
-		try {
-			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
-					null);
-			String authServer = renderer.getAuthServer();
-			SID sid = new SID(sidString);
-			sid.resolve(authServer, ntlmAuth);
-			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
-					SID.SID_FLAG_RESOLVE_SIDS);
-			return getGroups(sids, authServer, ntlmAuth);
-		} catch (SmbAuthException sae) {
-			Logging.warn(sae);
-			throw new AuthException("SmbAuthException : " + sae.getMessage());
-		} catch (UnknownHostException e) {
-			Logging.warn(e);
-			throw new AuthException("UnknownHostException : " + e.getMessage());
-		} catch (SmbException e) {
-			Logging.warn(e);
-			throw new AuthException("SmbException : " + e.getMessage());
-		}
-	}
-
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
@@ -116,6 +82,11 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			remoteUser = remoteUser.substring(0, i);
 		try {
 			String domain = renderer.getAuthDomain();
+
+			User user = AuthUserCache.INSTANCE.get(remoteUser, domain);
+			if (user != null)
+				return user;
+
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
 					null);
 			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
@@ -129,9 +100,14 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
-			return new User(userId, remoteUser, null,
+			user = new User(userId, remoteUser, null,
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, remoteUser));
+
+			Logging.info("USER authenticated: " + user);
+
+			AuthUserCache.INSTANCE.add(remoteUser, domain, user);
+			return user;
 		} catch (NamingException e) {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
