@@ -90,7 +90,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 					.findUser(username);
 			Attributes attrs = ActiveDirectory.getAttributes(result);
 			if (attrs == null)
-				throw new AuthException("No user found");
+				throw new AuthException("No user found: " + username);
 
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
