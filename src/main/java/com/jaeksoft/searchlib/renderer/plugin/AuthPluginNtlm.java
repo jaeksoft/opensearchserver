@@ -26,9 +26,7 @@ package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
@@ -41,6 +39,8 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
 import jcifs.smb.SmbException;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -105,25 +105,15 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
 
-		// Debugging
-		Enumeration<?> en = request.getHeaderNames();
-		while (en.hasMoreElements()) {
-			Object o = en.nextElement();
-			Logging.info("HEADER: " + o + ": "
-					+ request.getParameter(en.toString()));
-		}
-
-		Logging.info("HEADER X-OSS-REMOTE-USER: "
-				+ request.getHeader("X-OSS-REMOTE-USER"));
 		String remoteUser = request.getRemoteUser();
 		if (remoteUser == null)
 			remoteUser = request.getHeader("X-OSS-REMOTE-USER");
-		String userId = remoteUser;
-		Principal principal = request.getUserPrincipal();
-		String username = principal != null ? principal.getName() : remoteUser;
 		ActiveDirectory activeDirectory = null;
-		Logging.info("REMOTE USER: " + request.getRemoteUser());
-		Logging.info("PRINCIPAL: " + request.getUserPrincipal());
+		if (StringUtils.isEmpty(remoteUser))
+			throw new AuthException("No user");
+		int i = remoteUser.indexOf('@');
+		if (i != -1)
+			remoteUser = remoteUser.substring(0, i);
 		try {
 			String domain = renderer.getAuthDomain();
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
@@ -136,7 +126,7 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			Attributes attrs = ActiveDirectory.getAttributes(result);
 			if (attrs == null)
 				throw new AuthException("No user found: " + remoteUser);
-			userId = ActiveDirectory.getObjectSID(attrs);
+			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
 			return new User(userId, remoteUser, null,
