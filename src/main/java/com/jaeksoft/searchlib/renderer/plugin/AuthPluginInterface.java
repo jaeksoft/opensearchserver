@@ -32,11 +32,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public interface AuthPluginInterface {
 
 	public static class User {
 
+		public final long creationTime;
 		public final String userId;
 		public final String username;
 		public final String password;
@@ -45,6 +47,7 @@ public interface AuthPluginInterface {
 
 		public User(String userId, String username, String password,
 				String[] groups, Object... userNames) {
+			this.creationTime = System.currentTimeMillis();
 			this.usernames = new TreeSet<String>();
 			this.groups = new TreeSet<String>();
 			this.username = username;
@@ -86,6 +89,13 @@ public interface AuthPluginInterface {
 				sbQuery.append('"');
 			}
 			sbQuery.append(')');
+		}
+
+		@Override
+		public String toString() {
+			return StringUtils.fastConcat(userId, " - ", username, " ",
+					usernames, " groups: ",
+					groups == null ? '0' : groups.size());
 		}
 
 	}
