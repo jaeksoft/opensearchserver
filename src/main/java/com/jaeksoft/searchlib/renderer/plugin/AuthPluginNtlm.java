@@ -27,7 +27,13 @@ package com.jaeksoft.searchlib.renderer.plugin;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletRequest;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -38,6 +44,9 @@ import jcifs.smb.SmbException;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.util.ActiveDirectory;
+import com.jaeksoft.searchlib.util.ActiveDirectory.ADGroup;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
@@ -98,7 +107,31 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		String userId = remoteUser;
 		Principal principal = request.getUserPrincipal();
 		String username = principal != null ? principal.getName() : remoteUser;
-		return new User(userId, username, null, getGroups(renderer, userId),
-				remoteUser);
+		ActiveDirectory activeDirectory = null;
+		try {
+			String domain = renderer.getAuthDomain();
+			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
+					null);
+			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
+					ntlmAuth.getPassword(), ntlmAuth.getDomain());
+
+			NamingEnumeration<SearchResult> result = activeDirectory
+					.findUser(username);
+			Attributes attrs = ActiveDirectory.getAttributes(result);
+			if (attrs == null)
+				throw new AuthException("No user found");
+			userId = ActiveDirectory.getObjectSID(attrs);
+			List<ADGroup> groups = new ArrayList<ADGroup>();
+			activeDirectory.findUserGroups(attrs, groups);
+			return new User(userId, username, null,
+					ActiveDirectory.toArray(groups),
+					ActiveDirectory.getDisplayString(domain, username));
+		} catch (NamingException e) {
+			Logging.warn(e);
+			throw new AuthException("LDAP error (NamingException) : "
+					+ e.getMessage());
+		} finally {
+			IOUtils.close(activeDirectory);
+		}
 	}
 }
