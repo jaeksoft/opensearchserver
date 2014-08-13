@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,6 +23,8 @@
 			tooltiptext="Regular expression pattern" />
 		<listheader label="URL Replace"
 			tooltiptext="Regular expression replacement" />
+		<listheader label="Css Class"
+			tooltiptext="Enter any css classes" />
 		<listheader label="Widget" />
 		<listheader label="Action" align="center" width="150px" />
 	</listhead>
@@ -62,6 +64,10 @@
 				value="@bind(renderer.currentRendererField.replacement)" cols="30" />
 		</auxheader>
 		<auxheader>
+			<textbox
+				value="@bind(renderer.currentRendererField.cssClass)" cols="30" />
+		</auxheader>
+		<auxheader>
 			<listbox model="@load(renderer.widgetList)"
 				selectedItem="@bind(renderer.currentRendererField.widgetName)"
 				mold="select">
@@ -93,6 +99,7 @@
 			<listcell label="@load(rendererFieldItem.urlFieldName)" />
 			<listcell label="@load(rendererFieldItem.pattern)" />
 			<listcell label="@load(rendererFieldItem.replacement)" />
+			<listcell label="@load(rendererFieldItem.cssClass)" />
 			<listcell label="@load(rendererFieldItem.widgetName)" />
 			<listcell>
 				<button tooltiptext="Move the field up"
