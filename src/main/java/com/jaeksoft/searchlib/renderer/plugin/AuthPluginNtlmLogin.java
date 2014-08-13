@@ -78,6 +78,11 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		ActiveDirectory activeDirectory = null;
 		try {
 			String domain = renderer.getAuthDomain();
+
+			User user = AuthUserCache.INSTANCE.get(username, domain);
+			if (user != null)
+				return user;
+
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
 					username, password);
 			UniAddress dc = UniAddress
@@ -95,9 +100,14 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
-			return new User(userId, username, password,
+
+			Logging.info("USER authenticated: " + user);
+
+			user = new User(userId, username, password,
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, username));
+			AuthUserCache.INSTANCE.add(username, domain, user);
+			return user;
 
 		} catch (SmbAuthException e) {
 			Logging.warn(e);

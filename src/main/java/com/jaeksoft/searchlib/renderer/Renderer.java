@@ -42,7 +42,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.query.QueryUtils;
@@ -1228,10 +1227,6 @@ public class Renderer implements Comparable<Renderer> {
 			user = authPlugin.getUser(this, servletRequest);
 		if (user == null)
 			throw new NoUserException("No user found");
-
-		Logging.warn("USER authenticated: " + user.userId + " - "
-				+ user.username + " " + user.usernames);
-		Logging.warn("Member of: " + user.groups);
 
 		session.setAttribute(RENDERER_SESSION_USER, user);
 
