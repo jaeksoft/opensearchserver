@@ -108,6 +108,8 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		Principal principal = request.getUserPrincipal();
 		String username = principal != null ? principal.getName() : remoteUser;
 		ActiveDirectory activeDirectory = null;
+		Logging.info("REMOTE USER: " + request.getRemoteUser());
+		Logging.info("PRINCIPAL: " + request.getUserPrincipal());
 		try {
 			String domain = renderer.getAuthDomain();
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
@@ -116,16 +118,16 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 					ntlmAuth.getPassword(), ntlmAuth.getDomain());
 
 			NamingEnumeration<SearchResult> result = activeDirectory
-					.findUser(username);
+					.findUser(remoteUser);
 			Attributes attrs = ActiveDirectory.getAttributes(result);
 			if (attrs == null)
-				throw new AuthException("No user found");
+				throw new AuthException("No user found: " + remoteUser);
 			userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
-			return new User(userId, username, null,
+			return new User(userId, remoteUser, null,
 					ActiveDirectory.toArray(groups),
-					ActiveDirectory.getDisplayString(domain, username));
+					ActiveDirectory.getDisplayString(domain, remoteUser));
 		} catch (NamingException e) {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
