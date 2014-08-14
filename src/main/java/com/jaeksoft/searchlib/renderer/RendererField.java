@@ -53,6 +53,8 @@ public class RendererField {
 
 	private RendererWidgets widgetName;
 
+	private String cssClass;
+
 	private String pattern;
 
 	private String replacement;
@@ -62,6 +64,8 @@ public class RendererField {
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
 
 	private final static String RENDERER_FIELD_NODE_CSS_STYLE = "cssStyle";
+
+	private final static String RENDERER_FIELD_ATTR_CSS_CLASS = "cssClass";
 
 	private final static String RENDERER_FIELD_ATTR_URL_FIELDNAME = "urlFieldName";
 
@@ -75,6 +79,7 @@ public class RendererField {
 		fieldName = StringUtils.EMPTY;
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = StringUtils.EMPTY;
+		cssClass = StringUtils.EMPTY;
 		urlFieldName = StringUtils.EMPTY;
 		widgetName = RendererWidgets.TEXT;
 		pattern = null;
@@ -89,6 +94,8 @@ public class RendererField {
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
 		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
 				true);
+		cssClass = XPathParser.getAttributeString(node,
+				RENDERER_FIELD_ATTR_CSS_CLASS);
 		urlFieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
 		setWidgetName(RendererWidgets.find(XPathParser.getAttributeString(node,
@@ -107,6 +114,7 @@ public class RendererField {
 		target.fieldName = fieldName;
 		target.fieldType = fieldType;
 		target.oldStyle = oldStyle;
+		target.cssClass = cssClass;
 		target.urlFieldName = urlFieldName;
 		target.widgetName = widgetName;
 		target.pattern = pattern;
@@ -131,9 +139,27 @@ public class RendererField {
 	/**
 	 * @return the style
 	 */
-
 	public String getOldStyle() {
 		return oldStyle;
+	}
+
+	/**
+	 * @return the css class
+	 */
+	public String getCssClass() {
+		return cssClass;
+	}
+
+	/**
+	 * If the css class is empty, it returns an empty string. If there is
+	 * classes, returns a space char followed by the css classes
+	 * 
+	 * @return
+	 */
+	public String renderCssClass() {
+		if (StringUtils.isEmpty(cssClass))
+			return StringUtils.EMPTY;
+		return StringUtils.fastConcat(' ', cssClass);
 	}
 
 	/**
@@ -214,11 +240,16 @@ public class RendererField {
 		this.widgetName = widgetName;
 	}
 
+	public void setCssClass(String cssClass) {
+		this.cssClass = cssClass;
+	}
+
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
 				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
+				RENDERER_FIELD_ATTR_CSS_CLASS, cssClass,
 				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name(),
 				RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern,
 				RENDERER_FIELD_ATTR_REGEXP_REPLACE, replacement);
@@ -254,4 +285,5 @@ public class RendererField {
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
 	}
+
 }
