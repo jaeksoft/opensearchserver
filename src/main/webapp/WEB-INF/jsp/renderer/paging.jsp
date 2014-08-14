@@ -5,9 +5,10 @@
 				.getAttribute("paging");
 		String getUrl = (String) request.getAttribute("getUrl");
 		for (int i = paging.getLeftPage(); i <= paging.getRightPage(); i++) {
+			 boolean current =  i == paging.getCurrentPage();
 	%>
-	&nbsp;<a href="<%=getUrl.toString()%>&amp;page=<%=i%>"
-		class="osscmnrdr<%if (i == paging.getCurrentPage()) {%> oss-currentpage<%}%>"><%=i%></a>&nbsp;
+	&nbsp;<%if (current) {%><strong><%}%><a href="<%=getUrl.toString()%>&amp;page=<%=i%>"
+		class="osscmnrdr<%if (current) {%> oss-currentpage <%}%>"><%=i%></a><%if (current) {%></strong><%}%>&nbsp;
 	<%
 		}
 	%>

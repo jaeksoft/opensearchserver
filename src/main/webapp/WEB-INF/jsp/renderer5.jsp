@@ -29,7 +29,7 @@
 			<%
 				if (renderer.isAuthentication()) {
 			%>
-			<div id="oss-login" >
+			<div id="oss-login" class="pull-right">
 				<%=login%>&nbsp;-&nbsp;<a
 					href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
 			</div>
