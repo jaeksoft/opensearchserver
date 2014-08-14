@@ -1,5 +1,5 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.PagingSearchResult"%>
-<div class="osscmnrdr oss-paging">
+<div class="osscmnrdr oss-paging text-center">
 	<%
 		PagingSearchResult paging = (PagingSearchResult) request
 				.getAttribute("paging");

@@ -17,7 +17,7 @@
 <%
 	} else {
 %>
-<%=StringUtils.htmlWrap(value, 40)%>
+<span title="<%=StringEscapeUtils.escapeXml(value)%>"><%=StringUtils.urlHostPathWrapReduce(value, 80)%></span>
 <%
 	}
 %>
