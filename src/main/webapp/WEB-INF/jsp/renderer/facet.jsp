@@ -13,27 +13,34 @@
 		facetList = facetResult.getFacetList();
 	if (facetList != null && facetList.getList().size() > 0) {
 %>
-<div class="osscmnrdr oss-facet">
+
+<div class="osscmnrdr oss-facet ">
 	<%
 		for (Facet facet : facetList) {
 	%>
-	<ul style="list-style-type: none">
-		<li style="text-transform: capitalize;"><%=facet.getFacetField().getName()%></li>
-		<%
-			for (FacetItem facetItem : facet) {
-						String filterUrl = getUrl
-								+ "&amp;fq="
-								+ URLEncoder.encode(
-										facet.getFacetField().getName() + ":\""
-												+ facetItem.getTerm() + '"',
-										"UTF-8");
-		%>
-		<li><a href="<%=filterUrl%>"> <%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
-		</a></li>
-		<%
-			}
-		%>
-	</ul>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title text-capitalize"><%=facet.getFacetField().getName()%></h3>
+		</div>
+		<div class="panel-body">
+			<ul style="list-style-type: none">
+				<%
+					for (FacetItem facetItem : facet) {
+								String filterUrl = getUrl
+										+ "&amp;fq="
+										+ URLEncoder.encode(
+												facet.getFacetField().getName() + ":\""
+														+ facetItem.getTerm() + '"',
+												"UTF-8");
+				%>
+				<li><a href="<%=filterUrl%>"> <%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
+				</a></li>
+				<%
+					}
+				%>
+			</ul>
+		</div>
+	</div>
 	<%
 		}
 	%>
