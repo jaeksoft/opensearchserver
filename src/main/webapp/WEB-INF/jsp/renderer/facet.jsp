@@ -26,15 +26,16 @@
 			<ul style="list-style-type: none">
 				<%
 					for (FacetItem facetItem : facet) {
-								String filterUrl = getUrl
-										+ "&amp;fq="
-										+ URLEncoder.encode(
-												facet.getFacetField().getName() + ":\""
-														+ facetItem.getTerm() + '"',
-												"UTF-8");
+								String fq = facet.getFacetField().getName() + ":\""
+										+ facetItem.getTerm() + '"';
+								boolean current = fq.equals(request.getParameter("fq"));
+								String filterUrl = getUrl;
+								if (!current)
+									filterUrl += "&amp;fq="
+											+ URLEncoder.encode(fq, "UTF-8");
 				%>
-				<li><a href="<%=filterUrl%>"> <%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
-				</a></li>
+				<li><a href="<%=filterUrl%>"><%if (current) {%><strong><%}%><%=facetItem.getTerm()%> (<%=facetItem.getCount()%>)
+				<%if (current) {%></strong><%}%></a></li>
 				<%
 					}
 				%>

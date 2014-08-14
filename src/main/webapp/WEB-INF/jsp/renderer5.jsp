@@ -23,21 +23,25 @@
 <body>
 	<div class="container">
 		<div id="oss-wrap">
-			<div id="oss-header">
-				<%=renderer.getHeader()%>
-			</div>
-			<%
-				if (renderer.isAuthentication()) {
-			%>
-			<div id="oss-login" class="pull-right">
-				<%=login%>&nbsp;-&nbsp;<a
-					href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
-			</div>
-			<%
-				}
-			%>
 			<div class="row">
-				<div class="col-xs-2">
+				<div id="oss-header" class="col-xs-11">
+					<%
+						if (renderer.isAuthentication() || true) {
+					%>
+					<div id="oss-login" class="pull-right">
+						<br />
+						<%=login%>&nbsp;-&nbsp;<a
+							href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
+					</div>
+					<%
+						}
+					%>
+					<%=renderer.getHeader()%>
+				</div>
+				<div class="col-xs-1"></div>
+			</div>
+			<div class="row">
+				<div class="col-xs-3">
 					<div id="oss-facet">
 						<jsp:include page="renderer/facet.jsp" />
 					</div>
@@ -49,7 +53,7 @@
 						<jsp:include page="renderer/doclist.jsp" />
 					</div>
 				</div>
-				<div class="col-xs-2"></div>
+				<div class="col-xs-1"></div>
 			</div>
 			<div id="oss-footer">
 				<%=renderer.getFooter()%>
