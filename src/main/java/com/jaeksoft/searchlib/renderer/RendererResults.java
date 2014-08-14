@@ -43,13 +43,12 @@ public class RendererResults {
 		results = new HashMap<Integer, RendererResult>();
 	}
 
-	final public RendererResult addResult(Client client, String serverBaseUrl,
-			Renderer renderer, String keywords,
-			AuthPluginInterface.User loggedUser) {
+	final public RendererResult addResult(Client client, Renderer renderer,
+			String keywords, AuthPluginInterface.User loggedUser) {
 		rwl.w.lock();
 		try {
 			RendererResult rendererResult = new RendererResult(client,
-					serverBaseUrl, renderer, keywords, loggedUser);
+					renderer, keywords, loggedUser);
 			results.put(rendererResult.hashCode(), rendererResult);
 			return rendererResult;
 		} finally {

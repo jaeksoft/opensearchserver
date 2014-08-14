@@ -79,7 +79,6 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-
 			renderer = client.getRendererManager().get(
 					transaction.getParameterString("name"));
 			if (renderer == null)
@@ -119,7 +118,6 @@ public class RendererServlet extends AbstractServlet {
 									ClientCatalog.getRendererResults()
 											.addResult(
 													client,
-													serverBaseURL,
 													renderer,
 													searchRequest
 															.getQueryString(),
@@ -152,6 +150,12 @@ public class RendererServlet extends AbstractServlet {
 				}
 			}
 			transaction.setRequestAttribute("getUrl", getUrl.toString());
+			String fq = transaction.getParameterString("fq");
+			if (fq != null) {
+				getUrl.append("&amp;fq=");
+				getUrl.append(URLEncoder.encode(fq, "UTF-8"));
+			}
+			transaction.setRequestAttribute("getUrlFq", getUrl.toString());
 			StringBuilder autocompUrl = new StringBuilder("autocompletion?use=");
 			autocompUrl
 					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
