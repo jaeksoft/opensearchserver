@@ -26,8 +26,10 @@ package com.jaeksoft.searchlib.util;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
@@ -106,6 +108,20 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 		if (bCloseInputStream)
 			inputStream.close();
 		return sb;
+	}
+
+	public static final void appendLines(File file, String... lines)
+			throws IOException {
+		FileWriter fw = null;
+		PrintWriter pw = null;
+		try {
+			fw = new FileWriter(file, true);
+			pw = new PrintWriter(fw);
+			for (String line : lines)
+				pw.println(line);
+		} finally {
+			close(fw, pw);
+		}
 	}
 
 }

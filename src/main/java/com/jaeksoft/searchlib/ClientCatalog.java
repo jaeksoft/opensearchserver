@@ -531,6 +531,14 @@ public class ClientCatalog {
 		try {
 			client.trash(trashDir);
 			getTempReceiveDir(client).renameTo(clientDir);
+			File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
+			if (pathToMoveFile.exists()) {
+				for (String pathToMove : FileUtils.readLines(pathToMoveFile)) {
+					new File(trashDir, pathToMove).renameTo(new File(clientDir,
+							pathToMove));
+				}
+				pathToMoveFile.delete();
+			}
 			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
 			newClient.writeReplCheck();
 		} finally {
@@ -576,6 +584,8 @@ public class ClientCatalog {
 		targetFile.mkdir();
 	}
 
+	private final static String PATH_TO_MOVE = ".path-to-move";
+
 	public static final boolean receive_file_exists(Client client,
 			String filePath, long lastModified, long length) throws IOException {
 		File existsFile = new File(client.getDirectory(), filePath);
@@ -586,8 +596,7 @@ public class ClientCatalog {
 		if (existsFile.length() != length)
 			return false;
 		File rootDir = getTempReceiveDir(client);
-		File targetFile = new File(rootDir, filePath);
-		FileUtils.copyFile(existsFile, targetFile);
+		IOUtils.appendLines(new File(rootDir, PATH_TO_MOVE), filePath);
 		return true;
 	}
 
