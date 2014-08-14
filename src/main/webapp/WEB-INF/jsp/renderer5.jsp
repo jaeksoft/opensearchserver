@@ -16,6 +16,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenSearchServer</title>
 <link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/renderer5.css" rel="stylesheet">
 <script type="text/javascript" src="js/opensearchserver.js"
 	charset="UTF-8"></script>
 </head>
@@ -36,18 +37,19 @@
 				}
 			%>
 			<div class="row">
-				<div class="col-md-2">
+				<div class="col-xs-2">
 					<div id="oss-facet">
 						<jsp:include page="renderer/facet.jsp" />
 					</div>
 				</div>
-				<div class="col-md-7">
+				<div class="col-xs-8">
 					<div id="oss-main">
 						<jsp:include page="renderer5/form.jsp" />
 						<jsp:include page="renderer/numfound.jsp" />
 						<jsp:include page="renderer/doclist.jsp" />
 					</div>
 				</div>
+				<div class="col-xs-2"></div>
 			</div>
 			<div id="oss-footer">
 				<%=renderer.getFooter()%>
