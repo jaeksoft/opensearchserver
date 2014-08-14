@@ -79,7 +79,6 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-
 			renderer = client.getRendererManager().get(
 					transaction.getParameterString("name"));
 			if (renderer == null)
@@ -119,7 +118,6 @@ public class RendererServlet extends AbstractServlet {
 									ClientCatalog.getRendererResults()
 											.addResult(
 													client,
-													serverBaseURL,
 													renderer,
 													searchRequest
 															.getQueryString(),
