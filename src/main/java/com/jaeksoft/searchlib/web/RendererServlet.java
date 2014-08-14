@@ -150,6 +150,12 @@ public class RendererServlet extends AbstractServlet {
 				}
 			}
 			transaction.setRequestAttribute("getUrl", getUrl.toString());
+			String fq = transaction.getParameterString("fq");
+			if (fq != null) {
+				getUrl.append("&amp;fq=");
+				getUrl.append(URLEncoder.encode(fq, "UTF-8"));
+			}
+			transaction.setRequestAttribute("getUrlFq", getUrl.toString());
 			StringBuilder autocompUrl = new StringBuilder("autocompletion?use=");
 			autocompUrl
 					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));

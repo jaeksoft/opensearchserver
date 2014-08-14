@@ -3,7 +3,7 @@
 	<%
 		PagingSearchResult paging = (PagingSearchResult) request
 				.getAttribute("paging");
-		String getUrl = (String) request.getAttribute("getUrl");
+		String getUrl = (String) request.getAttribute("getUrlFq");
 		for (int i = paging.getLeftPage(); i <= paging.getRightPage(); i++) {
 			 boolean current =  i == paging.getCurrentPage();
 	%>
