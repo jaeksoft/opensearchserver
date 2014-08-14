@@ -2,8 +2,8 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererSort"%>
 <%@ page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <div class="osscmnrdr oss-input-div">
-	<form class="form-horizontal" id="osssearchform" method="get" autocomplete="off" role="form"
-		action="renderer">
+	<form class="form-horizontal" id="osssearchform" method="get"
+		autocomplete="off" role="form" action="renderer">
 		<%
 			Renderer renderer = (Renderer) request.getAttribute("renderer");
 			String query = (String) request.getAttribute("query");
@@ -22,13 +22,13 @@
 		<%
 			}
 		%>
-		 <div class="form-group form-group-lg has-feedback">
-		<input class="form-control input-lg" type="text"
-			id="osssearchbox" name="query"
-			value="<%=StringEscapeUtils.escapeXml(query)%>"
-			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
-			autocomplete="off" placeholder="<%=renderer.getSearchButtonLabel()%>">
-			<span class="glyphicon glyphicon-search form-control-feedback"></span>
+		<div class="form-group form-group-lg has-feedback">
+			<input class="form-control input-lg" type="text" id="osssearchbox"
+				name="query" value="<%=StringEscapeUtils.escapeXml(query)%>"
+				onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
+				autocomplete="off"
+				placeholder="<%=renderer.getSearchButtonLabel()%>"> <span
+				class="glyphicon glyphicon-search form-control-feedback"></span>
 		</div>
 		<%
 			if (renderer.getSorts().size() > 0) {

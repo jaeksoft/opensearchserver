@@ -30,7 +30,7 @@ package com.jaeksoft.searchlib.renderer;
  */
 public enum RendererWidgets {
 
-	TEXT, THUMBNAIL, TOOLS;
+	TEXT, THUMBNAIL, TOOLS, URLWRAP;
 
 	private final String jspPath;
 

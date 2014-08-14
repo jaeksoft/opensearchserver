@@ -285,4 +285,5 @@ public class RendererField {
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
 	}
+
 }
