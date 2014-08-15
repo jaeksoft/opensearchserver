@@ -27,26 +27,29 @@
 			tooltiptext="Regular expression replacement" />
 		<listheader label="Css Class"
 			tooltiptext="Enter any css classes" />
-		<listheader label="Widget" />
+		<listheader label="Widget type" />
+		<listheader label="Widget properties" />
 		<listheader label="Action" align="center" width="150px" />
 	</listhead>
 	<auxhead>
 		<auxheader>
-			<listbox model="@load(renderer.fieldTypeList)"
-				onSelect="@command('reload')"
-				selectedItem="@bind(renderer.currentRendererField.fieldType)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
-			<listbox model="@load(renderer.fieldOrSnippetList)"
-				selectedItem="@bind(renderer.currentRendererField.fieldName)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
+			<vlayout>
+				<listbox model="@load(renderer.fieldTypeList)"
+					onSelect="@command('reload')"
+					selectedItem="@bind(renderer.currentRendererField.fieldType)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<listbox model="@load(renderer.fieldOrSnippetList)"
+					selectedItem="@bind(renderer.currentRendererField.fieldName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
 		</auxheader>
 		<auxheader>
 			<listbox model="@load(renderer.fieldList)"
@@ -82,6 +85,15 @@
 				</template>
 			</listbox>
 		</auxheader>
+		<auxheader>
+			<vlayout>
+				<textbox multiline="true"
+					value="@bind(renderer.currentRendererField.widgetProperties)"
+					cols="50" rows="5" />
+				<button label="Default properties"
+					onClick="@command('onRendererFieldDefaultProperties')" />
+			</vlayout>
+		</auxheader>
 		<auxheader align="center">
 			<button tooltiptext="Add a field"
 				visible="@load(renderer.notFieldSelected)"
@@ -108,6 +120,10 @@
 			<listcell label="@load(rendererFieldItem.replacement)" />
 			<listcell label="@load(rendererFieldItem.cssClass)" />
 			<listcell label="@load(rendererFieldItem.widgetName)" />
+			<listcell>
+				<label value="@load(rendererFieldItem.widgetProperties)"
+					multiline="true" />
+			</listcell>
 			<listcell>
 				<button tooltiptext="Move the field up"
 					image="/images/arrow_top.png"
