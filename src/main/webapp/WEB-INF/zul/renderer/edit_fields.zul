@@ -19,6 +19,8 @@
 	<listhead>
 		<listheader label="Field / Snippet" />
 		<listheader label="URL Field" />
+		<listheader label="URL Decode"
+			tooltiptext="Apply an UTF-8 URL decoder" />
 		<listheader label="URL Pattern"
 			tooltiptext="Regular expression pattern" />
 		<listheader label="URL Replace"
@@ -54,6 +56,10 @@
 					<listitem label="@load(each)" />
 				</template>
 			</listbox>
+		</auxheader>
+		<auxheader>
+			<checkbox
+				checked="@bind(renderer.currentRendererField.urlDecode)" />
 		</auxheader>
 		<auxheader>
 			<textbox
@@ -97,6 +103,7 @@
 				<label value="@load(rendererFieldItem.fieldName)" />
 			</listcell>
 			<listcell label="@load(rendererFieldItem.urlFieldName)" />
+			<listcell label="@load(rendererFieldItem.urlDecode)" />
 			<listcell label="@load(rendererFieldItem.pattern)" />
 			<listcell label="@load(rendererFieldItem.replacement)" />
 			<listcell label="@load(rendererFieldItem.cssClass)" />
