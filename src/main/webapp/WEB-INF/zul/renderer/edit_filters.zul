@@ -31,7 +31,7 @@
 				value="@bind(renderer.currentRendererFilter.publicName)" cols="30" />
 		</auxheader>
 		<auxheader>
-			<listbox model="@load(renderer.fieldList)"
+			<listbox model="@load(renderer.indexedFieldList)"
 				selectedItem="@bind(renderer.currentRendererFilter.fieldName)"
 				mold="select">
 				<template name="model">

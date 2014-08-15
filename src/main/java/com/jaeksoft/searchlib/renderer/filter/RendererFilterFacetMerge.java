@@ -24,29 +24,128 @@
 
 package com.jaeksoft.searchlib.renderer.filter;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetItem;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class RendererFilterFacetMerge implements RendererFilterInterface {
+
+	private boolean caseSensitive = false;
+	private String fieldName;
+	private final Map<String, String> map = new TreeMap<String, String>();
+
+	private final String defaultProperties = "casesensitive=false"
+			+ StringUtils.LF + "1.label=Word" + StringUtils.LF + "1.value1=doc"
+			+ StringUtils.LF + "1.value2=docx" + StringUtils.LF
+			+ "1.value3=DOC" + StringUtils.LF + "1.value4=DOCX"
+			+ StringUtils.LF + "2.label=PDF" + StringUtils.LF + "2.value1=pdf"
+			+ StringUtils.LF + "2.value2=PDF";
+
+	@Override
+	public String getDefaultProperties() {
+		return defaultProperties;
+	}
+
+	@Override
+	public void init(String fieldName, String properties) throws IOException {
+		this.fieldName = fieldName;
+		Properties props = new Properties();
+		props.load(new StringReader(properties));
+		caseSensitive = Boolean.parseBoolean(props.getProperty("casesensitive",
+				Boolean.toString(true)));
+		int i = 1;
+		map.clear();
+		for (;;) {
+			String label = props.getProperty(i + ".label");
+			if (label == null)
+				break;
+			int j = 1;
+			for (;;) {
+				String value = props.getProperty(i + ".value" + j);
+				if (value == null)
+					break;
+				if (!caseSensitive)
+					value = value.toLowerCase();
+				map.put(value, label);
+				j++;
+			}
+			i++;
+		}
+	}
 
 	@Override
 	public void populate(AbstractResultSearch facetResult,
 			List<RendererFilterItem> filterItem) {
-		// TODO Auto-generated method stub
-
+		FacetList facetList = facetResult.getFacetList();
+		if (facetList == null)
+			return;
+		Facet facet = facetList.getByField(fieldName);
+		if (facet == null)
+			return;
+		FacetItem[] facetItems = facet.getArray();
+		if (facetItems == null)
+			return;
+		TreeMap<String, Item> facetMap = new TreeMap<String, Item>();
+		for (FacetItem facetItem : facetItems) {
+			String testedValue = facetItem.getTerm();
+			if (!caseSensitive)
+				testedValue = testedValue.toLowerCase();
+			String target = map.get(testedValue);
+			if (target == null)
+				target = facetItem.getTerm();
+			Item item = facetMap.get(target);
+			if (item == null) {
+				item = new Item();
+				facetMap.put(target, item);
+			}
+			item.add(facetItem);
+		}
+		for (Map.Entry<String, Item> entry : facetMap.entrySet())
+			filterItem.add(entry.getValue().getRendererFilterItem(
+					entry.getKey()));
 	}
 
-	@Override
-	public String getDefaultProperties() {
-		// TODO Auto-generated method stub
-		return null;
+	private class Item {
+
+		private final List<String> terms;
+		private long count;
+
+		private Item() {
+			terms = new ArrayList<String>(1);
+			count = 0;
+		}
+
+		private void add(FacetItem facetItem) {
+			terms.add(facetItem.getTerm());
+			count += facetItem.getCount();
+		}
+
+		private final RendererFilterItem getRendererFilterItem(String target) {
+			StringBuilder sb = new StringBuilder(fieldName);
+			sb.append(":(");
+			boolean first = true;
+			for (String term : terms) {
+				if (!first)
+					sb.append(" OR ");
+				else
+					first = false;
+				sb.append('"');
+				sb.append(term);
+				sb.append('"');
+			}
+			sb.append(')');
+			return new RendererFilterItem(sb.toString(),
+					StringUtils.fastConcat(target, " (", count, ")"));
+		}
 	}
-
-	@Override
-	public void init(String fieldName, String properties) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
