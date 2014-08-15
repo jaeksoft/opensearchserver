@@ -98,7 +98,7 @@ public class RendererFilterDate implements RendererFilterInterface {
 			this.range = range;
 		}
 
-		public String getFilterQuery(long time) {
+		private String getFilterQuery(long time) {
 			String from = "*";
 			switch (range) {
 			case anytime:
@@ -120,7 +120,7 @@ public class RendererFilterDate implements RendererFilterInterface {
 				from = dateFormat.format(cal.getTime());
 				break;
 			}
-			return StringUtils.fastConcat(fieldName, ":[", from, " TO ", "*]");
+			return StringUtils.fastConcat(fieldName, ":[", from, " TO *]");
 		}
 	}
 

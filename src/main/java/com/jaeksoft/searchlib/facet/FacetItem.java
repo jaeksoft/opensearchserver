@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,11 +26,13 @@ package com.jaeksoft.searchlib.facet;
 
 public class FacetItem {
 
-	protected String term;
+	final protected String term;
 
 	protected int count;
 
 	public FacetItem() {
+		term = null;
+		count = 0;
 	}
 
 	public FacetItem(String term, int count) {
