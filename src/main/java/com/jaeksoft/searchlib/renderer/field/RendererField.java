@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.renderer.field;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -54,7 +55,11 @@ public class RendererField {
 
 	private boolean urlDecode;
 
-	private RendererWidgets widgetName;
+	private RendererWidgetType widgetName;
+
+	private String widgetProperties;
+
+	private RendererWidget widget = null;
 
 	private String cssClass;
 
@@ -87,7 +92,8 @@ public class RendererField {
 		cssClass = StringUtils.EMPTY;
 		urlFieldName = StringUtils.EMPTY;
 		urlDecode = false;
-		widgetName = RendererWidgets.TEXT;
+		widgetName = RendererWidgetType.TEXT;
+		widgetProperties = StringUtils.EMPTY;
 		pattern = null;
 		replacement = null;
 	}
@@ -106,12 +112,13 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_URL_FIELDNAME);
 		urlDecode = DomUtils.getAttributeBoolean(node,
 				RENDERER_FIELD_ATTR_URL_DECODE, false);
-		setWidgetName(RendererWidgets.find(XPathParser.getAttributeString(node,
-				RENDERER_FIELD_ATTR_WIDGETNAME)));
+		setWidgetName(RendererWidgetType.find(XPathParser.getAttributeString(
+				node, RENDERER_FIELD_ATTR_WIDGETNAME)));
 		setPattern(DomUtils.getAttributeText(node,
 				RENDERER_FIELD_ATTR_REGEXP_PATTERN));
 		setReplacement(DomUtils.getAttributeText(node,
 				RENDERER_FIELD_ATTR_REGEXP_REPLACE));
+		setWidgetProperties(node.getTextContent());
 	}
 
 	public RendererField(RendererField field) {
@@ -126,6 +133,8 @@ public class RendererField {
 		target.urlFieldName = urlFieldName;
 		target.urlDecode = urlDecode;
 		target.widgetName = widgetName;
+		target.widgetProperties = widgetProperties;
+		target.widget = widget;
 		target.pattern = pattern;
 		target.replacement = replacement;
 	}
@@ -265,12 +274,35 @@ public class RendererField {
 		return url;
 	}
 
-	public RendererWidgets getWidgetName() {
+	public RendererWidgetType getWidgetName() {
 		return widgetName;
 	}
 
-	public void setWidgetName(RendererWidgets widgetName) {
+	public void setWidgetName(RendererWidgetType widgetName) {
 		this.widgetName = widgetName;
+		widget = null;
+	}
+
+	public String getWidgetProperties() {
+		return widgetProperties;
+	}
+
+	public RendererWidget getWidget() throws InstantiationException,
+			IllegalAccessException, IOException {
+		if (widget == null)
+			widget = widgetName.newInstance(widgetProperties);
+		return widget;
+	}
+
+	public void setWidgetProperties(String widgetProperties) {
+		this.widgetProperties = widgetProperties == null ? StringUtils.EMPTY
+				: widgetProperties;
+		widget = null;
+	}
+
+	public void setDefaultWidgetProperties() {
+		setWidgetProperties(widgetName == null ? null : widgetName
+				.getDefaultProperties());
 	}
 
 	public void setCssClass(String cssClass) {
@@ -287,6 +319,7 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name(),
 				RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern,
 				RENDERER_FIELD_ATTR_REGEXP_REPLACE, replacement);
+		xmlWriter.textNode(widgetProperties);
 		xmlWriter.endElement();
 	}
 
