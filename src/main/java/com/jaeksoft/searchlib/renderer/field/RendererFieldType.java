@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,18 +22,15 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.renderer;
+package com.jaeksoft.searchlib.renderer.field;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public enum RendererLogParameterEnum {
+public enum RendererFieldType {
 
-	IP, HTTP_HEADER_FROM, HTTP_HEADER_REMOTE_USER, USER_SESSION_ID;
-	public static RendererLogParameterEnum find(String name) {
+	FIELD, SNIPPET;
+
+	public static RendererFieldType find(String name) {
 		if (name == null)
-			return null;
+			return FIELD;
 		return valueOf(name);
 	}
 }

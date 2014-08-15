@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,15 +22,29 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.renderer;
+package com.jaeksoft.searchlib.renderer.filter;
 
-public enum RendererFieldType {
+public enum RendererFilterType {
 
-	FIELD, SNIPPET;
+	DATE(RendererFilterDate.class),
 
-	public static RendererFieldType find(String name) {
+	FACET_MERGE(RendererFilterFacetMerge.class);
+
+	private final Class<? extends RendererFilterInterface> filterClass;
+
+	public static RendererFilterType find(String name) {
 		if (name == null)
-			return FIELD;
+			return null;
 		return valueOf(name);
+	}
+
+	private RendererFilterType(
+			Class<? extends RendererFilterInterface> filterClass) {
+		this.filterClass = filterClass;
+	}
+
+	public RendererFilterInterface newInstance() throws InstantiationException,
+			IllegalAccessException {
+		return filterClass.newInstance();
 	}
 }
