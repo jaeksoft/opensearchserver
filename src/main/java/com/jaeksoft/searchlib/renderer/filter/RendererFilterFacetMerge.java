@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,29 +22,31 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.renderer;
+package com.jaeksoft.searchlib.renderer.filter;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public enum RendererWidgets {
+import java.util.List;
 
-	TEXT, THUMBNAIL, TOOLS, URLWRAP;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
-	private final String jspPath;
+public class RendererFilterFacetMerge implements RendererFilterInterface {
 
-	private RendererWidgets() {
-		this.jspPath = "widget/" + name().toLowerCase() + ".jsp";
+	@Override
+	public void populate(AbstractResultSearch facetResult,
+			List<RendererFilterItem> filterItem) {
+		// TODO Auto-generated method stub
+
 	}
 
-	public static RendererWidgets find(String name) {
-		if (name == null)
-			return TEXT;
-		return valueOf(name);
+	@Override
+	public String getDefaultProperties() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public final String getJspPath() {
-		return jspPath;
+	@Override
+	public void init(String fieldName, String properties) {
+		// TODO Auto-generated method stub
+
 	}
+
 }
