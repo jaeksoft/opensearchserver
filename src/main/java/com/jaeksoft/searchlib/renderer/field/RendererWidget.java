@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,30 +21,40 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.renderer.field;
 
-/**
- * @author Ayyathurai N Naveen
- * 
- */
-public enum RendererWidgets {
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
 
-	TEXT, THUMBNAIL, TOOLS, URLWRAP;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
-	private final String jspPath;
+public class RendererWidget {
 
-	private RendererWidgets() {
-		this.jspPath = "widget/" + name().toLowerCase() + ".jsp";
+	protected Properties properties = null;
+
+	public final static Properties loadProperties(final String properties)
+			throws IOException {
+		Properties props = new Properties();
+		if (properties == null)
+			return props;
+		StringReader sr = new StringReader(properties);
+		try {
+			props.load(sr);
+		} finally {
+			IOUtils.close(sr);
+		}
+		return props;
 	}
 
-	public static RendererWidgets find(String name) {
-		if (name == null)
-			return TEXT;
-		return valueOf(name);
+	void init(String properties) throws IOException {
+		if (StringUtils.isEmpty(properties))
+			return;
+		this.properties = loadProperties(properties);
 	}
 
-	public final String getJspPath() {
-		return jspPath;
+	public String getValue(String value) {
+		return value;
 	}
 }

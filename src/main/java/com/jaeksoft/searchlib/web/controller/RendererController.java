@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererSort;
 import com.jaeksoft.searchlib.renderer.field.RendererField;
 import com.jaeksoft.searchlib.renderer.field.RendererFieldType;
-import com.jaeksoft.searchlib.renderer.field.RendererWidgets;
+import com.jaeksoft.searchlib.renderer.field.RendererWidgetType;
 import com.jaeksoft.searchlib.renderer.filter.RendererFilter;
 import com.jaeksoft.searchlib.renderer.filter.RendererFilterType;
 import com.jaeksoft.searchlib.renderer.log.RendererLogField;
@@ -310,6 +310,14 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
+	public void onRendererFieldDefaultProperties()
+			throws InstantiationException, IllegalAccessException,
+			SearchLibException, IOException {
+		currentRendererField.setDefaultWidgetProperties();
+		reload();
+	}
+
+	@Command
 	public void onRendererFilterCancel() throws SearchLibException {
 		currentRendererFilter = new RendererFilter();
 		selectedRendererFilter = null;
@@ -468,8 +476,8 @@ public class RendererController extends CommonController {
 		return RendererFieldType.values();
 	}
 
-	public RendererWidgets[] getWidgetList() {
-		return RendererWidgets.values();
+	public RendererWidgetType[] getWidgetList() {
+		return RendererWidgetType.values();
 	}
 
 	public RendererFilterType[] getFilterTypeList() {

@@ -80,7 +80,9 @@
 			<listcell label="@load(each.fieldName)" />
 			<listcell label="@load(each.replaceRequestFacet)" />
 			<listcell label="@load(each.filterType)" />
-			<listcell label="@load(each.properties)" />
+			<listcell>
+				<label value="@load(each.properties)" multiline="true" />
+			</listcell>
 			<listcell>
 				<button tooltiptext="Move the filter up"
 					image="/images/arrow_top.png"

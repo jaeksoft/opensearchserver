@@ -30,7 +30,6 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -80,9 +79,7 @@ public class RendererFilter {
 				node, RENDERER_FILTER_ATTR_FILTERTYPE));
 		replaceRequestFacet = DomUtils.getAttributeBoolean(node,
 				RENDERER_FILTER_ATTR_REPLACE, false);
-		String v = node.getTextContent();
-		properties = v == null ? StringUtils.EMPTY : StringEscapeUtils
-				.escapeXml(v);
+		setProperties(node.getTextContent());
 	}
 
 	public RendererFilter(RendererFilter filter) {

@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.renderer.filter;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,7 @@ import java.util.TreeMap;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -59,8 +59,7 @@ public class RendererFilterFacetMerge implements RendererFilterInterface {
 	@Override
 	public void init(String fieldName, String properties) throws IOException {
 		this.fieldName = fieldName;
-		Properties props = new Properties();
-		props.load(new StringReader(properties));
+		Properties props = RendererWidget.loadProperties(properties);
 		caseSensitive = Boolean.parseBoolean(props.getProperty("casesensitive",
 				Boolean.toString(true)));
 		int i = 1;
