@@ -1,8 +1,8 @@
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.request.AbstractSearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererWidgets"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.field.RendererWidgets"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%
 	AbstractResultSearch result = (AbstractResultSearch) request

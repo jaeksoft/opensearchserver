@@ -20,6 +20,7 @@
 			<tab id="tabRedendererGeneral"
 				label="@load(renderer.currentEditMode)" selected="true" />
 			<tab id="tabRedendererFields" label="Fields" />
+			<tab id="tabRedendererFilters" label="Filters" />
 			<tab id="tabRedendererCss" label="CSS Style" />
 			<tab id="tabRedendererSorts" label="Sorts" />
 			<tab id="tabRedendererLog" label="Log" />
@@ -33,6 +34,9 @@
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_fields.zul" />
+			</tabpanel>
+			<tabpanel>
+				<include src="WEB-INF/zul/renderer/edit_filters.zul" />
 			</tabpanel>
 			<tabpanel>
 				<include src="WEB-INF/zul/renderer/edit_css.zul" />

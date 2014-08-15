@@ -1,6 +1,6 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.RendererResult"%>
 <%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%
 	ResultDocument resultDocument = (ResultDocument) request

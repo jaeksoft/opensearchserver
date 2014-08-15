@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,13 +37,15 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
-import com.jaeksoft.searchlib.renderer.RendererField;
-import com.jaeksoft.searchlib.renderer.RendererFieldType;
-import com.jaeksoft.searchlib.renderer.RendererLogField;
-import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererSort;
-import com.jaeksoft.searchlib.renderer.RendererWidgets;
+import com.jaeksoft.searchlib.renderer.field.RendererField;
+import com.jaeksoft.searchlib.renderer.field.RendererFieldType;
+import com.jaeksoft.searchlib.renderer.field.RendererWidgets;
+import com.jaeksoft.searchlib.renderer.filter.RendererFilter;
+import com.jaeksoft.searchlib.renderer.filter.RendererFilterType;
+import com.jaeksoft.searchlib.renderer.log.RendererLogField;
+import com.jaeksoft.searchlib.renderer.log.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
@@ -54,6 +56,8 @@ public class RendererController extends CommonController {
 	private transient Renderer selectedRenderer;
 	private transient Renderer currentRenderer;
 	private transient boolean isTestable;
+	private transient RendererFilter currentRendererFilter;
+	private transient RendererFilter selectedRendererFilter;
 	private transient RendererField currentRendererField;
 	private transient RendererField selectedRendererField;
 	private transient RendererLogField currentRendererLogField;
@@ -90,6 +94,7 @@ public class RendererController extends CommonController {
 	protected void reset() throws SearchLibException {
 		currentRenderer = null;
 		currentRendererField = null;
+		currentRendererFilter = null;
 		currentRendererSort = null;
 		selectedRenderer = null;
 		isTestable = false;
@@ -143,6 +148,10 @@ public class RendererController extends CommonController {
 		return !isFieldSelected();
 	}
 
+	public boolean isFilterSelected() {
+		return selectedRendererFilter != null;
+	}
+
 	public boolean isSortSelected() {
 		return selectedRendererSort != null;
 	}
@@ -157,6 +166,7 @@ public class RendererController extends CommonController {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
+		currentRendererFilter = new RendererFilter();
 		currentRendererLogField = new RendererLogField();
 		currentRendererSort = new RendererSort();
 		reload();
@@ -172,6 +182,7 @@ public class RendererController extends CommonController {
 	public void onNew() throws SearchLibException {
 		currentRenderer = new Renderer();
 		currentRendererField = new RendererField();
+		currentRendererFilter = new RendererFilter();
 		currentRendererLogField = new RendererLogField();
 		currentRendererSort = new RendererSort();
 		reload();
@@ -184,6 +195,16 @@ public class RendererController extends CommonController {
 		else
 			currentRendererField.copyTo(selectedRendererField);
 		onRendererFieldCancel();
+		reload();
+	}
+
+	@Command
+	public void onRendererFilterSave() throws SearchLibException {
+		if (selectedRendererFilter == null)
+			currentRenderer.addFilter(currentRendererFilter);
+		else
+			currentRendererFilter.copyTo(selectedRendererFilter);
+		onRendererFilterCancel();
 		reload();
 	}
 
@@ -289,6 +310,29 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
+	public void onRendererFilterCancel() throws SearchLibException {
+		currentRendererFilter = new RendererFilter();
+		selectedRendererFilter = null;
+		reload();
+	}
+
+	@Command
+	public void onRendererFilterRemove(
+			@BindingParam("rendererFilterItem") RendererFilter rendererFilter)
+			throws SearchLibException {
+		currentRenderer.removeFilter(rendererFilter);
+		reload();
+	}
+
+	@Command
+	public void onRendererFilterDefaultProperties()
+			throws InstantiationException, IllegalAccessException,
+			SearchLibException, IOException {
+		currentRendererFilter.setDefaultProperties();
+		reload();
+	}
+
+	@Command
 	public void onCancel() throws SearchLibException {
 		currentRenderer = null;
 		selectedRenderer = null;
@@ -358,6 +402,21 @@ public class RendererController extends CommonController {
 		reload();
 	}
 
+	public RendererFilter getCurrentRendererFilter() {
+		return currentRendererFilter;
+	}
+
+	public RendererFilter getSelectedRendererFilter() {
+		return selectedRendererFilter;
+	}
+
+	public void setSelectedRendererFilter(RendererFilter filter)
+			throws SearchLibException {
+		selectedRendererFilter = filter;
+		currentRendererFilter = new RendererFilter(filter);
+		reload();
+	}
+
 	public RendererSort getCurrentRendererSort() {
 		return currentRendererSort;
 	}
@@ -409,6 +468,10 @@ public class RendererController extends CommonController {
 
 	public RendererWidgets[] getWidgetList() {
 		return RendererWidgets.values();
+	}
+
+	public RendererFilterType[] getFilterTypeList() {
+		return RendererFilterType.values();
 	}
 
 	public List<String> getFieldList() throws SearchLibException {
