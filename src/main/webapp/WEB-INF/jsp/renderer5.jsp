@@ -26,7 +26,7 @@
 			<div class="row">
 				<div id="oss-header" class="col-xs-11">
 					<%
-						if (renderer.isAuthentication() || true) {
+						if (renderer.isAuthentication()) {
 					%>
 					<div id="oss-login" class="pull-right">
 						<br />
