@@ -63,14 +63,7 @@ public class IMAP4Crawler extends MailboxAbstractCrawler {
 		IMAPStore store = (IMAPStore) session.getStore(storeProtocol);
 		try {
 			store.connect();
-			Folder defaultFolder = store.getDefaultFolder();
-			if (defaultFolder == null)
-				return;
-			Folder[] folders = defaultFolder.list();
-			if (folders == null)
-				return;
-			for (Folder folder : folders)
-				readFolder(folder);
+			readFolder(store.getDefaultFolder());
 		} finally {
 			if (store != null)
 				store.close();
