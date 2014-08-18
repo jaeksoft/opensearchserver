@@ -7,7 +7,7 @@
 			.getAttribute("resultDocument");
 	RendererField rendererField = (RendererField) request
 			.getAttribute("rendererField");
-	String url = rendererField.getUrlField(resultDocument);
+	String url = rendererField.getOriginalUrl(resultDocument);
 	RendererResult rendererResult = (RendererResult) request
 			.getAttribute("rendererResult");
 	String viewerUrl = rendererResult.getViewerUrl(resultDocument, url);
