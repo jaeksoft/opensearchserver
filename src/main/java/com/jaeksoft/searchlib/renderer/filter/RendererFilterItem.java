@@ -24,22 +24,37 @@
 
 package com.jaeksoft.searchlib.renderer.filter;
 
+import java.util.Collection;
+
 public class RendererFilterItem {
 
-	private final String filterQuery;
+	private final String queryName;
+
+	private final String query;
+
+	private final Collection<String> terms;
 
 	private final String label;
 
-	RendererFilterItem(String filterQuery, String label) {
-		this.filterQuery = filterQuery;
+	RendererFilterItem(Collection<String> terms, String label) {
+		this.queryName = null;
+		this.query = null;
+		this.terms = terms;
 		this.label = label;
 	}
 
+	RendererFilterItem(String queryName, String query, String label) {
+		this.queryName = queryName;
+		this.query = query;
+		this.label = label;
+		this.terms = null;
+	}
+
 	/**
-	 * @return the filterQuery
+	 * @return the terms
 	 */
-	public String getFilterQuery() {
-		return filterQuery;
+	public Collection<String> getTerms() {
+		return terms;
 	}
 
 	/**
@@ -47,6 +62,28 @@ public class RendererFilterItem {
 	 */
 	public String getLabel() {
 		return label;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getQuery() {
+		return query;
+	}
+
+	public boolean isQuery() {
+		return query != null;
+	}
+
+	public boolean isTerms() {
+		return terms != null;
+	}
+
+	/**
+	 * @return the queryName
+	 */
+	public String getQueryName() {
+		return queryName;
 	}
 
 }

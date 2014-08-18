@@ -17,7 +17,7 @@
 <%
 	} else {
 %>
-<%=StringUtils.htmlWrap(value, 40)%>
+<%=value%>
 <%
 	}
 %>

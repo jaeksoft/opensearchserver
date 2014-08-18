@@ -38,10 +38,9 @@ import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class RendererFilterFacetMerge implements RendererFilterInterface {
+public class RendererFilterFacetMerge extends RendererFilterAbstract {
 
 	private boolean caseSensitive = false;
-	private String fieldName;
 	private final Map<String, String> map = new TreeMap<String, String>();
 
 	private final String defaultProperties = "casesensitive=false"
@@ -58,7 +57,7 @@ public class RendererFilterFacetMerge implements RendererFilterInterface {
 
 	@Override
 	public void init(String fieldName, String properties) throws IOException {
-		this.fieldName = fieldName;
+		super.init(fieldName, properties);
 		Properties props = RendererWidget.loadProperties(properties);
 		caseSensitive = Boolean.parseBoolean(props.getProperty("casesensitive",
 				Boolean.toString(true)));
@@ -130,21 +129,8 @@ public class RendererFilterFacetMerge implements RendererFilterInterface {
 		}
 
 		private final RendererFilterItem getRendererFilterItem(String target) {
-			StringBuilder sb = new StringBuilder(fieldName);
-			sb.append(":(");
-			boolean first = true;
-			for (String term : terms) {
-				if (!first)
-					sb.append(" OR ");
-				else
-					first = false;
-				sb.append('"');
-				sb.append(term);
-				sb.append('"');
-			}
-			sb.append(')');
-			return new RendererFilterItem(sb.toString(),
-					StringUtils.fastConcat(target, " (", count, ")"));
+			return new RendererFilterItem(terms, StringUtils.fastConcat(target,
+					" (", count, ")"));
 		}
 	}
 }
