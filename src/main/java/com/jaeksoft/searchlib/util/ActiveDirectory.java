@@ -143,6 +143,20 @@ public class ActiveDirectory implements Closeable {
 		findGroups(groups, collector, searchedGroups);
 	}
 
+	public void findUserGroup(String domain, String userCn)
+			throws NamingException {
+		String filter = StringUtils.fastConcat(
+				"(member:1.2.840.113556.1.4.1941:=cn=", userCn, ",",
+				domainSearchName, ")");
+		Logging.info("FILTER:" + filter);
+		NamingEnumeration<SearchResult> result = find(filter);
+		Attributes attrs;
+		while ((attrs = getAttributes(result)) != null) {
+			System.out.println("FOUND CN: " + attrs.get(ATTR_CN)
+					+ attrs.toString());
+		}
+	}
+
 	@Override
 	public void close() {
 		try {
