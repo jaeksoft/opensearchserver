@@ -1298,7 +1298,7 @@ public class Renderer implements Comparable<Renderer> {
 
 		session.setAttribute(RENDERER_SESSION_USER, user);
 
-		searchRequest.setUser(user.username);
+		searchRequest.setUsers(user.usernames);
 		searchRequest.setGroups(user.groups);
 
 		return user;
