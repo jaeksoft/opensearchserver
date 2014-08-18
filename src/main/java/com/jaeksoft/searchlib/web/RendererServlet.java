@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
+import com.jaeksoft.searchlib.renderer.filter.RendererFilterQueries;
 import com.jaeksoft.searchlib.renderer.log.RendererLogField;
 import com.jaeksoft.searchlib.renderer.log.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
@@ -92,6 +93,15 @@ public class RendererServlet extends AbstractServlet {
 			HttpServletRequest servletRequest = transaction.getRequest();
 			setLog(renderer, searchRequest, servletRequest);
 			searchRequest.setFromServlet(transaction, "");
+			HttpSession session = servletRequest.getSession();
+			RendererFilterQueries filterQueries = (RendererFilterQueries) session
+					.getAttribute("filterQueries");
+			if (filterQueries == null) {
+				filterQueries = new RendererFilterQueries();
+				session.setAttribute("filterQueries", filterQueries);
+			}
+			filterQueries.applyServletRequest(servletRequest);
+			filterQueries.applyToSearchRequest(searchRequest);
 			AuthPluginInterface.User loggedUser = renderer
 					.configureAuthRequest(searchRequest, servletRequest);
 			if (query == null)
@@ -134,7 +144,7 @@ public class RendererServlet extends AbstractServlet {
 					transaction.setRequestAttribute("facetResult", facetResult);
 				}
 			}
-			servletRequest.getSession().setAttribute("query", query);
+			session.setAttribute("query", query);
 			transaction.setRequestAttribute("query", query);
 			transaction.setRequestAttribute("renderer", renderer);
 			StringBuilder getUrl = new StringBuilder("?query=");
@@ -150,12 +160,6 @@ public class RendererServlet extends AbstractServlet {
 				}
 			}
 			transaction.setRequestAttribute("getUrl", getUrl.toString());
-			String fq = transaction.getParameterString("fq");
-			if (fq != null) {
-				getUrl.append("&amp;fq=");
-				getUrl.append(URLEncoder.encode(fq, "UTF-8"));
-			}
-			transaction.setRequestAttribute("getUrlFq", getUrl.toString());
 			StringBuilder autocompUrl = new StringBuilder("autocompletion?use=");
 			autocompUrl
 					.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));
