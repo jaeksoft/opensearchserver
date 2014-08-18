@@ -33,7 +33,6 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
@@ -64,21 +63,11 @@ public class IMAP4Crawler extends MailboxAbstractCrawler {
 		IMAPStore store = (IMAPStore) session.getStore(storeProtocol);
 		try {
 			store.connect();
-			logFolder("PERSONAL NAMESPACES: ", store.getPersonalNamespaces());
-			logFolder("SHARED NAMESPACES: ", store.getSharedNamespaces());
-			Folder defaultFolder = store.getDefaultFolder();
-			Logging.info("DEFAULT FOLDER: " + defaultFolder.getFullName());
-			readFolder(defaultFolder);
+			readFolder(store.getDefaultFolder());
 		} finally {
 			if (store != null)
 				store.close();
 		}
-	}
-
-	private void logFolder(String source, Folder[] folders) {
-		Logging.info("SOURCE FOLDERS: " + source);
-		for (Folder folder : folders)
-			Logging.info(folder.getFullName());
 	}
 
 	@Override
