@@ -89,14 +89,10 @@ public abstract class MailboxAbstractCrawler {
 			IOException, SearchLibException {
 		if (folder == null)
 			return;
-		switch (folder.getType()) {
-		case Folder.HOLDS_FOLDERS:
-			readHoldsFolder(folder);
-			break;
-		case Folder.HOLDS_MESSAGES:
+		if ((folder.getType() & Folder.HOLDS_MESSAGES) != 0)
 			readMessagesFolder(folder);
-			break;
-		}
+		if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0)
+			readHoldsFolder(folder);
 	}
 
 	private void readHoldsFolder(Folder folder) throws MessagingException,
