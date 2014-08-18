@@ -30,7 +30,6 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.util.StringUtils;
 
@@ -69,26 +68,6 @@ public interface AuthPluginInterface {
 			if (username.length() == 0)
 				return;
 			usernames.add(username);
-		}
-
-		public final static void usernamesToFilterQuery(User user,
-				StringBuilder sbQuery) {
-			if (user == null || user.usernames.size() == 0) {
-				sbQuery.append("\"\"");
-				return;
-			}
-			sbQuery.append('(');
-			boolean bOr = false;
-			for (String username : user.usernames) {
-				if (bOr)
-					sbQuery.append(" OR ");
-				else
-					bOr = true;
-				sbQuery.append('"');
-				sbQuery.append(QueryUtils.escapeQuery(username));
-				sbQuery.append('"');
-			}
-			sbQuery.append(')');
 		}
 
 		@Override

@@ -88,10 +88,6 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_AUTH_ATTR_PASSWORD = "password";
 	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "domain";
 	private final static String RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS = "authPluginClass";
-	private final static String RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD = "userAllowField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD = "groupDenyField";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -226,14 +222,6 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
 			setAuthPluginClass(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS));
-			setAuthUserAllowField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD));
-			setAuthUserDenyField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD));
-			setAuthGroupAllowField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD));
-			setAuthGroupDenyField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD));
 		}
 
 		String p = XPathParser.getAttributeString(rootNode,
@@ -795,14 +783,7 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
-					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass,
-					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD,
-					authUserAllowField,
-					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD, authUserDenyField,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD,
-					authGroupAllowField,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD,
-					authGroupDenyField);
+					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass);
 			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
@@ -1320,46 +1301,6 @@ public class Renderer implements Comparable<Renderer> {
 		searchRequest.setUser(user.username);
 		searchRequest.setGroups(user.groups);
 
-		/*
-		 * StringBuilder sbPositiveFilter = new StringBuilder(); if
-		 * (authUserAllowField != null && authUserAllowField.length() > 0) { if
-		 * (sbPositiveFilter.length() > 0) sbPositiveFilter.append(" OR ");
-		 * sbPositiveFilter.append(authUserAllowField);
-		 * sbPositiveFilter.append(':');
-		 * AuthPluginInterface.User.usernamesToFilterQuery(user,
-		 * sbPositiveFilter); } if (authGroupAllowField != null &&
-		 * authGroupAllowField.length() > 0 &&
-		 * !CollectionUtils.isEmpty(user.groups)) { if
-		 * (sbPositiveFilter.length() > 0) sbPositiveFilter.append(" OR ");
-		 * sbPositiveFilter.append(authGroupAllowField);
-		 * sbPositiveFilter.append(":("); boolean bOr = false; for (String group
-		 * : user.groups) { if (bOr) sbPositiveFilter.append(" OR "); else bOr =
-		 * true; sbPositiveFilter.append('"');
-		 * sbPositiveFilter.append(QueryUtils.escapeQuery(group));
-		 * sbPositiveFilter.append('"'); } sbPositiveFilter.append(')'); }
-		 * 
-		 * if (sbPositiveFilter.length() > 0)
-		 * searchRequest.addFilter(sbPositiveFilter.toString(), false);
-		 * 
-		 * if (authUserDenyField != null && authUserDenyField.length() > 0) {
-		 * StringBuilder sbNegativeFilter = new StringBuilder();
-		 * sbNegativeFilter.append(authUserDenyField);
-		 * sbNegativeFilter.append(':');
-		 * AuthPluginInterface.User.usernamesToFilterQuery(user,
-		 * sbNegativeFilter);
-		 * searchRequest.addFilter(sbNegativeFilter.toString(), true); }
-		 * 
-		 * if (authGroupDenyField != null && authGroupDenyField.length() > 0 &&
-		 * !CollectionUtils.isEmpty(user.groups)) { StringBuilder
-		 * sbNegativeFilter = new StringBuilder();
-		 * sbNegativeFilter.append(authGroupDenyField);
-		 * sbNegativeFilter.append(":("); boolean bOr = false; for (String group
-		 * : user.groups) { if (bOr) sbNegativeFilter.append(" OR "); else bOr =
-		 * true; sbNegativeFilter.append('"');
-		 * sbNegativeFilter.append(QueryUtils.escapeQuery(group));
-		 * sbNegativeFilter.append('"'); } sbNegativeFilter.append(')');
-		 * searchRequest.addFilter(sbNegativeFilter.toString(), true); }
-		 */
 		return user;
 	}
 
