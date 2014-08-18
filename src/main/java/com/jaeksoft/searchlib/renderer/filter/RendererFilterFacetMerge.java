@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetItem;
@@ -42,6 +44,8 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 
 	private boolean caseSensitive = false;
 	private final Map<String, String> map = new TreeMap<String, String>();
+	private final List<Pattern> patternList = new ArrayList<Pattern>(2);
+	private final List<String> replaceList = new ArrayList<String>(2);
 
 	private final String defaultProperties = "casesensitive=false"
 			+ StringUtils.LF + "1.label=Word" + StringUtils.LF + "1.value1=doc"
@@ -79,6 +83,16 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 			}
 			i++;
 		}
+		i = 1;
+		for (;;) {
+			String find = props.getProperty("regexp." + i + ".find");
+			String replace = props.getProperty("regexp." + i + ".replace");
+			if (find == null || replace == null)
+				break;
+			patternList.add(Pattern.compile(find));
+			replaceList.add(replace);
+			i++;
+		}
 	}
 
 	@Override
@@ -99,8 +113,22 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 			if (!caseSensitive)
 				testedValue = testedValue.toLowerCase();
 			String target = map.get(testedValue);
-			if (target == null)
+			if (target == null) {
 				target = facetItem.getTerm();
+				if (!patternList.isEmpty()) {
+					int p = 0;
+					for (Pattern pattern : patternList) {
+						synchronized (pattern) {
+							Matcher matcher = pattern.matcher(testedValue);
+							if (matcher.find()) {
+								target = matcher.replaceAll(replaceList.get(p));
+								break;
+							}
+						}
+						p++;
+					}
+				}
+			}
 			Item item = facetMap.get(target);
 			if (item == null) {
 				item = new Item();
