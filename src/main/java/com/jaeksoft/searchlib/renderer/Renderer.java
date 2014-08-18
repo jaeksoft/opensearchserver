@@ -37,7 +37,6 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -45,7 +44,6 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.field.RendererField;
 import com.jaeksoft.searchlib.renderer.filter.RendererFilter;
@@ -1301,6 +1299,7 @@ public class Renderer implements Comparable<Renderer> {
 			AbstractSearchRequest searchRequest,
 			HttpServletRequest servletRequest) throws ParseException,
 			IOException, SearchLibException {
+
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return null;
@@ -1318,64 +1317,49 @@ public class Renderer implements Comparable<Renderer> {
 
 		session.setAttribute(RENDERER_SESSION_USER, user);
 
-		StringBuilder sbPositiveFilter = new StringBuilder();
-		if (authUserAllowField != null && authUserAllowField.length() > 0) {
-			if (sbPositiveFilter.length() > 0)
-				sbPositiveFilter.append(" OR ");
-			sbPositiveFilter.append(authUserAllowField);
-			sbPositiveFilter.append(':');
-			AuthPluginInterface.User.usernamesToFilterQuery(user,
-					sbPositiveFilter);
-		}
-		if (authGroupAllowField != null && authGroupAllowField.length() > 0
-				&& !CollectionUtils.isEmpty(user.groups)) {
-			if (sbPositiveFilter.length() > 0)
-				sbPositiveFilter.append(" OR ");
-			sbPositiveFilter.append(authGroupAllowField);
-			sbPositiveFilter.append(":(");
-			boolean bOr = false;
-			for (String group : user.groups) {
-				if (bOr)
-					sbPositiveFilter.append(" OR ");
-				else
-					bOr = true;
-				sbPositiveFilter.append('"');
-				sbPositiveFilter.append(QueryUtils.escapeQuery(group));
-				sbPositiveFilter.append('"');
-			}
-			sbPositiveFilter.append(')');
-		}
+		searchRequest.setUser(user.username);
+		searchRequest.setGroups(user.groups);
 
-		if (sbPositiveFilter.length() > 0)
-			searchRequest.addFilter(sbPositiveFilter.toString(), false);
-
-		if (authUserDenyField != null && authUserDenyField.length() > 0) {
-			StringBuilder sbNegativeFilter = new StringBuilder();
-			sbNegativeFilter.append(authUserDenyField);
-			sbNegativeFilter.append(':');
-			AuthPluginInterface.User.usernamesToFilterQuery(user,
-					sbNegativeFilter);
-			searchRequest.addFilter(sbNegativeFilter.toString(), true);
-		}
-
-		if (authGroupDenyField != null && authGroupDenyField.length() > 0
-				&& !CollectionUtils.isEmpty(user.groups)) {
-			StringBuilder sbNegativeFilter = new StringBuilder();
-			sbNegativeFilter.append(authGroupDenyField);
-			sbNegativeFilter.append(":(");
-			boolean bOr = false;
-			for (String group : user.groups) {
-				if (bOr)
-					sbNegativeFilter.append(" OR ");
-				else
-					bOr = true;
-				sbNegativeFilter.append('"');
-				sbNegativeFilter.append(QueryUtils.escapeQuery(group));
-				sbNegativeFilter.append('"');
-			}
-			sbNegativeFilter.append(')');
-			searchRequest.addFilter(sbNegativeFilter.toString(), true);
-		}
+		/*
+		 * StringBuilder sbPositiveFilter = new StringBuilder(); if
+		 * (authUserAllowField != null && authUserAllowField.length() > 0) { if
+		 * (sbPositiveFilter.length() > 0) sbPositiveFilter.append(" OR ");
+		 * sbPositiveFilter.append(authUserAllowField);
+		 * sbPositiveFilter.append(':');
+		 * AuthPluginInterface.User.usernamesToFilterQuery(user,
+		 * sbPositiveFilter); } if (authGroupAllowField != null &&
+		 * authGroupAllowField.length() > 0 &&
+		 * !CollectionUtils.isEmpty(user.groups)) { if
+		 * (sbPositiveFilter.length() > 0) sbPositiveFilter.append(" OR ");
+		 * sbPositiveFilter.append(authGroupAllowField);
+		 * sbPositiveFilter.append(":("); boolean bOr = false; for (String group
+		 * : user.groups) { if (bOr) sbPositiveFilter.append(" OR "); else bOr =
+		 * true; sbPositiveFilter.append('"');
+		 * sbPositiveFilter.append(QueryUtils.escapeQuery(group));
+		 * sbPositiveFilter.append('"'); } sbPositiveFilter.append(')'); }
+		 * 
+		 * if (sbPositiveFilter.length() > 0)
+		 * searchRequest.addFilter(sbPositiveFilter.toString(), false);
+		 * 
+		 * if (authUserDenyField != null && authUserDenyField.length() > 0) {
+		 * StringBuilder sbNegativeFilter = new StringBuilder();
+		 * sbNegativeFilter.append(authUserDenyField);
+		 * sbNegativeFilter.append(':');
+		 * AuthPluginInterface.User.usernamesToFilterQuery(user,
+		 * sbNegativeFilter);
+		 * searchRequest.addFilter(sbNegativeFilter.toString(), true); }
+		 * 
+		 * if (authGroupDenyField != null && authGroupDenyField.length() > 0 &&
+		 * !CollectionUtils.isEmpty(user.groups)) { StringBuilder
+		 * sbNegativeFilter = new StringBuilder();
+		 * sbNegativeFilter.append(authGroupDenyField);
+		 * sbNegativeFilter.append(":("); boolean bOr = false; for (String group
+		 * : user.groups) { if (bOr) sbNegativeFilter.append(" OR "); else bOr =
+		 * true; sbNegativeFilter.append('"');
+		 * sbNegativeFilter.append(QueryUtils.escapeQuery(group));
+		 * sbNegativeFilter.append('"'); } sbNegativeFilter.append(')');
+		 * searchRequest.addFilter(sbNegativeFilter.toString(), true); }
+		 */
 		return user;
 	}
 
