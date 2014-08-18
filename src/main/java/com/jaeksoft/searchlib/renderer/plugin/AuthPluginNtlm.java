@@ -104,6 +104,7 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, remoteUser));
 
+			activeDirectory.findUserGroup(domain, remoteUser);
 			Logging.info("USER authenticated: " + user);
 
 			AuthUserCache.INSTANCE.add(remoteUser, domain, user);
