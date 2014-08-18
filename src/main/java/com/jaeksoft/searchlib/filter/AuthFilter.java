@@ -71,14 +71,21 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 		sb.append(" - ");
 		if (request == null)
 			return sb.toString();
-		sb.append(request.getUser());
+		Collection<String> users = request.getUsers();
+		if (users != null) {
+			for (String user : users) {
+				sb.append(user);
+				sb.append('|');
+			}
+		}
 		sb.append(" - ");
 		Collection<String> groups = request.getGroups();
-		if (groups != null)
+		if (groups != null) {
 			for (String group : groups) {
 				sb.append(group);
 				sb.append('|');
 			}
+		}
 		return sb.toString();
 	}
 
@@ -88,20 +95,25 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 			return query;
 
 		AuthManager auth = request.getConfig().getAuthManager();
-		String user = request.getUser();
-		if (user == null)
-			user = StringUtils.EMPTY;
+		Collection<String> users = request.getUsers();
 		Collection<String> groups = request.getGroups();
 
 		BooleanQuery booleanQuery = new BooleanQuery(true);
-		String field = auth.getUserAllowField();
-		if (!StringUtils.isEmpty(field))
-			booleanQuery
-					.add(new TermQuery(new Term(field, user)), Occur.SHOULD);
-		field = auth.getUserDenyField();
-		if (!StringUtils.isEmpty(field))
-			booleanQuery.add(new TermQuery(new Term(field, user)),
-					Occur.MUST_NOT);
+		String field;
+
+		if (users != null) {
+			field = auth.getUserAllowField();
+			if (!StringUtils.isEmpty(field))
+				for (String user : users)
+					booleanQuery.add(new TermQuery(new Term(field, user)),
+							Occur.SHOULD);
+			field = auth.getUserDenyField();
+			if (!StringUtils.isEmpty(field))
+				for (String user : users)
+					booleanQuery.add(new TermQuery(new Term(field, user)),
+							Occur.MUST_NOT);
+		}
+
 		if (groups != null) {
 			field = auth.getGroupAllowField();
 			if (!StringUtils.isEmpty(field))
@@ -114,7 +126,9 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 					booleanQuery.add(new TermQuery(new Term(field, group)),
 							Occur.MUST_NOT);
 		}
+
 		Logging.info("SECURE QUERY: " + booleanQuery.toString());
+
 		query = booleanQuery;
 		return query;
 	}

@@ -69,7 +69,7 @@ public abstract class AbstractRequest {
 	private int timerMinTime;
 	private int timerMaxDepth;
 
-	private String user;
+	private Set<String> users;
 	private Set<String> groups;
 
 	protected AbstractRequest(Config config, RequestTypeEnum requestType) {
@@ -122,7 +122,8 @@ public abstract class AbstractRequest {
 			this.customLogs = new ArrayList<String>(request.customLogs);
 		this.timerMinTime = request.timerMinTime;
 		this.timerMaxDepth = request.timerMaxDepth;
-		this.user = request.user;
+		this.users = request.users == null ? null : new TreeSet<String>(
+				request.users);
 		this.groups = request.groups == null ? null : new TreeSet<String>(
 				request.groups);
 	}
@@ -139,7 +140,7 @@ public abstract class AbstractRequest {
 		customLogs = null;
 		timerMinTime = 10;
 		timerMaxDepth = 3;
-		user = null;
+		users = null;
 		groups = null;
 	}
 
@@ -251,7 +252,12 @@ public abstract class AbstractRequest {
 
 	protected void setFromServletNoLock(final ServletTransaction transaction,
 			final String prefix) throws SyntaxError, SearchLibException {
-		user = transaction.getParameterString("user");
+		String[] usrs = transaction.getParameterValues("user");
+		if (usrs != null) {
+			users = new TreeSet<String>();
+			for (String user : users)
+				users.add(user);
+		}
 		String[] grps = transaction.getParameterValues("group");
 		if (grps != null) {
 			groups = new TreeSet<String>();
@@ -303,10 +309,10 @@ public abstract class AbstractRequest {
 		this.timerMaxDepth = timerMaxDepth;
 	}
 
-	public String getUser() {
+	public Collection<String> getUsers() {
 		rwl.r.lock();
 		try {
-			return this.user;
+			return this.users;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -324,7 +330,19 @@ public abstract class AbstractRequest {
 	public void setUser(String user) {
 		rwl.w.lock();
 		try {
-			this.user = user;
+			this.users = CollectionUtils.isEmpty(users) ? null
+					: new TreeSet<String>();
+			this.users.add(user);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void setUsers(Collection<String> users) {
+		rwl.w.lock();
+		try {
+			this.users = CollectionUtils.isEmpty(users) ? null
+					: new TreeSet<String>(users);
 		} finally {
 			rwl.w.unlock();
 		}
