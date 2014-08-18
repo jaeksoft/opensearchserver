@@ -25,18 +25,18 @@
 package com.jaeksoft.searchlib.renderer.filter;
 
 import java.io.IOException;
-import java.util.List;
 
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
+public abstract class RendererFilterAbstract implements RendererFilterInterface {
 
-public interface RendererFilterInterface {
+	protected String fieldName;
 
-	void populate(AbstractResultSearch facetResult,
-			List<RendererFilterItem> filterItem);
+	@Override
+	public void init(String fieldName, String properties) throws IOException {
+		this.fieldName = fieldName;
+	}
 
-	String getDefaultProperties();
-
-	void init(String fieldName, String properties) throws IOException;
-
-	public String getFieldName();
+	@Override
+	final public String getFieldName() {
+		return fieldName;
+	}
 }
