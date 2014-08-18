@@ -35,6 +35,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.authentication.AuthManager;
@@ -113,6 +114,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 					booleanQuery.add(new TermQuery(new Term(field, group)),
 							Occur.MUST_NOT);
 		}
+		Logging.info("SECURE QUERY: " + booleanQuery.toString());
 		query = booleanQuery;
 		return query;
 	}
