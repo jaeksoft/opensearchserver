@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
@@ -216,6 +217,19 @@ public class RendererFilter {
 		if (this.fieldName == null)
 			return false;
 		return this.fieldName.equals(fieldName);
+	}
+
+	public final static boolean isParameterValue(HttpServletRequest request,
+			String parameter, String value) {
+		if (value == null)
+			return false;
+		String[] values = request.getParameterValues(parameter);
+		if (values == null)
+			return false;
+		for (String v : values)
+			if (value.equals(v))
+				return true;
+		return false;
 	}
 
 }

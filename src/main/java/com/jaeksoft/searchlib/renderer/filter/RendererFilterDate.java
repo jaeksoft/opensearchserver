@@ -36,10 +36,9 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class RendererFilterDate implements RendererFilterInterface {
+public class RendererFilterDate extends RendererFilterAbstract {
 
 	private ThreadSafeDateFormat dateFormat;
-	private String fieldName;
 	private final List<Item> items = new ArrayList<Item>();
 
 	@Override
@@ -47,8 +46,8 @@ public class RendererFilterDate implements RendererFilterInterface {
 			List<RendererFilterItem> filterItem) {
 		long time = System.currentTimeMillis();
 		for (Item item : items)
-			filterItem.add(new RendererFilterItem(item.getFilterQuery(time),
-					item.label));
+			filterItem.add(new RendererFilterItem(item.range.name(), item
+					.getFilterQuery(time), item.label));
 	}
 
 	private final String defaultProperties = "1.label=Any time"
@@ -67,7 +66,7 @@ public class RendererFilterDate implements RendererFilterInterface {
 
 	@Override
 	public void init(String fieldName, String properties) throws IOException {
-		this.fieldName = fieldName;
+		super.init(fieldName, properties);
 		Properties props = RendererWidget.loadProperties(properties);
 		dateFormat = new ThreadSafeDateFormat(new SimpleDateFormat(
 				props.getProperty("dateformat", "yyyyMMddHHmmssSSS")));
