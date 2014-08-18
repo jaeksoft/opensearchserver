@@ -258,13 +258,20 @@ public class RendererField {
 		return null;
 	}
 
-	final public String getUrlField(ResultDocument resultDocument) {
+	final public String getOriginalUrl(ResultDocument resultDocument) {
 		if (urlFieldName == null)
 			return null;
 		String url = resultDocument.getValueContent(urlFieldName, 0);
 		if (url == null)
 			return null;
 		if (url.length() == 0)
+			return null;
+		return url;
+	}
+
+	final public String getUrlField(ResultDocument resultDocument) {
+		String url = getOriginalUrl(resultDocument);
+		if (url == null)
 			return null;
 		if (urlDecode)
 			url = LinkUtils.UTF8_URL_QuietDecode(url);

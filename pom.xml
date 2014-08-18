@@ -470,11 +470,6 @@
 			<artifactId>jna</artifactId>
 			<version>4.1.0</version>
 		</dependency>
-		<dependency>
-			<groupId>ch.poweredge.ntlmv2-auth</groupId>
-			<artifactId>ntlmv2-filter</artifactId>
-			<version>1.0.5</version>
-		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
