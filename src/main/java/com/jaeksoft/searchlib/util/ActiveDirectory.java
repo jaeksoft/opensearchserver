@@ -145,14 +145,15 @@ public class ActiveDirectory implements Closeable {
 		String filter = StringUtils.fastConcat(
 				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
 		Logging.info("FILTER:" + filter);
-		NamingEnumeration<SearchResult> results = find(filter, ATTR_CN);
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_DN);
 		while (results.hasMore()) {
 			SearchResult searchResult = results.next();
 			Attributes groupAttrs = searchResult.getAttributes();
+			Logging.info("ATTRS: " + groupAttrs.toString());
 			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
 					ATTR_DN));
 			collector.add(adGroup);
-			Logging.info("FOUND GROUP: " + adGroup.dcn);
+			Logging.info("GROUP: " + adGroup.dcn);
 		}
 	}
 
