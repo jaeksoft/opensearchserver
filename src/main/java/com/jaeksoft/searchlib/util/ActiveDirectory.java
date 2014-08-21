@@ -75,7 +75,6 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
 	public final static String ATTR_DN = "DistinguishedName";
-	public final static String ATTR_NAME = "name";
 
 	private NamingEnumeration<SearchResult> find(String filterExpr,
 			String... returningAttributes) throws NamingException {
@@ -141,15 +140,19 @@ public class ActiveDirectory implements Closeable {
 		findGroups(groups, collector, searchedGroups);
 	}
 
-	public void findUserGroup(String userDN) throws NamingException {
+	public void findUserGroup(String userDN, Collection<ADGroup> collector)
+			throws NamingException {
 		String filter = StringUtils.fastConcat(
 				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
 		Logging.info("FILTER:" + filter);
-		NamingEnumeration<SearchResult> results = find(filter, ATTR_NAME);
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_CN);
 		while (results.hasMore()) {
 			SearchResult searchResult = results.next();
-			Logging.info("FOUND GROUP: "
-					+ searchResult.getAttributes().toString());
+			Attributes groupAttrs = searchResult.getAttributes();
+			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
+					ATTR_DN));
+			collector.add(adGroup);
+			Logging.info("FOUND GROUP: " + adGroup.dcn);
 		}
 	}
 
@@ -199,6 +202,7 @@ public class ActiveDirectory implements Closeable {
 
 		public final String cn;
 		public final String dc;
+		public final String dcn;
 
 		private ADGroup(final String memberOf) {
 			String[] parts = StringUtils.split(memberOf, ',');
@@ -215,17 +219,15 @@ public class ActiveDirectory implements Closeable {
 			}
 			this.cn = lcn;
 			this.dc = ldc;
+			this.dcn = StringUtils.fastConcat(dc, '\\', cn);
 		}
 	}
 
-	public static String[] toArray(List<ADGroup> groups) {
-		if (groups == null)
-			return null;
-		String[] array = new String[groups.size()];
-		int i = 0;
+	public static String[] toArray(Collection<ADGroup> groups) {
+		TreeSet<String> groupSet = new TreeSet<String>();
 		for (ADGroup group : groups)
-			array[i++] = StringUtils.fastConcat(group.dc, '\\', group.cn);
-		return array;
+			groupSet.add(group.dcn);
+		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
 	public static void main(String[] args) {
