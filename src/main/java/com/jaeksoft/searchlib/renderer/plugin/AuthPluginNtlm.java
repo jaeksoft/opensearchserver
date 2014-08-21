@@ -106,7 +106,7 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 
 			String dnUser = ActiveDirectory.getStringAttribute(attrs,
 					"DistinguishedName");
-			activeDirectory.findUserGroup(domain, dnUser);
+			activeDirectory.findUserGroup(dnUser);
 			Logging.info("USER authenticated: " + user + " DN=" + dnUser);
 
 			AuthUserCache.INSTANCE.add(remoteUser, domain, user);
