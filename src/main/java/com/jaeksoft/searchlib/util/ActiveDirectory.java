@@ -74,18 +74,14 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_MEMBEROF = "memberOf";
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
-
-	public final static String[] DefaultReturningAttributes = { ATTR_CN,
-			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
-			ATTR_MEMBEROF };
+	public final static String ATTR_DN = "DistinguishedName";
 
 	private NamingEnumeration<SearchResult> find(String filterExpr,
 			String... returningAttributes) throws NamingException {
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		if (returningAttributes == null || returningAttributes.length == 0)
-			returningAttributes = DefaultReturningAttributes;
-		searchControls.setReturningAttributes(returningAttributes);
+		if (returningAttributes != null)
+			searchControls.setReturningAttributes(returningAttributes);
 		return dirContext.search(domainSearchName, filterExpr, searchControls);
 	}
 
@@ -99,20 +95,22 @@ public class ActiveDirectory implements Closeable {
 		return rs.getAttributes();
 	}
 
-	public NamingEnumeration<SearchResult> findUser(String username,
-			String... returningAttributes) throws NamingException {
+	public NamingEnumeration<SearchResult> findUser(String username)
+			throws NamingException {
 		return find(
 				StringUtils.fastConcat(
 						"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname=",
-						username, "))"), returningAttributes);
+						username, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private NamingEnumeration<SearchResult> findGroup(String group)
 			throws NamingException {
-		return find(StringUtils
-				.fastConcat(
+		return find(
+				StringUtils.fastConcat(
 						"(&((&(objectCategory=Group)(objectClass=Group)))(samaccountname=",
-						group, "))"));
+						group, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private void findGroups(Collection<ADGroup> groups,
@@ -143,17 +141,16 @@ public class ActiveDirectory implements Closeable {
 		findGroups(groups, collector, searchedGroups);
 	}
 
-	public void findUserGroup(String domain, String userCn)
+	public void findUserGroup(String domain, String userDN)
 			throws NamingException {
 		String filter = StringUtils.fastConcat(
-				"(member:1.2.840.113556.1.4.1941:=cn=", userCn, ",",
+				"(member:1.2.840.113556.1.4.1941:=", userDN, ",",
 				domainSearchName, ")");
 		Logging.info("FILTER:" + filter);
 		NamingEnumeration<SearchResult> result = find(filter);
 		Attributes attrs;
 		while ((attrs = getAttributes(result)) != null) {
-			System.out.println("FOUND CN: " + attrs.get(ATTR_CN)
-					+ attrs.toString());
+			Logging.info("FOUND CN: " + attrs.get(ATTR_CN) + attrs.toString());
 		}
 	}
 
