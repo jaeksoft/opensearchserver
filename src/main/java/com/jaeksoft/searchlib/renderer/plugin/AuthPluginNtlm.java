@@ -25,8 +25,8 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -98,15 +98,15 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			if (attrs == null)
 				throw new AuthException("No user found: " + remoteUser);
 			String userId = ActiveDirectory.getObjectSID(attrs);
-			List<ADGroup> groups = new ArrayList<ADGroup>();
+			Collection<ADGroup> groups = new TreeSet<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
+			String dnUser = ActiveDirectory.getStringAttribute(attrs,
+					"DistinguishedName");
+			activeDirectory.findUserGroup(dnUser, groups);
 			user = new User(userId, remoteUser, null,
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, remoteUser));
 
-			String dnUser = ActiveDirectory.getStringAttribute(attrs,
-					"DistinguishedName");
-			activeDirectory.findUserGroup(dnUser);
 			Logging.info("USER authenticated: " + user + " DN=" + dnUser);
 
 			AuthUserCache.INSTANCE.add(remoteUser, domain, user);
