@@ -75,13 +75,13 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
 	public final static String ATTR_DN = "DistinguishedName";
+	public final static String ATTR_NAME = "name";
 
 	private NamingEnumeration<SearchResult> find(String filterExpr,
 			String... returningAttributes) throws NamingException {
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		if (returningAttributes != null)
-			searchControls.setReturningAttributes(returningAttributes);
+		searchControls.setReturningAttributes(returningAttributes);
 		return dirContext.search(domainSearchName, filterExpr, searchControls);
 	}
 
@@ -141,16 +141,15 @@ public class ActiveDirectory implements Closeable {
 		findGroups(groups, collector, searchedGroups);
 	}
 
-	public void findUserGroup(String domain, String userDN)
-			throws NamingException {
+	public void findUserGroup(String userDN) throws NamingException {
 		String filter = StringUtils.fastConcat(
-				"(member:1.2.840.113556.1.4.1941:=", userDN, ",",
-				domainSearchName, ")");
+				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
 		Logging.info("FILTER:" + filter);
-		NamingEnumeration<SearchResult> result = find(filter);
-		Attributes attrs;
-		while ((attrs = getAttributes(result)) != null) {
-			Logging.info("FOUND CN: " + attrs.get(ATTR_CN) + attrs.toString());
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_NAME);
+		while (results.hasMore()) {
+			SearchResult searchResult = results.next();
+			Logging.info("FOUND GROUP: "
+					+ searchResult.getAttributes().toString());
 		}
 	}
 
@@ -259,7 +258,7 @@ public class ActiveDirectory implements Closeable {
 		if (i == -1)
 			throw new IllegalArgumentException(StringUtils.fastConcat(
 					"Wrong returned value: ", s));
-		return s.substring(i + 1);
+		return s.substring(i + 1).trim();
 	}
 
 	public static String getObjectSID(Attributes attrs) throws NamingException {
