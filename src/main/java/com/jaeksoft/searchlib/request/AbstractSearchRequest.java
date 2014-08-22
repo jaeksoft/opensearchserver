@@ -1181,6 +1181,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 						schemaFieldList, value).getName()));
 		}
 
+		if (transaction.getParameterString("sort.clear") != null)
+			sortFieldList.clear();
+
 		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
 				prefix, "sort"))) != null) {
 			for (String value : values)
