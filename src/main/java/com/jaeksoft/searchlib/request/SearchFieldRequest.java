@@ -60,8 +60,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		RequestInterfaces.FilterListInterface {
 
 	public final static String SEARCHFIELD_QUERY_NODE_NAME = "query";
+	public final static String SEARCHFIELD_ATTR_SUM_SCORING = "sumScoring";
 
 	private List<SearchField> searchFields;
+
+	private boolean sumScoring;
 
 	public SearchFieldRequest() {
 		super(null, RequestTypeEnum.SearchFieldRequest);
@@ -74,6 +77,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	@Override
 	protected void setDefaultValues() {
 		super.setDefaultValues();
+		sumScoring = false;
 		searchFields = new ArrayList<SearchField>(0);
 	}
 
@@ -81,24 +85,43 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		SearchFieldRequest searchFieldRequest = (SearchFieldRequest) request;
+		this.sumScoring = searchFieldRequest.sumScoring;
 		this.searchFields = new ArrayList<SearchField>(0);
 		if (searchFieldRequest.searchFields != null)
 			for (SearchField searchField : searchFieldRequest.searchFields)
 				this.searchFields.add(searchField.clone());
 	}
 
+	final private Query getComplexQuery(final Collection<Query> queries) {
+		BooleanQuery complexQuery = new BooleanQuery();
+		for (Query query : queries)
+			complexQuery.add(query, Occur.SHOULD);
+		return complexQuery;
+	}
+
 	@Override
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
-		BooleanQuery complexQuery = new BooleanQuery();
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
 		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
+		List<Query> queries = new ArrayList<Query>(searchFields.size());
 		for (SearchField searchField : searchFields)
 			if (snippetFieldList.get(searchField.getField()) != null)
-				searchField.addQuery(analyzer, queryString, complexQuery,
+				searchField.addQuery(analyzer, queryString, queries,
 						phraseSlop, occur);
-		return complexQuery;
+		return getComplexQuery(queries);
+	}
+
+	private Query newComplexQuery(String queryString, Occur occur)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
+		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
+			return new MatchAllDocsQuery();
+		List<Query> queries = new ArrayList<Query>(searchFields.size());
+		for (SearchField searchField : searchFields)
+			searchField.addQuery(analyzer, queryString, queries, phraseSlop,
+					occur);
+		return getComplexQuery(queries);
 	}
 
 	@Override
@@ -106,14 +129,15 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			SyntaxError, SearchLibException, IOException {
 		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
-		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
-			return new MatchAllDocsQuery();
+		return newComplexQuery(queryString, sumScoring ? Occur.SHOULD : occur);
+	}
 
-		BooleanQuery complexQuery = new BooleanQuery();
-		for (SearchField searchField : searchFields)
-			searchField.addQuery(analyzer, queryString, complexQuery,
-					phraseSlop, occur);
-		return complexQuery;
+	@Override
+	public Query newRuntimeFilter(String queryString) throws ParseException,
+			SyntaxError, SearchLibException, IOException {
+		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
+				: Occur.SHOULD;
+		return newComplexQuery(queryString, occur);
 	}
 
 	@Override
@@ -122,8 +146,12 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			ParseException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
-		List<Node> fieldNodeList = DomUtils.getNodes(requestNode,
-				SEARCHFIELD_QUERY_NODE_NAME, SearchField.SEARCHFIELD_NODE_NAME);
+		Node fieldQueryNode = DomUtils.getFirstNode(requestNode,
+				SEARCHFIELD_QUERY_NODE_NAME);
+		setSumScoring(DomUtils.getAttributeBoolean(fieldQueryNode,
+				SEARCHFIELD_ATTR_SUM_SCORING, false));
+		List<Node> fieldNodeList = DomUtils.getNodes(fieldQueryNode,
+				SearchField.SEARCHFIELD_NODE_NAME);
 		if (fieldNodeList != null)
 			for (Node fieldNode : fieldNodeList)
 				searchFields.add(new SearchField(fieldNode));
@@ -131,7 +159,8 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 
 	@Override
 	public void writeSubXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement(SEARCHFIELD_QUERY_NODE_NAME);
+		xmlWriter.startElement(SEARCHFIELD_QUERY_NODE_NAME,
+				SEARCHFIELD_ATTR_SUM_SCORING, Boolean.toString(sumScoring));
 		for (SearchField searchField : searchFields)
 			searchField.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
@@ -242,6 +271,21 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		FacetField facetField = new FacetField(fieldName, minCount,
 				multivalued, postCollapsing, ranges);
 		getFacetFieldList().put(facetField);
+	}
+
+	/**
+	 * @return the sumScoring
+	 */
+	public boolean isSumScoring() {
+		return sumScoring;
+	}
+
+	/**
+	 * @param sumScoring
+	 *            the sumScoring to set
+	 */
+	public void setSumScoring(boolean sumScoring) {
+		this.sumScoring = sumScoring;
 	}
 
 }

@@ -65,6 +65,12 @@ public class SearchFilterRequest extends AbstractSearchRequest implements
 	}
 
 	@Override
+	protected Query newRuntimeFilter(String queryString) throws ParseException,
+			SyntaxError, SearchLibException, IOException {
+		return null;
+	}
+
+	@Override
 	protected void writeSubXmlConfig(XmlWriter xmlWriter) throws SAXException {
 	}
 
