@@ -55,6 +55,12 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 		this("", false, Source.REQUEST, null);
 	}
 
+	public QueryFilter(Query query) {
+		super(FilterType.QUERY_FILTER, Source.REQUEST, false, null);
+		this.query = query;
+		this.queryString = query.toString();
+	}
+
 	public QueryFilter(String req, boolean negative, Source src,
 			String paramPosition) {
 		super(FilterType.QUERY_FILTER, src, negative, paramPosition);

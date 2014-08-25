@@ -298,6 +298,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	protected abstract Query newComplexQuery(String queryString)
 			throws ParseException, SyntaxError, SearchLibException, IOException;
 
+	protected abstract Query newRuntimeFilter(String queryString)
+			throws ParseException, SyntaxError, SearchLibException, IOException;
+
 	@Override
 	public Query getQuery() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
