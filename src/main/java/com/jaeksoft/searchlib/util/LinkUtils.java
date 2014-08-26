@@ -45,8 +45,8 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 
 public class LinkUtils {
 
-	public final static URL getLink(URL currentURL, String href,
-			UrlFilterItem[] urlFilterList, boolean removeFragment) {
+	public final static URL getLink(final URL currentURL, String href,
+			final UrlFilterItem[] urlFilterList, final boolean removeFragment) {
 
 		if (href == null)
 			return null;
@@ -55,10 +55,31 @@ public class LinkUtils {
 			return null;
 
 		String fragment = null;
+		URI u = null;
 		try {
-			URI u = URIUtils.resolve(currentURL.toURI(), href);
-			href = u.toString();
-			href = UrlFilterList.doReplace(u.getHost(), href, urlFilterList);
+			if (!href.contains("://")) {
+				URI currentURI = null;
+				try {
+					currentURI = currentURL.toURI();
+				} catch (URISyntaxException e) {
+					currentURI = new URI(URLEncoder.encode(
+							currentURL.toString(), "UTF-8"));
+				}
+				try {
+					u = URIUtils.resolve(currentURI, href);
+				} catch (IllegalArgumentException e) {
+					href = URLEncoder.encode(currentURL.toString(), "UTF-8");
+					u = URIUtils.resolve(currentURI, href);
+				}
+			} else {
+				try {
+					u = new URI(href);
+				} catch (URISyntaxException e) {
+					u = new URI(URLEncoder.encode(href, "UTF-8"));
+				}
+			}
+			href = UrlFilterList.doReplace(u.getHost(), u.toString(),
+					urlFilterList);
 			URI uri = URI.create(href);
 			uri = uri.normalize();
 
@@ -77,12 +98,16 @@ public class LinkUtils {
 			Logging.info(e.getMessage());
 			return null;
 		} catch (URISyntaxException e) {
-			Logging.info(e.getMessage(), e);
+			Logging.info(e.getMessage());
 			return null;
 		} catch (IllegalArgumentException e) {
 			Logging.info(e.getMessage(), e);
 			return null;
+		} catch (UnsupportedEncodingException e) {
+			Logging.info(e.getMessage(), e);
+			return null;
 		}
+
 	}
 
 	public final static String concatPath(String path1, String path2) {
