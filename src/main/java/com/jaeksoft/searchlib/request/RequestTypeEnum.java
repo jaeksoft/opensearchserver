@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -100,6 +100,30 @@ public enum RequestTypeEnum {
 	 */
 	public String getLabel() {
 		return label;
+	}
+
+	final public boolean isSearchFieldRequest() {
+		return this == SearchFieldRequest;
+	}
+
+	final public boolean isSearchRequest() {
+		return this == SearchRequest;
+	}
+
+	final public boolean isDocumentsRequest() {
+		return this == DocumentsRequest;
+	}
+
+	final public boolean isMoreLikeThisRequest() {
+		return this == MoreLikeThisRequest;
+	}
+
+	final public boolean isNamedEntityExtractionRequest() {
+		return this == NamedEntityExtractionRequest;
+	}
+
+	final public boolean isSpellCheckRequest() {
+		return this == SpellCheckRequest;
 	}
 
 }

@@ -87,18 +87,36 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 				this.searchFields.add(searchField.clone());
 	}
 
+	final private Query getComplexQuery(final Collection<Query> queries) {
+		BooleanQuery complexQuery = new BooleanQuery();
+		for (Query query : queries)
+			complexQuery.add(query, Occur.SHOULD);
+		return complexQuery;
+	}
+
 	@Override
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
-		BooleanQuery complexQuery = new BooleanQuery();
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
 		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
+		List<Query> queries = new ArrayList<Query>(searchFields.size());
 		for (SearchField searchField : searchFields)
 			if (snippetFieldList.get(searchField.getField()) != null)
-				searchField.addQuery(analyzer, queryString, complexQuery,
+				searchField.addQuery(analyzer, queryString, queries,
 						phraseSlop, occur);
-		return complexQuery;
+		return getComplexQuery(queries);
+	}
+
+	private Query newComplexQuery(String queryString, Occur occur)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
+		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
+			return new MatchAllDocsQuery();
+		List<Query> queries = new ArrayList<Query>(searchFields.size());
+		for (SearchField searchField : searchFields)
+			searchField.addQuery(analyzer, queryString, queries, phraseSlop,
+					occur);
+		return getComplexQuery(queries);
 	}
 
 	@Override
@@ -106,14 +124,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			SyntaxError, SearchLibException, IOException {
 		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;
-		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
-			return new MatchAllDocsQuery();
-
-		BooleanQuery complexQuery = new BooleanQuery();
-		for (SearchField searchField : searchFields)
-			searchField.addQuery(analyzer, queryString, complexQuery,
-					phraseSlop, occur);
-		return complexQuery;
+		return newComplexQuery(queryString, occur);
 	}
 
 	@Override
@@ -122,11 +133,15 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			ParseException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
-		List<Node> fieldNodeList = DomUtils.getNodes(requestNode,
-				SEARCHFIELD_QUERY_NODE_NAME, SearchField.SEARCHFIELD_NODE_NAME);
-		if (fieldNodeList != null)
-			for (Node fieldNode : fieldNodeList)
-				searchFields.add(new SearchField(fieldNode));
+		Node fieldQueryNode = DomUtils.getFirstNode(requestNode,
+				SEARCHFIELD_QUERY_NODE_NAME);
+		if (fieldQueryNode != null) {
+			List<Node> fieldNodeList = DomUtils.getNodes(fieldQueryNode,
+					SearchField.SEARCHFIELD_NODE_NAME);
+			if (fieldNodeList != null)
+				for (Node fieldNode : fieldNodeList)
+					searchFields.add(new SearchField(fieldNode));
+		}
 	}
 
 	@Override

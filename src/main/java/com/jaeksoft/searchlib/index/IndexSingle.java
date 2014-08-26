@@ -432,7 +432,7 @@ public class IndexSingle extends IndexAbstract {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+			IOException, SearchLibException, SyntaxError {
 		rwl.r.lock();
 		try {
 			checkOnline(true);

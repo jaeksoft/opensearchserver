@@ -55,6 +55,7 @@ import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.filter.GeoFilter;
+import com.jaeksoft.searchlib.filter.MirrorAndFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.filter.RelativeDateFilter;
 import com.jaeksoft.searchlib.filter.TermFilter;
@@ -88,6 +89,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		RequestInterfaces.FilterListInterface {
 
 	private transient Query boostedComplexQuery;
+	private transient Query complexQuery;
 	private transient Query snippetSimpleQuery;
 
 	protected transient PerFieldAnalyzer analyzer;
@@ -150,6 +152,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.lang = null;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
+		this.complexQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
 		this.advancedScore = null;
@@ -192,6 +195,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.lang = searchRequest.lang;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
+		this.complexQuery = null;
 		this.analyzer = null;
 		this.queryString = searchRequest.queryString;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
@@ -205,6 +209,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.queryParsed = null;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
+		this.complexQuery = null;
 		this.analyzer = null;
 		if (snippetFieldList != null)
 			for (SnippetField snippetField : snippetFieldList)
@@ -298,6 +303,36 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	protected abstract Query newComplexQuery(String queryString)
 			throws ParseException, SyntaxError, SearchLibException, IOException;
 
+	private Query newComplexQuery() throws ParseException, SearchLibException,
+			SyntaxError, IOException {
+		getQueryParser();
+		checkAnalyzer();
+		Query query = newComplexQuery(queryString);
+		if (query == null)
+			query = new BooleanQuery();
+		return query;
+	}
+
+	public Query getNotBoostedQuery() throws ParseException,
+			SearchLibException, SyntaxError, IOException {
+		rwl.r.lock();
+		try {
+			if (complexQuery != null)
+				return complexQuery;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (complexQuery != null)
+				return complexQuery;
+			complexQuery = newComplexQuery();
+			return complexQuery;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	@Override
 	public Query getQuery() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
@@ -312,11 +347,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		try {
 			if (boostedComplexQuery != null)
 				return boostedComplexQuery;
-			getQueryParser();
-			checkAnalyzer();
-			boostedComplexQuery = newComplexQuery(queryString);
-			if (boostedComplexQuery == null)
-				boostedComplexQuery = new BooleanQuery();
+			boostedComplexQuery = newComplexQuery();
 			for (BoostQuery boostQuery : boostingQueries)
 				boostedComplexQuery = boostQuery.getNewQuery(
 						boostedComplexQuery, queryParser);
@@ -379,6 +410,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		try {
 			queryString = q;
 			boostedComplexQuery = null;
+			complexQuery = null;
 			snippetSimpleQuery = null;
 		} finally {
 			rwl.w.unlock();
@@ -981,6 +1013,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				filterList.add(new GeoFilter(xpp, node));
 			else if ("relativeDateFilter".equals(nodeName))
 				filterList.add(new RelativeDateFilter(xpp, node));
+			else if ("mirrorAndFilter".equals(nodeName))
+				filterList.add(new MirrorAndFilter(xpp, node));
 		}
 
 		nodes = xpp.getNodeList(requestNode, "joins/join");
