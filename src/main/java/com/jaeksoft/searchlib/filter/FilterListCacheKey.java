@@ -24,11 +24,14 @@
 
 package com.jaeksoft.searchlib.filter;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.apache.lucene.analysis.Analyzer;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -39,7 +42,7 @@ public class FilterListCacheKey implements Comparable<FilterListCacheKey> {
 
 	public FilterListCacheKey(FilterList filterList, SchemaField defaultField,
 			Analyzer analyzer, AbstractSearchRequest request)
-			throws ParseException {
+			throws ParseException, SyntaxError, SearchLibException, IOException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
 		if (filterList != null)
 			for (FilterAbstract<?> filter : filterList)

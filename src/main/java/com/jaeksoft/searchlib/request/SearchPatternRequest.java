@@ -215,10 +215,4 @@ public class SearchPatternRequest extends AbstractSearchRequest implements
 		}
 	}
 
-	@Override
-	protected Query newRuntimeFilter(String queryString) throws ParseException,
-			SyntaxError, SearchLibException, IOException {
-		return null;
-	}
-
 }

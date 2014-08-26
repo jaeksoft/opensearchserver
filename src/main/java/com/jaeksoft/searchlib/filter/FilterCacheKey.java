@@ -24,8 +24,12 @@
 
 package com.jaeksoft.searchlib.filter;
 
+import java.io.IOException;
+
 import org.apache.lucene.analysis.Analyzer;
 
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -38,7 +42,7 @@ public class FilterCacheKey implements Comparable<FilterCacheKey> {
 
 	public FilterCacheKey(FilterAbstract<?> filter, SchemaField defaultField,
 			Analyzer analyzer, AbstractSearchRequest request)
-			throws ParseException {
+			throws ParseException, SyntaxError, SearchLibException, IOException {
 		key = filter.getCacheKey(defaultField, analyzer, request);
 		isNegative = filter.isNegative();
 	}
