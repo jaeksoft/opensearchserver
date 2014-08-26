@@ -24,12 +24,17 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -43,7 +48,12 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 			TaskPropertyType.comboBox, "crawl name", "crawl name",
 			"The name of the database crawl item", 50);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName };
+	final private TaskPropertyDef propCrawlVariables = new TaskPropertyDef(
+			TaskPropertyType.multilineTextBox, "crawl variables",
+			"crawl variables", "The name of the database crawl item", 50, 5);
+
+	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName,
+			propCrawlVariables };
 
 	@Override
 	public String getName() {
@@ -77,10 +87,16 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+			Variables variables, TaskLog taskLog) throws SearchLibException,
+			IOException {
 		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
 		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
 		String crawlName = properties.getValue(propCrawlName);
+		String vars = properties.getValue(propCrawlVariables);
+		if (!StringUtils.isEmpty(vars)) {
+			variables = new Variables(variables);
+			variables.putProperties(vars);
+		}
 		if (crawlName == null) {
 			taskLog.setInfo("The crawl name is missing");
 			return;
@@ -91,7 +107,10 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 			return;
 		}
 		try {
-			crawlMaster.execute(client, crawl, true, variables, taskLog);
+			DatabaseCrawlThread ct = crawlMaster.execute(client, crawl, true,
+					variables, taskLog);
+			if (ct.getException() != null)
+				throw new SearchLibException(ct.getException());
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
