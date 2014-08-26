@@ -89,7 +89,7 @@ public interface ReaderInterface {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException;
+			IOException, SearchLibException, SyntaxError;
 
 	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
