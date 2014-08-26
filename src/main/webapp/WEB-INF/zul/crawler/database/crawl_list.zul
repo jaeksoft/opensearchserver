@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -22,7 +22,7 @@
 	</toolbar>
 	<panelchildren>
 		<listbox model="@load(dbCrawlList.databaseCrawlList.array)"
-			mold="paging" pageSize="20">
+			mold="paging" pageSize="20" onSelect="@command('reload')">
 			<listhead>
 				<listheader label="Name" hflex="min" />
 				<listheader label="Last execution time" hflex="min" />
@@ -49,6 +49,10 @@
 							<button
 								tooltiptext="Edit the database crawl" label="Edit"
 								onClick="@command('edit', crawlitem=dbcrawlitem)" />
+							<space />
+							<button
+								tooltiptext="Clone the database crawl" label="Clone"
+								onClick="@command('clone', crawlitem=dbcrawlitem)" />
 							<space />
 							<button
 								tooltiptext="Execute the crawl process"

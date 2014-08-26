@@ -125,6 +125,15 @@ public class RestCrawlController
 	}
 
 	@Override
+	public void doClone(RestCrawlItem crawl) throws SearchLibException {
+		setSelectedCrawl(null);
+		RestCrawlItem newCrawl = crawl.duplicate();
+		newCrawl.setName(null);
+		setCurrentCrawl(newCrawl);
+		reload();
+	}
+
+	@Override
 	@Command
 	public void reload() throws SearchLibException {
 		crawlList = null;

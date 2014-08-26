@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -120,6 +120,15 @@ public class MailboxController
 		if (oldCurrentCrawl != null)
 			oldCurrentCrawl.copyTo(newCrawl);
 		newCrawl.setName(null);
+		reload();
+	}
+
+	@Override
+	public void doClone(MailboxCrawlItem crawl) throws SearchLibException {
+		setSelectedCrawl(null);
+		MailboxCrawlItem newCrawl = crawl.duplicate();
+		newCrawl.setName(null);
+		setCurrentCrawl(newCrawl);
 		reload();
 	}
 
