@@ -122,6 +122,15 @@ public class DatabaseCrawlListController
 	}
 
 	@Override
+	public void doClone(DatabaseCrawlAbstract crawl) throws SearchLibException {
+		setSelectedCrawl(null);
+		DatabaseCrawlAbstract newCrawl = crawl.duplicate();
+		newCrawl.setName(null);
+		setCurrentCrawl(newCrawl);
+		reload();
+	}
+
+	@Override
 	@Command
 	public void reload() throws SearchLibException {
 		dbCrawlList = null;

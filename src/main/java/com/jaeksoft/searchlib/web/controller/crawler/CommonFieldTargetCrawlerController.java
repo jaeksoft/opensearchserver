@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -204,6 +204,14 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	public void edit(@BindingParam("crawlitem") C item)
 			throws SearchLibException, InterruptedException {
 		setSelectedCrawl(item);
+	}
+
+	public abstract void doClone(C item) throws SearchLibException;
+
+	@Command
+	public void clone(@BindingParam("crawlitem") C item)
+			throws SearchLibException {
+		doClone(item);
 	}
 
 	@Command
