@@ -48,6 +48,10 @@
 							<button tooltiptext="Edit the mailbox item"
 								label="Edit" onClick="@command('edit', crawlitem=mailboxItem)" />
 							<space />
+							<button tooltiptext="Clone the mailbox item"
+								label="Clone"
+								onClick="@command('clone', crawlitem=mailboxItem)" />
+							<space />
 							<button
 								tooltiptext="Execute the crawl process"
 								disabled="@load(mailboxItem.thread)"
