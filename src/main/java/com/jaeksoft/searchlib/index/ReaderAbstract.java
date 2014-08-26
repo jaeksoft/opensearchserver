@@ -74,7 +74,7 @@ public abstract class ReaderAbstract implements ReaderInterface {
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException;
+			IOException, SearchLibException, SyntaxError;
 
 	public abstract long maxDoc() throws IOException, SearchLibException;
 

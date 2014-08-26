@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -68,7 +69,10 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 				"/WEB-INF/zul/query/search/filterGeo.zul"),
 
 		RELATIVE_DATE_FILTER("Relative date filter", RelativeDateFilter.class,
-				"/WEB-INF/zul/query/search/filterRelativeDate.zul");
+				"/WEB-INF/zul/query/search/filterRelativeDate.zul"),
+
+		MIRROR_AND_FILTER("Mirror AND filter", MirrorAndFilter.class,
+				"/WEB-INF/zul/query/search/filterMirrorAnd.zul");
 
 		private final String label;
 
@@ -143,7 +147,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public abstract String getCacheKey(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
-			throws ParseException;
+			throws ParseException, SyntaxError, SearchLibException, IOException;
 
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
