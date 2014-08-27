@@ -542,6 +542,36 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "MirrorAndFilter")
+	@XmlRootElement(name = "MirrorAndFilter")
+	@JsonTypeName("MirrorAndFilter")
+	public static class MirrorAndFilter extends Filter {
+
+		public MirrorAndFilter() {
+		}
+
+		protected MirrorAndFilter(
+				com.jaeksoft.searchlib.filter.MirrorAndFilter src) {
+			super(src.isNegative());
+		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+		}
+
+		@Override
+		@JsonIgnore
+		public FilterAbstract<?> newFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.MirrorAndFilter();
+			apply(filter);
+			return filter;
+		}
+
+	}
+
 	public static List<Filter> newFilterList(FilterList filterList) {
 		if (filterList == null)
 			return null;
@@ -565,6 +595,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			case RELATIVE_DATE_FILTER:
 				filters.add(new RelativeDateFilter(
 						(com.jaeksoft.searchlib.filter.RelativeDateFilter) filterAbstract));
+				break;
+			case MIRROR_AND_FILTER:
+				filters.add(new MirrorAndFilter(
+						(com.jaeksoft.searchlib.filter.MirrorAndFilter) filterAbstract));
 				break;
 			}
 		}

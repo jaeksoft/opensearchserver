@@ -25,19 +25,26 @@
 package com.jaeksoft.searchlib.renderer.plugin;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
-import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 import javax.servlet.http.HttpServletRequest;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
-import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.util.ActiveDirectory;
+import com.jaeksoft.searchlib.util.ActiveDirectory.ADGroup;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public class AuthPluginNtlm implements AuthPluginInterface {
 
@@ -60,45 +67,56 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		return groups;
 	}
 
-	/*
-	 * The userId must be an SID (non-Javadoc)
-	 * 
-	 * @see
-	 * com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface#authGetGroups
-	 * (com.jaeksoft.searchlib.renderer.Renderer, java.lang.String)
-	 */
-	private String[] getGroups(Renderer renderer, String sidString)
-			throws IOException {
-		SID[] sids = null;
-		try {
-			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
-					null);
-			String authServer = renderer.getAuthServer();
-			SID sid = new SID(sidString);
-			sid.resolve(authServer, ntlmAuth);
-			sids = sid.getGroupMemberSids(authServer, ntlmAuth,
-					SID.SID_FLAG_RESOLVE_SIDS);
-			return getGroups(sids, authServer, ntlmAuth);
-		} catch (SmbAuthException sae) {
-			Logging.warn(sae);
-			throw new AuthException("SmbAuthException : " + sae.getMessage());
-		} catch (UnknownHostException e) {
-			Logging.warn(e);
-			throw new AuthException("UnknownHostException : " + e.getMessage());
-		} catch (SmbException e) {
-			Logging.warn(e);
-			throw new AuthException("SmbException : " + e.getMessage());
-		}
-	}
-
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+
 		String remoteUser = request.getRemoteUser();
-		String userId = remoteUser;
-		Principal principal = request.getUserPrincipal();
-		String username = principal != null ? principal.getName() : remoteUser;
-		return new User(userId, username, null, getGroups(renderer, userId),
-				remoteUser);
+		if (remoteUser == null)
+			remoteUser = request.getHeader("X-OSS-REMOTE-USER");
+		ActiveDirectory activeDirectory = null;
+		if (StringUtils.isEmpty(remoteUser))
+			throw new AuthException("No user");
+		int i = remoteUser.indexOf('@');
+		if (i != -1)
+			remoteUser = remoteUser.substring(0, i);
+		try {
+			String domain = renderer.getAuthDomain();
+
+			User user = AuthUserCache.INSTANCE.get(remoteUser, domain);
+			if (user != null)
+				return user;
+
+			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
+					null);
+			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
+					ntlmAuth.getPassword(), ntlmAuth.getDomain());
+
+			NamingEnumeration<SearchResult> result = activeDirectory
+					.findUser(remoteUser);
+			Attributes attrs = ActiveDirectory.getAttributes(result);
+			if (attrs == null)
+				throw new AuthException("No user found: " + remoteUser);
+			String userId = ActiveDirectory.getObjectSID(attrs);
+			List<ADGroup> groups = new ArrayList<ADGroup>();
+			activeDirectory.findUserGroups(attrs, groups);
+			String dnUser = ActiveDirectory.getStringAttribute(attrs,
+					"DistinguishedName");
+			activeDirectory.findUserGroup(dnUser, groups);
+			user = new User(userId, remoteUser, null,
+					ActiveDirectory.toArray(groups),
+					ActiveDirectory.getDisplayString(domain, remoteUser));
+
+			Logging.info("USER authenticated: " + user + " DN=" + dnUser);
+
+			AuthUserCache.INSTANCE.add(remoteUser, domain, user);
+			return user;
+		} catch (NamingException e) {
+			Logging.warn(e);
+			throw new AuthException("LDAP error (NamingException) : "
+					+ e.getMessage());
+		} finally {
+			IOUtils.close(activeDirectory);
+		}
 	}
 }

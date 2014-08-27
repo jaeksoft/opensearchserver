@@ -39,11 +39,10 @@
 				<button label="Cancel" onClick="@command('onCancel')" />
 				<space width="10px" />
 				<button label="Save" onClick="@command('onSave')" />
-				<space width="20px" />
-				<button label="New..." onClick="@command('onNew')" />
 			</hbox>
 			<hbox visible="@load(dbCrawlList.notSelected)">
 				<button label="Cancel" onClick="@command('onCancel')" />
+				<space width="10px" />
 				<button label="Create" onClick="@command('onSave')" />
 			</hbox>
 		</vbox>

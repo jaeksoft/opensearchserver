@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterCacheKey;
 import com.jaeksoft.searchlib.filter.FilterHits;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -49,7 +50,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 
 	public FilterHits get(FilterAbstract<?> filter, SchemaField defaultField,
 			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
-			throws ParseException, IOException, SearchLibException {
+			throws ParseException, IOException, SearchLibException, SyntaxError {
 		rwl.w.lock();
 		try {
 			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,

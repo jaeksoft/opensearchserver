@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,8 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 
 public class LinkUtils {
 
-	public final static URL getLink(URL currentURL, String href,
-			UrlFilterItem[] urlFilterList, boolean removeFragment) {
+	public final static URL getLink(final URL currentURL, String href,
+			final UrlFilterItem[] urlFilterList, final boolean removeFragment) {
 
 		if (href == null)
 			return null;
@@ -54,10 +55,31 @@ public class LinkUtils {
 			return null;
 
 		String fragment = null;
+		URI u = null;
 		try {
-			URI u = URIUtils.resolve(currentURL.toURI(), href);
-			href = u.toString();
-			href = UrlFilterList.doReplace(u.getHost(), href, urlFilterList);
+			if (!href.contains("://")) {
+				URI currentURI = null;
+				try {
+					currentURI = currentURL.toURI();
+				} catch (URISyntaxException e) {
+					currentURI = new URI(URLEncoder.encode(
+							currentURL.toString(), "UTF-8"));
+				}
+				try {
+					u = URIUtils.resolve(currentURI, href);
+				} catch (IllegalArgumentException e) {
+					href = URLEncoder.encode(currentURL.toString(), "UTF-8");
+					u = URIUtils.resolve(currentURI, href);
+				}
+			} else {
+				try {
+					u = new URI(href);
+				} catch (URISyntaxException e) {
+					u = new URI(URLEncoder.encode(href, "UTF-8"));
+				}
+			}
+			href = UrlFilterList.doReplace(u.getHost(), u.toString(),
+					urlFilterList);
 			URI uri = URI.create(href);
 			uri = uri.normalize();
 
@@ -76,12 +98,16 @@ public class LinkUtils {
 			Logging.info(e.getMessage());
 			return null;
 		} catch (URISyntaxException e) {
-			Logging.info(e.getMessage(), e);
+			Logging.info(e.getMessage());
 			return null;
 		} catch (IllegalArgumentException e) {
 			Logging.info(e.getMessage(), e);
 			return null;
+		} catch (UnsupportedEncodingException e) {
+			Logging.info(e.getMessage(), e);
+			return null;
 		}
+
 	}
 
 	public final static String concatPath(String path1, String path2) {
@@ -110,6 +136,14 @@ public class LinkUtils {
 	public final static String UTF8_URL_Encode(String s)
 			throws UnsupportedEncodingException {
 		return URLEncoder.encode(s, "UTF-8").replace("+", "%20");
+	}
+
+	public final static String UTF8_URL_QuietDecode(String s) {
+		try {
+			return URLDecoder.decode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return s;
+		}
 	}
 
 	public final static URI newEncodedURI(String u)

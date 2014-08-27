@@ -39,13 +39,15 @@ import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
-import com.jaeksoft.searchlib.renderer.RendererLogField;
-import com.jaeksoft.searchlib.renderer.RendererLogParameterEnum;
+import com.jaeksoft.searchlib.renderer.filter.RendererFilterQueries;
+import com.jaeksoft.searchlib.renderer.log.RendererLogField;
+import com.jaeksoft.searchlib.renderer.log.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class RendererServlet extends AbstractServlet {
@@ -56,7 +58,7 @@ public class RendererServlet extends AbstractServlet {
 	private static final long serialVersionUID = -9214023062084084833L;
 
 	private static final String[] hiddenParameterList = { "use", "name",
-			"login", "key" };
+			"login", "key", "jsp" };
 
 	final private void forward(final ServletTransaction transaction,
 			final Renderer renderer, final String path) throws ServletException {
@@ -78,7 +80,6 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
-
 			renderer = client.getRendererManager().get(
 					transaction.getParameterString("name"));
 			if (renderer == null)
@@ -92,6 +93,15 @@ public class RendererServlet extends AbstractServlet {
 			HttpServletRequest servletRequest = transaction.getRequest();
 			setLog(renderer, searchRequest, servletRequest);
 			searchRequest.setFromServlet(transaction, "");
+			HttpSession session = servletRequest.getSession();
+			RendererFilterQueries filterQueries = (RendererFilterQueries) session
+					.getAttribute("filterQueries");
+			if (filterQueries == null) {
+				filterQueries = new RendererFilterQueries();
+				session.setAttribute("filterQueries", filterQueries);
+			}
+			filterQueries.applyServletRequest(servletRequest);
+			filterQueries.applyToSearchRequest(searchRequest);
 			AuthPluginInterface.User loggedUser = renderer
 					.configureAuthRequest(searchRequest, servletRequest);
 			if (query == null)
@@ -118,7 +128,6 @@ public class RendererServlet extends AbstractServlet {
 									ClientCatalog.getRendererResults()
 											.addResult(
 													client,
-													serverBaseURL,
 													renderer,
 													searchRequest
 															.getQueryString(),
@@ -135,7 +144,7 @@ public class RendererServlet extends AbstractServlet {
 					transaction.setRequestAttribute("facetResult", facetResult);
 				}
 			}
-			servletRequest.getSession().setAttribute("query", query);
+			session.setAttribute("query", query);
 			transaction.setRequestAttribute("query", query);
 			transaction.setRequestAttribute("renderer", renderer);
 			StringBuilder getUrl = new StringBuilder("?query=");
@@ -163,7 +172,9 @@ public class RendererServlet extends AbstractServlet {
 			}
 			transaction.setRequestAttribute("autocompUrl",
 					autocompUrl.toString());
-			forward(transaction, renderer, "/WEB-INF/jsp/renderer.jsp");
+			String jsp = transaction.getParameterString("jsp", "renderer.jsp");
+			forward(transaction, renderer,
+					StringUtils.fastConcat("/WEB-INF/jsp/", jsp));
 		} catch (AuthException e) {
 			transaction.setRequestAttribute("error", e.getMessage());
 			forward(transaction, renderer, "/WEB-INF/jsp/login.jsp");

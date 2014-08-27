@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.request;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -271,7 +272,7 @@ public class SearchField implements Cloneable {
 	}
 
 	final public void addQuery(PerFieldAnalyzer perFieldAnalyzer,
-			String queryString, BooleanQuery complexQuery, int phraseSlop,
+			String queryString, Collection<Query> queries, int phraseSlop,
 			Occur occur) throws IOException {
 		CompiledAnalyzer compiledAnalyzer = null;
 		try {
@@ -280,29 +281,22 @@ public class SearchField implements Cloneable {
 			compiledAnalyzer = perFieldAnalyzer.getCompiledAnalyzer(field);
 
 			if (mode == Mode.PATTERN) {
-				complexQuery.add(
-						getPatternQuery(compiledAnalyzer, occur, phraseSlop,
-								queryString), Occur.SHOULD);
+				queries.add(getPatternQuery(compiledAnalyzer, occur,
+						phraseSlop, queryString));
 				return;
 			}
 			List<TermQueryItem> termQueryItems = getTermQueryFilter(
 					perFieldAnalyzer, compiledAnalyzer, queryString);
 			switch (mode) {
 			case TERM:
-				complexQuery.add(getTermQuery(termQueryItems, occur),
-						Occur.SHOULD);
+				queries.add(getTermQuery(termQueryItems, occur));
 				break;
 			case PHRASE:
-				complexQuery.add(
-						getPhraseQuery(termQueryItems, phraseSlop, occur),
-						Occur.SHOULD);
+				queries.add(getPhraseQuery(termQueryItems, phraseSlop, occur));
 				break;
 			case TERM_AND_PHRASE:
-				complexQuery.add(getTermQuery(termQueryItems, occur),
-						Occur.SHOULD);
-				complexQuery.add(
-						getPhraseQuery(termQueryItems, phraseSlop, occur),
-						Occur.SHOULD);
+				queries.add(getTermQuery(termQueryItems, occur));
+				queries.add(getPhraseQuery(termQueryItems, phraseSlop, occur));
 				break;
 			default:
 				break;

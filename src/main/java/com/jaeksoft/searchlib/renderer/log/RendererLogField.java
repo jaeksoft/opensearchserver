@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.renderer;
+package com.jaeksoft.searchlib.renderer.log;
 
 import javax.xml.xpath.XPathExpressionException;
 

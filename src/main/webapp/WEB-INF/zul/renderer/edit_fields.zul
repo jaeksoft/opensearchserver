@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -19,30 +19,37 @@
 	<listhead>
 		<listheader label="Field / Snippet" />
 		<listheader label="URL Field" />
+		<listheader label="URL Decode"
+			tooltiptext="Apply an UTF-8 URL decoder" />
 		<listheader label="URL Pattern"
 			tooltiptext="Regular expression pattern" />
 		<listheader label="URL Replace"
 			tooltiptext="Regular expression replacement" />
-		<listheader label="Widget" />
+		<listheader label="Css Class"
+			tooltiptext="Enter any css classes" />
+		<listheader label="Widget type" />
+		<listheader label="Widget properties" />
 		<listheader label="Action" align="center" width="150px" />
 	</listhead>
 	<auxhead>
 		<auxheader>
-			<listbox model="@load(renderer.fieldTypeList)"
-				onSelect="@command('reload')"
-				selectedItem="@bind(renderer.currentRendererField.fieldType)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
-			<listbox model="@load(renderer.fieldOrSnippetList)"
-				selectedItem="@bind(renderer.currentRendererField.fieldName)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
+			<vlayout>
+				<listbox model="@load(renderer.fieldTypeList)"
+					onSelect="@command('reload')"
+					selectedItem="@bind(renderer.currentRendererField.fieldType)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<listbox model="@load(renderer.fieldOrSnippetList)"
+					selectedItem="@bind(renderer.currentRendererField.fieldName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
 		</auxheader>
 		<auxheader>
 			<listbox model="@load(renderer.fieldList)"
@@ -54,12 +61,20 @@
 			</listbox>
 		</auxheader>
 		<auxheader>
+			<checkbox
+				checked="@bind(renderer.currentRendererField.urlDecode)" />
+		</auxheader>
+		<auxheader>
 			<textbox
 				value="@bind(renderer.currentRendererField.pattern)" cols="30" />
 		</auxheader>
 		<auxheader>
 			<textbox
 				value="@bind(renderer.currentRendererField.replacement)" cols="30" />
+		</auxheader>
+		<auxheader>
+			<textbox
+				value="@bind(renderer.currentRendererField.cssClass)" cols="30" />
 		</auxheader>
 		<auxheader>
 			<listbox model="@load(renderer.widgetList)"
@@ -69,6 +84,15 @@
 					<listitem label="@load(each)" />
 				</template>
 			</listbox>
+		</auxheader>
+		<auxheader>
+			<vlayout>
+				<textbox multiline="true"
+					value="@bind(renderer.currentRendererField.widgetProperties)"
+					cols="50" rows="5" />
+				<button label="Default properties"
+					onClick="@command('onRendererFieldDefaultProperties')" />
+			</vlayout>
 		</auxheader>
 		<auxheader align="center">
 			<button tooltiptext="Add a field"
@@ -91,9 +115,15 @@
 				<label value="@load(rendererFieldItem.fieldName)" />
 			</listcell>
 			<listcell label="@load(rendererFieldItem.urlFieldName)" />
+			<listcell label="@load(rendererFieldItem.urlDecode)" />
 			<listcell label="@load(rendererFieldItem.pattern)" />
 			<listcell label="@load(rendererFieldItem.replacement)" />
+			<listcell label="@load(rendererFieldItem.cssClass)" />
 			<listcell label="@load(rendererFieldItem.widgetName)" />
+			<listcell>
+				<label value="@load(rendererFieldItem.widgetProperties)"
+					multiline="true" />
+			</listcell>
 			<listcell>
 				<button tooltiptext="Move the field up"
 					image="/images/arrow_top.png"

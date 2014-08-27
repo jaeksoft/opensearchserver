@@ -1,6 +1,9 @@
 <%@ page import="com.jaeksoft.searchlib.schema.FieldValueItem"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils"%>
+<%@ page import="com.jaeksoft.searchlib.util.StringUtils"%>
+
 <%
 	ResultDocument resultDocument = (ResultDocument) request
 			.getAttribute("resultDocument");
