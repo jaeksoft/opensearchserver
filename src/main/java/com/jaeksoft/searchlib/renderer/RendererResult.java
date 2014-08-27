@@ -74,8 +74,7 @@ public class RendererResult {
 	final private String authUsername;
 	final private String authPassword;
 
-	public RendererResult(Client client, String serverBaseUrl,
-			Renderer renderer, String keywords,
+	public RendererResult(Client client, Renderer renderer, String keywords,
 			AuthPluginInterface.User loggedUser) {
 		this.client = client;
 		this.keywords = keywords;
@@ -86,8 +85,7 @@ public class RendererResult {
 		this.authDomain = renderer.getAuthDomain();
 		this.authUsername = renderer.getAuthUsername();
 		this.authPassword = renderer.getAuthPassword();
-		sbUrl = new StringBuilder(serverBaseUrl);
-		sbUrl.append("/viewer.zul?h=");
+		sbUrl = new StringBuilder("viewer.zul?h=");
 		sbUrl.append(hashCode());
 		sbUrl.append("&p=");
 		items = new ArrayList<Item>(0);

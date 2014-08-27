@@ -151,7 +151,7 @@ public class ViewerController extends CommonController {
 			String url = URLDecoder.decode(uri.toString(), "UTF-8");
 			if (result != null) {
 				AuthPluginInterface.User user = result.getLoggedUser();
-				if (user != null)
+				if (user != null && user.password != null)
 					auth = new NtlmPasswordAuthentication(
 							result.getAuthDomain(), user.username,
 							user.password);

@@ -1,0 +1,100 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@load(renderer.currentRenderer.filters)"
+	selectedItem="@bind(renderer.selectedRendererFilter)">
+	<listhead>
+		<listheader label="Public name" />
+		<listheader label="Field" />
+		<listheader label="Replace"
+			tooltip="Replace any other Facet for the same field" />
+		<listheader label="Filter type" />
+		<listheader label="Properties" />
+		<listheader label="Action" align="center" width="150px" />
+	</listhead>
+	<auxhead>
+		<auxheader>
+			<textbox
+				value="@bind(renderer.currentRendererFilter.publicName)" cols="30" />
+		</auxheader>
+		<auxheader>
+			<listbox model="@load(renderer.indexedFieldList)"
+				selectedItem="@bind(renderer.currentRendererFilter.fieldName)"
+				mold="select">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</auxheader>
+		<auxheader>
+			<checkbox
+				checked="@bind(renderer.currentRendererFilter.replaceRequestFacet)" />
+		</auxheader>
+		<auxheader>
+			<listbox model="@load(renderer.filterTypeList)"
+				selectedItem="@bind(renderer.currentRendererFilter.filterType)"
+				mold="select">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</auxheader>
+		<auxheader>
+			<vlayout>
+				<textbox multiline="true"
+					value="@bind(renderer.currentRendererFilter.properties)" cols="50"
+					rows="5" />
+				<button label="Default properties"
+					onClick="@command('onRendererFilterDefaultProperties')" />
+			</vlayout>
+		</auxheader>
+		<auxheader align="center">
+			<button tooltiptext="Add a filter"
+				visible="@load(not renderer.filterSelected)"
+				image="/images/action_add.png"
+				onClick="@command('onRendererFilterSave')" />
+			<hbox visible="@load(renderer.filterSelected)">
+				<button tooltiptext="Save a filter" label="Save"
+					onClick="@command('onRendererFilterSave')" />
+				<button tooltiptext="Save a filter" label="Cancel"
+					onClick="@command('onRendererFilterCancel')" />
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<template name="model">
+		<listitem>
+			<listcell label="@load(each.publicName)" />
+			<listcell label="@load(each.fieldName)" />
+			<listcell label="@load(each.replaceRequestFacet)" />
+			<listcell label="@load(each.filterType)" />
+			<listcell>
+				<label value="@load(each.properties)" multiline="true" />
+			</listcell>
+			<listcell>
+				<button tooltiptext="Move the filter up"
+					image="/images/arrow_top.png"
+					onClick="@command('onRendererFilterUp', rendererFilterItem=each)" />
+				<button tooltiptext="Move the filter down"
+					image="/images/arrow_down.png"
+					onClick="@command('onRendererFilterDown', rendererFilterItem=each)" />
+				<space />
+				<button tooltiptext="Remove a filter"
+					image="/images/action_delete.png"
+					onClick="@command('onRendererFilterRemove', rendererFilterItem=each)" />
+			</listcell>
+		</listitem>
+	</template>
+</listbox>

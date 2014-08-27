@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -93,7 +94,8 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			Timer timer) throws IOException, ParseException, SearchLibException {
+			Timer timer) throws IOException, ParseException,
+			SearchLibException, SyntaxError {
 
 		if (size() == 0)
 			return null;

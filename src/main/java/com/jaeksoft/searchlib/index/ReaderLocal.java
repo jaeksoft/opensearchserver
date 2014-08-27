@@ -390,7 +390,7 @@ public class ReaderLocal extends ReaderAbstract {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException {
+			IOException, SearchLibException, SyntaxError {
 		rwl.r.lock();
 		try {
 			return filterCache.get(filter, defaultField, analyzer, request,

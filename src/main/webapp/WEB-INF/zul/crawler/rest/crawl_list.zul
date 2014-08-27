@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -49,6 +49,10 @@
 							<button tooltiptext="Edit the REST crawl"
 								label="Edit"
 								onClick="@command('edit', crawlitem=restcrawlitem)" />
+							<space />
+							<button tooltiptext="Clone the REST crawl"
+								label="Clone"
+								onClick="@command('clone', crawlitem=restcrawlitem)" />
 							<space />
 							<button
 								tooltiptext="Execute the crawl process"

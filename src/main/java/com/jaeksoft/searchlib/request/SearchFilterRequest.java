@@ -59,7 +59,7 @@ public class SearchFilterRequest extends AbstractSearchRequest implements
 	}
 
 	@Override
-	protected Query newComplexQuery(String queryString) throws ParseException,
+	public Query newComplexQuery(String queryString) throws ParseException,
 			SyntaxError, SearchLibException, IOException {
 		return null;
 	}

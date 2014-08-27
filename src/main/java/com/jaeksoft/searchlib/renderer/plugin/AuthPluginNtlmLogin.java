@@ -74,14 +74,15 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
 			throw new AuthException(
 					"No auth server given, check the parameters of the renderer");
-		// For debug
-		/*
-		 * if (true) return new User("userId", username, password, new String[]
-		 * { "Guest" });
-		 */
+
 		ActiveDirectory activeDirectory = null;
 		try {
 			String domain = renderer.getAuthDomain();
+
+			User user = AuthUserCache.INSTANCE.get(username, domain);
+			if (user != null)
+				return user;
+
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
 					username, password);
 			UniAddress dc = UniAddress
@@ -94,14 +95,19 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 					.findUser(username);
 			Attributes attrs = ActiveDirectory.getAttributes(result);
 			if (attrs == null)
-				throw new AuthException("No user found");
+				throw new AuthException("No user found: " + username);
 
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
-			return new User(userId, username, password,
+
+			Logging.info("USER authenticated: " + user);
+
+			user = new User(userId, username, password,
 					ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, username));
+			AuthUserCache.INSTANCE.add(username, domain, user);
+			return user;
 
 		} catch (SmbAuthException e) {
 			Logging.warn(e);

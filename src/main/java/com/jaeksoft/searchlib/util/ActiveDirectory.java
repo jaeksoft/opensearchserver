@@ -74,17 +74,12 @@ public class ActiveDirectory implements Closeable {
 	public final static String ATTR_MEMBEROF = "memberOf";
 	public final static String ATTR_OBJECTSID = "objectSid";
 	public final static String ATTR_SAMACCOUNTNAME = "sAMAccountName";
-
-	public final static String[] DefaultReturningAttributes = { ATTR_CN,
-			ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
-			ATTR_MEMBEROF };
+	public final static String ATTR_DN = "DistinguishedName";
 
 	private NamingEnumeration<SearchResult> find(String filterExpr,
 			String... returningAttributes) throws NamingException {
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		if (returningAttributes == null || returningAttributes.length == 0)
-			returningAttributes = DefaultReturningAttributes;
 		searchControls.setReturningAttributes(returningAttributes);
 		return dirContext.search(domainSearchName, filterExpr, searchControls);
 	}
@@ -99,20 +94,22 @@ public class ActiveDirectory implements Closeable {
 		return rs.getAttributes();
 	}
 
-	public NamingEnumeration<SearchResult> findUser(String username,
-			String... returningAttributes) throws NamingException {
+	public NamingEnumeration<SearchResult> findUser(String username)
+			throws NamingException {
 		return find(
 				StringUtils.fastConcat(
 						"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname=",
-						username, "))"), returningAttributes);
+						username, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private NamingEnumeration<SearchResult> findGroup(String group)
 			throws NamingException {
-		return find(StringUtils
-				.fastConcat(
+		return find(
+				StringUtils.fastConcat(
 						"(&((&(objectCategory=Group)(objectClass=Group)))(samaccountname=",
-						group, "))"));
+						group, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private void findGroups(Collection<ADGroup> groups,
@@ -141,6 +138,23 @@ public class ActiveDirectory implements Closeable {
 		ActiveDirectory.collectMemberOf(userAttrs, groups);
 		TreeSet<String> searchedGroups = new TreeSet<String>();
 		findGroups(groups, collector, searchedGroups);
+	}
+
+	public void findUserGroup(String userDN, Collection<ADGroup> collector)
+			throws NamingException {
+		String filter = StringUtils.fastConcat(
+				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
+		Logging.info("FILTER:" + filter);
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_DN);
+		while (results.hasMore()) {
+			SearchResult searchResult = results.next();
+			Attributes groupAttrs = searchResult.getAttributes();
+			Logging.info("ATTRS: " + groupAttrs.toString());
+			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
+					ATTR_DN));
+			collector.add(adGroup);
+			Logging.info("GROUP: " + adGroup.dcn);
+		}
 	}
 
 	@Override
@@ -189,6 +203,7 @@ public class ActiveDirectory implements Closeable {
 
 		public final String cn;
 		public final String dc;
+		public final String dcn;
 
 		private ADGroup(final String memberOf) {
 			String[] parts = StringUtils.split(memberOf, ',');
@@ -205,17 +220,15 @@ public class ActiveDirectory implements Closeable {
 			}
 			this.cn = lcn;
 			this.dc = ldc;
+			this.dcn = StringUtils.fastConcat(dc, '\\', cn);
 		}
 	}
 
-	public static String[] toArray(List<ADGroup> groups) {
-		if (groups == null)
-			return null;
-		String[] array = new String[groups.size()];
-		int i = 0;
+	public static String[] toArray(Collection<ADGroup> groups) {
+		TreeSet<String> groupSet = new TreeSet<String>();
 		for (ADGroup group : groups)
-			array[i++] = StringUtils.fastConcat(group.dc, '\\', group.cn);
-		return array;
+			groupSet.add(group.dcn);
+		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
 	public static void main(String[] args) {
@@ -248,7 +261,7 @@ public class ActiveDirectory implements Closeable {
 		if (i == -1)
 			throw new IllegalArgumentException(StringUtils.fastConcat(
 					"Wrong returned value: ", s));
-		return s.substring(i + 1);
+		return s.substring(i + 1).trim();
 	}
 
 	public static String getObjectSID(Attributes attrs) throws NamingException {

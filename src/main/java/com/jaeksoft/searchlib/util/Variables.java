@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,14 +25,14 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class Variables {
 
@@ -114,5 +114,25 @@ public class Variables {
 		if (map == null)
 			return;
 		map.clear();
+	}
+
+	public void put(Properties props) {
+		if (props == null)
+			return;
+		for (String name : props.stringPropertyNames())
+			put(name, props.getProperty(name));
+	}
+
+	public void putProperties(String vars) throws IOException {
+		if (StringUtils.isEmpty(vars))
+			return;
+		Properties properties = new Properties();
+		StringReader sr = new StringReader(vars);
+		try {
+			properties.load(sr);
+			put(properties);
+		} finally {
+			IOUtils.close(sr);
+		}
 	}
 }

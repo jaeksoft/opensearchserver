@@ -37,16 +37,17 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.query.QueryUtils;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
+import com.jaeksoft.searchlib.renderer.field.RendererField;
+import com.jaeksoft.searchlib.renderer.filter.RendererFilter;
+import com.jaeksoft.searchlib.renderer.log.RendererLogField;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
@@ -72,6 +73,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
 	private final static String RENDERER_ITEM_NODE_CSS = "css";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
+	private final static String RENDERER_ITEM_NODE_NAME_FILTER = "filter";
 	private final static String RENDERER_ITEM_NODE_NAME_SORT = "sort";
 	private final static String RENDERER_ITEM_NODE_HEADER = "header";
 	private final static String RENDERER_ITEM_NODE_FOOTER = "footer";
@@ -86,10 +88,6 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_AUTH_ATTR_PASSWORD = "password";
 	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "domain";
 	private final static String RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS = "authPluginClass";
-	private final static String RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD = "userAllowField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
-	private final static String RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD = "groupDenyField";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -110,6 +108,8 @@ public class Renderer implements Comparable<Renderer> {
 	private String logoutText;
 
 	private String facetWidth;
+
+	private List<RendererFilter> filters;
 
 	private List<RendererField> fields;
 
@@ -161,6 +161,7 @@ public class Renderer implements Comparable<Renderer> {
 		facetWidth = "200px";
 		logEnabled = false;
 		fields = new ArrayList<RendererField>();
+		filters = new ArrayList<RendererFilter>();
 		sorts = new ArrayList<RendererSort>(0);
 		logFields = new ArrayList<RendererLogField>();
 		footer = null;
@@ -221,14 +222,6 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
 			setAuthPluginClass(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS));
-			setAuthUserAllowField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD));
-			setAuthUserDenyField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD));
-			setAuthGroupAllowField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD));
-			setAuthGroupDenyField(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD));
 		}
 
 		String p = XPathParser.getAttributeString(rootNode,
@@ -241,10 +234,14 @@ public class Renderer implements Comparable<Renderer> {
 		setFooter(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FOOTER,
 				true));
 		setCss(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_CSS, true));
-		NodeList nodeList = xpp.getNodeList(rootNode,
+		NodeList nodeFilterList = xpp.getNodeList(rootNode,
+				RENDERER_ITEM_NODE_NAME_FILTER);
+		for (int i = 0; i < nodeFilterList.getLength(); i++)
+			addFilter(new RendererFilter(xpp, nodeFilterList.item(i)));
+		NodeList nodeFieldList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_FIELD);
-		for (int i = 0; i < nodeList.getLength(); i++)
-			addField(new RendererField(xpp, nodeList.item(i)));
+		for (int i = 0; i < nodeFieldList.getLength(); i++)
+			addField(new RendererField(xpp, nodeFieldList.item(i)));
 		NodeList nodeSortList = xpp.getNodeList(rootNode,
 				RENDERER_ITEM_NODE_NAME_SORT);
 		for (int i = 0; i < nodeSortList.getLength(); i++)
@@ -425,6 +422,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.resultsFoundText = resultsFoundText;
 				target.logoutText = logoutText;
 				target.facetWidth = facetWidth;
+				target.filters.clear();
 				target.fields.clear();
 				target.sorts.clear();
 				target.logFields.clear();
@@ -444,6 +442,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.authUserDenyField = authUserDenyField;
 				target.authGroupAllowField = authGroupAllowField;
 				target.authGroupDenyField = authGroupDenyField;
+				for (RendererFilter filter : filters)
+					target.addFilter(new RendererFilter(filter));
 				for (RendererField field : fields)
 					target.addField(new RendererField(field));
 				for (RendererSort sort : sorts)
@@ -455,6 +455,24 @@ public class Renderer implements Comparable<Renderer> {
 			}
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public void addFilter(RendererFilter filter) {
+		rwl.w.lock();
+		try {
+			filters.add(filter);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public void removeFilter(RendererFilter filter) {
+		rwl.w.lock();
+		try {
+			filters.remove(filter);
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
@@ -474,7 +492,6 @@ public class Renderer implements Comparable<Renderer> {
 		} finally {
 			rwl.w.unlock();
 		}
-
 	}
 
 	public void addSort(RendererSort sort) {
@@ -494,6 +511,42 @@ public class Renderer implements Comparable<Renderer> {
 			rwl.w.unlock();
 		}
 
+	}
+
+	/**
+	 * Move filter up
+	 * 
+	 * @param filter
+	 */
+	public void filterUp(RendererFilter filter) {
+		rwl.w.lock();
+		try {
+			int i = filters.indexOf(filter);
+			if (i == -1 || i == 0)
+				return;
+			filters.remove(i);
+			filters.add(i - 1, filter);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
+	 * Move filter down
+	 * 
+	 * @param filter
+	 */
+	public void filterDown(RendererFilter filter) {
+		rwl.w.lock();
+		try {
+			int i = filters.indexOf(filter);
+			if (i == -1 || i == filters.size() - 1)
+				return;
+			filters.remove(i);
+			filters.add(i + 1, filter);
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
@@ -539,6 +592,24 @@ public class Renderer implements Comparable<Renderer> {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public List<RendererFilter> getFilters() {
+		rwl.r.lock();
+		try {
+			return filters;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isFilterListReplacement(Facet facet) {
+		if (facet == null)
+			return false;
+		for (RendererFilter filter : filters)
+			if (filter.isReplacement(facet.getFacetField().getName()))
+				return true;
+		return false;
 	}
 
 	/**
@@ -699,6 +770,8 @@ public class Renderer implements Comparable<Renderer> {
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_CSS, css);
 			for (RendererField field : fields)
 				field.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FIELD);
+			for (RendererFilter filter : filters)
+				filter.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_FILTER);
 			for (RendererSort sort : sorts)
 				sort.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_SORT);
 			for (RendererLogField logReportField : logFields)
@@ -710,14 +783,7 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
-					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass,
-					RENDERER_ITEM_AUTH_ATTR_USER_ALLOW_FIELD,
-					authUserAllowField,
-					RENDERER_ITEM_AUTH_ATTR_USER_DENY_FIELD, authUserDenyField,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_ALLOW_FIELD,
-					authGroupAllowField,
-					RENDERER_ITEM_AUTH_ATTR_GROUP_DENY_FIELD,
-					authGroupDenyField);
+					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass);
 			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
@@ -1214,6 +1280,7 @@ public class Renderer implements Comparable<Renderer> {
 			AbstractSearchRequest searchRequest,
 			HttpServletRequest servletRequest) throws ParseException,
 			IOException, SearchLibException {
+
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return null;
@@ -1229,70 +1296,11 @@ public class Renderer implements Comparable<Renderer> {
 		if (user == null)
 			throw new NoUserException("No user found");
 
-		Logging.warn("USER authenticated: " + user.userId + " - "
-				+ user.username + " " + user.usernames);
-		Logging.warn("Member of: " + user.groups);
-
 		session.setAttribute(RENDERER_SESSION_USER, user);
 
-		StringBuilder sbPositiveFilter = new StringBuilder();
-		if (authUserAllowField != null && authUserAllowField.length() > 0) {
-			if (sbPositiveFilter.length() > 0)
-				sbPositiveFilter.append(" OR ");
-			sbPositiveFilter.append(authUserAllowField);
-			sbPositiveFilter.append(':');
-			AuthPluginInterface.User.usernamesToFilterQuery(user,
-					sbPositiveFilter);
-		}
-		if (authGroupAllowField != null && authGroupAllowField.length() > 0
-				&& !CollectionUtils.isEmpty(user.groups)) {
-			if (sbPositiveFilter.length() > 0)
-				sbPositiveFilter.append(" OR ");
-			sbPositiveFilter.append(authGroupAllowField);
-			sbPositiveFilter.append(":(");
-			boolean bOr = false;
-			for (String group : user.groups) {
-				if (bOr)
-					sbPositiveFilter.append(" OR ");
-				else
-					bOr = true;
-				sbPositiveFilter.append('"');
-				sbPositiveFilter.append(QueryUtils.escapeQuery(group));
-				sbPositiveFilter.append('"');
-			}
-			sbPositiveFilter.append(')');
-		}
+		searchRequest.setUsers(user.usernames);
+		searchRequest.setGroups(user.groups);
 
-		if (sbPositiveFilter.length() > 0)
-			searchRequest.addFilter(sbPositiveFilter.toString(), false);
-
-		if (authUserDenyField != null && authUserDenyField.length() > 0) {
-			StringBuilder sbNegativeFilter = new StringBuilder();
-			sbNegativeFilter.append(authUserDenyField);
-			sbNegativeFilter.append(':');
-			AuthPluginInterface.User.usernamesToFilterQuery(user,
-					sbNegativeFilter);
-			searchRequest.addFilter(sbNegativeFilter.toString(), true);
-		}
-
-		if (authGroupDenyField != null && authGroupDenyField.length() > 0
-				&& !CollectionUtils.isEmpty(user.groups)) {
-			StringBuilder sbNegativeFilter = new StringBuilder();
-			sbNegativeFilter.append(authGroupDenyField);
-			sbNegativeFilter.append(":(");
-			boolean bOr = false;
-			for (String group : user.groups) {
-				if (bOr)
-					sbNegativeFilter.append(" OR ");
-				else
-					bOr = true;
-				sbNegativeFilter.append('"');
-				sbNegativeFilter.append(QueryUtils.escapeQuery(group));
-				sbNegativeFilter.append('"');
-			}
-			sbNegativeFilter.append(')');
-			searchRequest.addFilter(sbNegativeFilter.toString(), true);
-		}
 		return user;
 	}
 

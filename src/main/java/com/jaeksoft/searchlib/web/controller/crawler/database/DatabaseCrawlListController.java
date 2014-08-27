@@ -103,7 +103,6 @@ public class DatabaseCrawlListController
 	@Override
 	@Command
 	public void onNew() throws SearchLibException {
-		DatabaseCrawlAbstract oldCurrentCrawl = getCurrentCrawl();
 		setSelectedCrawl(null);
 		DatabaseCrawlAbstract newCrawl = null;
 		switch (dbCrawlType) {
@@ -115,9 +114,16 @@ public class DatabaseCrawlListController
 			break;
 		}
 		setCurrentCrawl(newCrawl);
-		if (oldCurrentCrawl != null)
-			oldCurrentCrawl.copyTo(newCrawl);
 		newCrawl.setName(null);
+		reload();
+	}
+
+	@Override
+	public void doClone(DatabaseCrawlAbstract crawl) throws SearchLibException {
+		setSelectedCrawl(null);
+		DatabaseCrawlAbstract newCrawl = crawl.duplicate();
+		newCrawl.setName(null);
+		setCurrentCrawl(newCrawl);
 		reload();
 	}
 

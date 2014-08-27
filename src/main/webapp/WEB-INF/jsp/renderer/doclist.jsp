@@ -1,8 +1,9 @@
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.request.AbstractSearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererField"%>
-<%@ page import="com.jaeksoft.searchlib.renderer.RendererWidgets"%>
+<%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
+<%@ page
+	import="com.jaeksoft.searchlib.renderer.field.RendererWidgetType"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%
 	AbstractResultSearch result = (AbstractResultSearch) request
@@ -24,7 +25,7 @@
 					for (RendererField rendererField : renderer.getFields()) {
 						fieldPos++;
 						request.setAttribute("fieldPos", fieldPos);
-						RendererWidgets widget = rendererField
+						RendererWidgetType widget = rendererField
 								.getWidgetName();
 						String[] fieldValues = rendererField
 								.getFieldValue(resultDocument);
@@ -35,7 +36,8 @@
 								request.setAttribute("rendererField",
 										rendererField);
 	%>
-	<div class="osscmnrdr ossfieldrdr<%=fieldPos%>">
+	<div
+		class="osscmnrdr ossfieldrdr<%=fieldPos%><%=rendererField.renderCssClass()%>">
 		<jsp:include page="<%=widget.getJspPath()%>" flush="true" />
 	</div>
 	<%
