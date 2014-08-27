@@ -151,7 +151,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			Timer timer) throws ParseException, IOException, SearchLibException;
+			Timer timer) throws ParseException, IOException,
+			SearchLibException, SyntaxError;
 
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)
 			throws SAXException;

@@ -26,12 +26,12 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -73,9 +73,9 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 	}
 
 	@Override
-	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException, SyntaxError,
-			SearchLibException, IOException {
+	public String getCacheKey(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException, SyntaxError, SearchLibException, IOException {
 		StringBuilder sb = new StringBuilder("MirrorAndFilter - ");
 		sb.append(getQuery(request).toString());
 		return sb.toString();
@@ -99,8 +99,9 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
-			throws ParseException, IOException, SearchLibException, SyntaxError {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException,
+			SearchLibException, SyntaxError {
 		Query query = getQuery(request);
 		return new FilterHits(
 				getResult(request.getConfig(), query, null, timer),

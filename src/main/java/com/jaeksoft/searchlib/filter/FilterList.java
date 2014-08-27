@@ -95,8 +95,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
 			Timer timer) throws IOException, ParseException,
-			SearchLibException, SyntaxError, InstantiationException,
-			IllegalAccessException {
+			SearchLibException, SyntaxError {
 
 		if (size() == 0)
 			return null;
