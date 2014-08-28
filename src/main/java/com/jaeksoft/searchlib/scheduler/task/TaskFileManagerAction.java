@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -152,7 +152,8 @@ public class TaskFileManagerAction extends TaskAbstract {
 			selectionRequest = fileManager.fileQuery(
 					FileManager.SearchTemplate.fileSearch, null, null, null,
 					null, null, null, null, fetchStatus, parserStatus,
-					indexStatus, null, null, null, null, null, null);
+					indexStatus, null, null, null, null, null, null, null,
+					null, null);
 		}
 
 		if (setToFetchStatus != null) {
