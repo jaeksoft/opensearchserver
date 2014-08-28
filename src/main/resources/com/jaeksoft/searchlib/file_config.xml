@@ -38,6 +38,8 @@
 				termVector="no" />
 			<field name="fileType" indexed="yes" stored="no" termVector="no" />
 			<field name="md5size" indexed="yes" stored="no" termVector="no" />
+			<field name="parser" indexed="yes" stored="no" termVector="no" />
+			<field name="time" indexed="yes" stored="no" termVector="no" />
 			<field name="userAllow" indexed="yes" stored="no" termVector="no" />
 			<field name="userDeny" indexed="yes" stored="no" termVector="no" />
 			<field name="groupAllow" indexed="yes" stored="no" termVector="no" />
@@ -51,7 +53,8 @@
 			<returnFields>
 				uri,repository,directory,subDirectory, lang,langMethod,
 				parserStatus,fetchStatus,indexStatus,fileSystemDate,
-				crawlDate,fileName,fileSize,fileExtension,fileType,md5size
+				crawlDate,fileName,fileSize,fileExtension,fileType,
+				md5size,parser,time
 			</returnFields>
 		</request>
 		<request name="fileExport" defaultOperator="and" start="0"
@@ -61,7 +64,8 @@
 		</request>
 		<request name="fileInfo" defaultOperator="and" start="0" rows="0">
 			<query>$$</query>
-			<returnFields>uri,fileName,fileSystemDate,fileType,fileSize,parserStatus,fetchStatus,indexStatus
+			<returnFields>uri,fileName,fileSystemDate,fileType,fileSize,
+				parserStatus,fetchStatus,indexStatus
 			</returnFields>
 		</request>
 	</requests>

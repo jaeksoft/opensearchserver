@@ -175,6 +175,42 @@ public class FileController extends CrawlerController {
 		}
 	}
 
+	public void setMaxTime(Integer v) {
+		synchronized (this) {
+			setAttribute(ScopeAttribute.SEARCH_FILE_MAX_TIME, v);
+		}
+	}
+
+	public Integer getMaxTime() {
+		synchronized (this) {
+			return (Integer) getAttribute(ScopeAttribute.SEARCH_FILE_MAX_TIME);
+		}
+	}
+
+	public void setMinTime(Integer v) {
+		synchronized (this) {
+			setAttribute(ScopeAttribute.SEARCH_FILE_MIN_TIME, v);
+		}
+	}
+
+	public Integer getMinTime() {
+		synchronized (this) {
+			return (Integer) getAttribute(ScopeAttribute.SEARCH_FILE_MIN_TIME);
+		}
+	}
+
+	public void setParser(String v) {
+		synchronized (this) {
+			setAttribute(ScopeAttribute.SEARCH_FILE_PARSER, v);
+		}
+	}
+
+	public String getParser() {
+		synchronized (this) {
+			return (String) getAttribute(ScopeAttribute.SEARCH_FILE_PARSER);
+		}
+	}
+
 	public void setFetchStatus(FetchStatus v) {
 		synchronized (this) {
 			setAttribute(ScopeAttribute.SEARCH_FILE_FETCH_STATUS, v);

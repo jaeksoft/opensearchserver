@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -111,6 +111,20 @@
 					</listbox>
 				</vbox>
 			</listheader>
+			<listheader label="Parser" hflex="min">
+				<vbox width="100%">
+					<textbox width="90%"
+						value="@bind(searchPath.parser)" />
+				</vbox>
+			</listheader>
+			<listheader label="Time" hflex="min">
+				<vbox width="100%">
+					<intbox width="90%"
+						value="@bind(searchPath.minTime)" />
+					<intbox width="90%"
+						value="@bind(searchPath.maxTime)" />
+				</vbox>
+			</listheader>
 		</listhead>
 		<template name="model" var="file">
 			<listitem>
@@ -128,10 +142,12 @@
 				<listcell label="@load(file.parserStatus.name)" />
 				<listcell label="@load(file.indexStatus.name)" />
 				<listcell label="@load(file.repository)" />
+				<listcell label="@load(file.parser)" />
+				<listcell label="@load(file.time)" />
 			</listitem>
 		</template>
 		<listfoot>
-			<listfooter span="11">
+			<listfooter span="13">
 				<paging id="paging" detailed="true"
 					totalSize="@load(searchPath.totalSize)"
 					pageSize="@load(searchPath.pageSize)"
