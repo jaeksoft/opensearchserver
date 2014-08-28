@@ -79,6 +79,8 @@ public class FileItem extends FileInfo {
 	private String langMethod;
 	private Long crawlDate;
 	private Status status;
+	private String parser;
+	private Integer time;
 
 	private List<String> userAllow;
 	private List<String> userDeny;
@@ -99,6 +101,8 @@ public class FileItem extends FileInfo {
 		lang = null;
 		langMethod = null;
 		crawlDate = null;
+		parser = null;
+		time = null;
 		userAllow = null;
 		userDeny = null;
 		groupAllow = null;
@@ -127,6 +131,12 @@ public class FileItem extends FileInfo {
 
 		setFileExtension(doc.getValueContent(
 				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
+
+		setParser(doc.getValueContent(
+				FileItemFieldEnum.INSTANCE.parser.getName(), 0));
+
+		setTime(doc.getValueContent(FileItemFieldEnum.INSTANCE.time.getName(),
+				0));
 
 		setUserAllow(FieldValueItem.buildArrayList(doc
 				.getValues(FileItemFieldEnum.INSTANCE.userAllow.getName())));
@@ -244,6 +254,13 @@ public class FileItem extends FileInfo {
 					.setString(FileItemFieldEnum.INSTANCE.langMethod.getName(),
 							langMethod);
 
+		if (parser != null)
+			indexDocument.setString(
+					FileItemFieldEnum.INSTANCE.parser.getName(), parser);
+		if (time != null)
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.time.getName(),
+					contentLengthFormat.format(time));
+
 		indexDocument.setStringList(
 				FileItemFieldEnum.INSTANCE.userAllow.getName(), getUserAllow());
 		indexDocument.setStringList(
@@ -358,4 +375,45 @@ public class FileItem extends FileInfo {
 	public List<String> getGroupDeny() {
 		return groupDeny;
 	}
+
+	/**
+	 * @return the parser
+	 */
+	public String getParser() {
+		return parser;
+	}
+
+	/**
+	 * @param parser
+	 *            the parser to set
+	 */
+	public void setParser(String parser) {
+		this.parser = parser;
+	}
+
+	/**
+	 * @return the time
+	 */
+	public Integer getTime() {
+		return time;
+	}
+
+	/**
+	 * @param time
+	 *            the time to set
+	 */
+	public void setTime(Integer t) {
+		time = t;
+	}
+
+	private void setTime(String t) {
+		if (t == null)
+			return;
+		try {
+			time = contentLengthFormat.parse(t).intValue();
+		} catch (ParseException e) {
+			Logging.warn(e.getMessage());
+		}
+	}
+
 }

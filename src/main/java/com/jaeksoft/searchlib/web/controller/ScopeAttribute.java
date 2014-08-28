@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -118,6 +118,12 @@ public enum ScopeAttribute {
 	SEARCH_FILE_REPOSITORY(),
 
 	SEARCH_FILE_BUFFER_SIZE(),
+
+	SEARCH_FILE_PARSER(),
+
+	SEARCH_FILE_MIN_TIME(),
+
+	SEARCH_FILE_MAX_TIME(),
 
 	RENDERER_IFRAME_WIDTH(),
 

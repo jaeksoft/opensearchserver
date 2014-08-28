@@ -137,4 +137,9 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 	public boolean isDistance() {
 		return false;
 	}
+
+	@Override
+	public void reset() {
+		query = null;
+	}
 }
