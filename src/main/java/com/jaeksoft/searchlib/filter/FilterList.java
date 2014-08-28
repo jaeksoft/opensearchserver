@@ -194,7 +194,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	}
 
 	public void addAuthFilter() {
-		if (filterList == null)
+		if (filterList != null)
 			for (FilterAbstract<?> filter : filterList)
 				if (filter instanceof AuthFilter)
 					return;
