@@ -193,6 +193,8 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		return false;
 	}
 
+	public abstract void reset();
+
 	protected FilterHits getFilterHits(Config config, SchemaField defaultField,
 			Analyzer analyzer, Query query, Timer timer) throws ParseException,
 			IOException, SearchLibException {

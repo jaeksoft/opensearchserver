@@ -346,4 +346,9 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 	public boolean isDistance() {
 		return type == GeoFilter.Type.RADIUS;
 	}
+
+	@Override
+	public void reset() {
+		query = null;
+	}
 }

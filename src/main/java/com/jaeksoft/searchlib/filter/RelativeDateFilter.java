@@ -233,4 +233,9 @@ public class RelativeDateFilter extends FilterAbstract<RelativeDateFilter> {
 		return to;
 	}
 
+	@Override
+	public void reset() {
+		query = null;
+	}
+
 }

@@ -89,7 +89,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		RequestInterfaces.FilterListInterface {
 
 	private transient Query boostedComplexQuery;
-	private transient Query complexQuery;
+	private transient Query notBoostedComplexQuery;
 	private transient Query snippetSimpleQuery;
 
 	protected transient PerFieldAnalyzer analyzer;
@@ -152,7 +152,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.lang = null;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
-		this.complexQuery = null;
+		this.notBoostedComplexQuery = null;
 		this.analyzer = null;
 		this.queryString = null;
 		this.advancedScore = null;
@@ -195,7 +195,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.lang = searchRequest.lang;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
-		this.complexQuery = null;
+		this.notBoostedComplexQuery = null;
 		this.analyzer = null;
 		this.queryString = searchRequest.queryString;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
@@ -209,11 +209,12 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.queryParsed = null;
 		this.snippetSimpleQuery = null;
 		this.boostedComplexQuery = null;
-		this.complexQuery = null;
+		this.notBoostedComplexQuery = null;
 		this.analyzer = null;
 		if (snippetFieldList != null)
 			for (SnippetField snippetField : snippetFieldList)
 				snippetField.reset();
+		filterList.reset();
 	}
 
 	private PerFieldAnalyzer checkAnalyzer() throws SearchLibException {
@@ -317,17 +318,17 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			SearchLibException, SyntaxError, IOException {
 		rwl.r.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
+			if (notBoostedComplexQuery != null)
+				return notBoostedComplexQuery;
 		} finally {
 			rwl.r.unlock();
 		}
 		rwl.w.lock();
 		try {
-			if (complexQuery != null)
-				return complexQuery;
-			complexQuery = newComplexQuery();
-			return complexQuery;
+			if (notBoostedComplexQuery != null)
+				return notBoostedComplexQuery;
+			notBoostedComplexQuery = newComplexQuery();
+			return notBoostedComplexQuery;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -410,7 +411,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		try {
 			queryString = q;
 			boostedComplexQuery = null;
-			complexQuery = null;
+			notBoostedComplexQuery = null;
 			snippetSimpleQuery = null;
 		} finally {
 			rwl.w.unlock();
