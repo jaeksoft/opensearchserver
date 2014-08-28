@@ -165,4 +165,9 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	@Override
 	final public void setParam(final String params) throws SearchLibException {
 	}
+
+	@Override
+	public void reset() {
+		query = null;
+	}
 }
