@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,10 @@ public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
 	public final ItemField fileExtension = new ItemField(this, "fileExtension");
 
 	public final ItemField fileType = new ItemField(this, "fileType");
+
+	public final ItemField parser = new ItemField(this, "parser");
+
+	public final ItemField time = new ItemField(this, "time");
 
 	public final ItemField userAllow = new ItemField(this, "userAllow");
 
