@@ -385,7 +385,7 @@ public class ViewerController extends CommonController {
 		PDFBoxHighlighter pdfstripper = new PDFBoxHighlighter(keywords,
 				boxList, new Dimension(currentImage.getWidth(),
 						currentImage.getHeight()));
-		pdfstripper.setStartPage(page - 1);
+		pdfstripper.setStartPage(page);
 		pdfstripper.setEndPage(page);
 		pdfstripper.getText(document);
 	}
