@@ -149,7 +149,8 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 					.identityHashCode(child))
 				parent.add(child, occur);
 			else
-				Logging.info("Risk of loop on boolean query");
+				// TODO
+				;// Logging.info("Risk of loop on boolean query");
 		}
 
 		public final Query getQuery(BooleanQuery parentBooleanQuery,

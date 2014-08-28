@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,44 +53,63 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	public FilterList() {
 		config = null;
-		this.filterList = new ArrayList<FilterAbstract<?>>();
+		filterList = null;
 	}
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
-		this.filterList = new ArrayList<FilterAbstract<?>>(fl.size());
-		for (FilterAbstract<?> f : fl)
-			add(f.duplicate());
+		this.filterList = null;
+		if (fl != null)
+			for (FilterAbstract<?> f : fl)
+				add(f.duplicate());
 	}
 
 	public FilterList(Config config) {
-		this.filterList = new ArrayList<FilterAbstract<?>>();
+		this.filterList = null;
 		this.config = config;
 	}
 
 	public void add(FilterAbstract<?> filter) {
+		if (filter == null)
+			return;
+		if (filterList == null)
+			filterList = new ArrayList<FilterAbstract<?>>(1);
 		filterList.add(filter);
 		renumbered();
 	}
 
 	public void remove(FilterAbstract<?> filter) {
+		if (filter == null)
+			return;
+		if (filterList == null)
+			return;
 		filterList.remove(filter);
 		renumbered();
 	}
 
+	public void reset() {
+		if (filterList == null)
+			return;
+		for (FilterAbstract<?> filter : filterList)
+			filter.reset();
+	}
+
 	private void renumbered() {
+		if (filterList == null)
+			return;
 		int i = 1;
 		for (FilterAbstract<?> item : filterList)
 			item.setParamPosition(i++);
 	}
 
 	public int size() {
-		return filterList.size();
+		return filterList == null ? 0 : filterList.size();
 	}
 
 	@Override
 	public Iterator<FilterAbstract<?>> iterator() {
-		return filterList.iterator();
+		return filterList == null ? Collections
+				.<FilterAbstract<?>> emptyIterator() : filterList.iterator();
 	}
 
 	public FilterHits getFilterHits(SchemaField defaultField,
@@ -108,18 +128,20 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	}
 
 	public Object[] getArray() {
-		return filterList.toArray();
+		return filterList == null ? new Object[0] : filterList.toArray();
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		for (FilterAbstract<?> filter : filterList)
-			filter.writeXmlConfig(xmlWriter);
+		if (filterList != null)
+			for (FilterAbstract<?> filter : filterList)
+				filter.writeXmlConfig(xmlWriter);
 	}
 
 	final public void setFromServlet(final ServletTransaction transaction,
 			final String prefix) {
-		for (FilterAbstract<?> filter : filterList)
-			filter.setFromServlet(transaction, prefix);
+		if (filterList != null)
+			for (FilterAbstract<?> filter : filterList)
+				filter.setFromServlet(transaction, prefix);
 	}
 
 	private void addFromServlet(String[] values, boolean negative) {
@@ -128,7 +150,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		for (String value : values)
 			if (value != null)
 				if (value.trim().length() > 0)
-					filterList.add(new QueryFilter(value, negative,
+					add(new QueryFilter(value, negative,
 							FilterAbstract.Source.REQUEST, null));
 	}
 
@@ -142,34 +164,39 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	}
 
 	public void setParam(int pos, String param) throws SearchLibException {
-		if (pos < 0 || pos >= filterList.size())
+		if (filterList == null || pos < 0 || pos >= filterList.size())
 			throw new SearchLibException("Wrong filter parameter (" + pos + ")");
 		filterList.get(pos).setParam(param);
 	}
 
 	final public boolean isDistance() {
-		for (FilterAbstract<?> filter : filterList)
-			if (filter.isDistance())
-				return true;
+		if (filterList != null)
+			for (FilterAbstract<?> filter : filterList)
+				if (filter.isDistance())
+					return true;
 		return false;
 	}
 
 	final public float getMaxDistance() {
 		double maxDistance = Double.MAX_VALUE;
-		for (FilterAbstract<?> filter : filterList)
-			if (filter.isGeoFilter()) {
-				GeoFilter geoFilter = (GeoFilter) filter;
-				if (geoFilter.getType() == Type.RADIUS)
-					if (maxDistance > geoFilter.getMaxDistance())
-						maxDistance = geoFilter.getMaxDistance();
+		if (filterList != null) {
+			for (FilterAbstract<?> filter : filterList) {
+				if (filter.isGeoFilter()) {
+					GeoFilter geoFilter = (GeoFilter) filter;
+					if (geoFilter.getType() == Type.RADIUS)
+						if (maxDistance > geoFilter.getMaxDistance())
+							maxDistance = geoFilter.getMaxDistance();
+				}
 			}
+		}
 		return (float) (maxDistance == Double.MAX_VALUE ? 0 : maxDistance);
 	}
 
 	public void addAuthFilter() {
-		for (FilterAbstract<?> filter : filterList)
-			if (filter instanceof AuthFilter)
-				return;
-		filterList.add(new AuthFilter());
+		if (filterList == null)
+			for (FilterAbstract<?> filter : filterList)
+				if (filter instanceof AuthFilter)
+					return;
+		add(new AuthFilter());
 	}
 }
