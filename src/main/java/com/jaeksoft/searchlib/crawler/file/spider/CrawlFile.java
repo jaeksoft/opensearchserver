@@ -96,8 +96,10 @@ public class CrawlFile {
 				else {
 					if (parser.getError() != null)
 						fileItem.setParserStatus(ParserStatus.PARSER_ERROR);
-					else
+					else {
 						fileItem.setLang(parser.getFirstLang());
+						fileItem.setParser(parser.getParserName());
+					}
 				}
 
 			} catch (MalformedURLException e) {

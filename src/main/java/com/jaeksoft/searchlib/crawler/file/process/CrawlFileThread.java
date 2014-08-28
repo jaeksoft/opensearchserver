@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -121,6 +121,8 @@ public class CrawlFileThread extends
 	private CrawlFile crawl(FileInstanceAbstract fileInstance)
 			throws SearchLibException {
 
+		long startTime = System.currentTimeMillis();
+
 		sleepInterval(60000);
 
 		setStatus(CrawlStatus.CRAWL);
@@ -142,6 +144,7 @@ public class CrawlFileThread extends
 		} else
 			currentStats.incIgnoredCount();
 
+		currentFileItem.setTime((int) (System.currentTimeMillis() - startTime));
 		return crawl;
 	}
 
