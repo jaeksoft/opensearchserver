@@ -82,8 +82,8 @@ public class FileManager extends AbstractManager {
 			FetchStatus fetchStatus, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startcrawlDate, Date endCrawlDate,
 			Date startModifiedDate, Date endModifiedDate,
-			FileTypeEnum fileType, String subDirectory)
-			throws SearchLibException {
+			FileTypeEnum fileType, String subDirectory, Integer minTime,
+			Integer maxTime, String parser) throws SearchLibException {
 		try {
 
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
@@ -91,36 +91,29 @@ public class FileManager extends AbstractManager {
 
 			StringBuilder query = new StringBuilder();
 
-			if (fileName != null) {
-				fileName = fileName.trim();
-				if (fileName.length() > 0)
+			if (fileName != null)
+				if ((fileName = fileName.trim()).length() > 0)
 					FileItemFieldEnum.INSTANCE.fileName.addQuery(query,
 							fileName, true);
-			}
 
-			if (repository != null) {
-				repository = repository.trim();
-				if (repository.length() > 0)
+			if (repository != null)
+				if ((repository = repository.trim()).length() > 0)
 					FileItemFieldEnum.INSTANCE.repository.addFilterQuery(
 							searchRequest, repository, true, false);
-			}
 
-			if (fileExtension != null) {
-				fileExtension = fileExtension.trim();
-				if (fileExtension.length() > 0)
+			if (fileExtension != null)
+				if ((fileExtension = fileExtension.trim()).length() > 0)
 					FileItemFieldEnum.INSTANCE.fileExtension
 							.addFilterQuery(searchRequest,
 									QueryUtils.escapeQuery(fileExtension),
 									false, false);
-			}
 
-			if (lang != null) {
-				lang = lang.trim();
-				if (lang.length() > 0)
+			if (lang != null)
+				if ((lang = lang.trim()).length() > 0)
 					FileItemFieldEnum.INSTANCE.lang.addFilterQuery(
 							searchRequest, QueryUtils.escapeQuery(lang), false,
 							false);
-			}
+
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
@@ -157,6 +150,20 @@ public class FileManager extends AbstractManager {
 						searchRequest, from, to, false, false);
 			}
 
+			if (minTime != null || maxTime != null) {
+				String from, to;
+				if (minTime == null)
+					from = FileItem.contentLengthFormat.format(0);
+				else
+					from = FileItem.contentLengthFormat.format(minTime);
+				if (maxTime == null)
+					to = FileItem.contentLengthFormat.format(Integer.MAX_VALUE);
+				else
+					to = FileItem.contentLengthFormat.format(maxTime);
+				FileItemFieldEnum.INSTANCE.time.addFilterRange(searchRequest,
+						from, to, false, false);
+			}
+
 			if (startcrawlDate != null || endCrawlDate != null) {
 				String from, to;
 				if (startcrawlDate == null)
@@ -188,6 +195,11 @@ public class FileManager extends AbstractManager {
 			if (subDirectory != null)
 				FileItemFieldEnum.INSTANCE.subDirectory.addFilterQuery(
 						searchRequest, subDirectory, true, false);
+
+			if (parser != null)
+				if ((parser = parser.trim()).length() > 0)
+					FileItemFieldEnum.INSTANCE.parser.addFilterQuery(
+							searchRequest, parser, true, false);
 
 			searchRequest.setEmptyReturnsAll(true);
 			searchRequest.setQueryString(query.toString().trim());
