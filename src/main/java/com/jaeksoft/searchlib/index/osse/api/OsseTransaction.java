@@ -121,10 +121,10 @@ public class OsseTransaction implements Closeable {
 
 	final public int createField(String fieldName, int flag)
 			throws SearchLibException {
+		IntByReference fieldId = new IntByReference();
 		final ExecutionToken et = FunctionTimer.newExecutionToken(
 				"OSSCLib_MsTransact_CreateFieldW ", fieldName, " ",
 				Integer.toString(flag));
-		IntByReference fieldId = new IntByReference();
 		long fieldPtr = OsseIndex.LIB.OSSCLib_MsTransact_CreateFieldW(
 				transactPtr, fieldName,
 				OsseJNALibrary.OSSCLIB_FIELD_UI32FIELDTYPE_STRING, flag,
@@ -264,7 +264,7 @@ public class OsseTransaction implements Closeable {
 	}
 
 	@Deprecated
-	final public void updateDocument1(final Schema schema,
+	final public void updateDocument_(final Schema schema,
 			final IndexDocument indexDocument) throws SearchLibException,
 			IOException {
 		DocumentRecord documentRecord = null;

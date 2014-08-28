@@ -38,7 +38,7 @@ public class FunctionTimer {
 	private static double globalTotalTime = 0;
 	private static double fullTotalTime = 0;
 
-	public final static Mode MODE = Mode.TIME_ONLY;
+	public final static Mode MODE = Mode.FULL;
 
 	private static class ExecutionInfo {
 

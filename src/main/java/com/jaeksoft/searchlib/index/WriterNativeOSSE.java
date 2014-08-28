@@ -180,14 +180,14 @@ public class WriterNativeOSSE extends WriterAbstract {
 	}
 
 	@Deprecated
-	final public boolean updateDocument1(final Schema schema,
+	final public boolean updateDocument_(final Schema schema,
 			final IndexDocument document) throws SearchLibException {
 		OsseTransaction transaction = null;
 		try {
 			Map<String, FieldInfo> fieldMap = checkSchemaFieldList(schema
 					.getFieldList());
 			transaction = new OsseTransaction(index, null, fieldMap.values(), 1);
-			transaction.updateDocument1(schema, document);
+			transaction.updateDocument_(schema, document);
 			transaction.commit();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
