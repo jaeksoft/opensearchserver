@@ -26,12 +26,12 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.Iterators;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
@@ -108,7 +108,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	@Override
 	public Iterator<FilterAbstract<?>> iterator() {
-		return filterList == null ? Collections
+		return filterList == null ? Iterators
 				.<FilterAbstract<?>> emptyIterator() : filterList.iterator();
 	}
 
