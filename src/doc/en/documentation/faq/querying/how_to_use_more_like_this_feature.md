@@ -19,12 +19,15 @@ Some fields must then be added in area named `Fields`. Those fields will be the 
 ![Configuring more like this query](mlt2.png)`
 
 Second tab allow configuration of some metrics. Default values are fine to start with.
+
 ![Setting metrics](mlt3.png)
 
-At last some returned fields must be configured
+At last some returned fields must be configured:
+
 ![Configuring returned fields](mlt4.png)
 
 Here is an other example where products are identified by a field name `numkey_prod`. Similarity is computed from field `nom_genre`, which is products'categories.
+
 ![More like this results](mlt5.png)
 
 Of course this query template can be used in an API call, where "Document query" can be easily overiden. Have a look at the [More Like This API section of our documentation](http://www.opensearchserver.com/documentation/api_v2/more-like-this/README.html).
