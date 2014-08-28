@@ -120,7 +120,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	}
 
 	@Override
-	public Query newComplexQuery(String queryString) throws ParseException,
+	protected Query newComplexQuery(String queryString) throws ParseException,
 			SyntaxError, SearchLibException, IOException {
 		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
 				: Occur.SHOULD;

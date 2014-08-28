@@ -158,4 +158,9 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 		if (param != null)
 			setTerm(param);
 	}
+
+	@Override
+	public void reset() {
+		query = null;
+	}
 }

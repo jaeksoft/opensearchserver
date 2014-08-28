@@ -154,4 +154,9 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 		if (param != null)
 			setQueryString(param);
 	}
+
+	@Override
+	public void reset() {
+		query = null;
+	}
 }
