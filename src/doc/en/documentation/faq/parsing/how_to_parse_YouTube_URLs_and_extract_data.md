@@ -7,9 +7,8 @@ Here are required steps to implement a way to work with YouTube extraction:
 ![New field](youtube1.png)
  
 * Create a new analyzer
-
-* Take care to choose KeywordTokenizer for indexation.
-* You can see in the test section at the bottom how it works: filter `YouTube filter` will make calls to YouTube's API in order to retrieved some information about YouTube's videos found in analyzed text. Links to these videos are found with a regular expression.
+  * Take care to choose KeywordTokenizer for indexation.
+  * You can see in the test section at the bottom how it works: filter `YouTube filter` will make calls to YouTube's API in order to retrieved some information about YouTube's videos found in analyzed text. Links to these videos are found with a regular expression.
 
 ![New analyzer](youtube2.png)
 
