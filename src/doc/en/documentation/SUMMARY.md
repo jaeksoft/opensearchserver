@@ -13,6 +13,7 @@
 	* [Crawling](faq/crawling/README.md)
 		* [Excluding part of Web page](faq/crawling/how_to_exclude_some_part_of_webpage_from_crawling.md)
 		* [Using Selenium](faq/crawling/how_to_use_selenium_to_crawl_websites.md)
+		* [How lang of webpages are detected](faq/crawling/how_lang_of_webpages_are_detected.md)
 	* [Installation](faq/installation/README.md)
 		* [Environment variables on Windows](faq/installation/how_to_check_the_environment_variables_on_Windows.md)
 		* [Tesseract-3 on Debian](faq/installation/how_to_install_Tesseract-3_on_Debian.md)
@@ -23,8 +24,10 @@
 		* [Geolocation](faq/querying/geolocation.md)
 		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
+		* [How to use More Like This feature](faq/querying/how_to_use_more_like_this_feature.md
 	* [Parsing](faq/parsing/README.md)
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
+		* [How to parse YouTube URLs and extract data](faq/parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [PHP - documentation for the previous version](clients/php_client/README.md)
