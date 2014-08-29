@@ -27,6 +27,7 @@
 		* [How to use More Like This feature](faq/querying/how_to_use_more_like_this_feature.md
 	* [Parsing](faq/parsing/README.md)
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
+		* [How to parse YouTube URLs and extract data](faq/parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [PHP - documentation for the previous version](clients/php_client/README.md)

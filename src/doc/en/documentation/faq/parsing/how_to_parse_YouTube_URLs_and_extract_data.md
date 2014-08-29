@@ -1,4 +1,4 @@
-## How_to_parse_YouTube_URLs_and_extract_data 
+## How to parse YouTube URLs and extract data 
 
 Here are required steps to implement a way to work with YouTube extraction:
 
