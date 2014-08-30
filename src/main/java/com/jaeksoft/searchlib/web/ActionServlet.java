@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
@@ -52,9 +53,11 @@ public class ActionServlet extends AbstractServlet {
 				client.optimize();
 			else if ("deleteAll".equalsIgnoreCase(action))
 				client.deleteAll();
-			else if ("reload".equalsIgnoreCase(action)) {
+			else if ("reload".equalsIgnoreCase(action))
 				client.reload();
-			} else if ("online".equalsIgnoreCase(action))
+			else if ("close".equalsIgnoreCase(action))
+				ClientCatalog.closeIndex(client.getIndexName());
+			else if ("online".equalsIgnoreCase(action))
 				client.setOnline(true);
 			else if ("offline".equalsIgnoreCase(action))
 				client.setOnline(false);
@@ -78,6 +81,14 @@ public class ActionServlet extends AbstractServlet {
 		call(secTimeOut,
 				buildUri(uri, "/action", indexName, login, apikey,
 						"action=reload"));
+	}
+
+	public static void close(URI uri, String indexName, String login,
+			String apikey, int secTimeOut) throws SearchLibException,
+			URISyntaxException {
+		call(secTimeOut,
+				buildUri(uri, "/action", indexName, login, apikey,
+						"action=close"));
 	}
 
 	public static void online(URI uri, String indexName, String login,
