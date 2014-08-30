@@ -144,6 +144,17 @@ public class CommandsController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
+	public void onClose() throws SearchLibException {
+		synchronized (this) {
+			Client client = getClient();
+			if (client == null)
+				return;
+			ClientCatalog.closeClient(client.getIndexName());
+		}
+	}
+
+	@Command
+	@NotifyChange("*")
 	public void onOptimize() throws SearchLibException, IOException,
 			URISyntaxException, InterruptedException {
 		synchronized (this) {
