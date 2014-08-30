@@ -77,4 +77,11 @@ public interface RestIndex {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("index_name") String name);
 
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{index_name}/close()")
+	public CommonResult closeIndex(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("index_name") String name);
+
 }

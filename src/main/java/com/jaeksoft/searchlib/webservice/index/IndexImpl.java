@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
+import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -129,6 +130,24 @@ public class IndexImpl extends CommonServices implements RestIndex {
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult closeIndex(UriInfo uriInfo, String login, String key,
+			String indexName) {
+		try {
+			getLoggedClientAnyRole(uriInfo, indexName, login, key,
+					Role.INDEX_UPDATE);
+			ClientFactory.INSTANCE.properties.checkApi();
+			ClientCatalog.closeClient(indexName);
+			return new CommonResult(true, "Index closed: " + indexName);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
