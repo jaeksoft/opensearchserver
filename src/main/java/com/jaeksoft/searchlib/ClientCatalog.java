@@ -33,7 +33,6 @@ import java.net.URI;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -244,7 +243,7 @@ public class ClientCatalog {
 			client = CLIENTS.get(indexName);
 			if (client == null)
 				return;
-			System.out.println("Closing client " + indexDirectory.getName());
+			Logging.info("Closing client " + indexName);
 			client.close();
 			CLIENTS.remove(indexDirectory);
 		} finally {
