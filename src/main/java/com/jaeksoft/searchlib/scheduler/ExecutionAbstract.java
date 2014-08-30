@@ -124,10 +124,10 @@ public class ExecutionAbstract {
 	public boolean waitForStart(long secTimeOut) throws InterruptedException {
 		long timeOut = System.currentTimeMillis() + secTimeOut * 1000;
 		while (timeOut > System.currentTimeMillis()) {
+			if (isRunning())
+				return true;
 			if (StartStopListener.isShutdown())
 				return false;
-			if (getLastExecution() != null)
-				return true;
 			Thread.sleep(500);
 		}
 		return false;
