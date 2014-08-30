@@ -49,4 +49,8 @@ public interface SoapIndex {
 			@WebParam(name = "key") String key,
 			@WebParam(name = "name") String name);
 
+	public CommonResult closeIndex(@WebParam(name = "login") String login,
+			@WebParam(name = "key") String key,
+			@WebParam(name = "name") String name);
+
 }

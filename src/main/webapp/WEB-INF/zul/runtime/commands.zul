@@ -57,6 +57,13 @@
 				</cell>
 			</row>
 			<row>
+				<label value="Close: " />
+				<button label="Close" onClick="@command('onClose')"
+					disabled="@load(commands.offline)" />
+				<label />
+				<label />
+			</row>
+			<row>
 				<label value="Offline/Online: " />
 				<cell>
 					<button label="Offline"

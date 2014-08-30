@@ -227,6 +227,25 @@ public class ClientCatalog {
 		return getClient(getIndexDirectory(indexName));
 	}
 
+	public static final void closeIndex(String indexName)
+			throws SearchLibException {
+		Client client = null;
+		clientsLock.w.lock();
+		try {
+			File indexDirectory = getIndexDirectory(indexName);
+			client = CLIENTS.get(indexDirectory);
+			if (client == null)
+				return;
+			Logging.info("Closing client " + indexName);
+			client.close();
+			CLIENTS.remove(indexDirectory);
+		} finally {
+			clientsLock.w.unlock();
+		}
+		if (client != null)
+			PushEvent.eventClientSwitch.publish(client);
+	}
+
 	private static final File getIndexDirectory(String indexName)
 			throws SearchLibException {
 		if (!isValidIndexName(indexName))
