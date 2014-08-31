@@ -847,7 +847,7 @@
 			<plugin>
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>4.1</version>
+				<version>4.3</version>
 				<configuration>
 					<outputDirectory>${basedir}/src/main/java</outputDirectory>
 				</configuration>

@@ -1,4 +1,4 @@
-// Generated from com/jaeksoft/searchlib/query/parser/BooleanQuery.g4 by ANTLR 4.1
+// Generated from com/jaeksoft/searchlib/query/parser/BooleanQuery.g4 by ANTLR 4.3
 package com.jaeksoft.searchlib.query.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -11,6 +11,8 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BooleanQueryLexer extends Lexer {
+	static { RuntimeMetaData.checkVersion("4.3", RuntimeMetaData.VERSION); }
+
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
@@ -21,11 +23,11 @@ public class BooleanQueryLexer extends Lexer {
 	};
 
 	public static final String[] tokenNames = {
-		"<INVALID>",
-		"AND", "OR", "NOT", "STRING", "QSTRING", "WS"
+		"'\\u0000'", "'\\u0001'", "'\\u0002'", "'\\u0003'", "'\\u0004'", "'\\u0005'", 
+		"'\\u0006'"
 	};
 	public static final String[] ruleNames = {
-		"AND", "OR", "NOT", "STRING", "QSTRING", "WS"
+		"AND", "OR", "NOT", "STRING", "QSTRING", "WS", "StringCharacter", "EscapeSequence"
 	};
 
 
@@ -44,46 +46,40 @@ public class BooleanQueryLexer extends Lexer {
 	public String[] getRuleNames() { return ruleNames; }
 
 	@Override
+	public String getSerializedATN() { return _serializedATN; }
+
+	@Override
 	public String[] getModeNames() { return modeNames; }
 
 	@Override
 	public ATN getATN() { return _ATN; }
 
-	@Override
-	public void action(RuleContext _localctx, int ruleIndex, int actionIndex) {
-		switch (ruleIndex) {
-		case 5: WS_action((RuleContext)_localctx, actionIndex); break;
-		}
-	}
-	private void WS_action(RuleContext _localctx, int actionIndex) {
-		switch (actionIndex) {
-		case 0: skip();  break;
-		}
-	}
-
 	public static final String _serializedATN =
-		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\2\bH\b\1\4\2\t\2\4"+
-		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2"+
-		"\5\2\30\n\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3\"\n\3\3\4\3\4\3\4\3\4"+
-		"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\60\n\4\3\5\6\5\63\n\5\r\5\16\5\64"+
-		"\3\6\3\6\3\6\3\6\7\6;\n\6\f\6\16\6>\13\6\3\6\3\6\3\7\6\7C\n\7\r\7\16\7"+
-		"D\3\7\3\7\2\b\3\3\1\5\4\1\7\5\1\t\6\1\13\7\1\r\b\2\3\2\5\6\2\13\f\17\17"+
-		"\"\"$$\3\2$$\5\2\13\f\17\17\"\"Q\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2"+
-		"\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\3\27\3\2\2\2\5!\3\2\2\2\7/\3\2\2\2"+
-		"\t\62\3\2\2\2\13\66\3\2\2\2\rB\3\2\2\2\17\20\7C\2\2\20\21\7P\2\2\21\30"+
-		"\7F\2\2\22\23\7G\2\2\23\30\7V\2\2\24\25\7W\2\2\25\26\7P\2\2\26\30\7F\2"+
-		"\2\27\17\3\2\2\2\27\22\3\2\2\2\27\24\3\2\2\2\30\4\3\2\2\2\31\32\7Q\2\2"+
-		"\32\"\7T\2\2\33\34\7Q\2\2\34\"\7W\2\2\35\36\7Q\2\2\36\37\7F\2\2\37 \7"+
-		"G\2\2 \"\7T\2\2!\31\3\2\2\2!\33\3\2\2\2!\35\3\2\2\2\"\6\3\2\2\2#$\7P\2"+
-		"\2$%\7Q\2\2%\60\7V\2\2&\'\7P\2\2\'(\7Q\2\2(\60\7P\2\2)*\7P\2\2*+\7K\2"+
-		"\2+,\7E\2\2,-\7J\2\2-.\7V\2\2.\60\7U\2\2/#\3\2\2\2/&\3\2\2\2/)\3\2\2\2"+
-		"\60\b\3\2\2\2\61\63\n\2\2\2\62\61\3\2\2\2\63\64\3\2\2\2\64\62\3\2\2\2"+
-		"\64\65\3\2\2\2\65\n\3\2\2\2\66<\7$\2\2\678\7$\2\28;\7$\2\29;\n\3\2\2:"+
-		"\67\3\2\2\2:9\3\2\2\2;>\3\2\2\2<:\3\2\2\2<=\3\2\2\2=?\3\2\2\2><\3\2\2"+
-		"\2?@\7$\2\2@\f\3\2\2\2AC\t\4\2\2BA\3\2\2\2CD\3\2\2\2DB\3\2\2\2DE\3\2\2"+
-		"\2EF\3\2\2\2FG\b\7\2\2G\16\3\2\2\2\n\2\27!/\64:<D";
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\2\bT\b\1\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\3\2\3\2\3\2\3\2"+
+		"\3\2\3\2\3\2\3\2\5\2\34\n\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3&\n\3\3"+
+		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\64\n\4\3\5\6\5\67\n"+
+		"\5\r\5\16\58\3\5\5\5<\n\5\3\6\3\6\6\6@\n\6\r\6\16\6A\3\6\5\6E\n\6\3\7"+
+		"\6\7H\n\7\r\7\16\7I\3\7\3\7\3\b\3\b\5\bP\n\b\3\t\3\t\3\t\2\2\n\3\3\5\4"+
+		"\7\5\t\6\13\7\r\b\17\2\21\2\3\2\6\3\3$$\5\2\13\f\17\17\"\"\6\2\13\f\17"+
+		"\17\"\"^^\n\2$$))^^ddhhppttvv\\\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2"+
+		"\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\3\33\3\2\2\2\5%\3\2\2\2\7\63\3\2\2"+
+		"\2\t\66\3\2\2\2\13=\3\2\2\2\rG\3\2\2\2\17O\3\2\2\2\21Q\3\2\2\2\23\24\7"+
+		"C\2\2\24\25\7P\2\2\25\34\7F\2\2\26\27\7G\2\2\27\34\7V\2\2\30\31\7W\2\2"+
+		"\31\32\7P\2\2\32\34\7F\2\2\33\23\3\2\2\2\33\26\3\2\2\2\33\30\3\2\2\2\34"+
+		"\4\3\2\2\2\35\36\7Q\2\2\36&\7T\2\2\37 \7Q\2\2 &\7W\2\2!\"\7Q\2\2\"#\7"+
+		"F\2\2#$\7G\2\2$&\7T\2\2%\35\3\2\2\2%\37\3\2\2\2%!\3\2\2\2&\6\3\2\2\2\'"+
+		"(\7P\2\2()\7Q\2\2)\64\7V\2\2*+\7P\2\2+,\7Q\2\2,\64\7P\2\2-.\7P\2\2./\7"+
+		"K\2\2/\60\7E\2\2\60\61\7J\2\2\61\62\7V\2\2\62\64\7U\2\2\63\'\3\2\2\2\63"+
+		"*\3\2\2\2\63-\3\2\2\2\64\b\3\2\2\2\65\67\5\17\b\2\66\65\3\2\2\2\678\3"+
+		"\2\2\28\66\3\2\2\289\3\2\2\29;\3\2\2\2:<\7\2\2\3;:\3\2\2\2;<\3\2\2\2<"+
+		"\n\3\2\2\2=?\7$\2\2>@\5\17\b\2?>\3\2\2\2@A\3\2\2\2A?\3\2\2\2AB\3\2\2\2"+
+		"BD\3\2\2\2CE\t\2\2\2DC\3\2\2\2E\f\3\2\2\2FH\t\3\2\2GF\3\2\2\2HI\3\2\2"+
+		"\2IG\3\2\2\2IJ\3\2\2\2JK\3\2\2\2KL\b\7\2\2L\16\3\2\2\2MP\n\4\2\2NP\5\21"+
+		"\t\2OM\3\2\2\2ON\3\2\2\2P\20\3\2\2\2QR\7^\2\2RS\t\5\2\2S\22\3\2\2\2\f"+
+		"\2\33%\638;ADIO\3\b\2\2";
 	public static final ATN _ATN =
-		ATNSimulator.deserialize(_serializedATN.toCharArray());
+		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
 		_decisionToDFA = new DFA[_ATN.getNumberOfDecisions()];
 		for (int i = 0; i < _ATN.getNumberOfDecisions(); i++) {
