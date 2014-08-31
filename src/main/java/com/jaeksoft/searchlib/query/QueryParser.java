@@ -140,7 +140,13 @@ public class QueryParser extends BooleanQueryBaseListener {
 	}
 
 	private void addPhraseQuery(String text) throws IOException {
-		text = text.substring(1, text.length() - 1);
+		int s = 0;
+		if (text.startsWith("\""))
+			s = 1;
+		int l = text.length() + 1 - s;
+		if (text.endsWith("\""))
+			l--;
+		text = text.substring(s, l);
 		PhraseQuery phraseQuery = new PhraseQuery();
 		phraseQuery.setSlop(phraseSlop);
 		if (phraseBoost != null)
@@ -204,7 +210,7 @@ public class QueryParser extends BooleanQueryBaseListener {
 			parser.addParseListener(this);
 			parser.removeErrorListeners();
 			parser.addErrorListener(errorListener);
-			parser.expression(defaultOperator);
+			parser.expression();
 			if (ioError != null)
 				throw ioError;
 			if (holdQuery != null)
@@ -233,6 +239,9 @@ public class QueryParser extends BooleanQueryBaseListener {
 		System.out.println(queryParser
 				.parse("word1 OU word2 \"quoted_word\" NON unwanted"));
 		System.out.println(queryParser.parse("\"\""));
+		System.out.println(queryParser.parse("\"non ending quote"));
+		System.out.println(queryParser.parse("22\""));
+		System.out.println(queryParser.parse("\""));
 		System.out.println(queryParser.parse("OU OU"));
 	}
 }
