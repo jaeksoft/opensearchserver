@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,14 +25,21 @@ grammar BooleanQuery;
 
 // PARSER
 
-expression :
-	expression op=(AND|OR|NOT)? expression | phrase=QSTRING | word=STRING;
+expression : term+ ;
+
+term : (AND|OR|NOT)? (QSTRING|STRING) ;
 
 // LEXER
 
 AND : ('AND'|'ET'|'UND') ;
 OR : ('OR'|'OU'|'ODER') ;
 NOT : ('NOT'|'NON'|'NICHTS') ;
-STRING : ~[ \t\n\r"]+ ;
-QSTRING : '"' ('""'|~'"')* '"' ;
+STRING : StringCharacter+ EOF? ;
+QSTRING : '"' StringCharacter+ ('"'|EOF) ;
 WS : [ \t\n\r]+ -> skip ;
+
+fragment
+StringCharacter : ~[\\  \t\n\r] | EscapeSequence ;
+
+fragment
+EscapeSequence : '\\' [btnfr"'\\] ;
