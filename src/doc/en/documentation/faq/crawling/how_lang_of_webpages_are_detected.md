@@ -1,4 +1,4 @@
-## How lang of webpages are detected
+## How the lang attribute of webpages gets detected
 
 The OpenSearchServer web crawler uses several methods to determine the `lang` (language) of a document. The first three attempts are done using a HTML parser. In order, these are :
 
