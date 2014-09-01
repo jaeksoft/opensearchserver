@@ -1,10 +1,11 @@
 ## How lang of webpages are detected
 
-OpenSearcServer's web crawler is able to detect lang of webpages in several hierarchised ways. In association with HTML parser, Web Crawler will use one of these process:
+The OpenSearchServer web crawler uses several methods to determine the `lang` (language) of a document. The first three attempts are done using a HTML parser. In order, these are :
 
-1. Read `lang` attribute in tag `<html`
-2. Read tag `<meta http-equiv="content-language"`
-3. Read tag `<meta name="DC.Language"`
-4. Try to infer language from analysis of content (this process is named `ngram detection` by WebCrawler)
+1. Read the `lang` attribute in the `<html` tag
+2. Read the `<meta http-equiv="content-language"` tag
+3. Read the `<meta name="DC.Language"` tag
 
-Detected lang and used lang method can be seen when using feature Manual Crawl or when browsing URL Browser.
+If all these fail, a content analysis will take place to deduce the language. This is called `ngram detection` by WebCrawler.
+
+Detected lang and used lang methods can be observed when performing an OpenSearchServer Manual Crawl, or when using the URL Browser.
