@@ -1,32 +1,35 @@
-## How to use More Like This feature
+## How to use the More Like This feature
 
-We will explain here how MoreLikeThis queries can be created in order to find documents similar to one specific document.
+This page explains how to create MoreLikeThis queries. These are used to find documents similar to a given document.
+  
+A typical use case is a e-commerce or news web site suggesting similar products or content to visitors looking at an article.
 
-This feature can be really useful in lots of case, in particular when working on e-commerce or news websites where pages often shows "similar" products or articles at the end.
-
-First, start by creating a new Query in tab Query. Choose type "More like this".
+First, create a new query in the Query tab. Choose the "More like this" type.
 
 ![Creating new more like this query](mlt1.png)
 
-Since this query is built to return documents similar to another let's write some query to identify this particular document in field `Document query`, for example `product_id:345` if our schema has a field named `product_id`. This query must be written in the usual query pattern format.
+This query's point is to return documents similar to another. This baseline document must be identified in the `Document query` field. Assuming a schema with a field named `product_id`, we could for instance have a query for `product_id:345`. This query must be written in the usual query pattern format.
 
-Field `Like text` must be left empty.
+The field `Like text` must be left empty.
 
-Select language of your documents in list `Language`.
+Select the language of your documents in the `Language` list.
 
-Some fields must then be added in area named `Fields`. Those fields will be the ones used to find similarity between documents. In list `Analyzer` the same Analyzer that the one used in index'schema for the chosen fields must be selected.
+Now you must designate the field(s) that will be used to find similarities between documents. This is done in the `Fields` area.
+
+In the `Analyzer` list, pick the same analyzer as used for this field in the index's schema.
 
 ![Configuring more like this query](mlt2.png)`
 
-Second tab allow configuration of some metrics. Default values are fine to start with.
+The second tab allows for the configuration of some metrics. These default values are fine to start with.
 
 ![Setting metrics](mlt3.png)
 
-At last some returned fields must be configured:
+At last one returned field must be configured:
 
 ![Configuring returned fields](mlt4.png)
 
-Here is an other example where products are identified by a field name `numkey_prod`. Similarity is computed from field `nom_genre`, which is products'categories.
+
+Here is another example, where products are identified in a field named `numkey_prod`. Similarity is computed using the field `nom_genre`, which lists product categories.
 
 ![More like this results](mlt5.png)
 
