@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.mailbox;
 
+import java.io.IOException;
+
+import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
 import org.zkoss.bind.annotation.AfterCompose;
@@ -121,6 +124,16 @@ public class MailboxController
 			oldCurrentCrawl.copyTo(newCrawl);
 		newCrawl.setName(null);
 		reload();
+	}
+
+	@Command
+	public void onCheck() throws InterruptedException, InstantiationException,
+			IllegalAccessException, MessagingException, IOException,
+			SearchLibException {
+		MailboxCrawlItem crawl = getCurrentCrawl();
+		if (crawl == null)
+			return;
+		new AlertController("Test results: " + crawl.check());
 	}
 
 	@Override
