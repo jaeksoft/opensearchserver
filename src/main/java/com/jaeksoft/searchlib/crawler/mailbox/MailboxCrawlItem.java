@@ -24,15 +24,19 @@
 
 package com.jaeksoft.searchlib.crawler.mailbox;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.mail.MessagingException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
+import com.jaeksoft.searchlib.crawler.mailbox.crawler.MailboxAbstractCrawler;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -275,6 +279,14 @@ public class MailboxCrawlItem
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public String check() throws InstantiationException,
+			IllegalAccessException, MessagingException, IOException,
+			SearchLibException {
+		MailboxAbstractCrawler crawler = MailboxProtocolEnum.getNewCrawler(
+				null, this);
+		return crawler.check();
 	}
 
 }

@@ -31,19 +31,19 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.mail.Store;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.sun.mail.pop3.POP3Folder;
-import com.sun.mail.pop3.POP3Store;
 
 public class POP3Crawler extends MailboxAbstractCrawler {
 
 	@Override
-	public void read() throws MessagingException, IOException,
-			SearchLibException {
+	protected Store getStore() throws MessagingException {
 		Properties properties = new Properties();
 		properties.setProperty("mail.host", item.getServerName());
 		properties.setProperty("mail.port",
@@ -53,23 +53,25 @@ public class POP3Crawler extends MailboxAbstractCrawler {
 		properties.setProperty("mail.transport.protocol", storeProtocol);
 
 		Session session = Session.getInstance(properties);
-		POP3Store store = (POP3Store) session.getStore(storeProtocol);
-		try {
-			store.connect(item.getUser(), item.getPassword());
-			readFolder(store.getDefaultFolder());
-		} finally {
-			if (store != null)
-				store.close();
-		}
+		return session.getStore(storeProtocol);
 	}
 
 	@Override
-	public void readMessage(IndexDocument document, Folder folder,
-			Message message) throws MessagingException {
-		super.readMessage(document, folder, message);
-		if (folder instanceof POP3Folder) {
-			document.addString(MailboxFieldEnum.message_id.name(),
-					((POP3Folder) folder).getUID(message));
-		}
+	protected void connect(Store store) throws MessagingException {
+		store.connect(item.getUser(), item.getPassword());
+	}
+
+	@Override
+	public boolean readMessage(IndexDocument document, Folder folder,
+			Message message) throws MessagingException, IOException {
+		if (!super.readMessage(document, folder, message))
+			return false;
+		if (!(folder instanceof POP3Folder))
+			return false;
+		String uid = ((POP3Folder) folder).getUID(message);
+		if (StringUtils.isEmpty(uid))
+			return false;
+		document.addString(MailboxFieldEnum.message_id.name(), uid);
+		return true;
 	}
 }

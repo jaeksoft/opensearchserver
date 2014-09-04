@@ -25,14 +25,21 @@
 package com.jaeksoft.searchlib.crawler.mailbox.crawler;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
 
+import javax.activation.DataHandler;
 import javax.mail.Address;
+import javax.mail.BodyPart;
+import javax.mail.FetchProfile;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -43,6 +50,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 public abstract class MailboxAbstractCrawler {
 
@@ -57,28 +65,73 @@ public abstract class MailboxAbstractCrawler {
 		this.item = item;
 	}
 
-	public abstract void read() throws MessagingException, IOException,
-			SearchLibException;
+	protected abstract Store getStore() throws MessagingException;
+
+	protected abstract void connect(Store store) throws MessagingException;
+
+	public void read() throws MessagingException, IOException,
+			SearchLibException {
+		Store store = null;
+		try {
+			store = getStore();
+			connect(store);
+			readFolder(store.getDefaultFolder());
+		} finally {
+			if (store != null)
+				store.close();
+		}
+	}
+
+	public String check() throws MessagingException, IOException,
+			SearchLibException {
+		Store store = null;
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		try {
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
+			pw.println();
+			store = getStore();
+			connect(store);
+			checkFolder(store.getDefaultFolder(), pw);
+			pw.println("OK");
+			return sw.toString();
+		} finally {
+			if (store != null)
+				store.close();
+			IOUtils.close(pw, sw);
+		}
+	}
 
 	private void readMessagesFolder(Folder folder) throws MessagingException,
 			IOException, SearchLibException {
 		folder.open(Folder.READ_ONLY);
 		String folderFullName = folder.getFullName();
 		try {
-			System.out.println("FOLDER: " + folder.getClass().getName() + " "
-					+ folderFullName);
-			Message[] messages = folder.getMessages();
-			for (Message message : messages) {
-				IndexDocument document = new IndexDocument(item.getLang());
-				document.addString(MailboxFieldEnum.folder.name(),
-						folderFullName);
-				try {
-					readMessage(document, folder, message);
-				} catch (Throwable t) {
-					Logging.warn(t);
-					thread.incError();
+			int max = folder.getMessageCount();
+			int i = 0;
+			final int buffer = item.getBufferSize();
+			while (i < max && !thread.isAborted()) {
+				int end = i + buffer;
+				if (end > max)
+					end = max;
+				Message[] messages = folder.getMessages(i + 1, end);
+				FetchProfile fp = new FetchProfile();
+				fp.add(FetchProfile.Item.ENVELOPE);
+				folder.fetch(messages, fp);
+				for (Message message : messages) {
+					i++;
+					IndexDocument document = new IndexDocument(item.getLang());
+					document.addString(MailboxFieldEnum.folder.name(),
+							folderFullName);
+					try {
+						if (readMessage(document, folder, message))
+							thread.addDocument(document, null);
+					} catch (Throwable t) {
+						Logging.warn(t);
+						thread.incError();
+					}
 				}
-				thread.addDocument(document, null);
 			}
 		} finally {
 			folder.close(false);
@@ -93,6 +146,30 @@ public abstract class MailboxAbstractCrawler {
 			readMessagesFolder(folder);
 		if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0)
 			readHoldsFolder(folder);
+	}
+
+	protected void checkFolder(Folder folder, PrintWriter pw)
+			throws MessagingException, IOException, SearchLibException {
+		if (folder == null)
+			return;
+		if ((folder.getType() & Folder.HOLDS_MESSAGES) != 0) {
+			folder.open(Folder.READ_ONLY);
+			try {
+				pw.print("Folder ");
+				pw.print(folder.getName());
+				pw.print(": ");
+				pw.print(folder.getMessageCount());
+				pw.println(" msgs(s).");
+			} finally {
+				folder.close(false);
+			}
+		}
+		if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
+			Folder[] folders = folder.list();
+			if (folders != null)
+				for (Folder f : folders)
+					checkFolder(f, pw);
+		}
 	}
 
 	private void readHoldsFolder(Folder folder) throws MessagingException,
@@ -119,8 +196,24 @@ public abstract class MailboxAbstractCrawler {
 		}
 	}
 
-	public void readMessage(IndexDocument document, Folder folder,
-			Message message) throws MessagingException {
+	private void doMultipart(Message message) throws IOException,
+			MessagingException {
+		Multipart multipart = (Multipart) message.getContent();
+		for (int j = 0; j < multipart.getCount(); j++) {
+			BodyPart bodyPart = multipart.getBodyPart(j);
+			String disposition = bodyPart.getDisposition();
+			if (disposition != null
+					&& (disposition.equalsIgnoreCase("ATTACHMENT"))) {
+				DataHandler handler = bodyPart.getDataHandler();
+				;// System.out.println("Attachment : " + handler.getName());
+			} else {
+				;// System.out.println("Body: " + bodyPart.getContentType());
+			}
+		}
+	}
+
+	public boolean readMessage(IndexDocument document, Folder folder,
+			Message message) throws MessagingException, IOException {
 		document.addString(MailboxFieldEnum.message_number.name(),
 				Integer.toString(message.getMessageNumber()));
 		if (message instanceof MimeMessage)
@@ -160,5 +253,11 @@ public abstract class MailboxAbstractCrawler {
 			document.addString(MailboxFieldEnum.flags.name(), "FLAGGED");
 		if (message.isSet(Flag.SEEN))
 			document.addString(MailboxFieldEnum.flags.name(), "SEEN");
+
+		String ct = message.getContentType();
+		if (ct.contains("multipart/") || ct.contains("MULTIPART/"))
+			doMultipart(message);
+		return true;
 	}
+
 }

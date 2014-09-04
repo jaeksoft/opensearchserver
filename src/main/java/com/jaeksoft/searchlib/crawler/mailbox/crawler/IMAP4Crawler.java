@@ -32,19 +32,19 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import javax.mail.Store;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.sun.mail.imap.IMAPMessage;
-import com.sun.mail.imap.IMAPStore;
 
 public class IMAP4Crawler extends MailboxAbstractCrawler {
 
 	@Override
-	public void read() throws MessagingException, IOException,
-			SearchLibException {
+	protected Store getStore() throws MessagingException {
 		Properties properties = new Properties();
 		properties.setProperty("mail.host", item.getServerName());
 		properties.setProperty("mail.port",
@@ -60,22 +60,25 @@ public class IMAP4Crawler extends MailboxAbstractCrawler {
 								.getPassword());
 					}
 				});
-		IMAPStore store = (IMAPStore) session.getStore(storeProtocol);
-		try {
-			store.connect();
-			readFolder(store.getDefaultFolder());
-		} finally {
-			if (store != null)
-				store.close();
-		}
+		return session.getStore(storeProtocol);
 	}
 
 	@Override
-	public void readMessage(IndexDocument document, Folder folder,
-			Message message) throws MessagingException {
-		super.readMessage(document, folder, message);
-		if (message instanceof IMAPMessage)
-			document.addString(MailboxFieldEnum.message_id.name(),
-					((IMAPMessage) message).getMessageID());
+	protected void connect(Store store) throws MessagingException {
+		store.connect();
+	}
+
+	@Override
+	public boolean readMessage(IndexDocument document, Folder folder,
+			Message message) throws MessagingException, IOException {
+		if (!super.readMessage(document, folder, message))
+			return false;
+		if (!(message instanceof IMAPMessage))
+			return false;
+		String id = ((IMAPMessage) message).getMessageID();
+		if (StringUtils.isEmpty(id))
+			return false;
+		document.addString(MailboxFieldEnum.message_id.name(), id);
+		return true;
 	}
 }
