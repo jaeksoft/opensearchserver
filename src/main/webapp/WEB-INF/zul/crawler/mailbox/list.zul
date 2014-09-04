@@ -58,6 +58,12 @@
 								image="/images/action_check.png"
 								onClick="@command('execute', crawlitem=mailboxItem)" />
 							<space />
+							<button
+								tooltiptext="Abort the crawl process"
+								disabled="@load(!mailboxItem.thread)"
+								image="/images/action_cancel.png"
+								onClick="@command('abort', crawlitem=mailboxItem)" />
+							<space />
 							<button tooltiptext="Delete crawl process"
 								image="/images/action_delete.png"
 								onClick="@command('delete', crawlitem=mailboxItem)" />

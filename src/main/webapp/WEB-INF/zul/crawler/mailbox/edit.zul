@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -36,6 +36,8 @@
 		</tabbox>
 		<vbox width="100%" align="center">
 			<hbox visible="@load(mbctrl.selected)">
+				<button label="Check" onClick="@command('onCheck')" />
+				<space width="20px" />
 				<button label="Cancel" onClick="@command('onCancel')" />
 				<space width="10px" />
 				<button label="Save" onClick="@command('onSave')" />
