@@ -45,8 +45,6 @@ public class MailboxCrawlThread extends
 
 	private Client client;
 
-	private InfoCallback infoCallback;
-
 	private final List<IndexDocument> documents;
 
 	protected long pendingIndexDocumentCount;
@@ -66,7 +64,6 @@ public class MailboxCrawlThread extends
 			InfoCallback infoCallback) {
 		super(client, crawlMaster, crawlItem);
 		this.client = client;
-		this.infoCallback = infoCallback;
 		this.mailboxCrawlItem = crawlItem;
 		pendingIndexDocumentCount = 0;
 		updatedIndexDocumentCount = 0;
@@ -82,6 +79,8 @@ public class MailboxCrawlThread extends
 		MailboxAbstractCrawler crawler = MailboxProtocolEnum.getNewCrawler(
 				this, mailboxCrawlItem);
 		crawler.read();
+		if (isAborted())
+			return;
 		index(documents, 0);
 	}
 
@@ -188,10 +187,7 @@ public class MailboxCrawlThread extends
 			rwl.w.unlock();
 		}
 		indexDocumentList.clear();
-		if (infoCallback != null) {
-			infoCallback.setInfo(updatedIndexDocumentCount
-					+ " document(s) indexed");
-		}
+		setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		return true;
 	}
 
