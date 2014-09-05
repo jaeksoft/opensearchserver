@@ -5,7 +5,7 @@ For a document to match the query, some of its fields must contain searched keyw
 
 ![Searched fields](relevancy_1.png)
 
-This is where `Search operator` becomes important. When using a boolean `OR`, OpenSearchServer will keep a document in results set as soon as only one of searched keywords if found in one the searched fields. However, when using an `AND`, every keywords must be found in one the searched fields for the document to be kept. This is a powerful feature and it will suit most of the needs: some people will prefer to work with an `OR` for some reasons, while others will use an `AND`.
+This is where `Search operator` becomes important. When using a boolean `OR`, OpenSearchServer will keep a document in results set as soon as only one of searched keywords is found in one the searched fields. However, when using an `AND`, every keywords must be found in one of the searched fields for the document to be kept. This is a powerful feature and it will suit most of the needs: some people will prefer to work with an `OR` for some reasons, while others will use an `AND`.
 
 This process can, however, show its limitation in some complex case. 
 
@@ -65,7 +65,7 @@ In our example, if **an operator `OR` is used** instead of an `AND` **and a filt
 
 ![Result](relevancy_mirorandfilter.png)
 
-Only 2 documents are returned (the ones having both searched words), and scores show a bigger difference here! Indeed, fields `category` and `brand` were used and boosted as configured.
+Only 2 documents are returned (the ones having both searched words), and now scores are higher and show a bigger difference! Indeed, fields `category` and `brand` were used and boosted as configured.
 
 _Explanation of score for first result:_
 
