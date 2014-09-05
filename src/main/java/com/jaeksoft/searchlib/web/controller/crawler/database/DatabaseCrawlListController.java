@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.crawler.database.DatabaseDriverNames;
+import com.jaeksoft.searchlib.crawler.database.DatabasePropertyManager;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
@@ -58,6 +59,13 @@ public class DatabaseCrawlListController
 	public DatabaseCrawlListController() throws SearchLibException,
 			NamingException {
 		super();
+	}
+
+	public DatabasePropertyManager getProperties() throws SearchLibException {
+		Client client = getClient();
+		if (client == null)
+			return null;
+		return client.getDatabasePropertyManager();
 	}
 
 	@Override
@@ -107,7 +115,7 @@ public class DatabaseCrawlListController
 		DatabaseCrawlAbstract newCrawl = null;
 		switch (dbCrawlType) {
 		case DB_SQL:
-			newCrawl = new DatabaseCrawlSql(getCrawlMaster());
+			newCrawl = new DatabaseCrawlSql(getCrawlMaster(), getProperties());
 			break;
 		case DB_NO_SQL:
 			newCrawl = null;

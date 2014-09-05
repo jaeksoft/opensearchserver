@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ import java.sql.SQLException;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -79,8 +80,9 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
 	private String uniqueKeyDeleteField;
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, String name) {
-		super(crawlMaster, name);
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
+			DatabasePropertyManager propertyManager, String name) {
+		super(crawlMaster, propertyManager, name);
 		driverClass = null;
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
 		sqlSelect = null;
@@ -97,12 +99,13 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		sqlUpdate = variables.replace(sqlUpdate);
 	}
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster) {
-		this(crawlMaster, null);
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
+			DatabasePropertyManager propertyManager) {
+		this(crawlMaster, propertyManager, null);
 	}
 
 	protected DatabaseCrawlSql(DatabaseCrawlSql crawl) {
-		super((DatabaseCrawlMaster) crawl.threadMaster, null);
+		super((DatabaseCrawlMaster) crawl.threadMaster, crawl.propertyManager);
 		crawl.copyTo(this);
 	}
 
@@ -212,9 +215,10 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	protected final static String DBCRAWL_NODE_NAME_SQL_UPDATE = "sqlUpdate";
 	protected final static String DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE = "mode";
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, XPathParser xpp,
-			Node item) throws XPathExpressionException {
-		super(crawlMaster, xpp, item);
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
+			DatabasePropertyManager propertyManager, XPathParser xpp, Node item)
+			throws XPathExpressionException {
+		super(crawlMaster, propertyManager, xpp, item);
 		setDriverClass(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DRIVER_CLASS));
 		setIsolationLevel(IsolationLevelEnum.find(XPathParser
@@ -298,8 +302,12 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		JDBCConnection jdbcCnx = new JDBCConnection();
 		jdbcCnx.setDriver(driverClass);
 		jdbcCnx.setUrl(getUrl());
-		jdbcCnx.setUsername(getUser());
-		jdbcCnx.setPassword(getPassword());
+		String user = getFinalUser();
+		if (!StringUtils.isEmpty(user))
+			jdbcCnx.setUsername(user);
+		String password = getFinalPassword();
+		if (!StringUtils.isEmpty(password))
+			jdbcCnx.setPassword(password);
 		return jdbcCnx;
 	}
 
