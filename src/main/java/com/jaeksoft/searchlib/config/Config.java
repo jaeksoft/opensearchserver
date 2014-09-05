@@ -63,6 +63,7 @@ import com.jaeksoft.searchlib.classifier.ClassifierManager;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
+import com.jaeksoft.searchlib.crawler.database.DatabasePropertyManager;
 import com.jaeksoft.searchlib.crawler.file.database.FileManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
@@ -153,6 +154,8 @@ public abstract class Config implements ThreadFactory {
 	private StopWordsManager stopWordsManager = null;
 
 	private SynonymsManager synonymsManager = null;
+
+	private DatabasePropertyManager databasePropertyManager = null;
 
 	private WebPropertyManager webPropertyManager = null;
 
@@ -758,8 +761,8 @@ public abstract class Config implements ThreadFactory {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
 			databaseCrawlList = DatabaseCrawlList.fromXml(
-					getDatabaseCrawlMaster(), new File(indexDir,
-							"databaseCrawlList.xml"));
+					getDatabaseCrawlMaster(), getDatabasePropertyManager(),
+					new File(indexDir, "databaseCrawlList.xml"));
 			return databaseCrawlList;
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
@@ -1844,6 +1847,28 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} finally {
 			fileCrawlLock.w.unlock();
+		}
+	}
+
+	public DatabasePropertyManager getDatabasePropertyManager()
+			throws SearchLibException {
+		databaseLock.r.lock();
+		try {
+			if (databasePropertyManager != null)
+				return databasePropertyManager;
+		} finally {
+			databaseLock.r.unlock();
+		}
+		databaseLock.w.lock();
+		try {
+			if (databasePropertyManager != null)
+				return databasePropertyManager;
+			return databasePropertyManager = new DatabasePropertyManager(
+					new File(indexDir, "dbcrawler-properties.xml"));
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			databaseLock.w.unlock();
 		}
 	}
 
