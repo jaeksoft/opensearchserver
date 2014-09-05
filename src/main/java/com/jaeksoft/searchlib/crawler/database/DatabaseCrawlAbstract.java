@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -37,6 +38,8 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public abstract class DatabaseCrawlAbstract
 		extends
 		FieldMapCrawlItem<DatabaseCrawlAbstract, DatabaseCrawlThread, DatabaseCrawlMaster> {
+
+	protected final DatabasePropertyManager propertyManager;
 
 	private String name;
 
@@ -52,8 +55,10 @@ public abstract class DatabaseCrawlAbstract
 
 	private int msSleep;
 
-	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster, String name) {
+	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster,
+			DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, new DatabaseFieldMap());
+		this.propertyManager = propertyManager;
 		this.name = name;
 		url = null;
 		user = null;
@@ -63,12 +68,14 @@ public abstract class DatabaseCrawlAbstract
 		msSleep = 0;
 	}
 
-	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster) {
-		this(crawlMaster, null);
+	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster,
+			DatabasePropertyManager propertyManager) {
+		this(crawlMaster, propertyManager, null);
 	}
 
 	protected DatabaseCrawlAbstract(DatabaseCrawlAbstract crawl) {
 		super((DatabaseCrawlMaster) crawl.threadMaster, new DatabaseFieldMap());
+		this.propertyManager = crawl.propertyManager;
 		crawl.copyTo(this);
 	}
 
@@ -110,6 +117,11 @@ public abstract class DatabaseCrawlAbstract
 		return user;
 	}
 
+	public String getFinalUser() {
+		return StringUtils.isEmpty(user) ? propertyManager.getDefaultLogin()
+				: user;
+	}
+
 	/**
 	 * @param user
 	 *            the user to set
@@ -123,6 +135,11 @@ public abstract class DatabaseCrawlAbstract
 	 */
 	public String getPassword() {
 		return password;
+	}
+
+	public String getFinalPassword() {
+		return StringUtils.isEmpty(password) ? propertyManager
+				.getDefaultPassword() : password;
 	}
 
 	/**
@@ -198,8 +215,9 @@ public abstract class DatabaseCrawlAbstract
 	protected final static String DBCRAWL_NODE_NAME_MAP = "map";
 
 	protected DatabaseCrawlAbstract(DatabaseCrawlMaster crawlMaster,
-			XPathParser xpp, Node item) throws XPathExpressionException {
-		this(crawlMaster);
+			DatabasePropertyManager propertyManager, XPathParser xpp, Node item)
+			throws XPathExpressionException {
+		this(crawlMaster, propertyManager);
 		setName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_NAME));
 		setUser(XPathParser.getAttributeString(item, DBCRAWL_ATTR_USER));
 		setPassword(XPathParser.getAttributeString(item, DBCRAWL_ATTR_PASSWORD));
