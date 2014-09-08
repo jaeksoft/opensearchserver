@@ -46,6 +46,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -158,9 +159,10 @@ public abstract class HttpAbstract {
 		// No more than one 1 minute to establish the connection
 		// No more than 10 minutes to establish the socket
 		// Enable stales connection checking
-		// Cookies uses browser compatibility
+		// Cookies uses best match policy
 		RequestConfig.Builder configBuilber = RequestConfig.custom()
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
+				.setCookieSpec(CookieSpecs.BEST_MATCH)
 				.setStaleConnectionCheckEnabled(true)
 				.setCircularRedirectsAllowed(true);
 
