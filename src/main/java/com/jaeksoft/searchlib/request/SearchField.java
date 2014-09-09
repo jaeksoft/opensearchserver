@@ -258,13 +258,21 @@ public class SearchField implements Cloneable {
 		return booleanQuery;
 	}
 
+	final private void phraseAddLeaf(TermQueryItem termQueryItem,
+			PhraseQuery phraseQuery) {
+		if (termQueryItem.children != null) {
+			for (TermQueryItem child : termQueryItem.children)
+				phraseAddLeaf(child, phraseQuery);
+		} else
+			phraseQuery.add(new Term(field, termQueryItem.term));
+	}
+
 	final private Query getPhraseQuery(
 			final List<TermQueryItem> termQueryItems, final int phraseSlop,
 			final Occur occur) throws IOException {
 		PhraseQuery phraseQuery = new PhraseQuery();
 		for (TermQueryItem termQueryItem : termQueryItems)
-			if (termQueryItem.children == null)
-				phraseQuery.add(new Term(field, termQueryItem.term));
+			phraseAddLeaf(termQueryItem, phraseQuery);
 		phraseQuery.setBoost((float) phraseBoost);
 		phraseQuery.setSlop(this.phraseSlop != null ? this.phraseSlop
 				: phraseSlop);
