@@ -39,13 +39,19 @@ public class ExecutionAbstract {
 
 	private boolean abort;
 
+	private Long runningStart;
+
+	private Long runningEnd;
+
 	private Date lastExecution;
 
 	protected ExecutionAbstract() {
-		lastExecution = null;
 		running = false;
 		active = false;
 		abort = false;
+		runningStart = null;
+		runningEnd = null;
+		lastExecution = null;
 	}
 
 	/**
@@ -90,6 +96,7 @@ public class ExecutionAbstract {
 		rwl.w.lock();
 		try {
 			running = false;
+			runningEnd = System.currentTimeMillis();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -98,7 +105,7 @@ public class ExecutionAbstract {
 	/**
 	 * @return the last execution date
 	 */
-	public Date getLastExecution() {
+	final public Date getLastExecution() {
 		rwl.r.lock();
 		try {
 			return lastExecution;
@@ -115,9 +122,24 @@ public class ExecutionAbstract {
 		try {
 			running = true;
 			abort = false;
+			runningStart = System.currentTimeMillis();
+			runningEnd = null;
 			lastExecution = new Date();
 		} finally {
 			rwl.w.unlock();
+		}
+	}
+
+	private boolean hasRun() {
+		rwl.r.lock();
+		try {
+			if (runningStart == null)
+				return false;
+			if (runningEnd == null)
+				return true;
+			return runningEnd >= runningStart;
+		} finally {
+			rwl.r.unlock();
 		}
 	}
 
@@ -125,6 +147,8 @@ public class ExecutionAbstract {
 		long timeOut = System.currentTimeMillis() + secTimeOut * 1000;
 		while (timeOut > System.currentTimeMillis()) {
 			if (isRunning())
+				return true;
+			if (hasRun())
 				return true;
 			if (StartStopListener.isShutdown())
 				return false;

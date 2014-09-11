@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import com.jaeksoft.searchlib.scheduler.task.TaskDatabaseCrawlerRun;
 import com.jaeksoft.searchlib.scheduler.task.TaskDatabaseScript;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteQuery;
+import com.jaeksoft.searchlib.scheduler.task.TaskDeleteSync;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStart;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileCrawlerStop;
 import com.jaeksoft.searchlib.scheduler.task.TaskFileManagerAction;
@@ -64,6 +65,8 @@ public class TaskEnum extends ExtensibleEnum<TaskEnumItem> {
 		new TaskEnumItem(this, TaskDeleteQuery.class);
 
 		new TaskEnumItem(this, TaskDeleteAll.class);
+
+		new TaskEnumItem(this, TaskDeleteSync.class);
 
 		new TaskEnumItem(this, TaskFileManagerAction.class);
 
