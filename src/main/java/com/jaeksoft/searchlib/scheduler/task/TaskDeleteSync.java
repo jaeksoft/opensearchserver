@@ -148,7 +148,7 @@ public class TaskDeleteSync extends TaskAbstract {
 					field, values, true);
 			taskLog.setInfo("Deletion request:" + values.size()
 					+ " value(s) given");
-			int i = client.deleteDocuments(documentsRequest);
+			long i = client.deleteDocuments(documentsRequest);
 			taskLog.setInfo(i + " document(s) deleted");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
