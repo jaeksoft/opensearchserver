@@ -101,11 +101,26 @@ public class BooleanQueryParser extends Parser {
 	}
 
 	public static class TermContext extends ParserRuleContext {
-		public TerminalNode AND() { return getToken(BooleanQueryParser.AND, 0); }
-		public TerminalNode OR() { return getToken(BooleanQueryParser.OR, 0); }
-		public TerminalNode NOT() { return getToken(BooleanQueryParser.NOT, 0); }
-		public TerminalNode STRING() { return getToken(BooleanQueryParser.STRING, 0); }
-		public TerminalNode QSTRING() { return getToken(BooleanQueryParser.QSTRING, 0); }
+		public TerminalNode STRING(int i) {
+			return getToken(BooleanQueryParser.STRING, i);
+		}
+		public TerminalNode QSTRING(int i) {
+			return getToken(BooleanQueryParser.QSTRING, i);
+		}
+		public TerminalNode NOT(int i) {
+			return getToken(BooleanQueryParser.NOT, i);
+		}
+		public List<TerminalNode> AND() { return getTokens(BooleanQueryParser.AND); }
+		public List<TerminalNode> OR() { return getTokens(BooleanQueryParser.OR); }
+		public List<TerminalNode> NOT() { return getTokens(BooleanQueryParser.NOT); }
+		public TerminalNode AND(int i) {
+			return getToken(BooleanQueryParser.AND, i);
+		}
+		public List<TerminalNode> STRING() { return getTokens(BooleanQueryParser.STRING); }
+		public List<TerminalNode> QSTRING() { return getTokens(BooleanQueryParser.QSTRING); }
+		public TerminalNode OR(int i) {
+			return getToken(BooleanQueryParser.OR, i);
+		}
 		public TermContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -125,27 +140,33 @@ public class BooleanQueryParser extends Parser {
 		enterRule(_localctx, 2, RULE_term);
 		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(10);
-			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT))) != 0)) {
-				{
-				setState(9);
-				_la = _input.LA(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT))) != 0)) ) {
-				_errHandler.recoverInline(this);
+			setState(10); 
+			_errHandler.sync(this);
+			_alt = 1;
+			do {
+				switch (_alt) {
+				case 1:
+					{
+					{
+					setState(9);
+					_la = _input.LA(1);
+					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING))) != 0)) ) {
+					_errHandler.recoverInline(this);
+					}
+					consume();
+					}
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
 				}
-				consume();
-				}
-			}
-
-			setState(12);
-			_la = _input.LA(1);
-			if ( !(_la==STRING || _la==QSTRING) ) {
-			_errHandler.recoverInline(this);
-			}
-			consume();
+				setState(12); 
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
+			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			}
 		}
 		catch (RecognitionException re) {
@@ -161,10 +182,10 @@ public class BooleanQueryParser extends Parser {
 
 	public static final String _serializedATN =
 		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\b\21\4\2\t\2\4\3"+
-		"\t\3\3\2\6\2\b\n\2\r\2\16\2\t\3\3\5\3\r\n\3\3\3\3\3\3\3\2\2\4\2\4\2\4"+
-		"\3\2\3\5\3\2\6\7\20\2\7\3\2\2\2\4\f\3\2\2\2\6\b\5\4\3\2\7\6\3\2\2\2\b"+
-		"\t\3\2\2\2\t\7\3\2\2\2\t\n\3\2\2\2\n\3\3\2\2\2\13\r\t\2\2\2\f\13\3\2\2"+
-		"\2\f\r\3\2\2\2\r\16\3\2\2\2\16\17\t\3\2\2\17\5\3\2\2\2\4\t\f";
+		"\t\3\3\2\6\2\b\n\2\r\2\16\2\t\3\3\6\3\r\n\3\r\3\16\3\16\3\3\2\2\4\2\4"+
+		"\2\3\3\2\3\7\20\2\7\3\2\2\2\4\f\3\2\2\2\6\b\5\4\3\2\7\6\3\2\2\2\b\t\3"+
+		"\2\2\2\t\7\3\2\2\2\t\n\3\2\2\2\n\3\3\2\2\2\13\r\t\2\2\2\f\13\3\2\2\2\r"+
+		"\16\3\2\2\2\16\f\3\2\2\2\16\17\3\2\2\2\17\5\3\2\2\2\4\t\16";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
