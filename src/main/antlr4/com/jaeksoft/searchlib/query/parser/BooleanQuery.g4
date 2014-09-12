@@ -27,19 +27,17 @@ grammar BooleanQuery;
 
 expression : term+ ;
 
-term : (AND|OR|NOT)? (QSTRING|STRING) ;
+term : (AND|OR|NOT|QSTRING|STRING)+ ;
 
 // LEXER
 
 AND : ('AND'|'ET'|'UND') ;
 OR : ('OR'|'OU'|'ODER') ;
 NOT : ('NOT'|'NON'|'NICHTS') ;
-STRING : StringCharacter+ EOF? ;
-QSTRING : '"' StringCharacter+ ('"'|EOF) ;
-WS : [ \t\n\r]+ -> skip ;
-
-fragment
-StringCharacter : ~[\\  \t\n\r] | EscapeSequence ;
-
-fragment
-EscapeSequence : '\\' [btnfr"'\\] ;
+STRING : StringElement+ EOF? ;
+QSTRING : '"' (StringElement|WhiteSpaces)* ('"'|EOF) ;
+WS : WhiteSpaces -> channel(HIDDEN) ;
+ 
+fragment WhiteSpaces      : ( '\u0020' | '\u0009' | '\u000D' | '\u000A' ) ; 
+fragment StringElement    : '\u0021'|'\u0023' .. '\u007F' |  CharEscapeSeq ;
+fragment CharEscapeSeq    : '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\');
