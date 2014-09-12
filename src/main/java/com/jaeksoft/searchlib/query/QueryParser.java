@@ -146,7 +146,8 @@ public class QueryParser extends BooleanQueryBaseListener {
 		int l = text.length() + 1 - s;
 		if (text.endsWith("\""))
 			l--;
-		text = text.substring(s, l);
+		if (l > 0)
+			text = text.substring(s, l);
 		PhraseQuery phraseQuery = new PhraseQuery();
 		phraseQuery.setSlop(phraseSlop);
 		if (phraseBoost != null)
@@ -231,13 +232,14 @@ public class QueryParser extends BooleanQueryBaseListener {
 		QueryParser queryParser = new QueryParser("field", Occur.MUST, null, 1,
 				null, null);
 		System.out.println(queryParser.parse("word"));
-		System.out.println(queryParser.parse("\"quoted_word\""));
-		System.out.println(queryParser.parse("\"quoted_word\" word"));
-		System.out.println(queryParser.parse("word OR \"quoted_word\""));
-		System.out
-				.println(queryParser.parse("word1 word2 AND \"quoted_word\""));
+		System.out.println(queryParser.parse("\"quoted words\""));
+		System.out.println(queryParser.parse("\"quoted words\" word"));
+		System.out.println(queryParser.parse("word OR \"quoted words\""));
+		System.out.println(queryParser.parse("word OR \"quoted words"));
 		System.out.println(queryParser
-				.parse("word1 OU word2 \"quoted_word\" NON unwanted"));
+				.parse("word1 word2 AND \"quoted words\""));
+		System.out.println(queryParser
+				.parse("word1 OU word2 \"quoted words\" NON unwanted"));
 		System.out.println(queryParser.parse("\"\""));
 		System.out.println(queryParser.parse("\"non ending quote"));
 		System.out.println(queryParser.parse("22\""));
