@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -33,8 +33,8 @@
 				<listcell label="@load(cache.name)" />
 				<listcell label="@load(cache.size)" />
 				<listcell>
-					<intbox value="@bind(cache.maxSize)"
-						onChange="@command(onSave)" width="60px" />
+					<intbox value="@bind(cache.maxSize)" width="60px"
+						onBlur="@command('onSave')" />
 				</listcell>
 				<listcell>
 					<button label="Flush"
