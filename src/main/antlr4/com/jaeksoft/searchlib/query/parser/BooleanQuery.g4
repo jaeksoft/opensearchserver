@@ -38,6 +38,6 @@ STRING : StringElement+ EOF? ;
 QSTRING : '"' (StringElement|WhiteSpaces)* ('"'|EOF) ;
 WS : WhiteSpaces -> channel(HIDDEN) ;
  
+fragment StringElement    : '\u0021'|'\u0023' .. '\uFFFF' |  CharEscapeSeq ;
 fragment WhiteSpaces      : ( '\u0020' | '\u0009' | '\u000D' | '\u000A' ) ; 
-fragment StringElement    : '\u0021'|'\u0023' .. '\u007F' |  CharEscapeSeq ;
 fragment CharEscapeSeq    : '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\');
