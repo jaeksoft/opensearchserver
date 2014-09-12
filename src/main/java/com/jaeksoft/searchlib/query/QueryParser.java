@@ -245,5 +245,6 @@ public class QueryParser extends BooleanQueryBaseListener {
 		System.out.println(queryParser.parse("22\""));
 		System.out.println(queryParser.parse("\""));
 		System.out.println(queryParser.parse("OU OU"));
+		System.out.println(queryParser.parse("é \"é\""));
 	}
 }
