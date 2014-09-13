@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,10 +24,10 @@
 
 package com.jaeksoft.searchlib.snippet;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.Query;
 
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public class Fragment {
@@ -126,7 +126,7 @@ public class Fragment {
 	}
 
 	public final double searchScore(final String fieldName,
-			final Analyzer analyzer, final Query query) {
+			final CompiledAnalyzer analyzer, final Query query) {
 		searchScore = 0;
 		if (query == null || analyzer == null)
 			return 0;
