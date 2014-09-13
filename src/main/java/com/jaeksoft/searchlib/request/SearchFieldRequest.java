@@ -98,13 +98,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
-		Occur occur = defaultOperator == OperatorEnum.AND ? Occur.MUST
-				: Occur.SHOULD;
 		List<Query> queries = new ArrayList<Query>(searchFields.size());
 		for (SearchField searchField : searchFields)
 			if (snippetFieldList.get(searchField.getField()) != null)
 				searchField.addQuery(analyzer, queryString, queries,
-						phraseSlop, occur);
+						phraseSlop, Occur.SHOULD);
 		return getComplexQuery(queries);
 	}
 
