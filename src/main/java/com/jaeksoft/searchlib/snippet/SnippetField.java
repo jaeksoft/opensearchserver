@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,12 +30,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -68,7 +68,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private int timeLimit;
 	private transient SnippetQueries snippetQueries;
 	private transient Query query;
-	private transient Analyzer analyzer;
+	private transient CompiledAnalyzer queryAnalyzer;
+	private transient CompiledAnalyzer indexAnalyzer;
 
 	private SnippetField(String fieldName, String tag, String separator,
 			int maxSnippetSize, int maxSnippetNumber,
@@ -220,7 +221,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 	public final void reset() {
 		snippetQueries = null;
 		query = null;
-		analyzer = null;
+		queryAnalyzer = null;
+		indexAnalyzer = null;
 	}
 
 	public void initSearchTerms(AbstractSearchRequest searchRequest)
@@ -229,7 +231,11 @@ public class SnippetField extends AbstractField<SnippetField> {
 			if (snippetQueries != null)
 				return;
 			this.query = searchRequest.getSnippetQuery();
-			this.analyzer = searchRequest.getAnalyzer();
+			this.queryAnalyzer = searchRequest.getAnalyzer()
+					.getCompiledAnalyzer(name);
+			this.indexAnalyzer = searchRequest.getConfig().getSchema()
+					.getIndexPerFieldAnalyzer(searchRequest.getLang())
+					.getCompiledAnalyzer(name);
 			snippetQueries = new SnippetQueries(this.query, name);
 		}
 	}
@@ -303,7 +309,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		Iterator<SnippetVector> vectorIterator = SnippetVectors
 				.extractTermVectorIterator(docId, reader, snippetQueries, name,
-						t, halfTimeExpiration);
+						values, indexAnalyzer, t, halfTimeExpiration);
 		if (vectorIterator != null)
 			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
 					: null;
@@ -358,7 +364,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 			boolean expired = false;
 
 			while (fragment != null) {
-				double sc = fragment.searchScore(name, analyzer, query);
+				double sc = fragment.searchScore(name, queryAnalyzer, query);
 				if (sc > maxSearchScore)
 					maxSearchScore = sc;
 				scoreFragments.add(fragment);

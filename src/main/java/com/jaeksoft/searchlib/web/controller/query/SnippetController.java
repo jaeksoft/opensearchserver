@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
-import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 
@@ -88,12 +87,11 @@ public class SnippetController extends AbstractQueryController {
 			SnippetFieldList snippetFields = request.getSnippetFieldList();
 			for (SchemaField field : client.getSchema().getFieldList())
 				if (field.checkStored(Stored.YES, Stored.COMPRESS))
-					if (field.getTermVector() == TermVector.POSITIONS_OFFSETS)
-						if (snippetFields.get(field.getName()) == null) {
-							if (selectedSnippet == null)
-								selectedSnippet = field.getName();
-							snippetFieldLeft.add(field.getName());
-						}
+					if (snippetFields.get(field.getName()) == null) {
+						if (selectedSnippet == null)
+							selectedSnippet = field.getName();
+						snippetFieldLeft.add(field.getName());
+					}
 			return snippetFieldLeft;
 		}
 	}

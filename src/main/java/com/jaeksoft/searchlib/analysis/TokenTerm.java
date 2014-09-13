@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -95,5 +95,18 @@ public class TokenTerm {
 				: 0;
 		this.type = typeAtt != null ? typeAtt.type() : null;
 		this.flags = flagsAtt != null ? flagsAtt.getFlags() : null;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(term);
+		sb.append(" {");
+		sb.append(start);
+		sb.append(',');
+		sb.append(end);
+		sb.append(" - ");
+		sb.append(increment);
+		sb.append("}");
+		return sb.toString();
 	}
 }

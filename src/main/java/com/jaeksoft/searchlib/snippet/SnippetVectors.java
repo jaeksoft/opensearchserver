@@ -40,9 +40,12 @@ import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.TermVectorOffsetInfo;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
+import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.Timer;
 
 class SnippetVectors {
@@ -77,14 +80,16 @@ class SnippetVectors {
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
 			final SnippetQueries snippetQueries, final String fieldName,
+			List<FieldValueItem> values, CompiledAnalyzer analyzer,
 			final Timer parentTimer, final long expiration) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
 		if (ArrayUtils.isEmpty(snippetQueries.terms))
 			return null;
 
 		Timer t = new Timer(parentTimer, "getTermPositionVector " + fieldName);
-		TermPositionVector termVector = getTermPositionVector(reader, docId,
-				fieldName);
+		TermPositionVector termVector = getTermPositionVector(
+				snippetQueries.terms, reader, docId, fieldName, values,
+				analyzer, t);
 		t.end(null);
 
 		if (termVector == null)
@@ -112,17 +117,33 @@ class SnippetVectors {
 	}
 
 	private static final TermPositionVector getTermPositionVector(
-			final ReaderInterface readerInterface, final int docId,
-			final String field) throws IOException, SearchLibException {
+			final String[] terms, final ReaderInterface readerInterface,
+			final int docId, final String field, List<FieldValueItem> values,
+			CompiledAnalyzer analyzer, Timer timer) throws IOException,
+			SearchLibException, ParseException, SyntaxError {
 		TermFreqVector termFreqVector = readerInterface.getTermFreqVector(
 				docId, field);
-		if (termFreqVector == null)
+		if (termFreqVector != null)
+			if (termFreqVector instanceof TermPositionVector)
+				return (TermPositionVector) termFreqVector;
+		if (analyzer == null)
 			return null;
-		if (!(termFreqVector instanceof TermPositionVector))
-			throw new SearchLibException(
-					"Position and offsets has not been set on the field: "
-							+ field);
-		return (TermPositionVector) termFreqVector;
+		SnippetTermPositionVector stpv = new SnippetTermPositionVector(field,
+				terms);
+		int positionOffset = 0;
+		int characterOffset = 0;
+		List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>();
+		for (FieldValueItem fieldValueItem : values) {
+			if (fieldValueItem.value == null)
+				continue;
+			analyzer.populate(fieldValueItem.value, tokenTerms);
+			positionOffset = stpv.addCollection(tokenTerms, characterOffset,
+					positionOffset);
+			characterOffset += fieldValueItem.value.length() + 1;
+			tokenTerms.clear();
+		}
+		stpv.compile();
+		return stpv;
 	}
 
 	private static final void populate(final TermPositionVector termVector,
