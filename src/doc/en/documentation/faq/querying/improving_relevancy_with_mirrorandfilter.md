@@ -64,7 +64,7 @@ To bypass this limitation, OpenSearchServer has introduced a new feature with bu
 
 It is now possible to **compute scores for documents based on an `OR` operator** yet **filter results like an `AND`** operator would. This is the best of both worlds.
 
-In our example, if **an operator `OR` is used** instead of an `AND` **and the `Mirror `AND` filter`** is added, the results will look like this:
+In our example, if **an operator `OR` is used** instead of an `AND` **and the `Mirror AND filter`** is added, the results will look like this:
 
 ![Result](relevancy_mirorandfilter.png)
 
