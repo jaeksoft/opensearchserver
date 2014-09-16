@@ -2,14 +2,18 @@
 
 When crawling web pages with default index template `web crawler` lots of information are automatically extracted from pages: title, content, url, meta keywords and description, and so on.
 
-**It can sometimes be useful to be able to extract more specific information** and save them in some specific fields. 
+**It can sometimes be useful to extract more specific information** and save them in some specific fields. 
 
 ### Extracting information using HTML parser
 
 For instance one can want to extract a price and a product name from every page when crawling his e-commerce website.
 Let's take this example. Here is a product page from an imaginary website:
 
+---
+
 ![Imaginary product page](extract_ecommercepage.png)
+
+---
 
 This page contains several information:
 * product name: `Great computer`
