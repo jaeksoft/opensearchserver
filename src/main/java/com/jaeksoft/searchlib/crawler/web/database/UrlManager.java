@@ -117,6 +117,7 @@ public class UrlManager extends AbstractManager {
 	public boolean exists(String sUrl) throws SearchLibException {
 		AbstractSearchRequest request = (AbstractSearchRequest) dbClient
 				.getNewRequest(SearchTemplate.urlExport.name());
+		request.getReturnFieldList().clear();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getUrlList(request, 0, 0, null) > 0);
 	}
