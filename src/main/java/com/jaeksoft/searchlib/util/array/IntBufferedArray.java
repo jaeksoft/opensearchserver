@@ -24,9 +24,12 @@
 
 package com.jaeksoft.searchlib.util.array;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class IntBufferedArray extends AbstractBufferedArray {
 
-	private int[][] arrays;
+	private List<Object> arrays;
 
 	private int[] currentArray;
 
@@ -39,15 +42,14 @@ public class IntBufferedArray extends AbstractBufferedArray {
 	}
 
 	@Override
-	final protected void buildArrays(final int arraysNumber) {
-		arrays = new int[arraysNumber][];
+	final protected void buildArrays() {
+		arrays = new ArrayList<Object>();
 	}
 
 	@Override
-	final protected void newCurrentArray(final int currentArrayNumber,
-			final int arraySize) {
+	final protected void newCurrentArray(final int arraySize) {
 		currentArray = new int[arraySize];
-		arrays[currentArrayNumber] = currentArray;
+		arrays.add(currentArray);
 	}
 
 	final public void add(final int value) {
@@ -66,7 +68,7 @@ public class IntBufferedArray extends AbstractBufferedArray {
 	}
 
 	@Override
-	protected Object[] getArrays() {
+	protected List<Object> getArrays() {
 		return arrays;
 	}
 

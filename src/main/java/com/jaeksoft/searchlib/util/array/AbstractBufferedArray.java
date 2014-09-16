@@ -24,11 +24,11 @@
 
 package com.jaeksoft.searchlib.util.array;
 
+import java.util.List;
+
 public abstract class AbstractBufferedArray {
 
 	protected final int arraySize;
-
-	private int currentArrayNumber;
 
 	private int currentArrayPos;
 
@@ -38,23 +38,20 @@ public abstract class AbstractBufferedArray {
 
 	protected AbstractBufferedArray(final int maxSize, final int arraySize) {
 		this.arraySize = arraySize;
-		buildArrays((maxSize / arraySize) + 1);
+		buildArrays();
 		currentArrayPos = arraySize;
-		currentArrayNumber = 0;
 		totalSize = 0;
 		finalArray = null;
 	}
 
-	protected abstract void buildArrays(final int arraysNumber);
+	protected abstract void buildArrays();
 
-	protected abstract void newCurrentArray(final int currentArrayNumber,
-			final int arraySize);
+	protected abstract void newCurrentArray(final int arraySize);
 
 	final protected int checkBeforeAdd() {
 		int pos = currentArrayPos;
 		if (currentArrayPos == arraySize) {
-			newCurrentArray(currentArrayNumber, arraySize);
-			currentArrayNumber++;
+			newCurrentArray(arraySize);
 			currentArrayPos = 1;
 			pos = 0;
 		} else
@@ -69,7 +66,7 @@ public abstract class AbstractBufferedArray {
 
 	protected abstract Object newFinalArray(int size);
 
-	protected abstract Object[] getArrays();
+	protected abstract List<Object> getArrays();
 
 	protected abstract void clear();
 
