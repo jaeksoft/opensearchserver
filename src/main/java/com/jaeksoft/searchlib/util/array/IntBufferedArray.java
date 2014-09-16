@@ -24,57 +24,34 @@
 
 package com.jaeksoft.searchlib.util.array;
 
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
-public class IntBufferedArray extends AbstractBufferedArray {
+public class IntBufferedArray extends IntArrayList {
 
-	private List<Object> arrays;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8094082944608411296L;
 
-	private int[] currentArray;
+	private int[] finalArray = null;
 
 	public IntBufferedArray(final int maxSize, final int arraySize) {
-		super(maxSize, arraySize);
+		super(arraySize);
 	}
 
 	public IntBufferedArray(final int maxSize) {
-		super(maxSize, 1024);
+		super(1024);
 	}
 
-	@Override
-	final protected void buildArrays() {
-		arrays = new ArrayList<Object>();
-	}
-
-	@Override
-	final protected void newCurrentArray(final int arraySize) {
-		currentArray = new int[arraySize];
-		arrays.add(currentArray);
-	}
-
-	final public void add(final int value) {
-		int currentArrayPos = checkBeforeAdd();
-		currentArray[currentArrayPos] = value;
-	}
-
-	@Override
 	public final int[] getFinalArray() {
-		return (int[]) super.getFinalArray();
+		if (finalArray == null)
+			finalArray = toIntArray();
+		return finalArray;
 	}
 
 	@Override
-	protected Object newFinalArray(int size) {
-		return new int[size];
-	}
-
-	@Override
-	protected List<Object> getArrays() {
-		return arrays;
-	}
-
-	@Override
-	final protected void clear() {
-		arrays = null;
-		currentArray = null;
+	public final void clear() {
+		super.clear();
+		finalArray = null;
 	}
 }
