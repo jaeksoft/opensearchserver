@@ -14,6 +14,7 @@
 		* [Excluding part of Web page](faq/crawling/how_to_exclude_some_part_of_webpage_from_crawling.md)
 		* [Using Selenium](faq/crawling/how_to_use_selenium_to_crawl_websites.md)
 		* [How lang of webpages are detected](faq/crawling/how_lang_of_webpages_are_detected.md)
+		* [How to extract specific information from web pages](faq/crawling/how_to_extract_specific_information_from_web_pages.md)
 	* [Installation](faq/installation/README.md)
 		* [Environment variables on Windows](faq/installation/how_to_check_the_environment_variables_on_Windows.md)
 		* [Tesseract-3 on Debian](faq/installation/how_to_install_Tesseract-3_on_Debian.md)
