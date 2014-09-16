@@ -24,57 +24,35 @@
 
 package com.jaeksoft.searchlib.util.array;
 
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 
-public class FloatBufferedArray extends AbstractBufferedArray {
+public class FloatBufferedArray extends FloatArrayList {
 
-	private List<Object> arrays;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6828586845790205300L;
 
-	private float[] currentArray;
+	private float[] finalArray = null;
 
 	public FloatBufferedArray(final int maxSize, final int arraySize) {
-		super(maxSize, arraySize);
+		super(arraySize);
 	}
 
 	public FloatBufferedArray(final int maxSize) {
-		super(maxSize, 1024);
+		super(1024);
 	}
 
-	@Override
-	final protected void buildArrays() {
-		arrays = new ArrayList<Object>();
-	}
-
-	@Override
-	final protected void newCurrentArray(final int arraySize) {
-		currentArray = new float[arraySize];
-		arrays.add(currentArray);
-	}
-
-	final public void add(final float value) {
-		int currentArrayPos = checkBeforeAdd();
-		currentArray[currentArrayPos] = value;
-	}
-
-	@Override
 	public final float[] getFinalArray() {
-		return (float[]) super.getFinalArray();
+		if (finalArray == null)
+			finalArray = toFloatArray();
+		return finalArray;
 	}
 
 	@Override
-	final protected Object newFinalArray(int size) {
-		return new float[size];
+	public final void clear() {
+		super.clear();
+		finalArray = null;
 	}
 
-	@Override
-	final protected List<Object> getArrays() {
-		return arrays;
-	}
-
-	@Override
-	final protected void clear() {
-		arrays = null;
-		currentArray = null;
-	}
 }
