@@ -24,57 +24,139 @@
 
 package com.jaeksoft.searchlib.util.array;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-public class IntBufferedArray extends AbstractBufferedArray {
+public class IntBufferedArray {
 
-	private List<Object> arrays;
+	private final int maxSize;
+
+	private int initialArraySize;
+
+	private int nextArraySize;
+
+	private final List<int[]> arrays;
 
 	private int[] currentArray;
 
-	public IntBufferedArray(final int maxSize, final int arraySize) {
-		super(maxSize, arraySize);
+	private int currentArrayPos;
+
+	private int[] finalArray;
+
+	private int totalSize;
+
+	public IntBufferedArray(final int maxSize, final int initialArraySize) {
+		this.maxSize = maxSize;
+		this.initialArraySize = initialArraySize;
+		this.nextArraySize = initialArraySize;
+		this.arrays = new ArrayList<int[]>();
+		this.totalSize = 0;
+		newCurrentArray();
 	}
 
 	public IntBufferedArray(final int maxSize) {
-		super(maxSize, 1024);
+		this(maxSize, 16384);
 	}
 
-	@Override
-	final protected void buildArrays() {
-		arrays = new ArrayList<Object>();
-	}
-
-	@Override
-	final protected void newCurrentArray(final int arraySize) {
-		currentArray = new int[arraySize];
+	final void newCurrentArray() {
+		currentArray = new int[nextArraySize];
 		arrays.add(currentArray);
+		currentArrayPos = 0;
+		if (nextArraySize > maxSize - totalSize)
+			nextArraySize = maxSize - totalSize;
 	}
 
 	final public void add(final int value) {
-		int currentArrayPos = checkBeforeAdd();
-		currentArray[currentArrayPos] = value;
+		if (currentArrayPos == currentArray.length)
+			newCurrentArray();
+		currentArray[currentArrayPos++] = value;
+		totalSize++;
 	}
 
-	@Override
-	public final int[] getFinalArray() {
-		return (int[]) super.getFinalArray();
+	final public int getSize() {
+		return totalSize;
 	}
 
-	@Override
-	protected Object newFinalArray(int size) {
-		return new int[size];
+	final public int[] getFinalArray() {
+		if (finalArray != null)
+			return finalArray;
+		finalArray = new int[totalSize];
+		int sizeLeft = totalSize;
+		int buffer;
+		int pos = 0;
+		for (int[] array : arrays) {
+			buffer = array.length;
+			if (buffer > sizeLeft)
+				buffer = sizeLeft;
+			System.arraycopy(array, 0, finalArray, pos, buffer);
+			pos += buffer;
+			sizeLeft -= buffer;
+		}
+		clear();
+		return finalArray;
 	}
 
-	@Override
-	protected List<Object> getArrays() {
-		return arrays;
-	}
-
-	@Override
 	final protected void clear() {
-		arrays = null;
-		currentArray = null;
+		this.nextArraySize = initialArraySize;
+		arrays.clear();
+	}
+
+	public static final void result(Object object, long startTime, long freemem) {
+		long elapsedTime = System.currentTimeMillis() - startTime;
+		System.out.println(object.getClass().getSimpleName() + " Time: "
+				+ elapsedTime + " Memory: "
+				+ (freemem - Runtime.getRuntime().freeMemory()) / 1024);
+	}
+
+	public final static void main(String[] str) {
+		final int size = 10000000;
+
+		Random random = new Random(System.currentTimeMillis());
+		// Building the index
+		long startTime = System.currentTimeMillis();
+		long freemem = Runtime.getRuntime().freeMemory();
+		int[] randomArray = new int[size];
+		for (int i = 0; i < size; i++)
+			randomArray[i++] = random.nextInt();
+		result(randomArray, startTime, freemem);
+
+		// Testing Native Array
+		startTime = System.currentTimeMillis();
+		freemem = Runtime.getRuntime().freeMemory();
+		int[] nativeArray1 = new int[size];
+		int i = 0;
+		for (int v : randomArray)
+			nativeArray1[i++] = v;
+		result(nativeArray1, startTime, freemem);
+
+		// Testing Native Array
+		startTime = System.currentTimeMillis();
+		freemem = Runtime.getRuntime().freeMemory();
+		int[] nativeArray = new int[size * 4];
+		i = 0;
+		for (int v : randomArray)
+			nativeArray[i++] = v;
+		result(nativeArray, startTime, freemem);
+
+		// Testing FastUTIL
+		startTime = System.currentTimeMillis();
+		freemem = Runtime.getRuntime().freeMemory();
+		IntArrayList fastUtilArray = new IntArrayList(size * 4);
+		for (int v : randomArray)
+			fastUtilArray.add(v);
+		fastUtilArray.toIntArray();
+		result(fastUtilArray, startTime, freemem);
+
+		// Testing Buffered Array
+		startTime = System.currentTimeMillis();
+		freemem = Runtime.getRuntime().freeMemory();
+		IntBufferedArray intBufferedArray = new IntBufferedArray(size * 4);
+		for (int v : randomArray)
+			intBufferedArray.add(v);
+		intBufferedArray.getFinalArray();
+		result(intBufferedArray, startTime, freemem);
 	}
 }
