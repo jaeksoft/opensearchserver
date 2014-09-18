@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -192,17 +193,10 @@ public class UrlFilterList {
 		i1++;
 		if (i1 == uriString.length())
 			return uriString;
-		int i2 = uriString.indexOf('/', i1);
-		if (i2 == -1)
-			i2 = uriString.indexOf('?', i1);
-		if (i2 == -1)
-			i2 = uriString.indexOf('#', i1);
-		if (i2 == -1)
-			i2 = uriString.indexOf('&', i1);
-		if (i2 == -1)
-			i2 = uriString.indexOf('$', i1);
-		String part = i2 == -1 ? uriString.substring(i1) : uriString.substring(
-				i1, i2);
+		String part = uriString.substring(i1);
+		int i2 = StringUtils.indexOfAny(part, "/?#&$");
+		if (i2 != -1)
+			part = part.substring(0, i2);
 		boolean bReplace = false;
 		for (UrlFilterItem urlFilter : urlFilterArray) {
 			if (urlFilter.isReplaceProspero(hostname, part)) {
@@ -214,7 +208,7 @@ public class UrlFilterList {
 			return uriString;
 		StringBuilder newUrl = new StringBuilder(uriString.substring(0, i1 - 1));
 		if (i2 != -1)
-			newUrl.append(uriString.substring(i2));
+			newUrl.append(uriString.substring(i2 + i1));
 		return newUrl.toString();
 	}
 
