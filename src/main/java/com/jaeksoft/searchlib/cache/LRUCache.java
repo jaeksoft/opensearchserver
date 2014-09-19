@@ -133,7 +133,9 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 			rwl.w.unlock();
 		}
 		try {
-			thread.wait();
+			synchronized (thread) {
+				thread.wait();
+			}
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
@@ -147,8 +149,14 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		try {
 			Thread thread = keyThread.remove(key);
 			if (thread != null)
-				thread.notify();
-			Thread.currentThread().notify();
+				synchronized (thread) {
+					thread.notify();
+				}
+			Thread ct = Thread.currentThread();
+			if (ct != thread)
+				synchronized (ct) {
+					ct.notify();
+				}
 		} finally {
 			rwl.w.unlock();
 		}
