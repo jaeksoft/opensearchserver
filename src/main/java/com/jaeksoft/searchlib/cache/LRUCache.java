@@ -30,13 +30,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class LRUCache<K extends Comparable<K>, V> {
 
-	final protected ReadWriteLock rwl = new ReadWriteLock();
+	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	private class EvictionQueue extends LinkedHashMap<K, V> {
 
@@ -70,7 +71,8 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		}
 	}
 
-	private TreeMap<K, K> tree;
+	private final TreeMap<K, Thread> keyThread;
+	private final TreeMap<K, K> tree;
 	private EvictionQueue queue;
 
 	private final String name;
@@ -86,6 +88,7 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		this.name = name;
 		queue = (maxSize == 0) ? null : new EvictionQueue(maxSize);
 		tree = new TreeMap<K, K>();
+		keyThread = new TreeMap<K, Thread>();
 		this.maxSize = maxSize;
 		this.evictions = 0;
 		this.lookups = 0;
@@ -111,6 +114,38 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		rwl.w.lock();
 		try {
 			setMaxSize_noLock(newMaxSize);
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	final protected void lockKeyThread(K key, int attempt)
+			throws SearchLibException {
+		Thread thread = null;
+		rwl.w.lock();
+		try {
+			thread = keyThread.get(key);
+			if (thread == null) {
+				keyThread.put(key, Thread.currentThread());
+				return;
+			}
+		} finally {
+			rwl.w.unlock();
+		}
+		try {
+			thread.wait();
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		}
+		if (attempt == 0)
+			throw new SearchLibException("Cache lock failed");
+		lockKeyThread(key, attempt - 1);
+	}
+
+	final protected void unlockKeyThred(K key) {
+		rwl.w.lock();
+		try {
+			keyThread.remove(key);
 		} finally {
 			rwl.w.unlock();
 		}

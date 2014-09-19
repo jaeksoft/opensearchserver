@@ -127,6 +127,7 @@ public class WebCrawlThread extends
 		setStatus(CrawlStatus.INDEXATION);
 		crawlQueue.index(!crawlMaster.isRunning());
 
+		urlList.clear();
 	}
 
 	private Crawl crawl() throws SearchLibException {
