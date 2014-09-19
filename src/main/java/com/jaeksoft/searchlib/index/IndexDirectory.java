@@ -122,7 +122,7 @@ public class IndexDirectory {
 			if (!IndexWriter.isLocked(directory))
 				return;
 			IndexWriter.unlock(directory);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			Logging.warn(e);
 		} finally {
 			rwl.w.unlock();
