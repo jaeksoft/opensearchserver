@@ -681,7 +681,8 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
-	public SpellChecker getSpellChecker(String fieldName) throws IOException {
+	public SpellChecker getSpellChecker(String fieldName) throws IOException,
+			SearchLibException {
 		rwl.r.lock();
 		try {
 			return spellCheckerCache.get(this, fieldName);
