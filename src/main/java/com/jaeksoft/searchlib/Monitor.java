@@ -71,7 +71,7 @@ public class Monitor {
 	}
 
 	public double getMemoryRate() {
-		return ((double) getFreeMemory() / (double) getTotalMemory()) * 100;
+		return ((double) getFreeMemory() / (double) getMaxMemory()) * 100;
 	}
 
 	public Long getFreeDiskSpace() throws SecurityException, IOException,
