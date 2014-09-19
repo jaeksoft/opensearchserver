@@ -199,17 +199,21 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	private void getFacetLimit(ItemField field,
-			AbstractSearchRequest searchRequest, int limit, List<NamedItem> list)
-			throws SearchLibException {
+	private int getFacetLimit(ItemField field,
+			AbstractSearchRequest searchRequest, int urlLimit,
+			int maxUrlPerHost, List<NamedItem> list) throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
 		Facet facet = result.getFacetList().getByField(field.getName());
 		for (FacetItem facetItem : facet) {
-			if (limit-- == 0)
+			if (urlLimit <= 0)
 				break;
-			if (facetItem.getCount() == 0)
+			int nbURL = facetItem.getCount();
+			if (nbURL == 0)
 				continue;
+			urlLimit -= nbURL > maxUrlPerHost ? maxUrlPerHost : nbURL;
+			if (urlLimit < 0)
+				urlLimit = 0;
 			String term = facetItem.getTerm();
 			if (term == null)
 				continue;
@@ -219,6 +223,7 @@ public class UrlManager extends AbstractManager {
 				list.add(new NamedItem(term, facetItem.getCount()));
 			}
 		}
+		return urlLimit;
 	}
 
 	private AbstractSearchRequest getHostFacetSearchRequest() {
@@ -230,8 +235,8 @@ public class UrlManager extends AbstractManager {
 		return searchRequest;
 	}
 
-	public void getHostToFetch(FetchStatus fetchStatus, Date before,
-			Date after, int limit, List<NamedItem> hostList)
+	public int getHostToFetch(FetchStatus fetchStatus, Date before, Date after,
+			int urlLimit, int maxUrlPerHost, List<NamedItem> hostList)
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setEmptyReturnsAll(true);
@@ -240,12 +245,12 @@ public class UrlManager extends AbstractManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest, limit,
-				hostList);
+		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest,
+				urlLimit, maxUrlPerHost, hostList);
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
-			String start, int limit, List<NamedItem> list)
+			String start, int urlLimit, int maxUrlPerHost, List<NamedItem> list)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, InstantiationException, IllegalAccessException {
@@ -255,7 +260,7 @@ public class UrlManager extends AbstractManager {
 		searchRequest.getFilterList().add(
 				new QueryFilter(field + ":" + start + "*", false,
 						FilterAbstract.Source.REQUEST, null));
-		getFacetLimit(field, searchRequest, limit, list);
+		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, list);
 	}
 
 	public final UrlItem getNewUrlItem(LinkItem linkItem) {
@@ -287,7 +292,7 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public void getUrlToFetch(NamedItem host, FetchStatus fetchStatus,
-			Date before, Date after, long limit, List<UrlItem> urlList)
+			Date before, Date after, long urlLimit, List<UrlItem> urlList)
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 				.getNewRequest("urlSearch");
@@ -300,7 +305,7 @@ public class UrlManager extends AbstractManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		searchRequest.setRows((int) limit);
+		searchRequest.setRows((int) urlLimit);
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
 		for (ResultDocument item : result)

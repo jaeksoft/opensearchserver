@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -186,28 +186,30 @@ public class WebCrawlMaster extends
 				.getFetchInterval().getValue(), propertyManager
 				.getFetchIntervalUnit().getValue());
 
+		int urlLimit = maxUrlPerSession;
 		// First try fetch priority
 		selection = new Selection(ListType.PRIORITY_URL,
 				FetchStatus.FETCH_FIRST, null, null);
-		urlManager.getHostToFetch(selection.fetchStatus, selection.beforeDate,
-				selection.afterDate, maxUrlPerSession, hostList);
+		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
+				selection.beforeDate, selection.afterDate, urlLimit,
+				maxUrlPerHost, hostList);
 
 		// Second try old URLs
 		if (hostList.size() == 0) {
 			selection = new Selection(ListType.OLD_URL, null,
 					fetchIntervalDate, null);
-			urlManager.getHostToFetch(selection.fetchStatus,
-					selection.beforeDate, selection.afterDate,
-					maxUrlPerSession, hostList);
+			urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
+					selection.beforeDate, selection.afterDate, urlLimit,
+					maxUrlPerHost, hostList);
 		}
 
 		// Finally try new unfetched URLs
 		if (hostList.size() == 0) {
 			selection = new Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED,
 					null, fetchIntervalDate);
-			urlManager.getHostToFetch(selection.fetchStatus,
-					selection.beforeDate, selection.afterDate,
-					maxUrlPerSession, hostList);
+			urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
+					selection.beforeDate, selection.afterDate, urlLimit,
+					maxUrlPerHost, hostList);
 		}
 		currentStats.addHostListSize(hostList.size());
 
