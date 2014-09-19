@@ -245,9 +245,9 @@ public class HttpDownloader extends HttpAbstract {
 					if (uri == null)
 						uri = downloadItem.getUri();
 					result = uri == null ? null : uri.getHost();
-				} catch (Throwable t) {
-					result = t.getMessage();
-					t.printStackTrace();
+				} catch (Exception e) {
+					result = e.getMessage();
+					e.printStackTrace();
 				}
 				System.out.println(result);
 			}

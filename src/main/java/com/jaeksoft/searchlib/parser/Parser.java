@@ -170,7 +170,7 @@ public abstract class Parser extends ParserFactory {
 		try {
 			this.streamLimiter = streamLimiter;
 			parseContent(streamLimiter, lang);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			this.error = e;
 			Logging.warn(getErrorText(e), e);
 		}

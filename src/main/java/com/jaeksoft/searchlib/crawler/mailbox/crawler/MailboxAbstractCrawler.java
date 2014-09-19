@@ -127,8 +127,8 @@ public abstract class MailboxAbstractCrawler {
 					try {
 						if (readMessage(document, folder, message))
 							thread.addDocument(document, null);
-					} catch (Throwable t) {
-						Logging.warn(t);
+					} catch (Exception e) {
+						Logging.warn(e);
 						thread.incError();
 					}
 				}

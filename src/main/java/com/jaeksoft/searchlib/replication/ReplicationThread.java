@@ -157,12 +157,12 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 				PushServlet.call_switch(replicationItem);
 				break;
 			}
-		} catch (Throwable t) {
+		} catch (Exception e) {
 			PushServlet.call_abort(replicationItem);
-			if (t instanceof SearchLibException)
-				throw (SearchLibException) t;
+			if (e instanceof SearchLibException)
+				throw (SearchLibException) e;
 			else
-				throw new SearchLibException(t);
+				throw new SearchLibException(e);
 		}
 	}
 
