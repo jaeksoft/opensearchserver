@@ -140,8 +140,8 @@ public class ViewerController extends CommonController {
 		if ("file".equalsIgnoreCase(uri.getScheme())) {
 			try {
 				tempFile = new File(uri);
-			} catch (Throwable t) {
-				Logging.warn(t);
+			} catch (Exception e) {
+				Logging.warn(e);
 				tempFile = new File(uri.getPath());
 			}
 		} else if ("smb".equalsIgnoreCase(uri.getScheme())) {
