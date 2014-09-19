@@ -145,7 +145,10 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 	final protected void unlockKeyThred(K key) {
 		rwl.w.lock();
 		try {
-			keyThread.remove(key);
+			Thread thread = keyThread.remove(key);
+			if (thread != null)
+				thread.notify();
+			Thread.currentThread().notify();
 		} finally {
 			rwl.w.unlock();
 		}
