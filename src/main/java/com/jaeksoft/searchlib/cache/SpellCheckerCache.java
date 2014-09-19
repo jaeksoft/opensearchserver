@@ -32,6 +32,7 @@ import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 
 public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
@@ -41,10 +42,10 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 	}
 
 	public SpellChecker get(ReaderLocal reader, String field)
-			throws IOException {
-		rwl.w.lock();
+			throws IOException, SearchLibException {
+		FieldNameKey key = new FieldNameKey(field);
+		lockKeyThread(key, 10);
 		try {
-			FieldNameKey key = new FieldNameKey(field);
 			SpellChecker spellChecker = getAndPromote(key);
 			if (spellChecker != null)
 				return spellChecker;
@@ -57,7 +58,7 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 			put(key, spellchecker);
 			return spellchecker;
 		} finally {
-			rwl.w.unlock();
+			unlockKeyThred(key);
 		}
 	}
 

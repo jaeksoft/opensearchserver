@@ -49,11 +49,12 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 
 	public FilterHits get(FilterAbstract<?> filter, SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			Timer timer) throws ParseException, IOException, SearchLibException, SyntaxError {
-		rwl.w.lock();
+			Timer timer) throws ParseException, IOException,
+			SearchLibException, SyntaxError {
+		FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
+				defaultField, analyzer, request);
+		lockKeyThread(filterCacheKey, 10);
 		try {
-			FilterCacheKey filterCacheKey = new FilterCacheKey(filter,
-					defaultField, analyzer, request);
 			FilterHits filterHits = getAndPromote(filterCacheKey);
 			if (filterHits != null)
 				return filterHits;
@@ -62,7 +63,7 @@ public class FilterCache extends LRUCache<FilterCacheKey, FilterHits> {
 			put(filterCacheKey, filterHits);
 			return filterHits;
 		} finally {
-			rwl.w.unlock();
+			unlockKeyThred(filterCacheKey);
 		}
 	}
 
