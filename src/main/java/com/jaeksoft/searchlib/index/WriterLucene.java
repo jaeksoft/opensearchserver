@@ -87,7 +87,7 @@ public class WriterLucene extends WriterAbstract {
 			return;
 		try {
 			indexWriter.close();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			Logging.warn(e);
 		} finally {
 			indexDirectory.unlock();

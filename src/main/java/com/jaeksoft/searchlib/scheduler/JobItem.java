@@ -237,7 +237,7 @@ public class JobItem extends ExecutionAbstract {
 					if (client.getIndex().getVersion() != originalVersion)
 						indexHasChanged = true;
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			SearchLibException se = e instanceof SearchLibException ? (SearchLibException) e
 					: new SearchLibException(e);
 			if (currentTaskLog != null)
