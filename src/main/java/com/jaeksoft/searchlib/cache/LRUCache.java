@@ -119,22 +119,41 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		}
 	}
 
-	final protected void lockKeyThread(K key, int attempt)
-			throws SearchLibException {
-		Thread thread = null;
+	final private Thread getLockThread(K key) {
+		rwl.r.lock();
+		try {
+			return keyThread.get(key);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final private Thread putLockThreadIfEmpty(K key, Thread currentThread) {
 		rwl.w.lock();
 		try {
-			thread = keyThread.get(key);
-			if (thread == null) {
-				keyThread.put(key, Thread.currentThread());
-				return;
-			}
+			Thread thread = keyThread.get(key);
+			if (thread != null)
+				return thread;
+			keyThread.put(key, currentThread);
+			return currentThread;
 		} finally {
 			rwl.w.unlock();
 		}
+
+	}
+
+	final protected void lockKeyThread(K key, int attempt)
+			throws SearchLibException {
+		Thread currentThread = Thread.currentThread();
+		Thread thread = putLockThreadIfEmpty(key, currentThread);
+		if (thread == currentThread)
+			return;
 		try {
-			synchronized (thread) {
-				thread.wait();
+			while (thread != null) {
+				synchronized (thread) {
+					thread.wait(100);
+				}
+				thread = getLockThread(key);
 			}
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
