@@ -1,4 +1,4 @@
-# Summary
+## Summary
 
 * [Installation Guide](installation/README.md)
     * [Debian](installation/debian.md)
