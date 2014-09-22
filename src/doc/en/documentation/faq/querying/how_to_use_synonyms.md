@@ -20,7 +20,7 @@ Index's schema must be configured to make use of these lists of synonyms. `Analy
 
 ![Creation of a synonyms analyzer](synonyms1.png)
 
-Here are the tokens created by this analyzer when search query is "a great pc":
+Here are the tokens created by this analyzer during a query when keywords are "A great PC":
 
 ![Test results](synonyms2.png)
 
