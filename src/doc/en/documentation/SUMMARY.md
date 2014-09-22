@@ -1,4 +1,4 @@
-# Summary
+## Summary
 
 * [Installation Guide](installation/README.md)
     * [Debian](installation/debian.md)
@@ -14,6 +14,7 @@
 		* [Excluding part of Web page](faq/crawling/how_to_exclude_some_part_of_webpage_from_crawling.md)
 		* [Using Selenium](faq/crawling/how_to_use_selenium_to_crawl_websites.md)
 		* [How lang of webpages are detected](faq/crawling/how_lang_of_webpages_are_detected.md)
+		* [How to extract specific information from web pages](faq/crawling/how_to_extract_specific_information_from_web_pages.md)
 	* [Installation](faq/installation/README.md)
 		* [Environment variables on Windows](faq/installation/how_to_check_the_environment_variables_on_Windows.md)
 		* [Tesseract-3 on Debian](faq/installation/how_to_install_Tesseract-3_on_Debian.md)
@@ -21,6 +22,7 @@
 		* [Known error messages](faq/installation/known_exceptions_and_error_messages.md)
 		* [Out of memory issue](faq/installation/out_of_memory_issue.md)
 	* [Querying](faq/querying/README.md)
+		* [Improving relevancy with "Mirror AND filter"](faq/querying/improving_relevancy_with_mirrorandfilter.md)
 		* [Geolocation](faq/querying/geolocation.md)
 		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
