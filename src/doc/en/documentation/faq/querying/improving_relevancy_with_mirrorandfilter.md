@@ -7,6 +7,7 @@ For a document to match the query, at least one of its fields must contain at le
 ![Searched fields](relevancy_1.png)
 
 This is where choosing the `Search operator` becomes important.
+
 * When using a boolean `OR` operator, OpenSearchServer will add a document to its results set as soon as but a single searched keyword is found in one the searched fields.
 * When using an `AND` operator, every keywords must be found in one of the searched fields for the document to be added to the results set.
 
@@ -16,9 +17,9 @@ Let's have an example:
 
 * The index's schema has several fields - `category`, `brand`, and `description`.
 * The following documents are indexed with these values:
-  * Document #1: `category` is "**computer**", `brand` is "**asus**" and `description` is "One of the best IT product this year".
-  * Document #2: `category` is "headphones", `brand` is "**asus**" and `description` is "Will render awesome sound when paired with a great **computer**".
-  * Document #3: `category` is "**computer**", `brand` is "dell" and `description` is "A great one".
+    * Document #1: `category` is "**computer**", `brand` is "**asus**" and `description` is "One of the best IT product this year".
+    * Document #2: `category` is "headphones", `brand` is "**asus**" and `description` is "Will render awesome sound when paired with a great **computer**".
+    * Document #3: `category` is "**computer**", `brand` is "dell" and `description` is "A great one".
   
 _Screenshot of this schema:_
 
