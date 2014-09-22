@@ -9,8 +9,8 @@ Let's take this set of URL filter rules as example:
 One should keep in mind that:
 
 * Exclusion rules must be written as [regular expression](http://www.regular-expressions.info/). If no `hostname` is provided then rule will be applied for every hostname.
-* Regular expression tests are applied to every parameter found in the query string, one by one. OpenSearchServer found query string after character `?` or character `;` (which is often used for parameter `jsessionid`).
-  * Regular expression are thus not applied to the whole URL. Parameters are first extracted from URL and then tested against each regular expression.
+* Regular expression tests **are applied to every parameter found in the query string, one by one**. OpenSearchServer found query string after character `?` or character `;` (which is often used for parameter `jsessionid`).
+  * Regular expression are thus **not applied to the whole URL**. Parameters are first extracted from URL and then tested against each regular expression.
   * For instance with the above example, text `test1=house` would be removed from URL `http://something.com/stuff?test1=house&userid=45` but not from URL `http://something.com/stuff/test1=house/` since in this last case `test1` is not a parameter from the query string.
 * It is very important to understand that URLs are tested against those URL filter rules **when they are discovered in pages by web crawler**.
   * Thus parameters that match those regular expression are deleted from URL before insertion of URL in `URL Browser`.

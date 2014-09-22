@@ -19,7 +19,7 @@ This screenshot shows what would be indexed for sentence `Bryan is in the kitche
 
 Final remaining tokens are `bryan` and `kitchen`. Tokens `is`, `in` and `the` have been removed by the Stop Words feature, since those words were listed in the `English stop words` list.
 
-This feature can for example allow matching of a document with title `Bryan is in the kitchen` when search keywords are `Bryan are you in the kitchen?`, since final tokens for this query also be `bryan` and `kitchen`, as shown by this screenshot:
+This feature can for example allow matching of a document with title `Bryan is in the kitchen` when search keywords are `Bryan are you in the kitchen?`, since final tokens for this query would also be `bryan` and `kitchen`, as shown by this screenshot:
 
 ![Stop words](stopwords2.png)
 
