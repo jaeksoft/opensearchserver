@@ -1,6 +1,7 @@
 ## Frequently Asked Questions
 
-* [Crawling](crawling/README.md)
 * [Installation](installation/README.md)
-* [Querying](querying/README.md)
+* [Crawling](crawling/README.md)
 * [Parsing](parsing/README.md)
+* [Indexing](indexing/README.md)
+* [Querying](querying/README.md)
