@@ -106,4 +106,9 @@ public class DocSetHitCacheKey implements Comparable<DocSetHitCacheKey> {
 			return c;
 		return 0;
 	}
+
+	@Override
+	public String toString() {
+		return query;
+	}
 }
