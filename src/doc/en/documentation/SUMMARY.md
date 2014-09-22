@@ -33,6 +33,7 @@
 		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
 		* [How to use More Like This feature](faq/querying/how_to_use_more_like_this_feature.md)
+		* [How to use synonyms](faq/querying/how_to_use_synonyms.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [PHP - documentation for the previous version](clients/php_client/README.md)
