@@ -1,13 +1,12 @@
 ## How to extract specific information from web pages
 
-When crawling web pages with default index template `web crawler` lots of information are automatically extracted from pages: title, content, url, meta keywords and description, and so on.
+The default index template `web crawler` automatically extracts set data from web pages: title, content, url, meta keywords and description, and so on.
 
-**It can sometimes be useful to extract more specific information** and save them in some specific fields. 
+But **it is sometimes useful to extract more specific information** and store it within specific fields. 
 
-### Extracting information using HTML parser
+### Extracting information using a HTML parser
 
-For instance one can want to extract a price and a product name from every page when crawling his e-commerce website.
-Let's take this example. Here is a product page from an imaginary website:
+Here is an imaginary e-commerce website :
 
 ---
 
@@ -15,25 +14,25 @@ Let's take this example. Here is a product page from an imaginary website:
 
 ---
 
-This page contains several information:
+This page contains two specific bits of information, which we would like to index :
 * product name: `Great computer`
 * product price: `$400.00`
 
-Two fields must be created in index's schema in order to hold these new information:
+First, let's create two fields in the index's schema to store the information:
 
 ![Two new fields](extract_twofields.png)
 
-Next step is to edit HTML parser in tab `Schema` / `Parser list`
+The next step is to customise the HTML parser. This takes place in the OSS tab `Schema` / `Parser list`.
 
 ![Edit HTML parser](extract_editparser.png)
 
-Tab `Field mapping` defines lots of mapping between some information provided by built-in HTML parser and some fields of the schema. 
+Specifically, the `Field mapping` tab shows how information from the built-in HTML parser is assigned to fields within the schema.
 
-Each time the web crawler crawls an HTML web page it gives it to the HTML parser in order for it to parse page. During this parsing process the HTML parser extract some particular information from the page and make them usable in **fields mappings**. Available information given by HTML parser are : title, generated title, body, meta_keywords, meta_description, meta_robots, internal_link, internal_link_nofollow, external_link, external_link_nofollow, lang, htmlProvider and htmlSource. `htmlSource` is the full HTML source code of the web page.
+When exploring a page, the web crawler hands over the data to the HTML parser. The HTML parser isolates the following so it can be used in **fields mappings** -- title, generated title, body, meta_keywords, meta_description, meta_robots, internal_link, internal_link_nofollow, external_link, external_link_nofollow, lang, htmlProvider and htmlSource. `htmlSource` is the full HTML source code of the web page.
 
-Extracting specific information from a web page will merely consist in **adding a mapping** between **information `htmlSource`** and a particular field of the schema, **using a [regular expression](http://www.regular-expressions.info/) to restrict extracted data**.
+In our example we will map **information `htmlSource`** to a field of the schema. Since what we need is but a specific part of the source code, we are going to use **a [regular expression](http://www.regular-expressions.info/) to restrict extracted data**.
 
-HTML source code of the imaginary product page is:
+Let's have a look at the source code of our imaginary web site :
 
 ```html
 <html>
@@ -62,56 +61,60 @@ HTML source code of the imaginary product page is:
 </html>
 ```
 
-The following field mapping must be added in order to extract product name information:
+First, the mapping to extract the product name:
 
 ![First mapping](extract_mappingproductname.png)
 
-Regular expression is: `(?s)id="product">[^<]*<h2>(.*?)</h2>`.
+An efficient regular expression to extract the needed data from the page's code is: `(?s)id="product">[^<]*<h2>(.*?)</h2>`.
 
-In order to extract product price this mapping will be needed:
+Second, the mapping to extract the product's price:
 
 ![Second mapping](extract_mappingproductprice.png)
 
-Regular expression is: `(?s)id="price">\$(.*?)<\/div>`.	
+Our suggested regex would be: `(?s)id="price">\$(.*?)<\/div>`.	
 
-Two new mappings are now added:
+Third, add the two new mappings:
 
 ![Two mappings](extract_mappings.png)
 
-Click button `Save` at the bottom of the page to save HTML parser.
+Click the `Save` button at the bottom of the page to save this HTML parser.
 
-This new configuration can be tested quickly by going to tab `Crawler` / `Web` / `Manual crawl`. Enter URL of test page and click button `Crawl`. Product name and price are extracted from the page:
+This can be tested quickly by going to the `Crawler` / `Web` / `Manual crawl` tab. Enter the test page's URL and click the `Crawl` button. From the crawl data, the parser extracts the product name and price:
 
 ![Extract](extract_test.png)
 
-### Extracting information using crawler and Analyzers
+### Extracting information using a crawler and Analyzers
 
-In some particular case one may want to extract data from URL. URL is not an information provided by HTML parser, since it is the crawler which is in charge of handling URLs. Let's assume that URL to the previous imaginary page is `http://great-ecommerce-website.com/products/great-computer-4536GE7.html`. In this URL, `4536GE7` is the product reference. To extract it and index it in a particular fields the following steps are needed.
+There are cases where the necessary data is part of the URL. The problem is, the URL isn't handled by the HTML parser - it is the web crawler that manages this information.
 
-Create a new field in index's schema:
+Let's assume that the URL of our imaginary web page is `http://great-ecommerce-website.com/products/great-computer-4536GE7.html`. The `4536GE7` string is the product reference. So our next example project will be to extract and index it.
+
+Create a new field within the index's schema:
 
 ![Product reference](extract_productreference.png)
 
-In tab `Crawler` / `Web`  / `Field mapping` add a mapping between information `url` and this new field:
+In the `Crawler` / `Web`  / `Field mapping` tab, add a mapping between the `url` information and this new field:
 
 ![Mapping url](extract_urlmapping.png)
 
-This tab has the same role than tab `Field mapping` in HTML parser, but here available information are provided by the web crawler and thus are different: url, crawl date, headers, and so on.
+This tab plays the same role as the `Field mapping` tab of the HTML parser. However, the information is different since it comes from the web crawler. It thus includes the url, the crawl date, the headers, etc.
 
-Field `product_reference` would now be filled by URL of pages. This is not yet what is wanted here. We now need to extract reference from URL in order to keep only this information in this new field.
+Once the mapping is done, the `product_reference` field will be populated by URLs. This is a great start, but we need to get rid of most of the URL to only keep the product reference string.
 
-Go to tab `Schema` / `Analyzers` and create a new Analyzer as shown:
+Go to the `Schema` / `Analyzers` tab and create a new Analyzer as shown:
 
 ![New analyzer](extract_analyzer.png)
 
-This analyzer will **use a regular expression** (`http://great-ecommerce-website.com/.*-(.*?).html$`) to extract only reference part from URL. **It can be tested immediately** in "Analyzer test" section:
+This analyzer will also  **use a regular expression** (namely `http://great-ecommerce-website.com/.*-(.*?).html$`) to pare down the URL to the product reference. **It can be tested immediately** from the "Analyzer test" section:
 
 ![Analyzer testing](extract_analyzertest.png)
 
-Don't forget to click `Create` button. Go to tab `Schema` / `Fields`, click on previously create field `product_reference` and **configure it for using this new **:
+Don't forget to click the `Create` button. Go to the `Schema` / `Fields` tab, click on the previously-created `product_reference` field and **configure it to use the new analyzer**:
 
 ![Configure product_reference](extract_productreference_edit.png)
 
-Re-crawl the example page, for example using `Manual crawl` again. **Take care**, result of analyzers are not shown in data displayed by Manual Crawl feature. Manual crawl only shows results from field mappings made by crawler or parsers, but it does not show transformations applied by further indexation process. You must query the index to see the proper indexed value:
+Re-crawl the example page. You can use `Manual crawl` for this one too. However, **be aware that** the analyzers' results are not shown by the `Manual Crawl` feature.
+
+`Manual Crawl` only shows the raw results from field mappings made by crawlers or parsers. The further transformations applied by indexation processes will not appear. To see the proper indexed values, you must query the index:
 
 ![Results](extract_queryresults.png)
