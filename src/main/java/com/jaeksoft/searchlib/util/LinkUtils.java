@@ -45,12 +45,12 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 
 public class LinkUtils {
 
-	public final static URL getLink(final URL currentURL, String href,
+	public final static URL getLink(final URL currentURL, final String srcHref,
 			final UrlFilterItem[] urlFilterList, final boolean removeFragment) {
 
-		if (href == null)
+		if (srcHref == null)
 			return null;
-		href = href.trim();
+		String href = srcHref.trim();
 		if (href.length() == 0)
 			return null;
 
@@ -68,7 +68,7 @@ public class LinkUtils {
 				try {
 					u = URIUtils.resolve(currentURI, href);
 				} catch (IllegalArgumentException e) {
-					href = URLEncoder.encode(currentURL.toString(), "UTF-8");
+					href = URLEncoder.encode(href, "UTF-8");
 					u = URIUtils.resolve(currentURI, href);
 				}
 			} else {
@@ -91,9 +91,10 @@ public class LinkUtils {
 			if (!removeFragment)
 				fragment = uri.getRawFragment();
 
-			return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(),
-					uri.getPort(), uri.getPath(), uri.getQuery(), fragment)
-					.normalize().toURL();
+			URL finalURL = new URI(uri.getScheme(), uri.getUserInfo(),
+					uri.getHost(), uri.getPort(), uri.getPath(),
+					uri.getQuery(), fragment).normalize().toURL();
+			return finalURL;
 		} catch (MalformedURLException e) {
 			Logging.info(e.getMessage());
 			return null;
@@ -163,6 +164,9 @@ public class LinkUtils {
 		System.out.println(getLink(new URL(
 				"http://www.example.com/test/in-75?l=75&co=FR&start=20"),
 				"?l=75&co=FR&start=20", null, false));
+		System.out.println(getLink(new URL("http://www.example.com/test/"),
+				"/category/index.jsp?categoryId=4955781&ab=denim & supply",
+				null, false));
 		System.out.println(lastPart("/my+folder/"));
 		System.out.println(lastPart("my folder/"));
 		System.out.println(lastPart("my folder/my+sub-folder/"));
