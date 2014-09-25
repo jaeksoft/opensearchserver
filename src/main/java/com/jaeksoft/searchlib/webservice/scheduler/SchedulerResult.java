@@ -109,7 +109,7 @@ public class SchedulerResult extends CommonResult {
 		JobLog jobLog = jobItem.getJobLog();
 		if (jobLog == null)
 			return;
-		List<TaskLog> taskLogs = jobLog.getLogs();
+		TaskLog[] taskLogs = jobLog.getLogs();
 		if (taskLogs == null)
 			return;
 		for (TaskLog taskLog : taskLogs)
