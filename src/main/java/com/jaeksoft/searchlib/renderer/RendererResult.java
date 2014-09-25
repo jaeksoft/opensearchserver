@@ -101,6 +101,8 @@ public class RendererResult {
 	final public String getViewerUrl(ResultDocument resultDocument, String url)
 			throws SearchLibException {
 
+		if (url == null)
+			return null;
 		HocrPdf hocrPdf = null;
 		if (hocrField != null) {
 			List<FieldValueItem> fieldValueItem = resultDocument
@@ -119,6 +121,23 @@ public class RendererResult {
 				return addItemGetUrl(url, hocrPdf);
 		}
 		return null;
+	}
+
+	final public String getOpenFolderUrl(ResultDocument resultDocument,
+			String url) {
+		if (filenameField == null || url == null)
+			return null;
+		String fn = resultDocument.getValueContent(filenameField, 0);
+		if (fn == null)
+			return null;
+		if (!url.startsWith(("file:/")))
+			return null;
+		if (url.endsWith("/"))
+			return null;
+		int i = url.lastIndexOf('/');
+		if (i == -1)
+			return null;
+		return url.substring(0, i + 1);
 	}
 
 	final public Client getClient() {

@@ -10,10 +10,25 @@
 	String url = rendererField.getOriginalUrl(resultDocument);
 	RendererResult rendererResult = (RendererResult) request
 			.getAttribute("rendererResult");
+	boolean parm = false;
 	String viewerUrl = rendererResult.getViewerUrl(resultDocument, url);
 	if (viewerUrl != null) {
 %>
 <a target="_top" href="<%=viewerUrl%>">Viewer</a>
 <%
+	parm = true;
+	}
+	String openFolderUrl = rendererResult.getOpenFolderUrl(
+			resultDocument, url);
+	if (openFolderUrl != null) {
+		if (parm) {
+%>
+&nbsp;&nbsp;
+<%
+	} // if (parm)
+%>
+<a target="_top" href="<%=openFolderUrl%>">Open folder</a>
+<%
+	parm = true;
 	}
 %>
