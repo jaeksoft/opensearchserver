@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,21 +25,25 @@
 package com.jaeksoft.searchlib.scheduler;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class JobLog {
 
-	private int maxSize;
+	private final int maxSize;
 
-	private LinkedList<TaskLog> logList;
+	private final LinkedList<TaskLog> logList;
+
+	private TaskLog[] cacheLogArray;
+
+	private final static TaskLog[] EMPTY_LOG_ARRAY = new TaskLog[0];
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected JobLog(int size) {
 		rwl.w.lock();
 		try {
+			cacheLogArray = EMPTY_LOG_ARRAY;
 			maxSize = size;
 			logList = new LinkedList<TaskLog>();
 		} finally {
@@ -53,15 +57,17 @@ public class JobLog {
 			logList.addFirst(taskLog);
 			if (logList.size() > maxSize)
 				logList.removeLast();
+			cacheLogArray = new TaskLog[logList.size()];
+			logList.toArray(cacheLogArray);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public List<TaskLog> getLogs() {
+	public TaskLog[] getLogs() {
 		rwl.r.lock();
 		try {
-			return logList;
+			return cacheLogArray;
 		} finally {
 			rwl.r.unlock();
 		}
