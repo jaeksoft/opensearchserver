@@ -41,10 +41,10 @@ When documents are indexed the fields of the schema receive values, according to
 1. Field is not configured to use any analyzer: full text is directly indexed as one `token`, as it was given, without any transformation.
 2. Field is configured to use an analyzer: text is given to this analyzer and `tokens` resulting of the processing by the analyzer are indexed.
 
-Here is an example: for a field `title` using a `TextAnalyzer`, if a document named "Planet Of The Apes" is indexed, tokens will be:
+Here is an example: for a field `title`, if a document named "Planet Of The Apes" is indexed, tokens will be:
 
-1. In case 1: `Planet Of The Apes`.
-2. In case 2: `planet`, `of`, `the`, `ape`.
+1. In case 1 (no analyzer): `Planet Of The Apes`.
+2. In case 2 (using a `TextAnalyzer`): `planet`, `of`, `the`, `ape`.
 
 #### At query time
 
@@ -54,6 +54,8 @@ For example, following above example and querying on field `title`, query `"Plan
 
 1. In case 1: `title:"Planet of the apes"`
 1. In case 2: `title:"planet of the ape"`
+
+##
 
 ### List of available Tokenizers
 
@@ -73,7 +75,7 @@ _Example:_
 
 Splits sentences on every character not being a letter or a digit. This includes white space, quote, period, etc. This tokenizer provides a field "Additional characters" that can be used to white-lists some other characters.
 
-_Example where "Additional characters" contains `'`:_
+_Example where "Additional characters" contains `-`:_
 	
 ![LetterOrDigitTokenizer](analyzer_letterordigit.png)
 #### KeywordTokenizer
@@ -106,6 +108,8 @@ Splits sentences in group of characters starting from one side (front or back) o
 _Example with `Min gram size` = 1, `Max gram size` = 10 and `Edge side` = front:_
 	
 ![EdgeNGramTokenizer](analyzer_edgengramtokenizer.png)
+
+##
 
 ### List of some filters
 
@@ -185,7 +189,7 @@ _Example with `Min gram size` = 2 and `Max gram size` = 4 (first ngrams only are
 
 Transforms a number in a format understanble by OpenSearchServer. In OpenSearchServer every data is text data, there is no other type of data. When indexed, numbers must be prefixed by some `0` in order to be used in sorting and scoring. For example: number `110` is greater than number `20` but aplhabetically `"20"` will be sorted after `"110"`, because `2` is placed after `1`. However, if numbers are prefixed by `0` we will get for example `00110` (two 0) and `00020` (three 0). Here correct sorting will apply: `"00020"` will come before `"00110"`.
 
-To differentiate between positive and negative number another character must be added in front of the number. For instance `<` and `>` can be used (respectively for negative and positive numbers), since alphabetically `<` comes before `>`).
+To differentiate between positive and negative number another character must be added in front of the number. For instance `<` and `>` can be used (respectively for negative and positive numbers), since alphabetically `<` comes before `>`.
 
 A full configuration for NumberFormatFilter will be:
 
@@ -217,7 +221,7 @@ _Example with regexp `^(.*?)thumbnail\/10x60(.*?)$` and replacement `$1images$2`
 
 Creates shingles, which are groups of words.
 
-_Example with token separator being a white space (` `), `max shingle size` = 4 and `Min shingle size` = 1:_
+_Example with token separator being a white space, `Max shingle size` = 4 and `Min shingle size` = 1:_
 
 ![ShingleFilter](analyzer_shinglefilter.png)
 
