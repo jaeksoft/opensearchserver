@@ -55,7 +55,7 @@ For example, following above example and querying on field `title`, query `"Plan
 1. In case 1: `title:"Planet of the apes"`
 1. In case 2: `title:"planet of the ape"`
 
-##
+---
 
 ### List of available Tokenizers
 
@@ -109,7 +109,7 @@ _Example with `Min gram size` = 1, `Max gram size` = 10 and `Edge side` = front:
 	
 ![EdgeNGramTokenizer](analyzer_edgengramtokenizer.png)
 
-##
+---
 
 ### List of some filters
 
