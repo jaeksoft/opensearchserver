@@ -7,11 +7,13 @@
 			.getAttribute("resultDocument");
 	RendererField rendererField = (RendererField) request
 			.getAttribute("rendererField");
-	String url = rendererField.getOriginalUrl(resultDocument);
+	String originalUrl = rendererField.getOriginalUrl(resultDocument);
+	String fieldUrl = rendererField.getUrlField(resultDocument);
 	RendererResult rendererResult = (RendererResult) request
 			.getAttribute("rendererResult");
 	boolean parm = false;
-	String viewerUrl = rendererResult.getViewerUrl(resultDocument, url);
+	String viewerUrl = rendererResult.getViewerUrl(resultDocument,
+			originalUrl);
 	if (viewerUrl != null) {
 %>
 <a target="_top" href="<%=viewerUrl%>">Viewer</a>
@@ -19,7 +21,7 @@
 	parm = true;
 	}
 	String openFolderUrl = rendererResult.getOpenFolderUrl(
-			resultDocument, url);
+			resultDocument, fieldUrl);
 	if (openFolderUrl != null) {
 		if (parm) {
 %>
