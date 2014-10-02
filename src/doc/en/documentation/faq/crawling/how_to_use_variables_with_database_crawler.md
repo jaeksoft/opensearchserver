@@ -55,7 +55,9 @@ Here is an example using Chrome's extension Postman:
 
 ### Giving variable an empty value
 
-To give variable empty value one has to set them with empty string. For example in JSON:
+To give variable empty value one has to set them with empty string. 
+
+For example in JSON:
 
     {
       "whereClause": ""
