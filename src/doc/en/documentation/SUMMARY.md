@@ -22,6 +22,7 @@
 		* [How lang of webpages are detected](faq/crawling/how_lang_of_webpages_are_detected.md)
 		* [How to extract specific information from web pages](faq/crawling/how_to_extract_specific_information_from_web_pages.md)
 		* [How to use URL filter feature](faq/crawling/how_to_use_URL_filter_feature.md)
+		* [How to use variables with Database Crawler](faq/crawling/how_to_use_variables_with_database_crawler.md)
 	* [Parsing](faq/parsing/README.md)
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
 		* [How to parse YouTube URLs and extract data](faq/parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
