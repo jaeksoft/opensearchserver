@@ -31,7 +31,7 @@ Specifically, the `Field mapping` tab shows how information from the built-in HT
 
 When exploring a page, the web crawler hands over the data to the HTML parser. The HTML parser isolates the following so it can be used in **fields mappings** -- title, generated title, body, meta_keywords, meta_description, meta_robots, internal_link, internal_link_nofollow, external_link, external_link_nofollow, lang, htmlProvider and htmlSource. `htmlSource` is the full HTML source code of the web page.
 
-In our example we will map **information `htmlSource`** to a field of the schema. Since what we need is but a specific part of the source code, we are going to use **a [regular expression](http://www.regular-expressions.info/) to restrict extracted data**.
+In our example we will map **information `htmlSource`** to a field of the schema. Since what we need is a specific part of the source code, we are going to use **a [regular expression](http://www.regular-expressions.info/) to restrict extracted data**.
 
 Let's have a look at the source code of our imaginary web site :
 
