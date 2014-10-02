@@ -28,4 +28,4 @@ One should keep in mind that:
 * It is critical to understand that URLs are tested against URL filter rules **as soon as they are discovered by the web crawler**.
   * Thus, those parameters that match our example regular expressions are stripped from URLs **before** these URLs are handed over to the `URL Browser`.
   * Which means that during subsequent sessions, the crawler will crawl URLs that have been cleaned by the filters.
-  * If you use the `URL Browser` (say, from the `URL pattern` tab) to **insert URLs whose parameters would normally be deleted**, these URLs will **not** be tested against the filters. Same thing **when crawling an URL using the `Manual crawl` tab**: the URL filters will be bypassed.
+  * If you use the `URL Pattern` tab to **insert URLs whose parameters would normally be deleted**, these URLs will **not** be tested against the filters. Same thing **when crawling an URL using the `Manual crawl` tab**: the URL filters will be bypassed.

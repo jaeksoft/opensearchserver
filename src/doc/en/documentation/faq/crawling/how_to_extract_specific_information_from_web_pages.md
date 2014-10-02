@@ -15,6 +15,7 @@ Here is an imaginary e-commerce website :
 ---
 
 This page contains two specific bits of information, which we would like to index :
+
 * product name: `Great computer`
 * product price: `$400.00`
 
@@ -105,7 +106,7 @@ Go to the `Schema` / `Analyzers` tab and create a new Analyzer as shown:
 
 ![New analyzer](extract_analyzer.png)
 
-This analyzer will also  **use a regular expression** (namely `http://great-ecommerce-website.com/.*-(.*?).html$`) to pare down the URL to the product reference. **It can be tested immediately** from the "Analyzer test" section:
+This analyzer will also  **use a regular expression** (namely `http://great-ecommerce-website.com/.*-(.*?).html$`) to parse down the URL to the product reference. **It can be tested immediately** from the "Analyzer test" section:
 
 ![Analyzer testing](extract_analyzertest.png)
 
