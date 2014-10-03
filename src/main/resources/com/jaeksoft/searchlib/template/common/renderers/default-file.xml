@@ -72,34 +72,38 @@
 		widgetName="TEXT" />
 	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="url"
 		widgetName="TEXT" replacePrevious="true" />
+	<field fieldName="fileSystemDate" replacePrevious="false"
+		fieldType="FIELD" urlFieldName="" urlDecode="false" cssClass="small text-muted"
+		widgetName="DATETIME">inputformat=yyyyMMddHHmmssSSS
+outputformat=MMM d, YYYY
+	</field>
+	<field fieldName="url" replacePrevious="false" fieldType="FIELD"
+		urlFieldName="" urlDecode="true" cssClass="text-success" widgetName="URLWRAP" />
 	<field fieldName="content" fieldType="SNIPPET" widgetName="TEXT" />
-	<field fieldName="url" fieldType="FIELD" widgetName="TEXT" />
 	<field fieldName="url" fieldType="FIELD" urlFieldName="url"
 		widgetName="TOOLS" />
 	<filter publicName="Filter by date" fieldName="fileSystemDate"
 		filterType="DATE" replace="false">1.label=Any time
-		1.range=anytime
-		2.label=Past
-		24 hours
-		2.range=pastday
-		3.label=Past week
-		3.range=pastweek
-		4.label=Past
-		month
-		4.range=pastmonth
-		5.label=Past year
-		5.range=pastyear
-		dateformat=yyyyMMddHHmmssSSS
+1.range=anytime
+2.label=Past 24 hours
+2.range=pastday
+3.label=Past week
+3.range=pastweek
+4.label=Past month
+4.range=pastmonth
+5.label=Past year
+5.range=pastyear
+dateformat=yyyyMMddHHmmssSSS
 	</filter>
 	<filter publicName="File type" fieldName="fileExtension"
 		filterType="FACET_MERGE" replace="false">casesensitive=true
-		regexp.1.find=ppt(.*)
-		regexp.1.replace=Powerpoint
-		1.label=Word
-		1.value1=DOC
-		1.value2=DOCX
-		2.label=PDF
-		2.value1=pdf
-		2.value2=PDF
+regexp.1.find=ppt(.*)
+regexp.1.replace=Powerpoint
+1.label=Word
+1.value1=DOC
+1.value2=DOCX
+2.label=PDF
+2.value1=pdf
+2.value2=PDF
 	</filter>
 </renderer>
