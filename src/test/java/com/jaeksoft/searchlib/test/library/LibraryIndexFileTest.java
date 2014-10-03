@@ -94,9 +94,9 @@ public class LibraryIndexFileTest {
 			// Populate the document with the full-text fields
 			parserResultItem.populate(document);
 
-			// Add the URI field to the document (building a unique URI)
+			// Add the URL field to the document (building a unique URL)
 			count++;
-			document.addString("uri", LibraryTest.PDF_TEST_FILE.toURI()
+			document.addString("url", LibraryTest.PDF_TEST_FILE.toURI()
 					.toString() + "#" + count);
 
 			// Put in in the index
