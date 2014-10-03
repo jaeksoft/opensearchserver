@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -20,15 +20,11 @@
 <!-- See the GNU General Public License for more details. -->
 <map>
 	<link source="contentBaseType" target="contentBaseType" />
+	<link source="contentDispositionFilename" target="fileName" />
 	<link source="host" target="host" />
 	<link source="subhost" target="subhost" />
 	<link source="lang" target="lang" />
 	<link source="url" target="url" />
-	<link source="url" target="urlSplit" />
-	<link source="url" target="urlExact" />
-	<link source="url" target="urlPhonetic" />
-	<link source="url" target="full" />
-	<link source="url" target="fullExact" />
-	<link source="url" target="fullPhonetic" />
+	<link source="crawlDate" target="crawlDate" />
 	<link source="backlinkCount" target="backlinkCount" />
 </map>
