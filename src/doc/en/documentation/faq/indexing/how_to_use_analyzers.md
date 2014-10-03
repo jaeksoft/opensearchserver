@@ -22,7 +22,7 @@ Analyzers are an essential part of OpenSearchServer. They are responsible for pr
 Analyzers are then used in several contexts:
 
 * They can be configured as part of an index's schema, to be used for a particular field. A field in the schema can only be processed by a single analyzer.
-* They can be deployed as a parser when mapping fields.
+* They can be added to the field mappings defined in a parser.
 
 ### What are `tokens`
 
