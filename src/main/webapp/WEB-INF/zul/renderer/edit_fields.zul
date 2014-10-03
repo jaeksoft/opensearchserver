@@ -17,22 +17,7 @@
 <listbox model="@load(renderer.currentRenderer.fields)"
 	selectedItem="@bind(renderer.selectedRendererField)">
 	<listhead>
-		<listheader label="Field / Snippet" />
-		<listheader label="URL Field" />
-		<listheader label="URL Decode"
-			tooltiptext="Apply an UTF-8 URL decoder" />
-		<listheader label="URL Pattern"
-			tooltiptext="Regular expression pattern" />
-		<listheader label="URL Replace"
-			tooltiptext="Regular expression replacement" />
-		<listheader label="Css Class"
-			tooltiptext="Enter any css classes" />
-		<listheader label="Widget type" />
-		<listheader label="Widget properties" />
-		<listheader label="Action" align="center" width="150px" />
-	</listhead>
-	<auxhead>
-		<auxheader>
+		<listheader label="Field / Snippet" hflex="min" valign="top">
 			<vlayout>
 				<listbox model="@load(renderer.fieldTypeList)"
 					onSelect="@command('reload')"
@@ -50,42 +35,67 @@
 					</template>
 				</listbox>
 			</vlayout>
-		</auxheader>
-		<auxheader>
-			<listbox model="@load(renderer.fieldList)"
-				selectedItem="@bind(renderer.currentRendererField.urlFieldName)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
-		</auxheader>
-		<auxheader>
-			<checkbox
-				checked="@bind(renderer.currentRendererField.urlDecode)" />
-		</auxheader>
-		<auxheader>
-			<textbox
-				value="@bind(renderer.currentRendererField.pattern)" cols="30" />
-		</auxheader>
-		<auxheader>
-			<textbox
-				value="@bind(renderer.currentRendererField.replacement)" cols="30" />
-		</auxheader>
-		<auxheader>
-			<textbox
-				value="@bind(renderer.currentRendererField.cssClass)" cols="30" />
-		</auxheader>
-		<auxheader>
-			<listbox model="@load(renderer.widgetList)"
-				selectedItem="@bind(renderer.currentRendererField.widgetName)"
-				mold="select">
-				<template name="model">
-					<listitem label="@load(each)" />
-				</template>
-			</listbox>
-		</auxheader>
-		<auxheader>
+		</listheader>
+		<listheader label="Replace previous" hflex="min" valign="top"
+			tooltiptext="Replace previous field if it is empty">
+			<vlayout>
+				<checkbox
+					checked="@bind(renderer.currentRendererField.replacePrevious)" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Field" hflex="min" valign="top">
+			<vlayout>
+				<listbox model="@load(renderer.fieldList)"
+					selectedItem="@bind(renderer.currentRendererField.urlFieldName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
+		</listheader>
+		<listheader label="URL Decode"
+			tooltiptext="Apply an UTF-8 URL decoder" hflex="min" valign="top">
+			<vlayout>
+				<checkbox
+					checked="@bind(renderer.currentRendererField.urlDecode)" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Pattern" valign="top"
+			tooltiptext="Regular expression pattern" hflex="min">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.pattern)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Replace"
+			tooltiptext="Regular expression replacement" hflex="min"
+			valign="top">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.replacement)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="Css Class"
+			tooltiptext="Enter any css classes" hflex="min" valign="top">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.cssClass)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="Widget type" hflex="min" valign="top">
+			<vlayout>
+				<listbox model="@load(renderer.widgetList)"
+					selectedItem="@bind(renderer.currentRendererField.widgetName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
+		</listheader>
+		<listheader label="Widget properties" hflex="min"
+			valign="top">
 			<vlayout>
 				<textbox multiline="true"
 					value="@bind(renderer.currentRendererField.widgetProperties)"
@@ -93,20 +103,22 @@
 				<button label="Default properties"
 					onClick="@command('onRendererFieldDefaultProperties')" />
 			</vlayout>
-		</auxheader>
-		<auxheader align="center">
-			<button tooltiptext="Add a field"
-				visible="@load(renderer.notFieldSelected)"
-				image="/images/action_add.png"
-				onClick="@command('onRendererFieldSave')" />
-			<hbox visible="@load(renderer.fieldSelected)">
-				<button tooltiptext="Save a field" label="Save"
+		</listheader>
+		<listheader label="Action" align="center" valign="top">
+			<vlayout>
+				<button tooltiptext="Add a field"
+					visible="@load(renderer.notFieldSelected)"
+					image="/images/action_add.png"
 					onClick="@command('onRendererFieldSave')" />
-				<button tooltiptext="Save a field" label="Cancel"
-					onClick="@command('onRendererFieldCancel')" />
-			</hbox>
-		</auxheader>
-	</auxhead>
+				<hbox visible="@load(renderer.fieldSelected)">
+					<button tooltiptext="Save a field" label="Save"
+						onClick="@command('onRendererFieldSave')" />
+					<button tooltiptext="Save a field" label="Cancel"
+						onClick="@command('onRendererFieldCancel')" />
+				</hbox>
+			</vlayout>
+		</listheader>
+	</listhead>
 	<template name="model" var="rendererFieldItem">
 		<listitem>
 			<listcell>
@@ -114,6 +126,7 @@
 				<label value=": " />
 				<label value="@load(rendererFieldItem.fieldName)" />
 			</listcell>
+			<listcell label="@load(rendererFieldItem.replacePrevious)" />
 			<listcell label="@load(rendererFieldItem.urlFieldName)" />
 			<listcell label="@load(rendererFieldItem.urlDecode)" />
 			<listcell label="@load(rendererFieldItem.pattern)" />
