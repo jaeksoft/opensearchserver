@@ -44,6 +44,8 @@ public class RendererField {
 
 	private String fieldName;
 
+	private boolean replacePrevious;
+
 	private RendererFieldType fieldType;
 
 	/**
@@ -69,6 +71,8 @@ public class RendererField {
 
 	private final static String RENDERER_FIELD_ATTR_FIELDNAME = "fieldName";
 
+	private final static String RENDERER_FIELD_ATTR_REPLACEPREVIOUS = "replacePrevious";
+
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
 
 	private final static String RENDERER_FIELD_NODE_CSS_STYLE = "cssStyle";
@@ -87,6 +91,7 @@ public class RendererField {
 
 	public RendererField() {
 		fieldName = StringUtils.EMPTY;
+		replacePrevious = false;
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = StringUtils.EMPTY;
 		cssClass = StringUtils.EMPTY;
@@ -102,6 +107,8 @@ public class RendererField {
 			throws XPathExpressionException {
 		fieldName = XPathParser.getAttributeString(node,
 				RENDERER_FIELD_ATTR_FIELDNAME);
+		replacePrevious = DomUtils.getAttributeBoolean(node,
+				RENDERER_FIELD_ATTR_REPLACEPREVIOUS, false);
 		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
 		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
@@ -127,6 +134,7 @@ public class RendererField {
 
 	public void copyTo(RendererField target) {
 		target.fieldName = fieldName;
+		target.replacePrevious = replacePrevious;
 		target.fieldType = fieldType;
 		target.oldStyle = oldStyle;
 		target.cssClass = cssClass;
@@ -152,6 +160,21 @@ public class RendererField {
 	 */
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
+	}
+
+	/**
+	 * @param replacePrevious
+	 *            the replacePrevious to set
+	 */
+	public void setReplacePrevious(boolean replacePrevious) {
+		this.replacePrevious = replacePrevious;
+	}
+
+	/**
+	 * @return the replacePrevious
+	 */
+	public boolean isReplacePrevious() {
+		return replacePrevious;
 	}
 
 	/**
@@ -319,7 +342,9 @@ public class RendererField {
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
-				fieldName, RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
+				fieldName, RENDERER_FIELD_ATTR_REPLACEPREVIOUS,
+				Boolean.toString(replacePrevious),
+				RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
 				RENDERER_FIELD_ATTR_URL_DECODE, Boolean.toString(urlDecode),
 				RENDERER_FIELD_ATTR_CSS_CLASS, cssClass,
