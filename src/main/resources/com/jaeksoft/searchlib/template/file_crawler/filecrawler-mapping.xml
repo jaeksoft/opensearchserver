@@ -19,14 +19,8 @@
 <!-- -->
 <!-- See the GNU General Public License for more details. -->
 <map>
-	<link source="uri" target="uri" />
+	<link source="uri" target="url" />
 	<link source="fileName" target="fileName" />
-	<link source="fileName" target="fileNameExact" />
-	<link source="fileName" target="fileNamePhonetic" />
-	<link source="fileName" target="autocomplete" />
-	<link source="fileName" target="full" />
-	<link source="fileName" target="fullExact" />
-	<link source="fileName" target="fullphonetic" />
 	<link source="directory" target="directory" />
 	<link source="subDirectory" target="subDirectory" />
 	<link source="fileSystemDate" target="fileSystemDate" />
