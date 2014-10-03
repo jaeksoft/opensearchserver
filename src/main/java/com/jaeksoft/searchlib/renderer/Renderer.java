@@ -71,6 +71,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT = "resultsFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT = "logoutText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
+	private final static String RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP = "defaultJsp";
 	private final static String RENDERER_ITEM_NODE_CSS = "css";
 	private final static String RENDERER_ITEM_NODE_NAME_FIELD = "field";
 	private final static String RENDERER_ITEM_NODE_NAME_FILTER = "filter";
@@ -149,6 +150,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String authGroupDenyField;
 
+	private RendererJspEnum defaultJsp;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -179,6 +182,7 @@ public class Renderer implements Comparable<Renderer> {
 		authGroupAllowField = "groupAllow";
 		authUserDenyField = "userDeny";
 		authGroupDenyField = "groupDeny";
+		defaultJsp = RendererJspEnum.Boostrap;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -209,6 +213,8 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
 		setAutocompletionName(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME));
+		setDefaultJsp(RendererJspEnum.find(XPathParser.getAttributeString(
+				rootNode, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP)));
 
 		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
 		if (authNode != null) {
@@ -763,7 +769,8 @@ public class Renderer implements Comparable<Renderer> {
 					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
 					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
 					hocrField, RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME,
-					autocompletionName);
+					autocompletionName, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP,
+					defaultJsp == null ? null : defaultJsp.name());
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -1332,5 +1339,21 @@ public class Renderer implements Comparable<Renderer> {
 	 */
 	public void setAutocompletionName(String autocompletionName) {
 		this.autocompletionName = autocompletionName;
+	}
+
+	/**
+	 * @return the defaultJsp
+	 */
+	public RendererJspEnum getDefaultJsp() {
+		return defaultJsp;
+	}
+
+	/**
+	 * @param defaultJsp
+	 *            the defaultJsp to set
+	 */
+	public void setDefaultJsp(RendererJspEnum defaultJsp) {
+		this.defaultJsp = defaultJsp == null ? RendererJspEnum.Boostrap
+				: defaultJsp;
 	}
 }

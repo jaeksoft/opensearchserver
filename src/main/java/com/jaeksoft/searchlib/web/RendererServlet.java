@@ -172,7 +172,9 @@ public class RendererServlet extends AbstractServlet {
 			}
 			transaction.setRequestAttribute("autocompUrl",
 					autocompUrl.toString());
-			String jsp = transaction.getParameterString("jsp", "renderer.jsp");
+			String jsp = transaction.getParameterString("jsp");
+			if (jsp == null)
+				jsp = renderer.getDefaultJsp().jsp;
 			forward(transaction, renderer,
 					StringUtils.fastConcat("/WEB-INF/jsp/", jsp));
 		} catch (AuthException e) {
