@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -27,24 +27,9 @@
 		<extension>doc</extension>
 		<map>
 			<link source="author" target="content" />
-			<link source="author" target="contentExact" />
-			<link source="author" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLS parser" class="com.jaeksoft.searchlib.parser.XlsParser"
@@ -53,24 +38,9 @@
 		<extension>xls</extension>
 		<map>
 			<link source="author" target="content" />
-			<link source="author" target="contentExact" />
-			<link source="author" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="DOCX parser" class="com.jaeksoft.searchlib.parser.DocxParser"
@@ -80,27 +50,10 @@
 		<extension>docx</extension>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="description" target="content" />
-			<link source="description" target="contentExact" />
-			<link source="description" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XLSX parser" class="com.jaeksoft.searchlib.parser.XlsxParser"
@@ -110,27 +63,10 @@
 		<extension>xlsx</extension>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="description" target="content" />
-			<link source="description" target="contentExact" />
-			<link source="description" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="HTML parser" class="com.jaeksoft.searchlib.parser.HtmlParser"
@@ -141,20 +77,9 @@
 		<extension>xhtml</extension>
 		<map>
 			<link source="body" target="content" />
-			<link source="body" target="contentExact" />
-			<link source="body" target="contentPhonetic" />
-			<link source="body" target="full" />
-			<link source="body" target="fullExact" />
-			<link source="body" target="fullPhonetic" />
 			<link source="meta_description" target="metaDescription" />
 			<link source="meta_keywords" target="metaKeywords" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="MSG parser" class="com.jaeksoft.searchlib.parser.MapiMsgParser">
@@ -162,35 +87,10 @@
 		<extension>msg</extension>
 		<map>
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="htmlSource" target="content">
 				<removeTag />
 			</link>
-			<link source="htmlSource" target="contentExact">
-				<removeTag />
-			</link>
-			<link source="htmlSource" target="contentPhonetic">
-				<removeTag />
-			</link>
-			<link source="htmlSource" target="full">
-				<removeTag />
-			</link>
-			<link source="htmlSource" target="fullExact">
-				<removeTag />
-			</link>
-			<link source="htmlSource" target="fullPhonetic">
-				<removeTag />
-			</link>
 			<link source="subject" target="title" />
-			<link source="subject" target="titleExact" />
-			<link source="subject" target="titlePhonetic" />
-			<link source="subject" target="full" />
-			<link source="subject" target="fullExact" />
-			<link source="subject" target="fullPhonetic" />
 		</map>
 	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
@@ -199,24 +99,9 @@
 		<contentType>application/pdf</contentType>
 		<map>
 			<link source="author" target="content" />
-			<link source="author" target="contentExact" />
-			<link source="author" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="PPT parser" class="com.jaeksoft.searchlib.parser.PptParser"
@@ -226,12 +111,8 @@
 		</contentType>
 		<map>
 			<link source="body" target="content" />
-			<link source="body" target="contentExact" />
-			<link source="body" target="contentPhonetic" />
-			<link source="content" target="title" />
-			<link source="content" target="titleExact" />
-			<link source="content" target="titlePhonetic" />
-			<link source="title" target="autocomplete" />
+			<link source="content" target="content" />
+			<link source="title" target="title" />
 		</map>
 	</parser>
 	<parser name="PPTX parser" class="com.jaeksoft.searchlib.parser.PptxParser"
@@ -241,27 +122,10 @@
 		</contentType>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="description" target="content" />
-			<link source="description" target="contentExact" />
-			<link source="description" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="Visio parser" class="com.jaeksoft.searchlib.parser.VisioParser"
@@ -270,24 +134,9 @@
 		<extension>vsd</extension>
 		<map>
 			<link source="author" target="content" />
-			<link source="author" target="contentExact" />
-			<link source="author" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="Publisher parser" class="com.jaeksoft.searchlib.parser.PublisherParser"
@@ -296,24 +145,9 @@
 		<extension>pub</extension>
 		<map>
 			<link source="author" target="content" />
-			<link source="author" target="contentExact" />
-			<link source="author" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODT parser" class="com.jaeksoft.searchlib.parser.OdtParser"
@@ -323,24 +157,9 @@
 		</contentType>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODS/ODF parser" class="com.jaeksoft.searchlib.parser.OdsParser"
@@ -353,24 +172,9 @@
 		</contentType>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="ODP parser" class="com.jaeksoft.searchlib.parser.OdpParser"
@@ -380,24 +184,9 @@
 		</contentType>
 		<map>
 			<link source="creator" target="content" />
-			<link source="creator" target="contentExact" />
-			<link source="creator" target="contentPhonetic" />
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 			<link source="subject" target="content" />
-			<link source="subject" target="contentExact" />
-			<link source="subject" target="contentPhonetic" />
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="RTF parser" class="com.jaeksoft.searchlib.parser.RtfParser"
@@ -406,11 +195,6 @@
 		<contentType>application/rtf</contentType>
 		<map>
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 		</map>
 	</parser>
 	<parser name="RSS parser" class="com.jaeksoft.searchlib.parser.RssParser"
@@ -428,11 +212,6 @@
 		<contentType>text/plain</contentType>
 		<map>
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 		</map>
 	</parser>
 	<parser name="Audio parser" class="com.jaeksoft.searchlib.parser.AudioParser"
@@ -455,12 +234,6 @@
 		<contentType>application/ogg</contentType>
 		<map>
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="Torrent parser" class="com.jaeksoft.searchlib.parser.TorrentParser"
@@ -469,12 +242,6 @@
 		<contentType>application/x-bittorrent</contentType>
 		<map>
 			<link source="title" target="title" />
-			<link source="title" target="titleExact" />
-			<link source="title" target="titlePhonetic" />
-			<link source="title" target="full" />
-			<link source="title" target="fullExact" />
-			<link source="title" target="fullPhonetic" />
-			<link source="title" target="autocomplete" />
 		</map>
 	</parser>
 	<parser name="XML parser" class="com.jaeksoft.searchlib.parser.XmlParser"
@@ -485,11 +252,6 @@
 		<contentType>application/xhtml+xml</contentType>
 		<map>
 			<link source="content" target="content" />
-			<link source="content" target="contentExact" />
-			<link source="content" target="contentPhonetic" />
-			<link source="content" target="full" />
-			<link source="content" target="fullExact" />
-			<link source="content" target="fullPhonetic" />
 		</map>
 	</parser>
 

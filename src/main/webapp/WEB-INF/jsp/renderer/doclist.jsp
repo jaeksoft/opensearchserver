@@ -22,11 +22,16 @@
 					ResultDocument resultDocument = result.getDocument(i);
 					request.setAttribute("resultDocument", resultDocument);
 					Integer fieldPos = 0;
+					boolean lastWasReplace = false;
 					String[] lastFieldValues = null;
 					for (RendererField rendererField : renderer.getFields()) {
-						if (rendererField.isReplacePrevious()
-								&& lastFieldValues != null)
-							continue;
+						if (rendererField.isReplacePrevious()) {
+							if (!lastWasReplace)
+								fieldPos--;
+							lastWasReplace = true;
+							if (lastFieldValues != null)
+								continue;
+						}
 						fieldPos++;
 						request.setAttribute("fieldPos", fieldPos);
 						RendererWidgetType widget = rendererField

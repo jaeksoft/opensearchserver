@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2012 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -17,50 +17,89 @@
 <!-- WARRANTY; without even the implied warranty of -->
 <!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
 <!-- -->
-<renderer name="default-file" request="search" searchButtonLabel="Search"
-	noResultFoundText="No result found" oneResultFoundText="1 result found"
-	resultsFoundText="results found" filenameField="uri">
-<css>.osscmnrdr { font-family: arial,sans-serif;
-font-size: 14px;
- }
-.ossinputrdr { font-size:inherit;
- }
-.ossbuttonrdr { font-size:inherit;
- }
-#oss-login { float:right;}
-#ossautocomplete { margin: 0;
-cursor: pointer;
-padding-left:3px;
-padding-right:3px;
- }
-#ossautocompletelist { background-color: #FFFFFF;
-text-align: left;
-border-left: 1px solid #D3D3D3;
-border-bottom: 1px solid #D3D3D3;
-border-right: 1px solid #D3D3D3;
- }
-.ossautocomplete_link { color:#222222;
-background-color: #FFFFFF;
-padding: 2px 6px 2px 6px;
- }
-.ossautocomplete_link_over { color:#222222;
-background-color: #F5F5F5;
-padding: 2px 6px 2px 6px;
- }
-.ossnumfound { padding-bottom:10px;
-padding-top:10px;
- }
-.oss-paging { text-align: center;
- }
-.oss-facet { padding: 1em;
- }
-.ossfieldrdr1 { font-size:120%;
- }
-.ossfieldrdr3 { color: #0E774A;
- }
-</css>
-	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="uri" widgetName="TEXT" />
-	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" widgetName="TEXT"/>
-	<field fieldName="uri" fieldType="FIELD" urlFieldName="" widgetName="TEXT"/>
-	<field fieldName="uri" fieldType="FIELD" urlFieldName="uri" widgetName="TOOLS" />
+<renderer name="default-file" request="search"
+	searchButtonLabel="Search" noResultFoundText="No result found"
+	oneResultFoundText="1 result found" resultsFoundText="results found"
+	filenameField="url">
+	<css>.osscmnrdr { font-family: arial,sans-serif;
+		font-size: 14px;
+		}
+		.ossinputrdr { font-size:inherit;
+		}
+		.ossbuttonrdr { font-size:inherit;
+		}
+		#oss-login { float:right;}
+		#ossautocomplete { margin: 0;
+		cursor:
+		pointer;
+		padding-left:3px;
+		padding-right:3px;
+		}
+		#ossautocompletelist {
+		background-color: #FFFFFF;
+		text-align: left;
+		border-left: 1px solid
+		#D3D3D3;
+		border-bottom: 1px solid #D3D3D3;
+		border-right: 1px solid
+		#D3D3D3;
+		}
+		.ossautocomplete_link { color:#222222;
+		background-color:
+		#FFFFFF;
+		padding: 2px 6px 2px 6px;
+		}
+		.ossautocomplete_link_over {
+		color:#222222;
+		background-color: #F5F5F5;
+		padding: 2px 6px 2px 6px;
+		}
+		.ossnumfound { padding-bottom:10px;
+		padding-top:10px;
+		}
+		.oss-paging {
+		text-align: center;
+		}
+		.oss-facet { padding: 1em;
+		}
+		.ossfieldrdr1 {
+		font-size:120%;
+		}
+		.ossfieldrdr3 { color: #0E774A;
+		}
+	</css>
+	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url"
+		widgetName="TEXT" />
+	<field fieldName="fileName" fieldType="SNIPPET" urlFieldName="url"
+		widgetName="TEXT" replacePrevious="true" />
+	<field fieldName="content" fieldType="SNIPPET" widgetName="TEXT" />
+	<field fieldName="url" fieldType="FIELD" widgetName="TEXT" />
+	<field fieldName="url" fieldType="FIELD" urlFieldName="url"
+		widgetName="TOOLS" />
+	<filter publicName="Filter by date" fieldName="fileSystemDate"
+		filterType="DATE" replace="false">1.label=Any time
+		1.range=anytime
+		2.label=Past
+		24 hours
+		2.range=pastday
+		3.label=Past week
+		3.range=pastweek
+		4.label=Past
+		month
+		4.range=pastmonth
+		5.label=Past year
+		5.range=pastyear
+		dateformat=yyyyMMddHHmmssSSS
+	</filter>
+	<filter publicName="File type" fieldName="fileExtension"
+		filterType="FACET_MERGE" replace="false">casesensitive=true
+		regexp.1.find=ppt(.*)
+		regexp.1.replace=Powerpoint
+		1.label=Word
+		1.value1=DOC
+		1.value2=DOCX
+		2.label=PDF
+		2.value1=pdf
+		2.value2=PDF
+	</filter>
 </renderer>
