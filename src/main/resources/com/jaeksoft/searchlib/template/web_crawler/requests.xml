@@ -2,7 +2,7 @@
 
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -35,6 +35,10 @@
 			<searchField field="urlSplit" phrase="true" boost="5.0" />
 			<searchField field="urlExact" phrase="true" boost="5.0" />
 			<searchField field="urlPhonetic" phrase="true" boost="5.0" />
+			<searchField field="fileName" phrase="true" boost="10.0" />
+			<searchField field="fileNameExact" phrase="true" boost="10.0" />
+			<searchField field="fileNamePhonetic" phrase="true"
+				boost="10.0" />
 			<searchField field="full" phrase="true" boost="0.1" />
 			<searchField field="fullExact" phrase="true" boost="0.1" />
 			<searchField field="fullPhonetic" phrase="true" boost="0.1" />
@@ -48,6 +52,9 @@
 		<snippet>
 			<field name="title" tag="b" maxDocChar="2147483647" separator="..."
 				maxSnippetSize="200" maxSnippetNumber="1" fragmenterClass="NoFragmenter" />
+			<field name="fileName" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="NoFragmenter" />
 			<field name="content" tag="b" maxDocChar="2147483647"
 				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
 				fragmenterClass="SentenceFragmenter" />

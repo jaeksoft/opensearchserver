@@ -245,36 +245,78 @@
 			<field name="title" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="yes" />
+				stored="no" termVector="yes">
+				<copyOf field="title" />
+			</field>
 			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="title" />
+			</field>
 			<field name="content" analyzer="TextAnalyzer" indexed="yes"
 				stored="compress" termVector="positions_offsets" />
 			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="yes" />
+				stored="no" termVector="yes">
+				<copyOf field="content" />
+			</field>
 			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="yes" />
-			<field name="contentBaseType" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="full" analyzer="TextAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="content" />
+			</field>
 			<field name="url" indexed="yes" stored="no" termVector="no" />
 			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
-				termVector="no" />
+				termVector="no">
+				<copyOf field="url" />
+			</field>
 			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
-				termVector="no" />
+				termVector="no">
+				<copyOf field="url" />
+			</field>
 			<field name="urlPhonetic" indexed="yes" stored="no"
-				analyzer="PhoneticAnalyzer" termVector="no" />
+				analyzer="PhoneticAnalyzer" termVector="no">
+				<copyOf field="url" />
+			</field>
+			<field name="fileName" analyzer="TextAnalyzer" indexed="yes"
+				stored="yes" termVector="positions_offsets" />
+			<field name="fileNamePhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="fileName" />
+			</field>
+			<field name="fileNameExact" analyzer="StandardAnalyzer"
+				indexed="yes" stored="no">
+				<copyOf field="fileName" />
+			</field>
+			<field name="full" analyzer="TextAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="fileName" />
+			</field>
 			<field name="metaDescription" indexed="no" stored="compress" />
 			<field name="metaKeywords" indexed="no" stored="compress" />
 			<field name="host" indexed="yes" stored="no" termVector="no" />
 			<field name="subhost" indexed="yes" stored="no" />
-			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
+			<field name="contentBaseType" indexed="yes" stored="no"
+				termVector="no" />
 			<field name="backlinkCount" analyzer="IntegerAnalyzer" indexed="yes"
 				stored="no" termVector="no" />
 		</fields>

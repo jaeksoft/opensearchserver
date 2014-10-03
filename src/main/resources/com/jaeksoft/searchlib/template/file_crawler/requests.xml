@@ -2,7 +2,7 @@
 
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -21,6 +21,7 @@
 <!-- See the GNU General Public License for more details. -->
 
 <requests>
+
 	<request name="search" type="SearchFieldRequest" phraseSlop="2"
 		defaultOperator="AND" start="0" rows="10" lang="en">
 
@@ -31,7 +32,9 @@
 			<searchField field="content" phrase="true" boost="1.0" />
 			<searchField field="contentExact" phrase="true" boost="1.0" />
 			<searchField field="contentPhonetic" phrase="true" boost="1.0" />
-			<searchField field="uri" phrase="true" boost="5.0" />
+			<searchField field="urlSplit" phrase="true" boost="5.0" />
+			<searchField field="urlExact" phrase="true" boost="5.0" />
+			<searchField field="urlPhonetic" phrase="true" boost="5.0" />
 			<searchField field="fileName" phrase="true" boost="10.0" />
 			<searchField field="fileNameExact" phrase="true" boost="10.0" />
 			<searchField field="fileNamePhonetic" phrase="true"
@@ -42,17 +45,21 @@
 		</query>
 
 		<returnFields>
-			<field name="uri" />
+			<field name="url" />
 			<field name="fileSystemDate" />
 			<field name="fileType" />
 			<field name="fileSize" />
 		</returnFields>
 
 		<snippet>
+			<field name="title" tag="b" maxDocChar="2147483647" separator="..."
+				maxSnippetSize="200" maxSnippetNumber="1" fragmenterClass="NoFragmenter" />
 			<field name="fileName" tag="b" maxDocChar="2147483647"
-				separator="..." maxSnippetSize="200" fragmenterClass="NoFragmenter" />
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="NoFragmenter" />
 			<field name="content" tag="b" maxDocChar="2147483647"
-				separator="..." maxSnippetSize="200" fragmenterClass="SentenceFragmenter" />
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="SentenceFragmenter" />
 		</snippet>
 
 		<facetFields>

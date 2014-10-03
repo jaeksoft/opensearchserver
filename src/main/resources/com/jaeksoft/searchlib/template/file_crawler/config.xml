@@ -24,6 +24,7 @@
 			fieldCache="500" indexType="{indexType}" remoteURI="{remoteURI}" />
 	</indices>
 	<schema>
+
 		<analyzers>
 
 			<!-- Default standard analyzer -->
@@ -32,15 +33,15 @@
 				<filter class="ISOLatin1AccentFilter" />
 			</analyzer>
 
-			<!-- Default text analyser -->
-			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
-				<filter class="LowerCaseFilter" />
-			</analyzer>
-
 			<!-- Phonetic analyzer -->
 			<analyzer name="PhoneticAnalyzer" tokenizer="StandardTokenizer">
 				<filter class="LowerCaseFilter" />
 				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
+			</analyzer>
+
+			<!-- Default text analyser -->
+			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
 			</analyzer>
 
 			<!-- Arabic -->
@@ -239,44 +240,84 @@
 
 		</analyzers>
 
-		<fields default="content" unique="uri">
-			<!-- mandatory parameters -->
-			<field name="uri" indexed="yes" stored="no" />
-			<field name="directory" indexed="yes" stored="no" />
-			<field name="subDirectory" indexed="yes" stored="no" />
-			<field name="crawlDate" indexed="yes" stored="yes" />
+		<fields default="content" unique="url">
+			<field name="lang" indexed="yes" stored="no" termVector="no" />
+			<field name="title" analyzer="TextAnalyzer" indexed="yes"
+				stored="yes" termVector="positions_offsets" />
+			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="yes">
+				<copyOf field="title" />
+			</field>
+			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="title" />
+			</field>
+			<field name="content" analyzer="TextAnalyzer" indexed="yes"
+				stored="compress" termVector="positions_offsets" />
+			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="yes">
+				<copyOf field="content" />
+			</field>
+			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="content" />
+			</field>
+			<field name="url" indexed="yes" stored="no" termVector="no" />
+			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
+				termVector="no">
+				<copyOf field="url" />
+			</field>
+			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
+				termVector="no">
+				<copyOf field="url" />
+			</field>
+			<field name="urlPhonetic" indexed="yes" stored="no"
+				analyzer="PhoneticAnalyzer" termVector="no">
+				<copyOf field="url" />
+			</field>
 			<field name="fileName" analyzer="TextAnalyzer" indexed="yes"
 				stored="yes" termVector="positions_offsets" />
 			<field name="fileNamePhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="fileName" />
+			</field>
 			<field name="fileNameExact" analyzer="StandardAnalyzer"
-				indexed="yes" stored="no" />
+				indexed="yes" stored="no">
+				<copyOf field="fileName" />
+			</field>
+			<field name="full" analyzer="TextAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
+				stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="content" />
+				<copyOf field="fileName" />
+				<copyOf field="url" />
+			</field>
+			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
+				indexed="yes" stored="no" termVector="no">
+				<copyOf field="title" />
+				<copyOf field="fileName" />
+			</field>
+			<field name="directory" indexed="yes" stored="no" />
+			<field name="subDirectory" indexed="yes" stored="no" />
+			<field name="crawlDate" indexed="yes" stored="no" />
 			<field name="fileSystemDate" indexed="yes" stored="no" />
 			<field name="fileExtension" indexed="yes" stored="no" />
 			<field name="fileType" indexed="yes" stored="no" />
 			<field name="fileSize" indexed="yes" stored="no" analyzer="LongAnalyzer" />
-			<!-- mandatory parameters -->
-			<field name="lang" indexed="yes" stored="no" />
-			<field name="title" analyzer="TextAnalyzer" indexed="yes"
-				stored="yes" termVector="positions_offsets" />
-			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
-			<field name="content" analyzer="TextAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
-			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
-			<field name="full" analyzer="TextAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
-				stored="no" termVector="no" />
-			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
-				indexed="yes" stored="no" termVector="no" />
 			<field name="userAllow" indexed="yes" stored="no" />
 			<field name="userDeny" indexed="yes" stored="no" />
 			<field name="groupAllow" indexed="yes" stored="no" />
