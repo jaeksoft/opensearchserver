@@ -88,12 +88,11 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 		return sb.toString();
 	}
 
-	private Query getQuery(AbstractSearchRequest request)
+	private Query getQuery(AbstractSearchRequest request, AuthManager auth)
 			throws ParseException, IOException {
 		if (query != null)
 			return query;
 
-		AuthManager auth = request.getConfig().getAuthManager();
 		Collection<String> users = request.getUsers();
 		Collection<String> groups = request.getGroups();
 
@@ -136,7 +135,8 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	public FilterHits getFilterHits(SchemaField defaultField,
 			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException {
-		Query query = getQuery(request);
+		AuthManager auth = request.getConfig().getAuthManager();
+		Query query = getQuery(request, auth);
 		return new FilterHits(
 				getResult(request.getConfig(), query, null, timer),
 				isNegative(), timer);

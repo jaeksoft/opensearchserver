@@ -171,7 +171,8 @@ public abstract class CommonController implements EventInterface {
 		PushEvent.eventClientChange.publish();
 	}
 
-	public List<String> getIndexedFieldList() throws SearchLibException {
+	public List<String> getIndexedFieldList() throws SearchLibException,
+			IOException {
 		List<String> fields = new ArrayList<String>(0);
 		Client client = getClient();
 		if (client == null)
