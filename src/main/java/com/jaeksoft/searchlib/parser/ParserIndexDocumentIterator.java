@@ -44,7 +44,8 @@ public abstract class ParserIndexDocumentIterator implements
 
 	protected ParserIndexDocumentIterator(Parser parser,
 			FieldMap crawlItemFielMap) {
-		List<ParserResultItem> results = parser.getParserResults();
+		List<ParserResultItem> results = parser == null ? null : parser
+				.getParserResults();
 		resultIterator = results == null ? null : results.iterator();
 		this.crawlItemFielMap = crawlItemFielMap;
 	}

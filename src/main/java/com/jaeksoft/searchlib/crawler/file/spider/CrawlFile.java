@@ -103,6 +103,7 @@ public class CrawlFile {
 				}
 
 			} catch (MalformedURLException e) {
+				Logging.warn(e.toString() + " (" + fileItem.getUri() + ")", e);
 				fileItem.setFetchStatus(FetchStatus.ERROR);
 			} catch (FileNotFoundException e) {
 				fileItem.setFetchStatus(FetchStatus.GONE);

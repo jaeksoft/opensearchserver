@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -29,6 +29,12 @@
 					<checkbox checked="@bind(auth.manager.enabled)" />
 					<label
 						value="Enable the authentication. Every search requests will be filtered." />
+				</row>
+				<row>
+					<label value="Index: " />
+					<combobox model="@load(auth.indexList)" cols="30"
+						value="@bind(auth.manager.index)" onChange="@command('reload')" />
+					<label value="The index containing the rights" />
 				</row>
 				<row>
 					<label value="User allow field: " />
