@@ -135,6 +135,10 @@ public abstract class StreamLimiter implements Closeable {
 		for (File tmpFile : tempFiles)
 			tmpFile.delete();
 		tempFiles.clear();
+		if (outputCache != null) {
+			outputCache.close();
+			outputCache = null;
+		}
 	}
 
 	protected File getTempFile(String extension) throws IOException {
