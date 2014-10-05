@@ -54,6 +54,8 @@ public class AuthManager implements UpdateInterfaces.Before {
 
 	private boolean enabled = false;
 
+	private String index = null;
+
 	private String userAllowField = null;
 
 	private String groupAllowField = null;
@@ -69,6 +71,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 	private final static String AUTH_CONFIG_FILENAME = "auth.xml";
 	private final static String AUTH_ITEM_ROOT_NODE = "auth";
 	private final static String AUTH_ATTR_ENABLED = "enabled";
+	private final static String AUTH_ATTR_INDEX = "index";
 	private final static String AUTH_ATTR_USER_ALLOW_FIELD = "userAllowField";
 	private final static String AUTH_ATTR_USER_DENY_FIELD = "userDenyField";
 	private final static String AUTH_ATTR_GROUP_ALLOW_FIELD = "groupAllowField";
@@ -88,6 +91,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 			return;
 		enabled = DomUtils.getAttributeBoolean(authNode, AUTH_ATTR_ENABLED,
 				false);
+		index = DomUtils.getAttributeText(authNode, AUTH_ATTR_INDEX);
 		userAllowField = DomUtils.getAttributeText(authNode,
 				AUTH_ATTR_USER_ALLOW_FIELD);
 		userDenyField = DomUtils.getAttributeText(authNode,
@@ -248,6 +252,31 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
+	 * @return the index
+	 */
+	public String getIndex() {
+		rwl.r.lock();
+		try {
+			return index;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * @param index
+	 *            the index to set
+	 */
+	public void setIndex(String index) {
+		rwl.w.lock();
+		try {
+			this.index = index;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	/**
 	 * @return the defaultUser
 	 */
 	public String getDefaultUser() {
@@ -311,8 +340,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 			pw = new PrintWriter(authFile, "UTF-8");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement(AUTH_ITEM_ROOT_NODE, AUTH_ATTR_ENABLED,
-					Boolean.toString(enabled), AUTH_ATTR_USER_ALLOW_FIELD,
-					userAllowField, AUTH_ATTR_USER_DENY_FIELD, userDenyField,
+					Boolean.toString(enabled), AUTH_ATTR_INDEX, index,
+					AUTH_ATTR_USER_ALLOW_FIELD, userAllowField,
+					AUTH_ATTR_USER_DENY_FIELD, userDenyField,
 					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField,
 					AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
 					AUTH_ATTR_DEFAULT_USER, defaultUser,
