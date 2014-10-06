@@ -28,6 +28,8 @@ public enum AuthPluginEnum {
 
 	NO_AUTH("No authentication", null),
 
+	HTTP_HEADER("HTTP Header", AuthPluginHttpHeader.class),
+
 	NTLM("NTLM", AuthPluginNtlm.class),
 
 	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class);
