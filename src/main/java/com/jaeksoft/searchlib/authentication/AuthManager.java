@@ -368,6 +368,8 @@ public class AuthManager implements UpdateInterfaces.Before {
 		try {
 			if (!enabled)
 				return;
+			if (isJoin_noLock())
+				return;
 			if (!StringUtils.isEmpty(defaultUser)
 					&& !StringUtils.isEmpty(userAllowField)) {
 				if (!document.hasContent(userAllowField))
@@ -383,9 +385,24 @@ public class AuthManager implements UpdateInterfaces.Before {
 		}
 	}
 
+	final private boolean isJoin_noLock() {
+		if (index == null)
+			return false;
+		return !index.equals(config.getIndexName());
+	}
+
+	final public boolean isJoin() {
+		rwl.r.lock();
+		try {
+			return isJoin_noLock();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	final public void apply(final AbstractSearchRequest searchRequest)
 			throws SearchLibException, IOException {
-		if (index == null || index.equals(config.getIndexName()))
+		if (!isJoin())
 			searchRequest.getFilterList().addAuthFilter();
 		else
 			searchRequest.getJoinList().addAuthJoin();
