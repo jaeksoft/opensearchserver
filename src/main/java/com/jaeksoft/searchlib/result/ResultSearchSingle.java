@@ -92,8 +92,8 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			JoinList joinList = searchRequest.getJoinList();
 			joinResults = new JoinResult[joinList.size()];
 			Timer t = new Timer(joinTimer, "join - apply");
-			notCollapsedDocs = joinList.apply(reader, notCollapsedDocs,
-					joinResults, t);
+			notCollapsedDocs = joinList.apply(searchRequest, reader,
+					notCollapsedDocs, joinResults, t);
 			t.getDuration();
 			t = new Timer(joinTimer, "join - sort");
 			if (sortFieldList != null) {

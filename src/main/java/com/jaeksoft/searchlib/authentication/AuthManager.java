@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.UpdateInterfaces;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -47,6 +48,8 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AuthManager implements UpdateInterfaces.Before {
+
+	private final Config config;
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -81,6 +84,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 
 	public AuthManager(Config config, File indexDir) throws SAXException,
 			IOException, ParserConfigurationException {
+		this.config = config;
 		authFile = new File(indexDir, AUTH_CONFIG_FILENAME);
 		if (!authFile.exists())
 			return;
@@ -364,6 +368,8 @@ public class AuthManager implements UpdateInterfaces.Before {
 		try {
 			if (!enabled)
 				return;
+			if (isJoin_noLock())
+				return;
 			if (!StringUtils.isEmpty(defaultUser)
 					&& !StringUtils.isEmpty(userAllowField)) {
 				if (!document.hasContent(userAllowField))
@@ -377,5 +383,28 @@ public class AuthManager implements UpdateInterfaces.Before {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	final private boolean isJoin_noLock() {
+		if (index == null)
+			return false;
+		return !index.equals(config.getIndexName());
+	}
+
+	final public boolean isJoin() {
+		rwl.r.lock();
+		try {
+			return isJoin_noLock();
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public void apply(final AbstractSearchRequest searchRequest)
+			throws SearchLibException, IOException {
+		if (!isJoin())
+			searchRequest.getFilterList().addAuthFilter();
+		else
+			searchRequest.getJoinList().addAuthJoin();
 	}
 }

@@ -162,6 +162,12 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
+	public void init(Config config) {
+		super.init(config);
+		joinList.init(config);
+	}
+
+	@Override
 	public void copyFrom(AbstractRequest request) {
 		super.copyFrom(request);
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
@@ -1267,8 +1273,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		try {
 			AuthManager authManager = config.getAuthManager();
 			if (authManager.isEnabled()
-					&& !(this instanceof SearchFilterRequest))
-				getFilterList().addAuthFilter();
+					&& !(this instanceof SearchFilterRequest)) {
+				authManager.apply(this);
+			}
 			return new ResultSearchSingle((ReaderAbstract) reader, this);
 		} catch (IOException e) {
 			throw new SearchLibException(e);

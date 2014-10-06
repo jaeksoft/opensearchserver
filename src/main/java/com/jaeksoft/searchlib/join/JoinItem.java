@@ -353,14 +353,14 @@ public class JoinItem implements Comparable<JoinItem> {
 		this.type = type;
 	}
 
-	private final Client getFogeignClient() throws SearchLibException {
+	protected final Client getFogeignClient() throws SearchLibException {
 		Client foreignClient = ClientCatalog.getClient(indexName);
 		if (foreignClient == null)
 			throw new SearchLibException("No client found: " + indexName);
 		return foreignClient;
 	}
 
-	private final AbstractSearchRequest getForeignSearchRequest(
+	protected AbstractSearchRequest getForeignSearchRequest(
 			final Client foreignClient) throws SearchLibException {
 		AbstractRequest foreignRequest = StringUtils.isEmpty(queryTemplate) ? new SearchFieldRequest(
 				foreignClient) : foreignClient.getNewRequest(queryTemplate);
@@ -374,16 +374,17 @@ public class JoinItem implements Comparable<JoinItem> {
 		return (AbstractSearchRequest) foreignRequest;
 	}
 
-	private final void lasyLoadForeignSearchRequest() throws SearchLibException {
+	private final void lazyLoadForeignSearchRequest() throws SearchLibException {
 		if (foreignClient == null)
 			foreignClient = getFogeignClient();
 		if (foreignSearchRequest == null)
 			foreignSearchRequest = getForeignSearchRequest(foreignClient);
 	}
 
-	public DocIdInterface apply(ReaderAbstract reader, DocIdInterface docs,
-			int joinResultSize, JoinResult joinResult,
-			List<JoinFacet> joinFacets, Timer timer) throws SearchLibException {
+	public DocIdInterface apply(AbstractSearchRequest searchRequest,
+			ReaderAbstract reader, DocIdInterface docs, int joinResultSize,
+			JoinResult joinResult, List<JoinFacet> joinFacets, Timer timer)
+			throws SearchLibException {
 		try {
 			FieldCacheIndex localStringIndex = reader
 					.getStringIndex(localField);
@@ -391,9 +392,11 @@ public class JoinItem implements Comparable<JoinItem> {
 				throw new SearchLibException(
 						"No string index found for the local field: "
 								+ localField);
-			lasyLoadForeignSearchRequest();
+			lazyLoadForeignSearchRequest();
 			foreignSearchRequest.setStart(0);
 			foreignSearchRequest.setRows(0);
+			foreignSearchRequest.setUsers(searchRequest.getUsers());
+			foreignSearchRequest.setGroups(searchRequest.getGroups());
 			foreignSearchRequest.setQueryString(queryString);
 			for (FilterAbstract<?> filter : filterList)
 				foreignSearchRequest.getFilterList().add(filter);
@@ -438,7 +441,7 @@ public class JoinItem implements Comparable<JoinItem> {
 			setQueryString(q);
 		myPrefix = StringUtils.fastConcat(myPrefix, ".");
 		filterList.addFromServlet(transaction, myPrefix);
-		lasyLoadForeignSearchRequest();
+		lazyLoadForeignSearchRequest();
 		foreignSearchRequest.setFromServlet(transaction, myPrefix);
 	}
 
