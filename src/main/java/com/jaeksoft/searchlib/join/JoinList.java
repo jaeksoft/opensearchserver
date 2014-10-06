@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.join;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -99,9 +101,9 @@ public class JoinList implements Iterable<JoinItem> {
 		joinList.add(new JoinItem(xpp, node));
 	}
 
-	public DocIdInterface apply(ReaderAbstract reader,
-			DocIdInterface collector, JoinResult[] joinResults, Timer timer)
-			throws SearchLibException {
+	public DocIdInterface apply(AbstractSearchRequest searchRequest,
+			ReaderAbstract reader, DocIdInterface collector,
+			JoinResult[] joinResults, Timer timer) throws SearchLibException {
 		int joinItemSize = joinList.size();
 		int joinItemPos = 0;
 		List<JoinFacet> facetList = new ArrayList<JoinFacet>(0);
@@ -109,8 +111,8 @@ public class JoinList implements Iterable<JoinItem> {
 			JoinResult joinResult = new JoinResult(joinItemPos++,
 					joinItem.getParamPosition(), joinItem.isReturnFields());
 			joinResults[joinResult.joinPosition] = joinResult;
-			collector = joinItem.apply(reader, collector, joinItemSize,
-					joinResult, facetList, timer);
+			collector = joinItem.apply(searchRequest, reader, collector,
+					joinItemSize, joinResult, facetList, timer);
 		}
 		for (JoinFacet joinFacet : facetList)
 			joinFacet.apply(collector, timer);
@@ -129,6 +131,18 @@ public class JoinList implements Iterable<JoinItem> {
 		if (pos < 0 || pos >= joinList.size())
 			throw new SearchLibException("Wrong join parameter (" + pos + ")");
 		joinList.get(pos).setParam(param);
+	}
+
+	public void addAuthJoin() throws SearchLibException, IOException {
+		if (joinList != null)
+			for (JoinItem item : joinList)
+				if (item instanceof AuthJoinItem)
+					return;
+		add(new AuthJoinItem(config));
+	}
+
+	public void init(Config config) {
+		this.config = config;
 	}
 
 }

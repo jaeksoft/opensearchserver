@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.index.UpdateInterfaces;
+import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -47,6 +48,8 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class AuthManager implements UpdateInterfaces.Before {
+
+	private final Config config;
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -81,6 +84,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 
 	public AuthManager(Config config, File indexDir) throws SAXException,
 			IOException, ParserConfigurationException {
+		this.config = config;
 		authFile = new File(indexDir, AUTH_CONFIG_FILENAME);
 		if (!authFile.exists())
 			return;
@@ -377,5 +381,13 @@ public class AuthManager implements UpdateInterfaces.Before {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	final public void apply(final AbstractSearchRequest searchRequest)
+			throws SearchLibException, IOException {
+		if (index == null || index.equals(config.getIndexName()))
+			searchRequest.getFilterList().addAuthFilter();
+		else
+			searchRequest.getJoinList().addAuthJoin();
 	}
 }
