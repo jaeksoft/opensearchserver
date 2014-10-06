@@ -148,7 +148,7 @@ public abstract class AbstractRequest {
 		return requestType;
 	}
 
-	final public void init(Config config) {
+	public void init(Config config) {
 		rwl.w.lock();
 		try {
 			this.config = config;
