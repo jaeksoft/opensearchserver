@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,10 +38,17 @@ import javax.ws.rs.core.UriInfo;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 
-@Path("/index/{index_name}/analyzer/{analyzer_name}")
+@Path("/index/{index_name}/analyzer")
 public interface RestAnalyzer {
 
 	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public AnalyzerListResult list(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index_name,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@GET
+	@Path("/{analyzer_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public AnalyzerResult test(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index_name,
@@ -52,6 +59,7 @@ public interface RestAnalyzer {
 			@QueryParam("text") String text);
 
 	@POST
+	@Path("/{analyzer_name}")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public AnalyzerResult testPost(@Context UriInfo uriInfo,

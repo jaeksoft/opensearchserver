@@ -44,6 +44,21 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 
 	@Override
+	public AnalyzerListResult list(UriInfo uriInfo, String index, String login,
+			String key) {
+		try {
+			Client client = getLoggedClient(uriInfo, index, login, key,
+					Role.INDEX_QUERY);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return new AnalyzerListResult(client.getSchema().getAnalyzerList());
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
 	public AnalyzerResult test(UriInfo uriInfo, String index, String login,
 			String key, String name, LanguageEnum lang, FilterScope scope,
 			String text) {
