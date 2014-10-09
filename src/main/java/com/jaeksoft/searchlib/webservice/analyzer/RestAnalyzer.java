@@ -27,6 +27,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @Path("/index/{index_name}/analyzer")
 public interface RestAnalyzer {
@@ -51,6 +53,14 @@ public interface RestAnalyzer {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("analyzer_name") String analyzer_name,
 			@PathParam("lang") LanguageEnum language);
+
+	@PUT
+	@Path("/{analyzer_name}/lang/{lang}")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public CommonResult put(@PathParam("index_name") String index_name,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("analyzer_name") String analyzer_name,
+			@PathParam("lang") LanguageEnum language, AnalyzerItem analyzer);
 
 	@GET
 	@Path("/{analyzer_name}")
