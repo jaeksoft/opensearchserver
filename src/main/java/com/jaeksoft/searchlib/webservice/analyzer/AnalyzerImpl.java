@@ -34,11 +34,13 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
+import com.jaeksoft.searchlib.analysis.AnalyzerList;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
@@ -101,6 +103,31 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult put(String index, String login, String key,
+			String name, LanguageEnum language, AnalyzerItem analyzer) {
+		try {
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_SCHEMA);
+			ClientFactory.INSTANCE.properties.checkApi();
+			AnalyzerList analyzerList = client.getSchema().getAnalyzerList();
+			boolean created = analyzerList.add(analyzer.get(client, name,
+					language));
+			client.saveConfig();
+			CommonResult result = new CommonResult(true, null);
+			result.addDetail("transaction", created ? "created" : "updated");
+			return result;
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (ClassNotFoundException e) {
 			throw new CommonServiceException(e);
 		}
 	}

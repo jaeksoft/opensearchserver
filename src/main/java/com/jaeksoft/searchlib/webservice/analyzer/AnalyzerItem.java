@@ -31,26 +31,31 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.ClassFactory;
 import com.jaeksoft.searchlib.analysis.ClassProperty;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.FilterScope;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.tokenizer.TokenizerFactory;
+import com.jaeksoft.searchlib.config.Config;
 
 @JsonInclude(Include.NON_NULL)
 public class AnalyzerItem {
 
-	public final String name;
-	public final LanguageEnum lang;
 	public final ClassFactoryItem queryTokenizer;
 	public final ClassFactoryItem indexTokenizer;
 	public final List<ClassFactoryItem> filters;
 
+	public AnalyzerItem() {
+		queryTokenizer = null;
+		indexTokenizer = null;
+		filters = null;
+	}
+
 	public AnalyzerItem(Analyzer analyzer, boolean listOnly) {
-		this.name = analyzer.getName();
-		this.lang = analyzer.getLang();
 		if (listOnly) {
 			queryTokenizer = null;
 			indexTokenizer = null;
@@ -81,6 +86,12 @@ public class AnalyzerItem {
 		public final Map<String, Object> properties;
 		public final FilterScope scope;
 
+		public ClassFactoryItem() {
+			name = null;
+			properties = null;
+			scope = null;
+		}
+
 		public ClassFactoryItem(ClassFactory classFactory, FilterScope scope) {
 			this.name = classFactory.getClassName();
 			this.scope = scope;
@@ -95,6 +106,60 @@ public class AnalyzerItem {
 						prop.getValue());
 		}
 
+		private void applyProperties(ClassFactory classFactory)
+				throws SearchLibException {
+			if (properties == null)
+				return;
+			for (Map.Entry<String, Object> entry : properties.entrySet()) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if (value == null)
+					continue;
+				ClassPropertyEnum classPropertyEnum = ClassPropertyEnum
+						.valueOf(key);
+				if (classPropertyEnum == null)
+					throw new SearchLibException("Property not found: " + key);
+				ClassProperty classProperty = classFactory
+						.getProperty(classPropertyEnum);
+				if (classProperty == null)
+					throw new SearchLibException(
+							"This property is not supported: " + key);
+				classProperty.setValue(value.toString());
+			}
+		}
+
+		private TokenizerFactory getTokenizerFactory(Config config)
+				throws SearchLibException, ClassNotFoundException {
+			TokenizerFactory tokenizer = TokenizerFactory.create(config, name);
+			applyProperties(tokenizer);
+			return tokenizer;
+		}
+
+		public FilterFactory getFilterFactory(Config config)
+				throws SearchLibException, ClassNotFoundException {
+			FilterFactory filter = FilterFactory.create(config, name);
+			if (scope != null)
+				filter.setScope(scope);
+			applyProperties(filter);
+			return filter;
+		}
+
 	}
 
+	public Analyzer get(Config config, String name, LanguageEnum language)
+			throws SearchLibException, ClassNotFoundException {
+		Analyzer analyzer = new Analyzer(config);
+		analyzer.setName(name);
+		analyzer.setLang(language);
+		if (queryTokenizer != null)
+			analyzer.setQueryTokenizer(queryTokenizer
+					.getTokenizerFactory(config));
+		if (indexTokenizer != null)
+			analyzer.setIndexTokenizer(indexTokenizer
+					.getTokenizerFactory(config));
+		if (filters != null)
+			for (ClassFactoryItem filter : filters)
+				analyzer.add(filter.getFilterFactory(config));
+		return analyzer;
+	}
 }
