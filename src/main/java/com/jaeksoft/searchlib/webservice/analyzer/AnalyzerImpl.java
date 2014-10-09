@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Status;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -56,7 +58,21 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 	}
 
 	@Override
-	public AnalyzerResult test(String index, String login, String key,
+	public AnalyzerResult get(String index, String login, String key,
+			String name, LanguageEnum lang) {
+		try {
+			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return new AnalyzerResult(getAnalyzer(client, name, lang));
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public AnalyzerTestResult test(String index, String login, String key,
 			String name, LanguageEnum lang, FilterScope scope, String text) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
@@ -79,7 +95,7 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 				throw new CommonServiceException("No compiled analyzer");
 			List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>(0);
 			compiledAnalyzer.populate(text, tokenTerms);
-			return new AnalyzerResult(tokenTerms);
+			return new AnalyzerTestResult(tokenTerms);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -89,17 +105,18 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 		}
 	}
 
-	private Analyzer getAnalyzer(Client client, String name, LanguageEnum lang)
-			throws SearchLibException {
+	private static final Analyzer getAnalyzer(Client client, String name,
+			LanguageEnum lang) {
 		Analyzer analyzer = client.getSchema().getAnalyzerList()
 				.get(name, lang);
 		if (analyzer == null)
-			throw new CommonServiceException("Analyzer " + name + " not found");
+			throw new CommonServiceException(Status.NOT_FOUND, "Analyzer "
+					+ name + " not found");
 		return analyzer;
 	}
 
 	@Override
-	public AnalyzerResult testPost(String index, String login, String key,
+	public AnalyzerTestResult testPost(String index, String login, String key,
 			String name, LanguageEnum lang, FilterScope scope, String text) {
 		return test(index, login, key, name, lang, scope, text);
 	}
