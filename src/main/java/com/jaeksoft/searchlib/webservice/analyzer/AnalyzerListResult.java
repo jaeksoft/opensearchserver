@@ -24,22 +24,60 @@
 
 package com.jaeksoft.searchlib.webservice.analyzer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.analysis.Analyzer;
+import com.jaeksoft.searchlib.analysis.AnalyzerList;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class AnalyzerResult extends CommonResult {
+public class AnalyzerListResult extends CommonResult {
 
-	public AnalyzerItem analyzer;
+	public final List<AnalyzerListItem> analyzers;
 
-	public AnalyzerResult(Analyzer analyzer) {
+	AnalyzerListResult(AnalyzerList analyzerList) {
 		super(true, null);
-		this.analyzer = new AnalyzerItem(analyzer, false);
+		if (analyzerList == null) {
+			analyzers = null;
+			addDetail("count", 0);
+			return;
+		}
+		List<String> nameSet = analyzerList.getNameSet();
+		if (nameSet == null) {
+			analyzers = null;
+			addDetail("count", 0);
+			return;
+		}
+		analyzers = new ArrayList<AnalyzerListItem>();
+		for (String name : nameSet) {
+			List<Analyzer> aList = analyzerList.get(name);
+			if (aList == null)
+				continue;
+			for (Analyzer analyzer : aList)
+				analyzers.add(new AnalyzerListItem(analyzer));
+		}
+		addDetail("count", analyzers.size());
 	}
 
+	@JsonInclude(Include.NON_NULL)
+	public static class AnalyzerListItem {
+
+		public final String name;
+		public final LanguageEnum lang;
+
+		public AnalyzerListItem(Analyzer analyzer) {
+			this.name = analyzer.getName();
+			this.lang = analyzer.getLang();
+		}
+
+	}
 }

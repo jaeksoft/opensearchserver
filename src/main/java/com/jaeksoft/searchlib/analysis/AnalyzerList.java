@@ -67,6 +67,12 @@ public class AnalyzerList {
 		return getAnalyzerLangKey(analyzer.getName(), analyzer.getLang());
 	}
 
+	/**
+	 * Update or create an analyzer
+	 * 
+	 * @param analyzer
+	 * @return true if it has been created, false if it was an update
+	 */
 	public boolean add(Analyzer analyzer) {
 		rwl.w.lock();
 		try {
@@ -76,8 +82,7 @@ public class AnalyzerList {
 				nameListMap.put(analyzer.getName(), alist);
 			}
 			alist.add(analyzer);
-			nameLangMap.put(getAnalyzerLangKey(analyzer), analyzer);
-			return true;
+			return nameLangMap.put(getAnalyzerLangKey(analyzer), analyzer) == null;
 		} finally {
 			rwl.w.unlock();
 		}
