@@ -48,9 +48,18 @@ public interface RestAnalyzer {
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET
+	@Path("/{analyzer_name}/lang/{lang}")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public AnalyzerResult get(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index_name,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("analyzer_name") String analyzer_name,
+			@PathParam("lang") LanguageEnum language);
+
+	@GET
 	@Path("/{analyzer_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public AnalyzerResult test(@Context UriInfo uriInfo,
+	public AnalyzerTestResult test(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index_name,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("analyzer_name") String analyzer_name,
@@ -62,7 +71,7 @@ public interface RestAnalyzer {
 	@Path("/{analyzer_name}")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public AnalyzerResult testPost(@Context UriInfo uriInfo,
+	public AnalyzerTestResult testPost(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index_name,
 			@FormParam("login") String login, @FormParam("key") String key,
 			@PathParam("analyzer_name") String analyzer_name,

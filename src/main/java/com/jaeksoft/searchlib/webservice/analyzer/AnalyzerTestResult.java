@@ -21,24 +21,31 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.webservice.analyzer;
 
-import javax.jws.WebParam;
-import javax.jws.WebService;
+import java.util.List;
 
-import com.jaeksoft.searchlib.analysis.FilterScope;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-@WebService(name = "Analyzer")
-public interface SoapAnalyzer {
+import com.jaeksoft.searchlib.analysis.TokenTerm;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
-	public AnalyzerTestResult test(@WebParam(name = "index") String index,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "name") String name,
-			@WebParam(name = "lang") LanguageEnum language,
-			@WebParam(name = "scope") FilterScope scope,
-			@WebParam(name = "text") String text);
+@XmlRootElement(name = "result")
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+public class AnalyzerTestResult extends CommonResult {
 
+	public List<TokenTerm> token = null;
+
+	public AnalyzerTestResult() {
+	}
+
+	public AnalyzerTestResult(boolean successful, String info) {
+		super(successful, info);
+	}
+
+	public AnalyzerTestResult(List<TokenTerm> tokenTerms) {
+		this.token = tokenTerms;
+	}
 }

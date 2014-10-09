@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,31 +21,25 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.analyzer;
 
-import java.util.List;
+package com.jaeksoft.searchlib.webservice.analyzer;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.analysis.TokenTerm;
+import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class AnalyzerResult extends CommonResult {
 
-	public List<TokenTerm> token = null;
+	public AnalyzerItem analyzer;
 
-	public AnalyzerResult() {
+	public AnalyzerResult(Analyzer analyzer) {
+		super(true, null);
+		this.analyzer = new AnalyzerItem(analyzer, false);
 	}
 
-	public AnalyzerResult(boolean successful, String info) {
-		super(successful, info);
-	}
-
-	public AnalyzerResult(List<TokenTerm> tokenTerms) {
-		this.token = tokenTerms;
-	}
 }
