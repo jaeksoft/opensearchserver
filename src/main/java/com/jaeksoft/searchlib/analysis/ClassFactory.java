@@ -105,7 +105,7 @@ public abstract class ClassFactory {
 			checkValue(prop.getClassPropertyEnum(), prop.getValue());
 	}
 
-	protected ClassProperty getProperty(ClassPropertyEnum prop) {
+	public ClassProperty getProperty(ClassPropertyEnum prop) {
 		return properties.get(prop);
 	}
 
