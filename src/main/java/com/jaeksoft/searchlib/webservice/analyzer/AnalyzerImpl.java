@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,19 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 		RestAnalyzer {
+
+	@Override
+	public AnalyzerListResult list(String index, String login, String key) {
+		try {
+			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return new AnalyzerListResult(client.getSchema().getAnalyzerList());
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 
 	@Override
 	public AnalyzerResult test(String index, String login, String key,
