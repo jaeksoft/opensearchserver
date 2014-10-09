@@ -37,36 +37,36 @@ The analyzer is returned either in JSON or in XML format
         },
         indexTokenizer: {
           name: "LetterOrDigitTokenizerFactory",
-        properties: {
-          charArrayToken: ""
-        }
-      },
-      filters: [
-        {
-          name: "ShingleFilter",
           properties: {
-            max_shingle_size: "3",
-            token_separator: " ",
-            min_shingle_size: "1"
+            charArrayToken: ""
+          }
+        },
+        filters: [
+          {
+            name: "ShingleFilter",
+            properties: {
+              max_shingle_size: "3",
+              token_separator: " ",
+              min_shingle_size: "1"
+            },
+            scope: "QUERY"
           },
-          scope: "QUERY"
-        },
-        {
-          name: "RemoveTokenTypeFilter",
-          properties: {
-            token_type: "shingle"
+          {
+            name: "RemoveTokenTypeFilter",
+            properties: {
+              token_type: "shingle"
+            },
+            scope: "QUERY"
           },
-          scope: "QUERY"
-        },
-        {
-          name: "LowerCaseFilter",
-          scope: "QUERY_INDEX"
-        },
-        {
-          name: "ISOLatin1AccentFilter",
-          scope: "QUERY_INDEX"
-        }
-      ]
+          {
+            name: "LowerCaseFilter",
+            scope: "QUERY_INDEX"
+          },
+          {
+            name: "ISOLatin1AccentFilter",
+            scope: "QUERY_INDEX"
+          }
+        ]
       }
     }
 
@@ -79,7 +79,7 @@ The analyzer was not returned. The reason is provided in the content.
 
 **Content (text/plain):**
     
-    Template not found: my_search
+    Analyzer myAnalyzer not found
     
 
 ### Sample call
