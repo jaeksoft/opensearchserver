@@ -113,10 +113,11 @@ public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 	}
 
 	@Override
-	public CommonResult put(String index, String login, String key,
-			String name, LanguageEnum language, AnalyzerItem analyzer) {
+	public CommonResult put(UriInfo uriInfo, String index, String login,
+			String key, String name, LanguageEnum language,
+			AnalyzerItem analyzer) {
 		try {
-			Client client = getLoggedClient(index, login, key,
+			Client client = getLoggedClient(uriInfo, index, login, key,
 					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AnalyzerList analyzerList = client.getSchema().getAnalyzerList();

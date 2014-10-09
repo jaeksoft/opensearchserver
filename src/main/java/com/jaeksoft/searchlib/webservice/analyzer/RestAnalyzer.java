@@ -61,7 +61,8 @@ public interface RestAnalyzer {
 	@PUT
 	@Path("/{analyzer_name}/lang/{lang}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult put(@PathParam("index_name") String index_name,
+	public CommonResult put(@Context UriInfo uriInfo,
+			@PathParam("index_name") String index_name,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("analyzer_name") String analyzer_name,
 			@PathParam("lang") LanguageEnum language, AnalyzerItem analyzer);
