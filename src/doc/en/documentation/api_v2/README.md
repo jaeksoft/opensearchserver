@@ -7,6 +7,7 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 * [Document](document/README.md): insert and delete records.
 * [Field](field/README.md): manage the schema.
 * [Index](index/README.md): create, list, delete indexes.
+* [Analyzers](analyzers/README.md): create, list, delete analyzers.
 * [More Like This](more-like-this/README.md)
 * [Search template](search_template/README.md)
 * [Searching using fields](searching_using_fields/README.md)
