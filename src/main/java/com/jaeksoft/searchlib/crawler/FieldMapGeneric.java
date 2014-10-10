@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,7 @@ import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserSelector;
@@ -152,6 +153,33 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 	}
 
 	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
+			ParserSelector parserSelector, LanguageEnum lang, FieldContent fc,
+			CommonFieldTarget targetField, IndexDocument target)
+			throws IOException, SearchLibException, ParseException,
+			SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, InstantiationException,
+			IllegalAccessException {
+		if (fc == null)
+			return;
+		for (FieldValueItem fvi : fc.getValues())
+			mapFieldTarget(webCrawlMaster, parserSelector, lang, targetField,
+					fvi.value, target);
+	}
+
+	final public String mapFieldTarget(CommonFieldTarget dfTarget,
+			String content) {
+		if (StringUtils.isEmpty(content))
+			return null;
+		if (dfTarget.isConvertHtmlEntities())
+			content = StringEscapeUtils.unescapeHtml(content);
+		if (dfTarget.isRemoveTag())
+			content = StringUtils.removeTag(content);
+		if (dfTarget.hasRegexpPattern())
+			content = dfTarget.applyRegexPattern(content);
+		return content;
+	}
+
+	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, LanguageEnum lang,
 			CommonFieldTarget dfTarget, String content, IndexDocument target)
 			throws SearchLibException, IOException, ParseException,
@@ -186,13 +214,9 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 					target.add(targetIndexDocument);
 			}
 		}
-		if (dfTarget.isConvertHtmlEntities())
-			content = StringEscapeUtils.unescapeHtml(content);
-		if (dfTarget.isRemoveTag())
-			content = StringUtils.removeTag(content);
-		if (dfTarget.hasRegexpPattern())
-			content = dfTarget.applyRegexPattern(content);
+		content = mapFieldTarget(dfTarget, content);
 		target.add(dfTarget.getName(), new FieldValueItem(
 				FieldValueOriginEnum.EXTERNAL, content));
+
 	}
 }
