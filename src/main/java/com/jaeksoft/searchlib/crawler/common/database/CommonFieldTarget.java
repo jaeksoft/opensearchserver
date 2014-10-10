@@ -280,4 +280,5 @@ public class CommonFieldTarget extends TargetField {
 	public boolean isNotCrawlUrl() {
 		return !crawlUrl;
 	}
+
 }

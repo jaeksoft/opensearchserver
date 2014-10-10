@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class MailboxAbstractCrawler {
 
@@ -121,12 +122,19 @@ public abstract class MailboxAbstractCrawler {
 				folder.fetch(messages, fp);
 				for (Message message : messages) {
 					i++;
+					String messageId = getMessageId(folder, message);
+					if (StringUtils.isEmpty(messageId))
+						continue;
+					if (thread.isAlreadyIndexed(messageId)) {
+						thread.incIgnored();
+						continue;
+					}
 					IndexDocument document = new IndexDocument(item.getLang());
 					document.addString(MailboxFieldEnum.folder.name(),
 							folderFullName);
 					try {
-						if (readMessage(document, folder, message))
-							thread.addDocument(document, null);
+						readMessage(document, folder, message, messageId);
+						thread.addDocument(document, null);
 					} catch (Exception e) {
 						Logging.warn(e);
 						thread.incError();
@@ -137,6 +145,9 @@ public abstract class MailboxAbstractCrawler {
 			folder.close(false);
 		}
 	}
+
+	protected abstract String getMessageId(Folder folder, Message message)
+			throws MessagingException;
 
 	protected void readFolder(Folder folder) throws MessagingException,
 			IOException, SearchLibException {
@@ -198,6 +209,7 @@ public abstract class MailboxAbstractCrawler {
 
 	private void doMultipart(Message message) throws IOException,
 			MessagingException {
+		System.out.println("IS MULTIPART " + message.getContentType());
 		Multipart multipart = (Multipart) message.getContent();
 		for (int j = 0; j < multipart.getCount(); j++) {
 			BodyPart bodyPart = multipart.getBodyPart(j);
@@ -205,15 +217,16 @@ public abstract class MailboxAbstractCrawler {
 			if (disposition != null
 					&& (disposition.equalsIgnoreCase("ATTACHMENT"))) {
 				DataHandler handler = bodyPart.getDataHandler();
-				;// System.out.println("Attachment : " + handler.getName());
+				System.out.println("Attachment : " + handler.getName());
 			} else {
-				;// System.out.println("Body: " + bodyPart.getContentType());
+				System.out.println("Body: " + bodyPart.getContentType());
 			}
 		}
 	}
 
-	public boolean readMessage(IndexDocument document, Folder folder,
-			Message message) throws MessagingException, IOException {
+	final public void readMessage(IndexDocument document, Folder folder,
+			Message message, String id) throws MessagingException, IOException {
+		document.addString(MailboxFieldEnum.message_id.name(), id);
 		document.addString(MailboxFieldEnum.message_number.name(),
 				Integer.toString(message.getMessageNumber()));
 		if (message instanceof MimeMessage)
@@ -257,7 +270,6 @@ public abstract class MailboxAbstractCrawler {
 		String ct = message.getContentType();
 		if (ct.contains("multipart/") || ct.contains("MULTIPART/"))
 			doMultipart(message);
-		return true;
 	}
 
 }
