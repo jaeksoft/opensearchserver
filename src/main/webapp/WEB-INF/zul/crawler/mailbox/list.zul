@@ -28,7 +28,9 @@
 				<listheader label="Duration"
 					tooltiptext="last duration time" hflex="min" />
 				<listheader label="Status" hflex="min" />
-				<listheader label="Info" hflex="min" />
+				<listheader label="Updated" hflex="min" />
+				<listheader label="Ignored" hflex="min" />
+				<listheader label="Error" hflex="min" />
 				<listheader label="Action" />
 			</listhead>
 			<template name="model" var="mailboxItem">
@@ -41,8 +43,20 @@
 					<listcell
 						tooltiptext="@load(mailboxItem.lastThread.info)"
 						label="@load(mailboxItem.lastThread.status.name)" />
+					<listcell>
+						<hlayout>
+							<label
+								value="@load(mailboxItem.lastThread.updatedIndexDocumentCount)" />
+							(
+							<label
+								value="@load(mailboxItem.lastThread.pendingIndexDocumentCount)" />
+							)
+						</hlayout>
+					</listcell>
 					<listcell
-						label="@load(mailboxItem.lastThread.countInfo)" />
+						label="@load(mailboxItem.lastThread.ignoredDocumentCount)" />
+					<listcell
+						label="@load(mailboxItem.lastThread.errorDocumentCount)" />
 					<listcell>
 						<hbox align="center">
 							<button tooltiptext="Edit the mailbox item"
