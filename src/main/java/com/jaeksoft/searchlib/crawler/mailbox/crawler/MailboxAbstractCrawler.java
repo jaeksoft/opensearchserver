@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.crawler.mailbox.crawler;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.FetchProfile;
@@ -121,6 +121,8 @@ public abstract class MailboxAbstractCrawler {
 				fp.add(FetchProfile.Item.ENVELOPE);
 				folder.fetch(messages, fp);
 				for (Message message : messages) {
+					if (thread.isAborted())
+						break;
 					i++;
 					String messageId = getMessageId(folder, message);
 					if (StringUtils.isEmpty(messageId))
@@ -129,12 +131,17 @@ public abstract class MailboxAbstractCrawler {
 						thread.incIgnored();
 						continue;
 					}
-					IndexDocument document = new IndexDocument(item.getLang());
-					document.addString(MailboxFieldEnum.folder.name(),
-							folderFullName);
+					IndexDocument crawlIndexDocument = new IndexDocument(
+							item.getLang());
+					IndexDocument parserIndexDocument = new IndexDocument(
+							item.getLang());
+					crawlIndexDocument.addString(
+							MailboxFieldEnum.folder.name(), folderFullName);
 					try {
-						readMessage(document, folder, message, messageId);
-						thread.addDocument(document, null);
+						readMessage(crawlIndexDocument, parserIndexDocument,
+								folder, message, messageId);
+						thread.addDocument(crawlIndexDocument,
+								parserIndexDocument);
 					} catch (Exception e) {
 						Logging.warn(e);
 						thread.incError();
@@ -207,69 +214,100 @@ public abstract class MailboxAbstractCrawler {
 		}
 	}
 
-	private void doMultipart(Message message) throws IOException,
-			MessagingException {
-		System.out.println("IS MULTIPART " + message.getContentType());
-		Multipart multipart = (Multipart) message.getContent();
+	private void multipartIterator(Multipart multipart, IndexDocument document)
+			throws MessagingException, IOException, SearchLibException,
+			ClassNotFoundException {
 		for (int j = 0; j < multipart.getCount(); j++) {
 			BodyPart bodyPart = multipart.getBodyPart(j);
 			String disposition = bodyPart.getDisposition();
 			if (disposition != null
 					&& (disposition.equalsIgnoreCase("ATTACHMENT"))) {
-				DataHandler handler = bodyPart.getDataHandler();
-				System.out.println("Attachment : " + handler.getName());
-			} else {
-				System.out.println("Body: " + bodyPart.getContentType());
-			}
+				doBodyPart(bodyPart.getContent(), bodyPart.getContentType(),
+						document);
+			} else
+				mimeDispatch(bodyPart.getContent(), bodyPart.getContentType(),
+						document);
 		}
 	}
 
-	final public void readMessage(IndexDocument document, Folder folder,
-			Message message, String id) throws MessagingException, IOException {
-		document.addString(MailboxFieldEnum.message_id.name(), id);
-		document.addString(MailboxFieldEnum.message_number.name(),
+	private void doBodyPart(Object content, String contentType,
+			IndexDocument document) throws SearchLibException, IOException,
+			ClassNotFoundException {
+		thread.indexContent(content, contentType, document);
+	}
+
+	private void mimeDispatch(Object content, String contentType,
+			IndexDocument document) throws MessagingException, IOException,
+			SearchLibException, ClassNotFoundException {
+		String lowerContentType = contentType.toLowerCase();
+		if (lowerContentType.startsWith("multipart/alternative"))
+			multipartIterator((Multipart) content, document);
+		else if (lowerContentType.startsWith("multipart/related"))
+			multipartIterator((Multipart) content, document);
+		else if (lowerContentType.startsWith("multipart/mixed"))
+			multipartIterator((Multipart) content, document);
+		else
+			doBodyPart(content, contentType, document);
+	}
+
+	final public void readMessage(IndexDocument crawlIndexDocument,
+			IndexDocument parserIndexDocument, Folder folder, Message message,
+			String id) throws MessagingException, IOException,
+			SearchLibException, ClassNotFoundException {
+		crawlIndexDocument.addString(MailboxFieldEnum.message_id.name(), id);
+		crawlIndexDocument.addString(MailboxFieldEnum.message_number.name(),
 				Integer.toString(message.getMessageNumber()));
 		if (message instanceof MimeMessage)
-			document.addString(MailboxFieldEnum.content_id.name(),
+			crawlIndexDocument.addString(MailboxFieldEnum.content_id.name(),
 					((MimeMessage) message).getContentID());
-		document.addString(MailboxFieldEnum.subject.name(),
+		crawlIndexDocument.addString(MailboxFieldEnum.subject.name(),
 				message.getSubject());
-		putAddresses(document, message.getFrom(),
+		putAddresses(crawlIndexDocument, message.getFrom(),
 				MailboxFieldEnum.from_address.name(),
 				MailboxFieldEnum.from_personal.name());
-		putAddresses(document, message.getReplyTo(),
+		putAddresses(crawlIndexDocument, message.getReplyTo(),
 				MailboxFieldEnum.reply_to_address.name(),
 				MailboxFieldEnum.reply_to_personal.name());
-		putAddresses(document, message.getRecipients(RecipientType.TO),
+		putAddresses(crawlIndexDocument,
+				message.getRecipients(RecipientType.TO),
 				MailboxFieldEnum.recipient_to_address.name(),
 				MailboxFieldEnum.recipient_to_personal.name());
-		putAddresses(document, message.getRecipients(RecipientType.CC),
+		putAddresses(crawlIndexDocument,
+				message.getRecipients(RecipientType.CC),
 				MailboxFieldEnum.recipient_cc_address.name(),
 				MailboxFieldEnum.recipient_cc_personal.name());
-		putAddresses(document, message.getRecipients(RecipientType.BCC),
+		putAddresses(crawlIndexDocument,
+				message.getRecipients(RecipientType.BCC),
 				MailboxFieldEnum.recipient_bcc_address.name(),
 				MailboxFieldEnum.recipient_bcc_personal.name());
 		Date dt = message.getSentDate();
 		if (dt != null)
-			document.addString(MailboxFieldEnum.send_date.name(), dt.toString());
+			crawlIndexDocument.addString(MailboxFieldEnum.send_date.name(),
+					dt.toString());
 		dt = message.getReceivedDate();
 		if (dt != null)
-			document.addString(MailboxFieldEnum.received_date.name(),
+			crawlIndexDocument.addString(MailboxFieldEnum.received_date.name(),
 					dt.toString());
 		if (message.isSet(Flag.ANSWERED))
-			document.addString(MailboxFieldEnum.flags.name(), "ANSWERED");
+			crawlIndexDocument.addString(MailboxFieldEnum.flags.name(),
+					"ANSWERED");
 		if (message.isSet(Flag.DELETED))
-			document.addString(MailboxFieldEnum.flags.name(), "DELETED");
+			crawlIndexDocument.addString(MailboxFieldEnum.flags.name(),
+					"DELETED");
 		if (message.isSet(Flag.DRAFT))
-			document.addString(MailboxFieldEnum.flags.name(), "DRAFT");
+			crawlIndexDocument
+					.addString(MailboxFieldEnum.flags.name(), "DRAFT");
 		if (message.isSet(Flag.FLAGGED))
-			document.addString(MailboxFieldEnum.flags.name(), "FLAGGED");
+			crawlIndexDocument.addString(MailboxFieldEnum.flags.name(),
+					"FLAGGED");
 		if (message.isSet(Flag.SEEN))
-			document.addString(MailboxFieldEnum.flags.name(), "SEEN");
+			crawlIndexDocument.addString(MailboxFieldEnum.flags.name(), "SEEN");
 
-		String ct = message.getContentType();
-		if (ct.contains("multipart/") || ct.contains("MULTIPART/"))
-			doMultipart(message);
+		try {
+			mimeDispatch(message.getContent(), message.getContentType(),
+					parserIndexDocument);
+		} catch (UnsupportedEncodingException e) {
+			Logging.warn("Message " + id, e);
+		}
 	}
-
 }

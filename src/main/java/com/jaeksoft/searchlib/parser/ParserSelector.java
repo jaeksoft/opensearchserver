@@ -263,6 +263,7 @@ public class ParserSelector {
 			Set<String> mimeTypeSet = parserFactory.getMimeTypeSet();
 			if (mimeTypeSet != null) {
 				for (String mimeType : mimeTypeSet) {
+					mimeType = mimeType.toLowerCase();
 					Set<ParserFactory> parserSet = mimeTypeParserMap
 							.get(mimeType);
 					if (parserSet == null) {
@@ -359,6 +360,7 @@ public class ParserSelector {
 			String contentBaseType, String url) {
 		if (mimeTypeParserMap == null)
 			return null;
+		contentBaseType = contentBaseType.toLowerCase();
 		Set<ParserFactory> parserSet = mimeTypeParserMap.get(contentBaseType);
 		if (parserSet == null)
 			return null;
@@ -374,8 +376,10 @@ public class ParserSelector {
 			throws SearchLibException, ClassNotFoundException {
 		rwl.r.lock();
 		try {
+			if (contentBaseType == null)
+				return null;
 			ParserFactory parserFactory = getParserFactoryFromMimeTypeNoLock(
-					contentBaseType, url);
+					contentBaseType.toLowerCase(), url);
 			return getParser(parserFactory);
 		} finally {
 			rwl.r.unlock();
@@ -386,7 +390,10 @@ public class ParserSelector {
 			String url) {
 		rwl.r.lock();
 		try {
-			return getParserFactoryFromMimeTypeNoLock(contentBaseType, url);
+			if (contentBaseType == null)
+				return null;
+			return getParserFactoryFromMimeTypeNoLock(
+					contentBaseType.toLowerCase(), url);
 		} finally {
 			rwl.r.unlock();
 		}
