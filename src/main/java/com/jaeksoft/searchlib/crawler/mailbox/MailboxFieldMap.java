@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,18 +25,27 @@
 package com.jaeksoft.searchlib.crawler.mailbox;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
-import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class MailboxFieldMap extends
 		FieldMapGeneric<SourceField, CommonFieldTarget> {
@@ -66,25 +75,41 @@ public class MailboxFieldMap extends
 		return false;
 	}
 
-	private void addFieldContent(FieldContent fc, TargetField targetField,
-			IndexDocument target) throws IOException {
-		if (fc == null)
-			return;
-		targetField.addFieldValueItems(fc.getValues(), target);
+	public CommonFieldTarget getUniqueFieldTarget(Client client) {
+		if (client == null)
+			return null;
+		String uniqueField = client.getSchema().getUniqueField();
+		if (StringUtils.isEmpty(uniqueField))
+			return null;
+		List<CommonFieldTarget> fieldTargets = getLinks(new SourceField(
+				MailboxFieldEnum.message_id.name()));
+		if (fieldTargets == null)
+			return null;
+		for (CommonFieldTarget fieldTarget : fieldTargets)
+			if (uniqueField.equals(fieldTarget.getName()))
+				return fieldTarget;
+		return null;
 	}
 
-	public void mapIndexDocument(IndexDocument source, IndexDocument target)
-			throws IOException {
+	public void mapIndexDocument(WebCrawlMaster webCrawlMaster,
+			ParserSelector parserSelector, LanguageEnum lang,
+			IndexDocument source, IndexDocument target) throws IOException,
+			SearchLibException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			SourceField sourceField = link.getSource();
+			CommonFieldTarget targetField = link.getTarget();
 			if (sourceField.isUnique()) {
 				FieldContent fc = sourceField.getUniqueString(source);
 				if (fc == null)
 					fc = sourceField.getUniqueString(target);
-				addFieldContent(fc, link.getTarget(), target);
+				mapFieldTarget(webCrawlMaster, parserSelector, lang, fc,
+						targetField, target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				link.getTarget().addValue(value, target);
+				mapFieldTarget(webCrawlMaster, parserSelector, lang,
+						targetField, value, target);
 			}
 		}
 	}

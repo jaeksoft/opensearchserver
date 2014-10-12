@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.mailbox;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.process.ThreadItem;
@@ -48,7 +49,7 @@ public class MailboxCrawlMaster extends
 	@Override
 	public MailboxCrawlThread getNewThread(Client client,
 			ThreadItem<?, MailboxCrawlThread> crawlItem, Variables variables,
-			InfoCallback infoCallback) {
+			InfoCallback infoCallback) throws SearchLibException {
 		return new MailboxCrawlThread(client, this,
 				(MailboxCrawlItem) crawlItem, variables, infoCallback);
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -393,11 +393,11 @@ public class HtmlParser extends Parser {
 
 		URL currentURL = htmlProvider.getBaseHref();
 		IndexDocument srcDoc = getSourceDocument();
+		String streamOriginalUrl = streamLimiter.getOriginURL();
 		try {
-			if (currentURL == null)
-				currentURL = LinkUtils.newEncodedURL(streamLimiter
-						.getOriginURL());
-			if (currentURL == null) {
+			if (currentURL == null && !StringUtils.isEmpty(streamOriginalUrl))
+				currentURL = LinkUtils.newEncodedURL(streamOriginalUrl);
+			if (currentURL == null && srcDoc != null) {
 				FieldValueItem fvi = srcDoc.getFieldValue(
 						UrlItemFieldEnum.INSTANCE.url.getName(), 0);
 				if (fvi != null)
@@ -602,7 +602,8 @@ public class HtmlParser extends Parser {
 
 			StringBuilder sb = new StringBuilder();
 			try {
-				sb.append(new URI(streamLimiter.getOriginURL()).getHost());
+				if (!StringUtils.isEmpty(streamOriginalUrl))
+					sb.append(new URI(streamOriginalUrl).getHost());
 			} catch (URISyntaxException e) {
 				Logging.error(e);
 			}
