@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.mailbox.crawler;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.Folder;
@@ -34,11 +33,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
-import com.jaeksoft.searchlib.index.IndexDocument;
 import com.sun.mail.imap.IMAPMessage;
 
 public class IMAP4Crawler extends MailboxAbstractCrawler {
@@ -69,16 +64,10 @@ public class IMAP4Crawler extends MailboxAbstractCrawler {
 	}
 
 	@Override
-	public boolean readMessage(IndexDocument document, Folder folder,
-			Message message) throws MessagingException, IOException {
-		if (!super.readMessage(document, folder, message))
-			return false;
+	protected String getMessageId(Folder folder, Message message)
+			throws MessagingException {
 		if (!(message instanceof IMAPMessage))
-			return false;
-		String id = ((IMAPMessage) message).getMessageID();
-		if (StringUtils.isEmpty(id))
-			return false;
-		document.addString(MailboxFieldEnum.message_id.name(), id);
-		return true;
+			return null;
+		return ((IMAPMessage) message).getMessageID();
 	}
 }

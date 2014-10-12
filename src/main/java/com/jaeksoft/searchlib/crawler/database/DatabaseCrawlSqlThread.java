@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,8 +41,10 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
@@ -139,6 +141,9 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		List<String> pkList = new ArrayList<String>(0);
 
+		WebCrawlMaster webCrawMaster = client.getWebCrawlMaster();
+		ParserSelector parserSelector = client.getParserSelector();
+
 		while (resultSet.next() && !isAborted()) {
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
@@ -162,9 +167,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			}
 			LanguageEnum lang = databaseCrawl.getLang();
 			IndexDocument newFieldContents = new IndexDocument(lang);
-			databaseFieldMap.mapResultSet(client.getWebCrawlMaster(),
-					client.getParserSelector(), lang, resultSet, columns,
-					newFieldContents);
+			databaseFieldMap.mapResultSet(webCrawMaster, parserSelector, lang,
+					resultSet, columns, newFieldContents);
 			if (merge && lastFieldContent != null) {
 				indexDocument.addIfNotAlreadyHere(newFieldContents);
 			} else
