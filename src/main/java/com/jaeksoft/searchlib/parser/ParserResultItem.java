@@ -30,6 +30,7 @@ import java.util.Locale;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import com.cybozu.labs.langdetect.LangDetectException;
@@ -152,7 +153,7 @@ public class ParserResultItem {
 		Locale lang = null;
 		String langMethod = null;
 		String text = getMergedBodyText(textLength, " ", parserField);
-		if (text == null)
+		if (StringUtils.isEmpty(text))
 			return null;
 		langMethod = "ngram recognition";
 		try {

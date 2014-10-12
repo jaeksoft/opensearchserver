@@ -24,7 +24,9 @@
 
 package com.jaeksoft.searchlib.crawler.mailbox;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
@@ -40,6 +44,8 @@ import com.jaeksoft.searchlib.crawler.mailbox.crawler.MailboxAbstractCrawler;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -82,12 +88,15 @@ public class MailboxCrawlThread extends
 
 	private final SearchFieldRequest uniqueSearchRequest;
 
+	private final LanguageEnum defaultLang;
+
 	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster,
 			MailboxCrawlItem crawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
 		super(client, crawlMaster, crawlItem);
 		this.client = client;
 		this.mailboxCrawlItem = crawlItem;
+		defaultLang = crawlItem.getLang();
 		webCrawlMaster = client.getWebCrawlMaster();
 		parserSelector = client.getParserSelector();
 		mailboxFieldMap = (MailboxFieldMap) crawlItem.getFieldMap();
@@ -123,6 +132,34 @@ public class MailboxCrawlThread extends
 	@Override
 	protected String getCurrentInfo() {
 		return "";
+	}
+
+	public void indexContent(Object object, String contentType,
+			IndexDocument indexDocument) throws SearchLibException,
+			IOException, ClassNotFoundException {
+		int i = contentType.indexOf(';');
+		String contentBaseType = i == -1 ? contentType : contentType.substring(
+				0, i);
+		String fileName = null;
+		InputStream inputStream;
+		if (object instanceof String)
+			inputStream = new ByteArrayInputStream(((String) object).getBytes());
+		else if (object instanceof InputStream)
+			inputStream = (InputStream) object;
+		else {
+			Logging.warn("Unknown content: " + object.getClass().getName()
+					+ " ContentType: " + contentType);
+			return;
+		}
+		Parser parser = parserSelector.parseStream(null, fileName,
+				contentBaseType, null, inputStream, defaultLang, null, null);
+		if (parser == null)
+			return;
+		List<ParserResultItem> results = parser.getParserResults();
+		if (results == null)
+			return;
+		for (ParserResultItem result : results)
+			result.populate(indexDocument);
 	}
 
 	public String getCountInfo() {
@@ -195,16 +232,18 @@ public class MailboxCrawlThread extends
 		}
 	}
 
-	public void addDocument(IndexDocument crawlDocument, Object content)
-			throws IOException, SearchLibException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+	public void addDocument(IndexDocument crawlDocument,
+			IndexDocument parserIndexDocument) throws IOException,
+			SearchLibException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		IndexDocument indexDocument = new IndexDocument(
 				mailboxCrawlItem.getLang());
 		((MailboxFieldMap) mailboxCrawlItem.getFieldMap()).mapIndexDocument(
 				webCrawlMaster, parserSelector, null, crawlDocument,
 				indexDocument);
+		if (parserIndexDocument != null)
+			indexDocument.add(parserIndexDocument);
 		documents.add(indexDocument);
 		rwl.w.lock();
 		try {
@@ -265,4 +304,5 @@ public class MailboxCrawlThread extends
 				.request(uniqueSearchRequest);
 		return result.getNumFound() > 0;
 	}
+
 }
