@@ -189,7 +189,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();
-		urlManager.updateCrawlTarget(workUpdateCrawlList);
+		urlManager.updateCrawlTarget(workUpdateCrawlList, getConfig()
+				.getWebPropertyManager().getPropagateDeletion().getValue());
 		urlManager.updateCrawlUrlDb(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());

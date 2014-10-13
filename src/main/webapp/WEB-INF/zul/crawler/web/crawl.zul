@@ -18,7 +18,7 @@
 	viewModel="@id('crawlProcess') @init('com.jaeksoft.searchlib.web.controller.crawler.web.CrawlWebController')">
 	<grid visible="@load(crawlProcess.webCrawlerParametersRights)">
 		<auxhead>
-			<auxheader colspan="4" label="Crawling parameters" />
+			<auxheader colspan="5" label="Crawling parameters" />
 		</auxhead>
 		<columns visible="false">
 			<column align="right" hflex="min" />
@@ -89,6 +89,14 @@
 				<label value="Indexation buffer: " />
 				<intbox
 					value="@bind(crawlProcess.properties.indexDocumentBufferSize.value)" />
+				<cell />
+			</row>
+			<row>
+				<cell />
+				<cell />
+				<label value="Propagate deletion: " />
+				<checkbox label="propagate"
+					checked="@bind(crawlProcess.properties.propagateDeletion.value)" />
 				<cell />
 			</row>
 		</rows>
