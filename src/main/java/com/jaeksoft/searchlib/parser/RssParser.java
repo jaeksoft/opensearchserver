@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -95,8 +96,10 @@ public class RssParser extends Parser {
 						entry.getPublishedDate());
 				resultItem.addField(ParserFieldEnum.title, entry.getTitle());
 				resultItem.addField(ParserFieldEnum.link, entry.getLink());
-				resultItem.addField(ParserFieldEnum.description, entry
-						.getDescription().getValue());
+				SyndContent syndContent = entry.getDescription();
+				if (syndContent != null)
+					resultItem.addField(ParserFieldEnum.description,
+							syndContent.getValue());
 				addDetectedLink(entry.getLink());
 			}
 		} catch (IllegalArgumentException e) {
