@@ -583,7 +583,8 @@ public class UrlManager extends AbstractManager {
 	 * @param crawls
 	 * @throws SearchLibException
 	 */
-	public void updateCrawlTarget(List<Crawl> crawls) throws SearchLibException {
+	public void updateCrawlTarget(List<Crawl> crawls, boolean propagateDeletion)
+			throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
@@ -631,7 +632,7 @@ public class UrlManager extends AbstractManager {
 						currentUrlItem.setIndexStatus(IndexStatus.INDEXED);
 				}
 			}
-			if (documentsToDelete.size() > 0) {
+			if (documentsToDelete.size() > 0 && propagateDeletion) {
 				String targetField = findIndexedFieldOfTargetIndex(
 						targetClient.getWebCrawlerFieldMap(),
 						UrlItemFieldEnum.INSTANCE.url.getName());
