@@ -5,6 +5,7 @@
     * [Linux (generic)](installation/linux.md)
     * [Mac OS X](installation/mac_os_x.md)
     * [Windows](installation/windows.md)
+    * [Docker](installation/docker.md)
 * [Compile and build](building_opensearchserver.md)
 * [Getting started](tutorials/README.md)
 	* [Discovering](tutorials/functionalities.md)
