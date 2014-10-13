@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,10 +32,11 @@ import com.jaeksoft.searchlib.util.properties.PropertyManager;
 
 public abstract class AbstractPropertyManager extends PropertyManager {
 
-	protected PropertyItem<Integer> indexDocumentBufferSize;
-	protected PropertyItem<Boolean> crawlEnabled;
-	protected PropertyItem<Integer> maxThreadNumber;
-	private PropertyItem<String> schedulerAfterSession;
+	final protected PropertyItem<Integer> indexDocumentBufferSize;
+	final protected PropertyItem<Boolean> crawlEnabled;
+	final protected PropertyItem<Integer> maxThreadNumber;
+	final private PropertyItem<String> schedulerAfterSession;
+	final private PropertyItem<Boolean> propagateDeletion;
 
 	protected AbstractPropertyManager(File file, int defautBufferSize)
 			throws IOException {
@@ -45,6 +46,7 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 		maxThreadNumber = newIntegerProperty("maxThreadNumber", 10, null, null);
 		crawlEnabled = newBooleanProperty("crawlEnabled", false);
 		schedulerAfterSession = newStringProperty("schedulerAfterSession", "");
+		propagateDeletion = newBooleanProperty("propagateDeletion", true);
 	}
 
 	public PropertyItem<Boolean> getCrawlEnabled() {
@@ -61,6 +63,10 @@ public abstract class AbstractPropertyManager extends PropertyManager {
 
 	public PropertyItem<String> getSchedulerAfterSession() {
 		return schedulerAfterSession;
+	}
+
+	public PropertyItem<Boolean> getPropagateDeletion() {
+		return propagateDeletion;
 	}
 
 }
