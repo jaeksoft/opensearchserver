@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.renderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum RendererJspEnum {
 
 	SimpleHtml("renderer.jsp"), Boostrap("renderer5.jsp");
@@ -38,6 +41,14 @@ public enum RendererJspEnum {
 		for (RendererJspEnum e : values())
 			if (e.name().equalsIgnoreCase(name))
 				return e;
-		return Boostrap;
+		return SimpleHtml;
+	}
+
+	public static List<String> toNameList(List<String> list) {
+		if (list == null)
+			list = new ArrayList<String>(values().length);
+		for (RendererJspEnum e : values())
+			list.add(e.name());
+		return list;
 	}
 }
