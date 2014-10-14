@@ -29,7 +29,7 @@ import java.util.List;
 
 public enum RendererJspEnum {
 
-	SimpleHtml("renderer.jsp"), Boostrap("renderer5.jsp");
+	SimpleHtml("renderer.jsp"), Bootstrap("renderer5.jsp");
 
 	public final String jsp;
 
