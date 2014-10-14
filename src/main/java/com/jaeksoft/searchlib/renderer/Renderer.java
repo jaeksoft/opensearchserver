@@ -182,7 +182,7 @@ public class Renderer implements Comparable<Renderer> {
 		authGroupAllowField = "groupAllow";
 		authUserDenyField = "userDeny";
 		authGroupDenyField = "groupDeny";
-		defaultJsp = RendererJspEnum.Boostrap;
+		defaultJsp = RendererJspEnum.SimpleHtml;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
@@ -434,6 +434,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.logFields.clear();
 				target.header = header;
 				target.footer = footer;
+				target.defaultJsp = defaultJsp;
 				target.css = css;
 				target.logEnabled = logEnabled;
 				target.contentTypeField = contentTypeField;
@@ -1353,7 +1354,7 @@ public class Renderer implements Comparable<Renderer> {
 	 *            the defaultJsp to set
 	 */
 	public void setDefaultJsp(RendererJspEnum defaultJsp) {
-		this.defaultJsp = defaultJsp == null ? RendererJspEnum.Boostrap
+		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml
 				: defaultJsp;
 	}
 }
