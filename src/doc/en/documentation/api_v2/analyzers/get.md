@@ -14,14 +14,14 @@ This API returns the configuration of an analyzer.
 
 - **_index\_name_** (required): The name of the index.
 - **_template\_name_** (required): The name of the analyzer.
-- **_lang_** (required): The lang of the analyzer.
+- **_lang_** (required): The language of the analyzer.
 
 **Header** (optional returned type):
 
 - Accept: ```application/json``` or ```application/xml```
 
 ### Success response
-The analyzer is returned either in JSON or in XML format
+The analyzer is returned either in JSON or in XML format.
 
 **HTTP code:**
 200
