@@ -87,7 +87,7 @@
 					</listbox>
 				</hbox>
 				<label value="Indexation buffer: " />
-				<intbox
+				<intbox readonly="@load(crawlProcess.refresh)"
 					value="@bind(crawlProcess.properties.indexDocumentBufferSize.value)" />
 				<cell />
 			</row>
@@ -96,6 +96,7 @@
 				<cell />
 				<label value="Propagate deletion: " />
 				<checkbox label="propagate"
+					disabled="@load(crawlProcess.refresh)"
 					checked="@bind(crawlProcess.properties.propagateDeletion.value)" />
 				<cell />
 			</row>
