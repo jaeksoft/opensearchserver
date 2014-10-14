@@ -37,6 +37,7 @@ import org.zkoss.zul.Messagebox;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererJspEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererSort;
 import com.jaeksoft.searchlib.renderer.field.RendererField;
@@ -534,6 +535,10 @@ public class RendererController extends CommonController {
 		nameList.add(null);
 		client.getAutoCompletionManager().toNameList(nameList);
 		return nameList;
+	}
+
+	public RendererJspEnum[] getTemplateList() {
+		return RendererJspEnum.values();
 	}
 
 	public RendererLogParameterEnum[] getLogParameterList() {

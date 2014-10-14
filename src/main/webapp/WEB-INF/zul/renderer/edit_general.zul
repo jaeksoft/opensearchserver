@@ -62,7 +62,14 @@
 					<label value="Logout text: " />
 					<textbox
 						value="@bind(renderer.currentRenderer.logoutText)" cols="50" />
-					<cell colspan="2" />
+					<label value="HTML template: " />
+					<listbox model="@load(renderer.templateList)"
+						mold="select" width="200px"
+						selectedItem="@bind(renderer.currentRenderer.defaultJsp)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
 				</row>
 				<row>
 					<label value="Facet width: " />
