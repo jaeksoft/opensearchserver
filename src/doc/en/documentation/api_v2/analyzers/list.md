@@ -1,6 +1,6 @@
-## Getting the list of the analyzers
+## Getting the list of analyzers
 
-This API returns the analyzers.
+This API returns the list of analyzers in a given index.
 
 **Requirement:** OpenSearchServer v1.5.8
 
