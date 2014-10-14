@@ -12,8 +12,8 @@ The Pattern API is the interface to insert/update patterns in the OpenSearchServ
 - _**key**_ (optional): The key parameter related to the login (api key). This becomes required once you create a user.
 - _**deleteAll**_: The command to perform: create, stop, start.
 - _**type**_: The type parameter is used to select the type of the pattern. There are two types:
-  - exclusion
-  - inclusion
+    - exclusion
+    - inclusion
 
 If no type is specified, it is assumed to be an inclusion.
 
