@@ -1353,7 +1353,7 @@ public class Renderer implements Comparable<Renderer> {
 	 *            the defaultJsp to set
 	 */
 	public void setDefaultJsp(RendererJspEnum defaultJsp) {
-		this.defaultJsp = defaultJsp == null ? RendererJspEnum.Boostrap
+		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml
 				: defaultJsp;
 	}
 }
