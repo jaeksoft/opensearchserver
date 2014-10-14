@@ -434,6 +434,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.logFields.clear();
 				target.header = header;
 				target.footer = footer;
+				target.defaultJsp = defaultJsp;
 				target.css = css;
 				target.logEnabled = logEnabled;
 				target.contentTypeField = contentTypeField;
