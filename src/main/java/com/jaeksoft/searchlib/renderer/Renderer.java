@@ -182,7 +182,7 @@ public class Renderer implements Comparable<Renderer> {
 		authGroupAllowField = "groupAllow";
 		authUserDenyField = "userDeny";
 		authGroupDenyField = "groupDeny";
-		defaultJsp = RendererJspEnum.Boostrap;
+		defaultJsp = RendererJspEnum.SimpleHtml;
 	}
 
 	public Renderer(XPathParser xpp) throws ParserConfigurationException,
