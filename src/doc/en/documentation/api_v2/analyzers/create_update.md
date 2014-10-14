@@ -19,7 +19,7 @@ Use this API to create or update an analyzer.
 
 - **_index\_name_** (required): The name of the index.
 - **_analyzer\_name_** (required): The name of the search template.
-- **_lang_** (required): The lang of the analyzer.
+- **_lang_** (required): The language of the analyzer.
 
 **Raw data (PUT):**
 
