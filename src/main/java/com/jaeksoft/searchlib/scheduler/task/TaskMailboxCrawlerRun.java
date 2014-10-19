@@ -112,6 +112,7 @@ public class TaskMailboxCrawlerRun extends TaskAbstract {
 		}
 		if (ct.getException() != null)
 			throw new SearchLibException(ct.getException());
+		taskLog.setInfo("Done " + crawlItem.getName() + " " + ct.getCountInfo());
 	}
 
 	@Override

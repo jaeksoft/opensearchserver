@@ -302,6 +302,10 @@ public class MailboxCrawlThread extends
 
 	public void setStatusInfo(CrawlStatus status) {
 		setStatus(status);
+		StringBuilder sb = new StringBuilder(mailboxCrawlItem.getName());
+		sb.append(' ');
+		sb.append(getCountInfo());
+		setInfo(sb.toString());
 		if (infoCallback != null)
 			infoCallback.setInfo(getStatusInfo());
 	}

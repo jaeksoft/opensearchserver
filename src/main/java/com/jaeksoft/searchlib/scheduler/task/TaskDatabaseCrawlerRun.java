@@ -107,6 +107,7 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 					variables, taskLog);
 			if (ct.getException() != null)
 				throw new SearchLibException(ct.getException());
+			taskLog.setInfo("Done: " + ct.getCountInfo());
 		} catch (InterruptedException e) {
 			throw new SearchLibException(e);
 		}
