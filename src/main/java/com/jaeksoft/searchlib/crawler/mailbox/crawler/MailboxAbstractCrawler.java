@@ -45,6 +45,7 @@ import javax.mail.internet.MimeMessage;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
@@ -113,6 +114,7 @@ public abstract class MailboxAbstractCrawler {
 			int i = 0;
 			final int buffer = item.getBufferSize();
 			while (i < max && !thread.isAborted()) {
+				thread.setStatusInfo(CrawlStatus.CRAWL);
 				int end = i + buffer;
 				if (end > max)
 					end = max;
