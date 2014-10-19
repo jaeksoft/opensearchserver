@@ -50,6 +50,7 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
@@ -90,10 +91,17 @@ public class MailboxCrawlThread extends
 
 	private final LanguageEnum defaultLang;
 
+	protected final InfoCallback infoCallback;
+
+	protected final TaskLog taskLog;
+
 	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster,
 			MailboxCrawlItem crawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
 		super(client, crawlMaster, crawlItem);
+		this.infoCallback = infoCallback;
+		this.taskLog = infoCallback instanceof TaskLog ? (TaskLog) infoCallback
+				: null;
 		this.client = client;
 		this.mailboxCrawlItem = crawlItem;
 		defaultLang = crawlItem.getLang();
@@ -120,9 +128,10 @@ public class MailboxCrawlThread extends
 
 	@Override
 	public void runner() throws Exception {
-		setStatus(CrawlStatus.STARTING);
+		setStatusInfo(CrawlStatus.STARTING);
 		MailboxAbstractCrawler crawler = MailboxProtocolEnum.getNewCrawler(
 				this, mailboxCrawlItem);
+		setStatusInfo(CrawlStatus.CRAWL);
 		crawler.read();
 		if (isAborted())
 			return;
@@ -131,7 +140,7 @@ public class MailboxCrawlThread extends
 
 	@Override
 	protected String getCurrentInfo() {
-		return "";
+		return getCountInfo();
 	}
 
 	public void indexContent(Object object, String contentType,
@@ -277,7 +286,7 @@ public class MailboxCrawlThread extends
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
-		setStatus(CrawlStatus.INDEXATION);
+		setStatusInfo(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
 		rwl.w.lock();
 		try {
@@ -287,8 +296,27 @@ public class MailboxCrawlThread extends
 			rwl.w.unlock();
 		}
 		indexDocumentList.clear();
-		setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		setStatusInfo(CrawlStatus.CRAWL);
 		return true;
+	}
+
+	public void setStatusInfo(CrawlStatus status) {
+		setStatus(status);
+		StringBuilder sb = new StringBuilder(mailboxCrawlItem.getName());
+		sb.append(' ');
+		sb.append(getCountInfo());
+		setInfo(sb.toString());
+		if (infoCallback != null)
+			infoCallback.setInfo(getStatusInfo());
+	}
+
+	@Override
+	public boolean isAborted() {
+		if (taskLog != null)
+			if (taskLog.isAbortRequested())
+				if (!super.isAborted())
+					abort();
+		return super.isAborted();
 	}
 
 	public boolean isAlreadyIndexed(String messageId) throws SearchLibException {
