@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,38 +26,40 @@ package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
-import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
+import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
 
-public class TaskDatabaseCrawlerRun extends TaskAbstract {
+public class TaskMailboxCrawlerRun extends TaskAbstract {
 
 	final private TaskPropertyDef propCrawlName = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "crawl name", "crawl name",
-			"The name of the database crawl item", 50);
+			"The name of the mailbox crawl item", 50);
 
 	final private TaskPropertyDef propCrawlVariables = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "crawl variables",
-			"crawl variables", "The name of the database crawl item", 50, 5);
+			TaskPropertyType.multilineTextBox,
+			"crawl variables",
+			"crawl variables",
+			"The name of the mailbox crawl item. Keep it empty to crawl all the mailbox item.",
+			50, 5);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propCrawlName,
 			propCrawlVariables };
 
 	@Override
 	public String getName() {
-		return "Database crawler - run";
+		return "Mailbox crawler - run";
 	}
 
 	@Override
@@ -69,13 +71,13 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 	public String[] getPropertyValues(Config config,
 			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
-		DatabaseCrawlList crawlList = config.getDatabaseCrawlList();
-		DatabaseCrawlAbstract[] crawls = crawlList.getArray();
+		MailboxCrawlList crawlList = config.getMailboxCrawlList();
+		MailboxCrawlItem[] crawls = crawlList.getArray();
 		if (crawls == null)
 			return null;
 		String[] values = new String[crawls.length];
 		int i = 0;
-		for (DatabaseCrawlAbstract crawl : crawls)
+		for (MailboxCrawlItem crawl : crawls)
 			values[i++] = crawl.getName();
 		return values;
 	}
@@ -85,31 +87,50 @@ public class TaskDatabaseCrawlerRun extends TaskAbstract {
 		return null;
 	}
 
+	private void crawlAll(Client client, MailboxCrawlMaster crawlMaster,
+			MailboxCrawlList crawlList, Variables variables, TaskLog taskLog)
+			throws SearchLibException {
+		MailboxCrawlItem[] crawlItems = crawlList.getArray();
+		if (crawlItems == null)
+			return;
+		for (MailboxCrawlItem crawlItem : crawlItems) {
+			if (taskLog.isAbortRequested())
+				return;
+			crawlOne(client, crawlMaster, crawlItem, variables, taskLog);
+		}
+	}
+
+	private void crawlOne(Client client, MailboxCrawlMaster crawlMaster,
+			MailboxCrawlItem crawlItem, Variables variables, TaskLog taskLog)
+			throws SearchLibException {
+		MailboxCrawlThread ct;
+		try {
+			ct = crawlMaster.execute(client, crawlItem, true, variables,
+					taskLog);
+		} catch (InterruptedException e) {
+			throw new SearchLibException(e);
+		}
+		if (ct.getException() != null)
+			throw new SearchLibException(ct.getException());
+		taskLog.setInfo("Done " + crawlItem.getName() + " " + ct.getCountInfo());
+	}
+
 	@Override
 	public void execute(Client client, TaskProperties properties,
 			Variables variables, TaskLog taskLog) throws SearchLibException,
 			IOException {
-		DatabaseCrawlMaster crawlMaster = client.getDatabaseCrawlMaster();
-		DatabaseCrawlList crawlList = client.getDatabaseCrawlList();
+		MailboxCrawlMaster crawlMaster = client.getMailboxCrawlMaster();
+		MailboxCrawlList crawlList = client.getMailboxCrawlList();
 		String crawlName = properties.getValue(propCrawlName);
-		String vars = properties.getValue(propCrawlVariables);
-		if (!StringUtils.isEmpty(vars)) {
-			variables = new Variables(variables);
-			variables.putProperties(vars);
-		}
-		if (crawlName == null)
-			throw new SearchLibException("The crawl name is missing");
-		DatabaseCrawlAbstract crawl = crawlList.get(crawlName);
-		if (crawl == null)
-			throw new SearchLibException("Crawl not found: " + crawlName);
-		try {
-			DatabaseCrawlThread ct = crawlMaster.execute(client, crawl, true,
-					variables, taskLog);
-			if (ct.getException() != null)
-				throw new SearchLibException(ct.getException());
-			taskLog.setInfo("Done: " + ct.getCountInfo());
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
+
+		if (StringUtils.isEmpty(crawlName))
+			crawlAll(client, crawlMaster, crawlList, variables, taskLog);
+		else {
+			MailboxCrawlItem crawlItem = crawlList.get(crawlName);
+			if (crawlItem == null)
+				throw new SearchLibException("Crawl item not found: "
+						+ crawlName);
+			crawlOne(client, crawlMaster, crawlItem, variables, taskLog);
 		}
 	}
 }
