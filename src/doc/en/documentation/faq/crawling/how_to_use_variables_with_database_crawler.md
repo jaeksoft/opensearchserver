@@ -1,12 +1,12 @@
-## How to use variables with Database Crawler
+## How to use variables with the Database Crawler
 
-OpenSearchServer's database crawler is a powerful feature allowing to crawl several types of database using an SQL query.
+OpenSearchServer's database crawler's job is to crawl several types of database using an SQL query.
 
-This SQL query can contain some variables whose values will be set on execution time.
+This SQL query can contain multiple variables, whose values will be set at execution time.
 
-### Defining variables in SQL query
+### Defining variables in SQL queries
 
-In SQL query, variables can be used anywhere. They must be written with this format: `{variableName}`. 
+Variables can be used anywhere in a SQL query. They must be written using this format: `{variableName}`. 
 
 For example:
 
@@ -14,50 +14,52 @@ For example:
 
 ### Giving variables some values
 
-When using variables in SQL query it is of course necessary to give them value before using the database crawler, otherwise OpenSearchServer will use the variables names as given in the SQL query and this will cause a failure. 
+When using variables in SQL queries, they must be given a set value *before* using the Database Crawler. Otherwise, OpenSearchServer will use the variables names as given in the SQL query - resulting in a failure.
 
-There are 2 ways of setting variables.
+There are 2 ways to set variables.
 
-#### Set variables using REST API for Database Crawler
+#### Set variables using the REST API for the Database Crawler
 
-A REST API to execute crawler for database exists. Here is how it must be called:
+To call this API and crawl a database, use:
 
 * HTTP Method: **PUT**
 * Header: **Content-type:application/json**
 * URL: `.../services/rest/index/<index name>/crawler/database/<crawl name>/run?login=<login>&key=<API key>`
 
-Variables are defined in request's data, using a JSON array:
+Variables are defined along with the data for the request, using a JSON array:
 
 
     {
       "whereClause": "id=2"
     }
 
-Here is an example using Chrome's extension Postman:
+Here is an example using the Postman extention for the Chrome browser :
 
 ![Example using POSTMAN](database_variables_postmanAPI1.png)
 
 #### Set variables using Scheduler
 
-OpenSearchServer's scheduler can be used to run some database crawler. Task `Database crawler - run` must be used here. Variables have to be written one by line in field `crawl variables`, with this format: `variableName=replacement`.
+OpenSearchServer's Scheduler can be used to run the Database Crawler. Use the task `Database crawler - run` to do this. 
+
+Variables have to be written, one by line, in the field `crawl variables`. Use the following format: `variableName=replacement`.
 
 For example:
 
 ![Example using scheduler](database_variables_scheduler.png)
 
-##### Running a job of scheduler using REST API
+##### Running a scheduled job using the REST API
 
-Jobs of scheduler can be started by API calls. Variables can be passed as a JSON array.
+The Scheduler can be launched via an API call. The variables can be passed as a JSON array.
 
-Here is an example using Chrome's extension Postman:
+Here is an example using the Postman extention for the Chrome browser :
 
 ![Example using POSTMAN to start a job of scheduler](database_variables_postmanAPI2.png)
 
-### Giving variable an empty value
+### Giving variables an empty value
 
-To give variable empty value one has to set them with empty string. 
+To set an empty value for a variable, pass an empty string. 
 
-For example in JSON:
+For example, in JSON:
 
     {
       "whereClause": ""
