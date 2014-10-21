@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.scheduler.TaskAbstract;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
@@ -64,7 +64,7 @@ public class TaskFlushCrawlCache extends TaskAbstract {
 			Variables variables, TaskLog taskLog) throws SearchLibException {
 		try {
 			taskLog.setInfo("Crawl cache flush starts");
-			ClientCatalog.getCrawlCacheManager().flushCache(true);
+			CrawlCacheManager.getInstance(client).flushCache(true);
 			taskLog.setInfo("Crawl cache flush done");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
