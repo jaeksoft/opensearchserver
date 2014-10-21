@@ -40,12 +40,12 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -85,9 +85,10 @@ public class Crawl {
 	private List<IndexDocument> targetIndexDocuments;
 	private HostUrlList hostUrlList;
 	private final UrlItem urlItem;
-	private CredentialManager credentialManager;
-	private HeaderManager headerManager;
-	private CookieManager cookieManager;
+	private final CredentialManager credentialManager;
+	private final HeaderManager headerManager;
+	private final CookieManager cookieManager;
+	private final CrawlCacheManager crawlCacheManager;
 	private CredentialItem credentialItem;
 	private String userAgent;
 	private ParserSelector parserSelector;
@@ -106,6 +107,7 @@ public class Crawl {
 		this.credentialManager = config.getWebCredentialManager();
 		this.cookieManager = config.getWebCookieManager();
 		this.headerManager = config.getWebHeaderManager();
+		this.crawlCacheManager = CrawlCacheManager.getInstance(config);
 		this.credentialItem = null;
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		this.hostUrlList = hostUrlList;
@@ -262,8 +264,7 @@ public class Crawl {
 						: credentialManager.matchCredential(url);
 
 				String externalFormUrl = url.toExternalForm();
-				downloadItem = ClientCatalog.getCrawlCacheManager().loadCache(
-						uri);
+				downloadItem = crawlCacheManager.loadCache(uri);
 
 				boolean fromCache = (downloadItem != null);
 
@@ -311,8 +312,7 @@ public class Crawl {
 
 				if (code >= 200 && code < 300) {
 					if (!fromCache)
-						is = ClientCatalog.getCrawlCacheManager().storeCache(
-								downloadItem);
+						is = crawlCacheManager.storeCache(downloadItem);
 					else
 						is = downloadItem.getContentInputStream();
 					parseContent(is);

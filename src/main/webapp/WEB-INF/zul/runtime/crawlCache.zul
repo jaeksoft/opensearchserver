@@ -16,7 +16,8 @@
 -->
 <window apply="org.zkoss.bind.BindComposer"
 	viewModel="@id('crawlcache') @init('com.jaeksoft.searchlib.web.controller.runtime.CrawlCacheComposer')">
-	<panel title="Crawl cache" border="normal">
+	<panel title="@load(crawlCache.currentCrawlCacheLabel)"
+		border="normal">
 		<panelchildren>
 			<grid>
 				<columns>
@@ -25,9 +26,20 @@
 					<column align="left" />
 				</columns>
 				<rows>
+					<row visible="@load(crawlcache.instanceValid)">
+						<label value="Scope" />
+						<listbox model="@load(crawlcache.crawlScopes)"
+							mold="select" selectedItem="@bind(crawlcache.crawlScope)"
+							onSelect="@command('reload')">
+							<template name="model">
+								<listitem label="@load(each)" />
+							</template>
+						</listbox>
+					</row>
 					<row>
 						<label value="Enabled" />
-						<checkbox checked="@bind(crawlcache.enabled)"
+						<checkbox
+							checked="@bind(crawlcache.crawlCacheManager.enabled)"
 							onCheck="@command('reload')" />
 						<space />
 					</row>

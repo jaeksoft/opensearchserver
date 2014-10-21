@@ -61,6 +61,7 @@ import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.classifier.Classifier;
 import com.jaeksoft.searchlib.classifier.ClassifierManager;
 import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
 import com.jaeksoft.searchlib.crawler.database.DatabasePropertyManager;
@@ -222,6 +223,8 @@ public abstract class Config implements ThreadFactory {
 	private ReportsManager reportsManager = null;
 
 	private AuthManager authManager = null;
+
+	private CrawlCacheManager crawlCacheManager = null;
 
 	private boolean isClosed = false;
 
@@ -553,6 +556,36 @@ public abstract class Config implements ThreadFactory {
 			throw new SearchLibException(e);
 		} finally {
 			classifiersLock.w.unlock();
+		}
+	}
+
+	private final ReadWriteLock crawlCacheLock = new ReadWriteLock();
+
+	public final CrawlCacheManager getCrawlCacheManager()
+			throws SearchLibException {
+		crawlCacheLock.r.lock();
+		try {
+			if (crawlCacheManager != null)
+				return crawlCacheManager;
+		} finally {
+			crawlCacheLock.r.unlock();
+		}
+		crawlCacheLock.w.lock();
+		try {
+			if (crawlCacheManager != null)
+				return crawlCacheManager;
+			crawlCacheManager = new CrawlCacheManager(getDirectory());
+			return crawlCacheManager;
+		} catch (InvalidPropertiesFormatException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} catch (InstantiationException e) {
+			throw new SearchLibException(e);
+		} catch (IllegalAccessException e) {
+			throw new SearchLibException(e);
+		} finally {
+			crawlCacheLock.w.unlock();
 		}
 	}
 

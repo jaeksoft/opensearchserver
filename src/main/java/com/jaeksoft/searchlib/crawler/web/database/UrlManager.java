@@ -47,7 +47,6 @@ import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.ItemField;
@@ -685,8 +684,8 @@ public class UrlManager extends AbstractManager {
 			throws IOException, SearchLibException {
 		File tempFile = null;
 		ZipArchiveOutputStream zipOutput = null;
-		CrawlCacheManager crawlCacheManager = ClientCatalog
-				.getCrawlCacheManager();
+		CrawlCacheManager crawlCacheManager = CrawlCacheManager
+				.getInstance(targetClient);
 		if (crawlCacheManager.isDisabled())
 			throw new SearchLibException("The crawlCache is disabled.");
 		try {

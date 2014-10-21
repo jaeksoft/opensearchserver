@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,9 +28,7 @@ import java.io.IOException;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
-import org.zkoss.zul.Messagebox;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheProviderEnum;
@@ -40,17 +38,39 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 @AfterCompose(superclass = true)
 public class CrawlCacheComposer extends CommonController {
 
+	public enum CrawlScope {
+		Global, Index;
+	}
+
+	private CrawlCacheManager crawlCacheManager = null;
+
+	private CrawlScope crawlScope = CrawlScope.Global;
+
 	public CrawlCacheComposer() throws SearchLibException {
 		super();
 	}
 
 	@Override
 	protected void reset() throws SearchLibException {
+		crawlScope = CrawlScope.Global;
+		crawlCacheManager = CrawlCacheManager.getGlobalInstance();
 	}
 
-	public CrawlCacheManager getCrawlCacheManager() throws SearchLibException,
-			IOException {
-		return ClientCatalog.getCrawlCacheManager();
+	private void setCrawlCacheManager() throws SearchLibException {
+		switch (crawlScope) {
+		default:
+			crawlCacheManager = CrawlCacheManager.getGlobalInstance();
+			break;
+		case Index:
+			crawlCacheManager = getClient().getCrawlCacheManager();
+			break;
+		}
+	}
+
+	public CrawlCacheManager getCrawlCacheManager() throws SearchLibException {
+		if (crawlCacheManager == null)
+			setCrawlCacheManager();
+		return crawlCacheManager;
 	}
 
 	public CrawlCacheProviderEnum[] getCrawlCacheProviderList() {
@@ -59,32 +79,11 @@ public class CrawlCacheComposer extends CommonController {
 
 	private void flush(boolean expiration) throws SearchLibException,
 			IOException, InterruptedException {
-		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
-		if (manager == null)
+		if (crawlCacheManager == null)
 			return;
-		long count = manager.flushCache(expiration);
+		long count = crawlCacheManager.flushCache(expiration);
 		reload();
 		new AlertController(count + " content(s) deleted.");
-	}
-
-	public boolean isEnabled() throws SearchLibException {
-		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
-		if (manager == null)
-			return false;
-		return manager.isEnabled();
-	}
-
-	public void setEnabled(boolean b) throws SearchLibException,
-			InterruptedException {
-		CrawlCacheManager manager = ClientCatalog.getCrawlCacheManager();
-		if (manager == null)
-			return;
-		try {
-			manager.setEnabled(b);
-		} catch (Exception e) {
-			reload();
-			new AlertController(e.getMessage(), Messagebox.ERROR);
-		}
 	}
 
 	@Command
@@ -99,4 +98,24 @@ public class CrawlCacheComposer extends CommonController {
 		flush(true);
 	}
 
+	/**
+	 * @return the crawlScope
+	 */
+	public CrawlScope getCrawlScope() {
+		return crawlScope;
+	}
+
+	/**
+	 * @param crawlScope
+	 *            the crawlScope to set
+	 * @throws SearchLibException
+	 */
+	public void setCrawlScope(CrawlScope crawlScope) throws SearchLibException {
+		this.crawlScope = crawlScope;
+		setCrawlCacheManager();
+	}
+
+	public CrawlScope[] getCrawlScopes() {
+		return CrawlScope.values();
+	}
 }
