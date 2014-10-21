@@ -25,8 +25,10 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.json.JSONException;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.ContextParam;
@@ -40,6 +42,7 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -109,13 +112,19 @@ public class ManualWebCrawlController extends CommonController {
 	}
 
 	@Command
-	public void onDownload() throws IOException, InterruptedException {
+	public void onDownload() throws IOException, InterruptedException,
+			SearchLibException, URISyntaxException, JSONException {
 		synchronized (this) {
 			if (!isCrawlCache())
 				return;
-			Crawl crawl = currentCrawlThread.getCurrentCrawl();
-			Filedownload.save(crawl.getStreamLimiter().getNewInputStream(),
-					crawl.getContentType(), "crawl.cache");
+			URI uri = currentCrawlThread.getCurrentCrawl().getUrlItem()
+					.getURL().toURI();
+			DownloadItem downloadItem = getClient().getCrawlCacheManager()
+					.loadCache(uri);
+			if (downloadItem == null)
+				throw new SearchLibException("No content");
+			Filedownload.save(downloadItem.getContentInputStream(),
+					downloadItem.getContentBaseType(), "crawl.cache");
 		}
 	}
 
@@ -130,7 +139,7 @@ public class ManualWebCrawlController extends CommonController {
 
 	}
 
-	public boolean isCrawlCache() {
+	public boolean isCrawlCache() throws SearchLibException {
 		synchronized (this) {
 			if (!isCrawlComplete())
 				return false;
@@ -140,9 +149,7 @@ public class ManualWebCrawlController extends CommonController {
 			UrlItem ui = crawl.getUrlItem();
 			if (ui == null)
 				return false;
-			if (crawl.getStreamLimiter() != null)
-				return true;
-			return false;
+			return getClient().getCrawlCacheManager().isEnabled();
 		}
 
 	}

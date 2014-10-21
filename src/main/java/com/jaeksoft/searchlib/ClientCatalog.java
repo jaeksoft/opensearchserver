@@ -48,7 +48,6 @@ import org.zkoss.zk.ui.WebApp;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
-import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
 import com.jaeksoft.searchlib.replication.ReplicationMerge;
@@ -295,11 +294,6 @@ public class ClientCatalog {
 					+ "' is not allowed");
 		return getClientCatalog(null)
 				.contains(new ClientCatalogItem(indexName));
-	}
-
-	public static final CrawlCacheManager getCrawlCacheManager()
-			throws SearchLibException {
-		return CrawlCacheManager.getInstance();
 	}
 
 	public static synchronized final OcrManager getOcrManager()
