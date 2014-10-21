@@ -297,11 +297,6 @@ public class ClientCatalog {
 				.contains(new ClientCatalogItem(indexName));
 	}
 
-	public static final CrawlCacheManager getCrawlCacheManager()
-			throws SearchLibException {
-		return CrawlCacheManager.getInstance();
-	}
-
 	public static synchronized final OcrManager getOcrManager()
 			throws SearchLibException {
 		return OcrManager.getInstance();

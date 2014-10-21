@@ -77,7 +77,7 @@ public class WebCrawlThread extends
 		this.hostUrlList = hostUrlList;
 		httpDownloader = crawlMaster.getNewHttpDownloader(false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-				.getUserAgent().getValue(), true,
+				.getUserAgent().getValue(), false,
 				propertyManager.getProxyHandler());
 		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
 		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
