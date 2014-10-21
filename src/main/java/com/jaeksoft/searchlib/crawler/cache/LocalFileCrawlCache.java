@@ -37,6 +37,7 @@ import org.apache.poi.util.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 
@@ -75,6 +76,10 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 		rwl.w.lock();
 		try {
 			File f = new File(configString);
+			if (!f.exists()) {
+				ClientFactory.INSTANCE.properties.checkChroot(f);
+				f.mkdirs();
+			}
 			if (!f.exists())
 				throw new IOException("The folder " + f.getAbsolutePath()
 						+ " does not exists");

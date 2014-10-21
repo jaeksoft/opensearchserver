@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -72,12 +73,11 @@ public class CrawlCacheManager implements Closeable {
 
 	private File propFile;
 
-	private CrawlCacheManager(File dataDir)
+	public CrawlCacheManager(File confDir)
 			throws InvalidPropertiesFormatException, IOException,
 			InstantiationException, IllegalAccessException {
 		crawlCache = null;
-		propFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-				CRAWLCACHE_PROPERTY_FILE);
+		propFile = new File(confDir, CRAWLCACHE_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
 		enabled = "true".equals(properties.getProperty(
 				CRAWLCACHE_PROPERTY_ENABLED, "false"));
@@ -96,7 +96,7 @@ public class CrawlCacheManager implements Closeable {
 	private static CrawlCacheManager INSTANCE = null;
 	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
 
-	public static final CrawlCacheManager getInstance()
+	public static final CrawlCacheManager getGlobalInstance()
 			throws SearchLibException {
 		rwlInstance.r.lock();
 		try {
@@ -122,6 +122,14 @@ public class CrawlCacheManager implements Closeable {
 		} finally {
 			rwlInstance.w.unlock();
 		}
+	}
+
+	public static final CrawlCacheManager getInstance(Config config)
+			throws SearchLibException {
+		CrawlCacheManager crawlCacheManager = config.getCrawlCacheManager();
+		if (crawlCacheManager.isEnabled())
+			return crawlCacheManager;
+		return getGlobalInstance();
 	}
 
 	private void save() throws IOException {

@@ -77,6 +77,7 @@ import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 
 public abstract class HttpAbstract {
 
+	private final boolean followRedirect;
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
 	private HttpResponse httpResponse = null;
@@ -89,6 +90,9 @@ public abstract class HttpAbstract {
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
 			ProxyHandler proxyHandler) {
+
+		this.followRedirect = bFollowRedirect;
+
 		HttpClientBuilder builder = HttpClients.custom();
 
 		redirectStrategy = new DefaultRedirectStrategy();
@@ -164,7 +168,7 @@ public abstract class HttpAbstract {
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
 				.setCookieSpec(CookieSpecs.BEST_MATCH)
 				.setStaleConnectionCheckEnabled(true)
-				.setCircularRedirectsAllowed(true);
+				.setRedirectsEnabled(followRedirect);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();

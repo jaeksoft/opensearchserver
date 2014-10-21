@@ -221,10 +221,9 @@ public class InstanceProperties {
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
 	}
 
-	public final void checkChroot(File file) throws IOException,
-			SearchLibException {
+	public final void checkChroot(File file) throws IOException {
 		if (!checkChrootQuietly(file))
-			throw new SearchLibException(
+			throw new IOException(
 					"You are not allowed to reach this location in the file system: "
 							+ file.getAbsolutePath());
 	}
