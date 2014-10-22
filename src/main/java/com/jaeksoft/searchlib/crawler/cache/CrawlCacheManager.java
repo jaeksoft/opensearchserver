@@ -218,6 +218,17 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
+	public boolean flushCache(URI uri) throws IOException {
+		rwl.r.lock();
+		try {
+			if (!enabled)
+				return false;
+			return crawlCache.flush(uri);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public long flushCache(boolean expiration) throws IOException {
 		rwl.r.lock();
 		try {
