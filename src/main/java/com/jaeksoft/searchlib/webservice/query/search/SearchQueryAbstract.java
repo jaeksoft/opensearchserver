@@ -272,16 +272,16 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		final public String latitudeField;
 		final public String longitudeField;
-		final public double latitude;
-		final public double longitude;
+		final public Double latitude;
+		final public Double longitude;
 		final public CoordUnit coordUnit;
 		final public DistanceReturn distanceReturn;
 
 		public Geo() {
 			latitudeField = null;
 			longitudeField = null;
-			latitude = 0;
-			longitude = 0;
+			latitude = null;
+			longitude = null;
 			coordUnit = null;
 			distanceReturn = null;
 		}
@@ -296,12 +296,18 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 
 		private void apply(GeoParameters geoParams) {
-			geoParams.setLatitude(latitude);
-			geoParams.setLongitude(longitude);
-			geoParams.setLatitudeField(latitudeField);
-			geoParams.setLongitudeField(longitudeField);
-			geoParams.setCoordUnit(coordUnit);
-			geoParams.setDistanceReturn(distanceReturn);
+			if (latitude != null)
+				geoParams.setLatitude(latitude);
+			if (longitude != null)
+				geoParams.setLongitude(longitude);
+			if (latitudeField != null)
+				geoParams.setLatitudeField(latitudeField);
+			if (longitudeField != null)
+				geoParams.setLongitudeField(longitudeField);
+			if (coordUnit != null)
+				geoParams.setCoordUnit(coordUnit);
+			if (distanceReturn != null)
+				geoParams.setDistanceReturn(distanceReturn);
 		}
 	}
 
