@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -151,6 +151,23 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 			file = uriToFile(uri, CONTENT_EXTENSION);
 			downloadItem.setContentInputStream(new FileInputStream(file));
 			return downloadItem;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	@Override
+	public boolean flush(URI uri) throws IOException {
+		rwl.r.lock();
+		try {
+			File file = uriToFile(uri, META_EXTENSION);
+			boolean deleted = false;
+			if (file.exists())
+				deleted = file.delete() || deleted;
+			file = uriToFile(uri, CONTENT_EXTENSION);
+			if (file.exists())
+				deleted = file.delete() || deleted;
+			return deleted;
 		} finally {
 			rwl.r.unlock();
 		}
