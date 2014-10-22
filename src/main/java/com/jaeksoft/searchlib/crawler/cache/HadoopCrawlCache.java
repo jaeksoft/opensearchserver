@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -159,11 +159,29 @@ public class HadoopCrawlCache extends CrawlCacheProvider {
 		}
 	}
 
+	@Override
+	public boolean flush(URI uri) throws IOException {
+		rwl.r.lock();
+		try {
+			checkFileSystemAvailable();
+			Path path = uriToPath(uri, META_EXTENSION);
+			boolean deleted = false;
+			if (fileSystem.exists(path))
+				deleted = fileSystem.delete(path, false) || deleted;
+			path = uriToPath(uri, CONTENT_EXTENSION);
+			if (fileSystem.exists(path))
+				deleted = fileSystem.delete(path, false) || deleted;
+			return deleted;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	private final long purge(FileStatus[] files, long expiration)
 			throws IOException {
 		long count = 0;
 		for (FileStatus file : files) {
-			if (file.isDir()) {
+			if (file.isDirectory()) {
 				Path p = file.getPath();
 				count += purge(fileSystem.listStatus(p), expiration);
 				FileStatus[] fs = fileSystem.listStatus(p);
