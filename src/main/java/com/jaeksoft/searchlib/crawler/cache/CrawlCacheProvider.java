@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -62,6 +62,8 @@ public abstract class CrawlCacheProvider {
 			throws IOException, JSONException, URISyntaxException;
 
 	public abstract long flush(long expirationTime) throws IOException;
+
+	public abstract boolean flush(URI uri) throws IOException;
 
 	final protected String uriToPath(URI uri, String rootPath, int hashDepth,
 			String separatorChar, String extension, int splitSize)

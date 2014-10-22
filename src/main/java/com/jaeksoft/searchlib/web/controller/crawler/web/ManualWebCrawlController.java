@@ -25,7 +25,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import org.json.JSONException;
@@ -36,16 +36,16 @@ import org.zkoss.bind.annotation.ContextType;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zul.Filedownload;
+import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
-import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
 
@@ -96,14 +96,29 @@ public class ManualWebCrawlController extends CommonController {
 		}
 	}
 
+	private boolean checkNotRunning() throws InterruptedException {
+		if (!isCrawlRunning())
+			return true;
+		new AlertController("A crawl is already running", Messagebox.ERROR);
+		return false;
+	}
+
+	private boolean checkCrawlCacheEnabled() throws InterruptedException,
+			SearchLibException {
+		if (isCrawlCache())
+			return true;
+		new AlertController("The crawl cache is disabled", Messagebox.ERROR);
+		return false;
+	}
+
 	@Command
 	public void onCrawl() throws SearchLibException, ParseException,
 			IOException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		synchronized (this) {
-			if (currentCrawlThread != null && currentCrawlThread.isRunning())
-				throw new SearchLibException("A crawl is already running");
+			if (!checkNotRunning())
+				return;
 			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(
 					LinkUtils.newEncodedURL(url), ListType.MANUAL);
 			currentCrawlThread.waitForStart(60);
@@ -112,17 +127,35 @@ public class ManualWebCrawlController extends CommonController {
 	}
 
 	@Command
+	public void onFlushCache() throws SearchLibException,
+			MalformedURLException, IOException, URISyntaxException,
+			InterruptedException {
+		synchronized (this) {
+			if (!checkNotRunning())
+				return;
+			if (!checkCrawlCacheEnabled())
+				return;
+			boolean deleted = getClient().getCrawlCacheManager().flushCache(
+					LinkUtils.newEncodedURI(url));
+			new AlertController(deleted ? "Content deleted"
+					: "Nothing to delete", Messagebox.INFORMATION);
+		}
+	}
+
+	@Command
 	public void onDownload() throws IOException, InterruptedException,
 			SearchLibException, URISyntaxException, JSONException {
 		synchronized (this) {
-			if (!isCrawlCache())
+			if (!checkNotRunning())
 				return;
-			URI uri = currentCrawlThread.getCurrentCrawl().getUrlItem()
-					.getURL().toURI();
+			if (!checkCrawlCacheEnabled())
+				return;
 			DownloadItem downloadItem = getClient().getCrawlCacheManager()
-					.loadCache(uri);
-			if (downloadItem == null)
-				throw new SearchLibException("No content");
+					.loadCache(LinkUtils.newEncodedURI(url));
+			if (downloadItem == null) {
+				new AlertController("No content", Messagebox.EXCLAMATION);
+				return;
+			}
 			Filedownload.save(downloadItem.getContentInputStream(),
 					downloadItem.getContentBaseType(), "crawl.cache");
 		}
@@ -136,19 +169,10 @@ public class ManualWebCrawlController extends CommonController {
 				return false;
 			return true;
 		}
-
 	}
 
 	public boolean isCrawlCache() throws SearchLibException {
 		synchronized (this) {
-			if (!isCrawlComplete())
-				return false;
-			Crawl crawl = currentCrawlThread.getCurrentCrawl();
-			if (crawl == null)
-				return false;
-			UrlItem ui = crawl.getUrlItem();
-			if (ui == null)
-				return false;
 			return getClient().getCrawlCacheManager().isEnabled();
 		}
 
@@ -159,12 +183,16 @@ public class ManualWebCrawlController extends CommonController {
 		reload();
 	}
 
-	public boolean isRefresh() {
+	public boolean isCrawlRunning() {
 		synchronized (this) {
 			if (currentCrawlThread == null)
 				return false;
 			return currentCrawlThread.isRunning();
 		}
+	}
+
+	public boolean isRefresh() {
+		return isCrawlRunning();
 	}
 
 	public String getCrawlXmlApi() throws UnsupportedEncodingException,
