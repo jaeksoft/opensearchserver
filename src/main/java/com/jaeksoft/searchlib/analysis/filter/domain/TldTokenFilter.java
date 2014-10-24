@@ -48,7 +48,7 @@ public class TldTokenFilter extends CommonDomainTokenFilter {
 			InternetDomainName domainName = InternetDomainName.from(url
 					.getHost());
 			termAtt.setEmpty();
-			termAtt.append(domainName.publicSuffix().name());
+			termAtt.append(domainName.publicSuffix().toString());
 		} catch (MalformedURLException e) {
 			if (silent)
 				return false;
