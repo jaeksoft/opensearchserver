@@ -109,7 +109,7 @@
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>54.1</version>
+			<version>54.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.api.client</groupId>
@@ -135,6 +135,11 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
@@ -321,7 +326,7 @@
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
-			<version>2.2.11</version>
+			<version>2.2.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -401,7 +406,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.8.1</version>
+			<version>1.9</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -478,7 +483,7 @@
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.4</httpclient.version>
 		<poi.version>3.11-beta2</poi.version>
-		<selenium.version>2.43.1</selenium.version>
+		<selenium.version>2.44.0</selenium.version>
 		<zk.version>7.0.3</zk.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
