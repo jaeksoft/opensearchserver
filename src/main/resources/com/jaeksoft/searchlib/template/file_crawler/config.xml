@@ -44,6 +44,12 @@
 				<filter class="LowerCaseFilter" />
 			</analyzer>
 
+			<!-- Keyword analyzer -->
+			<analyzer name="KeywordLikeAnalyzer" tokenizer="KeywordTokenizer">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+			</analyzer>
+
 			<!-- Arabic -->
 			<analyzer name="TextAnalyzer" lang="ar" tokenizer="ArabicLetterTokenizer">
 				<filter class="ArabicNormalizerFilter" />
