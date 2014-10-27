@@ -39,12 +39,12 @@ public abstract class AbstractDirectoryImpl<V, T extends AbstractDirectoryManage
 
 	protected abstract T getManager(Client client) throws SearchLibException;
 
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult<String> list(String index, String login, String key) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AbstractDirectoryManager<?> manager = getManager(client);
-			return new CommonListResult(manager.getList());
+			return new CommonListResult<String>(manager.getList());
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
