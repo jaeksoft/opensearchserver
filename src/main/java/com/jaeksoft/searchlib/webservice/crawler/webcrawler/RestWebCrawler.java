@@ -88,8 +88,8 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
-	public CommonListResult extractPatternsInclusion(@Context UriInfo uriInfo,
-			@PathParam("index_name") String use,
+	public CommonListResult<String> extractPatternsInclusion(
+			@Context UriInfo uriInfo, @PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
 
@@ -114,8 +114,8 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/exclusion")
-	public CommonListResult extractPatternsExclusion(@Context UriInfo uriInfo,
-			@PathParam("index_name") String use,
+	public CommonListResult<String> extractPatternsExclusion(
+			@Context UriInfo uriInfo, @PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
 
@@ -125,7 +125,8 @@ public interface RestWebCrawler {
 	public CommonResult crawl(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") String url);
+			@QueryParam("url") String url,
+			@QueryParam("returnData") Boolean returnData);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -133,7 +134,8 @@ public interface RestWebCrawler {
 	public CommonResult crawlPost(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@FormParam("url") String url);
+			@FormParam("url") String url,
+			@FormParam("returnData") Boolean returnData);
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

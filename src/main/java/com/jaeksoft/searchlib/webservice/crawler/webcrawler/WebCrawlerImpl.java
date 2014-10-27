@@ -229,8 +229,9 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 		return deletePatterns(uriInfo, index, login, key, deleteList, false);
 	}
 
-	public CommonListResult extractPatterns(UriInfo uriInfo, String index,
-			String login, String key, String startsWith, boolean inclusion) {
+	public CommonListResult<String> extractPatterns(UriInfo uriInfo,
+			String index, String login, String key, String startsWith,
+			boolean inclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_WEB_CRAWLER);
@@ -240,7 +241,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 					.getExclusionPatternManager();
 			List<String> patterns = new ArrayList<String>();
 			patternManager.getPatterns(startsWith, patterns);
-			return new CommonListResult(patterns);
+			return new CommonListResult<String>(patterns);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -251,20 +252,20 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	}
 
 	@Override
-	public CommonListResult extractPatternsInclusion(UriInfo uriInfo,
+	public CommonListResult<String> extractPatternsInclusion(UriInfo uriInfo,
 			String index, String login, String key, String startsWith) {
 		return extractPatterns(uriInfo, index, login, key, startsWith, true);
 	}
 
 	@Override
-	public CommonListResult extractPatternsExclusion(UriInfo uriInfo,
+	public CommonListResult<String> extractPatternsExclusion(UriInfo uriInfo,
 			String index, String login, String key, String startsWith) {
 		return extractPatterns(uriInfo, index, login, key, startsWith, false);
 	}
 
 	@Override
 	public CommonResult crawl(UriInfo uriInfo, String use, String login,
-			String key, String url) {
+			String key, String url, Boolean returnData) {
 		try {
 			WebCrawlMaster crawlMaster = getCrawlMaster(uriInfo, use, login,
 					key);
@@ -316,8 +317,8 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 
 	@Override
 	public CommonResult crawlPost(UriInfo uriInfo, String use, String login,
-			String key, String url) {
-		return crawl(uriInfo, use, login, key, url);
+			String key, String url, Boolean returnData) {
+		return crawl(uriInfo, use, login, key, url, returnData);
 	}
 
 	public CommonResult captureScreenshot(UriInfo uriInfo, String use,

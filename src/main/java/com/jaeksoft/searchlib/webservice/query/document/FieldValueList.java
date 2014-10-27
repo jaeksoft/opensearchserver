@@ -36,6 +36,8 @@ import org.json.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
@@ -68,6 +70,17 @@ public class FieldValueList {
 		values = new ArrayList<String>(1);
 	}
 
+	public FieldValueList(FieldContent fieldContent) {
+		this.fieldName = fieldContent.getField();
+		List<FieldValueItem> vals = fieldContent.getValues();
+		if (vals != null) {
+			values = new ArrayList<String>(1);
+			for (FieldValueItem val : vals)
+				values.add(val.value);
+		} else
+			values = null;
+	}
+
 	public static final void addFieldValue(JSONObject json,
 			List<FieldValueList> list) throws JSONException {
 		if (!json.has("value"))
@@ -92,4 +105,13 @@ public class FieldValueList {
 		return null;
 	}
 
+	public static final List<FieldValueList> getNewList(
+			IndexDocument indexDocument) {
+		if (indexDocument == null)
+			return null;
+		List<FieldValueList> fields = new ArrayList<FieldValueList>();
+		for (FieldContent fieldContent : indexDocument)
+			fields.add(new FieldValueList(fieldContent));
+		return fields;
+	}
 }
