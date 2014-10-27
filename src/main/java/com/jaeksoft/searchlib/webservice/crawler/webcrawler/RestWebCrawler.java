@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -83,7 +83,7 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
-	public CommonListResult extractPatternsInclusion(
+	public CommonListResult<String> extractPatternsInclusion(
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
@@ -109,7 +109,7 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/exclusion")
-	public CommonListResult extractPatternsExclusion(
+	public CommonListResult<String> extractPatternsExclusion(
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@QueryParam("starts_with") String startsWith);
@@ -119,14 +119,16 @@ public interface RestWebCrawler {
 	@Path("/crawl")
 	public CommonResult crawl(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("url") String url);
+			@QueryParam("url") String url,
+			@QueryParam("returnData") Boolean returnData);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/crawl")
 	public CommonResult crawlPost(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@FormParam("url") String url);
+			@FormParam("url") String url,
+			@FormParam("returnData") Boolean returnData);
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
