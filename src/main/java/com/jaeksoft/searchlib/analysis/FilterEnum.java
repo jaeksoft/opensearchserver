@@ -62,6 +62,9 @@ public enum FilterEnum {
 	HunspellStemFilter(
 			"This filter apply lemmatisation using an Hunspell dictionary"),
 
+	HunspellSuggestFilter(
+			"This filter provide suggestion based on an Hunspell dictionary"),
+
 	IndexLookupFilter("This filter extracts terms found in a search request"),
 
 	ISOLatin1AccentFilter(

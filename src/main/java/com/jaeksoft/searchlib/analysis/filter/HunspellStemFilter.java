@@ -53,12 +53,18 @@ public class HunspellStemFilter extends FilterFactory {
 			dict_path = value;
 	}
 
+	protected TokenStream newTokenFilter(TokenStream input,
+			Hunspell.Dictionary dict) {
+		return new HunspellStemTokenFilter(input, dict);
+	}
+
 	@Override
-	public TokenStream create(TokenStream input) throws SearchLibException {
+	final public TokenStream create(TokenStream input)
+			throws SearchLibException {
 		try {
 			Hunspell.Dictionary dict = Hunspell.getInstance().getDictionary(
 					dict_path);
-			return new HunspellStemTokenFilter(input, dict);
+			return newTokenFilter(input, dict);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -66,7 +72,7 @@ public class HunspellStemFilter extends FilterFactory {
 
 	public static class HunspellStemTokenFilter extends AbstractTermFilter {
 
-		private final Hunspell.Dictionary hunspell_dict;
+		protected final Hunspell.Dictionary hunspell_dict;
 
 		private List<String> wordQueue = null;
 
@@ -94,9 +100,13 @@ public class HunspellStemFilter extends FilterFactory {
 			return true;
 		}
 
+		protected List<String> getWords(String currentTerm) {
+			return hunspell_dict.stem(currentTerm);
+		}
+
 		private final void createTokens() {
 			currentTerm = termAtt.toString();
-			wordQueue = hunspell_dict.stem(currentTerm);
+			wordQueue = getWords(currentTerm);
 			if (wordQueue != null && wordQueue.size() > 0)
 				currentTerm = null;
 			currentPos = 0;
