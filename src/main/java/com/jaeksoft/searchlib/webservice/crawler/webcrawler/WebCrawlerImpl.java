@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,9 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.BooleanUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,7 +51,9 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
@@ -61,6 +66,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
+import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		RestWebCrawler {
@@ -221,7 +227,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return deletePatterns(index, login, key, deleteList, false);
 	}
 
-	public CommonListResult extractPatterns(String index, String login,
+	public CommonListResult<String> extractPatterns(String index, String login,
 			String key, String startsWith, boolean inclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
@@ -232,7 +238,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 					.getExclusionPatternManager();
 			List<String> patterns = new ArrayList<String>();
 			patternManager.getPatterns(startsWith, patterns);
-			return new CommonListResult(patterns);
+			return new CommonListResult<String>(patterns);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -243,19 +249,20 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonListResult extractPatternsInclusion(String index,
+	public CommonListResult<String> extractPatternsInclusion(String index,
 			String login, String key, String startsWith) {
 		return extractPatterns(index, login, key, startsWith, true);
 	}
 
 	@Override
-	public CommonListResult extractPatternsExclusion(String index,
+	public CommonListResult<String> extractPatternsExclusion(String index,
 			String login, String key, String startsWith) {
 		return extractPatterns(index, login, key, startsWith, false);
 	}
 
 	@Override
-	public CommonResult crawl(String use, String login, String key, String url) {
+	public CommonResult crawl(String use, String login, String key, String url,
+			Boolean returnData) {
 		try {
 			WebCrawlMaster crawlMaster = getCrawlMaster(use, login, key);
 			WebCrawlThread webCrawlThread = crawlMaster.manualCrawl(
@@ -265,11 +272,32 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			if (!webCrawlThread.waitForEnd(3600))
 				throw new WebServiceException("Time out reached (3600 seconds)");
 			UrlItem urlItem = webCrawlThread.getCurrentUrlItem();
+			CommonResult cr = null;
+			if (BooleanUtils.isTrue(returnData)) {
+				Crawl crawl = webCrawlThread.getCurrentCrawl();
+				if (crawl != null) {
+					List<IndexDocument> indexDocuments = crawl
+							.getTargetIndexDocuments();
+					if (CollectionUtils.isNotEmpty(indexDocuments)) {
+						CommonListResult<List<FieldValueList>> clr = new CommonListResult<List<FieldValueList>>(
+								indexDocuments.size());
+						for (IndexDocument indexDocument : indexDocuments) {
+							List<FieldValueList> list = FieldValueList
+									.getNewList(indexDocument);
+							if (list != null)
+								clr.items.add(list);
+						}
+						cr = clr;
+					}
+				}
+			}
+
 			String message = urlItem != null ? "Result: "
 					+ urlItem.getFetchStatus() + " - "
 					+ urlItem.getParserStatus() + " - "
 					+ urlItem.getIndexStatus() : null;
-			CommonResult cr = new CommonResult(true, message);
+			if (cr == null)
+				cr = new CommonResult(true, message);
 			cr.addDetail("URL", urlItem.getUrl());
 			cr.addDetail("HttpResponseCode", urlItem.getResponseCode());
 			cr.addDetail("RobotsTxtStatus", urlItem.getRobotsTxtStatus());
@@ -306,8 +334,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	@Override
 	public CommonResult crawlPost(String use, String login, String key,
-			String url) {
-		return crawl(use, login, key, url);
+			String url, Boolean returnData) {
+		return crawl(use, login, key, url, returnData);
 	}
 
 	@Override

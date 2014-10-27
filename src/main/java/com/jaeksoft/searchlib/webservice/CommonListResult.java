@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,39 +33,38 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.autocompletion.AutoCompletionItem;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class CommonListResult extends CommonResult {
+@JsonInclude(Include.NON_NULL)
+public class CommonListResult<T> extends CommonResult {
 
-	public final Collection<String> items;
+	public final Collection<T> items;
 
 	public CommonListResult() {
 		items = null;
 	}
 
-	public CommonListResult(Set<String> items) {
+	public CommonListResult(int size) {
+		items = new ArrayList<T>(size);
+	}
+
+	public CommonListResult(Set<T> items) {
 		super(true, items.size() + " item(s) found");
 		this.items = items;
 	}
 
-	public CommonListResult(String[] items) {
+	public CommonListResult(T[] items) {
 		super(true, items == null ? "No items" : items.length
 				+ " item(s) found");
 		this.items = items == null ? null : Arrays.asList(items);
 	}
 
-	public CommonListResult(List<String> items) {
+	public CommonListResult(List<T> items) {
 		super(true, items.size() + " item(s) found");
 		this.items = items;
-	}
-
-	public CommonListResult(Collection<AutoCompletionItem> items) {
-		super(true, items.size() + " item(s) found");
-		this.items = new ArrayList<String>(items.size());
-		for (AutoCompletionItem item : items)
-			this.items.add(item.getName());
 	}
 
 	public void computeInfos() {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -90,5 +90,6 @@ public interface SoapWebCrawler {
 	public CommonResult crawl(@WebParam(name = "use") String use,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key,
-			@WebParam(name = "url") String url);
+			@WebParam(name = "url") String url,
+			@WebParam(name = "returnData") Boolean returnData);
 }

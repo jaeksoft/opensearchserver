@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.webservice.autocompletion;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
@@ -151,12 +152,18 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult<String> list(String index, String login, String key) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
-			return new CommonListResult(manager.getItems());
+			Collection<AutoCompletionItem> items = manager.getItems();
+			CommonListResult<String> result = new CommonListResult<String>(
+					items.size());
+			for (AutoCompletionItem item : items)
+				result.items.add(item.getName());
+			result.computeInfos();
+			return result;
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
@@ -165,5 +172,4 @@ public class AutoCompletionImpl extends CommonServices implements
 			throw new CommonServiceException(e);
 		}
 	}
-
 }
