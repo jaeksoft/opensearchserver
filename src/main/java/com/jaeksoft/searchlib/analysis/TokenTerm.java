@@ -41,6 +41,15 @@ public class TokenTerm {
 	public final String type;
 	public final int flags;
 
+	public TokenTerm() {
+		term = null;
+		start = 0;
+		end = 0;
+		increment = 0;
+		type = null;
+		flags = 0;
+	}
+
 	public TokenTerm(String term, int start, int end, int increment,
 			String type, int flags) {
 		this.term = term;

@@ -44,6 +44,10 @@ public class AnalyzerListResult extends CommonResult {
 
 	public final List<AnalyzerListItem> analyzers;
 
+	public AnalyzerListResult() {
+		analyzers = null;
+	}
+
 	AnalyzerListResult(AnalyzerList analyzerList) {
 		super(true, null);
 		if (analyzerList == null) {
@@ -69,10 +73,16 @@ public class AnalyzerListResult extends CommonResult {
 	}
 
 	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class AnalyzerListItem {
 
 		public final String name;
 		public final LanguageEnum lang;
+
+		public AnalyzerListItem() {
+			name = null;
+			lang = null;
+		}
 
 		public AnalyzerListItem(Analyzer analyzer) {
 			this.name = analyzer.getName();

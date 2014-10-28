@@ -411,7 +411,6 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		@XmlTransient
 		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.TermFilter();
 			apply(filter);
@@ -458,7 +457,6 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		@XmlTransient
 		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.GeoFilter();
 			apply(filter);
@@ -512,7 +510,6 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@Override
 		@JsonIgnore
-		@XmlTransient
 		public FilterAbstract<?> newFilter() {
 			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.RelativeDateFilter();
 			apply(filter);

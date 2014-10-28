@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.learning;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -156,7 +156,7 @@ public interface LearnerInterface {
 	 * @return
 	 * @throws SearchLibException
 	 */
-	public Map<String, List<String>> getCustoms(String name)
+	public TreeMap<String, ArrayList<String>> getCustoms(String name)
 			throws SearchLibException;
 
 	/**

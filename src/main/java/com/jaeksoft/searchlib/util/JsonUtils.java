@@ -30,8 +30,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -98,7 +99,7 @@ public class JsonUtils {
 	public final static TypeReference<Map<String, String>> MapStringStringTypeRef = new TypeReference<Map<String, String>>() {
 	};
 
-	public final static TypeReference<Map<String, List<String>>> MapStringListStringTypeRef = new TypeReference<Map<String, List<String>>>() {
+	public final static TypeReference<TreeMap<String, ArrayList<String>>> MapStringListStringTypeRef = new TypeReference<TreeMap<String, ArrayList<String>>>() {
 	};
 
 }

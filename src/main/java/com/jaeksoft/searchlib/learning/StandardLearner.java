@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -469,7 +468,7 @@ public class StandardLearner implements LearnerInterface {
 	}
 
 	@Override
-	public Map<String, List<String>> getCustoms(String name)
+	public TreeMap<String, ArrayList<String>> getCustoms(String name)
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
 				.getNewRequest(REQUEST_CUSTOM);
