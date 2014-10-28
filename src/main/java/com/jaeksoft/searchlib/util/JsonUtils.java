@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -70,10 +70,10 @@ public class JsonUtils {
 		mapper.writeValue(file, object);
 	}
 
-	public final static TypeReference<Map<String, String>> MapStringStringTypeRef = new TypeReference<Map<String, String>>() {
+	public final static TypeReference<TreeMap<String, String>> MapStringStringTypeRef = new TypeReference<TreeMap<String, String>>() {
 	};
 
-	public final static TypeReference<Map<String, List<String>>> MapStringListStringTypeRef = new TypeReference<Map<String, List<String>>>() {
+	public final static TypeReference<TreeMap<String, ArrayList<String>>> MapStringListStringTypeRef = new TypeReference<TreeMap<String, ArrayList<String>>>() {
 	};
 
 }

@@ -44,12 +44,14 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 public class MonitorResult extends CommonResult {
 
 	@XmlElement
-	public MonitorBasic basic = null;
+	final public MonitorBasic basic;
 
 	@XmlElement(name = "property")
-	public List<MonitorProperties> properties = null;
+	final public List<MonitorProperties> properties;
 
 	public MonitorResult() {
+		basic = null;
+		properties = null;
 	}
 
 	public MonitorResult(boolean full) throws SearchLibException,
@@ -64,36 +66,45 @@ public class MonitorResult extends CommonResult {
 						prop.getKey().toString(), prop.getValue().toString());
 				properties.add(monitorProperties);
 			}
-		}
+		} else
+			properties = null;
 	}
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class MonitorBasic {
 		@XmlAttribute
-		public int availableProcessors = 0;
+		final public int availableProcessors;
 
 		@XmlAttribute
-		public long freeMemory = 0;
+		final public long freeMemory;
 
 		@XmlAttribute
-		public double memoryRate = 0;
+		final public double memoryRate;
 
 		@XmlAttribute
-		public long maxMemory = 0;
+		final public long maxMemory;
 
 		@XmlAttribute
-		public long totalMemory = 0;
+		final public long totalMemory;
 
 		@XmlAttribute
-		public int indexCount = 0;
+		final public int indexCount;
 
 		@XmlAttribute
-		public long freeDiskSpace = 0;
+		final public long freeDiskSpace;
 
 		@XmlAttribute
-		public Double freeDiskRate = null;
+		final public Double freeDiskRate;
 
 		public MonitorBasic() {
+			availableProcessors = 0;
+			freeMemory = 0;
+			memoryRate = 0;
+			maxMemory = 0;
+			totalMemory = 0;
+			indexCount = 0;
+			freeDiskSpace = 0;
+			freeDiskRate = null;
 		}
 
 		public MonitorBasic(Monitor monitor) throws SearchLibException,
@@ -113,10 +124,15 @@ public class MonitorResult extends CommonResult {
 	public static class MonitorProperties {
 
 		@XmlAttribute
-		public String name;
+		final public String name;
 
 		@XmlValue
-		public String value;
+		final public String value;
+
+		public MonitorProperties() {
+			name = null;
+			value = null;
+		}
 
 		public MonitorProperties(String name, String value) {
 			this.name = name;

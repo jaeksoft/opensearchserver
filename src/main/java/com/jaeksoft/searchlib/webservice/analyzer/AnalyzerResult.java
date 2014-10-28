@@ -35,7 +35,11 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class AnalyzerResult extends CommonResult {
 
-	public AnalyzerItem analyzer;
+	final public AnalyzerItem analyzer;
+
+	public AnalyzerResult() {
+		analyzer = null;
+	}
 
 	public AnalyzerResult(Analyzer analyzer) {
 		super(true, null);
