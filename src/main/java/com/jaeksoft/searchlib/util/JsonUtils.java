@@ -70,6 +70,19 @@ public class JsonUtils {
 		mapper.writeValue(file, object);
 	}
 
+<<<<<<< HEAD
+=======
+	public static void jsonToStream(Object object, OutputStream outputStream)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		mapper.writeValue(outputStream, object);
+	}
+
+	public static void jsonToWriter(Object object, Writer writer)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		mapper.writeValue(writer, object);
+	}
+
+>>>>>>> 37655c7... Final JAXB conformance
 	public final static TypeReference<TreeMap<String, String>> MapStringStringTypeRef = new TypeReference<TreeMap<String, String>>() {
 	};
 
