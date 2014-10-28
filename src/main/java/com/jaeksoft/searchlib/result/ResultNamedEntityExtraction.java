@@ -108,8 +108,8 @@ public class ResultNamedEntityExtraction extends
 			enrichedText.append(text.substring(lastPos));
 	}
 
-	public CharSequence getEnrichedText() {
-		return enrichedText;
+	public String getEnrichedText() {
+		return enrichedText.toString();
 	}
 
 	@Override
