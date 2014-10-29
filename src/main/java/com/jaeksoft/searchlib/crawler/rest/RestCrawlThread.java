@@ -72,6 +72,7 @@ public class RestCrawlThread extends
 
 	private final Collection<String> idsCallback;
 
+	@SuppressWarnings("unchecked")
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
 			RestCrawlItem restCrawlItem, Variables variables,
 			InfoCallback infoCallback) {
@@ -85,7 +86,7 @@ public class RestCrawlThread extends
 		pendingDeleteDocumentCount = 0;
 		this.infoCallback = infoCallback;
 		this.idsCallback = infoCallback != null
-				&& infoCallback instanceof CommonListResult ? ((CommonListResult) infoCallback).items
+				&& infoCallback instanceof CommonListResult<?> ? ((CommonListResult<String>) infoCallback).items
 				: null;
 	}
 
