@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.ocr.HocrPdf;
+import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -125,10 +126,7 @@ public class RendererResult {
 
 	final public String getOpenFolderUrl(ResultDocument resultDocument,
 			String url) {
-		if (filenameField == null || url == null)
-			return null;
-		String fn = resultDocument.getValueContent(filenameField, 0);
-		if (fn == null)
+		if (url == null)
 			return null;
 		if (!url.startsWith(("file:/")))
 			return null;
@@ -138,6 +136,20 @@ public class RendererResult {
 		if (i == -1)
 			return null;
 		return url.substring(0, i + 1);
+	}
+
+	final public String getOpenMailboxUrl(RendererWidget rendererWidget,
+			String[] values, String url) {
+		if (url == null)
+			return null;
+		if (!url.startsWith("mailto:/"))
+			return null;
+		String link = rendererWidget.getProperty("mailboxlink");
+		if (link == null)
+			return null;
+		if (values == null || values.length == 0)
+			return link;
+		return StringUtils.replace(link, "{field}", values[0]);
 	}
 
 	final public Client getClient() {

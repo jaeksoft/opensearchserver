@@ -44,7 +44,7 @@ public class NamedEntityResult {
 
 	@XmlElement(name = "document")
 	final public List<DocumentResult> documents;
-	final public CharSequence enrichedText;
+	final public String enrichedText;
 
 	public NamedEntityResult() {
 		documents = null;

@@ -24,10 +24,11 @@
 
 package com.jaeksoft.searchlib.learning;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -45,10 +46,20 @@ public class LearnerResultItem {
 
 	public int count;
 
-	public final Map<String, List<String>> customs;
+	public final TreeMap<String, ArrayList<String>> customs;
+
+	public LearnerResultItem() {
+		score = 0;
+		rank = 0;
+		target = null;
+		name = null;
+		highestScore = null;
+		count = 0;
+		customs = null;
+	}
 
 	public LearnerResultItem(double score, int rank, String target,
-			String name, int count, Map<String, List<String>> customs) {
+			String name, int count, TreeMap<String, ArrayList<String>> customs) {
 		this.score = score;
 		this.rank = rank;
 		this.target = target;
@@ -59,7 +70,7 @@ public class LearnerResultItem {
 	}
 
 	public LearnerResultItem(LearnerResultItem result,
-			Map<String, List<String>> customs) {
+			TreeMap<String, ArrayList<String>> customs) {
 		this(result.score, result.rank, result.target, result.name,
 				result.count, customs);
 	}

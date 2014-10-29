@@ -23,7 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice;
 
-import java.util.Map;
 import java.util.TreeMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -51,7 +50,7 @@ public class CommonResult implements InfoCallback {
 	public String info;
 
 	@XmlElement
-	public Map<String, String> details;
+	public TreeMap<String, String> details;
 
 	public CommonResult() {
 		successful = null;
