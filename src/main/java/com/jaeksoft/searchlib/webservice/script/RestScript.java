@@ -55,7 +55,7 @@ public interface RestScript {
 	@GET
 	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonListResult list(@PathParam("index_name") String index,
+	public CommonListResult<String> list(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
 	@GET

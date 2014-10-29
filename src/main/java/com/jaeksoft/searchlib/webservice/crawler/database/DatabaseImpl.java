@@ -48,7 +48,7 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 		RestDatabase {
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult<String> list(String index, String login, String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(index, login, key,
@@ -59,7 +59,7 @@ public class DatabaseImpl extends CommonServices implements SoapDatabase,
 			if (items != null)
 				for (DatabaseCrawlAbstract item : items)
 					nameList.add(item.getName());
-			return new CommonListResult(nameList);
+			return new CommonListResult<String>(nameList);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

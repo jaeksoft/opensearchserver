@@ -44,7 +44,7 @@ public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult<String> list(String index, String login, String key) {
 		return new SynonymsDirectoryImpl().list(index, login, key);
 	}
 

@@ -131,7 +131,7 @@ public class ScriptImpl extends CommonServices implements RestScript {
 	}
 
 	@Override
-	public CommonListResult list(String index, String login, String key) {
+	public CommonListResult<String> list(String index, String login, String key) {
 		return new ScriptDirectoryImpl().list(index, login, key);
 	}
 

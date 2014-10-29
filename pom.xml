@@ -47,12 +47,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http-hc</artifactId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-client</artifactId>
+			<artifactId>cxf-rt-transports-http-hc</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
@@ -125,11 +125,6 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
 			<version>${httpclient.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
@@ -496,7 +491,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<cxf.version>3.0.2</cxf.version>
+		<cxf.version>2.7.13</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.4</httpclient.version>
 		<poi.version>3.11-beta2</poi.version>

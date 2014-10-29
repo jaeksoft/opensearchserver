@@ -61,7 +61,8 @@ public class QueryTemplateResultList extends CommonResult {
 		setInfo(n + " template(s)");
 	}
 
-	public class QueryTemplate {
+	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+	public static class QueryTemplate {
 
 		final public String name;
 		final public String type;
