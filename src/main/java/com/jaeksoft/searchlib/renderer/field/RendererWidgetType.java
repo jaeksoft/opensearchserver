@@ -66,12 +66,8 @@ public enum RendererWidgetType {
 		return defaultProperties;
 	}
 
-	private final static RendererWidget INSTANCE = new RendererWidget();
-
 	public RendererWidget newInstance(String properties)
 			throws InstantiationException, IllegalAccessException, IOException {
-		if (widgetClass == RendererWidget.class)
-			return INSTANCE;
 		RendererWidget widget = widgetClass.newInstance();
 		widget.init(properties);
 		return widget;
