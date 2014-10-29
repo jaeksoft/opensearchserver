@@ -46,8 +46,8 @@ public class SynonymsImpl implements RestSynonyms {
 	}
 
 	@Override
-	public CommonListResult list(UriInfo uriInfo, String index, String login,
-			String key) {
+	public CommonListResult<String> list(UriInfo uriInfo, String index,
+			String login, String key) {
 		return new SynonymsDirectoryImpl().list(uriInfo, index, login, key);
 	}
 

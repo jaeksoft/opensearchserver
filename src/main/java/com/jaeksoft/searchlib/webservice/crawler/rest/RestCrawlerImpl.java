@@ -46,8 +46,8 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 
 	@Override
-	public CommonListResult list(UriInfo uriInfo, String index, String login,
-			String key) {
+	public CommonListResult<String> list(UriInfo uriInfo, String index,
+			String login, String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
@@ -57,7 +57,7 @@ public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 			if (items != null)
 				for (RestCrawlItem item : items)
 					nameList.add(item.getName());
-			return new CommonListResult(nameList);
+			return new CommonListResult<String>(nameList);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -82,7 +82,7 @@ public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 						"Crawl item not found: " + crawl_name);
 			if (returnIds == null)
 				returnIds = false;
-			CommonResult result = returnIds ? new CommonListResult(
+			CommonResult result = returnIds ? new CommonListResult<String>(
 					new ArrayList<String>(0)) : new CommonResult(true, null);
 			RestCrawlThread restCrawlThread = client
 					.getRestCrawlMaster()
@@ -95,7 +95,7 @@ public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 			if (restCrawlThread.getStatus() == CrawlStatus.ERROR)
 				throw new CommonServiceException(restCrawlThread.getException());
 			if (result instanceof CommonListResult)
-				((CommonListResult) result).computeInfos();
+				((CommonListResult<?>) result).computeInfos();
 			return result;
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);

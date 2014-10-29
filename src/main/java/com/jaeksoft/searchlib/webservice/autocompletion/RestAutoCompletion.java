@@ -49,7 +49,7 @@ public interface RestAutoCompletion {
 	@GET
 	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonListResult list(@Context UriInfo uriInfo,
+	public CommonListResult<String> list(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 

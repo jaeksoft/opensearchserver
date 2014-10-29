@@ -34,7 +34,8 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "RestCrawler")
 public interface SoapRestCrawler {
 
-	public CommonListResult list(@WebParam(name = "index") String index,
+	public CommonListResult<String> list(
+			@WebParam(name = "index") String index,
 			@WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 

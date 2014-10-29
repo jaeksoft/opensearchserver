@@ -45,7 +45,7 @@ public interface RestDatabase {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
-	public CommonListResult list(@Context UriInfo uriInfo,
+	public CommonListResult<String> list(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 

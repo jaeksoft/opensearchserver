@@ -48,8 +48,8 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class DatabaseImpl extends CommonServices implements RestDatabase {
 
 	@Override
-	public CommonListResult list(UriInfo uriInfo, String index, String login,
-			String key) {
+	public CommonListResult<String> list(UriInfo uriInfo, String index,
+			String login, String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
@@ -60,7 +60,7 @@ public class DatabaseImpl extends CommonServices implements RestDatabase {
 			if (items != null)
 				for (DatabaseCrawlAbstract item : items)
 					nameList.add(item.getName());
-			return new CommonListResult(nameList);
+			return new CommonListResult<String>(nameList);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

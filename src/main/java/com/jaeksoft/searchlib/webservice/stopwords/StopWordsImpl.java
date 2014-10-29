@@ -46,8 +46,8 @@ public class StopWordsImpl implements RestStopWords {
 	}
 
 	@Override
-	public CommonListResult list(UriInfo uriInfo, String index, String login,
-			String key) {
+	public CommonListResult<String> list(UriInfo uriInfo, String index,
+			String login, String key) {
 		return new StopWordsDirectoryImpl().list(uriInfo, index, login, key);
 	}
 

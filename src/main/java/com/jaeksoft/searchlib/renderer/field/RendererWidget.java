@@ -54,7 +54,14 @@ public class RendererWidget {
 		this.properties = loadProperties(properties);
 	}
 
+	final public String getProperty(String propertyName) {
+		if (properties == null)
+			return null;
+		return properties.getProperty(propertyName);
+	}
+
 	public String getValue(String value) {
 		return value;
 	}
+
 }
