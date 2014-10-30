@@ -18,7 +18,7 @@ Use this API to create or update an analyzer.
 **URL parameters:**
 
 - **_index\_name_** (required): The name of the index.
-- **_analyzer\_name_** (required): The name of the search template.
+- **_analyzer\_name_** (required): The name of the analyzer.
 - **_lang_** (required): The language of the analyzer.
 
 **Raw data (PUT):**
