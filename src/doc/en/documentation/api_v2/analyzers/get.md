@@ -13,7 +13,7 @@ This API returns the configuration of an analyzer.
 **URL parameters:**
 
 - **_index\_name_** (required): The name of the index.
-- **_template\_name_** (required): The name of the analyzer.
+- **_analyzer\_name_** (required): The name of the analyzer.
 - **_lang_** (required): The language of the analyzer.
 
 **Header** (optional returned type):
