@@ -155,6 +155,11 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
+			State state = getThreadState();
+			if (state == null)
+				return true;
+			if (state == State.TERMINATED)
+				return true;
 			return !isRunning();
 		}
 
