@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.renderer;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class RendererResult {
 
@@ -139,7 +141,7 @@ public class RendererResult {
 	}
 
 	final public String getOpenMailboxUrl(RendererWidget rendererWidget,
-			String[] values, String url) {
+			String[] values, String url) throws UnsupportedEncodingException {
 		if (url == null)
 			return null;
 		if (!url.startsWith("mailto:"))
@@ -149,7 +151,8 @@ public class RendererResult {
 			return null;
 		if (values == null || values.length == 0)
 			return link;
-		return StringUtils.replace(link, "{field}", values[0]);
+		return StringUtils.replace(link, "{field}",
+				LinkUtils.UTF8_URL_Encode(values[0]));
 	}
 
 	final public Client getClient() {
