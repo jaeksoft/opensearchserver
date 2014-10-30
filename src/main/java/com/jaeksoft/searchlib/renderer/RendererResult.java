@@ -142,7 +142,7 @@ public class RendererResult {
 			String[] values, String url) {
 		if (url == null)
 			return null;
-		if (!url.startsWith("mailto:/"))
+		if (!url.startsWith("mailto:"))
 			return null;
 		String link = rendererWidget.getProperty("mailboxlink");
 		if (link == null)
