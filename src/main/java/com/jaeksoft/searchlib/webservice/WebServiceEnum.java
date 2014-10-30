@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.webservice.fields.FieldImpl;
 import com.jaeksoft.searchlib.webservice.index.IndexImpl;
 import com.jaeksoft.searchlib.webservice.learner.LearnerImpl;
 import com.jaeksoft.searchlib.webservice.monitor.MonitorImpl;
+import com.jaeksoft.searchlib.webservice.parser.ParserImpl;
 import com.jaeksoft.searchlib.webservice.query.document.DocumentsImpl;
 import com.jaeksoft.searchlib.webservice.query.morelikethis.MoreLikeThisImpl;
 import com.jaeksoft.searchlib.webservice.query.namedEntity.NamedEntityImpl;
@@ -77,6 +78,8 @@ public enum WebServiceEnum {
 	MoreLikeThis(MoreLikeThisImpl.class, "/morelikethis"),
 
 	NamedEntity(NamedEntityImpl.class, "/namedentity"),
+
+	Parser(ParserImpl.class, "/parser"),
 
 	RestCrawler(RestCrawlerImpl.class, "/crawler/rest"),
 
