@@ -316,4 +316,16 @@ public abstract class ClassFactory {
 		return userProperties;
 	}
 
+	public void setUserProperty(String name, String value)
+			throws SearchLibException {
+		if (userProperties == null || name == null)
+			throw new SearchLibException("No properties");
+		for (ClassProperty prop : userProperties) {
+			if (name.equals(prop.getClassPropertyEnum().getName())) {
+				prop.setValue(value);
+				return;
+			}
+		}
+		throw new SearchLibException("Property " + name + " not found.");
+	}
 }
