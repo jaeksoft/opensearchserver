@@ -75,7 +75,6 @@ public class ParserSelector {
 	private ParserFactory[] parserFactoryArray;
 	private Map<String, Set<ParserFactory>> mimeTypeParserMap;
 	private Map<String, ParserFactory> extensionParserMap;
-	private ParserTypeEnum parserTypeEnum;
 
 	public ParserSelector(Config config) {
 		this.config = config;
@@ -85,7 +84,6 @@ public class ParserSelector {
 		webCrawlerFailOverParserFactory = null;
 		fileCrawlerFailOverParserFactory = null;
 		webCrawlerDefaultParserFactory = null;
-		parserTypeEnum = null;
 		mimeTypeParserMap = new TreeMap<String, Set<ParserFactory>>();
 		extensionParserMap = new TreeMap<String, ParserFactory>();
 		parserFactoryMap = new TreeMap<String, ParserFactory>();
@@ -470,19 +468,6 @@ public class ParserSelector {
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
-		}
-	}
-
-	protected ParserTypeEnum getNewParserTypeEnum() {
-		return new ParserTypeEnum();
-	}
-
-	final public ParserTypeEnum getParserTypeEnum() {
-		synchronized (this) {
-			if (parserTypeEnum != null)
-				return parserTypeEnum;
-			parserTypeEnum = getNewParserTypeEnum();
-			return parserTypeEnum;
 		}
 	}
 
