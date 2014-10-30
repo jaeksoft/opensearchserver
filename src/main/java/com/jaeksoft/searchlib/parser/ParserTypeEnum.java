@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,7 @@ import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 
-	public ParserTypeEnum() {
+	private ParserTypeEnum() {
 		new ParserType(this, "Audio", AudioParser.class);
 		new ParserType(this, "DOC", DocParser.class);
 		new ParserType(this, "DOCX", DocxParser.class);
@@ -61,4 +61,14 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 				return pt;
 		return null;
 	}
+
+	public ParserType findByName(String name) {
+		for (ParserType pt : this.getList())
+			if (pt.simpleName.equalsIgnoreCase(name))
+				return pt;
+		return null;
+	}
+
+	public final static ParserTypeEnum INSTANCE = new ParserTypeEnum();
+
 }
