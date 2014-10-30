@@ -32,7 +32,7 @@ The parser has been applied to file whose path has been given as parameter. Ever
 
 
     {  
-   "items":[  
+    "items":[  
       [  
          {  
             "fieldName":"author",
@@ -92,8 +92,8 @@ The parser has been applied to file whose path has been given as parameter. Ever
             ]
          }
       ]
-   ]
-}        
+     ]
+    }        
 
 ### Error response
 
