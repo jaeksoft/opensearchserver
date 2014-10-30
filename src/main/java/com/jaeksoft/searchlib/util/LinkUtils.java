@@ -160,7 +160,8 @@ public class LinkUtils {
 		return newEncodedURI(u).toURL();
 	}
 
-	public final static void main(String[] args) throws MalformedURLException {
+	public final static void main(String[] args) throws MalformedURLException,
+			UnsupportedEncodingException {
 		System.out.println(getLink(new URL(
 				"http://www.example.com/test/in-75?l=75&co=FR&start=20"),
 				"?l=75&co=FR&start=20", null, false));
@@ -173,6 +174,7 @@ public class LinkUtils {
 		System.out.println(lastPart("/my+file.png"));
 		System.out.println(lastPart("my+file.png"));
 		System.out.println(lastPart("my+folder/my+sub-folder/my+file.png"));
+		System.out.println(UTF8_URL_Encode("outlook:INBOX/~TEST TEST"));
 	}
 
 	public final static Map<String, String> getUniqueQueryParameters(

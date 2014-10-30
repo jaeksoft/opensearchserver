@@ -34,6 +34,7 @@ import javax.mail.Store;
 
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.sun.mail.pop3.POP3Folder;
+import com.sun.mail.pop3.POP3Message;
 
 public class POP3Crawler extends MailboxAbstractCrawler {
 
@@ -61,6 +62,6 @@ public class POP3Crawler extends MailboxAbstractCrawler {
 			throws MessagingException {
 		if (!(folder instanceof POP3Folder))
 			return null;
-		return ((POP3Folder) folder).getUID(message);
+		return ((POP3Message) message).getMessageID();
 	}
 }
