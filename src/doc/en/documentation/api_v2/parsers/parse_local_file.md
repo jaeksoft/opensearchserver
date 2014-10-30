@@ -107,5 +107,5 @@ The parsing failed. The reason is provided in the content.
 **Using CURL:**
 
     curl -XPUT -H "Content-Type: application/json" \
-        http://localhost:8080/services/rest/pdf?p.pdfCrackCommandLine=/usr/bin/pdfcrack&path=/home/henry/rulesofcompetitions.pdf
+        http://localhost:8080/services/rest/parser/pdf?p.pdfCrackCommandLine=/usr/bin/pdfcrack&path=/home/henry/rulesofcompetitions.pdf
     

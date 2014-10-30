@@ -113,5 +113,5 @@ The parsing failed. The reason is provided in the content.
 
     curl -XPUT -H "Content-Type: application/json" \
         -d @rulesofcompetitions.pdf \
-        http://localhost:8080/services/rest/pdf?p.pdfCrackCommandLine=/usr/bin/pdfcrack
+        http://localhost:8080/services/rest/parser/pdf?p.pdfCrackCommandLine=/usr/bin/pdfcrack
     

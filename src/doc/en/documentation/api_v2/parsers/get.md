@@ -79,7 +79,7 @@ The parser was not returned. The reason is provided in the content.
 
 **Using CURL:**
 
-    curl -XGET http://localhost:8080/services/rest/pdf/pdf
+    curl -XGET http://localhost:8080/services/rest/parser/pdf
     
 
 **Using jQuery:**
