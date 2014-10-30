@@ -96,7 +96,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			@XmlElement(name = "QueryFilter", type = QueryFilter.class),
 			@XmlElement(name = "TermFilter", type = TermFilter.class),
 			@XmlElement(name = "GeoFilter", type = GeoFilter.class),
-			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class) })
+			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class),
+			@XmlElement(name = "MirrorAndFilter", type = MirrorAndFilter.class) })
 	final public List<Filter> filters;
 
 	final public List<Sort> sorts;
@@ -317,7 +318,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			@JsonSubTypes.Type(value = QueryFilter.class, name = "QueryFilter"),
 			@JsonSubTypes.Type(value = TermFilter.class, name = "TermFilter"),
 			@JsonSubTypes.Type(value = GeoFilter.class, name = "GeoFilter"),
-			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter") })
+			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter"),
+			@JsonSubTypes.Type(value = MirrorAndFilter.class, name = "MirrorAndFilter") })
 	public static abstract class Filter {
 
 		final public Boolean negative;
