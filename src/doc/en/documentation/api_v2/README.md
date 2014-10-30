@@ -9,6 +9,7 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 * [Index](index/README.md): create, list, delete indexes.
 * [Analyzers](analyzers/README.md): create, list, delete analyzers.
 * [More Like This](more-like-this/README.md)
+* [Parsers](parsers/README.md): parse documents.
 * [Search template](search_template/README.md)
 * [Searching using fields](searching_using_fields/README.md)
 * [Searching with patterns](searching_using_patterns/README.md)
