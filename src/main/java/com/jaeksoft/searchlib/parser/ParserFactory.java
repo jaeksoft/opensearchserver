@@ -115,7 +115,7 @@ public class ParserFactory extends ClassFactory implements
 				parserName);
 	}
 
-	protected int getSizeLimit() {
+	public int getSizeLimit() {
 		ClassProperty prop = getProperty(ClassPropertyEnum.SIZE_LIMIT);
 		if (prop == null)
 			return 0;

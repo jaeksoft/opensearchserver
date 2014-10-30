@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.parser;
 
 import java.io.InputStream;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -37,8 +38,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
-import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.NameLinkItem;
+import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 public interface RestParser {
 
@@ -58,10 +59,10 @@ public interface RestParser {
 	@PUT
 	@Path("/parser/{parser_name}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public CommonResult put(@Context UriInfo uriInfo,
+	public CommonListResult<List<FieldValueList>> put(@Context UriInfo uriInfo,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("parser_name") String parser_name,
 			@QueryParam("lang") LanguageEnum language,
-			@QueryParam("params") String params, InputStream inputStream);
+			@QueryParam("path") String path, InputStream inputStream);
 
 }
