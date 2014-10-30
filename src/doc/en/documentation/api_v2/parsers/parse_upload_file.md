@@ -36,7 +36,7 @@ The parser has been applied to the given file. Every extracted fields are return
 
 
     {  
-   "items":[  
+    "items":[  
       [  
          {  
             "fieldName":"author",
@@ -96,8 +96,8 @@ The parser has been applied to the given file. Every extracted fields are return
             ]
          }
       ]
-   ]
-}
+     ]
+    }
     
 
 ### Error response
