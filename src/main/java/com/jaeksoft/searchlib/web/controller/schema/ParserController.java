@@ -183,7 +183,7 @@ public class ParserController extends CommonController {
 		ParserSelector parserSelector = client.getParserSelector();
 		if (parserSelector == null)
 			return null;
-		ParserTypeEnum parterTypeEnum = parserSelector.getParserTypeEnum();
+		ParserTypeEnum parterTypeEnum = ParserTypeEnum.INSTANCE;
 		if (parterTypeEnum == null)
 			return null;
 		return parterTypeEnum.getList();

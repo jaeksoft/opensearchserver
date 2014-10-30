@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -96,13 +96,12 @@ public class ParserFactory extends ClassFactory implements
 		return getProperty(ClassPropertyEnum.PARSER_FAIL_OVER_NAME).getValue();
 	}
 
-	public ParserType getParserType() throws SearchLibException {
+	public ParserType getParserType() {
 		if (parserType != null)
 			return parserType;
 		if (config == null)
 			return null;
-		parserType = config.getParserSelector().getParserTypeEnum()
-				.find(this.getClass());
+		parserType = ParserTypeEnum.INSTANCE.find(this.getClass());
 		return parserType;
 	}
 
