@@ -51,7 +51,7 @@
 							<label value="Cron expression " />
 							<button target="_blank"
 								label="Documentation"
-								href="http://en.wikipedia.org/wiki/CRON_expression" />
+								href="http://www.quartz-scheduler.org/documentation/quartz-1.x/tutorials/crontrigger" />
 						</vbox>
 						<grid>
 							<columns>
