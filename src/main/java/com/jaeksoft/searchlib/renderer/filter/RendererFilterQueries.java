@@ -87,7 +87,6 @@ public class RendererFilterQueries {
 	public void applyServletRequest(HttpServletRequest servletRequest) {
 		if (servletRequest.getParameter("fqc") != null)
 			filterQueries.clear();
-		@SuppressWarnings("unchecked")
 		Enumeration<String> en = servletRequest.getParameterNames();
 		if (en != null) {
 			while (en.hasMoreElements()) {

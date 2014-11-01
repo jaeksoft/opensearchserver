@@ -256,7 +256,8 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>cxf ws</servlet-name>
-		<url-pattern>/services/*</url-pattern>
+		<url-pattern>/rest/*</url-pattern>
+		<url-pattern>/services/rest/*</url-pattern>
 	</servlet-mapping>
 	<!-- End CXF -->
 
