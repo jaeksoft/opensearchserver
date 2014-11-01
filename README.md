@@ -92,7 +92,6 @@ Features
 
 ### General
 - REST API (XML and JSON)
-- SOAP Web Service
 - Monitoring module
 - Index replication
 - Scheduler for management of periodic tasks

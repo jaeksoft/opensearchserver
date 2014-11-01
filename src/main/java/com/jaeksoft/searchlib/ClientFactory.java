@@ -54,8 +54,6 @@ public class ClientFactory implements PropertyItemListener {
 
 	private PropertyItem<String> defaultWebBrowserDriver;
 
-	private PropertyItem<Boolean> soapActive;
-
 	private PropertyItem<Boolean> externalParser;
 
 	private PropertyItem<Boolean> logFullTrace;
@@ -102,9 +100,6 @@ public class ClientFactory implements PropertyItemListener {
 					"defaultWebBrowserDriver",
 					BrowserDriverEnum.FIREFOX.getName());
 			defaultWebBrowserDriver.addListener(this);
-			soapActive = advancedProperties.newBooleanProperty("soapActive",
-					false);
-			soapActive.addListener(this);
 			externalParser = advancedProperties.newBooleanProperty(
 					"externalParser", false);
 			externalParser.addListener(this);
@@ -191,10 +186,6 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<String> getDefaultWebBrowserDriver() {
 		return defaultWebBrowserDriver;
-	}
-
-	public PropertyItem<Boolean> getSoapActive() {
-		return soapActive;
 	}
 
 	public PropertyItem<Boolean> getExternalParser() {
