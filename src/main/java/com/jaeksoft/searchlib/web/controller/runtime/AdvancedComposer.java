@@ -83,10 +83,6 @@ public class AdvancedComposer extends CommonController {
 		return ClientFactory.INSTANCE.getBooleanQueryMaxClauseCount();
 	}
 
-	public PropertyItem<Boolean> getSoapActive() {
-		return ClientFactory.INSTANCE.getSoapActive();
-	}
-
 	public PropertyItem<Boolean> getExternalParser() {
 		return ClientFactory.INSTANCE.getExternalParser();
 	}

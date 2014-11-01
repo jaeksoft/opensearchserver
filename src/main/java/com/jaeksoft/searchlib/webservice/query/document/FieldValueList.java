@@ -105,11 +105,11 @@ public class FieldValueList {
 		return null;
 	}
 
-	public static final List<FieldValueList> getNewList(
+	public static final ArrayList<FieldValueList> getNewList(
 			IndexDocument indexDocument) {
 		if (indexDocument == null)
 			return null;
-		List<FieldValueList> fields = new ArrayList<FieldValueList>();
+		ArrayList<FieldValueList> fields = new ArrayList<FieldValueList>();
 		for (FieldContent fieldContent : indexDocument)
 			fields.add(new FieldValueList(fieldContent));
 		return fields;

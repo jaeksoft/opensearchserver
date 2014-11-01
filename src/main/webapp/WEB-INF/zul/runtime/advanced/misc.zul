@@ -46,12 +46,6 @@
 				value="Enable/disable the use of external process for text extraction." />
 		</row>
 		<row>
-			<label value="Enable the SOAP Web Service" />
-			<checkbox checked="@bind(advanced.soapActive.value)" />
-			<label
-				value="Enable/disable the SOAP Web Service. The instance must be restarted." />
-		</row>
-		<row>
 			<label value="Log full trace" />
 			<checkbox checked="@bind(advanced.logFullTrace.value)" />
 			<label value="Enable/disable logging the full stack trace." />

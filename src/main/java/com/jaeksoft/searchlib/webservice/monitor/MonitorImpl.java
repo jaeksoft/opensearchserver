@@ -32,8 +32,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class MonitorImpl extends CommonServices implements SoapMonitor,
-		RestMonitor {
+public class MonitorImpl extends CommonServices implements RestMonitor {
 
 	@Override
 	public MonitorResult monitor(String login, String key, boolean full) {

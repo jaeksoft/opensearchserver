@@ -33,6 +33,9 @@ import javax.ws.rs.core.MediaType;
 public interface RestMonitor {
 
 	@GET
+	public MonitorResult monitor(String login, String key, boolean full);
+
+	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/xml")
 	public MonitorResult getMonitorXML(@QueryParam("login") String login,
