@@ -243,7 +243,7 @@ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		<description>Apache CXF</description>
 		<display-name>CXF WS</display-name>
 		<servlet-name>cxf ws</servlet-name>
-		<servlet-class>com.jaeksoft.searchlib.web.ServicesServlet</servlet-class>
+		<servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
 			<param-value>com.jaeksoft.searchlib.webservice.RestApplication</param-value>
