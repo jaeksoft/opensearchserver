@@ -31,16 +31,22 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @XmlRootElement(name = "result")
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 public class CommonListResult<T> extends CommonResult {
 
+	@XmlElementWrapper(name = "item")
+	@XmlElements({ @XmlElement(name = "item", type = String.class),
+			@XmlElement(name = "item", type = NameLinkItem.class) })
 	public final Collection<T> items;
 
 	public CommonListResult() {
@@ -70,4 +76,5 @@ public class CommonListResult<T> extends CommonResult {
 	public void computeInfos() {
 		setInfo(items == null ? "No items" : items.size() + " item(s) found");
 	}
+
 }
