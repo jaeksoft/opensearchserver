@@ -52,7 +52,6 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.NameLinkItem;
-import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 public class ParserImpl extends CommonServices implements RestParser {
 
@@ -116,9 +115,9 @@ public class ParserImpl extends CommonServices implements RestParser {
 	}
 
 	@Override
-	public CommonListResult<List<FieldValueList>> put(UriInfo uriInfo,
-			String login, String key, String parserName, LanguageEnum language,
-			String path, InputStream inputStream) {
+	public ParserDocumentsResult put(UriInfo uriInfo, String login, String key,
+			String parserName, LanguageEnum language, String path,
+			InputStream inputStream) {
 		StreamLimiter streamLimiter = null;
 		try {
 			getLoggedUser(login, key);
@@ -145,17 +144,7 @@ public class ParserImpl extends CommonServices implements RestParser {
 						new File(path));
 			parser.doParserContent(null, streamLimiter, language);
 			List<ParserResultItem> parserResultList = parser.getParserResults();
-			if (parserResultList == null)
-				return new CommonListResult<List<FieldValueList>>();
-			CommonListResult<List<FieldValueList>> commonResultList = new CommonListResult<List<FieldValueList>>(
-					parserResultList.size());
-			for (ParserResultItem parserResultItem : parserResultList) {
-				List<FieldValueList> list = FieldValueList
-						.getNewList(parserResultItem.getParserDocument());
-				if (list != null && !list.isEmpty())
-					commonResultList.items.add(list);
-			}
-			return commonResultList;
+			return new ParserDocumentsResult(parserResultList);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -168,5 +157,4 @@ public class ParserImpl extends CommonServices implements RestParser {
 			IOUtils.close(streamLimiter);
 		}
 	}
-
 }
