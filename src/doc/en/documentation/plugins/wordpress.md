@@ -1,6 +1,6 @@
 ## OpenSearchServer plugin for Wordpress
 
-Plugin for Wordpress can be downloaded at Wordpress.org: [https://wordpress.org/plugins/opensearchserver-search/](https://wordpress.org/plugins/opensearchserver-search/)
+The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [https://wordpress.org/plugins/opensearchserver-search/](https://wordpress.org/plugins/opensearchserver-search/)
 
 # Actions and filters
 
@@ -9,8 +9,7 @@ Plugin for Wordpress can be downloaded at Wordpress.org: [https://wordpress.org/
 * Action **oss_create_schema**:
   * Description: called when creating schema of the index.
   * Parameters: `$schema`, `$schema_xml`
-  * Example: 
-    * Can be used to add other fields to the schema of the index:
+  * Example: can be used to add other fields to the schema of the index:
     
     ```php
     add_action('oss_create_schema', 'oss_create_schema', 10, 2 );
@@ -47,8 +46,7 @@ Plugin for Wordpress can be downloaded at Wordpress.org: [https://wordpress.org/
 * Action **oss_index_document**
   * Description: called at the end of the indexing of a document.
   * Parameters: `$document`, `$index`, `$lang`, `$post`, `$customFields`
-  * Example: 
-    * Can be used to add values to some custom fields:
+  * Example: can be used to add values to some custom fields:
     
     ```php
     add_action('oss_index_document', 'oss_index_document', 10, 5 );
