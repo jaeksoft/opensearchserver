@@ -24,8 +24,8 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
 
 * Description: called when indexing a document and giving value to its `autocomplete` field.
 * Parameters: 
-        * `$value`: original value that would be put in autocomplete field and then used for autocompletion,
-        * `$post`: content being indexed.
+    * `$value`: original value that would be put in autocomplete field and then used for autocompletion,
+    * `$post`: content being indexed.
 * Example: can be used to add more text in the autocomplete field, allowing for more suggestion in the autocompletion feature:
     
 ```php
