@@ -48,6 +48,8 @@
 	* [RUBY - Native RUBY](https://github.com/jaeksoft/oss_rb)
 	* [NODE JS](https://github.com/jaeksoft/node-oss-client)
 	* [PERL](https://github.com/jaeksoft/opensearchserver-perl-client)
+* [Modules and plugins](plugins/README.md)
+    * [Wordpress](plugins/wordpress.md)
 * [API v1 (XML/HTTP)](api_v1/README.md)
     * [Action API](api_v1/action.md)
     * [Database API](api_v1/database.md)
