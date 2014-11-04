@@ -6,7 +6,8 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
 
 ## At indexing time
 
-* Action **oss_create_schema**:
+### Action **oss_create_schema**
+
     * Description: called when creating schema of the index.
     * Parameters: `$schema`, `$schema_xml`
     * Example: can be used to add other fields to the schema of the index:
@@ -19,7 +20,8 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
     }   
     ```
     
-* Filter **oss_autocomplete_value**
+### Filter **oss_autocomplete_value**
+
     * Description: called when indexing a document and giving value to its `autocomplete` field.
     * Parameters: 
         * `$value`: original value that would be put in autocomplete field and then used for autocompletion,
@@ -43,7 +45,8 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
     }
     ```
     
-* Action **oss_index_document**
+### Action **oss_index_document**
+
     * Description: called at the end of the indexing of a document.
     * Parameters: `$document`, `$index`, `$lang`, `$post`, `$customFields`
     * Example: can be used to add values to some custom fields:
@@ -58,17 +61,20 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
 
 ## At query time
 
-* Filter **oss_search** 
+### Filter **oss_search** 
+
     * Description: called before submitting query to OpenSearchServer.
     * Parameter: `$oss_query`: query built with configuration made in admin page.
     * Example: can be used to customize the query, for instance forcing filtering on a particular value.
 
-* Filter **oss_search_getsearchfacet_without_each_facet**
+### Filter **oss_search_getsearchfacet_without_each_facet**
+
     * Description: called when queries to get facets are built.
     * Parameter: `$oss_query`
     * Example: can be used to customize the query, for instance forcing filtering on a particular value.
 
-* Filter **oss_facets_slugs**
+### Filter **oss_facets_slugs**
+
     * Description: called when writing slugs to use for facets' links.
     * Parameters: `$facetsSlugs`: slugs built from facets' names or from specific slugs values configured in admin page.
     * Example: can be used to override slugs, for instance taking them from a particular XML file.
