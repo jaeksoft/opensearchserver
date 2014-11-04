@@ -62,10 +62,12 @@ The OpenSearchServer plugin for Wordpress can be downloaded at Wordpress.org: [h
     * Description: called before submitting query to OpenSearchServer.
     * Parameter: `$oss_query`: query built with configuration made in admin page.
     * Example: can be used to customize the query, for instance forcing filtering on a particular value.
+
 * Filter **oss_search_getsearchfacet_without_each_facet**
     * Description: called when queries to get facets are built.
     * Parameter: `$oss_query`
     * Example: can be used to customize the query, for instance forcing filtering on a particular value.
+
 * Filter **oss_facets_slugs**
     * Description: called when writing slugs to use for facets' links.
     * Parameters: `$facetsSlugs`: slugs built from facets' names or from specific slugs values configured in admin page.
