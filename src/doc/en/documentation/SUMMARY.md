@@ -37,6 +37,7 @@
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
 		* [How to use the More Like This feature](faq/querying/how_to_use_more_like_this_feature.md)
 		* [How to use synonyms](faq/querying/how_to_use_synonyms.md)
+		* [How to use filters on query](faq/querying/how_to_use_filters_on_query.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [PHP - documentation for the previous version](clients/php_client/README.md)
