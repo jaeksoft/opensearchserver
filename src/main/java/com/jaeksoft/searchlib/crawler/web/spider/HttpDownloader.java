@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -47,7 +46,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
-import com.jaeksoft.searchlib.util.NetworksUtils;
 
 public class HttpDownloader extends HttpAbstract {
 
@@ -231,27 +229,24 @@ public class HttpDownloader extends HttpAbstract {
 	public static final String UA_CHROME = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
 
 	public static final void main(String[] args) throws IOException {
-		HttpDownloader downloader = new HttpDownloader(UA_CHROME, true, null);
-		for (SubnetInfo subnetInfo : NetworksUtils.getSubnetArray(args[0])) {
-			for (String addr : subnetInfo.getAllAddresses()) {
-				String httpAddr = "http://" + addr;
-				System.out.print(httpAddr);
-				System.out.print("=>");
-				String result;
-				try {
-					DownloadItem downloadItem = downloader.get(
-							new URI(httpAddr), null);
-					URI uri = downloader.getRedirectLocation();
-					if (uri == null)
-						uri = downloadItem.getUri();
-					result = uri == null ? null : uri.getHost();
-				} catch (Exception e) {
-					result = e.getMessage();
-					e.printStackTrace();
-				}
-				System.out.println(result);
-			}
+		HttpDownloader downloader = new HttpDownloader("OpenSearchServerBot",
+				true, null);
+		try {
+			downloader
+					.get(new URI("http://www.opensearchserver.com/robots.txt"),
+							null);
+			downloader.get(new URI("http://www.opensearchserver.com/"), null);
+		} catch (IllegalStateException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SearchLibException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+
 		downloader.release();
 	}
 }
