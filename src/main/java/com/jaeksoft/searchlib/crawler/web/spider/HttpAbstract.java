@@ -81,12 +81,13 @@ public abstract class HttpAbstract {
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
 	private HttpResponse httpResponse = null;
-	private HttpClientContext httpClientContext = null;
+	private final HttpClientContext httpClientContext;
 	private HttpRequestBase httpBaseRequest = null;
 	private ProxyHandler proxyHandler;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
 	private CredentialsProvider credentialsProvider;
+	private final CookieStore cookieStore;
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect,
 			ProxyHandler proxyHandler) {
@@ -123,12 +124,16 @@ public abstract class HttpAbstract {
 		builder.setDefaultAuthSchemeRegistry(authSchemeRegistry);
 
 		httpClient = builder.build();
+
+		httpClientContext = HttpClientContext.create();
+		cookieStore = new BasicCookieStore();
+		httpClientContext.setCookieStore(cookieStore);
+
 	}
 
 	protected void reset() {
 		httpResponse = null;
 		httpBaseRequest = null;
-		httpClientContext = null;
 		synchronized (this) {
 			if (httpEntity != null) {
 				try {
@@ -146,10 +151,8 @@ public abstract class HttpAbstract {
 			CredentialItem credentialItem, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, URISyntaxException {
 
-		CookieStore cookieStore = null;
-
+		// Filling the cookie store with configuration cookies
 		if (!CollectionUtils.isEmpty(cookies)) {
-			cookieStore = new BasicCookieStore();
 			List<Cookie> cookieList = cookieStore.getCookies();
 			for (CookieItem cookie : cookies) {
 				Cookie newCookie = cookie.getCookie();
@@ -181,10 +184,6 @@ public abstract class HttpAbstract {
 
 		httpBaseRequest.setConfig(configBuilber.build());
 
-		httpClientContext = HttpClientContext.create();
-		if (cookieStore != null)
-			httpClientContext.setCookieStore(cookieStore);
-
 		httpResponse = httpClient.execute(httpBaseRequest, httpClientContext);
 		if (httpResponse == null)
 			return;
@@ -195,8 +194,6 @@ public abstract class HttpAbstract {
 	public URI getRedirectLocation() {
 		synchronized (this) {
 			if (httpResponse == null)
-				return null;
-			if (httpClientContext == null)
 				return null;
 			try {
 				if (!redirectStrategy.isRedirected(httpBaseRequest,
