@@ -44,6 +44,8 @@ import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebScriptItem;
+import com.jaeksoft.searchlib.crawler.web.database.WebScriptManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -61,6 +63,7 @@ public class WebCrawlThread extends
 	private boolean exclusionEnabled;
 	private boolean inclusionEnabled;
 	private UrlCrawlQueue crawlQueue;
+	private final WebScriptManager webScriptManager;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, HostUrlList hostUrlList)
@@ -81,7 +84,7 @@ public class WebCrawlThread extends
 				propertyManager.getProxyHandler());
 		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
 		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
-
+		webScriptManager = config.getWebScriptManager();
 	}
 
 	private void sleepInterval(long max) {
@@ -101,6 +104,12 @@ public class WebCrawlThread extends
 
 		Iterator<UrlItem> iterator = urlList.iterator();
 		WebCrawlMaster crawlMaster = (WebCrawlMaster) getThreadMaster();
+
+		List<WebScriptItem> scriptList = webScriptManager.getItems("http://"
+				+ hostUrlList.getNamedItem().getName());
+		if (scriptList != null)
+			for (WebScriptItem scriptItem : scriptList)
+				scriptItem.exec(httpDownloader);
 
 		while (iterator.hasNext()) {
 
