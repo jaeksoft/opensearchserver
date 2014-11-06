@@ -33,6 +33,7 @@
 				visible="@load(webcrawler.webCrawlerParametersRights)" />
 			<tab id="tabCrawlerWebCookies" label="Cookies" />
 			<tab id="tabCrawlerWebHeaders" label="Headers" />
+			<tab id="tabCrawlerWebScripts" label="Scripts" />
 			<tab id="tabCrawlerWebRobotsTxt" label="Robots.txt" />
 			<tab id="tabCrawlerWebSitemap" label="Site Map" />
 		</tabs>
@@ -76,6 +77,9 @@
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebHeaders.onSelect">
 				<include src="WEB-INF/zul/crawler/web/headers.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawlerWebScripts.onSelect">
+				<include src="WEB-INF/zul/crawler/web/webscripts.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabCrawlerWebRobotsTxt.onSelect">
 				<include src="WEB-INF/zul/crawler/web/robotstxt.zul" />
