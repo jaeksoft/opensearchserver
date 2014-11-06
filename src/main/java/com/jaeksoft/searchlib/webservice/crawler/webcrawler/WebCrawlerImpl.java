@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
@@ -195,6 +196,59 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String login, String key, boolean replaceAll, List<String> patterns) {
 		return injectPatterns(uriInfo, index, login, key, replaceAll, patterns,
 				false);
+	}
+
+	private CommonResult getPatternStatusResult(
+			WebPropertyManager webPropertyManager) {
+		CommonResult commonResult = new CommonResult(true, null);
+		commonResult.addDetail("inclusion_enabled", webPropertyManager
+				.getInclusionEnabled().getValue());
+		commonResult.addDetail("exclusion_enabled", webPropertyManager
+				.getExclusionEnabled().getValue());
+		return commonResult;
+	}
+
+	@Override
+	public CommonResult getPatternStatus(UriInfo uriInfo, String index,
+			String login, String key) {
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
+					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			ClientFactory.INSTANCE.properties.checkApi();
+			WebPropertyManager webPropertyManager = client
+					.getWebPropertyManager();
+			return getPatternStatusResult(webPropertyManager);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult setPatternStatus(UriInfo uriInfo, String index,
+			String login, String key, Boolean inclusion, Boolean exclusion) {
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
+					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			ClientFactory.INSTANCE.properties.checkApi();
+			WebPropertyManager webPropertyManager = client
+					.getWebPropertyManager();
+			if (inclusion != null)
+				webPropertyManager.getInclusionEnabled().setValue(inclusion);
+			if (exclusion != null)
+				webPropertyManager.getExclusionEnabled().setValue(exclusion);
+			return getPatternStatusResult(webPropertyManager);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+
 	}
 
 	private CommonResult deletePatterns(UriInfo uriInfo, String index,

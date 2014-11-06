@@ -121,6 +121,20 @@ public interface RestWebCrawler {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/status")
+	public CommonResult getPatternStatus(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/patterns/status")
+	public CommonResult setPatternStatus(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("inclusion") Boolean inclusion,
+			@QueryParam("exclusion") Boolean exclusion);
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/crawl")
 	public CommonResult crawl(@Context UriInfo uriInfo,
 			@PathParam("index_name") String use,
