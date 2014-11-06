@@ -60,6 +60,14 @@
 				<filter class="ChineseFilter" />
 			</analyzer>
 
+			<!-- Czech -->
+			<analyzer name="TextAnalyzer" lang="cz"
+				tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+				<filter class="ISOLatin1AccentFilter" />
+				<filter class="CzechStemFilter" />
+			</analyzer>
+
 			<!-- Danish -->
 			<analyzer name="TextAnalyzer" lang="da"
 				tokenizer="LetterOrDigitTokenizerFactory">
