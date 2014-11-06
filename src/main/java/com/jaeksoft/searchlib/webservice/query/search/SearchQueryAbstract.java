@@ -64,6 +64,7 @@ import com.jaeksoft.searchlib.join.JoinItem.JoinType;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -106,6 +107,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public List<Facet> facets;
 	final public List<Join> joins;
 	final public List<Scoring> scorings;
+	final public List<BoostingQuery> boostingQueries;
 	final public Boolean enableLog;
 	final public List<String> customLogs;
 
@@ -124,6 +126,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		facets = null;
 		joins = null;
 		scorings = null;
+		boostingQueries = null;
 		enableLog = null;
 		customLogs = null;
 		emptyReturnsAll = true;
@@ -687,6 +690,28 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class BoostingQuery {
+
+		final public String patternQuery;
+		final public Float boost;
+
+		public BoostingQuery() {
+			patternQuery = null;
+			boost = null;
+		}
+
+		public BoostingQuery(BoostQuery boostQuery) {
+			patternQuery = boostQuery.getQuery();
+			boost = boostQuery.getBoost();
+		}
+
+		public BoostQuery newBoostQuery() {
+			return new BoostQuery(patternQuery, boost == null ? 1.0F : boost);
+		}
+	}
+
 	final private static List<Scoring> newScoringList(
 			final AdvancedScore advancedScore) {
 		if (advancedScore == null)
@@ -699,6 +724,17 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		for (AdvancedScoreItem advancedScoreItem : advancedScoreItems)
 			scorings.add(new Scoring(advancedScoreItem));
 		return scorings;
+	}
+
+	final private static List<BoostingQuery> newBoostingQueryList(
+			final BoostQuery[] boostQueries) {
+		if (boostQueries == null)
+			return null;
+		List<BoostingQuery> boostingQueries = new ArrayList<BoostingQuery>(
+				boostQueries.length);
+		for (BoostQuery boostQuery : boostQueries)
+			boostingQueries.add(new BoostingQuery(boostQuery));
+		return boostingQueries;
 	}
 
 	final private static List<Sort> newSortList(
@@ -950,6 +986,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		facets = newFacetList(request.getFacetFieldList());
 		joins = newJoinList(request.getJoinList());
 		scorings = newScoringList(request.getAdvancedScore());
+		boostingQueries = newBoostingQueryList(request.getBoostingQueries());
 		enableLog = request.isLogReport();
 		customLogs = newLogList(request.getCustomLogs());
 	}
@@ -1010,6 +1047,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			if (scorings != null)
 				for (Scoring scoring : scorings)
 					request.addAdvancedScore(scoring.newAdvancedScoreItem());
+			if (boostingQueries != null)
+				for (BoostingQuery boostingQuery : boostingQueries)
+					request.setBoostingQuery(null,
+							boostingQuery.newBoostQuery());
 			if (enableLog != null)
 				request.setLogReport(enableLog);
 			if (customLogs != null)
