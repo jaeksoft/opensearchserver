@@ -90,7 +90,7 @@ public class Lang {
 							.getResourceAsStream("/profiles/"
 									+ le.getAlternativeCode());
 				if (is == null) {
-					System.err.println("Not profile for lang " + le.getName());
+					System.err.println("No profile for lang " + le.getName());
 					continue;
 				}
 				profiles.add(IOUtils.readStringFromStream(is));

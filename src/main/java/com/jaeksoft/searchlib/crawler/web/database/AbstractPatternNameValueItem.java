@@ -34,10 +34,13 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class AbstractPatternNameValueItem {
+
+	protected final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected String pattern;
 
@@ -68,29 +71,53 @@ public abstract class AbstractPatternNameValueItem {
 
 	protected void writeXml(String nodeName, XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException {
-		xmlWriter.startElement(nodeName, "name",
-				new String(StringUtils.base64encode(name)), "value",
-				new String(StringUtils.base64encode(value)));
-		if (pattern != null)
-			xmlWriter.textNode(pattern);
-		xmlWriter.endElement();
+		rwl.r.lock();
+		try {
+			xmlWriter.startElement(
+					nodeName,
+					"name",
+					new String(StringUtils.base64encode(name)),
+					"value",
+					value == null ? null : new String(StringUtils
+							.base64encode(value)));
+			if (pattern != null)
+				xmlWriter.textNode(pattern);
+			xmlWriter.endElement();
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	abstract void writeXml(XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException;
 
 	public void copyTo(AbstractPatternNameValueItem item) {
-		item.pattern = this.pattern;
-		item.name = this.name;
-		item.value = this.value;
-		item.changeEvent();
+		rwl.r.lock();
+		try {
+			item.rwl.w.lock();
+			try {
+				item.pattern = this.pattern;
+				item.name = this.name;
+				item.value = this.value;
+				item.changeEvent();
+			} finally {
+				item.rwl.w.unlock();
+			}
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
 	 * @return the pattern
 	 */
 	final public String getPattern() {
-		return pattern;
+		rwl.r.lock();
+		try {
+			return pattern;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -101,7 +128,12 @@ public abstract class AbstractPatternNameValueItem {
 	 */
 	final public URL extractUrl() throws MalformedURLException,
 			URISyntaxException {
-		return LinkUtils.newEncodedURL(pattern);
+		rwl.r.lock();
+		try {
+			return LinkUtils.newEncodedURL(pattern);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -109,15 +141,25 @@ public abstract class AbstractPatternNameValueItem {
 	 *            the pattern to set
 	 */
 	final public void setPattern(String pattern) {
-		this.pattern = pattern;
-		changeEvent();
+		rwl.w.lock();
+		try {
+			this.pattern = pattern;
+			changeEvent();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
 	 * @return the name
 	 */
 	final public String getName() {
-		return name;
+		rwl.r.lock();
+		try {
+			return name;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -125,15 +167,25 @@ public abstract class AbstractPatternNameValueItem {
 	 *            the name to set
 	 */
 	final public void setName(String name) {
-		this.name = name;
-		changeEvent();
+		rwl.w.lock();
+		try {
+			this.name = name;
+			changeEvent();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	/**
 	 * @return the value
 	 */
 	final public String getValue() {
-		return value;
+		rwl.r.lock();
+		try {
+			return value;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	/**
@@ -141,12 +193,22 @@ public abstract class AbstractPatternNameValueItem {
 	 *            the value to set
 	 */
 	final public void setValue(String value) {
-		this.value = value;
-		changeEvent();
+		rwl.w.lock();
+		try {
+			this.value = value;
+			changeEvent();
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	final public boolean match(String sUrl) {
-		return sUrl.startsWith(pattern);
+		rwl.r.lock();
+		try {
+			return sUrl.startsWith(pattern);
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
 	protected abstract void changeEvent();

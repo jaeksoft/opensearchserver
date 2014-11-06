@@ -81,6 +81,7 @@ import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebScriptManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
@@ -142,6 +143,8 @@ public abstract class Config implements ThreadFactory {
 	private CredentialManager webCredentialManager = null;
 
 	private CookieManager webCookieManager = null;
+
+	private WebScriptManager webScriptManager = null;
 
 	private HeaderManager webHeaderManager = null;
 
@@ -1707,6 +1710,27 @@ public abstract class Config implements ThreadFactory {
 					"web_cookies.xml");
 		} finally {
 			cookieLock.w.unlock();
+		}
+	}
+
+	public final ReadWriteLock webScriptLock = new ReadWriteLock();
+
+	public WebScriptManager getWebScriptManager() throws SearchLibException {
+		webScriptLock.r.lock();
+		try {
+			if (webScriptManager != null)
+				return webScriptManager;
+		} finally {
+			webScriptLock.r.unlock();
+		}
+		webScriptLock.w.lock();
+		try {
+			if (webScriptManager != null)
+				return webScriptManager;
+			return webScriptManager = new WebScriptManager(indexDir,
+					"web_scripts.xml");
+		} finally {
+			webScriptLock.w.unlock();
 		}
 	}
 
