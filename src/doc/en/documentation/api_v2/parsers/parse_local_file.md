@@ -1,6 +1,6 @@
 ## Parse a document stored on the server
 
-Use this API to parse a file located on the OpenSearchServer's server.
+Use this API to parse a file located on the server hosting your OpenSearchServer instance.
 
 **Requirement:** OpenSearchServer v1.5.9
 
