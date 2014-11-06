@@ -1,41 +1,41 @@
-## How to use filters on query
+## How to use filters on a query
 
 OpenSearchServer's filtering feature allows for several types of filtering. Here are some common use cases.
 
-### How can I get documents having not null value in a specific field?
+### How can I get documents that have a non-null value in a specific field?
 
 This can be done using a `Query filter`. Use value `<field>:[* TO *]`. For example `product_price:[* TO *]`.
  
-### How can I filter on some range of values?
+### How can I filter on a range of values?
 
-Ranges are not expressed with signs `>` and `<` but rather with `[` and `]`. 
+Ranges are not expressed using the usual signs ( `>` and `<` ) but rather using `[` and `]`. 
 
-For example to filter on documents whose title begins by the letter `d` use a `Query filter` with value `title:[d TO *]`.
+For example to filter on documents whose title begins by the letter `d`, use a `Query filter` with the value `title:[d TO *]`.
 
-**Be careful**: this filter needs to be applied to a field that is not multivalued. This means for example that it cannot be applied to a field that uses analyzer `StandardAnalyzer` since this analyzer **tokenizes** values, and thus results in several values being indexed in the field. Have a look at the [How to use analyzer page](../indexing/how_to_use_analyzers.md) to understand it better. Range filters on text values should be applied to fields using a `KeywordLikeAnalyzer`: this analyzer converts all the text in lowercase and does not tokenize it. 
+**Be careful**: this filter CANNOT be applied to a multivalued field. For instance, it cannot be applied to a field that uses the `StandardAnalyzer` analyzer since this one **tokenizes** values, which results in several values being indexed in the field. Have a look at the [How to use analyzer page](../indexing/how_to_use_analyzers.md) to better understand this. Range filters on text values should be applied to fields using a `KeywordLikeAnalyzer`. This analyzer just converts all text to lowercase and does not tokenize anything. 
 
 ### How can I filter on numerical values?
 
-Numerical values need to be indexed in a field that uses a specific analyzer, for example `DecimalAnalyzer`. Please refer to the [How to use analyzer page](../indexing/how_to_use_analyzers.md) to understand it better.
+Numerical values need to be indexed in a field that uses a specific analyzer, for example `DecimalAnalyzer`. Please refer to the [How to use analyzers page](../indexing/how_to_use_analyzers.md) to better understand this analyser.
 
-Filters on numerical values need to use same format of number than the one given by the DecimalAnalyzer used on the field. For example use a `Query filter` with value `price:[>0000000045 TO *]` to get documents whose price is greater than 45. 
+When filtering using numerical values, the numbers must have the same format as the one set by the DecimalAnalyzer for this field. For example use a `Query filter` with the value `price:[>0000000045 TO *]` to get documents whose price is greater than 45, if that is how the analyzer renders 45 for that field.
 
 ### How can I filter on several values for one field?
 
-Use a `Query filter` and repeat the filter with different values, for example: `store_code:s32 store_code:s10 store_code:45`.
+Use a `Query filter` and repeat it using different values for each pass. Example: `store_code:s32 store_code:s10 store_code:45`.
 
-### How can I filter on several values for one field but at the same time excluding documents having a particular value in that field?
+### How can I filter on several values for one field *but* also exclude documents that have a particular value in that field?
 
-One could use a `Query filter` to do this, for instance:  `store_code:[* TO *] -store_code:45` would give documents where `store_code` is not null but without those whose `store_code` is `s45`.
+One could use a `Query filter` to do this, for instance:  `store_code:[* TO *] -store_code:45` would return documents where `store_code` is not null - and where the `store_code` *isn't* `s45`.
 
 Two `Query filter` could also be used here:
 
 * the first one to get all documents whose `store_code` is not null: `store_code:[* TO *]`
-* the second one to exclude some documents. Use for example a `Query filter` with value `store_code:45` and check the `Negative` checkbox (this is the same than using a `Query filter` with value `-store_code:45`).
+* the second one to exclude some documents. Use for example a `Query filter` with the value `store_code:45` and check the `Negative` checkbox (this is the same thing as using a `Query filter` with the value `-store_code:45`).
 
 ### How can I use a "negative" filter?
 
-Just check the `Negative` checkbox in the interface when creating the filter in a query template, or write `"negative": true,` in the "filters" part of the JSON sent to the API.
+Just check the `Negative` checkbox in the interface when creating the filter in a query template, or alternatively write `"negative": true,` in the "filters" part of the JSON sent to the API.
 
     "filters": [
       {
@@ -45,22 +45,21 @@ Just check the `Negative` checkbox in the interface when creating the filter in 
        }
     ]
 
-One could also use a `Query filter` and prefix its value with `-`, for instance `-promo:1`.
+One can also use a `Query filter` and prefix its value with a `-` sign, for instance `-promo:1`, to make it a negative filter.
 
-### What is the difference between Query Filter and Term Filter
+### What is the difference between a Query Filter and a Term Filter
 
-There is kind of no difference between those two. A `Query filter` with value `promo:1` is the same than a `Term filter` with Field = `promo` and Term = `1`.
+There isn't much of one, really. A `Query filter` with the value `promo:1` is the same than a `Term filter` with Field = `promo` and Term = `1`.
 
-However when it comes to filtering on several values for one field then you would want to use `Query filter` since `Term filter` can not be used for this purpose. 
+However when it comes to filtering on several values for one field then you'll want to use a `Query filter` since a `Term filter` can not be used for this purpose. 
 
 ### How can I dynamically filter on dates?
 
-When creating a query template it could be useful to be able to filter on a specific range of dates. This range could of course not being written statically in the query template since it has to change every day.
+When creating a query template it could be useful to filter using a specific range of dates. But of course, the values in this range will change every day, so they cannot be set in a static manner.
 
-`Relative date filter` can be used for this. Let's say that documents are indexed with the current date in the field `indexedDate`. This date would be for example `20141225130512` for the 25th of december, 2014, at 1:05:12 PM.
-This format can  be expressed as `yyyyMMddHHmmss`.
+The `Relative date filter` can be used for this. Let's say that documents are indexed with the current date in the field `indexedDate`. In our example the date is expressed using the `yyyyMMddHHmmss` format - for instance `20141225130512` stands for the 25th of December, 2014, at 1:05:12 PM.
 
-To filter on document indexed in the last two days one would create this `Relative date filter`:
+To filter on documents indexed in the last two days one would create the following `Relative date filter`:
 
 * Field: `indexedDate`
 * Date format: `yyyyMMddHHmmss`
@@ -89,4 +88,4 @@ To filter on document indexed in the last two days one would create this `Relati
 
 ### How can I use geolocation in filtering?
 
-Use a `Geo filter`. Please see page [Geolocation](geolocation.md) to learn more about this.
+Use a `Geo filter`. Please see the [Geolocation](geolocation.md) page to learn more about this.
