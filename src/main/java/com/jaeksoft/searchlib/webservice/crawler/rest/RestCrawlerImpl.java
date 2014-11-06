@@ -42,8 +42,7 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class RestCrawlerImpl extends CommonServices implements SoapRestCrawler,
-		RestRestCrawler {
+public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 
 	@Override
 	public CommonListResult<String> list(String index, String login, String key) {

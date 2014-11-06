@@ -43,8 +43,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
-		RestAnalyzer {
+public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 
 	@Override
 	public AnalyzerListResult list(String index, String login, String key) {

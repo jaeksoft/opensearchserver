@@ -36,8 +36,7 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class SchedulerImpl extends CommonServices implements RestScheduler,
-		SoapScheduler {
+public class SchedulerImpl extends CommonServices implements RestScheduler {
 
 	private JobItem getJobItem(Client client, String name)
 			throws SearchLibException {

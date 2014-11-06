@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class AutoCompletionImpl extends CommonServices implements
-		SoapAutoCompletion, RestAutoCompletion {
+		RestAutoCompletion {
 
 	private AutoCompletionItem getAutoCompItem(AutoCompletionManager manager,
 			String name) throws SearchLibException, IOException {

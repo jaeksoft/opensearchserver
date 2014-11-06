@@ -36,8 +36,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class LearnerImpl extends CommonServices implements SoapLearner,
-		RestLearner {
+public class LearnerImpl extends CommonServices implements RestLearner {
 
 	public static enum LearnerMode {
 		classify, similar;

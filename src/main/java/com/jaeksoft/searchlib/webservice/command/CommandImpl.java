@@ -37,8 +37,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
 
-public class CommandImpl extends CommonServices implements SoapCommand,
-		RestCommand {
+public class CommandImpl extends CommonServices implements RestCommand {
 
 	private Client getClient(String use, String login, String key) {
 		try {
@@ -53,7 +52,6 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
 	public CommonResult optimize(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);
@@ -66,7 +64,6 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
 	public CommonResult truncate(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);
@@ -79,7 +76,6 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
 	public CommonResult merge(String use, String login, String key, String index) {
 		try {
 			Client client = getClient(use, login, key);
@@ -94,7 +90,6 @@ public class CommandImpl extends CommonServices implements SoapCommand,
 		}
 	}
 
-	@Override
 	public CommonResult reload(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);

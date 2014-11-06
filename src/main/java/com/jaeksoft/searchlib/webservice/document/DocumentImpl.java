@@ -52,8 +52,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
-public class DocumentImpl extends CommonServices implements SoapDocument,
-		RestDocument {
+public class DocumentImpl extends CommonServices implements RestDocument {
 
 	public final static String UPDATED_COUNT = "updatedCount";
 	public final static String DELETED_COUNT = "deletedCount";

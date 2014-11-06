@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
+public class IndexImpl extends CommonServices implements RestIndex {
 
 	@Override
 	public CommonResult deleteIndex(String login, String key, String indexName) {
