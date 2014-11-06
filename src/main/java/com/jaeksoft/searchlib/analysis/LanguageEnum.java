@@ -34,6 +34,8 @@ public enum LanguageEnum {
 
 	DANISH("Danish", "da"),
 
+	CZECH("Czech", "cz"),
+
 	DUTCH("Dutch", "nl"),
 
 	ENGLISH("English", "en"),
