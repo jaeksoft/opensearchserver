@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class FieldImpl extends CommonServices implements SoapField, RestField {
+public class FieldImpl extends CommonServices implements RestField {
 
 	@Override
 	public CommonResult setField(String use, String login, String key,

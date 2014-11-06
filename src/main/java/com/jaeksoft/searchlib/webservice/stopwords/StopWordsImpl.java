@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class StopWordsImpl implements RestStopWords, SoapStopWords {
+public class StopWordsImpl implements RestStopWords {
 
 	private class StopWordsDirectoryImpl extends
 			AbstractDirectoryImpl<String, StopWordsManager> {

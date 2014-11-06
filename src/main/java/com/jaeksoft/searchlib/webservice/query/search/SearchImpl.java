@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
+public class SearchImpl extends CommonQuery implements RestSearch {
 
 	@Override
 	public QueryTemplateResultList searchTemplateList(String index,

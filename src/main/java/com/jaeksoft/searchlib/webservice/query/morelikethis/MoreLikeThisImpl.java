@@ -37,8 +37,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis,
-		SoapMoreLikeThis {
+public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis {
 
 	@Override
 	public QueryTemplateResultList moreLikeThisTemplateList(String index,

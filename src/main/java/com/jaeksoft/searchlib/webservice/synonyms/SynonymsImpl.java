@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.webservice.AbstractDirectoryImpl;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
-public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
+public class SynonymsImpl implements RestSynonyms {
 
 	private class SynonymsDirectoryImpl extends
 			AbstractDirectoryImpl<String, SynonymsManager> {

@@ -38,8 +38,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 
-public class SpellcheckImpl extends CommonQuery implements RestSpellCheck,
-		SoapSpellCheck {
+public class SpellcheckImpl extends CommonQuery implements RestSpellCheck {
 
 	@Override
 	public QueryTemplateResultList spellcheckTemplateList(String index,

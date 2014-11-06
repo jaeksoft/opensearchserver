@@ -44,8 +44,7 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class DatabaseImpl extends CommonServices implements SoapDatabase,
-		RestDatabase {
+public class DatabaseImpl extends CommonServices implements RestDatabase {
 
 	@Override
 	public CommonListResult<String> list(String index, String login, String key) {

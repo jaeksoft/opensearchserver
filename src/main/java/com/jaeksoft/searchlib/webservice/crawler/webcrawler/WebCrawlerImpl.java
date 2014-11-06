@@ -69,8 +69,7 @@ import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
-public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
-		RestWebCrawler {
+public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 
 	private WebCrawlMaster getCrawlMaster(String use, String login, String key) {
 		try {
@@ -115,7 +114,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return searchRequest;
 	}
 
-	@Override
 	public byte[] exportURLs(String use, String login, String key) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -137,7 +135,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		}
 	}
 
-	@Override
 	public byte[] exportSiteMap(String use, String host, String login,
 			String key) {
 		try {
@@ -391,7 +388,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		return crawl(use, login, key, url, returnData);
 	}
 
-	@Override
 	public CommonResult captureScreenshot(String use, String login, String key,
 			String url) {
 		try {
@@ -418,7 +414,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		}
 	}
 
-	@Override
 	public CommonResult checkScreenshot(String use, String login, String key,
 			String url) {
 		try {
