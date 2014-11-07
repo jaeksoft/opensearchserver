@@ -88,7 +88,13 @@ public abstract class AbstractPatternNameValueItem {
 		}
 	}
 
-	abstract void writeXml(XmlWriter xmlWriter)
+	public abstract boolean isCheckable();
+
+	public String check() {
+		return StringUtils.EMPTY;
+	}
+
+	protected abstract void writeXml(XmlWriter xmlWriter)
 			throws UnsupportedEncodingException, SAXException;
 
 	public void copyTo(AbstractPatternNameValueItem item) {
