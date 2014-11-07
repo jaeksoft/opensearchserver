@@ -32,6 +32,7 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class RegularExpressionReplaceFilter extends FilterFactory {
 
@@ -73,7 +74,7 @@ public class RegularExpressionReplaceFilter extends FilterFactory {
 				String replace, TokenStream input) {
 			super(input);
 			this.pattern = pattern;
-			this.replace = replace;
+			this.replace = replace == null ? StringUtils.EMPTY : replace;
 		}
 
 		@Override
