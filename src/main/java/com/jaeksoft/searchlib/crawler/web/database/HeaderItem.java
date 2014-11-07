@@ -67,4 +67,9 @@ public class HeaderItem extends AbstractPatternNameValueItem {
 		basicHeader = null;
 	}
 
+	@Override
+	public boolean isCheckable() {
+		return false;
+	}
+
 }

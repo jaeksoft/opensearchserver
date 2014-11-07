@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.web.script;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -33,8 +33,10 @@ import java.io.UnsupportedEncodingException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.crawler.web.database.AbstractPatternNameValueItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -74,18 +76,55 @@ public class WebScriptItem extends AbstractPatternNameValueItem {
 
 	@Override
 	protected void changeEvent() {
+		setScript(null);
+	}
+
+	@Override
+	public boolean isCheckable() {
+		return true;
+	}
+
+	@Override
+	public String check() {
+		getScript();
+		return script == null ? "Empty script" : "Successful compiling";
+	}
+
+	private ReadWriteLock syncLock = new ReadWriteLock();
+
+	private void setScript(Script script) {
+		syncLock.w.lock();
+		try {
+			this.script = script;
+		} finally {
+			syncLock.w.unlock();
+		}
+	}
+
+	public Script getScript() {
+		syncLock.r.lock();
+		try {
+			if (script != null)
+				return script;
+		} finally {
+			syncLock.r.unlock();
+		}
+		String v = getValue();
+		if (StringUtils.isEmpty(v))
+			return null;
 		GroovyShell shell = new GroovyShell();
-		script = shell.parse(value);
+		Script s = shell.parse(getValue());
+		setScript(s);
+		return s;
 	}
 
 	public void exec(HttpDownloader httpDownloader) {
-		if (script == null) {
-			GroovyShell shell = new GroovyShell();
-			script = shell.parse(getValue());
-		}
+		Script s = getScript();
+		if (s == null)
+			return;
 		Binding binding = new Binding();
 		binding.setVariable("downloader", httpDownloader);
-		script.setBinding(binding);
-		script.run();
+		s.setBinding(binding);
+		s.run();
 	}
 }
