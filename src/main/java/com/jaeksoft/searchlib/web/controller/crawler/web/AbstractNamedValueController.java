@@ -234,4 +234,11 @@ public abstract class AbstractNamedValueController<T extends AbstractPatternName
 		onCancel();
 	}
 
+	@Command
+	public void onCheck() throws InterruptedException {
+		if (currentItem == null)
+			return;
+		new AlertController(currentItem.check());
+	}
+
 }

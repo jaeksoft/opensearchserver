@@ -31,9 +31,17 @@
 				cols="80" />
 		</row>
 		<row>
-			<label value="Value: " />
+			<vlayout>
+				<label value="Value: " />
+				<button
+					visible="@load(namevaluectrl.currentItem.checkable)" label="Check"
+					onClick="@command('onCheck')" />
+			</vlayout>
 			<textbox value="@bind(namevaluectrl.currentItem.value)"
-				cols="100" rows="5" multiline="true" />
+				cols="150" rows="10" multiline="true" />
+		</row>
+		<row visible="@load(namevaluectrl.currentItem.checkable)">
+			<cell />
 		</row>
 	</rows>
 	<foot>
