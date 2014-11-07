@@ -8,7 +8,7 @@ The URL must match the pattern list.
 
 ### Call parameters
 
-**URL:** ```/services/rest/index/{index_name}/crawler/web/crawl?url={url}```
+**URL:** ```/services/rest/index/{index_name}/crawler/web/crawl?url={url}&returnData=true```
 
 **Method:** ```GET```
 
@@ -19,6 +19,7 @@ The URL must match the pattern list.
 **URL parameters:**
 - _**index_name**_ (required): The name of the index
 - _**url**_ (required): The URL to crawl
+- _**returnData**_ (optionnal): If set to true will return a JSON array with every extracted data
 
 ### Success response
 The page has been crawled.
@@ -30,7 +31,34 @@ The page has been crawled.
 
     {
         "successful": true,
-        "info": "Result: Fetched - Parsed - Indexed"
+        "info": "Result: Fetched - Parsed - Indexed",
+	    "details":{  
+			"ContentBaseType":"text/html",
+			"ContentLength":"-1",
+			"ContentTypeCharset":"UTF-8",
+			"FetchStatus":"Fetched",
+			"HttpResponseCode":"200",
+			"IndexStatus":"Indexed",
+			"ParserStatus":"Parsed",
+			"RobotsTxtStatus":"Allow",
+			"URL":"http://www.loremipsum.dolor/"
+		},
+		"items":[  
+		[  
+			{  
+				"fieldName":"title",
+				"values":[  
+				   "Lorem ipsum dolor sit amet"
+				]
+			},
+			{  
+				"fieldName":"content",
+				"values":[  
+				   "Vivamus consectetur lorem at metus lobortis, a ullamcorper sapien ornare. Donec et ornare mauris, at",
+				   "interdum libero. Fusce tempor purus laoreet, eleifend mi in, elementum velit. Nunc aliquet vulputate urna"
+				}
+			}
+		]
     }
 
 
@@ -50,7 +78,7 @@ The index has not been found.
 
 **Using CURL:**
 
-    curl -XGET http://localhost:8080/services/rest/index/my_index/crawler/web/crawl?url=http://www.example.org/
+    curl -XGET http://localhost:8080/services/rest/index/my_index/crawler/web/crawl?url=http://www.example.org/&returnData=true
 
 
 **Using jQuery:**
@@ -58,7 +86,7 @@ The index has not been found.
     $.ajax({ 
        type: "GET",
        dataType: "json",
-       url: "http://localhost:8080/services/rest/index/my_index/crawler/web/crawl?url=http://www.example.org/"
+       url: "http://localhost:8080/services/rest/index/my_index/crawler/web/crawl?url=http://www.example.org/&returnData=true"
     }).done(function (data) {
        console.log(data);
     });
