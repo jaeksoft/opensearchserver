@@ -77,4 +77,9 @@ public class CookieItem extends AbstractPatternNameValueItem {
 		basicClientCookie = null;
 	}
 
+	@Override
+	public boolean isCheckable() {
+		return false;
+	}
+
 }

@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.web.script;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.AbstractPatternNameValueManager;
 
 public class WebScriptManager extends
 		AbstractPatternNameValueManager<WebScriptItem> {
