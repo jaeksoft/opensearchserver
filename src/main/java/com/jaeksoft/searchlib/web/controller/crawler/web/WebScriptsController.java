@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.AbstractPatternNameValueManager;
-import com.jaeksoft.searchlib.crawler.web.database.WebScriptItem;
+import com.jaeksoft.searchlib.crawler.web.script.WebScriptItem;
 
 public class WebScriptsController extends
 		AbstractNamedValueController<WebScriptItem> {
