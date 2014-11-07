@@ -54,6 +54,7 @@ public class CommonListResult<T> extends CommonResult {
 	}
 
 	public CommonListResult(int size) {
+		super(true, null);
 		items = new ArrayList<T>(size);
 	}
 
