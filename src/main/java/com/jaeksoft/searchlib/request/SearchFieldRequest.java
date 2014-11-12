@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -63,6 +65,8 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 
 	private List<SearchField> searchFields;
 
+	private Map<String, String> queryStringMap;
+
 	public SearchFieldRequest() {
 		super(null, RequestTypeEnum.SearchFieldRequest);
 	}
@@ -75,6 +79,30 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	protected void setDefaultValues() {
 		super.setDefaultValues();
 		searchFields = new ArrayList<SearchField>(0);
+		queryStringMap = null;
+	}
+
+	public void setQueryString(String field, String queryString) {
+		if (queryStringMap == null)
+			queryStringMap = new TreeMap<String, String>();
+		if (StringUtils.isEmpty(queryString))
+			queryStringMap.remove(field);
+		else
+			queryStringMap.put(field, queryString);
+	}
+
+	public void setQueryString(Map<String, String> queryStringMap) {
+		if (this.queryStringMap == null)
+			this.queryStringMap = new TreeMap<String, String>();
+		else
+			this.queryStringMap.clear();
+		this.queryStringMap.putAll(queryStringMap);
+	}
+
+	final protected String getQueryString(String field) {
+		if (queryStringMap == null)
+			return null;
+		return queryStringMap.get(field);
 	}
 
 	@Override
@@ -85,6 +113,11 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		if (searchFieldRequest.searchFields != null)
 			for (SearchField searchField : searchFieldRequest.searchFields)
 				this.searchFields.add(searchField.clone());
+		if (searchFieldRequest.queryStringMap == null)
+			this.queryStringMap = null;
+		else
+			this.queryStringMap = new TreeMap<String, String>(
+					searchFieldRequest.queryStringMap);
 	}
 
 	final private Query getComplexQuery(final Collection<Query> queries) {
@@ -99,10 +132,16 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			ParseException, SyntaxError, SearchLibException {
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
 		List<Query> queries = new ArrayList<Query>(searchFields.size());
-		for (SearchField searchField : searchFields)
-			if (snippetFieldList.get(searchField.getField()) != null)
-				searchField.addQuery(analyzer, queryString, queries,
-						phraseSlop, Occur.SHOULD);
+		for (SearchField searchField : searchFields) {
+			String field = searchField.getField();
+			String query = getQueryString(field);
+			if (query == null)
+				query = queryString;
+			if (snippetFieldList.get(field) != null) {
+				searchField.addQuery(analyzer, query, queries, phraseSlop,
+						Occur.SHOULD);
+			}
+		}
 		return getComplexQuery(queries);
 	}
 
@@ -111,9 +150,12 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
 			return new MatchAllDocsQuery();
 		List<Query> queries = new ArrayList<Query>(searchFields.size());
-		for (SearchField searchField : searchFields)
-			searchField.addQuery(analyzer, queryString, queries, phraseSlop,
-					occur);
+		for (SearchField searchField : searchFields) {
+			String query = getQueryString(searchField.getField());
+			if (query == null)
+				query = queryString;
+			searchField.addQuery(analyzer, query, queries, phraseSlop, occur);
+		}
 		return getComplexQuery(queries);
 	}
 
