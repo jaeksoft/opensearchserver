@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.webservice.query.search;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -42,9 +43,11 @@ import com.jaeksoft.searchlib.request.SearchFieldRequest;
 public class SearchFieldQuery extends SearchQueryAbstract {
 
 	final public List<SearchField> searchFields;
+	final public Map<String, String> queryStringMap;
 
 	public SearchFieldQuery() {
 		searchFields = null;
+		queryStringMap = null;
 	}
 
 	@XmlAccessorType(XmlAccessType.FIELD)
@@ -121,6 +124,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 	public SearchFieldQuery(SearchFieldRequest request) {
 		super(request);
 		searchFields = newSearchFields(request.getSearchFields());
+		queryStringMap = null;
 	}
 
 	@Override
@@ -130,6 +134,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		if (searchFields != null)
 			for (SearchField searchField : searchFields)
 				fieldRequest.add(searchField.newSearchField());
-
+		if (queryStringMap != null)
+			fieldRequest.setQueryString(queryStringMap);
 	}
 }
