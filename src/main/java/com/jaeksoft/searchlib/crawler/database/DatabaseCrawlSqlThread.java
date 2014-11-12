@@ -211,6 +211,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		try {
 			transaction = databaseCrawl.getNewTransaction(connectionManager);
 			Query query = transaction.prepare(databaseCrawl.getSqlSelect());
+			query.getStatement().setFetchSize(databaseCrawl.getBufferSize());
 			ResultSet resultSet = query.getResultSet();
 
 			setStatus(CrawlStatus.CRAWL);

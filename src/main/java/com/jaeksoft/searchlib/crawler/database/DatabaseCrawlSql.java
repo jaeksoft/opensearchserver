@@ -327,6 +327,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 			pw = new PrintWriter(sw);
 			transaction = getNewTransaction(jdbcCnx);
 			Query query = transaction.prepare(sqlSelect);
+			query.getStatement().setFetchSize(getBufferSize());
 			ResultSet resultSet = query.getResultSet();
 			ResultSetMetaData metaData = resultSet.getMetaData();
 			int columnCount = metaData.getColumnCount();
