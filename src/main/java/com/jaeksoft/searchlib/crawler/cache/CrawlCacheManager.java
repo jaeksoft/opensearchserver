@@ -73,9 +73,8 @@ public class CrawlCacheManager implements Closeable {
 
 	private File propFile;
 
-	public CrawlCacheManager(File confDir)
-			throws InvalidPropertiesFormatException, IOException,
-			InstantiationException, IllegalAccessException {
+	public CrawlCacheManager(File confDir) throws InstantiationException,
+			IllegalAccessException, IOException {
 		crawlCache = null;
 		propFile = new File(confDir, CRAWLCACHE_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
@@ -90,7 +89,11 @@ public class CrawlCacheManager implements Closeable {
 		configuration = properties
 				.getProperty(CRAWCACHE_PROPERTY_CONFIGURATION);
 		crawlCache = crawlCacheProvider.getNewInstance();
-		setEnabled(enabled);
+		try {
+			setEnabled(enabled);
+		} catch (IOException e) {
+			Logging.warn("Enabling the crawl cache failed.", e);
+		}
 	}
 
 	private static CrawlCacheManager INSTANCE = null;
