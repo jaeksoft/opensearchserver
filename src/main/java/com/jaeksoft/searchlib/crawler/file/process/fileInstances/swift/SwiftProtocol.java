@@ -139,7 +139,7 @@ public class SwiftProtocol {
 			if (path != null && path.equals(objectMeta.pathName))
 				continue;
 			if (exclusionMatchers != null)
-				if (RegExpUtils.find(objectMeta.pathName, exclusionMatchers))
+				if (RegExpUtils.matches(objectMeta.pathName, exclusionMatchers))
 					continue;
 			objectMetaList.add(objectMeta);
 		}
