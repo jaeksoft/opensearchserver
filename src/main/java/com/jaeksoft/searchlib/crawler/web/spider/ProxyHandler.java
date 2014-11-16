@@ -119,7 +119,6 @@ public class ProxyHandler {
 
 	public void applyProxy(RequestConfig.Builder configBuilder, HttpHost proxy,
 			CredentialsProvider credentialsProvider) {
-		System.out.println("APPLY PROXY " + proxy.toHostString());
 		configBuilder.setProxy(proxy);
 		if (!StringUtils.isEmpty(username))
 			credentialsProvider.setCredentials(new AuthScope(proxy),
