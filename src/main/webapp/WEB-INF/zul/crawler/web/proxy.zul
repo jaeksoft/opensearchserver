@@ -29,8 +29,8 @@
 			</row>
 			<row>
 				<label value="Proxy Host :" />
-				<textbox id="proxyHost" cols="50"
-					value="@bind(proxy.properties.proxyHost.value)" />
+				<textbox id="proxyHost" cols="50" rows="5"
+					multiline="true" value="@bind(proxy.properties.proxyHost.value)" />
 			</row>
 			<row>
 				<label value="Proxy Port :" />

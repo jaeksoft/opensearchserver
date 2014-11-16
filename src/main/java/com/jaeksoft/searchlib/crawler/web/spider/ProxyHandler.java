@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,10 +28,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -41,10 +43,11 @@ import org.apache.http.client.config.RequestConfig;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class ProxyHandler {
 
-	final private HttpHost proxy;
+	final private List<HttpHost> proxyList;
 
 	final private Set<String> exclusionSet;
 
@@ -55,7 +58,7 @@ public class ProxyHandler {
 	public ProxyHandler(WebPropertyManager webPropertyManager)
 			throws SearchLibException {
 		if (!webPropertyManager.getProxyEnabled().getValue()) {
-			proxy = null;
+			proxyList = null;
 			exclusionSet = null;
 			username = null;
 			password = null;
@@ -65,7 +68,7 @@ public class ProxyHandler {
 		int proxyPort = webPropertyManager.getProxyPort().getValue();
 		if (proxyHost == null || proxyHost.trim().length() == 0
 				|| proxyPort == 0) {
-			proxy = null;
+			proxyList = null;
 			exclusionSet = null;
 			username = null;
 			password = null;
@@ -73,7 +76,15 @@ public class ProxyHandler {
 		}
 		username = webPropertyManager.getProxyUsername().getValue();
 		password = webPropertyManager.getProxyPassword().getValue();
-		proxy = new HttpHost(proxyHost, proxyPort, "http");
+
+		proxyList = new ArrayList<HttpHost>();
+		String[] proxyArray = StringUtils.splitLines(proxyHost);
+		for (String proxy : proxyArray) {
+			if (proxy == null)
+				continue;
+			proxy = proxy.trim();
+			proxyList.add(new HttpHost(proxy, proxyPort, "http"));
+		}
 		exclusionSet = new TreeSet<String>();
 		String line;
 		StringReader sr = null;
@@ -94,12 +105,21 @@ public class ProxyHandler {
 		}
 	}
 
-	public void check(RequestConfig.Builder configBuilder, URI uri,
+	public HttpHost getAnyProxy() {
+		if (proxyList == null)
+			return null;
+		return proxyList.get(RandomUtils.nextInt(0, proxyList.size()));
+	}
+
+	public boolean isProxy(URI uri) {
+		if (proxyList == null || uri == null)
+			return false;
+		return !exclusionSet.contains(uri.getHost());
+	}
+
+	public void applyProxy(RequestConfig.Builder configBuilder, HttpHost proxy,
 			CredentialsProvider credentialsProvider) {
-		if (proxy == null || uri == null)
-			return;
-		if (exclusionSet.contains(uri.getHost()))
-			return;
+		System.out.println("APPLY PROXY " + proxy.toHostString());
 		configBuilder.setProxy(proxy);
 		if (!StringUtils.isEmpty(username))
 			credentialsProvider.setCredentials(new AuthScope(proxy),

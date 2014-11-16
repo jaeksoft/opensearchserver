@@ -37,6 +37,7 @@ import java.util.Locale;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
@@ -83,7 +84,8 @@ public abstract class HttpAbstract {
 	private HttpResponse httpResponse = null;
 	private final HttpClientContext httpClientContext;
 	private HttpRequestBase httpBaseRequest = null;
-	private ProxyHandler proxyHandler;
+	private final ProxyHandler proxyHandler;
+	private final HttpHost proxyHost;
 	private HttpEntity httpEntity = null;
 	private StatusLine statusLine = null;
 	private CredentialsProvider credentialsProvider;
@@ -109,6 +111,7 @@ public abstract class HttpAbstract {
 			builder.disableRedirectHandling();
 
 		this.proxyHandler = proxyHandler;
+		proxyHost = proxyHandler == null ? null : proxyHandler.getAnyProxy();
 
 		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder
 				.<AuthSchemeProvider> create()
@@ -167,7 +170,7 @@ public abstract class HttpAbstract {
 		// No more than 10 minutes to establish the socket
 		// Enable stales connection checking
 		// Cookies uses best match policy
-		RequestConfig.Builder configBuilber = RequestConfig.custom()
+		RequestConfig.Builder configBuilder = RequestConfig.custom()
 				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
 				.setCookieSpec(CookieSpecs.BEST_MATCH)
 				.setStaleConnectionCheckEnabled(true)
@@ -179,10 +182,12 @@ public abstract class HttpAbstract {
 			credentialItem.setUpCredentials(credentialsProvider);
 
 		URI uri = httpBaseRequest.getURI();
-		if (proxyHandler != null)
-			proxyHandler.check(configBuilber, uri, credentialsProvider);
+		if (proxyHandler != null && proxyHost != null)
+			if (proxyHandler.isProxy(uri))
+				proxyHandler.applyProxy(configBuilder, proxyHost,
+						credentialsProvider);
 
-		httpBaseRequest.setConfig(configBuilber.build());
+		httpBaseRequest.setConfig(configBuilder.build());
 
 		httpResponse = httpClient.execute(httpBaseRequest, httpClientContext);
 		if (httpResponse == null)
