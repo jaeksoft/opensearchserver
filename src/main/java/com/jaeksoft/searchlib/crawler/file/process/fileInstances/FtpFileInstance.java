@@ -175,7 +175,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 				if (ff.getType() != FTPFile.FILE_TYPE)
 					return false;
 			if (exclusionMatchers != null)
-				if (RegExpUtils.find(ff.getLink(), exclusionMatchers))
+				if (RegExpUtils.matches(ff.getLink(), exclusionMatchers))
 					return false;
 			return true;
 		}

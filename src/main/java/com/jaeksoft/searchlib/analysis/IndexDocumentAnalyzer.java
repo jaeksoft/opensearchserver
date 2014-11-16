@@ -53,8 +53,6 @@ public class IndexDocumentAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public TokenStream tokenStream(String fieldName, Reader reader) {
-		if ("url".equals(fieldName))
-			System.out.println("TOKEN FOR " + fieldName);
 		return new IndexDocumentTokenStream(fieldMap.get(fieldName));
 	}
 
