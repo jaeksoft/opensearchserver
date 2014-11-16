@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,8 +34,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-
 public class RegExpUtils {
 
 	private final static String[] REGEXPS = { "(?s)<div id=\"filAriane\">.*?<span itemprop=\"title\">.*?<span itemprop=\"title\">(.*?)</span>" };
@@ -42,12 +41,17 @@ public class RegExpUtils {
 
 	public final static void main(String[] args) throws FileNotFoundException,
 			IOException {
-		String text = IOUtils.toString(new FileReader(FILE));
-		for (String regExp : REGEXPS) {
-			Pattern pattern = Pattern.compile(regExp);
-			for (String group : getGroups(pattern, text))
-				System.out.println("FIND: " + group);
+
+		if (new File(FILE).exists()) {
+			String text = IOUtils.toString(new FileReader(FILE));
+			for (String regExp : REGEXPS) {
+				Pattern pattern = Pattern.compile(regExp);
+				for (String group : getGroups(pattern, text))
+					System.out.println("FIND: " + group);
+			}
 		}
+		Matcher[] matchers = wildcardMatcherArray("*.html\n");
+		System.out.println(matches(FILE, matchers));
 	}
 
 	public static interface MatchGroupListener {
@@ -153,11 +157,11 @@ public class RegExpUtils {
 		}
 	}
 
-	public static boolean find(CharSequence input, Matcher[] matcherArray) {
+	public static boolean matches(CharSequence input, Matcher[] matcherArray) {
 		for (Matcher matcher : matcherArray) {
 			synchronized (matcher) {
 				matcher.reset(input);
-				if (matcher.find())
+				if (matcher.matches())
 					return true;
 			}
 		}
