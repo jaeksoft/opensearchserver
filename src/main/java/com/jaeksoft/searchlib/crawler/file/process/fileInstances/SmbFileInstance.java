@@ -188,7 +188,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 				if (f.isHidden())
 					return false;
 			if (exclusionMatcher != null)
-				if (RegExpUtils.find(f.getPath(), exclusionMatcher))
+				if (RegExpUtils.matches(f.getPath(), exclusionMatcher))
 					return false;
 			return true;
 		}

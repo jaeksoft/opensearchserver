@@ -62,7 +62,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 				if (f.isHidden())
 					return false;
 			if (exclusionMatchers != null)
-				if (RegExpUtils.find(file.getAbsolutePath(), exclusionMatchers))
+				if (RegExpUtils.matches(f.getAbsolutePath(), exclusionMatchers))
 					return false;
 			return true;
 		}
