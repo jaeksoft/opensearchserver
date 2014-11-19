@@ -48,6 +48,8 @@ public class HunspellSuggestFilter extends HunspellStemFilter {
 
 		@Override
 		protected List<String> getWords(String currentTerm) {
+			if (!hunspell_dict.misspelled(currentTerm))
+				return null;
 			List<String> words = hunspell_dict.suggest(currentTerm);
 			return words.contains(currentTerm) ? null : words;
 		}
