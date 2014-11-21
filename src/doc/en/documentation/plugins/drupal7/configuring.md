@@ -44,7 +44,7 @@ Click "Create index".
 
 ---
 
-If error _Fatal error: Class 'OssApi' not found in E:\Mes documents\Boulot\Workspace\drupal-7.33_2\sites\all\modules\drupalplugin_oss\service.inc on line 242_ is shown: please check that you followed steps from the section **Installing OpenSearchServer's PHP library** in [the Installing page](installing.md).
+If error _Fatal error: Class 'OssApi' not found in ...\drupal-7.33_2\sites\all\modules\drupalplugin_oss\service.inc on line 242_ is shown: please check that you followed steps from the section **Installing OpenSearchServer's PHP library** in [the Installing page](installing.md).
 
 ---
 
