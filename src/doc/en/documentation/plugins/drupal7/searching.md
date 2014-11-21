@@ -14,6 +14,8 @@ Since a fresh install is used here, we will create some test "Articles" and "Bas
 
 ![Add an article](drupal_createarticle.png)
 
+All content:
+
 ![Content](drupal_content.png)
 
 ### Creating a search page using Views
