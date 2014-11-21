@@ -48,8 +48,11 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 	final private TaskPropertyDef propItemName = new TaskPropertyDef(
 			TaskPropertyType.comboBox, "Item name", "Item name", null, 20);
 
+	final private TaskPropertyDef propTimeOut = new TaskPropertyDef(
+			TaskPropertyType.textBox, "Time out", "Time out", null, 14400);
+
 	final private TaskPropertyDef[] taskPropertyDefs = { propBuffersize,
-			propItemName };
+			propItemName, propTimeOut };
 
 	@Override
 	public String getName() {
@@ -78,6 +81,8 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
 		if (propertyDef == propBuffersize)
 			return "1000";
+		if (propertyDef == propTimeOut)
+			return "14400";
 		if (propertyDef == propItemName) {
 			try {
 				Iterator<AutoCompletionItem> iterator = config
@@ -100,12 +105,18 @@ public class TaskBuildAutocompletion extends TaskAbstract {
 			bufferSize = Integer.parseInt(p);
 		if (bufferSize <= 0)
 			bufferSize = 1000;
+		p = properties.getValue(propTimeOut);
+		int timeOut = 14400;
+		if (p != null && p.length() > 0)
+			timeOut = Integer.parseInt(p);
+		if (timeOut <= 0)
+			timeOut = 14400;
 		String name = properties.getValue(propItemName);
 		AutoCompletionItem autoCompItem = client.getAutoCompletionManager()
 				.getItem(name);
 		if (autoCompItem == null)
 			throw new SearchLibException("Autocompetion item not found: "
 					+ name);
-		autoCompItem.build(14400, bufferSize, taskLog);
+		autoCompItem.build(timeOut, bufferSize, taskLog);
 	}
 }
