@@ -52,8 +52,6 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	private volatile Thread thread;
 
-	private volatile boolean running;
-
 	private volatile long startTime;
 
 	private volatile long idleTime;
@@ -71,7 +69,6 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		abort = false;
 		thread = null;
 		info = null;
-		running = false;
 		startTime = 0;
 		idleTime = 0;
 		endTime = 0;
@@ -155,11 +152,6 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
-			State state = getThreadState();
-			if (state == null)
-				return true;
-			if (state == State.TERMINATED)
-				return true;
 			return !isRunning();
 		}
 
@@ -250,20 +242,35 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	final public void run() {
+	final private void initStart() {
 		rwl.w.lock();
 		try {
 			exception = null;
-			startTime = System.currentTimeMillis();
-			idleTime = startTime;
 			abort = false;
 			thread = Thread.currentThread();
 			thread.setName(getThreadName());
+			info = null;
+			startTime = System.currentTimeMillis();
+			idleTime = startTime;
+			endTime = 0;
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	final private void initEnd() {
+		rwl.w.lock();
+		try {
+			thread = null;
+			endTime = System.currentTimeMillis();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	final public void run() {
 		try {
 			runner();
 		} catch (Exception e) {
@@ -271,20 +278,14 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 			setInfo(e.getMessage());
 			if (!(e instanceof LimitException))
 				Logging.error(e.getMessage(), e);
-		}
-		if (threadMaster != null) {
-			threadMaster.remove((T) this);
-			synchronized (threadMaster) {
-				threadMaster.notify();
-			}
-		}
-		rwl.w.lock();
-		try {
-			thread = null;
-			running = false;
-			endTime = System.currentTimeMillis();
 		} finally {
-			rwl.w.unlock();
+			initEnd();
+			if (threadMaster != null) {
+				threadMaster.remove((T) this);
+				synchronized (threadMaster) {
+					threadMaster.notify();
+				}
+			}
 		}
 		release();
 	}
@@ -292,7 +293,13 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	public boolean isRunning() {
 		rwl.r.lock();
 		try {
-			return running;
+			if (thread == null)
+				return false;
+			if (thread.getState() == State.TERMINATED)
+				return false;
+			if (exception != null)
+				return false;
+			return endTime == 0;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -333,7 +340,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	final public void execute() {
 		rwl.w.lock();
 		try {
-			running = true;
+			initStart();
 			config.getThreadPool().execute(this);
 		} finally {
 			rwl.w.unlock();
