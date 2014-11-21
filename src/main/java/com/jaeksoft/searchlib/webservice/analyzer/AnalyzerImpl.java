@@ -114,8 +114,8 @@ public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 					Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AnalyzerList analyzerList = client.getSchema().getAnalyzerList();
-			boolean created = analyzerList.add(analyzer.get(client, name,
-					language));
+			boolean created = analyzerList.addOrUpdate(analyzer.get(client,
+					name, language));
 			client.saveConfig();
 			CommonResult result = new CommonResult(true, null);
 			result.addDetail("transaction", created ? "created" : "updated");

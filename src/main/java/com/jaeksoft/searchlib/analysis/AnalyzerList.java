@@ -72,17 +72,27 @@ public class AnalyzerList {
 	 * 
 	 * @param analyzer
 	 * @return true if it has been created, false if it was an update
+	 * @throws SearchLibException
+	 * @throws ClassNotFoundException
 	 */
-	public boolean add(Analyzer analyzer) {
+	public boolean addOrUpdate(Analyzer analyzer)
+			throws ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
+			String langKey = getAnalyzerLangKey(analyzer);
+			Analyzer oldAnalyzer = nameLangMap.get(langKey);
+			if (oldAnalyzer != null) {
+				oldAnalyzer.copyFrom(analyzer);
+				return false;
+			}
 			List<Analyzer> alist = nameListMap.get(analyzer.getName());
 			if (alist == null) {
 				alist = new ArrayList<Analyzer>();
 				nameListMap.put(analyzer.getName(), alist);
 			}
 			alist.add(analyzer);
-			return nameLangMap.put(getAnalyzerLangKey(analyzer), analyzer) == null;
+			nameLangMap.put(langKey, analyzer);
+			return true;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -163,7 +173,8 @@ public class AnalyzerList {
 		if (nodes == null)
 			return analyzers;
 		for (int i = 0; i < nodes.getLength(); i++)
-			analyzers.add(Analyzer.fromXmlConfig(config, xpp, nodes.item(i)));
+			analyzers.addOrUpdate(Analyzer.fromXmlConfig(config, xpp,
+					nodes.item(i)));
 		return analyzers;
 	}
 
