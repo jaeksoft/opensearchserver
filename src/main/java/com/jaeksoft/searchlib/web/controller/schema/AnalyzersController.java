@@ -279,7 +279,7 @@ public class AnalyzersController extends CommonController {
 		if (editAnalyzer != null)
 			selectedAnalyzer.copyFrom(currentAnalyzer);
 		else
-			client.getSchema().getAnalyzerList().add(currentAnalyzer);
+			client.getSchema().getAnalyzerList().addOrUpdate(currentAnalyzer);
 		client.saveConfig();
 		onCancel();
 	}
