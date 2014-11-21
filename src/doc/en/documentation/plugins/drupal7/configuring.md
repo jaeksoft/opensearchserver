@@ -70,3 +70,7 @@ On next page do not check any _Data Alteration_ or any _Processor_ for now and c
 Go to the newly created index main page (_/admin/config/search/search\_api/index/opensearchserver\_index_) and click on tab "Facets".
 
 As a demonstration purpose, check "Content type" and "Author" and click "Save configuration".
+
+---
+
+Let's now see [how search pages can be created](searching.md).

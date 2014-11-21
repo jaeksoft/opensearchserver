@@ -89,4 +89,4 @@ Unzip it to `/sites/all/libraries` and rename folder from `opensearchserver-php-
 
 ---
 
-Installation is over! It's time for some configuration.
+Installation is over! It's time for [some configuration](configuring.md).
