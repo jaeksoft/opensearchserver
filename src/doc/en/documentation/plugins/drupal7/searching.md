@@ -63,7 +63,7 @@ In the new form:
     * "Submit button text": write "Search"
     * Expose sort order: **unchecked**
 
-Full configuratio:
+Full configuration:
 
 ![Full view](drupal_fullview.png) 
 
@@ -93,10 +93,11 @@ In Fields, click on "Add".
 
 Then choose fields to display and configure them (add / remove labels, choose format, etc.).
 
-For example:
+For example (see below for how to add facets):
 
 ![Configuring a field](drupal_configurefield.png)
 
+All the chosen fields:
 
 ![Fields](drupal_viewfields.png)
 
