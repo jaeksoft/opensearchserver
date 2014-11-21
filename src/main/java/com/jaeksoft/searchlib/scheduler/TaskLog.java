@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,7 +43,7 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 
 	private long endTime;
 
-	private long duration;
+	private Long duration;
 
 	final private boolean indexHasChanged;
 
@@ -76,6 +76,7 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 			}
 		}
 		startTime = System.currentTimeMillis();
+		duration = null;
 		endTime = 0;
 	}
 
@@ -140,7 +141,9 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 	public long getDuration() {
 		rwl.r.lock();
 		try {
-			return duration;
+			if (duration != null)
+				return duration;
+			return System.currentTimeMillis() - startTime;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -174,6 +177,7 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 		}
 	}
 
+	@Override
 	public String getInfo() {
 		rwl.r.lock();
 		try {
