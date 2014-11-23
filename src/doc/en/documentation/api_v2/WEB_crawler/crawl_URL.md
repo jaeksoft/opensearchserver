@@ -19,7 +19,7 @@ The URL must match the pattern list.
 **URL parameters:**
 - _**index_name**_ (required): The name of the index
 - _**url**_ (required): The URL to crawl
-- _**returnData**_ (optionnal): If set to true will return a JSON array with every extracted data
+- _**returnData**_ (optionnal): If set to true will return a JSON array with the extracted data
 
 ### Success response
 The page has been crawled.
