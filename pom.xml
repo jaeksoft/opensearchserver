@@ -678,15 +678,6 @@
 									</mapper>
 								</data>
 								<data>
-									<src>${basedir}/CHANGELOG.txt.gz</src>
-									<dst>changelog.gz</dst>
-									<type>file</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/doc/opensearchserver</prefix>
-									</mapper>
-								</data>
-								<data>
 									<src>${basedir}/src/deb/etc/opensearchserver</src>
 									<type>file</type>
 									<mapper>
@@ -866,6 +857,19 @@
 				<version>4.3</version>
 				<configuration>
 					<outputDirectory>${basedir}/src/main/java</outputDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jasig.maven</groupId>
+				<artifactId>maven-notice-plugin</artifactId>
+				<version>1.0.6.1</version>
+				<configuration>
+					<noticeTemplate>${basedir}/src/notice/NOTICE.template</noticeTemplate>
+					<licenseMapping>
+						<param>https://source.jasig.org/licenses/license-mappings.xml</param>
+						<param>${basedir}/src/notice/license-mappings.xml</param>
+					</licenseMapping>
+					<fileName>NOTICE.txt</fileName>
 				</configuration>
 			</plugin>
 		</plugins>
