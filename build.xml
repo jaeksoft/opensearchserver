@@ -103,7 +103,7 @@
 		<copy tofile="${dist}/${productdest}.deb">
 			<fileset file="target/${productsrc}.deb" />
 		</copy>
-		
+
 		<copy tofile="${dist}/${productdest}.rpm">
 			<fileset file="target/rpm/opensearchserver/RPMS/noarch/${productsrcrpm}.noarch.rpm" />
 		</copy>
@@ -112,14 +112,11 @@
 			<fileset file="target/${productsrc}.war" />
 		</copy>
 
-		<copy todir="${dist}/${product}/LICENSES">
-			<fileset dir="${licenses}" />
-		</copy>
-
 		<copy todir="${dist}/${product}">
+			<fileset file="LICENSE.txt" />
 			<fileset file="NOTICE.txt" />
 			<fileset file="README.md" />
-			<fileset file="CHANGELOG.txt.gz" />
+			<fileset file="CHANGELOG.txt" />
 			<fileset dir="${shelldir}" />
 		</copy>
 
@@ -164,7 +161,7 @@
 		<!-- Copy Txt Files -->
 		<copy todir="${dist}">
 			<fileset file="README.md" />
-			<fileset file="CHANGELOG.txt.gz" />
+			<fileset file="CHANGELOG.txt" />
 		</copy>
 
 		<!-- Clean the temporary product directory -->
