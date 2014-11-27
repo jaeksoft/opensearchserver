@@ -794,14 +794,10 @@
 						<require>java &gt;= 1.7.0</require>
 					</requires>
 					<preinstallScriptlet>
-						<script>getent passwd opensearchserver &gt;/dev/null || useradd -r
-							-g daemon -d /var/lib/opensearchserver -s /bin/bash -c
-							"OpenSearchServer" opensearchserver</script>
+						<scriptFile>src/rpm/preinst</scriptFile>
 					</preinstallScriptlet>
 					<postinstallScriptlet>
-						<script>cp -f /usr/share/opensearchserver/opensearchserver
-							/etc/init.d/opensearchserver &amp;&amp; chmod a+x
-							/etc/init.d/opensearchserver</script>
+						<scriptFile>src/rpm/postinst</scriptFile>
 					</postinstallScriptlet>
 				</configuration>
 			</plugin>
