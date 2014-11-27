@@ -1,1 +1,1 @@
-cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver &amp;&amp; chmod a+x /etc/init.d/opensearchserver
+cp -f /usr/share/opensearchserver/opensearchserver /etc/init.d/opensearchserver && chmod a+x /etc/init.d/opensearchserver
