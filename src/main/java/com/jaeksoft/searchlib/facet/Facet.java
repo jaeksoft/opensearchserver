@@ -25,7 +25,9 @@
 package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -45,10 +47,10 @@ public class Facet implements Iterable<FacetItem>,
 
 	protected FacetField facetField;
 	private Map<String, FacetItem> facetMap;
-	protected transient FacetItem[] array = null;
+	protected transient List<FacetItem> list = null;
 
 	public Facet() {
-		array = null;
+		list = null;
 		facetMap = new TreeMap<String, FacetItem>();
 	}
 
@@ -89,13 +91,12 @@ public class Facet implements Iterable<FacetItem>,
 		}
 	}
 
-	public FacetItem[] getArray() {
+	public List<FacetItem> getList() {
 		synchronized (this) {
-			if (array != null)
-				return array;
-			array = new FacetItem[facetMap.size()];
-			facetMap.values().toArray(array);
-			return array;
+			if (list != null)
+				return list;
+			list = new ArrayList<FacetItem>(facetMap.values());
+			return list;
 		}
 	}
 
@@ -106,7 +107,7 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	private FacetItem get(int i) {
-		return (FacetItem) getArray()[i];
+		return getList().get(i);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	public int getTermCount() {
-		return getArray().length;
+		return getList().size();
 	}
 
 	public String getTerm(int i) {
