@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,6 +23,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.util.List;
+
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
@@ -36,7 +38,7 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 @AfterCompose(superclass = true)
 public class HostsController extends CommonController {
 
-	private transient FacetItem[] hostFacetList;
+	private transient List<FacetItem> hostFacetList;
 
 	private transient int minHostFacetCount;
 
@@ -67,7 +69,7 @@ public class HostsController extends CommonController {
 		}
 	}
 
-	public FacetItem[] getHostFacetList() throws SearchLibException {
+	public List<FacetItem> getHostFacetList() throws SearchLibException {
 		synchronized (this) {
 			if (hostFacetList != null)
 				return hostFacetList;
@@ -77,7 +79,7 @@ public class HostsController extends CommonController {
 			Facet facet = urlManager.getHostFacetList(minHostFacetCount);
 			if (facet == null)
 				return null;
-			hostFacetList = facet.getArray();
+			hostFacetList = facet.getList();
 			return hostFacetList;
 		}
 	}

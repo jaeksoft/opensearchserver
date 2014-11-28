@@ -104,8 +104,8 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 		Facet facet = facetList.getByField(fieldName);
 		if (facet == null)
 			return;
-		FacetItem[] facetItems = facet.getArray();
-		if (facetItems == null)
+		List<FacetItem> facetItems = facet.getList();
+		if (facetItems == null || facetItems.size() == 0)
 			return;
 		TreeMap<String, Item> facetMap = new TreeMap<String, Item>();
 		for (FacetItem facetItem : facetItems) {

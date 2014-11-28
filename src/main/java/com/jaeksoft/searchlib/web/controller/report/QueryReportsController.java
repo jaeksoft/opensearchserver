@@ -79,7 +79,7 @@ public class QueryReportsController extends ReportsController {
 					endDate, false, numberOfQuery);
 		}
 		TopSet<FacetItem> topSet = new TopSet<FacetItem>(
-				facetReportsList.getArray(), new FacetItemCountComparator(),
+				facetReportsList.getList(), new FacetItemCountComparator(),
 				numberOfQuery);
 		reportSet = topSet.getTreeMap();
 		reload();

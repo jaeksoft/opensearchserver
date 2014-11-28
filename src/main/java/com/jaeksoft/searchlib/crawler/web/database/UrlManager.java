@@ -43,6 +43,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.json.JSONException;
 import org.xml.sax.SAXException;
 
@@ -203,10 +204,13 @@ public class UrlManager extends AbstractManager {
 			int maxUrlPerHost, List<NamedItem> list) throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
-		Facet facet = result.getFacetList().getByField(field.getName());
-		for (FacetItem facetItem : facet) {
+		List<FacetItem> facetItems = result.getFacetList()
+				.getByField(field.getName()).getList();
+		while (facetItems != null && facetItems.size() > 0) {
 			if (urlLimit <= 0)
 				break;
+			FacetItem facetItem = facetItems.remove(RandomUtils.nextInt(0,
+					facetItems.size()));
 			int nbURL = facetItem.getCount();
 			if (nbURL == 0)
 				continue;
