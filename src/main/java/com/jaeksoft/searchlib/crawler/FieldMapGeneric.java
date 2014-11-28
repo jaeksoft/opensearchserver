@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -154,16 +155,16 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 
 	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, LanguageEnum lang, FieldContent fc,
-			CommonFieldTarget targetField, IndexDocument target)
-			throws IOException, SearchLibException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+			CommonFieldTarget targetField, IndexDocument target,
+			Set<String> filePathSet) throws IOException, SearchLibException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		if (fc == null)
 			return;
 		for (FieldValueItem fvi : fc.getValues())
 			mapFieldTarget(webCrawlMaster, parserSelector, lang, targetField,
-					fvi.value, target);
+					fvi.value, target, filePathSet);
 	}
 
 	final public String mapFieldTarget(CommonFieldTarget dfTarget,
@@ -181,24 +182,28 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 
 	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, LanguageEnum lang,
-			CommonFieldTarget dfTarget, String content, IndexDocument target)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+			CommonFieldTarget dfTarget, String content, IndexDocument target,
+			Set<String> filePathSet) throws SearchLibException, IOException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		if (dfTarget == null)
 			return;
 		if (StringUtils.isEmpty(content))
 			return;
 		if (dfTarget.isFilePath()) {
-			File file = new File(dfTarget.getFilePath(content));
-			if (file.exists()) {
-				Parser parser = parserSelector.parseFile(null, file.getName(),
-						null, null, file, lang);
-				if (parser != null)
-					parser.popupateResult(0, target);
-			} else {
-				Logging.error("File don't exist:" + file.getAbsolutePath());
+			String filePath = dfTarget.getFilePath(content);
+			if (filePathSet == null || !filePathSet.contains(filePath)) {
+				filePathSet.add(filePath);
+				File file = new File(filePath);
+				if (file.exists()) {
+					Parser parser = parserSelector.parseFile(null,
+							file.getName(), null, null, file, lang);
+					if (parser != null)
+						parser.popupateResult(0, target);
+				} else {
+					Logging.error("File don't exist:" + file.getAbsolutePath());
+				}
 			}
 		}
 		if (dfTarget.isCrawlUrl()) {

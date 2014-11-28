@@ -94,11 +94,12 @@ public class RestFieldMap extends
 						if (content != null)
 							this.mapFieldTarget(webCrawlMaster, parserSelector,
 									lang, link.getTarget(), content.toString(),
-									target);
+									target, null);
 					}
 				} else
 					this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
-							link.getTarget(), jsonContent.toString(), target);
+							link.getTarget(), jsonContent.toString(), target,
+							null);
 			} catch (PathNotFoundException e) {
 				continue;
 			} catch (IllegalArgumentException e) {
