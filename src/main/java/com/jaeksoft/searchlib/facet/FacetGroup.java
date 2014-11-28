@@ -47,7 +47,7 @@ public class FacetGroup extends Facet {
 		while (iterator.hasNext())
 			if (iterator.next().count < minCount)
 				iterator.remove();
-		array = null;
+		list = null;
 	}
 
 }
