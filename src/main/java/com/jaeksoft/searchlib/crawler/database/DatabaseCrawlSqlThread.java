@@ -32,6 +32,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.jaeksoft.pojodbc.Query;
@@ -144,6 +145,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		WebCrawlMaster webCrawMaster = client.getWebCrawlMaster();
 		ParserSelector parserSelector = client.getParserSelector();
 
+		Set<String> filePathSet = new TreeSet<String>();
 		while (resultSet.next() && !isAborted()) {
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
@@ -162,13 +164,14 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 					setStatus(CrawlStatus.CRAWL);
 				indexDocument = new IndexDocument(databaseCrawl.getLang());
 				indexDocumentList.add(indexDocument);
+				filePathSet.clear();
 				pendingIndexDocumentCount++;
 				pkList.add(lastPrimaryKey);
 			}
 			LanguageEnum lang = databaseCrawl.getLang();
 			IndexDocument newFieldContents = new IndexDocument(lang);
 			databaseFieldMap.mapResultSet(webCrawMaster, parserSelector, lang,
-					resultSet, columns, newFieldContents);
+					resultSet, columns, newFieldContents, filePathSet);
 			if (merge && lastFieldContent != null) {
 				indexDocument.addIfNotAlreadyHere(newFieldContents);
 			} else

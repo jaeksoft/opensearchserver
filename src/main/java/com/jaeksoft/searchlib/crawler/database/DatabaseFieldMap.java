@@ -76,11 +76,11 @@ public class DatabaseFieldMap extends
 
 	final public void mapResultSet(WebCrawlMaster webCrawlMaster,
 			ParserSelector parserSelector, LanguageEnum lang,
-			ResultSet resultSet, Set<String> columns, IndexDocument target)
-			throws SQLException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException,
-			ParseException, IOException, SyntaxError, URISyntaxException,
-			InterruptedException {
+			ResultSet resultSet, Set<String> columns, IndexDocument target,
+			Set<String> filePathSet) throws SQLException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException, ParseException,
+			IOException, SyntaxError, URISyntaxException, InterruptedException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			String columnName = link.getSource().getUniqueName();
 			if (!columns.contains(columnName))
@@ -89,7 +89,7 @@ public class DatabaseFieldMap extends
 			if (content == null)
 				continue;
 			mapFieldTarget(webCrawlMaster, parserSelector, lang,
-					link.getTarget(), content, target);
+					link.getTarget(), content, target, filePathSet);
 		}
 	}
 
