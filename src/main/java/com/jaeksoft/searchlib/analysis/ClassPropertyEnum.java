@@ -321,7 +321,11 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 			true,
 			"hunspellDictPath",
 			"Hunspell dictionary path",
-			"The path to the files containing the dictionnary, without the extension (.aff, .dic)");
+			"The path to the files containing the dictionary, without the extension (.aff, .dic)");
+
+	public static final ClassPropertyEnum HUNSPELL_METHOD = new ClassPropertyEnum(
+			true, "hunspellMethod", "Hunspell method",
+			"The linking method. Use BridJ with external Hunspell library");
 
 	public static final ClassPropertyEnum MIN_LENGTH = new ClassPropertyEnum(
 			true, "minLength", "Minimum length", "The minimum length");
