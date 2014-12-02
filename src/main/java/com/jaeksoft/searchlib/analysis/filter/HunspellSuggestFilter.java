@@ -28,32 +28,33 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 
-import dk.dren.hunspell.Hunspell;
+import com.jaeksoft.searchlib.util.HunspellUtils;
 
 public class HunspellSuggestFilter extends HunspellStemFilter {
 
 	@Override
 	protected TokenStream newTokenFilter(TokenStream input,
-			Hunspell.Dictionary dict) {
-		return new HunspellSuggestTokenFilter(input, dict);
+			HunspellUtils.Api hunspell) {
+		return new HunspellSuggestTokenFilter(input, hunspell);
 	}
 
 	public static class HunspellSuggestTokenFilter extends
 			HunspellStemTokenFilter {
 
 		public HunspellSuggestTokenFilter(TokenStream input,
-				Hunspell.Dictionary dict) {
-			super(input, dict);
+				HunspellUtils.Api hunspell) {
+			super(input, hunspell);
 		}
 
 		@Override
 		protected List<String> getWords(String currentTerm) {
-			if (!hunspell_dict.misspelled(currentTerm))
-				return null;
-			List<String> words = hunspell_dict.suggest(currentTerm);
-			return words.contains(currentTerm) ? null : words;
+			synchronized (hunspell) {
+				if (hunspell.isCorrect(currentTerm))
+					return null;
+				List<String> words = hunspell.suggest(currentTerm);
+				return words.contains(currentTerm) ? null : words;
+			}
 		}
-
 	}
 
 }
