@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
@@ -214,5 +215,7 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 		t.end(null);
 		return result;
 	}
+
+	public abstract OperatorEnum getOperator(OperatorEnum defaultOperator);
 
 }

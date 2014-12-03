@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class TermFilter extends FilterAbstract<TermFilter> {
 
@@ -162,5 +163,10 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 	@Override
 	public void reset() {
 		query = null;
+	}
+
+	@Override
+	public OperatorEnum getOperator(OperatorEnum defaultOperator) {
+		return defaultOperator;
 	}
 }
