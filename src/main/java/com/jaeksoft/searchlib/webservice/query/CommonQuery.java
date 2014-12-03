@@ -30,6 +30,8 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -147,6 +149,23 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
+	public static final AbstractRequest getNewRequest(Client client,
+			String template, RequestTypeEnum... types)
+			throws SearchLibException {
+		if (StringUtils.isEmpty(template))
+			throw new CommonServiceException(Status.BAD_REQUEST,
+					"Template property is empty");
+		AbstractRequest request = client.getNewRequest(template);
+		if (request == null)
+			throw new CommonServiceException(Status.NOT_FOUND,
+					"Template not found: " + template);
+		for (RequestTypeEnum type : types)
+			if (type == request.requestType)
+				return request;
+		throw new CommonServiceException(Status.BAD_REQUEST,
+				"Wrong request type: " + request.requestType.getLabel());
+	}
+
 	protected AbstractRequest queryTemplateGet(String index, String login,
 			String key, String template, RequestTypeEnum... types) {
 		try {
@@ -156,15 +175,7 @@ public class CommonQuery extends CommonServices {
 			if (template == null)
 				throw new CommonServiceException(Status.BAD_REQUEST,
 						"Not template found");
-			AbstractRequest request = client.getNewRequest(template);
-			if (request == null)
-				throw new CommonServiceException(Status.NOT_FOUND,
-						"Template not found: " + template);
-			for (RequestTypeEnum type : types)
-				if (type == request.requestType)
-					return request;
-			throw new CommonServiceException(Status.BAD_REQUEST,
-					"Wrong request type: " + request.requestType.getLabel());
+			return getNewRequest(client, template, types);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
