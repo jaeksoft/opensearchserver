@@ -34,19 +34,24 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class FilterListCacheKey implements Comparable<FilterListCacheKey> {
 
-	private TreeSet<FilterCacheKey> filterCacheKeySet;
+	private final TreeSet<FilterCacheKey> filterCacheKeySet;
+	private final OperatorEnum defaultOperator;
 
 	public FilterListCacheKey(FilterList filterList, SchemaField defaultField,
 			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
 			throws ParseException, SyntaxError, SearchLibException, IOException {
 		filterCacheKeySet = new TreeSet<FilterCacheKey>();
-		if (filterList != null)
+		if (filterList != null) {
 			for (FilterAbstract<?> filter : filterList)
 				filterCacheKeySet.add(new FilterCacheKey(filter, defaultField,
 						analyzer, request));
+			defaultOperator = filterList.getDefaultOperator();
+		} else
+			defaultOperator = OperatorEnum.AND;
 	}
 
 	@Override
@@ -57,6 +62,8 @@ public class FilterListCacheKey implements Comparable<FilterListCacheKey> {
 			return -1;
 		else if (i1 > i2)
 			return 1;
+		if (defaultOperator != o.defaultOperator)
+			return defaultOperator.ordinal() - o.defaultOperator.ordinal();
 		Iterator<FilterCacheKey> it = o.filterCacheKeySet.iterator();
 		for (FilterCacheKey filterCacheKey : filterCacheKeySet) {
 			int c = filterCacheKey.compareTo(it.next());

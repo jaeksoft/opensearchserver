@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class AuthFilter extends FilterAbstract<AuthFilter> {
 
@@ -169,5 +170,11 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 	@Override
 	public void reset() {
 		query = null;
+	}
+
+	@Override
+	public OperatorEnum getOperator(OperatorEnum defaultOperator) {
+		// Always returns AND
+		return OperatorEnum.AND;
 	}
 }

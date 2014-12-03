@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,12 +26,12 @@ package com.jaeksoft.searchlib.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.ImmutableSet;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
@@ -44,20 +44,25 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	private List<FilterAbstract<?>> filterList;
+
+	private OperatorEnum defaultOperator;
 
 	private transient Config config;
 
 	public FilterList() {
 		config = null;
 		filterList = null;
+		defaultOperator = OperatorEnum.AND;
 	}
 
 	public FilterList(FilterList fl) {
 		this.config = fl.config;
+		this.defaultOperator = fl.defaultOperator;
 		this.filterList = null;
 		if (fl != null)
 			for (FilterAbstract<?> f : fl)
@@ -67,6 +72,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	public FilterList(Config config) {
 		this.filterList = null;
 		this.config = config;
+		this.defaultOperator = OperatorEnum.AND;
 	}
 
 	public void add(FilterAbstract<?> filter) {
@@ -108,8 +114,8 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	@Override
 	public Iterator<FilterAbstract<?>> iterator() {
-		return filterList == null ? Collections
-				.<FilterAbstract<?>> emptyIterator() : filterList.iterator();
+		return filterList == null ? ImmutableSet.<FilterAbstract<?>> of()
+				.iterator() : filterList.iterator();
 	}
 
 	public FilterHits getFilterHits(SchemaField defaultField,
@@ -122,8 +128,9 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 		FilterHits finalFilterHits = new FilterHits(true);
 		for (FilterAbstract<?> filter : filterList)
-			finalFilterHits.and(filter.getFilterHits(defaultField, analyzer,
-					request, timer));
+			finalFilterHits.operate(filter.getFilterHits(defaultField,
+					analyzer, request, timer), filter
+					.getOperator(defaultOperator));
 		return finalFilterHits;
 	}
 
@@ -131,10 +138,14 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		return filterList == null ? new Object[0] : filterList.toArray();
 	}
 
-	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+	public void writeXmlConfig(XmlWriter xmlWriter, String nodeName)
+			throws SAXException {
+		xmlWriter.startElement("filters", "defaultOperator",
+				defaultOperator.name());
 		if (filterList != null)
 			for (FilterAbstract<?> filter : filterList)
 				filter.writeXmlConfig(xmlWriter);
+		xmlWriter.endElement();
 	}
 
 	final public void setFromServlet(final ServletTransaction transaction,
@@ -199,4 +210,28 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 					return;
 		add(new AuthFilter());
 	}
+
+	/**
+	 * @return the defaultOperator
+	 */
+	public OperatorEnum getDefaultOperator() {
+		return defaultOperator;
+	}
+
+	/**
+	 * @param defaultOperator
+	 *            the defaultOperator to set
+	 */
+	public void setDefaultOperator(OperatorEnum operator) {
+		defaultOperator = operator;
+	}
+
+	public String getDefaultOperatorString() {
+		return defaultOperator == null ? null : defaultOperator.toString();
+	}
+
+	public void setDefaultOperatorString(String value) {
+		setDefaultOperator(OperatorEnum.find(value));
+	}
+
 }
