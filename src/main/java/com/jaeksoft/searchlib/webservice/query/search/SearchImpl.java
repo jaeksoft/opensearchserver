@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.core.UriInfo;
 
@@ -164,4 +165,23 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 		}
 	}
 
+	@Override
+	public List<SearchResult> searchBatch(String index, String login,
+			String key, SearchQueryBatch batch) {
+		try {
+			if (batch == null)
+				throw new CommonServiceException(
+						"SearchQueryBatch structure is missing");
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.GROUP_INDEX);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return batch.result(client);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 }

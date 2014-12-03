@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.webservice.query.search;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -121,5 +123,13 @@ public interface RestSearch {
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchFieldQuery query);
+
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/batch")
+	public List<SearchResult> searchBatch(
+			@PathParam("index_name") String index,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			SearchQueryBatch batch);
 
 }
