@@ -166,13 +166,13 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public List<SearchResult> searchBatch(String index, String login,
-			String key, SearchQueryBatch batch) {
+	public List<SearchResult> searchBatch(UriInfo uriInfo, String index,
+			String login, String key, SearchQueryBatch batch) {
 		try {
 			if (batch == null)
 				throw new CommonServiceException(
 						"SearchQueryBatch structure is missing");
-			Client client = getLoggedClientAnyRole(index, login, key,
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
 					Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return batch.result(client);

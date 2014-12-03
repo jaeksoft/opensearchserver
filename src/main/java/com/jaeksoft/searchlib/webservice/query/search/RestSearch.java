@@ -127,7 +127,7 @@ public interface RestSearch {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/batch")
-	public List<SearchResult> searchBatch(
+	public List<SearchResult> searchBatch(@Context UriInfo uriInfo,
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchQueryBatch batch);
