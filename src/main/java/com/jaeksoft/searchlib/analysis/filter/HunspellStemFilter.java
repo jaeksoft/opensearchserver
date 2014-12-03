@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,39 +32,47 @@ import org.apache.lucene.analysis.TokenStream;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-
-import dk.dren.hunspell.Hunspell;
+import com.jaeksoft.searchlib.util.HunspellUtils;
 
 public class HunspellStemFilter extends FilterFactory {
 
 	private String dict_path = null;
+	private String dict_method = "jna";
+
+	private final static String[] HUNSPELL_METHODS = { "bridj", "jna" };
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.HUNSPELL_DICT_PATH, "", null, 30, 1);
+		addProperty(ClassPropertyEnum.HUNSPELL_METHOD, "jna", HUNSPELL_METHODS,
+				10, 1);
 	}
 
 	@Override
 	protected void checkValue(ClassPropertyEnum prop, String value)
 			throws SearchLibException {
-
 		if (prop == ClassPropertyEnum.HUNSPELL_DICT_PATH)
 			dict_path = value;
+		else if (prop == ClassPropertyEnum.HUNSPELL_METHOD)
+			dict_method = value;
 	}
 
 	protected TokenStream newTokenFilter(TokenStream input,
-			Hunspell.Dictionary dict) {
-		return new HunspellStemTokenFilter(input, dict);
+			HunspellUtils.Api hunspell) {
+		return new HunspellStemTokenFilter(input, hunspell);
 	}
 
 	@Override
 	final public TokenStream create(TokenStream input)
 			throws SearchLibException {
 		try {
-			Hunspell.Dictionary dict = Hunspell.getInstance().getDictionary(
-					dict_path);
-			return newTokenFilter(input, dict);
+			HunspellUtils.Api hunspell;
+			if (dict_method.equalsIgnoreCase("jna"))
+				hunspell = HunspellUtils.getJna(dict_path);
+			else
+				hunspell = HunspellUtils.getBridj(dict_path);
+			return newTokenFilter(input, hunspell);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -72,7 +80,7 @@ public class HunspellStemFilter extends FilterFactory {
 
 	public static class HunspellStemTokenFilter extends AbstractTermFilter {
 
-		protected final Hunspell.Dictionary hunspell_dict;
+		protected final HunspellUtils.Api hunspell;
 
 		private List<String> wordQueue = null;
 
@@ -81,9 +89,9 @@ public class HunspellStemFilter extends FilterFactory {
 		private int currentPos = 0;
 
 		public HunspellStemTokenFilter(TokenStream input,
-				Hunspell.Dictionary hunspell_dict) {
+				HunspellUtils.Api hunspell) {
 			super(input);
-			this.hunspell_dict = hunspell_dict;
+			this.hunspell = hunspell;
 		}
 
 		private final boolean popToken() {
@@ -101,7 +109,9 @@ public class HunspellStemFilter extends FilterFactory {
 		}
 
 		protected List<String> getWords(String currentTerm) {
-			return hunspell_dict.stem(currentTerm);
+			synchronized (hunspell) {
+				return hunspell.stem(currentTerm);
+			}
 		}
 
 		private final void createTokens() {

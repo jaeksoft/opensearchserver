@@ -105,11 +105,11 @@ public class MailboxFieldMap extends
 				if (fc == null)
 					fc = sourceField.getUniqueString(target);
 				mapFieldTarget(webCrawlMaster, parserSelector, lang, fc,
-						targetField, target);
+						targetField, target, null);
 			} else {
 				String value = sourceField.getConcatString(source, target);
 				mapFieldTarget(webCrawlMaster, parserSelector, lang,
-						targetField, value, target);
+						targetField, value, target, null);
 			}
 		}
 	}
