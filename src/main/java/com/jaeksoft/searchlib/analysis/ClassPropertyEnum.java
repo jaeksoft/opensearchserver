@@ -53,7 +53,7 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 
 	public final static ClassPropertyEnum DEFAULT_CHARSET = new ClassPropertyEnum(
 			true, "defaultCharset", "Default Charset",
-			"The charset to use if not charset is found");
+			"The charset to use if no charset is found");
 
 	public final static ClassPropertyEnum PARSER_NAME = new ClassPropertyEnum(
 			false, "name", "name", "The name of the parser ");
