@@ -1010,18 +1010,24 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			FacetField
 					.copyFacetFields(nodes.item(i), fieldList, facetFieldList);
 
-		nodes = xpp.getNodeList(requestNode, "filters/*");
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node node = nodes.item(i);
-			String nodeName = node.getNodeName();
-			if ("filter".equals(nodeName))
-				filterList.add(new QueryFilter(xpp, node));
-			else if ("geofilter".equals(nodeName))
-				filterList.add(new GeoFilter(xpp, node));
-			else if ("relativeDateFilter".equals(nodeName))
-				filterList.add(new RelativeDateFilter(xpp, node));
-			else if ("mirrorAndFilter".equals(nodeName))
-				filterList.add(new MirrorAndFilter(xpp, node));
+		Node filterNode = DomUtils.getFirstNode(requestNode, "filters");
+		if (filterNode != null) {
+			filterList.setDefaultOperator(OperatorEnum.find(DomUtils
+					.getAttributeText(filterNode, "defaultOperator",
+							OperatorEnum.AND.name())));
+			nodes = xpp.getNodeList(requestNode, "filters/*");
+			for (int i = 0; i < nodes.getLength(); i++) {
+				Node node = nodes.item(i);
+				String nodeName = node.getNodeName();
+				if ("filter".equals(nodeName))
+					filterList.add(new QueryFilter(xpp, node));
+				else if ("geofilter".equals(nodeName))
+					filterList.add(new GeoFilter(xpp, node));
+				else if ("relativeDateFilter".equals(nodeName))
+					filterList.add(new RelativeDateFilter(xpp, node));
+				else if ("mirrorAndFilter".equals(nodeName))
+					filterList.add(new MirrorAndFilter(xpp, node));
+			}
 		}
 
 		nodes = xpp.getNodeList(requestNode, "joins/join");
@@ -1096,11 +1102,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				xmlWriter.endElement();
 			}
 
-			if (filterList.size() > 0) {
-				xmlWriter.startElement("filters");
-				filterList.writeXmlConfig(xmlWriter);
-				xmlWriter.endElement();
-			}
+			if (filterList.size() > 0)
+				filterList.writeXmlConfig(xmlWriter, "filters");
 
 			if (joinList.size() > 0) {
 				xmlWriter.startElement("joins");

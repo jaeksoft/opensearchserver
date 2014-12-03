@@ -98,6 +98,20 @@ public class FiltersController extends AbstractQueryController {
 		return list;
 	}
 
+	public String getDefaultOperator() throws SearchLibException {
+		RequestInterfaces.FilterListInterface intf = getFilterListInterface();
+		if (intf == null)
+			return null;
+		return intf.getFilterList().getDefaultOperatorString();
+	}
+
+	public void setDefaultOperator(String value) throws SearchLibException {
+		RequestInterfaces.FilterListInterface intf = getFilterListInterface();
+		if (intf == null)
+			return;
+		intf.getFilterList().setDefaultOperatorString(value);
+	}
+
 	@NotifyChange("*")
 	public void setSelected(FilterAbstract<?> item) {
 		this.selectedItem = item;

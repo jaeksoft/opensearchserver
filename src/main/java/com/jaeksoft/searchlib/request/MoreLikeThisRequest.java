@@ -612,11 +612,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 				returnFieldList.writeXmlConfig(xmlWriter);
 				xmlWriter.endElement();
 			}
-			if (filterList.size() > 0) {
-				xmlWriter.startElement("filters");
-				filterList.writeXmlConfig(xmlWriter);
-				xmlWriter.endElement();
-			}
+			if (filterList.size() > 0)
+				filterList.writeXmlConfig(xmlWriter, "filters");
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
