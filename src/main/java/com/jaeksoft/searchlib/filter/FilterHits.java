@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector.FilterHitsCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector.FilterHitsCollector.Segment;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class FilterHits extends Filter {
 
@@ -74,16 +75,25 @@ public class FilterHits extends Filter {
 		this(result.getDocSetHits().getFilterHitsCollector(), negative, timer);
 	}
 
-	final void and(FilterHits sourceFilterHits) {
+	final void operate(FilterHits sourceFilterHits, OperatorEnum operator) {
 		if (docSetMap.isEmpty()) {
 			for (Map.Entry<IndexReader, OpenBitSet> entry : sourceFilterHits.docSetMap
 					.entrySet())
 				docSetMap.put(entry.getKey(), (OpenBitSet) entry.getValue()
 						.clone());
-		} else
+		} else {
 			for (Map.Entry<IndexReader, OpenBitSet> entry : sourceFilterHits.docSetMap
-					.entrySet())
-				docSetMap.get(entry.getKey()).and(entry.getValue());
+					.entrySet()) {
+				switch (operator) {
+				case AND:
+					docSetMap.get(entry.getKey()).and(entry.getValue());
+					break;
+				case OR:
+					docSetMap.get(entry.getKey()).or(entry.getValue());
+					break;
+				}
+			}
+		}
 	}
 
 	@Override

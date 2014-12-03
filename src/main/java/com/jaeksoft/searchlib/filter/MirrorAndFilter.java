@@ -141,4 +141,9 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 	public void reset() {
 		query = null;
 	}
+
+	@Override
+	public OperatorEnum getOperator(OperatorEnum defaultOperator) {
+		return OperatorEnum.AND;
+	}
 }

@@ -100,6 +100,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class),
 			@XmlElement(name = "MirrorAndFilter", type = MirrorAndFilter.class) })
 	final public List<Filter> filters;
+	final public OperatorEnum filterOperator;
 
 	final public List<Sort> sorts;
 	final public List<String> returnedFields;
@@ -120,6 +121,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		collapsing = null;
 		geo = null;
 		filters = null;
+		filterOperator = null;
 		sorts = null;
 		returnedFields = null;
 		snippets = null;
@@ -979,6 +981,9 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				.valueOf(request.getDefaultOperator());
 		collapsing = new Collapsing(request);
 		geo = new Geo(request.getGeoParameters());
+		filterOperator = request.getFilterList().getDefaultOperator() == null ? null
+				: OperatorEnum.valueOf(request.getFilterList()
+						.getDefaultOperatorString());
 		filters = newFilterList(request.getFilterList());
 		sorts = newSortList(request.getSortFieldList());
 		returnedFields = newReturnFieldList(request.getReturnFieldList());
@@ -1024,6 +1029,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				collapsing.apply(request);
 			if (geo != null)
 				geo.apply(request.getGeoParameters());
+			if (filterOperator != null)
+				request.getFilterList().setDefaultOperator(filterOperator);
 			if (filters != null)
 				for (Filter filter : filters)
 					request.getFilterList().add(filter.newFilter());

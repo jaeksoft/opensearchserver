@@ -36,9 +36,9 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 
 public class FilterCacheKey implements Comparable<FilterCacheKey> {
 
-	private String key;
+	private final String key;
 
-	private boolean isNegative;
+	private final boolean isNegative;
 
 	public FilterCacheKey(FilterAbstract<?> filter, SchemaField defaultField,
 			Analyzer analyzer, AbstractSearchRequest request)
