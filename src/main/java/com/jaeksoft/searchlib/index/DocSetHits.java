@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocIdBufferCollector;
@@ -73,7 +72,7 @@ public class DocSetHits {
 			this.advancedScore = searchRequest.getAdvancedScore();
 			this.isDocIdRequired = searchRequest.isDocIdRequired();
 			this.filterHits = filterHits;
-			this.forFilterHits = searchRequest instanceof SearchFilterRequest;
+			this.forFilterHits = searchRequest.isForFilter();
 		}
 	}
 

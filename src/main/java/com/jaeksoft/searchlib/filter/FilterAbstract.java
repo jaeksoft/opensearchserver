@@ -73,7 +73,11 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 				"/WEB-INF/zul/query/search/filterRelativeDate.zul"),
 
 		MIRROR_AND_FILTER("Mirror AND filter", MirrorAndFilter.class,
-				"/WEB-INF/zul/query/search/filterMirrorAnd.zul");
+				"/WEB-INF/zul/query/search/filterMirrorAnd.zul"),
+
+		REQUEST_TEMPLATE_FILTER("Request template filter",
+				RequestTemplateFilter.class,
+				"/WEB-INF/zul/query/search/filterRequestTemplate.zul");
 
 		private final String label;
 
@@ -162,6 +166,10 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 
 	public boolean isQueryFilter() {
 		return this instanceof QueryFilter;
+	}
+
+	public boolean isRequestTemplateFilter() {
+		return this instanceof RequestTemplateFilter;
 	}
 
 	public boolean isTermFilter() {
