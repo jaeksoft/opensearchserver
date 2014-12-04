@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.filter.GeoFilter;
 import com.jaeksoft.searchlib.filter.MirrorAndFilter;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.filter.RelativeDateFilter;
+import com.jaeksoft.searchlib.filter.RequestTemplateFilter;
 import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
@@ -121,6 +122,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	protected boolean emptyReturnsAll;
 	private final GeoParameters geoParameters = new GeoParameters();
 
+	private transient boolean forFilter;
+
 	protected AbstractSearchRequest(Config config, RequestTypeEnum type) {
 		super(config, type);
 	}
@@ -159,6 +162,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.withSortValues = false;
 		this.queryParsed = null;
 		this.emptyReturnsAll = true;
+		this.forFilter = false;
 	}
 
 	@Override
@@ -207,6 +211,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
 		this.queryParsed = null;
 		this.emptyReturnsAll = searchRequest.emptyReturnsAll;
+		this.forFilter = searchRequest.forFilter;
 	}
 
 	@Override
@@ -1027,6 +1032,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					filterList.add(new RelativeDateFilter(xpp, node));
 				else if ("mirrorAndFilter".equals(nodeName))
 					filterList.add(new MirrorAndFilter(xpp, node));
+				else if ("requestTemplateFilter".equals(nodeName))
+					filterList.add(new RequestTemplateFilter(xpp, node));
 			}
 		}
 
@@ -1297,4 +1304,21 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	@Override
 	public abstract String getInfo();
 
+	public boolean isForFilter() {
+		rwl.r.lock();
+		try {
+			return forFilter;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public void setForFilter(boolean b) {
+		rwl.w.lock();
+		try {
+			forFilter = b;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 }
