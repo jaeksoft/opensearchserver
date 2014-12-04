@@ -21,8 +21,12 @@
 	</columns>
 	<rows>
 		<row>
-			<textbox value="@bind(filters.current.requestName)"
-				cols="40" />
+			<combobox cols="40" model="@load(filters.requestList)"
+				value="@bind(filters.current.requestName)">
+				<template name="model">
+					<comboitem label="@load(each)" />
+				</template>
+			</combobox>
 			<textbox value="@bind(filters.current.queryString)"
 				cols="40" />
 		</row>

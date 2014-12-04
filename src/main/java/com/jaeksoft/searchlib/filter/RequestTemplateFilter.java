@@ -89,8 +89,8 @@ public class RequestTemplateFilter extends
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("requestTemplateFilter", "negative",
-				isNegative() ? "yes" : "no");
-		xmlWriter.textNode(requestName);
+				isNegative() ? "yes" : "no", "requestName", requestName);
+		xmlWriter.textNode(queryString);
 		xmlWriter.endElement();
 	}
 
