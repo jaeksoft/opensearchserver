@@ -28,11 +28,11 @@ import java.io.IOException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -80,8 +80,9 @@ public class RequestTemplateFilter extends
 	}
 
 	@Override
-	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException {
+	public String getCacheKey(SchemaField defaultField,
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request)
+			throws ParseException {
 		return StringUtils.fastConcat("TemplateFilter - ", requestName,
 				queryString);
 	}
@@ -96,8 +97,8 @@ public class RequestTemplateFilter extends
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
-			throws ParseException, IOException, SearchLibException {
+			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		Config config = request.getConfig();
 		AbstractRequest filterRequest = config.getNewRequest(requestName);
 		if (!(filterRequest instanceof AbstractSearchRequest))
