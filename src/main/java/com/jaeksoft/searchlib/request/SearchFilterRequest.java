@@ -89,6 +89,11 @@ public class SearchFilterRequest extends AbstractSearchRequest implements
 	}
 
 	@Override
+	public boolean isForFilter() {
+		return true;
+	}
+
+	@Override
 	public String getInfo() {
 		return null;
 	}
