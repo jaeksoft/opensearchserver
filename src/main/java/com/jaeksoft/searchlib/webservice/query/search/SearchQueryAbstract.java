@@ -324,7 +324,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			@JsonSubTypes.Type(value = TermFilter.class, name = "TermFilter"),
 			@JsonSubTypes.Type(value = GeoFilter.class, name = "GeoFilter"),
 			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter"),
-			@JsonSubTypes.Type(value = MirrorAndFilter.class, name = "MirrorAndFilter") })
+			@JsonSubTypes.Type(value = MirrorAndFilter.class, name = "MirrorAndFilter"),
+			@JsonSubTypes.Type(value = RequestTemplateFilter.class, name = "RequestTemplateFilter") })
 	public static abstract class Filter {
 
 		final public Boolean negative;
@@ -582,6 +583,48 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 	}
 
+	@JsonInclude(Include.NON_NULL)
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@XmlType(name = "RequestTemplateFilter")
+	@XmlRootElement(name = "RequestTemplateFilter")
+	@JsonTypeName("RequestTemplateFilter")
+	public static class RequestTemplateFilter extends Filter {
+
+		final public String requestName;
+		final public String queryString;
+
+		public RequestTemplateFilter() {
+			requestName = null;
+			queryString = null;
+		}
+
+		protected RequestTemplateFilter(
+				com.jaeksoft.searchlib.filter.RequestTemplateFilter src) {
+			super(src.isNegative());
+			this.requestName = src.getRequestName();
+			this.queryString = src.getQueryString();
+		}
+
+		@Override
+		protected void apply(FilterAbstract<?> filter) {
+			super.apply(filter);
+			com.jaeksoft.searchlib.filter.RequestTemplateFilter requestFilter = (com.jaeksoft.searchlib.filter.RequestTemplateFilter) filter;
+			if (requestName != null)
+				requestFilter.setRequestName(requestName);
+			if (queryString != null)
+				requestFilter.setQueryString(queryString);
+		}
+
+		@Override
+		@JsonIgnore
+		public FilterAbstract<?> newFilter() {
+			FilterAbstract<?> filter = new com.jaeksoft.searchlib.filter.RequestTemplateFilter();
+			apply(filter);
+			return filter;
+		}
+
+	}
+
 	public static List<Filter> newFilterList(FilterList filterList) {
 		if (filterList == null)
 			return null;
@@ -609,6 +652,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			case MIRROR_AND_FILTER:
 				filters.add(new MirrorAndFilter(
 						(com.jaeksoft.searchlib.filter.MirrorAndFilter) filterAbstract));
+				break;
+			case REQUEST_TEMPLATE_FILTER:
+				filters.add(new RequestTemplateFilter(
+						(com.jaeksoft.searchlib.filter.RequestTemplateFilter) filterAbstract));
 				break;
 			}
 		}

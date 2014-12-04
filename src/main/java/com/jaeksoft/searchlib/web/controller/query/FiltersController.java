@@ -31,6 +31,7 @@ import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.NotifyChange;
 
+import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.TimeInterval;
 import com.jaeksoft.searchlib.filter.AuthFilter;
@@ -188,4 +189,14 @@ public class FiltersController extends AbstractQueryController {
 		return TimeInterval.IntervalUnit.values();
 	}
 
+	public List<String> getRequestList() throws SearchLibException {
+		List<String> requestList = new ArrayList<String>(0);
+		Client client = getClient();
+		if (client == null)
+			return requestList;
+		client.getRequestMap().getNameList(requestList,
+				RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
+		return requestList;
+	}
 }
