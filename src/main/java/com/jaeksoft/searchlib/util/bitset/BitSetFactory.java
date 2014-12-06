@@ -31,10 +31,10 @@ public abstract class BitSetFactory {
 	static {
 		BitSetFactory bsf;
 		try {
-			System.loadLibrary("nativeBitSet");
+			System.loadLibrary("nativeoss");
 			bsf = new NativeFactory();
 		} catch (Throwable t) {
-			System.err.println("No nativebitset library: " + t.getMessage());
+			System.err.println("No nativeoss library: " + t.getMessage());
 			bsf = new JavaFactory();
 		}
 		INSTANCE = bsf;
@@ -50,12 +50,12 @@ public abstract class BitSetFactory {
 
 		@Override
 		public BitSetInterface newInstance(long numbits) {
-			return new NativeBitSet().init(numbits);
+			return new NativeBitSet(numbits);
 		}
 
 		@Override
 		public BitSetInterface newInstance(int numbits) {
-			return new NativeBitSet().init(numbits);
+			return new NativeBitSet(numbits);
 		}
 
 		@Override

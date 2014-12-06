@@ -6,3 +6,6 @@
 /bin
 /target
 .DS_Store
+/src/cc/*.o
+/src/cc/release
+/src/cc/*.bak
