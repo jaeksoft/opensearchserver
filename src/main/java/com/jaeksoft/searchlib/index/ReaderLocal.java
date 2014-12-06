@@ -55,7 +55,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.util.OpenBitSet;
 import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
@@ -82,6 +81,8 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class ReaderLocal extends ReaderAbstract {
 
@@ -458,17 +459,18 @@ public class ReaderLocal extends ReaderAbstract {
 		rwl.r.lock();
 		try {
 			StringIndex si = getStringIndexNoLock(fieldName);
-			OpenBitSet bitSet = new OpenBitSet(si.order.length);
+			BitSetInterface bitSet = BitSetFactory.INSTANCE
+					.newInstance(si.order.length);
 			for (int doc = 0; doc < si.order.length; doc++) {
 				if (!indexReader.isDeleted(doc)) {
-					bitSet.fastSet(si.order[doc]);
+					bitSet.set(si.order[doc]);
 				}
 			}
 			String[] result = new String[(int) bitSet.cardinality()];
 			int i = 0;
 			int j = 0;
 			for (String term : si.lookup)
-				if (bitSet.fastGet(i++))
+				if (bitSet.get(i++))
 					result[j++] = term;
 			return result;
 		} finally {

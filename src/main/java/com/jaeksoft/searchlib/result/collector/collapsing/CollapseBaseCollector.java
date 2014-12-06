@@ -25,11 +25,12 @@
 package com.jaeksoft.searchlib.result.collector.collapsing;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class CollapseBaseCollector extends
 		AbstractBaseCollector<CollapseCollectorInterface> implements
@@ -42,7 +43,7 @@ public class CollapseBaseCollector extends
 	protected final int[] collapseCounts;
 	protected int currentPos;
 	protected int maxDoc;
-	protected OpenBitSet bitSet;
+	protected BitSetInterface bitSet;
 
 	public CollapseBaseCollector(DocIdInterface sourceCollector, int size,
 			boolean collectDocArray) {
@@ -135,12 +136,12 @@ public class CollapseBaseCollector extends
 	}
 
 	@Override
-	final public OpenBitSet getBitSet() {
+	final public BitSetInterface getBitSet() {
 		if (bitSet != null)
 			return bitSet;
-		bitSet = new OpenBitSet(maxDoc);
+		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
 		for (int id : ids)
-			bitSet.fastSet(id);
+			bitSet.set(id);
 		return bitSet;
 	}
 
