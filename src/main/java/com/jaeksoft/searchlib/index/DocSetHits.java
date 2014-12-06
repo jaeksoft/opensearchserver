@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterHits;
@@ -45,6 +44,7 @@ import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedColl
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class DocSetHits {
 
@@ -120,7 +120,7 @@ public class DocSetHits {
 		return docSetHitCollector.getSize();
 	}
 
-	final public OpenBitSet getBitSet() {
+	final public BitSetInterface getBitSet() {
 		if (docIdBufferCollector == null)
 			return null;
 		return docIdBufferCollector.getBitSet();
