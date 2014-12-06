@@ -25,24 +25,46 @@ package com.jaeksoft.searchlib.util.bitset;
 
 public class NativeBitSet implements BitSetInterface {
 
-	public native NativeBitSet init(long numbits);
+	private long bitSetRef;
 
-	public native NativeBitSet init(int numbits);
+	public NativeBitSet(long numbits) {
+		bitSetRef = init(numbits);
+		System.out.println(bitSetRef);
+	}
+
+	public NativeBitSet(int numbits) {
+		bitSetRef = init(numbits);
+		System.out.println(bitSetRef);
+	}
+
+	private native long init(long numbits);
 
 	@Override
 	public native long size();
 
-	@Override
-	public native void set(int bit);
+	public native void set(final long ref, final long bit);
 
 	@Override
-	public native void set(long bit);
+	final public void set(final int bit) {
+		set(bitSetRef, bit);
+	}
 
 	@Override
-	public native boolean get(long bit);
+	final public void set(final long bit) {
+		set(bitSetRef, bit);
+	}
+
+	public native boolean get(final long ref, final long bit);
 
 	@Override
-	public native boolean get(int bit);
+	public boolean get(final long bit) {
+		return get(bitSetRef, bit);
+	}
+
+	@Override
+	public boolean get(final int bit) {
+		return get(bitSetRef, bit);
+	}
 
 	@Override
 	public native BitSetInterface clone();
@@ -60,10 +82,18 @@ public class NativeBitSet implements BitSetInterface {
 	public native void flip(long from, long to);
 
 	@Override
-	public native void and(BitSetInterface bitSet);
+	final public void and(BitSetInterface bitSet) {
+		and((NativeBitSet) bitSet);
+	}
+
+	private native void and(NativeBitSet bitSet);
 
 	@Override
-	public native void or(BitSetInterface bitSet);
+	final public void or(BitSetInterface bitSet) {
+		or((NativeBitSet) bitSet);
+	}
+
+	private native void or(NativeBitSet bitSet);
 
 	@Override
 	public native void clear(long bit);
