@@ -27,13 +27,14 @@ package com.jaeksoft.searchlib.result.collector.docsethit;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.array.IntBufferedArray;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class DocIdBufferCollector
 		extends
@@ -42,11 +43,11 @@ public class DocIdBufferCollector
 
 	final private IntBufferedArray idsBuffer;
 	private int[] ids;
-	private OpenBitSet bitSet;
+	private BitSetInterface bitSet;
 
 	public DocIdBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
-		bitSet = new OpenBitSet(base.getMaxDoc());
+		bitSet = BitSetFactory.INSTANCE.newInstance(base.getMaxDoc());
 		idsBuffer = new IntBufferedArray(base.getMaxDoc());
 		ids = null;
 	}
@@ -56,7 +57,7 @@ public class DocIdBufferCollector
 		super(base);
 		this.idsBuffer = null;
 		this.ids = ArrayUtils.clone(source.ids);
-		this.bitSet = (OpenBitSet) source.bitSet.clone();
+		this.bitSet = source.bitSet.clone();
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class DocIdBufferCollector
 	final public void collectDoc(final int docId) throws IOException {
 		parent.collectDoc(docId);
 		idsBuffer.add(docId);
-		bitSet.fastSet(docId);
+		bitSet.set(docId);
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class DocIdBufferCollector
 	}
 
 	@Override
-	final public OpenBitSet getBitSet() {
+	final public BitSetInterface getBitSet() {
 		return bitSet;
 	}
 

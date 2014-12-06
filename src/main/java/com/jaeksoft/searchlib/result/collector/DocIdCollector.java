@@ -29,27 +29,29 @@ import it.unimi.dsi.fastutil.Swapper;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.lucene.util.OpenBitSet;
+
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class DocIdCollector implements DocIdInterface, Swapper {
 
 	private final int maxDoc;
 	private final int[] ids;
 	private int currentPos;
-	private OpenBitSet bitSet;
+	private BitSetInterface bitSet;
 
 	public DocIdCollector(final int maxDoc, final int maxSize) {
 		this.maxDoc = maxDoc;
 		ids = new int[maxSize];
 		currentPos = 0;
-		bitSet = new OpenBitSet(maxDoc);
+		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
 	}
 
 	private DocIdCollector(final DocIdCollector source) {
 		this.maxDoc = source.maxDoc;
 		this.ids = ArrayUtils.clone(source.ids);
 		this.currentPos = source.currentPos;
-		this.bitSet = (OpenBitSet) source.bitSet.clone();
+		this.bitSet = source.bitSet.clone();
 	}
 
 	@Override
@@ -64,7 +66,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 
 	final public void collectDoc(final int doc) throws IOException {
 		ids[currentPos++] = doc;
-		bitSet.fastSet(doc);
+		bitSet.set(doc);
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
-	final public OpenBitSet getBitSet() {
+	final public BitSetInterface getBitSet() {
 		return bitSet;
 	}
 

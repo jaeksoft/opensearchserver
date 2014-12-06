@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import org.apache.lucene.util.OpenBitSet;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public interface DocIdInterface extends CollectorInterface {
 
@@ -32,6 +32,6 @@ public interface DocIdInterface extends CollectorInterface {
 
 	int[] getIds();
 
-	OpenBitSet getBitSet();
+	BitSetInterface getBitSet();
 
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,6 @@ import java.util.List;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -47,6 +46,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.InfoCallback;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class AutoCompletionBuildThread extends
 		ThreadAbstract<AutoCompletionBuildThread> {
@@ -152,8 +152,8 @@ public class AutoCompletionBuildThread extends
 		DocIdInterface docIds = result.getDocs();
 		if (docIds == null)
 			return docCount;
-		OpenBitSet openBitSet = docIds.getBitSet();
-		if (openBitSet == null || openBitSet.size() == 0)
+		BitSetInterface bitSet = docIds.getBitSet();
+		if (bitSet == null || bitSet.size() == 0)
 			return docCount;
 		for (String fieldName : fieldNames) {
 			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
@@ -164,7 +164,7 @@ public class AutoCompletionBuildThread extends
 				TermDocs termDocs = sourceClient.getIndex().getTermDocs(term);
 				boolean add = false;
 				while (termDocs.next() && !add)
-					add = openBitSet.fastGet(termDocs.doc());
+					add = bitSet.get(termDocs.doc());
 				if (add)
 					docCount = indexTerm(term.text(), termEnum.docFreq(),
 							buffer, docCount);
