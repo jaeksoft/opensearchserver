@@ -33,6 +33,7 @@ public abstract class BitSetFactory {
 		try {
 			System.loadLibrary("nativeoss");
 			bsf = new NativeFactory();
+			System.out.println("nativeoss library loaded.");
 		} catch (Throwable t) {
 			System.err.println("No nativeoss library: " + t.getMessage());
 			bsf = new JavaFactory();

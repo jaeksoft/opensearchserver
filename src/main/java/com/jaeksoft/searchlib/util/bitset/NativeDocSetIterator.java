@@ -43,7 +43,7 @@ public class NativeDocSetIterator extends DocIdSetIterator {
 
 	@Override
 	public int nextDoc() {
-		currentIndex = bitSet.nextSetBit(currentIndex + 1);
+		currentIndex = (int) bitSet.nextSetBit(currentIndex + 1);
 		if (currentIndex == -1)
 			currentIndex = NO_MORE_DOCS;
 		return currentIndex;
