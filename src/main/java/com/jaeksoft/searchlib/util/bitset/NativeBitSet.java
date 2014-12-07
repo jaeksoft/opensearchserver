@@ -25,56 +25,140 @@ package com.jaeksoft.searchlib.util.bitset;
 
 public class NativeBitSet implements BitSetInterface {
 
-	public native NativeBitSet init(long numbits);
+	private long bitSetRef;
 
-	public native NativeBitSet init(int numbits);
+	final private long[] buffer;
 
-	@Override
-	public native long size();
+	private int bufferSize;
 
-	@Override
-	public native void set(int bit);
+	private NativeBitSet() {
+		buffer = new long[6144];
+		bufferSize = 0;
+	}
 
-	@Override
-	public native void set(long bit);
+	public NativeBitSet(final long numbits) {
+		this();
+		bitSetRef = init(numbits);
+	}
 
-	@Override
-	public native boolean get(long bit);
+	final private native long init(final long numbits);
 
-	@Override
-	public native boolean get(int bit);
-
-	@Override
-	public native BitSetInterface clone();
+	final private native void free(final long ref);
 
 	@Override
-	public native void set(int[] bits);
+	protected void finalize() {
+		free(bitSetRef);
+		bitSetRef = 0;
+	}
+
+	final private void flushBuffer() {
+		set(bitSetRef, buffer, bufferSize);
+		bufferSize = 0;
+	}
+
+	final private native long size(final long ref);
 
 	@Override
-	public native void set(long[] bits);
+	public long size() {
+		if (bufferSize > 0)
+			flushBuffer();
+		return size(bitSetRef);
+	}
 
 	@Override
-	public native long cardinality();
+	final public void set(final long bit) {
+		if (bufferSize == buffer.length)
+			flushBuffer();
+		buffer[bufferSize++] = bit;
+	}
+
+	final private native boolean get(final long ref, final long bit);
 
 	@Override
-	public native void flip(long from, long to);
+	public boolean get(final long bit) {
+		if (bufferSize > 0)
+			flushBuffer();
+		return get(bitSetRef, bit);
+	}
+
+	final private native long clone(final long ref);
 
 	@Override
-	public native void and(BitSetInterface bitSet);
+	public BitSetInterface clone() {
+		if (bufferSize > 0)
+			flushBuffer();
+		NativeBitSet bitSet = new NativeBitSet();
+		bitSet.bitSetRef = clone(bitSetRef);
+		return bitSet;
+	}
+
+	final private native void set(final long ref, final int[] bits,
+			final int length);
 
 	@Override
-	public native void or(BitSetInterface bitSet);
+	public void set(final int[] bits) {
+		set(bitSetRef, bits, bits.length);
+	}
+
+	final private native void set(final long ref, final long[] buffer,
+			final int length);
 
 	@Override
-	public native void clear(long bit);
+	public void set(final long[] bits) {
+		set(bitSetRef, bits, bits.length);
+	}
+
+	final private native long cardinality(final long ref);
 
 	@Override
-	public native void clear(int bit);
+	public long cardinality() {
+		if (bufferSize > 0)
+			flushBuffer();
+		return cardinality(bitSetRef);
+	}
+
+	final private native void flip(final long ref, final long startPos,
+			final long endPos);
 
 	@Override
-	public native long nextSetBit(long index);
+	public void flip(final long startPos, final long endPos) {
+		if (bufferSize > 0)
+			flushBuffer();
+		flip(bitSetRef, startPos, endPos);
+	}
+
+	final private native void and(final long ref, final long ref2);
 
 	@Override
-	public native int nextSetBit(int index);
+	final public void and(BitSetInterface bitSet) {
+		if (bufferSize > 0)
+			flushBuffer();
+		and(bitSetRef, ((NativeBitSet) bitSet).bitSetRef);
+	}
+
+	final private native void or(final long ref, final long ref2);
+
+	@Override
+	final public void or(BitSetInterface bitSet) {
+		if (bufferSize > 0)
+			flushBuffer();
+		or(bitSetRef, ((NativeBitSet) bitSet).bitSetRef);
+	}
+
+	final private native void clear(final long ref, final long bit);
+
+	@Override
+	public void clear(final long bit) {
+		clear(bitSetRef, bit);
+	}
+
+	final native long nextSetBit(final long ref, final long index);
+
+	@Override
+	public long nextSetBit(final long index) {
+		if (bufferSize > 0)
+			flushBuffer();
+		return nextSetBit(bitSetRef, index);
+	}
 
 }

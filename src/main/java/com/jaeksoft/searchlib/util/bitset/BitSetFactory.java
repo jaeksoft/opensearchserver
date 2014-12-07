@@ -22,23 +22,17 @@
  **/
 package com.jaeksoft.searchlib.util.bitset;
 
+import java.util.Random;
+
 import org.apache.lucene.search.DocIdSet;
+
+import com.jaeksoft.searchlib.util.NativeOss;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
 
 public abstract class BitSetFactory {
 
-	public final static BitSetFactory INSTANCE;
-
-	static {
-		BitSetFactory bsf;
-		try {
-			System.loadLibrary("nativeBitSet");
-			bsf = new NativeFactory();
-		} catch (Throwable t) {
-			System.err.println("No nativebitset library: " + t.getMessage());
-			bsf = new JavaFactory();
-		}
-		INSTANCE = bsf;
-	}
+	public final static BitSetFactory INSTANCE = NativeOss.loaded() ? new NativeFactory()
+			: new JavaFactory();
 
 	public abstract BitSetInterface newInstance(final long numbits);
 
@@ -50,12 +44,12 @@ public abstract class BitSetFactory {
 
 		@Override
 		public BitSetInterface newInstance(long numbits) {
-			return new NativeBitSet().init(numbits);
+			return new NativeBitSet(numbits);
 		}
 
 		@Override
 		public BitSetInterface newInstance(int numbits) {
-			return new NativeBitSet().init(numbits);
+			return new NativeBitSet(numbits);
 		}
 
 		@Override
@@ -84,4 +78,42 @@ public abstract class BitSetFactory {
 
 	}
 
+	private final static void test(BitSetFactory bitSetFactory,
+			int[] randomArray1, int[] randomArray2) {
+		System.gc();
+		long startTime = System.currentTimeMillis();
+		long freemem = Runtime.getRuntime().freeMemory();
+		BitSetInterface bitSet1 = bitSetFactory
+				.newInstance(randomArray1.length * 4);
+		BitSetInterface bitSet2 = bitSetFactory
+				.newInstance(randomArray2.length * 4);
+		for (int v : randomArray1)
+			bitSet1.set(v);
+		for (int v : randomArray2)
+			bitSet2.set(v);
+		bitSet1.cardinality();
+		bitSet1.and(bitSet2);
+		System.out.println(bitSet2.cardinality());
+		IntBufferedArrayFactory.result(bitSet1, startTime, freemem);
+
+	}
+
+	public final static void main(String[] str) {
+		final int size = 10000000;
+
+		Random random = new Random(System.currentTimeMillis());
+		// Building the index
+		long startTime = System.currentTimeMillis();
+		long freemem = Runtime.getRuntime().freeMemory();
+		int[] randomArray1 = new int[size];
+		for (int i = 0; i < size; i++)
+			randomArray1[i++] = random.nextInt(size * 4);
+		int[] randomArray2 = new int[size];
+		for (int i = 0; i < size; i++)
+			randomArray2[i++] = random.nextInt(size * 4);
+		IntBufferedArrayFactory.result(randomArray1, startTime, freemem);
+
+		test(new JavaFactory(), randomArray1, randomArray2);
+		test(new NativeFactory(), randomArray1, randomArray2);
+	}
 }

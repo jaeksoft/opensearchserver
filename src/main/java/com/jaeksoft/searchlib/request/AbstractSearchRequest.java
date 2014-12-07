@@ -1026,6 +1026,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				String nodeName = node.getNodeName();
 				if ("filter".equals(nodeName))
 					filterList.add(new QueryFilter(xpp, node));
+				if ("termFilter".equals(nodeName))
+					filterList.add(new TermFilter(xpp, node));
 				else if ("geofilter".equals(nodeName))
 					filterList.add(new GeoFilter(xpp, node));
 				else if ("relativeDateFilter".equals(nodeName))

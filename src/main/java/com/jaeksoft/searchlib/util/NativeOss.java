@@ -20,31 +20,30 @@
  * You should have received a copy of the GNU General Public License along with
  * OpenSearchServer. If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.util.bitset;
+package com.jaeksoft.searchlib.util;
 
-public interface BitSetInterface {
+public class NativeOss {
 
-	long size();
+	public final static String NATIVE_OSS_LIBNAME = "nativeoss";
+	public final static String NATIVE_OSS_MAPPED_LIBNAME = System
+			.mapLibraryName(NATIVE_OSS_LIBNAME);
 
-	void set(long doc);
+	private static Boolean LOADED = null;
 
-	void set(int[] srcIds);
+	public synchronized final static boolean loaded() {
+		if (LOADED != null)
+			return LOADED;
+		try {
+			System.loadLibrary(NATIVE_OSS_LIBNAME);
+			System.out.println("Native OSS loaded ("
+					+ NATIVE_OSS_MAPPED_LIBNAME + ")");
+			LOADED = true;
+		} catch (Throwable t) {
+			System.err.println("Native OSS not found ("
+					+ (NATIVE_OSS_MAPPED_LIBNAME) + ")");
+			LOADED = false;
+		}
+		return LOADED;
+	}
 
-	void set(long[] srcIds);
-
-	boolean get(long doc);
-
-	BitSetInterface clone();
-
-	long cardinality();
-
-	void flip(long from, long to);
-
-	void and(BitSetInterface bitSet);
-
-	void or(BitSetInterface bitSet);
-
-	void clear(long bit);
-
-	long nextSetBit(long index);
 }

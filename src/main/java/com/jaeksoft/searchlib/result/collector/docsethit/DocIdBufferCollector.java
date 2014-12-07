@@ -32,7 +32,8 @@ import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.util.array.IntBufferedArray;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
 import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
@@ -41,14 +42,15 @@ public class DocIdBufferCollector
 		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
 		implements DocSetHitCollectorInterface, DocIdInterface {
 
-	final private IntBufferedArray idsBuffer;
+	final private IntBufferedArrayInterface idsBuffer;
 	private int[] ids;
 	private BitSetInterface bitSet;
 
 	public DocIdBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
 		bitSet = BitSetFactory.INSTANCE.newInstance(base.getMaxDoc());
-		idsBuffer = new IntBufferedArray(base.getMaxDoc());
+		idsBuffer = IntBufferedArrayFactory.INSTANCE.newInstance(base
+				.getMaxDoc());
 		ids = null;
 	}
 
