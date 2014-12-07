@@ -17,11 +17,19 @@ JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_ini
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
+ * Method:    free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_free
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    size
- * Signature: ()J
+ * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_size
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
@@ -42,90 +50,74 @@ JNIEXPORT jboolean JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    clone
- * Signature: ()Lcom/jaeksoft/searchlib/util/bitset/BitSetInterface;
+ * Signature: (J)J
  */
-JNIEXPORT jobject JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clone
-  (JNIEnv *, jobject);
+JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clone
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    set
- * Signature: ([I)V
+ * Signature: (J[I)V
  */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set___3I
-  (JNIEnv *, jobject, jintArray);
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3I
+  (JNIEnv *, jobject, jlong, jintArray);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    set
- * Signature: ([J)V
+ * Signature: (J[J)V
  */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set___3J
-  (JNIEnv *, jobject, jlongArray);
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3J
+  (JNIEnv *, jobject, jlong, jlongArray);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    cardinality
- * Signature: ()J
+ * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_cardinality
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    flip
- * Signature: (JJ)V
+ * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_flip
-  (JNIEnv *, jobject, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    and
- * Signature: (Lcom/jaeksoft/searchlib/util/bitset/NativeBitSet;)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_and
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    or
- * Signature: (Lcom/jaeksoft/searchlib/util/bitset/NativeBitSet;)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_or
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    clear
- * Signature: (J)V
+ * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clear__J
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
- * Method:    clear
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clear__I
-  (JNIEnv *, jobject, jint);
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clear
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    nextSetBit
- * Signature: (J)J
+ * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_nextSetBit__J
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
- * Method:    nextSetBit
- * Signature: (I)I
- */
-JNIEXPORT jint JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_nextSetBit__I
-  (JNIEnv *, jobject, jint);
+JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_nextSetBit
+  (JNIEnv *, jobject, jlong, jlong);
 
 #ifdef __cplusplus
 }

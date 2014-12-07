@@ -58,16 +58,6 @@ public class JavaBitSet implements BitSetInterface {
 	}
 
 	@Override
-	final public boolean get(final int bit) {
-		return this.bitSet.fastGet(bit);
-	}
-
-	@Override
-	final public void set(final int bit) {
-		this.bitSet.fastSet(bit);
-	}
-
-	@Override
 	final public void set(final long bit) {
 		this.bitSet.fastSet(bit);
 	}
@@ -110,17 +100,7 @@ public class JavaBitSet implements BitSetInterface {
 	}
 
 	@Override
-	final public void clear(final int bit) {
-		this.bitSet.fastClear(bit);
-	}
-
-	@Override
 	final public long nextSetBit(final long index) {
-		return this.bitSet.nextSetBit(index);
-	}
-
-	@Override
-	final public int nextSetBit(final int index) {
 		return this.bitSet.nextSetBit(index);
 	}
 

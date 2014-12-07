@@ -27,84 +27,108 @@ public class NativeBitSet implements BitSetInterface {
 
 	private long bitSetRef;
 
-	public NativeBitSet(long numbits) {
-		bitSetRef = init(numbits);
-		System.out.println(bitSetRef);
+	private NativeBitSet() {
 	}
 
-	public NativeBitSet(int numbits) {
+	public NativeBitSet(final long numbits) {
 		bitSetRef = init(numbits);
-		System.out.println(bitSetRef);
 	}
 
-	private native long init(long numbits);
+	final private native long init(final long numbits);
+
+	final private native void free(final long ref);
 
 	@Override
-	public native long size();
+	protected void finalize() {
+		free(bitSetRef);
+		bitSetRef = 0;
+	}
 
-	public native void set(final long ref, final long bit);
+	final private native long size(final long ref);
 
 	@Override
-	final public void set(final int bit) {
-		set(bitSetRef, bit);
+	public long size() {
+		return size(bitSetRef);
 	}
+
+	final private native void set(final long ref, final long bit);
 
 	@Override
 	final public void set(final long bit) {
 		set(bitSetRef, bit);
 	}
 
-	public native boolean get(final long ref, final long bit);
+	final private native boolean get(final long ref, final long bit);
 
 	@Override
 	public boolean get(final long bit) {
 		return get(bitSetRef, bit);
 	}
 
+	final private native long clone(final long ref);
+
 	@Override
-	public boolean get(final int bit) {
-		return get(bitSetRef, bit);
+	public BitSetInterface clone() {
+		NativeBitSet bitSet = new NativeBitSet();
+		bitSet.bitSetRef = clone(bitSetRef);
+		return bitSet;
 	}
 
-	@Override
-	public native BitSetInterface clone();
+	final private native void set(final long ref, final int[] bits);
 
 	@Override
-	public native void set(int[] bits);
+	public void set(final int[] bits) {
+		set(bitSetRef, bits);
+	}
+
+	final private native void set(final long ref, final long[] bits);
 
 	@Override
-	public native void set(long[] bits);
+	public void set(final long[] bits) {
+		set(bitSetRef, bits);
+	}
+
+	final private native long cardinality(final long ref);
 
 	@Override
-	public native long cardinality();
+	public long cardinality() {
+		return cardinality(bitSetRef);
+	}
+
+	final private native void flip(final long ref, final long startPos,
+			final long endPos);
 
 	@Override
-	public native void flip(long from, long to);
+	public void flip(final long startPos, final long endPos) {
+		flip(bitSetRef, startPos, endPos);
+	}
+
+	final private native void and(final long ref, final long ref2);
 
 	@Override
 	final public void and(BitSetInterface bitSet) {
-		and((NativeBitSet) bitSet);
+		and(bitSetRef, ((NativeBitSet) bitSet).bitSetRef);
 	}
 
-	private native void and(NativeBitSet bitSet);
+	final private native void or(final long ref, final long ref2);
 
 	@Override
 	final public void or(BitSetInterface bitSet) {
-		or((NativeBitSet) bitSet);
+		or(bitSetRef, ((NativeBitSet) bitSet).bitSetRef);
 	}
 
-	private native void or(NativeBitSet bitSet);
+	final private native void clear(final long ref, final long bit);
 
 	@Override
-	public native void clear(long bit);
+	public void clear(final long bit) {
+		clear(bitSetRef, bit);
+	}
+
+	final native long nextSetBit(final long ref, final long index);
 
 	@Override
-	public native void clear(int bit);
-
-	@Override
-	public native long nextSetBit(long index);
-
-	@Override
-	public native int nextSetBit(int index);
+	public long nextSetBit(final long index) {
+		return nextSetBit(bitSetRef, index);
+	}
 
 }

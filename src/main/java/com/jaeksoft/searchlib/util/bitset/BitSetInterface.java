@@ -22,12 +22,9 @@
  **/
 package com.jaeksoft.searchlib.util.bitset;
 
-
 public interface BitSetInterface {
 
 	long size();
-
-	void set(int doc);
 
 	void set(long doc);
 
@@ -36,8 +33,6 @@ public interface BitSetInterface {
 	void set(long[] srcIds);
 
 	boolean get(long doc);
-
-	boolean get(int doc);
 
 	BitSetInterface clone();
 
@@ -51,9 +46,5 @@ public interface BitSetInterface {
 
 	void clear(long bit);
 
-	void clear(int bit);
-
 	long nextSetBit(long index);
-
-	int nextSetBit(int index);
 }
