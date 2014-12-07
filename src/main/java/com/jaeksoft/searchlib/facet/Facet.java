@@ -33,7 +33,6 @@ import java.util.TreeMap;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
@@ -41,6 +40,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class Facet implements Iterable<FacetItem>,
 		External.Collecter<FacetItem> {
@@ -159,14 +159,14 @@ public class Facet implements Iterable<FacetItem>,
 		int i = 0;
 		if (docIdInterface.getSize() == 0)
 			return countIndex;
-		OpenBitSet bitset = docIdInterface.getBitSet();
+		BitSetInterface bitset = docIdInterface.getBitSet();
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
 				Term t = new Term(fieldName, term);
 				TermDocs termDocs = reader.getTermDocs(t);
 				while (termDocs.next())
 					if (termDocs.freq() > 0)
-						if (bitset.fastGet(termDocs.doc()))
+						if (bitset.get(termDocs.doc()))
 							countIndex[i]++;
 				termDocs.close();
 			}

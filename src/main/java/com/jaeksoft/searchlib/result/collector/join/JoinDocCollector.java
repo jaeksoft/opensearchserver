@@ -28,13 +28,14 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class JoinDocCollector extends
 		AbstractBaseCollector<JoinCollectorInterface> implements
@@ -45,7 +46,7 @@ public class JoinDocCollector extends
 	final int[] srcIds;
 	final int joinResultSize;
 	private final int[][] foreignDocIdsArray;
-	private OpenBitSet bitSet = null;
+	private BitSetInterface bitSet = null;
 
 	private final static int[][] EMPTY = new int[0][0];
 
@@ -206,12 +207,11 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	public OpenBitSet getBitSet() {
+	public BitSetInterface getBitSet() {
 		if (bitSet != null)
 			return bitSet;
-		bitSet = new OpenBitSet(maxDoc);
-		for (int id : srcIds)
-			bitSet.fastSet(id);
+		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
+		bitSet.set(srcIds);
 		return bitSet;
 	}
 

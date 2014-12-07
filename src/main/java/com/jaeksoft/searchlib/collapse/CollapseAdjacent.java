@@ -24,13 +24,13 @@
 
 package com.jaeksoft.searchlib.collapse;
 
-import org.apache.lucene.util.OpenBitSet;
-
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class CollapseAdjacent extends CollapseAbstract {
 
@@ -44,7 +44,8 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		Timer t = new Timer(timer, "adjacent collapse");
 
-		OpenBitSet collapsedSet = new OpenBitSet(fetchLength);
+		BitSetInterface collapsedSet = BitSetFactory.INSTANCE
+				.newInstance(fetchLength);
 
 		int[] ids = collector.getIds();
 		String lastTerm = null;

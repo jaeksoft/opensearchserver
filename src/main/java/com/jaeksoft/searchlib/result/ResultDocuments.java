@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.search.DocIdSetIterator;
-import org.apache.lucene.util.OpenBitSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -57,7 +56,10 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.array.IntBufferedArray;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
+import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
@@ -117,21 +119,22 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 				throw new IOException("No unique field");
 		}
 		long maxDoc = reader.getStatistics().getMaxDoc();
-		OpenBitSet bitSet = new OpenBitSet(maxDoc);
+		BitSetInterface bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
 		String fieldName = schemaField.getName();
 		for (String uniqueKey : request.getUniqueKeyList()) {
 			TermDocs termDocs = reader.getTermDocs(new Term(fieldName,
 					uniqueKey));
 			if (termDocs != null)
 				while (termDocs.next())
-					bitSet.fastSet(termDocs.doc());
+					bitSet.set(termDocs.doc());
 			termDocs.close();
 		}
 		if (request.isReverse())
 			bitSet.flip(0, maxDoc);
-		IntBufferedArray intBufferArray = new IntBufferedArray(
-				(int) bitSet.cardinality());
-		DocIdSetIterator iterator = bitSet.iterator();
+		IntBufferedArrayInterface intBufferArray = IntBufferedArrayFactory.INSTANCE
+				.newInstance((int) bitSet.cardinality());
+		DocIdSetIterator iterator = BitSetFactory.INSTANCE.getDocIdSet(bitSet)
+				.iterator();
 		int docId;
 		while ((docId = iterator.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS)
 			if (!reader.isDeletedNoLock(docId))

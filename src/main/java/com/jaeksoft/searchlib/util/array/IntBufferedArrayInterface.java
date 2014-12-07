@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,16 +22,14 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.util.array;
 
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
+public interface IntBufferedArrayInterface {
 
-public interface DocIdInterface extends CollectorInterface {
+	void add(final int value);
 
-	int getMaxDoc();
+	long getSize();
 
-	int[] getIds();
-
-	BitSetInterface getBitSet();
+	int[] getFinalArray();
 
 }

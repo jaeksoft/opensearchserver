@@ -112,7 +112,7 @@ public class TermFilter extends FilterAbstract<TermFilter> {
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("filter", "negative", isNegative() ? "yes"
+		xmlWriter.startElement("termFilter", "negative", isNegative() ? "yes"
 				: "no", "field", field);
 		xmlWriter.textNode(term);
 		xmlWriter.endElement();
