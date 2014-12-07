@@ -45,13 +45,6 @@ JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_siz
   return bitSetRef == 0 ? 0 : bitSetRef->size();
 }
 
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__JJ
-(JNIEnv *, jobject, jlong ref, jlong bit) {
-  boost::dynamic_bitset<> *bitSetRef = (boost::dynamic_bitset<>*)ref;
-  if (bitSetRef != 0)
-    bitSetRef->set(bit);
-}
-
 JNIEXPORT jboolean JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_get
 (JNIEnv *, jobject, jlong ref, jlong pos) {
   boost::dynamic_bitset<> *bitSetRef = (boost::dynamic_bitset<>*)ref;
@@ -73,22 +66,23 @@ JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set_
   if (bitSetRef == 0)
     return;
   jsize len = env->GetArrayLength(integers);
-  jint *body = env->GetIntArrayElements(integers, 0);
-  for (int i = 0; i < len; i++)
-    bitSetRef->set(body[i]);
-  env->ReleaseIntArrayElements(integers, body, 0);
+  jint *body = (jint*) env->GetPrimitiveArrayCritical(integers, 0);
+  for (int i = 0; i < len; i++) {
+    body++;
+    bitSetRef->set(*body);
+  }
+  env->ReleasePrimitiveArrayCritical(integers, body, JNI_ABORT);
 }
 
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3I
-(JNIEnv *env, jobject, jlong ref, jlongArray longs) {
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3JI
+(JNIEnv *env, jobject, jlong ref, jlongArray longs, jint length) {
   boost::dynamic_bitset<> *bitSetRef = (boost::dynamic_bitset<>*)ref;
   if (bitSetRef == 0)
     return;
-  jsize len = env->GetArrayLength(longs);
-  jlong *body = env->GetLongArrayElements(longs, 0);
-  for (int i = 0; i < len; i++)
+  jlong *body = (jlong*) env->GetPrimitiveArrayCritical(longs, 0);
+  for (int i = 0; i < length; i++)
     bitSetRef->set(body[i]);
-  env->ReleaseLongArrayElements(longs, body, 0);
+  env->ReleasePrimitiveArrayCritical(longs, body, JNI_ABORT);
 }
 
 JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_cardinality

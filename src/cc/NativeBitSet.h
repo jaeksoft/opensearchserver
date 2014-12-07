@@ -33,14 +33,6 @@ JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_siz
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
- * Method:    set
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__JJ
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    get
  * Signature: (JJ)Z
  */
@@ -58,18 +50,18 @@ JNIEXPORT jlong JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_clo
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    set
- * Signature: (J[I)V
+ * Signature: (J[II)V
  */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3I
-  (JNIEnv *, jobject, jlong, jintArray);
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3II
+  (JNIEnv *, jobject, jlong, jintArray, jint);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
  * Method:    set
- * Signature: (J[J)V
+ * Signature: (J[JI)V
  */
-JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3J
-  (JNIEnv *, jobject, jlong, jlongArray);
+JNIEXPORT void JNICALL Java_com_jaeksoft_searchlib_util_bitset_NativeBitSet_set__J_3JI
+  (JNIEnv *, jobject, jlong, jlongArray, jint);
 
 /*
  * Class:     com_jaeksoft_searchlib_util_bitset_NativeBitSet
