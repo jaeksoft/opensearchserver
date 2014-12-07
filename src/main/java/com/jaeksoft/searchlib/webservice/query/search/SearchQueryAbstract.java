@@ -98,7 +98,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			@XmlElement(name = "TermFilter", type = TermFilter.class),
 			@XmlElement(name = "GeoFilter", type = GeoFilter.class),
 			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class),
-			@XmlElement(name = "MirrorAndFilter", type = MirrorAndFilter.class) })
+			@XmlElement(name = "MirrorAndFilter", type = MirrorAndFilter.class),
+			@XmlElement(name = "RequestTemplateFilter", type = RequestTemplateFilter.class) })
 	final public List<Filter> filters;
 	final public OperatorEnum filterOperator;
 
