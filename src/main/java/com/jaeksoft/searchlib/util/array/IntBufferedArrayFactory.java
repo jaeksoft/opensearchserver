@@ -26,21 +26,12 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.Random;
 
+import com.jaeksoft.searchlib.util.NativeOss;
+
 public abstract class IntBufferedArrayFactory {
 
-	public final static IntBufferedArrayFactory INSTANCE;
-
-	static {
-		IntBufferedArrayFactory bsf;
-		try {
-			System.loadLibrary("nativeoss");
-			bsf = new NativeFactory();
-			System.out.println("Native IntBufferedArray loaded.");
-		} catch (Throwable t) {
-			bsf = new JavaFactory();
-		}
-		INSTANCE = bsf;
-	}
+	public final static IntBufferedArrayFactory INSTANCE = NativeOss.loaded() ? new NativeFactory()
+			: new JavaFactory();
 
 	public abstract IntBufferedArrayInterface newInstance(final long maxSize);
 
@@ -50,7 +41,6 @@ public abstract class IntBufferedArrayFactory {
 		public IntBufferedArrayInterface newInstance(final long maxSize) {
 			return new NativeIntBufferedArray(maxSize);
 		}
-
 	}
 
 	final static private class JavaFactory extends IntBufferedArrayFactory {
@@ -59,7 +49,6 @@ public abstract class IntBufferedArrayFactory {
 		public IntBufferedArrayInterface newInstance(final long maxSize) {
 			return new IntBufferedArray(maxSize);
 		}
-
 	}
 
 	public static final void result(Object object, long startTime, long freemem) {

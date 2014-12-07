@@ -26,23 +26,13 @@ import java.util.Random;
 
 import org.apache.lucene.search.DocIdSet;
 
+import com.jaeksoft.searchlib.util.NativeOss;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
 
 public abstract class BitSetFactory {
 
-	public final static BitSetFactory INSTANCE;
-
-	static {
-		BitSetFactory bsf;
-		try {
-			System.loadLibrary("nativeoss");
-			bsf = new NativeFactory();
-			System.out.println("Native BitSetInterface loaded.");
-		} catch (Throwable t) {
-			bsf = new JavaFactory();
-		}
-		INSTANCE = bsf;
-	}
+	public final static BitSetFactory INSTANCE = NativeOss.loaded() ? new NativeFactory()
+			: new JavaFactory();
 
 	public abstract BitSetInterface newInstance(final long numbits);
 
