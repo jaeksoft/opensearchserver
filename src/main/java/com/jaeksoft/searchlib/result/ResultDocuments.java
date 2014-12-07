@@ -56,7 +56,8 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.array.IntBufferedArray;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
 import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
@@ -130,8 +131,8 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 		}
 		if (request.isReverse())
 			bitSet.flip(0, maxDoc);
-		IntBufferedArray intBufferArray = new IntBufferedArray(
-				(int) bitSet.cardinality());
+		IntBufferedArrayInterface intBufferArray = IntBufferedArrayFactory.INSTANCE
+				.newInstance((int) bitSet.cardinality());
 		DocIdSetIterator iterator = BitSetFactory.INSTANCE.getDocIdSet(bitSet)
 				.iterator();
 		int docId;

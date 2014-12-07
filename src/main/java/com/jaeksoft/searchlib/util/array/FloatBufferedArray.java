@@ -114,7 +114,7 @@ public class FloatBufferedArray {
 		float[] randomArray = new float[size];
 		for (int i = 0; i < size; i++)
 			randomArray[i++] = random.nextFloat();
-		IntBufferedArray.result(randomArray, startTime, freemem);
+		IntBufferedArrayFactory.result(randomArray, startTime, freemem);
 
 		// Testing Native Array reduced size
 		startTime = System.currentTimeMillis();
@@ -123,7 +123,7 @@ public class FloatBufferedArray {
 		int i = 0;
 		for (float v : randomArray)
 			nativeArray1[i++] = v;
-		IntBufferedArray.result(nativeArray1, startTime, freemem);
+		IntBufferedArrayFactory.result(nativeArray1, startTime, freemem);
 
 		// Testing Native Array
 		startTime = System.currentTimeMillis();
@@ -132,7 +132,7 @@ public class FloatBufferedArray {
 		i = 0;
 		for (float v : randomArray)
 			nativeArray[i++] = v;
-		IntBufferedArray.result(nativeArray, startTime, freemem);
+		IntBufferedArrayFactory.result(nativeArray, startTime, freemem);
 
 		// Testing FastUTIL
 		startTime = System.currentTimeMillis();
@@ -141,7 +141,7 @@ public class FloatBufferedArray {
 		for (float v : randomArray)
 			fastUtilArray.add(v);
 		fastUtilArray.toFloatArray();
-		IntBufferedArray.result(fastUtilArray, startTime, freemem);
+		IntBufferedArrayFactory.result(fastUtilArray, startTime, freemem);
 
 		// Testing Buffered Array
 		startTime = System.currentTimeMillis();
@@ -150,6 +150,6 @@ public class FloatBufferedArray {
 		for (float v : randomArray)
 			floatBufferedArray.add(v);
 		floatBufferedArray.getFinalArray();
-		IntBufferedArray.result(floatBufferedArray, startTime, freemem);
+		IntBufferedArrayFactory.result(floatBufferedArray, startTime, freemem);
 	}
 }

@@ -24,15 +24,12 @@
 
 package com.jaeksoft.searchlib.util.array;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-public class IntBufferedArray {
+public class IntBufferedArray implements IntBufferedArrayInterface {
 
-	private final int maxSize;
+	private final long maxSize;
 
 	private int initialArraySize;
 
@@ -48,7 +45,7 @@ public class IntBufferedArray {
 
 	private int totalSize;
 
-	public IntBufferedArray(final int maxSize, final int initialArraySize) {
+	private IntBufferedArray(final long maxSize, final int initialArraySize) {
 		this.maxSize = maxSize;
 		this.initialArraySize = initialArraySize;
 		this.nextArraySize = initialArraySize;
@@ -57,7 +54,7 @@ public class IntBufferedArray {
 		newCurrentArray();
 	}
 
-	public IntBufferedArray(final int maxSize) {
+	IntBufferedArray(final long maxSize) {
 		this(maxSize, 16384);
 	}
 
@@ -65,10 +62,12 @@ public class IntBufferedArray {
 		currentArray = new int[nextArraySize];
 		arrays.add(currentArray);
 		currentArrayPos = 0;
-		if (nextArraySize > maxSize - totalSize)
-			nextArraySize = maxSize - totalSize;
+		long leftSize = maxSize - totalSize;
+		if (nextArraySize > leftSize)
+			nextArraySize = (int) leftSize;
 	}
 
+	@Override
 	final public void add(final int value) {
 		if (currentArrayPos == currentArray.length)
 			newCurrentArray();
@@ -76,10 +75,12 @@ public class IntBufferedArray {
 		totalSize++;
 	}
 
-	final public int getSize() {
+	@Override
+	final public long getSize() {
 		return totalSize;
 	}
 
+	@Override
 	final public int[] getFinalArray() {
 		if (finalArray != null)
 			return finalArray;
@@ -99,64 +100,9 @@ public class IntBufferedArray {
 		return finalArray;
 	}
 
-	final protected void clear() {
+	final private void clear() {
 		this.nextArraySize = initialArraySize;
 		arrays.clear();
 	}
 
-	public static final void result(Object object, long startTime, long freemem) {
-		long elapsedTime = System.currentTimeMillis() - startTime;
-		System.out.println(object.getClass().getSimpleName() + " Time: "
-				+ elapsedTime + " Memory: "
-				+ (freemem - Runtime.getRuntime().freeMemory()) / 1024);
-	}
-
-	public final static void main(String[] str) {
-		final int size = 10000000;
-
-		Random random = new Random(System.currentTimeMillis());
-		// Building the index
-		long startTime = System.currentTimeMillis();
-		long freemem = Runtime.getRuntime().freeMemory();
-		int[] randomArray = new int[size];
-		for (int i = 0; i < size; i++)
-			randomArray[i++] = random.nextInt();
-		result(randomArray, startTime, freemem);
-
-		// Testing Native Array
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		int[] nativeArray1 = new int[size];
-		int i = 0;
-		for (int v : randomArray)
-			nativeArray1[i++] = v;
-		result(nativeArray1, startTime, freemem);
-
-		// Testing Native Array
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		int[] nativeArray = new int[size * 4];
-		i = 0;
-		for (int v : randomArray)
-			nativeArray[i++] = v;
-		result(nativeArray, startTime, freemem);
-
-		// Testing FastUTIL
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		IntArrayList fastUtilArray = new IntArrayList(size * 4);
-		for (int v : randomArray)
-			fastUtilArray.add(v);
-		fastUtilArray.toIntArray();
-		result(fastUtilArray, startTime, freemem);
-
-		// Testing Buffered Array
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		IntBufferedArray intBufferedArray = new IntBufferedArray(size * 4);
-		for (int v : randomArray)
-			intBufferedArray.add(v);
-		intBufferedArray.getFinalArray();
-		result(intBufferedArray, startTime, freemem);
-	}
 }
