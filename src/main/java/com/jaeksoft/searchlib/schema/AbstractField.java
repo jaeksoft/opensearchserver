@@ -45,7 +45,7 @@ public abstract class AbstractField<T extends AbstractField<?>> implements
 	}
 
 	public AbstractField(String name) {
-		this.name = name;
+		this.name = name == null ? null : name.intern();
 	}
 
 	public AbstractField(T field) {
@@ -70,7 +70,7 @@ public abstract class AbstractField<T extends AbstractField<?>> implements
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name == null ? null : name.intern();
 	}
 
 	public void toString(StringBuilder sb) {
