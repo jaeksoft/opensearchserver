@@ -1,9 +1,7 @@
 CXX = g++
 CCFLAGS = -Wall -g -fPIC -O3
 LDFLAGS  = -lc -shared
-INCLUDES = \
-	-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers \
-	-I/Users/ekeller/C_Stuffs/boost_1_57_0
+INCLUDES =
 
 SRCS = \
 	NativeBitSet.cc \
@@ -26,10 +24,15 @@ else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
 		CCFLAGS += -D LINUX
+		INCLUDES += -I/etc/alternatives/java_sdk_openjdk/include \
+			-I/etc/alternatives/java_sdk_openjdk/include/linux \
+			-I/usr/include/boost
 		LIBNAME = lib${MAIN}.so
 		endif
 	ifeq ($(UNAME_S),Darwin)
 		CCFLAGS += -D OSX
+		INCLUDES += -I/usr/local/include/boost \
+			-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers
 		LIBNAME = lib${MAIN}.dylib
 	endif
 	UNAME_M := $(shell uname -m)
@@ -49,7 +52,7 @@ endif
 all: $(MAIN)
 
 $(MAIN): $(OBJS)
-	$(CXX) $(LDFLAGS) -o release/$(LIBNAME) $(OBJS)
+	$(CXX) $(LDFLAGS) -o $(LIBNAME) $(OBJS)
 
 .cc.o:
 	$(CXX) $(CCFLAGS) $(INCLUDES) -c $< -o $@

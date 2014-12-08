@@ -25,6 +25,7 @@
 #include <boost/fusion/container/list.hpp>
 #include <boost/fusion/include/list.hpp>
 #include <iostream>
+#include <string.h>
 
 class array_node {
 
