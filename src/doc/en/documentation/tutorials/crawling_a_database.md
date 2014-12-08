@@ -183,7 +183,32 @@ Go to tab `Renderer` and configure it as shown below:
 
 Use the query template (request) (`search` here) and the autocompletion created earlier. 
 
-We are using here some Javascript to enhance the display and rename facets. `jQuery` is dynamically loaded from the Google CDN.
+We are using here some Javascript to enhance the display and rename facets. `jQuery` is dynamically loaded from the Google CDN. Full code is:
+
+```javascript
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" ></script>
+<script type="text/javascript">
+
+jQuery(function($) {
+    
+   // Wrap results in a div
+   $('.ossfieldrdr1').each(function() {
+      $(this).nextUntil('br').andSelf().wrapAll('<div class="oss-one-result"></div>');
+   });
+ 
+  // Rename facets
+     var elem = $('h3:contains("date_monthyear")');
+     elem.text(elem.text().replace("date_monthyear", "Filter by month"));
+     var elem = $('h3:contains("authorFirstLetter")');
+     elem.text(elem.text().replace("authorFirstLetter", "Filter by author"));
+     var elem = $('h3:contains("categoryKeyword")');
+     elem.text(elem.text().replace("categoryKeyword", "Filter by category"));
+
+});
+
+</script>
+```
+
 
 **Fields**
 
