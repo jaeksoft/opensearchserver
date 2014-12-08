@@ -37,14 +37,15 @@ import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.util.Geospatial;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
 public class DistanceCollector
 		extends
 		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
 		implements DocSetHitCollectorInterface, DistanceInterface {
 
-	private final FloatBufferedArray distancesBuffer;
+	private final FloatBufferedArrayInterface distancesBuffer;
 
 	private float[] distances;
 
@@ -65,7 +66,8 @@ public class DistanceCollector
 			final ReaderAbstract reader, final GeoParameters geoParams)
 			throws IOException {
 		super(base);
-		this.distancesBuffer = new FloatBufferedArray(base.getMaxDoc());
+		this.distancesBuffer = FloatBufferedArrayFactory.INSTANCE
+				.newInstance(base.getMaxDoc());
 		radius = DistanceReturn.getRadius(geoParams.getDistanceReturn());
 		latitudeProvider = reader.getDocValueInterface(
 				geoParams.getLatitudeField(), DocValueType.RADIANS);

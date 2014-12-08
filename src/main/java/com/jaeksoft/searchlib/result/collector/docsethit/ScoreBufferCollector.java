@@ -32,20 +32,22 @@ import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
 public class ScoreBufferCollector
 		extends
 		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
 		implements ScoreInterface, DocSetHitCollectorInterface {
 
-	final protected FloatBufferedArray scoreCollector;
+	final protected FloatBufferedArrayInterface scoreCollector;
 	protected float maxScore = 0;
 	protected float[] scores;
 
 	public ScoreBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
-		scoreCollector = new FloatBufferedArray(base.getMaxDoc());
+		scoreCollector = FloatBufferedArrayFactory.INSTANCE.newInstance(base
+				.getMaxDoc());
 		scores = null;
 	}
 

@@ -31,14 +31,15 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.index.docvalue.DocValueInterface;
 import com.jaeksoft.searchlib.index.docvalue.DocValueType;
 import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
 public class AdvancedScoreItemValue {
 
 	private final DocValueInterface docValues;
 	private final float weight;
 	private float maxValue;
-	private final FloatBufferedArray valueArray;
+	private final FloatBufferedArrayInterface valueArray;
 	public float[] finalArray;
 	private final boolean reverse;
 
@@ -61,7 +62,8 @@ public class AdvancedScoreItemValue {
 			throw new IOException("Unknown score function");
 		}
 		weight = (float) scoreItem.getWeight();
-		valueArray = new FloatBufferedArray((int) reader.maxDoc());
+		valueArray = FloatBufferedArrayFactory.INSTANCE.newInstance(reader
+				.maxDoc());
 		maxValue = 0;
 		finalArray = null;
 	}
