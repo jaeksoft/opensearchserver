@@ -29,7 +29,8 @@ import org.apache.commons.lang.ArrayUtils;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
 public class CollapseScoreDocCollector
 		extends
@@ -37,7 +38,7 @@ public class CollapseScoreDocCollector
 		implements CollapseCollectorInterface, ScoreInterface {
 
 	final private float[] sourceScores;
-	final private FloatBufferedArray scoreCollector;
+	final private FloatBufferedArrayInterface scoreCollector;
 	final private float maxScore;
 
 	private int currentPos;
@@ -47,7 +48,8 @@ public class CollapseScoreDocCollector
 			final ScoreInterface scoreInterface) {
 		super(base);
 		this.sourceScores = scoreInterface.getScores();
-		this.scoreCollector = new FloatBufferedArray(scoreInterface.getSize());
+		this.scoreCollector = FloatBufferedArrayFactory.INSTANCE
+				.newInstance(scoreInterface.getSize());
 		this.maxScore = 0;
 		this.currentPos = 0;
 		this.scores = null;

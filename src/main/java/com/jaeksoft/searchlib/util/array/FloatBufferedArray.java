@@ -24,15 +24,12 @@
 
 package com.jaeksoft.searchlib.util.array;
 
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-public class FloatBufferedArray {
+public class FloatBufferedArray implements FloatBufferedArrayInterface {
 
-	private final int maxSize;
+	private final long maxSize;
 
 	private int initialArraySize;
 
@@ -48,7 +45,7 @@ public class FloatBufferedArray {
 
 	private int totalSize;
 
-	public FloatBufferedArray(final int maxSize, final int initialArraySize) {
+	private FloatBufferedArray(final long maxSize, final int initialArraySize) {
 		this.maxSize = maxSize;
 		this.initialArraySize = initialArraySize;
 		this.nextArraySize = initialArraySize;
@@ -57,7 +54,7 @@ public class FloatBufferedArray {
 		newCurrentArray();
 	}
 
-	public FloatBufferedArray(final int maxSize) {
+	FloatBufferedArray(final long maxSize) {
 		this(maxSize, 4096);
 	}
 
@@ -66,9 +63,10 @@ public class FloatBufferedArray {
 		arrays.add(currentArray);
 		currentArrayPos = 0;
 		if (nextArraySize > maxSize - totalSize)
-			nextArraySize = maxSize - totalSize;
+			nextArraySize = (int) (maxSize - totalSize);
 	}
 
+	@Override
 	final public void add(final float value) {
 		if (currentArrayPos == currentArray.length)
 			newCurrentArray();
@@ -76,10 +74,12 @@ public class FloatBufferedArray {
 		totalSize++;
 	}
 
-	final public int getSize() {
+	@Override
+	final public long getSize() {
 		return totalSize;
 	}
 
+	@Override
 	final public float[] getFinalArray() {
 		if (finalArray != null)
 			return finalArray;
@@ -104,52 +104,4 @@ public class FloatBufferedArray {
 		arrays.clear();
 	}
 
-	public final static void main(String[] str) {
-		final int size = 1000000;
-
-		Random random = new Random(System.currentTimeMillis());
-		// Building the index
-		long startTime = System.currentTimeMillis();
-		long freemem = Runtime.getRuntime().freeMemory();
-		float[] randomArray = new float[size];
-		for (int i = 0; i < size; i++)
-			randomArray[i++] = random.nextFloat();
-		IntBufferedArrayFactory.result(randomArray, startTime, freemem);
-
-		// Testing Native Array reduced size
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		float[] nativeArray1 = new float[size];
-		int i = 0;
-		for (float v : randomArray)
-			nativeArray1[i++] = v;
-		IntBufferedArrayFactory.result(nativeArray1, startTime, freemem);
-
-		// Testing Native Array
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		float[] nativeArray = new float[size * 4];
-		i = 0;
-		for (float v : randomArray)
-			nativeArray[i++] = v;
-		IntBufferedArrayFactory.result(nativeArray, startTime, freemem);
-
-		// Testing FastUTIL
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		FloatArrayList fastUtilArray = new FloatArrayList(size * 4);
-		for (float v : randomArray)
-			fastUtilArray.add(v);
-		fastUtilArray.toFloatArray();
-		IntBufferedArrayFactory.result(fastUtilArray, startTime, freemem);
-
-		// Testing Buffered Array
-		startTime = System.currentTimeMillis();
-		freemem = Runtime.getRuntime().freeMemory();
-		FloatBufferedArray floatBufferedArray = new FloatBufferedArray(size * 4);
-		for (float v : randomArray)
-			floatBufferedArray.add(v);
-		floatBufferedArray.getFinalArray();
-		IntBufferedArrayFactory.result(floatBufferedArray, startTime, freemem);
-	}
 }
