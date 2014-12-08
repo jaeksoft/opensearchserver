@@ -4,9 +4,12 @@ LDFLAGS  = -lc -shared
 INCLUDES = \
 	-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers \
 	-I/Users/ekeller/C_Stuffs/boost_1_57_0
+
 SRCS = \
 	NativeBitSet.cc \
-	NativeIntBufferedArray.cc
+	NativeIntBufferedArray.cc \
+	NativeFloatBufferedArray.cc
+
 OBJS = $(SRCS:.cc=.o)
 MAIN = nativeoss
 

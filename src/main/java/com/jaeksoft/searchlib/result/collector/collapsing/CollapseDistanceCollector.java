@@ -30,7 +30,8 @@ import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
-import com.jaeksoft.searchlib.util.array.FloatBufferedArray;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
+import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
 public class CollapseDistanceCollector
 		extends
@@ -38,7 +39,7 @@ public class CollapseDistanceCollector
 		implements CollapseCollectorInterface, CollapseDistanceInterface {
 
 	final private float[] sourceDistances;
-	final private FloatBufferedArray distanceCollector;
+	final private FloatBufferedArrayInterface distanceCollector;
 
 	private float[] distances;
 	private float[][] collapsedDistances;
@@ -50,7 +51,8 @@ public class CollapseDistanceCollector
 			final DistanceInterface distanceInterface) {
 		super(base);
 		this.sourceDistances = distanceInterface.getDistances();
-		distanceCollector = new FloatBufferedArray(this.sourceDistances.length);
+		distanceCollector = FloatBufferedArrayFactory.INSTANCE
+				.newInstance(this.sourceDistances.length);
 		maxDistance = 0;
 		minDistance = Float.MAX_VALUE;
 		currentPos = 0;
