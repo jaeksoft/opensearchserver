@@ -10,6 +10,7 @@
 * [Getting started](tutorials/README.md)
 	* [Discovering](tutorials/functionalities.md)
 	* [Crawling a website](tutorials/crawling_a_website.md)
+	* [Crawling a database](tutorials/crawling_a_database.md)
 * [Frequently Asked Questions](faq/README.md)
 	* [Installation](faq/installation/README.md)
 		* [Environment variables on Windows](faq/installation/how_to_check_the_environment_variables_on_Windows.md)
