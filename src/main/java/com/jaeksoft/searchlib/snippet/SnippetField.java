@@ -120,7 +120,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	 *            the tag to set
 	 */
 	public void setTag(String tag) {
-		this.tag = tag;
+		this.tag = tag == null ? null : tag.intern();
 		if (tag != null && tag.length() > 0) {
 			tags = new String[2];
 			tags[0] = '<' + tag + '>';
@@ -141,9 +141,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 	 *            the separator to set
 	 */
 	public void setSeparator(String separator) {
-		this.separator = separator;
+		this.separator = separator == null ? null : separator.intern();
 		unescapedSeparator = separator == null ? null : StringEscapeUtils
-				.unescapeHtml(separator);
+				.unescapeHtml(separator).intern();
 	}
 
 	/**

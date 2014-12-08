@@ -32,16 +32,17 @@ import com.jaeksoft.searchlib.util.External.Collecter;
 
 public class FieldContent implements Collecter<FieldValueItem> {
 
-	private String field;
+	private final String field;
 	private List<FieldValueItem> values;
 
 	public FieldContent() {
+		field = null;
 		values = null;
 	}
 
 	public FieldContent(final String field) {
-		this();
-		this.field = field;
+		this.field = field == null ? null : field.intern();
+		values = null;
 	}
 
 	final public String getField() {

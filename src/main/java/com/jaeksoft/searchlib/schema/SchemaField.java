@@ -31,6 +31,8 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -71,7 +73,7 @@ public class SchemaField extends AbstractField<SchemaField> {
 	public SchemaField(String name, Stored stored, Indexed indexed,
 			TermVector termVector, String analyzer, String... copyOf) {
 		super(name);
-		this.indexAnalyzer = analyzer;
+		this.indexAnalyzer = analyzer == null ? null : analyzer.intern();
 		this.stored = stored;
 		this.indexed = indexed;
 		this.termVector = termVector;
@@ -184,10 +186,8 @@ public class SchemaField extends AbstractField<SchemaField> {
 	}
 
 	public void setIndexAnalyzer(String indexAnalyzer) {
-		if (indexAnalyzer != null)
-			if (indexAnalyzer.length() == 0)
-				indexAnalyzer = null;
-		this.indexAnalyzer = indexAnalyzer;
+		this.indexAnalyzer = StringUtils.isEmpty(indexAnalyzer) ? null
+				: indexAnalyzer.intern();
 	}
 
 	/**
@@ -265,10 +265,14 @@ public class SchemaField extends AbstractField<SchemaField> {
 	 *            the copyOf to set
 	 */
 	public void setCopyOf(List<String> copyOf) {
-		this.copyOf = copyOf != null && copyOf.size() > 0 ? new ArrayList<String>(
-				copyOf) : null;
-		if (copyOf != null && copyOf.size() > 0)
+		if (CollectionUtils.isEmpty(copyOf)) {
+			this.copyOf = null;
+		} else {
+			this.copyOf = new ArrayList<String>(copyOf.size());
+			for (String cf : copyOf)
+				this.copyOf.add(cf.intern());
 			setStored(Stored.NO);
+		}
 	}
 
 	public static SchemaField fromHttpRequest(ServletTransaction transaction)
