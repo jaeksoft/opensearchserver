@@ -55,11 +55,11 @@ public class TargetField implements Comparable<TargetField> {
 
 	public TargetField(String name, String analyzer, Float queryBoost,
 			String boostedName) {
-		this.name = name;
-		this.analyzer = analyzer;
+		this.name = name == null ? null : name.intern();
+		this.analyzer = analyzer == null ? null : analyzer.intern();
 		this.cachedAnalyzer = null;
 		this.queryBoost = queryBoost;
-		this.boostedName = boostedName;
+		this.boostedName = boostedName == null ? null : boostedName.intern();
 	}
 
 	public TargetField(String name) {
@@ -83,7 +83,7 @@ public class TargetField implements Comparable<TargetField> {
 	 *            the name to set
 	 */
 	final public void setName(String name) {
-		this.name = name;
+		this.name = name == null ? null : name.intern();
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class TargetField implements Comparable<TargetField> {
 	 *            the analyzer to set
 	 */
 	final public void setAnalyzer(String analyzer) {
-		this.analyzer = analyzer;
+		this.analyzer = analyzer == null ? null : analyzer.intern();
 		this.cachedAnalyzer = null;
 	}
 
