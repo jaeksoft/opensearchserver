@@ -229,7 +229,7 @@ public class Analyzer {
 	public void setName(String name) {
 		rwl.w.lock();
 		try {
-			this.name = name;
+			this.name = name == null ? null : name.intern();
 		} finally {
 			rwl.w.unlock();
 		}

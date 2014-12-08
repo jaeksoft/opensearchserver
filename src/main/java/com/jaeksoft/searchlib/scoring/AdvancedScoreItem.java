@@ -142,7 +142,7 @@ public class AdvancedScoreItem {
 	 *            the fieldName to set
 	 */
 	public void setFieldName(String fieldName) {
-		this.fieldName = fieldName;
+		this.fieldName = fieldName == null ? null : fieldName.intern();
 	}
 
 	/**

@@ -43,12 +43,16 @@ public class SourceField implements Comparable<SourceField> {
 
 	public SourceField(String name) {
 		names = new String[1];
-		names[0] = name;
+		names[0] = name.intern();
 		separator = '|';
 	}
 
 	public SourceField(String name, char separator) {
-		names = StringUtils.split(name, separator);
+		String[] splitNames = StringUtils.split(name, separator);
+		names = new String[splitNames.length];
+		int i = 0;
+		for (String splitName : splitNames)
+			names[i++] = splitName.intern();
 		this.separator = separator;
 	}
 

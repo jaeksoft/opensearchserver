@@ -32,12 +32,12 @@ import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
-	private String indexName;
+	private final String indexName;
 
 	private LastModifiedAndSize lastModifiedAndSize;
 
 	public ClientCatalogItem(String indexName) {
-		this.indexName = indexName;
+		this.indexName = indexName == null ? null : indexName.intern();
 		this.lastModifiedAndSize = null;
 	}
 
