@@ -23,18 +23,16 @@ The index list is returned in JSON or XML format.
 **Content (application/json):**
 
     {
-      "result": {
-        "@successful": "true",
-        "info": "6 index(es)",
-        "indexList": [
-            "dbpedia_abstract",
-            "nodes",
-            "smb",
-            "test",
-            "test_oss_rb",
-            "web"
-        ]
-      }
+      "successful": true,
+      "info": "6 index(es)",
+      "indexList": [
+          "dbpedia_abstract",
+          "nodes",
+          "smb",
+          "test",
+          "test_oss_rb",
+          "web"
+      ]
     }
 
 ### Error response
