@@ -41,7 +41,7 @@ Once unzipped you'll get a folder called **opensearchserver**. All your OSS bina
 ### Running it
 At this stage, running OSS on Mac still requires one command line. This means you have to use the Terminal application, which is in the Utilities folder within the Applications folder of your Mac.
 
-Using the Terminal, go to your newly-downloaded OpenSearchServer folder. Once there, launch the Start application by typing in **./start.sh**. That's it!
+Using the Terminal, go to your newly-downloaded OpenSearchServer folder. Once there, launch the Start application by typing in **./start.sh**. Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine). That's it!
 
 #### Running it without knowing anything about Terminal mode
 
