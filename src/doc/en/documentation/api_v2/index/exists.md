@@ -26,10 +26,8 @@ The index has been found.
 **Content (application/json):**
 
     {
-      "result": {
-      "@successful": "true",
-      "info": true
-      }
+      "successful": true,
+      "info": "true"
     }
 
 ### Error response
