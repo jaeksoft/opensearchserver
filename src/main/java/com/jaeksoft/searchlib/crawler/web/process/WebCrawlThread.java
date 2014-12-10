@@ -87,12 +87,10 @@ public class WebCrawlThread extends
 		webScriptManager = config.getWebScriptManager();
 	}
 
-	private void sleepInterval(long max) {
+	private void sleepInterval() {
 		long ms = nextTimeTarget - System.currentTimeMillis();
 		if (ms < 0)
 			return;
-		if (ms > max)
-			ms = max;
 		sleepMs(ms);
 	}
 
@@ -176,7 +174,7 @@ public class WebCrawlThread extends
 			// Fetch started
 			currentStats.incFetchedCount();
 
-			sleepInterval(60000);
+			sleepInterval();
 			setStatus(CrawlStatus.CRAWL);
 			// NextTimeTarget is immediate by default
 			nextTimeTarget = System.currentTimeMillis();
