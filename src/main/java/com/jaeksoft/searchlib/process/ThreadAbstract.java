@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -167,7 +167,10 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	protected void sleepMs(long ms) {
 		try {
-			Thread.sleep(ms);
+			while (ms > 0 && !isAborted()) {
+				Thread.sleep(1000);
+				ms -= 1000;
+			}
 		} catch (InterruptedException e) {
 			Logging.warn(e.getMessage(), e);
 		}
