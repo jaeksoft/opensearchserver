@@ -36,7 +36,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.Sequence;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 import com.jaeksoft.searchlib.util.properties.PropertyManager;
@@ -47,8 +46,6 @@ public class ClientFactory implements PropertyItemListener {
 	public static ClientFactory INSTANCE = null;
 
 	public final InstanceProperties properties;
-
-	private final Sequence globalSequence;
 
 	private PropertyItem<Integer> booleanQueryMaxClauseCount;
 
@@ -82,9 +79,6 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			globalSequence = new Sequence(new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"globalSequence.txt"), 36);
 			properties = new InstanceProperties(new File(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 					"properties.xml"));
@@ -248,10 +242,6 @@ public class ClientFactory implements PropertyItemListener {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-	}
-
-	public Sequence getGlobalSequence() {
-		return globalSequence;
 	}
 
 }

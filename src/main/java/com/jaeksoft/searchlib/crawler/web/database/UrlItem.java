@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
@@ -75,7 +74,6 @@ public class UrlItem {
 	private LinkItem.Origin origin;
 	private List<String> headers;
 	private int backlinkCount;
-	private String instanceId;
 	private String urlWhen;
 
 	protected UrlItem() {
@@ -107,7 +105,6 @@ public class UrlItem {
 		origin = null;
 		headers = null;
 		backlinkCount = 0;
-		instanceId = null;
 		urlWhen = null;
 	}
 
@@ -160,8 +157,6 @@ public class UrlItem {
 		addHeaders(doc.getValues(UrlItemFieldEnum.INSTANCE.headers.getName()));
 		setBacklinkCount(doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), 0));
-		instanceId = doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.instanceId.getName(), 0);
 		urlWhen = doc.getValueContent(
 				UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
 	}
@@ -629,9 +624,6 @@ public class UrlItem {
 		indexDocument.setString(
 				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(),
 				longFormat.format(backlinkCount));
-		checkInstanceId();
-		indexDocument.setString(UrlItemFieldEnum.INSTANCE.instanceId.getName(),
-				instanceId);
 		indexDocument.setString(UrlItemFieldEnum.INSTANCE.urlWhen.getName(),
 				urlWhen);
 	}
@@ -719,16 +711,6 @@ public class UrlItem {
 	 */
 	public void setBacklinkCount(int backLinkCount) {
 		this.backlinkCount = backLinkCount;
-	}
-
-	public String getInstanceId() {
-		return instanceId;
-	}
-
-	private void checkInstanceId() throws IOException {
-		if (instanceId != null)
-			return;
-		instanceId = ClientFactory.INSTANCE.getGlobalSequence().next();
 	}
 
 	public void checkUrlWhen() {
