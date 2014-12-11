@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -334,6 +335,19 @@ public class DomUtils {
 		StreamResult xmlResult = new StreamResult(destination);
 		xslt(xmlSource, xsl, xmlResult);
 		return xmlResult;
+	}
+
+	public final static String xslt(final Source xmlSource, final String xsl)
+			throws TransformerException {
+		StringWriter sw = null;
+		try {
+			sw = new StringWriter();
+			StreamResult xmlResult = new StreamResult(sw);
+			xslt(xmlSource, xsl, xmlResult);
+			return sw.toString();
+		} finally {
+			IOUtils.close(sw);
+		}
 	}
 
 	public final static void removeChildren(final Node node) {
