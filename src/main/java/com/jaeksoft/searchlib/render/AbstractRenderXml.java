@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -84,6 +84,11 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 
 	protected void renderSuffix() {
 		writer.println("</response>");
+	}
+
+	final public void render(PrintWriter writer) throws Exception {
+		this.writer = writer;
+		render();
 	}
 
 	@Override

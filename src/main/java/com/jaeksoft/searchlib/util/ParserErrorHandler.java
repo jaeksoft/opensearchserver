@@ -38,9 +38,9 @@ import com.jaeksoft.searchlib.Logging;
 public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 		org.w3c.css.sac.ErrorHandler {
 
-	private boolean silent;
+	private final boolean silent;
 
-	private boolean logOnly;
+	private final boolean logOnly;
 
 	public static final ParserErrorHandler SILENT_ERROR_HANDLER = new ParserErrorHandler(
 			true, true);
@@ -57,38 +57,31 @@ public class ParserErrorHandler implements ErrorHandler, ErrorListener,
 	}
 
 	private final void handleError(SAXParseException e) throws SAXException {
-		synchronized (this) {
-			if (silent)
-				return;
-			if (logOnly)
-				Logging.error(e);
-			else
-				throw e;
-		}
+		if (silent)
+			return;
+		if (logOnly)
+			Logging.error(e);
+		else
+			throw e;
 	}
 
 	private final void handleError(TransformerException e)
 			throws TransformerException {
-		synchronized (this) {
-			if (silent)
-				return;
-			if (logOnly)
-				Logging.error(e);
-			else
-				throw e;
-		}
+		if (silent)
+			return;
+		if (logOnly)
+			Logging.error(e);
+		else
+			throw e;
 	}
 
 	private final void handleError(CSSParseException e) throws CSSException {
-		synchronized (this) {
-			if (silent)
-				return;
-			if (logOnly)
-				Logging.error(
-						e.getURI() + " - LineNumber: " + e.getLineNumber(), e);
-			else
-				throw e;
-		}
+		if (silent)
+			return;
+		if (logOnly)
+			Logging.error(e.getURI() + " - LineNumber: " + e.getLineNumber(), e);
+		else
+			throw e;
 	}
 
 	@Override

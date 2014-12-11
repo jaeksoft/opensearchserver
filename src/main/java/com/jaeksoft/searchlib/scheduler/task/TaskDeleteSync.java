@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
@@ -71,8 +72,11 @@ public class TaskDeleteSync extends TaskAbstract {
 	final private TaskPropertyDef propIndexedField = new TaskPropertyDef(
 			TaskPropertyType.textBox, "Indexed field", "IndexedField", null, 30);
 
+	final private TaskPropertyDef propUseProxy = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Use proxy", "UseProxy", null, 20);
+
 	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
-			propPassword, propUserAgent, propIndexedField };
+			propPassword, propUserAgent, propIndexedField, propUseProxy };
 
 	@Override
 	public String getName() {
@@ -89,21 +93,24 @@ public class TaskDeleteSync extends TaskAbstract {
 			TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		List<String> values = new ArrayList<String>();
-		if (propertyDef == propIndexedField) {
+		if (propertyDef == propIndexedField)
 			config.getSchema().getFieldList().getIndexedFields(values);
-		}
+		else if (propertyDef == propUseProxy)
+			return ClassPropertyEnum.BOOLEAN_LIST;
 		return CollectionUtils.isEmpty(values) ? null : values
 				.toArray(new String[values.size()]);
 	}
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
-		if (propertyDef == propUserAgent)
+		if (propertyDef == propUserAgent) {
 			try {
 				return config.getWebPropertyManager().getUserAgent().getValue();
 			} catch (SearchLibException e) {
 				Logging.error(e);
 			}
+		} else if (propertyDef == propUseProxy)
+			return Boolean.FALSE.toString();
 		return null;
 	}
 
@@ -115,9 +122,11 @@ public class TaskDeleteSync extends TaskAbstract {
 		String password = properties.getValue(propPassword);
 		String userAgent = properties.getValue(propUserAgent);
 		String field = properties.getValue(propIndexedField);
+		boolean useProxy = Boolean.TRUE.toString().equals(
+				properties.getValue(propUseProxy));
 
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(true, userAgent);
+				.getNewHttpDownloader(true, userAgent, useProxy);
 		InputStream is = null;
 		InputStreamReader isr = null;
 		BufferedReader br = null;

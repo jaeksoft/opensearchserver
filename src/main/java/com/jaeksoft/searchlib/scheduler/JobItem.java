@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -53,6 +53,8 @@ public class JobItem extends ExecutionAbstract {
 
 	protected final static String JOB_NODE_NAME = "job";
 
+	private Config config;
+
 	private String name;
 
 	private TaskCronExpression cron;
@@ -69,7 +71,8 @@ public class JobItem extends ExecutionAbstract {
 
 	private String emailRecipients;
 
-	public JobItem(String name) {
+	public JobItem(Config config, String name) {
+		this.config = config;
 		this.name = name;
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
@@ -77,11 +80,17 @@ public class JobItem extends ExecutionAbstract {
 		setLastError(null);
 	}
 
+	public JobItem(JobItem src) {
+		this(src.config, src.name);
+		copyFrom(src);
+	}
+
 	public void copyFrom(JobItem job) {
 		rwl.w.lock();
 		try {
 			job.rwl.r.lock();
 			try {
+				this.config = job.config;
 				this.name = job.name;
 				this.emailNotificationOnFailure = job.emailNotificationOnFailure;
 				this.emailRecipients = job.emailRecipients;
@@ -268,6 +277,8 @@ public class JobItem extends ExecutionAbstract {
 					"OpenSearchServer Scheduler Error: " + getName());
 			PrintWriter pw = email.getTextPrintWriter();
 			pw.println("The scheduler job has failed.");
+			pw.print("Index: ");
+			pw.println(config.getIndexName());
 			pw.print("Name of the job: ");
 			pw.println(getName());
 			if (currentTask != null) {
@@ -312,7 +323,7 @@ public class JobItem extends ExecutionAbstract {
 				.getAttributeString(node, "emailNotificationOnFailure"));
 		String emailRecipients = XPathParser.getAttributeString(node,
 				"emailRecipients");
-		JobItem jobItem = new JobItem(name);
+		JobItem jobItem = new JobItem(config, name);
 		jobItem.setEmailNotificationOnFailure(emailNotificationOnFailure);
 		jobItem.setEmailRecipients(emailRecipients);
 		Node cronNode = xpp.getNode(node, "cron");
