@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -246,19 +248,18 @@ public class WebCrawlMaster extends
 	}
 
 	public HttpDownloader getNewHttpDownloader(boolean followRedirect,
-			String userAgent) throws SearchLibException {
+			String userAgent, boolean useProxies) throws SearchLibException {
 		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		if (StringUtils.isEmpty(userAgent))
+			userAgent = propertyManager.getUserAgent().getValue();
 		return new HttpDownloader(userAgent, followRedirect,
-				propertyManager.getProxyHandler());
+				useProxies ? propertyManager.getProxyHandler() : null);
 	}
 
-	public HttpDownloader getNewHttpDownloader(boolean followRedirect)
-			throws SearchLibException {
-		Config config = getConfig();
-		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		return getNewHttpDownloader(followRedirect, propertyManager
-				.getUserAgent().getValue());
+	final public HttpDownloader getNewHttpDownloader(
+			final boolean followRedirect) throws SearchLibException {
+		return getNewHttpDownloader(followRedirect, null, true);
 	}
 
 	private NamedItem getNextHost() {
