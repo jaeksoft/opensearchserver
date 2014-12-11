@@ -66,13 +66,27 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 
 	public CommonResult runForever(UriInfo uriInfo, String use, String login,
 			String key) {
-		return CrawlerUtils
-				.runForever(getCrawlMaster(uriInfo, use, login, key));
+		try {
+			client.getFilePropertyManager().getCrawlEnabled().setValue(true);
+			return CrawlerUtils.runForever(getCrawlMaster(uriInfo, use, login,
+					key));
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	public CommonResult stop(UriInfo uriInfo, String use, String login,
 			String key) {
-		return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+		try {
+			client.getFilePropertyManager().getCrawlEnabled().setValue(false);
+			return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	public CommonResult status(UriInfo uriInfo, String use, String login,

@@ -85,18 +85,33 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	@Override
 	public CommonResult run(UriInfo uriInfo, String use, String login,
 			String key, boolean once) {
-		if (once)
-			return CrawlerUtils
-					.runOnce(getCrawlMaster(uriInfo, use, login, key));
-		else
-			return CrawlerUtils.runForever(getCrawlMaster(uriInfo, use, login,
-					key));
+		try {
+			if (once)
+				return CrawlerUtils.runOnce(getCrawlMaster(uriInfo, use, login,
+						key));
+			else {
+				client.getWebPropertyManager().getCrawlEnabled().setValue(true);
+				return CrawlerUtils.runForever(getCrawlMaster(uriInfo, use,
+						login, key));
+			}
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	@Override
 	public CommonResult stop(UriInfo uriInfo, String use, String login,
 			String key) {
-		return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+		try {
+			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
+			return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	@Override
