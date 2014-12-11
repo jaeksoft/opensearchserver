@@ -231,7 +231,7 @@ public class WebDriverCommands {
 						screenshot = browserDriver.getScreenshot();
 				}
 				httpDownloader = context.getConfig().getWebCrawlMaster()
-						.getNewHttpDownloader(true, null);
+						.getNewHttpDownloader(true, null, true);
 
 				HtmlArchiver htmlArchiver = browserDriver.saveArchive(
 						httpDownloader, destFile, context.getSelectors());

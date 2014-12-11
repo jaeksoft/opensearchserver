@@ -40,6 +40,7 @@ import org.apache.http.entity.StringEntity;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType;
@@ -89,9 +90,12 @@ public class TaskQueryXsltPost extends TaskAbstract {
 			TaskPropertyType.textBox, "Content-Type", "ContentType",
 			"The content-type header", 50);
 
+	final private TaskPropertyDef propUseProxy = new TaskPropertyDef(
+			TaskPropertyType.comboBox, "Use proxy", "UseProxy", null, 20);
+
 	final private TaskPropertyDef[] taskPropertyDefs = { propSearchTemplate,
 			propQueryString, propXsl, propUrl, propHttpLogin, propHttpPassword,
-			propHttpContentType };
+			propHttpContentType, propUseProxy };
 
 	@Override
 	public String getName() {
@@ -112,6 +116,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 			config.getRequestMap().getNameList(nameList,
 					RequestTypeEnum.SearchFieldRequest,
 					RequestTypeEnum.SearchRequest);
+		else if (propertyDef == propUseProxy)
+			return ClassPropertyEnum.BOOLEAN_LIST;
 		if (nameList.size() == 0)
 			return null;
 		return nameList.toArray(new String[nameList.size()]);
@@ -119,6 +125,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 
 	@Override
 	public String getDefaultValue(Config config, TaskPropertyDef propertyDef) {
+		if (propertyDef == propUseProxy)
+			return Boolean.FALSE.toString();
 		return null;
 	}
 
@@ -135,6 +143,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 		String httpLogin = properties.getValue(propHttpLogin);
 		String httpPassword = properties.getValue(propHttpPassword);
 		String contentType = properties.getValue(propHttpContentType);
+		boolean useProxy = Boolean.TRUE.toString().equals(
+				properties.getValue(propUseProxy));
 
 		URI uri;
 		try {
@@ -185,7 +195,7 @@ public class TaskQueryXsltPost extends TaskAbstract {
 						CredentialType.BASIC_DIGEST, null, httpLogin,
 						httpPassword, null, null);
 			HttpDownloader downloader = client.getWebCrawlMaster()
-					.getNewHttpDownloader(true);
+					.getNewHttpDownloader(true, null, useProxy);
 
 			List<HeaderItem> headerItems = null;
 			if (!StringUtils.isEmpty(contentType)) {

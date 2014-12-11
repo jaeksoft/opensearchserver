@@ -122,7 +122,7 @@ public class TaskXmlLoad extends TaskAbstract {
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
 		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(true, userAgent);
+				.getNewHttpDownloader(true, userAgent, false);
 		try {
 			URI uri = new URI(uriString);
 			CredentialItem credentialItem = null;
