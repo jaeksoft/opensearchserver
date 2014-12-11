@@ -173,6 +173,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 			if (!StringUtils.isEmpty(xsl)) {
 				taskLog.setInfo("XSL transformation");
 				content = DomUtils.xslt(new StreamSource(sr), xsl);
+				if (content == null)
+					throw new SearchLibException("XSL transformation failed");
 			}
 
 			CredentialItem credentialItem = null;

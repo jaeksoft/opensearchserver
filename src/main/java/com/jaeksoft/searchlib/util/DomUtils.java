@@ -325,6 +325,7 @@ public class DomUtils {
 			final Result xmlResult) throws TransformerException {
 		StreamSource xslSource = new StreamSource(new StringReader(xsl));
 		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setErrorListener(ParserErrorHandler.STANDARD_ERROR_HANDLER);
 		Transformer trans = tf.newTransformer(xslSource);
 		trans.setErrorListener(ParserErrorHandler.STANDARD_ERROR_HANDLER);
 		trans.transform(xmlSource, xmlResult);

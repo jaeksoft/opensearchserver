@@ -62,8 +62,7 @@ public class SchedulerListController extends SchedulerController {
 	public void doEdit(@BindingParam("jobentry") JobItem selectedJob)
 			throws SearchLibException {
 		setJobItemSelected(selectedJob);
-		JobItem currentJob = new JobItem(null);
-		currentJob.copyFrom(selectedJob);
+		JobItem currentJob = new JobItem(selectedJob);
 		setJobItemEdit(currentJob);
 	}
 
@@ -101,8 +100,7 @@ public class SchedulerListController extends SchedulerController {
 	@Command
 	@NotifyChange("*")
 	public void doClone(@BindingParam("jobentry") JobItem job) {
-		JobItem newJob = new JobItem("");
-		newJob.copyFrom(job);
+		JobItem newJob = new JobItem(job);
 		newJob.setName("New job");
 		newJob.setActive(false);
 		doNew(newJob);
@@ -111,7 +109,7 @@ public class SchedulerListController extends SchedulerController {
 	@Command
 	@NotifyChange("*")
 	public void onNewJob() throws SearchLibException {
-		doNew(new JobItem("New job"));
+		doNew(new JobItem(getClient(), "New job"));
 	}
 
 	@Command
