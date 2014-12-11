@@ -83,7 +83,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 
 	final private TaskPropertyDef propXsl = new TaskPropertyDef(
 			TaskPropertyType.multilineTextBox, "XSL", "XSL",
-			"An option XSL stylesheet", 100, 30);
+			"An optional XSL stylesheet", 100, 30);
 
 	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
 			TaskPropertyType.listBox, "Delete after load", "Delete after load",
