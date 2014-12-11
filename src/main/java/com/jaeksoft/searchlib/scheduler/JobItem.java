@@ -278,7 +278,7 @@ public class JobItem extends ExecutionAbstract {
 			PrintWriter pw = email.getTextPrintWriter();
 			pw.println("The scheduler job has failed.");
 			pw.print("Index: ");
-			pw.println();
+			pw.println(config.getIndexName());
 			pw.print("Name of the job: ");
 			pw.println(getName());
 			if (currentTask != null) {

@@ -34,6 +34,7 @@ import java.util.List;
 
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.StringEntity;
 
@@ -192,7 +193,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 				headerItems.add(new HeaderItem("Content-Type", contentType));
 			}
 
-			taskLog.setInfo("Uploading");
+			taskLog.setInfo("Uploading "
+					+ FileUtils.byteCountToDisplaySize(content.length()));
 			DownloadItem downloadItem = downloader.post(uri, credentialItem,
 					headerItems, null, new StringEntity(content));
 			downloadItem.checkNoErrorRange(200, 201);
