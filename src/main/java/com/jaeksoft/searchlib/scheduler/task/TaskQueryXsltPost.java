@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.scheduler.task;
 
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -153,6 +154,7 @@ public class TaskQueryXsltPost extends TaskAbstract {
 
 		StringWriter sw = null;
 		PrintWriter pw = null;
+		StringReader sr = null;
 
 		try {
 
@@ -166,14 +168,11 @@ public class TaskQueryXsltPost extends TaskAbstract {
 			String content = sw.toString();
 			sw = null;
 
-			System.out.println("XML");
-			System.out.println(content);
+			sr = new StringReader(content);
 
 			if (!StringUtils.isEmpty(xsl)) {
 				taskLog.setInfo("XSL transformation");
-				content = DomUtils.xslt(new StreamSource(content), xsl);
-				System.out.println("XSL");
-				System.out.println(content);
+				content = DomUtils.xslt(new StreamSource(sr), xsl);
 			}
 
 			CredentialItem credentialItem = null;
@@ -191,13 +190,15 @@ public class TaskQueryXsltPost extends TaskAbstract {
 				headerItems.add(new HeaderItem("Content-Type", contentType));
 			}
 
+			taskLog.setInfo("Uploading");
 			DownloadItem downloadItem = downloader.post(uri, credentialItem,
 					headerItems, null, new StringEntity(content));
 			downloadItem.checkNoErrorRange(200, 201);
+			taskLog.setInfo("Done");
 		} catch (Exception e) {
 			throw new SearchLibException(e);
 		} finally {
-			IOUtils.close(pw, sw);
+			IOUtils.close(pw, sw, sr);
 		}
 
 	}
