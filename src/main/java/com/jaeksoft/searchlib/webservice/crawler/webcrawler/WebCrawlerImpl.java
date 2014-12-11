@@ -89,15 +89,30 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	@Override
 	public CommonResult run(String use, String login, String key, boolean once) {
-		if (once)
-			return CrawlerUtils.runOnce(getCrawlMaster(use, login, key));
-		else
-			return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
+		try {
+			if (once)
+				return CrawlerUtils.runOnce(getCrawlMaster(use, login, key));
+			else {
+				client.getWebPropertyManager().getCrawlEnabled().setValue(true);
+				return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
+			}
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	@Override
 	public CommonResult stop(String use, String login, String key) {
-		return CrawlerUtils.stop(getCrawlMaster(use, login, key));
+		try {
+			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
+			return CrawlerUtils.stop(getCrawlMaster(use, login, key));
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	@Override

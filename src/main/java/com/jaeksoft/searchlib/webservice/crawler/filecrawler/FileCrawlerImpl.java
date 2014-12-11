@@ -66,12 +66,26 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 
 	@Override
 	public CommonResult runForever(String use, String login, String key) {
-		return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
+		try {
+			client.getFilePropertyManager().getCrawlEnabled().setValue(true);
+			return CrawlerUtils.runForever(getCrawlMaster(use, login, key));
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
 	public CommonResult stop(String use, String login, String key) {
-		return CrawlerUtils.stop(getCrawlMaster(use, login, key));
+		try {
+			client.getFilePropertyManager().getCrawlEnabled().setValue(false);
+			return CrawlerUtils.stop(getCrawlMaster(use, login, key));
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	@Override
