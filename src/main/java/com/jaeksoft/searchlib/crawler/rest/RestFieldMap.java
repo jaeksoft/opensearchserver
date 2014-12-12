@@ -34,13 +34,11 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -76,10 +74,9 @@ public class RestFieldMap extends
 		return false;
 	}
 
-	public void mapJson(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, LanguageEnum lang,
-			Object jsonObject, IndexDocument target) throws SearchLibException,
-			IOException, ParseException, SyntaxError, URISyntaxException,
+	public void mapJson(FieldMapContext context, Object jsonObject,
+			IndexDocument target) throws SearchLibException, IOException,
+			ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
@@ -92,14 +89,12 @@ public class RestFieldMap extends
 					JSONArray jsonArray = (JSONArray) jsonContent;
 					for (Object content : jsonArray) {
 						if (content != null)
-							this.mapFieldTarget(webCrawlMaster, parserSelector,
-									lang, link.getTarget(), content.toString(),
-									target, null);
+							this.mapFieldTarget(context, link.getTarget(),
+									content.toString(), target, null);
 					}
 				} else
-					this.mapFieldTarget(webCrawlMaster, parserSelector, lang,
-							link.getTarget(), jsonContent.toString(), target,
-							null);
+					this.mapFieldTarget(context, link.getTarget(),
+							jsonContent.toString(), target, null);
 			} catch (PathNotFoundException e) {
 				continue;
 			} catch (IllegalArgumentException e) {

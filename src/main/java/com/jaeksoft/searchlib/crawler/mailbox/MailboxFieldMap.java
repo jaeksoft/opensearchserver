@@ -33,14 +33,12 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -91,11 +89,10 @@ public class MailboxFieldMap extends
 		return null;
 	}
 
-	public void mapIndexDocument(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, LanguageEnum lang,
-			IndexDocument source, IndexDocument target) throws IOException,
-			SearchLibException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
+	public void mapIndexDocument(FieldMapContext context, IndexDocument source,
+			IndexDocument target) throws IOException, SearchLibException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			SourceField sourceField = link.getSource();
@@ -104,12 +101,10 @@ public class MailboxFieldMap extends
 				FieldContent fc = sourceField.getUniqueString(source);
 				if (fc == null)
 					fc = sourceField.getUniqueString(target);
-				mapFieldTarget(webCrawlMaster, parserSelector, lang, fc,
-						targetField, target, null);
+				mapFieldTarget(context, fc, targetField, target, null);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				mapFieldTarget(webCrawlMaster, parserSelector, lang,
-						targetField, value, target, null);
+				mapFieldTarget(context, targetField, value, target, null);
 			}
 		}
 	}
