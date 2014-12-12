@@ -34,13 +34,11 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -74,8 +72,7 @@ public class DatabaseFieldMap extends
 		return false;
 	}
 
-	final public void mapResultSet(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, LanguageEnum lang,
+	final public void mapResultSet(FieldMapContext context,
 			ResultSet resultSet, Set<String> columns, IndexDocument target,
 			Set<String> filePathSet) throws SQLException,
 			InstantiationException, IllegalAccessException,
@@ -88,8 +85,8 @@ public class DatabaseFieldMap extends
 			String content = resultSet.getString(columnName);
 			if (content == null)
 				continue;
-			mapFieldTarget(webCrawlMaster, parserSelector, lang,
-					link.getTarget(), content, target, filePathSet);
+			mapFieldTarget(context, link.getTarget(), content, target,
+					filePathSet);
 		}
 	}
 
