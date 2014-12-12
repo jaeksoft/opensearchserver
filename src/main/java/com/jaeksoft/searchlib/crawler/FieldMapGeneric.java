@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.crawler;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
@@ -41,17 +42,16 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
@@ -153,18 +153,16 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		}
 	}
 
-	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, LanguageEnum lang, FieldContent fc,
-			CommonFieldTarget targetField, IndexDocument target,
-			Set<String> filePathSet) throws IOException, SearchLibException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
+	final protected void mapFieldTarget(FieldMapContext context,
+			FieldContent fc, CommonFieldTarget targetField,
+			IndexDocument target, Set<String> filePathSet) throws IOException,
+			SearchLibException, ParseException, SyntaxError,
+			URISyntaxException, ClassNotFoundException, InterruptedException,
 			InstantiationException, IllegalAccessException {
 		if (fc == null)
 			return;
 		for (FieldValueItem fvi : fc.getValues())
-			mapFieldTarget(webCrawlMaster, parserSelector, lang, targetField,
-					fvi.value, target, filePathSet);
+			mapFieldTarget(context, targetField, fvi.value, target, filePathSet);
 	}
 
 	final public String mapFieldTarget(CommonFieldTarget dfTarget,
@@ -180,8 +178,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		return content;
 	}
 
-	final protected void mapFieldTarget(WebCrawlMaster webCrawlMaster,
-			ParserSelector parserSelector, LanguageEnum lang,
+	final protected void mapFieldTarget(FieldMapContext context,
 			CommonFieldTarget dfTarget, String content, IndexDocument target,
 			Set<String> filePathSet) throws SearchLibException, IOException,
 			ParseException, SyntaxError, URISyntaxException,
@@ -197,8 +194,8 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				filePathSet.add(filePath);
 				File file = new File(filePath);
 				if (file.exists()) {
-					Parser parser = parserSelector.parseFile(null,
-							file.getName(), null, null, file, lang);
+					Parser parser = context.parserSelector.parseFile(null,
+							file.getName(), null, null, file, context.lang);
 					if (parser != null)
 						parser.popupateResult(0, target);
 				} else {
@@ -206,8 +203,31 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				}
 			}
 		}
+		if (dfTarget.isCrawlFile()) {
+			String filePathName = dfTarget.getFilePathPrefix();
+			if (filePathSet == null || !filePathSet.contains(content)) {
+				filePathSet.add(content);
+				URI filePathURI = new URI(filePathName);
+				FilePathItem filePathItem = context.filePathManager.findFirst(
+						filePathURI.getScheme(), filePathURI.getHost());
+				if (filePathItem == null)
+					throw new SearchLibException("FilePathItem not found: "
+							+ filePathName);
+				FileInstanceAbstract fileInstance = FileInstanceAbstract
+						.create(filePathItem, null, filePathItem.getPath()
+								+ content);
+				System.out.println("FileInstanceAbstract: "
+						+ fileInstance.getURL());
+				Parser parser = context.parserSelector
+						.parseStream(null, fileInstance.getFileName(), null,
+								null, fileInstance.getInputStream(),
+								context.lang, null, null);
+				if (parser != null)
+					parser.popupateResult(0, target);
+			}
+		}
 		if (dfTarget.isCrawlUrl()) {
-			WebCrawlThread crawlThread = webCrawlMaster.manualCrawl(
+			WebCrawlThread crawlThread = context.webCrawlMaster.manualCrawl(
 					LinkUtils.newEncodedURL(content), ListType.DBCRAWL);
 			crawlThread.waitForStart(60);
 			crawlThread.waitForEnd(60);

@@ -41,11 +41,10 @@ import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
@@ -142,8 +141,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		List<String> pkList = new ArrayList<String>(0);
 
-		WebCrawlMaster webCrawMaster = client.getWebCrawlMaster();
-		ParserSelector parserSelector = client.getParserSelector();
+		FieldMapContext context = new FieldMapContext(client,
+				databaseCrawl.getLang());
 
 		Set<String> filePathSet = new TreeSet<String>();
 		while (resultSet.next() && !isAborted()) {
@@ -162,7 +161,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			if (!merge) {
 				if (index(transaction, indexDocumentList, bf, pkList))
 					setStatus(CrawlStatus.CRAWL);
-				indexDocument = new IndexDocument(databaseCrawl.getLang());
+				indexDocument = new IndexDocument(context.lang);
 				indexDocumentList.add(indexDocument);
 				filePathSet.clear();
 				pendingIndexDocumentCount++;
@@ -170,8 +169,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			}
 			LanguageEnum lang = databaseCrawl.getLang();
 			IndexDocument newFieldContents = new IndexDocument(lang);
-			databaseFieldMap.mapResultSet(webCrawMaster, parserSelector, lang,
-					resultSet, columns, newFieldContents, filePathSet);
+			databaseFieldMap.mapResultSet(context, resultSet, columns,
+					newFieldContents, filePathSet);
 			if (merge && lastFieldContent != null) {
 				indexDocument.addIfNotAlreadyHere(newFieldContents);
 			} else

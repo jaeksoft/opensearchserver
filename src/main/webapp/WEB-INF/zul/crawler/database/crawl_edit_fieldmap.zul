@@ -30,6 +30,8 @@
 		<listheader width="50px" label="File"
 			tooltiptext="Contains a file path" align="center" />
 		<listheader label="File path prefix" align="center" />
+		<listheader width="50px" label="File crawl"
+			tooltiptext="Use a file crawler" align="center" />
 		<listheader width="50px" label="URL"
 			tooltiptext="Crawl the given URL" align="center" />
 		<listheader width="130px" label="Action" align="center" />
@@ -72,8 +74,12 @@
 		</auxheader>
 		<auxheader align="center">
 			<textbox width="95%"
-				disabled="@load(dbCrawlList.currentFieldTarget.notFilePath)"
+				disabled="@load(dbCrawlList.currentFieldTarget.notFilePathPrefixEditable)"
 				value="@bind(dbCrawlList.currentFieldTarget.filePathPrefix)" />
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="Crawl the given FILE"
+				checked="@bind(dbCrawlList.currentFieldTarget.crawlFile)" />
 		</auxheader>
 		<auxheader align="center">
 			<checkbox tooltiptext="Crawl the given URL"
@@ -109,6 +115,10 @@
 					checked="@load(fieldlink.target.filePath)" />
 			</listcell>
 			<listcell label="@load(fieldlink.target.filePathPrefix)" />
+			<listcell>
+				<checkbox disabled="true"
+					checked="@load(fieldlink.target.crawlFile)" />
+			</listcell>
 			<listcell>
 				<checkbox disabled="true"
 					checked="@load(fieldlink.target.crawlUrl)" />
