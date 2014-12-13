@@ -28,7 +28,9 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class QueryUtils {
 
-	public final static String[] CONTROL_CHARS = { "\\", "^", "\"", "~", ":" };
+	public final static String[] ESCAPE_CHARS = { "\\" };
+
+	public final static String[] CONTROL_CHARS = { "^", "\"", "~", ":" };
 
 	public final static String[] RANGE_CHARS = { "(", ")", "{", "}", "[", "]" };
 
@@ -49,6 +51,7 @@ public class QueryUtils {
 	}
 
 	final public static String escapeQuery(String query) {
+		query = escapeQuery(query, ESCAPE_CHARS);
 		query = escapeQuery(query, CONTROL_CHARS);
 		query = escapeQuery(query, RANGE_CHARS);
 		query = escapeQuery(query, AND_OR_NOT_CHARS);
@@ -64,6 +67,7 @@ public class QueryUtils {
 	}
 
 	final public static String replaceControlChars(String query) {
+		query = replaceControlChars(query, ESCAPE_CHARS, " ");
 		query = replaceControlChars(query, CONTROL_CHARS, " ");
 		query = replaceControlChars(query, RANGE_CHARS, " ");
 		query = replaceControlChars(query, AND_OR_NOT_CHARS, " ");
