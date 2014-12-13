@@ -47,6 +47,8 @@ public class CommonFieldTarget extends TargetField {
 
 	private boolean crawlUrl;
 
+	private boolean crawlFile;
+
 	private String filePathPrefix;
 
 	private String findRegexpTag;
@@ -57,13 +59,14 @@ public class CommonFieldTarget extends TargetField {
 
 	public CommonFieldTarget(String targetName, boolean removeTag,
 			boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlUrl, String findRegexTag,
-			String replaceRegexTag) {
+			String filePathPrefix, boolean crawlFile, boolean crawlUrl,
+			String findRegexTag, String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
+		this.crawlFile = crawlFile;
 		this.crawlUrl = crawlUrl;
 		this.findRegexpTag = findRegexTag;
 		this.replaceRegexpTag = replaceRegexTag;
@@ -81,6 +84,7 @@ public class CommonFieldTarget extends TargetField {
 		this.convertHtmlEntities = from.convertHtmlEntities;
 		this.filePathPrefix = from.filePathPrefix;
 		this.filePath = from.filePath;
+		this.crawlFile = from.crawlFile;
 		this.crawlUrl = from.crawlUrl;
 		this.findRegexpTag = from.findRegexpTag;
 		this.replaceRegexpTag = from.replaceRegexpTag;
@@ -104,6 +108,9 @@ public class CommonFieldTarget extends TargetField {
 				filePath = true;
 			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
+					"crawlFile")))
+				crawlFile = true;
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
 					"crawlUrl")))
 				crawlUrl = true;
 			List<Node> nl = DomUtils.getNodes(node, "findRegexpTag");
@@ -122,7 +129,8 @@ public class CommonFieldTarget extends TargetField {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
 				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
 				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
+				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no",
+				"crawlUrl", crawlUrl ? "yes" : "no");
 		if (findRegexpTag != null) {
 			xmlWriter.startElement("findRegexpTag");
 			xmlWriter.textNode(StringEscapeUtils.escapeXml(findRegexpTag));
@@ -262,6 +270,10 @@ public class CommonFieldTarget extends TargetField {
 		return !isFilePath();
 	}
 
+	public boolean isNotFilePathPrefixEditable() {
+		return !(filePath || crawlFile);
+	}
+
 	/**
 	 * @param crawlUrl
 	 *            the crawlUrl to set
@@ -279,6 +291,25 @@ public class CommonFieldTarget extends TargetField {
 
 	public boolean isNotCrawlUrl() {
 		return !crawlUrl;
+	}
+
+	/**
+	 * @param crawlFile
+	 *            the crawlFile to set
+	 */
+	public void setCrawlFile(boolean crawlFile) {
+		this.crawlFile = crawlFile;
+	}
+
+	/**
+	 * @return the crawlFile
+	 */
+	public boolean isCrawlFile() {
+		return crawlFile;
+	}
+
+	public boolean isNotCrawlFile() {
+		return !crawlFile;
 	}
 
 }

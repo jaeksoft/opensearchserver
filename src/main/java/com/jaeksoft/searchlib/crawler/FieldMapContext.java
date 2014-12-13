@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,34 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.crawler;
 
-package com.jaeksoft.searchlib.crawler.rest;
-
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.process.ThreadItem;
-import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.Variables;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 
-public class RestCrawlMaster extends
-		CrawlMasterAbstract<RestCrawlMaster, RestCrawlThread> {
+public class FieldMapContext {
 
-	public RestCrawlMaster(Config config) {
-		super(config);
-	}
+	final public FilePathManager filePathManager;
+	final public WebCrawlMaster webCrawlMaster;
+	final public ParserSelector parserSelector;
+	final public LanguageEnum lang;
 
-	@Override
-	public RestCrawlThread getNewThread(Client client,
-			ThreadItem<?, RestCrawlThread> restCrawl, Variables variables,
-			InfoCallback infoCallback) throws SearchLibException {
-		return new RestCrawlThread(client, this, (RestCrawlItem) restCrawl,
-				variables, infoCallback);
-	}
-
-	@Override
-	protected RestCrawlThread[] getNewArray(int size) {
-		return new RestCrawlThread[size];
+	public FieldMapContext(Config config, LanguageEnum lang)
+			throws SearchLibException {
+		this.filePathManager = config.getFilePathManager();
+		this.webCrawlMaster = config.getWebCrawlMaster();
+		this.parserSelector = config.getParserSelector();
+		this.lang = lang;
 	}
 }
