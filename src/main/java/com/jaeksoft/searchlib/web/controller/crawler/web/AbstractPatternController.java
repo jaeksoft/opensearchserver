@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,15 +35,15 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.PatternItem;
-import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternManager;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 
 @AfterCompose(superclass = true)
 public abstract class AbstractPatternController extends CrawlerController {
 
-	private transient List<PatternItem> patternList;
+	private transient List<String> patternList;
 
 	private transient String like;
 
@@ -55,7 +55,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 
 	private transient int activePage;
 
-	private transient Set<PatternItem> selectionSet;
+	private transient Set<String> selectionSet;
 
 	public AbstractPatternController() throws SearchLibException {
 		super();
@@ -69,7 +69,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 		pageSize = 10;
 		totalSize = 0;
 		activePage = 0;
-		selectionSet = new TreeSet<PatternItem>();
+		selectionSet = new TreeSet<String>();
 	}
 
 	public void setPageSize(int v) {
@@ -106,7 +106,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 	public abstract PropertyItem<Boolean> getEnabled()
 			throws SearchLibException;
 
-	public List<PatternItem> getPatternList() {
+	public List<String> getPatternList() {
 		synchronized (this) {
 			if (patternList != null)
 				return patternList;
@@ -115,7 +115,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 				if (client == null)
 					return null;
 				PatternManager patternManager = getPatternManager();
-				patternList = new ArrayList<PatternItem>();
+				patternList = new ArrayList<String>();
 				totalSize = patternManager.getPatterns(like, getActivePage()
 						* getPageSize(), getPageSize(), patternList);
 				selectionSet.clear();
@@ -126,12 +126,12 @@ public abstract class AbstractPatternController extends CrawlerController {
 		}
 	}
 
-	public Set<PatternItem> getSelectedItems() {
+	public Set<String> getSelectedItems() {
 		return selectionSet;
 	}
 
 	@NotifyChange("*")
-	public void setSelectedItems(Set<PatternItem> selectionSet)
+	public void setSelectedItems(Set<String> selectionSet)
 			throws SearchLibException {
 		this.selectionSet = selectionSet;
 	}

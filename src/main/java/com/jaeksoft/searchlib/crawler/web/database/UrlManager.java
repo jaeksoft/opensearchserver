@@ -59,6 +59,7 @@ import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
