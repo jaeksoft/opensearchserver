@@ -216,8 +216,6 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				FileInstanceAbstract fileInstance = FileInstanceAbstract
 						.create(filePathItem, null, filePathItem.getPath()
 								+ content);
-				System.out.println("FileInstanceAbstract: "
-						+ fileInstance.getURL());
 				Parser parser = context.parserSelector
 						.parseStream(null, fileInstance.getFileName(), null,
 								null, fileInstance.getInputStream(),
