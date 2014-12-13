@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,7 +37,7 @@ import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlItem.CallbackMode;
@@ -72,10 +72,12 @@ public class RestCrawlThread extends
 
 	private final Collection<String> idsCallback;
 
+	private final FieldMapContext fieldMapContext;
+
 	@SuppressWarnings("unchecked")
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
 			RestCrawlItem restCrawlItem, Variables variables,
-			InfoCallback infoCallback) {
+			InfoCallback infoCallback) throws SearchLibException {
 		super(client, crawlMaster, restCrawlItem);
 		this.restCrawlItem = restCrawlItem.duplicate();
 		this.restCrawlItem.apply(variables);
@@ -84,6 +86,7 @@ public class RestCrawlThread extends
 		updatedIndexDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
+		fieldMapContext = new FieldMapContext(client, restCrawlItem.getLang());
 		this.infoCallback = infoCallback;
 		this.idsCallback = infoCallback != null
 				&& infoCallback instanceof CommonListResult<?> ? ((CommonListResult<String>) infoCallback).items
@@ -274,7 +277,6 @@ public class RestCrawlThread extends
 					null, null, null);
 			JsonPath path = JsonPath.compile(restCrawlItem.getPathDocument());
 			RestFieldMap restFieldMap = restCrawlItem.getFieldMap();
-			LanguageEnum lang = restCrawlItem.getLang();
 			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
 					0);
 			int limit = restCrawlItem.getBufferSize();
@@ -283,9 +285,9 @@ public class RestCrawlThread extends
 				return;
 			for (Object document : documents) {
 				setStatus(CrawlStatus.CRAWL);
-				IndexDocument newIndexDocument = new IndexDocument(lang);
-				restFieldMap.mapJson(client.getWebCrawlMaster(),
-						client.getParserSelector(), lang, document,
+				IndexDocument newIndexDocument = new IndexDocument(
+						fieldMapContext.lang);
+				restFieldMap.mapJson(fieldMapContext, document,
 						newIndexDocument);
 				indexDocumentList.add(newIndexDocument);
 				rwl.w.lock();

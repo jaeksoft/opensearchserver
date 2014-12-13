@@ -106,7 +106,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		if (list != null && list.size() > 0)
 			fieldName = list.get(0);
 		return new CommonFieldTarget(fieldName, false, false, false, null,
-				false, null, null);
+				false, false, null, null);
 	}
 
 	public C getCurrentCrawl() {

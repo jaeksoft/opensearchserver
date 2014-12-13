@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,10 +40,10 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
 import com.jaeksoft.searchlib.crawler.web.script.WebScriptItem;
 import com.jaeksoft.searchlib.crawler.web.script.WebScriptManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
@@ -60,8 +60,8 @@ public class WebCrawlThread extends
 	private long nextTimeTarget;
 	private HostUrlList hostUrlList;
 	private Crawl currentCrawl;
-	private boolean exclusionEnabled;
-	private boolean inclusionEnabled;
+	private PatternListMatcher exclusionMatcher;
+	private PatternListMatcher inclusionMatcher;
 	private UrlCrawlQueue crawlQueue;
 	private final WebScriptManager webScriptManager;
 
@@ -82,8 +82,10 @@ public class WebCrawlThread extends
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
 				.getUserAgent().getValue(), false,
 				propertyManager.getProxyHandler());
-		exclusionEnabled = propertyManager.getExclusionEnabled().getValue();
-		inclusionEnabled = propertyManager.getInclusionEnabled().getValue();
+		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ? config
+				.getExclusionPatternManager().getPatternListMatcher() : null;
+		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ? config
+				.getInclusionPatternManager().getPatternListMatcher() : null;
 		webScriptManager = config.getWebScriptManager();
 	}
 
@@ -151,18 +153,16 @@ public class WebCrawlThread extends
 			URL url = currentUrlItem.getURL();
 
 			// Check if url is allowed by pattern list
-			PatternManager inclusionManager = config
-					.getInclusionPatternManager();
-			PatternManager exclusionManager = config
-					.getExclusionPatternManager();
 			if (url != null)
-				if (inclusionEnabled && !inclusionManager.matchPattern(url)) {
+				if (inclusionMatcher != null
+						&& !inclusionMatcher.matchPattern(url, null)) {
 					currentUrlItem
 							.setFetchStatus(FetchStatus.NOT_IN_INCLUSION_LIST);
 					url = null;
 				}
 			if (url != null)
-				if (exclusionEnabled && exclusionManager.matchPattern(url)) {
+				if (exclusionMatcher != null
+						&& exclusionMatcher.matchPattern(url, null)) {
 					currentUrlItem
 							.setFetchStatus(FetchStatus.BLOCKED_BY_EXCLUSION_LIST);
 					url = null;

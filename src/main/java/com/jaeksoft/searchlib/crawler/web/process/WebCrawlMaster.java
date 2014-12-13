@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.crawler.web.process;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
@@ -94,12 +97,20 @@ public class WebCrawlMaster extends
 
 	private int maxUrlPerHost;
 
-	private UrlCrawlQueue urlCrawlQueue;
+	private final PatternListMatcher exclusionMatcher;
+
+	private final PatternListMatcher inclusionMatcher;
+
+	private final UrlCrawlQueue urlCrawlQueue;
 
 	public WebCrawlMaster(Config config) throws SearchLibException {
 		super(config);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config);
+		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ? config
+				.getExclusionPatternManager().getPatternListMatcher() : null;
+		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ? config
+				.getInclusionPatternManager().getPatternListMatcher() : null;
 		hostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
@@ -230,7 +241,23 @@ public class WebCrawlMaster extends
 					Set<SiteMapUrl> siteMapUrlSet = siteMap.load(
 							getNewHttpDownloader(true), null);
 					for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
-						String sUri = siteMapUrl.getLoc().toString();
+
+						URI uri = siteMapUrl.getLoc();
+						String sUri = uri.toString();
+						URL url;
+						try {
+							url = uri.toURL();
+						} catch (MalformedURLException e) {
+							continue;
+						}
+
+						if (exclusionMatcher != null)
+							if (exclusionMatcher.matchPattern(url, sUri))
+								continue;
+						if (inclusionMatcher != null)
+							if (!inclusionMatcher.matchPattern(url, sUri))
+								continue;
+
 						if (!urlManager.exists(sUri)) {
 							workInsertUrlList.add(urlManager
 									.getNewUrlItem(new LinkItem(sUri,

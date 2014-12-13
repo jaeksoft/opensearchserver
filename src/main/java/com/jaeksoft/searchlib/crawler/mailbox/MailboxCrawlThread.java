@@ -36,17 +36,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.mailbox.crawler.MailboxAbstractCrawler;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserResultItem;
-import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -77,19 +75,15 @@ public class MailboxCrawlThread extends
 
 	protected long errorDocumentCount;
 
-	private final WebCrawlMaster webCrawlMaster;
-
-	private final ParserSelector parserSelector;
-
 	private final MailboxCrawlItem mailboxCrawlItem;
 
 	private final MailboxFieldMap mailboxFieldMap;
 
 	private final CommonFieldTarget uniqueFieldTarget;
 
-	private final SearchFieldRequest uniqueSearchRequest;
+	private final FieldMapContext fieldMapContext;
 
-	private final LanguageEnum defaultLang;
+	private final SearchFieldRequest uniqueSearchRequest;
 
 	protected final InfoCallback infoCallback;
 
@@ -104,9 +98,8 @@ public class MailboxCrawlThread extends
 				: null;
 		this.client = client;
 		this.mailboxCrawlItem = crawlItem;
-		defaultLang = crawlItem.getLang();
-		webCrawlMaster = client.getWebCrawlMaster();
-		parserSelector = client.getParserSelector();
+
+		fieldMapContext = new FieldMapContext(client, crawlItem.getLang());
 		mailboxFieldMap = (MailboxFieldMap) crawlItem.getFieldMap();
 		uniqueFieldTarget = mailboxFieldMap.getUniqueFieldTarget(client);
 		if (uniqueFieldTarget != null) {
@@ -160,8 +153,9 @@ public class MailboxCrawlThread extends
 					+ " ContentType: " + contentType);
 			return;
 		}
-		Parser parser = parserSelector.parseStream(null, fileName,
-				contentBaseType, null, inputStream, defaultLang, null, null);
+		Parser parser = fieldMapContext.parserSelector.parseStream(null,
+				fileName, contentBaseType, null, inputStream,
+				fieldMapContext.lang, null, null);
 		if (parser == null)
 			return;
 		List<ParserResultItem> results = parser.getParserResults();
@@ -249,8 +243,7 @@ public class MailboxCrawlThread extends
 		IndexDocument indexDocument = new IndexDocument(
 				mailboxCrawlItem.getLang());
 		((MailboxFieldMap) mailboxCrawlItem.getFieldMap()).mapIndexDocument(
-				webCrawlMaster, parserSelector, null, crawlDocument,
-				indexDocument);
+				fieldMapContext, crawlDocument, indexDocument);
 		if (parserIndexDocument != null)
 			indexDocument.add(parserIndexDocument);
 		documents.add(indexDocument);

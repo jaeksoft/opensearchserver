@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,7 +27,7 @@ import org.zkoss.bind.annotation.AfterCompose;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.PatternManager;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternManager;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 @AfterCompose(superclass = true)

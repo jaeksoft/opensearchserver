@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.crawler.web.database;
+package com.jaeksoft.searchlib.crawler.web.database.pattern;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,13 +32,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -49,6 +47,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem.Status;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -59,15 +58,17 @@ public class PatternManager {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	// For better performances, pattern are grouped by hostname in a map
-	private Map<String, List<PatternItem>> patternMap = null;
+	private final Set<String> patternSet;
 
-	private File patternFile;
+	private final File patternFile;
+
+	private PatternListMatcher patternListMatcher;
 
 	public PatternManager(File indexDir, String filename)
 			throws SearchLibException {
 		patternFile = new File(indexDir, filename);
-		patternMap = new TreeMap<String, List<PatternItem>>();
+		patternSet = new TreeSet<String>();
+		patternListMatcher = null;
 		try {
 			load();
 		} catch (ParserConfigurationException e) {
@@ -106,13 +107,10 @@ public class PatternManager {
 		try {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("patterns");
-			Iterator<List<PatternItem>> it = patternMap.values().iterator();
-			while (it.hasNext()) {
-				for (PatternItem item : it.next()) {
-					xmlWriter.startElement("pattern");
-					xmlWriter.textNode(item.getPattern());
-					xmlWriter.endElement();
-				}
+			for (String pattern : patternSet) {
+				xmlWriter.startElement("pattern");
+				xmlWriter.textNode(pattern);
+				xmlWriter.endElement();
 			}
 			xmlWriter.endElement();
 			xmlWriter.endDocument();
@@ -124,18 +122,13 @@ public class PatternManager {
 	private void addListWithoutStoreAndLock(List<PatternItem> patternList,
 			boolean bDeleteAll) throws SearchLibException,
 			MalformedURLException, URISyntaxException {
+		patternListMatcher = null;
 		if (bDeleteAll)
-			patternMap.clear();
+			patternSet.clear();
 		if (patternList == null)
 			return;
-		for (PatternItem item : patternList) {
-			if (!bDeleteAll && findPattern(item) != null)
-				item.setStatus(PatternItem.Status.ALREADY);
-			else {
-				addPatternWithoutLock(item);
-				item.setStatus(PatternItem.Status.INJECTED);
-			}
-		}
+		for (PatternItem item : patternList)
+			addPatternWithoutLock(item);
 	}
 
 	public void addList(List<PatternItem> patternList, boolean bDeleteAll)
@@ -159,19 +152,13 @@ public class PatternManager {
 
 	private int delPatternWithoutLock(String sPattern)
 			throws MalformedURLException, URISyntaxException {
-		String mapKey = new PatternItem(sPattern).getTopDomainOrHost();
-		List<PatternItem> itemList = patternMap.get(mapKey);
-		if (itemList == null)
+		if (sPattern == null)
 			return 0;
-		int count = 0;
-		Iterator<PatternItem> it = itemList.iterator();
-		while (it.hasNext()) {
-			if (it.next().sPattern.equals(sPattern)) {
-				it.remove();
-				count++;
-			}
-		}
-		return count;
+		sPattern = sPattern.trim();
+		if (!patternSet.remove(sPattern))
+			return 0;
+		patternListMatcher = null;
+		return 1;
 	}
 
 	public int delPattern(Collection<String> patterns)
@@ -198,12 +185,12 @@ public class PatternManager {
 		}
 	}
 
-	public void delPatternItem(Collection<PatternItem> patterns)
+	public void delPatternItem(Collection<String> patterns)
 			throws SearchLibException {
 		rwl.w.lock();
 		try {
-			for (PatternItem pattern : patterns)
-				delPatternWithoutLock(pattern.sPattern);
+			for (String pattern : patterns)
+				delPatternWithoutLock(pattern);
 			store();
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
@@ -223,13 +210,16 @@ public class PatternManager {
 
 	private void addPatternWithoutLock(PatternItem patternItem)
 			throws MalformedURLException, URISyntaxException {
-		String mapKey = patternItem.getTopDomainOrHost();
-		List<PatternItem> itemList = patternMap.get(mapKey);
-		if (itemList == null) {
-			itemList = new ArrayList<PatternItem>();
-			patternMap.put(mapKey, itemList);
+		PatternMatcher matcher = patternItem.getMatcher();
+		if (matcher == null) {
+			patternItem.setStatus(Status.ERROR);
+			return;
 		}
-		itemList.add(patternItem);
+		if (patternSet.add(matcher.sPattern)) {
+			patternListMatcher = null;
+			patternItem.setStatus(Status.INJECTED);
+		} else
+			patternItem.setStatus(Status.ALREADY);
 	}
 
 	public void addPattern(PatternItem patternItem) throws SearchLibException {
@@ -251,91 +241,68 @@ public class PatternManager {
 	}
 
 	public int getPatterns(String startsWith, long start, long rows,
-			List<PatternItem> list) throws SearchLibException {
+			List<String> patternList) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (StringUtils.isEmpty(startsWith))
 				startsWith = null;
-			Iterator<List<PatternItem>> it = patternMap.values().iterator();
 			long end = start + rows;
 			int pos = 0;
 			int total = 0;
-			while (it.hasNext())
-				for (PatternItem item : it.next()) {
-					if (startsWith != null) {
-						if (!item.getPattern().startsWith(startsWith)) {
-							pos++;
-							continue;
-						}
+			for (String pattern : patternSet) {
+				if (startsWith != null) {
+					if (!pattern.startsWith(startsWith)) {
+						pos++;
+						continue;
 					}
-					if (rows == 0 || pos < end) {
-						if (pos >= start)
-							list.add(item);
-					}
-					total++;
-					pos++;
 				}
+				if (rows == 0 || pos < end) {
+					if (pos >= start)
+						patternList.add(pattern);
+				}
+				total++;
+				pos++;
+			}
 			return total;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public int getPatterns(String startsWith, List<String> list)
+	public PatternListMatcher getPatternListMatcher() {
+		rwl.r.lock();
+		try {
+			if (patternListMatcher != null)
+				return patternListMatcher;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (patternListMatcher != null)
+				return patternListMatcher;
+			patternListMatcher = new PatternListMatcher(patternSet);
+			return patternListMatcher;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public int getPatterns(String startsWith, List<String> patternList)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (StringUtils.isEmpty(startsWith))
 				startsWith = null;
-			Iterator<List<PatternItem>> it = patternMap.values().iterator();
 			int total = 0;
-			while (it.hasNext())
-				for (PatternItem item : it.next()) {
-					if (startsWith != null)
-						if (!item.getPattern().startsWith(startsWith))
-							continue;
-					list.add(item.sPattern);
-					total++;
-				}
+			for (String pattern : patternSet) {
+				if (startsWith != null)
+					if (!pattern.startsWith(startsWith))
+						continue;
+				patternList.add(pattern);
+				total++;
+			}
 			return total;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	private PatternItem findPattern(PatternItem pattern)
-			throws MalformedURLException, URISyntaxException {
-		rwl.r.lock();
-		try {
-			List<PatternItem> patternList = patternMap.get(pattern
-					.getTopDomainOrHost());
-			if (patternList == null)
-				return null;
-			String sPattern = pattern.getPattern();
-			for (PatternItem patternItem : patternList)
-				if (patternItem.getPattern().equals(sPattern))
-					return patternItem;
-			return null;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	// TODO Matcher should be lock free
-	final public boolean matchPattern(URL url) {
-		rwl.r.lock();
-		try {
-			if (url == null)
-				return false;
-			List<PatternItem> patternList = patternMap.get(PatternItem
-					.getTopDomainOrHost(url.getHost()));
-			if (patternList == null)
-				return false;
-			String sUrl = url.toExternalForm();
-			for (PatternItem patternItem : patternList)
-				if (patternItem.match(sUrl))
-					return true;
-			return false;
 		} finally {
 			rwl.r.unlock();
 		}

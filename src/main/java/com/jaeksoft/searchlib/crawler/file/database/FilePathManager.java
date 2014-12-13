@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -232,6 +232,26 @@ public class FilePathManager {
 		rwl.r.lock();
 		try {
 			return filePathMap.get(currentFilePath);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	/**
+	 * Returns the first filePathItem with the given scheme and the given host.
+	 * 
+	 * @param scheme
+	 * @param host
+	 * @return
+	 */
+	public FilePathItem findFirst(String scheme, String host) {
+		rwl.r.lock();
+		try {
+			for (FilePathItem item : filePathMap.keySet())
+				if (item.getType().getScheme().equals(scheme)
+						&& item.getHost().equals(host))
+					return item;
+			return null;
 		} finally {
 			rwl.r.unlock();
 		}
