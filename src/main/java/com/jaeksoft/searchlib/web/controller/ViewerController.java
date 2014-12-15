@@ -165,7 +165,7 @@ public class ViewerController extends CommonController {
 		} else {
 			tempFile = File.createTempFile("oss_pdf_viewer", ".pdf");
 			downloadThread = new HttpDownloadThread(client, uri, tempFile, true);
-			downloadThread.execute();
+			downloadThread.execute(180);
 		}
 	}
 

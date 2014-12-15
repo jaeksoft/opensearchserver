@@ -366,7 +366,7 @@ public class WebCrawlMaster extends
 		hostUrlList.setListType(listType);
 		WebCrawlThread crawlThread = new WebCrawlThread(config, this,
 				new CrawlStatistics(), hostUrlList);
-		crawlThread.execute();
+		crawlThread.execute(180);
 		return crawlThread;
 
 	}
