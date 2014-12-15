@@ -225,8 +225,7 @@ public abstract class AbstractUploadController extends CommonController {
 			synchronized (list) {
 				list.add(thread);
 			}
-			thread.execute();
-			thread.waitForStart(20);
+			thread.execute(180);
 		}
 	}
 

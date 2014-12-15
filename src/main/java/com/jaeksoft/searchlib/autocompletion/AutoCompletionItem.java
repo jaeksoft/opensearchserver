@@ -287,8 +287,7 @@ public class AutoCompletionItem implements Closeable,
 				infoCallBack.setInfo("Build starts");
 			buildThread.init(propFields, searchRequest, bufferSize,
 					infoCallBack);
-			buildThread.execute();
-			buildThread.waitForStart(300);
+			buildThread.execute(300);
 		} finally {
 			rwl.w.unlock();
 		}
