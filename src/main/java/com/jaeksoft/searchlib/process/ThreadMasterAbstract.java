@@ -70,7 +70,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 		try {
 			threads.add(thread);
 			threadArray = null;
-			thread.execute();
+			thread.execute(180);
 		} finally {
 			rwl.w.unlock();
 		}

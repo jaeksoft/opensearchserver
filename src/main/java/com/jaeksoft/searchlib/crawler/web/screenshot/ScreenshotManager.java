@@ -219,7 +219,7 @@ public class ScreenshotManager implements PropertyItemListener {
 			try {
 				ScreenshotThread thread = new ScreenshotThread(config, this,
 						url, credentialItem, browserDriverEnum);
-				thread.execute();
+				thread.execute(180);
 				if (waitForEnd)
 					thread.waitForEnd(secTimeOut);
 				return thread;

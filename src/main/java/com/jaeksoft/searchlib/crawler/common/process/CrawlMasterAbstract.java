@@ -69,7 +69,7 @@ public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T
 			setInfo(e.getMessage());
 			return;
 		}
-		execute();
+		execute(180);
 	}
 
 	private void createIndexPluginList() throws SearchLibException {
