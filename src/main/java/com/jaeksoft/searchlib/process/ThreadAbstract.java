@@ -293,22 +293,32 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		release();
 	}
 
-	public boolean isRunning() {
+	final public boolean isRunning() {
 		rwl.r.lock();
 		try {
 			if (thread == null)
 				return false;
-			if (thread.getState() == State.TERMINATED)
+			switch (thread.getState()) {
+			case NEW:
 				return false;
-			if (exception != null)
+			case BLOCKED:
+				return true;
+			case RUNNABLE:
+				return true;
+			case TERMINATED:
 				return false;
-			return endTime == 0;
+			case TIMED_WAITING:
+				return true;
+			case WAITING:
+				return true;
+			}
+			return false;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public State getThreadState() {
+	final public State getThreadState() {
 		rwl.r.lock();
 		try {
 			if (thread == null)
@@ -319,7 +329,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		}
 	}
 
-	public String getThreadStatus() {
+	final public String getThreadStatus() {
 		rwl.r.lock();
 		try {
 			StringBuilder sb = new StringBuilder();
