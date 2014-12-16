@@ -260,10 +260,13 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		xmlWriter.textNode(getSqlSelect());
 		xmlWriter.endElement();
 		// SQL Update Node
-		xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE,
-				DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE, getSqlUpdateMode().name());
-		xmlWriter.textNode(getSqlUpdate());
-		xmlWriter.endElement();
+		if (!StringUtils.isEmpty(sqlUpdate)) {
+			xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE,
+					DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE,
+					sqlUpdateMode == null ? null : sqlUpdateMode.name());
+			xmlWriter.textNode(getSqlUpdate());
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
 	}
 
