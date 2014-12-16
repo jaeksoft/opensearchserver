@@ -81,13 +81,13 @@ public class SearchPatternRequest extends AbstractSearchRequest implements
 		String finalQuery = patternQuery;
 		if (finalQuery.contains("$$$$")) {
 			String escQuery = QueryUtils.replaceControlChars(queryString);
-			finalQuery = finalQuery.replace("$$$$", escQuery);
+			finalQuery = StringUtils.replace(finalQuery, "$$$$", escQuery);
 		}
 		if (patternQuery.contains("$$$")) {
 			String escQuery = QueryUtils.escapeQuery(queryString);
-			finalQuery = finalQuery.replace("$$$", escQuery);
+			finalQuery = StringUtils.replace(finalQuery, "$$$", escQuery);
 		}
-		finalQuery = finalQuery.replace("$$", queryString);
+		finalQuery = StringUtils.replace(finalQuery, "$$", queryString);
 		return finalQuery;
 	}
 
