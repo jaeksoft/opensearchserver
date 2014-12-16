@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.file.process.CrawlFileMaster;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -43,36 +42,35 @@ import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 
 public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 
-	private CrawlFileMaster getCrawlMaster(UriInfo uriInfo, String use,
-			String login, String key) {
+	public CommonResult runOnce(UriInfo uriInfo, String use, String login,
+			String key) {
 		try {
 			Client client = getLoggedClient(uriInfo, use, login, key,
 					Role.FILE_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
-			return client.getFileCrawlMaster();
+			return CrawlerUtils.runOnce(client.getFileCrawlMaster());
+		} catch (IOException e) {
+			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
-		} catch (IOException e) {
-			throw new WebServiceException(e);
 		}
-	}
-
-	public CommonResult runOnce(UriInfo uriInfo, String use, String login,
-			String key) {
-		return CrawlerUtils.runOnce(getCrawlMaster(uriInfo, use, login, key));
 	}
 
 	public CommonResult runForever(UriInfo uriInfo, String use, String login,
 			String key) {
 		try {
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.FILE_CRAWLER_START_STOP);
+			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(true);
-			return CrawlerUtils.runForever(getCrawlMaster(uriInfo, use, login,
-					key));
+			return CrawlerUtils.runForever(client.getFileCrawlMaster());
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
@@ -80,18 +78,34 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 	public CommonResult stop(UriInfo uriInfo, String use, String login,
 			String key) {
 		try {
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.FILE_CRAWLER_START_STOP);
+			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(false);
-			return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+			return CrawlerUtils.stop(client.getFileCrawlMaster());
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
 	public CommonResult status(UriInfo uriInfo, String use, String login,
 			String key) {
-		return CrawlerUtils.status(getCrawlMaster(uriInfo, use, login, key));
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, use, login, key,
+					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return CrawlerUtils.status(client.getFileCrawlMaster());
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		}
 	}
 
 	private CommonResult injectRepository(UriInfo uriInfo, String use,

@@ -36,6 +36,9 @@ import java.util.List;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.ws.WebServiceException;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.BooleanUtils;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -47,10 +50,11 @@ import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternManager;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
@@ -63,40 +67,28 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
+import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
 public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
-
-	private WebCrawlMaster getCrawlMaster(UriInfo uriInfo, String use,
-			String login, String key) {
-		try {
-			Client client = getLoggedClient(uriInfo, use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
-			ClientFactory.INSTANCE.properties.checkApi();
-			return client.getWebCrawlMaster();
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		}
-	}
 
 	@Override
 	public CommonResult run(UriInfo uriInfo, String use, String login,
 			String key, boolean once) {
 		try {
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.WEB_CRAWLER_START_STOP);
+			ClientFactory.INSTANCE.properties.checkApi();
 			if (once)
-				return CrawlerUtils.runOnce(getCrawlMaster(uriInfo, use, login,
-						key));
+				return CrawlerUtils.runOnce(client.getWebCrawlMaster());
 			else {
 				client.getWebPropertyManager().getCrawlEnabled().setValue(true);
-				return CrawlerUtils.runForever(getCrawlMaster(uriInfo, use,
-						login, key));
+				return CrawlerUtils.runForever(client.getWebCrawlMaster());
 			}
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -105,11 +97,16 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult stop(UriInfo uriInfo, String use, String login,
 			String key) {
 		try {
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.WEB_CRAWLER_START_STOP);
+			ClientFactory.INSTANCE.properties.checkApi();
 			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
-			return CrawlerUtils.stop(getCrawlMaster(uriInfo, use, login, key));
+			return CrawlerUtils.stop(client.getWebCrawlMaster());
 		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -117,7 +114,18 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	@Override
 	public CommonResult status(UriInfo uriInfo, String use, String login,
 			String key) {
-		return CrawlerUtils.status(getCrawlMaster(uriInfo, use, login, key));
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, use, login, key,
+					Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return CrawlerUtils.status(client.getWebCrawlMaster());
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
 	}
 
 	private AbstractSearchRequest getRequest(UrlManager urlManager, String host)
@@ -133,9 +141,9 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public byte[] exportURLs(UriInfo uriInfo, String use, String login,
 			String key) {
 		try {
-			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(uriInfo, use, login, key,
 					Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
 			File file = client.getUrlManager().exportURLs(
 					getRequest(client.getUrlManager(), null));
 			return IOUtils.toByteArray(new FileInputStream(file));
@@ -336,20 +344,43 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult crawl(UriInfo uriInfo, String use, String login,
 			String key, String url, Boolean returnData) {
 		try {
-			WebCrawlMaster crawlMaster = getCrawlMaster(uriInfo, use, login,
-					key);
-			WebCrawlThread webCrawlThread = crawlMaster.manualCrawl(
-					LinkUtils.newEncodedURL(url), HostUrlList.ListType.MANUAL);
+			Client client = getLoggedClient(uriInfo, use, login, key,
+					Role.WEB_CRAWLER_START_STOP);
+			ClientFactory.INSTANCE.properties.checkApi();
+			WebCrawlThread webCrawlThread = client.getWebCrawlMaster()
+					.manualCrawl(LinkUtils.newEncodedURL(url),
+							HostUrlList.ListType.MANUAL);
 			if (!webCrawlThread.waitForStart(120))
 				throw new WebServiceException("Time out reached (120 seconds)");
 			if (!webCrawlThread.waitForEnd(3600))
 				throw new WebServiceException("Time out reached (3600 seconds)");
 			UrlItem urlItem = webCrawlThread.getCurrentUrlItem();
+			CommonResult cr = null;
+			if (BooleanUtils.isTrue(returnData)) {
+				Crawl crawl = webCrawlThread.getCurrentCrawl();
+				if (crawl != null) {
+					List<IndexDocument> indexDocuments = crawl
+							.getTargetIndexDocuments();
+					if (CollectionUtils.isNotEmpty(indexDocuments)) {
+						CommonListResult<List<FieldValueList>> clr = new CommonListResult<List<FieldValueList>>(
+								indexDocuments.size());
+						for (IndexDocument indexDocument : indexDocuments) {
+							List<FieldValueList> list = FieldValueList
+									.getNewList(indexDocument);
+							if (list != null)
+								clr.items.add(list);
+						}
+						cr = clr;
+					}
+				}
+			}
+
 			String message = urlItem != null ? "Result: "
 					+ urlItem.getFetchStatus() + " - "
 					+ urlItem.getParserStatus() + " - "
 					+ urlItem.getIndexStatus() : null;
-			CommonResult cr = new CommonResult(true, message);
+			if (cr == null)
+				cr = new CommonResult(true, message);
 			cr.addDetail("URL", urlItem.getUrl());
 			cr.addDetail("HttpResponseCode", urlItem.getResponseCode());
 			cr.addDetail("RobotsTxtStatus", urlItem.getRobotsTxtStatus());
@@ -466,6 +497,21 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			return result;
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult getUrls(UriInfo uriInfo, String index, String login,
+			String key) {
+		try {
+			Client client = getLoggedClientAnyRole(uriInfo, index, login, key,
+					Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return null;
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
