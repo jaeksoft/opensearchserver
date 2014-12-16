@@ -100,7 +100,11 @@ public class CrawlFileMaster extends
 					sleepSec(5);
 			}
 			setStatus(CrawlStatus.WAITING_CHILD);
-			waitForChild(1800);
+			while (getThreadsCount() > 0) {
+				waitForChild(1800);
+				if (isAborted())
+					break;
+			}
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
 			if (fileCrawlQueue.hasContainedData())
