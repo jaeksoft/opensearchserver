@@ -40,7 +40,8 @@ public class NativeOss {
 			LOADED = true;
 		} catch (Throwable t) {
 			System.err.println("Native OSS not found ("
-					+ (NATIVE_OSS_MAPPED_LIBNAME) + ")");
+					+ (NATIVE_OSS_MAPPED_LIBNAME) + "): " + t.getMessage()
+					+ " - " + t.getClass().getSimpleName());
 			LOADED = false;
 		}
 		return LOADED;
