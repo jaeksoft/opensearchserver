@@ -408,9 +408,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 
 	final public String getQueryParsed() throws ParseException, SyntaxError,
 			SearchLibException, IOException {
+		getQuery();
 		rwl.r.lock();
 		try {
-			getQuery();
 			return queryParsed;
 		} finally {
 			rwl.r.unlock();
