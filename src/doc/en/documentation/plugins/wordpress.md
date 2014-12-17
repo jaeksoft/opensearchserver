@@ -83,5 +83,5 @@ The OpenSearchServer plugin for WordPress can be downloaded at Wordpress.org: [h
 
 If you created some translation file for your own language please feel free to submit it to us. We will be glad to add it to the Plugin and add your name on this page.
 
-_Serbian translation provided by Ogi Djuraskovic – [http://firstsiteguide.com](http://firstsiteguide.com)_.
+_Serbian translation provided by Ogi Djuraskovic [http://firstsiteguide.com](http://firstsiteguide.com)_.
 
