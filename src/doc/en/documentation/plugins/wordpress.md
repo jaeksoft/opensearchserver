@@ -79,3 +79,9 @@ The OpenSearchServer plugin for WordPress can be downloaded at Wordpress.org: [h
 * Parameters: `$facetsSlugs`: slugs built using the facets' names, or using specific slugs values configured on the admin page.
 * Example: can be used to override slugs, for instance by drawing them from a particular XML file.
 
+# Translations
+
+If you created some translation file for your own language please feel free to submit it to us. We will be glad to add it to the Plugin and add your name on this page.
+
+_Serbian translation provided by Ogi Djuraskovic – [http://firstsiteguide.com](http://firstsiteguide.com)_.
+
