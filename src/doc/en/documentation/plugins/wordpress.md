@@ -24,9 +24,9 @@ The OpenSearchServer plugin for WordPress can be downloaded at Wordpress.org: [h
 
 * Description: called when indexing a document and assigning a value to its `autocomplete` field.
 * Parameters: 
-    * `$value`: original value that would be inserted in the autocomplete field and then used for autocompletion.
-    * `$post`: content being indexed.
-* Example: can be used to add more text in the autocomplete field, allowing for more suggestion in the autocompletion feature:
+    * `$value`: the original value that would be inserted in the autocomplete field and then used for autocompletion.
+    * `$post`: the content being indexed.
+* Example: can be used to add text to the autocomplete field, allowing for more suggestions from the autocompletion feature:
     
 ```php
     add_filter('oss_autocomplete_value', 'oss_autocomplete_value', 1, 2);
@@ -49,7 +49,7 @@ The OpenSearchServer plugin for WordPress can be downloaded at Wordpress.org: [h
 
 * Description: called when completing the indexing of a document.
 * Parameters: `$document`, `$index`, `$lang`, `$post`, `$customFields`
-* Example: can be used to add values to some custom fields:
+* Example: can be used to add values to custom fields:
     
 ```php
     add_action('oss_index_document', 'oss_index_document', 10, 5 );
@@ -59,29 +59,29 @@ The OpenSearchServer plugin for WordPress can be downloaded at Wordpress.org: [h
     }   
 ```
 
-## At query time
+## At querying time
 
 ### Filter **oss_search** 
 
 * Description: called before submitting a query to OpenSearchServer.
 * Parameter: `$oss_query`: a query built using the configuration made on the admin page.
-* Example: can be used to customize the query, for instance by forcing filtering on a particular value.
+* Example: can be used to customize the query -- for instance by forcing filtering on a particular value.
 
 ### Filter **oss_search_getsearchfacet_without_each_facet**
 
 * Description: called when building queries to get facets.
 * Parameter: `$oss_query`
-* Example: can be used to customize the query, for instance by forcing filtering on a particular value.
+* Example: can be used to customize the query --for example by forcing filtering on a particular value.
 
 ### Filter **oss_facets_slugs**
 
 * Description: called when writing slugs used as links for the facets.
-* Parameters: `$facetsSlugs`: slugs built using the facets' names, or using specific slugs values configured on the admin page.
+* Parameters: `$facetsSlugs`: slugs built either using the facets' names, or using specific slugs values configured on the admin page.
 * Example: can be used to override slugs, for instance by drawing them from a particular XML file.
 
 # Translations
 
-If you created some translation file for your own language please feel free to submit it to us. We will be glad to add it to the Plugin and add your name on this page.
+If you created translation files in your own language, please send them to us. We will gladly add them to the plugin and list your name on this page.
 
 _Serbian translation provided by Ogi Djuraskovic [http://firstsiteguide.com](http://firstsiteguide.com)_.
 
