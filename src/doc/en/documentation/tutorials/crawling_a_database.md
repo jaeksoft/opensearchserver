@@ -1,16 +1,18 @@
 ## Crawling a database
 
-This quick OpenSearchServer tutorial will teach you how to crawl a MySQL database and configure a nice-looking search page (with facets, auto-completion, snippets, etc.).
+This quick OpenSearchServer tutorial will teach you:
+* how to crawl a MySQL database
+* how to set up an attractive search page (with facets, auto-completion, snippets, etc.).
 
-Here is an example of the search form and search results with facets we'll get in the end:
+Here is an example of the end result:
 
 ![Example of final results](database_1_renderer.png)
 
-## Create database
+## Creating the database
 
-As an example we will use a small database with 3 tables. This database is used to store some articles, authors and categories.
+This example will use a small database with 3 tables. This database is used to store articles, authors and categories.
 
-Here are some screenshot for these tables:
+Here are screenshot of these tables:
 
 **Table articles:**
 
@@ -24,7 +26,7 @@ Here are some screenshot for these tables:
 
 ![Table categories](database_table_categories.png)
 
-A query allowing for retrieval of every useful information would be for instance:
+A query to retrieve all useful information might be:
 
 ```sql
 SELECT a.id, a.title, a.content, a.date_created, c.name as category, CONCAT(au.lastname, ' ', au.firstname) as author, UNIX_TIMESTAMP() as time 
@@ -37,25 +39,25 @@ Here are the results for this query:
 
 ![Example of query results](database_table_results.png)
 
-As you can see, this query gives every useful information on one line for each article. The OpenSearchServer database crawler will be able to read these results and build one document in the index for each line, identified by the column `id`.
+As you can see, this query returns all useful data on one line, for each article. The OpenSearchServer database crawler can read these results and write one document in the index for each line, identified by the column `id`.
 
-> Another useful feature of the crawler is being able to "group" several lines sharing the same unique ID. For instance, if the database use some join tables and the final query returns several lines for one article, but with one different category by line, then the crawler would be able to create only one document in the index by giving some multiple values to its `category` field.
+> Another useful feature of the crawler is to merge several lines sharing the same unique ID. For instance, the database might use join tables and the final query would return several lines for one article, but with one different category by line. In this case the crawler can create but one document in the index by assigning multiple values to its `category` field.
 >
-> We will not cover this case in this tutorial  but it's nice to know that it's possible!
+> We will not cover this case in this tutorial though, but it's nice to know that it's possible!
 
-You could for example download the MySQL scripts here [https://gist.github.com/AlexandreToyer/f00c3eec976e654e211b](https://gist.github.com/AlexandreToyer/f00c3eec976e654e211b) and create a local database on your computer. It could also be a PostgreSQL database or some other kinds of database.
+To use this example as an exercise, you can download the MySQL scripts at [https://gist.github.com/AlexandreToyer/f00c3eec976e654e211b](https://gist.github.com/AlexandreToyer/f00c3eec976e654e211b) and create a local database on your computer. It could also be a PostgreSQL database, or some other kind of database.
 
 When your database is ready go to OpenSearchServer's interface.
 
-## Create and configure index's schema and analyzers
+## Creating and configuring the index's schema and analyzers
 
-### Create index
+### Creating the index
 
-Create an empty index named for instance `articles`.
+Create an empty index, named `articles`.
 
-### Create analyzers
+### Creating the analyzers
 
-Two analyzers will be needed in order to make some useful transformation on data.
+Two analyzers are needed in order to transform the data.
 
 #### Analyzer `_KeepFirstLetterOnly`
 
@@ -69,84 +71,88 @@ You can test it in the test area in the bottom. It will only keep the first lett
 
 #### Analyzer `_KeepYearMonth`
 
-This analyzer will be used to keep only the year and the month from a full date like `2014-10-14 10:25:34`. This data will then be used as a facet to filter on month.
+This analyzer will be used to extract the year and the month from a full date, such as `2014-10-14 10:25:34`. This data will then be used as a facet to filter on month.
 
 Go to tab `Schema` / `Analyzer` and create this analyzer:
 
 ![Second analyzer](database_analyzer_2.png)
 
-The regular expression to use is `([0-9]{4}\-[0-9]{2}).*`.
+The regular expression to use here is `([0-9]{4}\-[0-9]{2}).*`.
 
-You can test it in the test area in the bottom.
+You can also test it in the test area in the bottom.
 
-### Create schema
+### Creating the schema
 
-Go to tab `Schema` and create fields as shown in this screenshot:
+Go to the `Schema` tab and create the following fields:
 
 ![Schema of the index](database_schema.png)
 
-Some fields are created in several versions, each one using a particular analyzer. For example the `title` and `titleStandard` fields will receive the same value (title of the article) but will index it in a different way: the field `title` will use a `TextAnalyzer` and the field `titleStandard` will use a `StandardAnalyzer`. We will then use these fields with some different weight when creating the query.
+Some fields get created in several versions, each one using a particular analyzer. For instance the `title` and `titleStandard` fields both store the same value (the title of the article) but index it in a different way: the field `title` uses a `TextAnalyzer` and the field `titleStandard` uses a `StandardAnalyzer`. These fields will be assigned different weights when creating the query.
 
 Have a look at the [How to use analyzers](../faq/indexing/how_to_use_analyzers.md) page to understand it all. 
 
-#### Default and unique field
+#### Default and unique fields
 
-With lists located at the top of the page (still in tab `Schema`) configure the index with:
+Using the lists located at the top of the page (still in the `Schema`tab) configure the index with:
 
 * Default field: `content`
 * Unique field: `id`
 
-The unique field will be used to uniquely identify the documents. When crawling the database, if an article already existing in the index is found in the database then it will be updated by the content from the database.
+The unique field will be used to uniquely identify the documents. When crawling the database, those articles that already exist in the index will thus be updated rather than created.
 
-## Configure crawler
+## Configuring the crawler
 
-Here comes the part where we need to actually work with the database.
+Here comes the part where we actually work with the database.
 
-Go to tab `Crawler` / `Database` and click button `New crawl...`.
+Go to the `Crawler` / `Database` tab and click the `New crawl...` button.
 
-Configure the first tab as shown here:
+Configure the first tab as follows:
  
 ![Configuring the crawler](database_crawler_1.png)
 
-Of course you will need to use some customized information:
+The following information is specific to your project:
 
 * Driver class: choose the one matching your type of database
 * JDBC URL: this connection string can vary depending on your type of database. For MySQL for example it will be: `jdbc:mysql://<host>:<port_if_any>/<database_name>`
-  * Of course the database host must be accessible from the servers used by OpenSearchServer. 
-* User: user with read right on your database
-* Password: password for this user
+* Of course the database host must be accessible from the servers used by OpenSearchServer. 
+* User: a user with read rights to your database
+* Password: the password for this user
 
-The `SQL Select` query is the one explained earlier. The `UNIX_TIMESTAMP()` function will be used to saved the time of indexing. An SQL `CONCAT` is used to concatenate lastname ans firstname of authors.
+The `SQL Select` query was the one discussed near the beginning of this tutorial.
 
-Click button `Check`. A popup showing name of columns should be displayed:
+The `UNIX_TIMESTAMP()` function will be used to save the time of indexing. An SQL `CONCAT` is used to concatenate lastname and firstname for the authors.
+
+Click the `Check` button. A popup displaying the name of columns pops up:
 
 ![Checking query](database_crawler_check.png)
 
-Go to tab `FieldMap` and add these mappings:
+Go to the `FieldMap` tab and add these mappings:
  
 ![Configuring the crawler](database_crawler_2.png)
 
-What this means is quite simple: value of each found column from the SQL query will be indexed into a particular field of the schema. The `Copy of` feature used earlier when creating fields will be used to copy the same value to different fields (no need to add several mappings to those fields here).
+What this means is: 
+* the value of each column found by the SQL query will be indexed in a particular field of the schema
+* the `Copy of` feature used earlier when creating fields will be used to copy a single value value to several fields, sparing the need to add multiple mappings to those fields
 
 Create (or Save) the Crawl and then click on the button with the green icon to start it. It should quickly say "Complete".
 
-> If message "Error" is shown, hover the message with your mouse and more information will be displayed in a tooltip. It may be an SQL error, or you may have forgotten some mappings in the `FieldMap` tab. The "Unique field" of the schema in particular **must have a mapped valued**.
+> If message "Error" is shown, hover over it with your mouse to get a tooltip. It may be an SQL error, or you may have forgotten some mappings in the `FieldMap` tab. The "Unique field" of the schema in particular **must have a mapped values**.
 
 ![Starting the crawler](database_crawler_3.png)
 
-## Configure autocompletion
+## Configuring the autocompletion
 
-Go to tab `Schema` / `Auto-completion` and create an autocompletion item using the field "autocomplete": 
+Go to the `Schema` / `Auto-completion` tab to create an autocompletion item, using the field "autocomplete": 
 
 ![Configuring the autocompletion](database_autocompletion.png)
 
-Click button "Create" and in the list below click on the "Build" button to fill in the auto-completion sub-index with values.
+Click the `Create` button. In the list below click on the `Build` button to populate the auto-completion sub-index.
 
-## Create a query
+## Creating a query
 
-Some documents are now indexed we did half the job! We still need to create a query to be able to search for them.
+The documents are now indexed, and that's half the battle. But we still need a query to search them.
 
-Go to tab `Query` and create a new query (type `Search (field)`, named "search" for instance). 
+Go to the `Query` tab and create a new query (type `Search (field)`), named "search". 
 
 Configure it as shown below:
 
@@ -160,30 +166,29 @@ Configure it as shown below:
 
 ![Configuring the query](database_query_5.png)
 
-Everything is quite standard with this configuration: 
-
+This is a fairly standard setup:
 * we use a AND with a phrase slop of 1
-* we search into different fields, each one with a different weight
+* we search different fields, and give a different weight to those
 * we want to return some fields, and create some facets
-* we configure some snippets to highlight the searched keywords in the results
+* we configure the snippets so they highlight the searched-for keywords in the results
 
-Click button "Search" to test it:
+Click the `Search` button to test it:
 
 ![Configuring the query](database_query_6.png)
  
-## Create a renderer
+## Creating a renderer
 
-The final step is creating a renderer that will use the previously created query template.
+The final step is to create a renderer that will use our query template.
 
-Go to tab `Renderer` and configure it as shown below:
+Go to the `Renderer` tab and configure it as follows:
 
 **Global configuration:**
 
 ![Configuring the renderer](database_renderer_1.png)
 
-Use the query template (request) (`search` here) and the autocompletion created earlier. 
+Use the query template (request) (which we named `search` in this example), and the autocompletion we created earlier. 
 
-We are using here some Javascript to enhance the display and rename facets. `jQuery` is dynamically loaded from the Google CDN. Full code is:
+To enhance the display and rename facets, we'll be using some JavaScript. Specifically we'll use `jQuery` as dynamically loaded from the Google CDN. The full code is:
 
 ```javascript
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" ></script>
@@ -214,13 +219,13 @@ jQuery(function($) {
 
 ![Configuring the renderer](database_renderer_2.png)
 
-The first two lines are `SNIPPET`, the other ones are `FIELD`. We want here to display the `dateCrawl` and `id` fields for testing purpose.
+The first two lines are `SNIPPET`, the other ones are `FIELD`. We'll run a test where we display the `dateCrawl` and `id` fields.
 
-In order to be able to choose fields from the list `Field / Snippet` you will have to first create the renderer (click "Create") with a query template chosen in list `Request name` (in the first sub-tab), and then edit it again (click "Edit" in the list of renderers and come back to the `Fields` tabs).
+In order to choose fields from the list `Field / Snippet`, first create the renderer (click `Create`) with a query template chosen from the `Request name` list (in the first sub-tab). Then edit it again (click `Edit` in the list of renderers and come back to the `Fields` tabs).
 
 **CSS Style**
 
-Configure some customized CSS to enhance the display:
+Now for some CSS code to beautify the results:
 
 ```css
 body { font-family: Arial, sans-serif; background:#efedea; color:rgb(124, 112, 94); }
@@ -263,9 +268,9 @@ body { font-family: Arial, sans-serif; background:#efedea; color:rgb(124, 112, 9
 .ossautocomplete_link_over { background:#efedea;}
 ```
 
-That's it! Click "Save & close" and then click "View" in the list of renderers.
+That's it! Click `Save & close` and then click `View` in the list of renderers.
 
-Autocompletion should work. 
+The autocompletion should be active. 
 
 ![Using autocompletion](database_autocomplete_results.png)
 
@@ -278,12 +283,12 @@ Try searching for "Lorem". Facets are dynamically loaded and can be used to easi
 
 ### Scheduling the crawl
 
-The crawl process can be launched automatically on a regular basis. To do so create a job of scheduler in tab "Scheduler" and choose task `Database crawler - run`. 
+The crawl process can be launched automatically on a regular basis. To do so create a job for the scheduler in the `Scheduler` tab and choose the `Database crawler - run` task. 
 
-### Scheduling the autocompletion re-building
+### Scheduling the autocompletion rebuilding
 
-You could also want to automatically re-build the autocompletion sub-index after each crawl. To do so simply add a `Build autocompletion` task to your previously created job of scheduler.
+You could also want to automatically rebuild the autocompletion sub-index after each crawl. To do so simply add a `Build autocompletion` task to your previously created job of scheduler.
 
 ### Using variables when crawling
 
-Several variables can be used in the SQL Query. Values for these variable can be given at crawl time. See [How to use variables with the database crawler](../faq/crawling/how_to_use_variables_with_database_crawler.md) to discover this advanced feature.
+Several variables can be used in the SQL query. Values for these variable can be given at crawl time. See [How to use variables with the database crawler](../faq/crawling/how_to_use_variables_with_database_crawler.md) to discover this advanced feature.
