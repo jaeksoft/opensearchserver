@@ -7,4 +7,4 @@
 * [How to use More Like This feature](how_to_use_more_like_this_feature.md)
 * [How to use synonyms](how_to_use_synonyms.md)
 * [How to use filters on a query](how_to_use_filters_on_query.md)
-* [How to replicate and merge index](how_to_replicate_and_merge_index.md)
+* [How to replicate and merge indexes](how_to_replicate_and_merge_indexes.md)
