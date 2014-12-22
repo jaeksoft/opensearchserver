@@ -158,21 +158,6 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		return null;
 	}
 
-	@Override
-	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
-			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
-			Timer timer) throws SearchLibException, ParseException,
-			IOException, SyntaxError {
-
-		FilterHits filterHits = searchRequest.getFilterList()
-				.getFilterHits(defaultField, searchRequest.getAnalyzer(),
-						searchRequest, timer);
-
-		DocSetHits dsh = new DocSetHits(new Params(this, searchRequest,
-				filterHits), timer);
-		return dsh;
-	}
-
 	public Map<String, FieldValue> getDocumentFields(long docId,
 			TreeSet<String> fieldSet, Timer timer) throws SearchLibException {
 		OsseErrorHandler error = null;
@@ -211,9 +196,13 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 
 			Schema schema = searchRequest.getConfig().getSchema();
 			SchemaField defaultField = schema.getFieldList().getDefaultField();
+			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
+			FilterHits filterHits = searchRequest
+					.getFilterList()
+					.getFilterHits(defaultField, analyzer, searchRequest, timer);
 
-			return newDocSetHits(searchRequest, schema, defaultField,
-					searchRequest.getAnalyzer(), timer);
+			return new DocSetHits(new Params(this, searchRequest, filterHits),
+					timer);
 
 		} finally {
 			rwl.r.unlock();

@@ -497,10 +497,6 @@ public class ReaderLocal extends ReaderAbstract {
 							searchRequest, timer);
 			return new DocSetHits(new Params(this, searchRequest, filterHits),
 					timer);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}

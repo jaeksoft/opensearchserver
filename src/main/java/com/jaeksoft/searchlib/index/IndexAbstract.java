@@ -43,10 +43,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.cache.FieldCache;
-import com.jaeksoft.searchlib.cache.FilterCache;
-import com.jaeksoft.searchlib.cache.SearchCache;
-import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.cluster.ClusterNotification;
 import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
@@ -459,54 +455,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			if (reader == null)
 				return 0;
 			return reader.getVersion();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public SearchCache getSearchCache() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					return ((ReaderLocal) reader).getSearchCache();
-			return null;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public FilterCache getFilterCache() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					return ((ReaderLocal) reader).getFilterCache();
-			return null;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public FieldCache getFieldCache() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					return ((ReaderLocal) reader).getFieldCache();
-			return null;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public TermVectorCache getTermVectorCache() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					return ((ReaderLocal) reader).getTermVectorCache();
-			return null;
 		} finally {
 			rwl.r.unlock();
 		}
