@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,8 +23,6 @@
 				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeCommands" label="Commands"
 				visible="@load(runtime.commandsRights)" />
-			<tab id="tabRuntimeCache" label="Cache"
-				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeIndex" label="Index"
 				visible="@load(runtime.instanceValid)" />
 			<tab id="tabRuntimeTerms" label="Terms"
@@ -48,9 +46,6 @@
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeCommands.onSelect">
 				<include src="WEB-INF/zul/runtime/commands.zul" />
-			</tabpanel>
-			<tabpanel fulfill="tabRuntimeCache.onSelect">
-				<include src="WEB-INF/zul/runtime/cache.zul" />
 			</tabpanel>
 			<tabpanel fulfill="tabRuntimeIndex.onSelect">
 				<include src="WEB-INF/zul/runtime/indices.zul" />
