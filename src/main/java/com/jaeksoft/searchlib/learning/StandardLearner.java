@@ -43,10 +43,8 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.index.IndexLucene;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -120,10 +118,6 @@ public class StandardLearner implements LearnerInterface {
 			schema.setField(fieldName, Stored.NO, Indexed.YES, TermVector.YES,
 					"StandardAnalyzer");
 		}
-		TermVectorCache termVectorCache = ((IndexLucene) learnerClient
-				.getIndex()).getTermVectorCache();
-		termVectorCache.setMaxSize((int) learnerClient.getStatistics()
-				.getNumDocs());
 		return boostMap.values();
 	}
 

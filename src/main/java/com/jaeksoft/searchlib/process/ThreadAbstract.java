@@ -228,7 +228,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		}
 	}
 
-	public abstract void runner() throws Exception;
+	protected abstract void runner() throws Exception;
 
 	public abstract void release();
 
@@ -250,12 +250,12 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		try {
 			exception = null;
 			abort = false;
+			info = null;
+			endTime = 0;
+			startTime = System.currentTimeMillis();
 			thread = Thread.currentThread();
 			thread.setName(getThreadName());
-			info = null;
-			startTime = System.currentTimeMillis();
 			idleTime = startTime;
-			endTime = 0;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -274,6 +274,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	final public void run() {
+		initStart();
 		try {
 			runner();
 		} catch (Exception e) {
@@ -293,22 +294,32 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		release();
 	}
 
-	public boolean isRunning() {
+	final public boolean isRunning() {
 		rwl.r.lock();
 		try {
 			if (thread == null)
 				return false;
-			if (thread.getState() == State.TERMINATED)
+			switch (thread.getState()) {
+			case NEW:
 				return false;
-			if (exception != null)
+			case BLOCKED:
+				return true;
+			case RUNNABLE:
+				return true;
+			case TERMINATED:
 				return false;
-			return endTime == 0;
+			case TIMED_WAITING:
+				return true;
+			case WAITING:
+				return true;
+			}
+			return false;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public State getThreadState() {
+	final public State getThreadState() {
 		rwl.r.lock();
 		try {
 			if (thread == null)
@@ -319,7 +330,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		}
 	}
 
-	public String getThreadStatus() {
+	final public String getThreadStatus() {
 		rwl.r.lock();
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -340,14 +351,15 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		return threadItem;
 	}
 
-	final public void execute() {
+	final public void execute(int secTimeOut) {
 		rwl.w.lock();
 		try {
-			initStart();
-			config.getThreadPool().execute(this);
+			startTime = 0;
 		} finally {
 			rwl.w.unlock();
 		}
+		config.getThreadPool().execute(this);
+		waitForStart(secTimeOut);
 	}
 
 	protected ThreadMasterAbstract<?, T> getThreadMaster() {

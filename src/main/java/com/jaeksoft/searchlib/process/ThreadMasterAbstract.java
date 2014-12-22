@@ -70,7 +70,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 		try {
 			threads.add(thread);
 			threadArray = null;
-			thread.execute();
+			thread.execute(180);
 		} finally {
 			rwl.w.unlock();
 		}
@@ -139,6 +139,8 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 				synchronized (this) {
 					wait(5000);
 				}
+
+				boolean masterAbort = isAborted();
 				// Remove terminated thread
 				rwl.w.lock();
 				try {
@@ -150,7 +152,11 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 							if (thread.getThreadState() == State.TERMINATED) {
 								it.remove();
 								remove = true;
-							} else if (thread.isIdleTimeExhausted(maxIdleTime)) {
+							} else if (masterAbort
+									&& thread.isIdleTimeExhausted(maxIdleTime)) {
+								// Force child aborting if the crawl master is
+								// already aborting and the thread idle time
+								// expired
 								Logging.warn("Thread aborting (time out): "
 										+ thread.getCurrentMethod());
 								thread.abort();

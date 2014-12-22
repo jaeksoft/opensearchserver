@@ -206,8 +206,8 @@ public class TaskManager {
 			Variables variables) throws InterruptedException {
 		ImmediateExecution execution = new ImmediateExecution(client, jobItem,
 				variables);
-		execution.execute();
-		jobItem.waitForStart(600);
+		execution.execute(300);
+		jobItem.waitForStart(300);
 		return execution;
 	}
 
@@ -226,8 +226,8 @@ public class TaskManager {
 			taskLog = new TaskLog(taskItem, false, false);
 		ImmediateExecution execution = new ImmediateExecution(client, taskItem,
 				taskLog);
-		client.getThreadPool().execute(execution);
-		taskItem.waitForStart(600);
+		execution.execute(300);
+		taskItem.waitForStart(300);
 		return execution;
 	}
 

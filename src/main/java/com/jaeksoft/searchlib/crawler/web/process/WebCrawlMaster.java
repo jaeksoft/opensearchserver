@@ -166,7 +166,11 @@ public class WebCrawlMaster extends
 			}
 
 			setStatus(CrawlStatus.WAITING_CHILD);
-			waitForChild(1800);
+			while (getThreadsCount() > 0) {
+				waitForChild(1800);
+				if (isAborted())
+					break;
+			}
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);
 			if (currentStats.getUrlCount() > 0)
@@ -366,7 +370,7 @@ public class WebCrawlMaster extends
 		hostUrlList.setListType(listType);
 		WebCrawlThread crawlThread = new WebCrawlThread(config, this,
 				new CrawlStatistics(), hostUrlList);
-		crawlThread.execute();
+		crawlThread.execute(180);
 		return crawlThread;
 
 	}
