@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,7 @@ import org.apache.lucene.util.Version;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderLocal;
 
-public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
+public class SpellCheckerCache extends LRUCache<String, SpellChecker> {
 
 	public SpellCheckerCache(int maxSize) {
 		super("Spellchecker cache", maxSize);
@@ -43,22 +43,20 @@ public class SpellCheckerCache extends LRUCache<FieldNameKey, SpellChecker> {
 
 	public SpellChecker get(ReaderLocal reader, String field)
 			throws IOException, SearchLibException {
-		FieldNameKey key = new FieldNameKey(field);
-		lockKeyThread(key, 10);
+		lockKeyThread(field, 10);
 		try {
-			SpellChecker spellChecker = getAndPromote(key);
+			SpellChecker spellChecker = getAndPromote(field);
 			if (spellChecker != null)
 				return spellChecker;
-			LuceneDictionary dict = reader.getLuceneDirectionary(key
-					.getFieldName());
+			LuceneDictionary dict = reader.getLuceneDirectionary(field);
 			SpellChecker spellchecker = new SpellChecker(new RAMDirectory());
 			spellchecker.indexDictionary(dict, new IndexWriterConfig(
 					Version.LUCENE_36, null), true);
 
-			put(key, spellchecker);
+			put(field, spellchecker);
 			return spellchecker;
 		} finally {
-			unlockKeyThred(key);
+			unlockKeyThred(field);
 		}
 	}
 

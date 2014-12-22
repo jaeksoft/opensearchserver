@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
@@ -60,11 +61,7 @@ import org.apache.lucene.util.ReaderUtil;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.cache.FieldCache;
-import com.jaeksoft.searchlib.cache.FilterCache;
-import com.jaeksoft.searchlib.cache.SearchCache;
 import com.jaeksoft.searchlib.cache.SpellCheckerCache;
-import com.jaeksoft.searchlib.cache.TermVectorCache;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
@@ -92,10 +89,6 @@ public class ReaderLocal extends ReaderAbstract {
 	private IndexSearcher indexSearcher;
 	private IndexReader indexReader;
 
-	private SearchCache searchCache;
-	private FilterCache filterCache;
-	private FieldCache fieldCache;
-	private TermVectorCache termVectorCache;
 	private SpellCheckerCache spellCheckerCache;
 
 	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory,
@@ -117,25 +110,8 @@ public class ReaderLocal extends ReaderAbstract {
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			indexSearcher.setSimilarity(similarity);
-		this.searchCache = new SearchCache(indexConfig);
-		this.filterCache = new FilterCache(indexConfig);
-		this.fieldCache = new FieldCache(indexConfig);
-		this.termVectorCache = new TermVectorCache(indexConfig);
 		// TODO replace value 100 by number of field in schema
 		this.spellCheckerCache = new SpellCheckerCache(100);
-	}
-
-	private void resetCache() {
-		rwl.w.lock();
-		try {
-			searchCache.clear();
-			filterCache.clear();
-			fieldCache.clear();
-			termVectorCache.clear();
-			spellCheckerCache.clear();
-		} finally {
-			rwl.w.unlock();
-		}
 	}
 
 	@Override
@@ -206,15 +182,11 @@ public class ReaderLocal extends ReaderAbstract {
 			return;
 		rwl.r.lock();
 		try {
-			if (termVectorCache.getMaxSize() > 0) {
-				termVectorCache.put(this, docIds, field, termVectors);
-			} else {
-				List<TermFreqVector> termFreqVectors = new ArrayList<TermFreqVector>(
-						docIds.length);
-				putTermFreqVectors(docIds, field, termFreqVectors);
-				for (TermFreqVector termFreqVector : termFreqVectors)
-					termVectors.add(termFreqVector.getTerms());
-			}
+			List<TermFreqVector> termFreqVectors = new ArrayList<TermFreqVector>(
+					docIds.length);
+			putTermFreqVectors(docIds, field, termFreqVectors);
+			for (TermFreqVector termFreqVector : termFreqVectors)
+				termVectors.add(termFreqVector.getTerms());
 		} finally {
 			rwl.r.unlock();
 		}
@@ -394,8 +366,7 @@ public class ReaderLocal extends ReaderAbstract {
 			IOException, SearchLibException, SyntaxError {
 		rwl.r.lock();
 		try {
-			return filterCache.get(filter, defaultField, analyzer, request,
-					timer);
+			return filter.getFilterHits(defaultField, analyzer, request, timer);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -502,8 +473,8 @@ public class ReaderLocal extends ReaderAbstract {
 		rwl.w.lock();
 		try {
 			closeNoLock();
+			spellCheckerCache.clear();
 			openNoLock();
-			resetCache();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -519,34 +490,20 @@ public class ReaderLocal extends ReaderAbstract {
 		try {
 			Schema schema = searchRequest.getConfig().getSchema();
 			SchemaField defaultField = schema.getFieldList().getDefaultField();
-
-			return searchCache.get(this, searchRequest, schema, defaultField,
+			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
+			FilterList filterList = searchRequest.getFilterList();
+			FilterHits filterHits = filterList == null ? null
+					: filterList.getFilterHits(defaultField, analyzer,
+							searchRequest, timer);
+			return new DocSetHits(new Params(this, searchRequest, filterHits),
 					timer);
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
-	}
-
-	@Override
-	public DocSetHits newDocSetHits(AbstractSearchRequest searchRequest,
-			Schema schema, SchemaField defaultField, PerFieldAnalyzer analyzer,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException {
-
-		FilterList filterList = searchRequest.getFilterList();
-		FilterHits filterHits = filterList == null ? null : filterList
-				.getFilterHits(defaultField, analyzer, searchRequest, timer);
-
-		DocSetHits dsh = new DocSetHits(new Params(this, searchRequest,
-				filterHits), timer);
-		return dsh;
 	}
 
 	@Override
@@ -593,7 +550,81 @@ public class ReaderLocal extends ReaderAbstract {
 			throws IOException, ParseException, SyntaxError {
 		rwl.r.lock();
 		try {
-			return fieldCache.get(this, docId, fieldNameSet, timer);
+
+			Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
+			Set<String> vectorField = null;
+			Set<String> indexedField = null;
+			Set<String> missingField = null;
+
+			Timer t = new Timer(timer, "Field from store");
+
+			// Check missing fields from store
+			if (fieldNameSet != null && fieldNameSet.size() > 0) {
+				vectorField = new TreeSet<String>();
+				Document document = getDocFields(docId, fieldNameSet);
+				for (String fieldName : fieldNameSet) {
+					Fieldable[] fieldables = document.getFieldables(fieldName);
+					if (fieldables != null && fieldables.length > 0) {
+						FieldValueItem[] valueItems = FieldValueItem
+								.buildArray(fieldables);
+						documentFields.put(fieldName, new FieldValue(fieldName,
+								valueItems));
+					} else
+						vectorField.add(fieldName);
+				}
+			}
+
+			t.end(null);
+
+			t = new Timer(timer, "Field from vector");
+
+			// Check missing fields from vector
+			if (vectorField != null && vectorField.size() > 0) {
+				indexedField = new TreeSet<String>();
+				for (String fieldName : vectorField) {
+					TermFreqVector tfv = getTermFreqVector(docId, fieldName);
+					if (tfv != null) {
+						FieldValueItem[] valueItems = FieldValueItem
+								.buildArray(FieldValueOriginEnum.TERM_VECTOR,
+										tfv.getTerms());
+						documentFields.put(fieldName, new FieldValue(fieldName,
+								valueItems));
+					} else
+						indexedField.add(fieldName);
+				}
+			}
+
+			t.end(null);
+
+			t = new Timer(timer, "Field from StringIndex");
+
+			// Check missing fields from StringIndex
+			if (indexedField != null && indexedField.size() > 0) {
+				missingField = new TreeSet<String>();
+				for (String fieldName : indexedField) {
+					FieldCacheIndex stringIndex = getStringIndex(fieldName);
+					if (stringIndex != null) {
+						String term = stringIndex.lookup[stringIndex.order[docId]];
+						if (term != null) {
+							FieldValueItem[] valueItems = FieldValueItem
+									.buildArray(
+											FieldValueOriginEnum.STRING_INDEX,
+											term);
+							documentFields.put(fieldName, new FieldValue(
+									fieldName, valueItems));
+							continue;
+						}
+					}
+					missingField.add(fieldName);
+				}
+			}
+
+			t.end(null);
+
+			if (missingField != null && missingField.size() > 0)
+				for (String fieldName : missingField)
+					documentFields.put(fieldName, new FieldValue(fieldName));
+			return documentFields;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -688,42 +719,6 @@ public class ReaderLocal extends ReaderAbstract {
 		rwl.r.lock();
 		try {
 			return spellCheckerCache.get(this, fieldName);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected SearchCache getSearchCache() {
-		rwl.r.lock();
-		try {
-			return searchCache;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected FilterCache getFilterCache() {
-		rwl.r.lock();
-		try {
-			return filterCache;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected FieldCache getFieldCache() {
-		rwl.r.lock();
-		try {
-			return fieldCache;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected TermVectorCache getTermVectorCache() {
-		rwl.r.lock();
-		try {
-			return termVectorCache;
 		} finally {
 			rwl.r.unlock();
 		}
