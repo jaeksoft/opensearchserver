@@ -11,11 +11,15 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 OpenSearchServer 1.5.9
 
 New features:
+- GH-1298: Crawl remote file system using the database crawler
+- GH-1269: Prepare interfaces for native bit set
+- GH-1251: With large host list, the Web crawler should select the host randomly
+- GH-1249: Optimize file parsing during database crawl
 - GH-1233: Add time out to the autocompletion task
 - GH-1225: Hunspell suggest performances
 - GH-1211: JDBC cursor size (setFetchSize) should be set with the buffer size
 - GH-1207: Take a different query string for each field
-- GH-1188: Execute a Groovy when a crawl thread starts
+- GH-1188: Execute a Groovy script when a crawl thread starts
 - GH-1183: Add a Czech stemmer
 - GH-1179: a REST API to disable or enable the pattern lists
 - GH-1152: Parser JSON API
@@ -28,6 +32,15 @@ New features:
 - GH-716: Ability to enable crawl cache by index instead of for whole instance
 - GH-266: Multiple proxies
 
+Bug fixes:
+- GH-1316: Removal of search, filter, termvector and field cache
+- GH-1305: 30 minutes time out on file crawler when no new files are fetched causes trouble
+- GH-1243: RPM installation failed
+- GH-1241: Web crawler: inclusion and exclusion list not followed when reading sitemap
+- GH-1229: The PUT method of the Analyzer API generates duplicates
+- GH-1202: Exception with RegularExpressionReplaceFilter when the replacement string is empty
+- GH-1150: The MirrorAndFilter is not supported in the JSON API
+- GH-1118: Query REST API, Geo parameters don't support overriding
 
 OpenSearchServer 1.5.8
 
