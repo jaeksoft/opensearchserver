@@ -35,6 +35,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.JsonUtils;
@@ -179,8 +180,15 @@ public abstract class StatisticsAbstract {
 		File file = getStatFile(statDir);
 		if (!file.exists())
 			return;
-		List<Aggregate> aggrList = JsonUtils.getObject(file,
-				AggregateListTypeRef);
+		if (file.length() == 0)
+			return;
+		List<Aggregate> aggrList = null;
+		try {
+			aggrList = JsonUtils.getObject(file, AggregateListTypeRef);
+		} catch (JsonParseException e) {
+			Logging.warn(e);
+			return;
+		}
 		if (aggrList == null)
 			return;
 		rwl.w.lock();

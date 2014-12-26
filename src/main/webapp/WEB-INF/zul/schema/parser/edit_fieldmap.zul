@@ -18,7 +18,7 @@
 	<listbox model="@load(parser.currentParser.fieldMap.list)"
 		selectedItem="@bind(parser.selectedFieldMapItem)">
 		<auxhead>
-			<auxheader colspan="6">
+			<auxheader colspan="5">
 				<hbox align="center">
 					<combobox cols="40"
 						model="@load(parser.parserFieldList)"

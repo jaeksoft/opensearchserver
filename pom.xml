@@ -177,11 +177,6 @@
 			<version>${httpclient.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
-			<artifactId>pdfbox-ant</artifactId>
-			<version>1.8.7</version>
-		</dependency>
-		<dependency>
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zkbind</artifactId>
 			<version>${zk.version}</version>
@@ -216,37 +211,6 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-excelant</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-scratchpad</artifactId>
-			<version>${poi.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.odftoolkit</groupId>
-			<artifactId>simple-odf</artifactId>
-			<version>0.7-incubating</version>
-			<classifier>jar-with-dependencies</classifier>
 		</dependency>
 		<dependency>
 			<groupId>batik</groupId>
@@ -311,7 +275,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
+			<version>1.7.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
@@ -321,7 +285,7 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
+			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -373,6 +337,16 @@
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
 			<version>1.2.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>net.minidev</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.dropbox.core</groupId>
@@ -491,14 +465,18 @@
 			<artifactId>hunspell-bridj</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.opensearchserver</groupId>
+			<artifactId>oss-text-extractor</artifactId>
+			<version>1.1</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<cxf.version>3.0.2</cxf.version>
+		<cxf.version>3.0.3</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.3.6</httpclient.version>
-		<poi.version>3.11-beta3</poi.version>
 		<selenium.version>2.44.0</selenium.version>
 		<zk.version>7.0.3</zk.version>
 	</properties>

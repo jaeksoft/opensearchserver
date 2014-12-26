@@ -121,7 +121,7 @@ public abstract class Parser extends ParserFactory {
 	}
 
 	protected abstract void parseContent(StreamLimiter streamLimiter,
-			LanguageEnum lang) throws IOException, SearchLibException;
+			LanguageEnum lang) throws Exception;
 
 	private final String getErrorText(Throwable t) {
 		return StringUtils.fastConcat("Error while working on URL: ",

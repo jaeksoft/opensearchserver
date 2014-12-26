@@ -254,5 +254,13 @@
 			<link source="content" target="content" />
 		</map>
 	</parser>
-
+	<parser name="Markdown parser" class="com.jaeksoft.searchlib.parser.MarkdownParser"
+		sizeLimit="33554432">
+		<extension>md</extension>
+		<extension>markdown</extension>
+		<contentType>text/x-markdown</contentType>
+		<map>
+			<link source="content" target="content" />
+		</map>
+	</parser>
 </parsers>
