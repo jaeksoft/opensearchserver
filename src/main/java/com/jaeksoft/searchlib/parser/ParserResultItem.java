@@ -27,9 +27,11 @@ package com.jaeksoft.searchlib.parser;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
@@ -44,6 +46,8 @@ import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
 
 public class ParserResultItem {
+
+	public final static String NGRAM_RECOGNITION = "ngram recognition";
 
 	private final Parser parser;
 
@@ -151,11 +155,9 @@ public class ParserResultItem {
 
 	protected Locale langDetection(int textLength, ParserFieldEnum parserField) {
 		Locale lang = null;
-		String langMethod = null;
 		String text = getMergedBodyText(textLength, " ", parserField);
 		if (StringUtils.isEmpty(text))
 			return null;
-		langMethod = "ngram recognition";
 		try {
 			lang = Lang.langDetection(text, text.length());
 		} catch (LangDetectException e) {
@@ -166,7 +168,7 @@ public class ParserResultItem {
 			return null;
 
 		addField(ParserFieldEnum.lang, lang.getLanguage());
-		addField(ParserFieldEnum.lang_method, langMethod);
+		addField(ParserFieldEnum.lang_method, NGRAM_RECOGNITION);
 		return lang;
 	}
 
@@ -177,4 +179,16 @@ public class ParserResultItem {
 						directDocument) : null);
 	}
 
+	/**
+	 * Extract lang detection from oss-text-extractor
+	 * 
+	 * @param document
+	 */
+	public void langDetection(Map<String, List<Object>> document) {
+		List<Object> list = document.get("lang_detection");
+		if (CollectionUtils.isEmpty(list))
+			return;
+		addField(ParserFieldEnum.lang, list.get(0));
+		addField(ParserFieldEnum.lang_method, NGRAM_RECOGNITION);
+	}
 }
