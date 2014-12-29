@@ -30,18 +30,19 @@ import java.io.IOException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.index.osse.api.OsseIndex;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
 
+@WebListener
 public class StartStopListener implements ServletContextListener {
 
 	public static File OPENSEARCHSERVER_DATA_FILE = null;
@@ -185,6 +186,7 @@ public class StartStopListener implements ServletContextListener {
 		} catch (IOException e) {
 			Logging.error(e);
 		}
+		TemplateManager.init(servletContext);
 		start();
 	}
 }

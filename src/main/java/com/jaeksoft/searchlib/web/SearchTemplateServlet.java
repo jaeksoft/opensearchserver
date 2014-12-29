@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web;
 import java.io.IOException;
 
 import javax.naming.NamingException;
+import javax.servlet.annotation.WebServlet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -49,6 +50,7 @@ import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "Searchtemplate", urlPatterns = { "/searchtemplate" })
 public class SearchTemplateServlet extends AbstractServlet {
 
 	private static final long serialVersionUID = -6279193437936726711L;

@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
+import javax.servlet.annotation.WebServlet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -48,6 +49,7 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "Search", urlPatterns = { "/opensearch/*", "/search/*" })
 public class SearchServlet extends AbstractServlet {
 	/**
 	 * 

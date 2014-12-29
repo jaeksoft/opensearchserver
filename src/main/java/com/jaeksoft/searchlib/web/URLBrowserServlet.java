@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.naming.NamingException;
+import javax.servlet.annotation.WebServlet;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -37,10 +38,7 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
-/**
- * @author Naveen
- * 
- */
+@WebServlet(name = "URLBrowser", urlPatterns = { "/urlbrowser" })
 public class URLBrowserServlet extends AbstractServlet {
 
 	/**

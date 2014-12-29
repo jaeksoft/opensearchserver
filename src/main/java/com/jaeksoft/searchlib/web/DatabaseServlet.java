@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
@@ -32,6 +34,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "Database", urlPatterns = { "/database" })
 public class DatabaseServlet extends AbstractServlet {
 
 	/**

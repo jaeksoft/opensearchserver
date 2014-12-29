@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.web;
 
 import java.io.PrintWriter;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -35,6 +37,7 @@ import com.jaeksoft.searchlib.statistics.StatisticPeriodEnum;
 import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
 
+@WebServlet(name = "Report", urlPatterns = { "/report" })
 public class ReportServlet extends AbstractServlet {
 	/**
 	 * 

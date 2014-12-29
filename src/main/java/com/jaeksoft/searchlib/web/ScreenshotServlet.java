@@ -31,6 +31,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
@@ -40,6 +42,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
+@WebServlet(name = "Screenshot", urlPatterns = { "/screenshot" })
 public class ScreenshotServlet extends AbstractServlet {
 
 	/**

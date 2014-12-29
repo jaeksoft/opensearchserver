@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.naming.NamingException;
+import javax.servlet.annotation.WebServlet;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -47,6 +48,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
+@WebServlet(name = "Schema", urlPatterns = { "/schema" })
 public class SchemaServlet extends AbstractServlet {
 
 	/**

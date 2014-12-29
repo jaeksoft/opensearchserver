@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.annotation.WebServlet;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -36,6 +37,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
+@WebServlet(name = "Monitor", urlPatterns = { "/monitor" })
 public class MonitorServlet extends AbstractServlet {
 
 	/**

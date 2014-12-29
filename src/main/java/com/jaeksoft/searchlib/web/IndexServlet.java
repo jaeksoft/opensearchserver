@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.naming.NamingException;
+import javax.servlet.annotation.WebServlet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
@@ -43,6 +44,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.DomUtils;
 
+@WebServlet(name = "Index", urlPatterns = { "/index", "/update" })
 public class IndexServlet extends AbstractServlet {
 
 	/**

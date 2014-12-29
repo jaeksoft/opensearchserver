@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.web;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.render.Render;
@@ -32,6 +34,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "Select", urlPatterns = { "/select" })
 public class SelectServlet extends AbstractServlet {
 
 	/**

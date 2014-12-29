@@ -24,12 +24,15 @@
 
 package com.jaeksoft.searchlib.web;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "WEBCrawler", urlPatterns = { "/webcrawler" })
 public class WebCrawlerServlet extends AbstractServlet {
 
 	/**

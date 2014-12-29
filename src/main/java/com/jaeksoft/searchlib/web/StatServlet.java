@@ -27,12 +27,15 @@ package com.jaeksoft.searchlib.web;
 import java.io.PrintWriter;
 import java.util.HashSet;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
 @Deprecated
+@WebServlet(name = "Stats", urlPatterns = { "/stats" })
 public class StatServlet extends AbstractServlet {
 
 	/**

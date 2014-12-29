@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.servlet.annotation.WebServlet;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.http.HttpException;
@@ -45,6 +46,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XPathParser;
 
+@WebServlet(name = "Delete", urlPatterns = { "/delete" })
 public class DeleteServlet extends AbstractServlet {
 
 	/**

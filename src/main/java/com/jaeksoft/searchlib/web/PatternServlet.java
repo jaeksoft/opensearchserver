@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.annotation.WebServlet;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -41,6 +42,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
+@WebServlet(name = "Pattern", urlPatterns = { "/pattern" })
 public class PatternServlet extends AbstractServlet {
 
 	/**

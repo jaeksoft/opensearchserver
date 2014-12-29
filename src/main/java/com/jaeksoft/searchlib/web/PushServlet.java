@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import javax.naming.NamingException;
+import javax.servlet.annotation.WebServlet;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FilenameUtils;
@@ -47,6 +48,7 @@ import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 
+@WebServlet(name = "Push", urlPatterns = { "/push" })
 public class PushServlet extends AbstractServlet {
 
 	/**

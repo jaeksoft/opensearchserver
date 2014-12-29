@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -50,6 +51,7 @@ import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@WebServlet(name = "Renderer", urlPatterns = { "/renderer" })
 public class RendererServlet extends AbstractServlet {
 
 	/**

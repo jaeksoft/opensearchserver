@@ -24,10 +24,13 @@
 
 package com.jaeksoft.searchlib.web;
 
+import javax.servlet.annotation.WebServlet;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "Optimize", urlPatterns = { "/optimize" })
 public class OptimizeServlet extends AbstractServlet {
 
 	/**

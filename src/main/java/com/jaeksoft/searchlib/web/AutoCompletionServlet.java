@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.servlet.annotation.WebServlet;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,6 +42,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+@WebServlet(name = "AutoCompletion", urlPatterns = { "/autocompletion" })
 public class AutoCompletionServlet extends AbstractServlet {
 
 	/**

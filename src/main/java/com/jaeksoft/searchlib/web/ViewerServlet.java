@@ -31,6 +31,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
+import javax.servlet.annotation.WebServlet;
+
 import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.searchlib.Client;
@@ -42,6 +44,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+@WebServlet(name = "Viewer", urlPatterns = { "/viewer" })
 public class ViewerServlet extends AbstractServlet {
 
 	/**
