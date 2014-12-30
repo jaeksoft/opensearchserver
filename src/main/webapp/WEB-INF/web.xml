@@ -10,20 +10,19 @@
 	See the GNU General Public License for more details. You should have received 
 	a copy of the GNU General Public License along with Jaeksoft OpenSearchServer. 
 	If not, see <http://www.gnu.org/licenses/>. -->
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
-            http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-	version="3.1">
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 	<display-name>${project.name} - ${project.version}</display-name>
 	<listener>
 		<description>
-		Used to cleanup when a session is destroyed</description>
+			Used to cleanup when a session is destroyed</description>
 		<display-name>ZK Session cleaner</display-name>
 		<listener-class>org.zkoss.zk.ui.http.HttpSessionListener</listener-class>
 	</listener>
 	<servlet>
 		<description>
-		The ZK loader for ZUML pages</description>
+			The ZK loader for ZUML pages</description>
 		<servlet-name>zkLoader</servlet-name>
 		<servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>
 		<init-param>
@@ -34,7 +33,7 @@
 	</servlet>
 	<servlet>
 		<description>
-		The asynchronous update engine for ZK</description>
+			The asynchronous update engine for ZK</description>
 		<servlet-name>auEngine</servlet-name>
 		<servlet-class>org.zkoss.zk.au.http.DHtmlUpdateServlet</servlet-class>
 	</servlet>

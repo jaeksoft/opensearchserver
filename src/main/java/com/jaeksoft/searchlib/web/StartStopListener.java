@@ -41,6 +41,7 @@ import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
+import com.jaeksoft.searchlib.web.servlet.ui.TemplateManager;
 
 @WebListener
 public class StartStopListener implements ServletContextListener {

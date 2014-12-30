@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
@@ -33,7 +34,6 @@ import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.IndexRole;
 import com.jaeksoft.searchlib.user.Role;
@@ -50,11 +50,11 @@ public class PrivilegesController extends CommonController {
 
 	private transient IndexRole selectedIndexRole;
 
-	private transient ClientCatalogItem selectedIndex;
+	private transient String selectedIndex;
 
 	private transient String selectedRole;
 
-	private transient Set<ClientCatalogItem> indexList;
+	private transient Set<String> indexList;
 
 	public PrivilegesController() throws SearchLibException {
 		super();
@@ -75,11 +75,12 @@ public class PrivilegesController extends CommonController {
 		return ClientCatalog.getUserList().getUserNameSet();
 	}
 
-	public Set<ClientCatalogItem> getIndexList() throws SearchLibException {
+	public Set<String> getIndexList() throws SearchLibException {
 		synchronized (this) {
 			if (indexList != null)
 				return indexList;
-			indexList = ClientCatalog.getClientCatalog(getLoggedUser());
+			indexList = new TreeSet<String>();
+			ClientCatalog.populateClientName(getLoggedUser(), indexList, null);
 			if (selectedIndex == null && indexList.size() > 0)
 				selectedIndex = indexList.iterator().next();
 			return indexList;
@@ -120,12 +121,11 @@ public class PrivilegesController extends CommonController {
 		confirmPassword = user.getPassword();
 	}
 
-	public ClientCatalogItem getSelectedIndex() {
+	public String getSelectedIndex() {
 		return this.selectedIndex;
 	}
 
-	public void setSelectedIndex(ClientCatalogItem indexName)
-			throws SearchLibException {
+	public void setSelectedIndex(String indexName) throws SearchLibException {
 		this.selectedIndex = indexName;
 	}
 
@@ -211,7 +211,7 @@ public class PrivilegesController extends CommonController {
 	@NotifyChange("*")
 	public void onAddPrivilege() throws SearchLibException {
 		if (selectedIndex != null)
-			user.addRole(selectedIndex.getIndexName(), selectedRole);
+			user.addRole(selectedIndex, selectedRole);
 	}
 
 	@Command

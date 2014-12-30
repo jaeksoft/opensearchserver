@@ -154,10 +154,7 @@ public class Monitor {
 	}
 
 	public int getIndexCount() throws SearchLibException {
-		Set<ClientCatalogItem> clients = ClientCatalog.getClientCatalog(null);
-		if (clients == null)
-			return 0;
-		return clients.size();
+		return ClientCatalog.populateClientName(null, null, null);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException,

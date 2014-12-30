@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>[#include "inc/head.html"]
+</head>
+<body>
+	[#include "inc/nav.html"][#include "inc/messages.html"]
+	<div class="container-fluid">
+		<table class="table">
+			<tr>
+				<th>List of indices</th>
+				<th colspan="5">Crawler</th>
+				<th colspan="3">Scheduler</th>
+				<th colspan="2">Replication</th>
+				<th colspan="3">Information</th>
+				<th>Action</th>
+			</tr>
+			<tr>
+				<th>Name</th>
+				<th>Web</th>
+				<th>Db</th>
+				<th>File</th>
+				<th>Email</th>
+				<th>Rest</th>
+				<th>R</th>
+				<th>A</th>
+				<th>N</th>
+				<th>R</th>
+				<th>N</th>
+				<th>Doc</th>
+				<th>Updated</th>
+				<th>Size</th>
+				<th></th>
+			</tr>
+			[#list indexlist as item]
+			<tr>
+				<td><a href="?select=${item.indexName?url}">${item.indexName}</a></td>[#if
+				(item.client??)]
+				<td>${item.client.webCrawlMaster.status.name()!}</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>[#else]
+				<td colspan="10">&nbsp;</td>[/#if]
+				<td>${item.numDocs!}</td>
+				<td>${item.lastModifiedString!}</td>
+				<td>${item.sizeString!}</td>
+				<td><a href="?info=${item.indexName?url}"><button
+							type="button" class="btn btn-info btn-xs">info</button></a> <a
+					href="?del=${item.indexName?url}"><button type="button"
+							class="btn btn-danger btn-xs">delete</button></a></td>
+			</tr>
+			[/#list]
+		</table>
+	</div>
+	[#include "inc/foot.html"]
+</body>
+</html>

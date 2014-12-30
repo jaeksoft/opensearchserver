@@ -37,7 +37,6 @@ import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
@@ -207,15 +206,10 @@ public class CommandsController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			List<String> list = new ArrayList<String>(0);
-			String currentName = client.getIndexName();
-			for (ClientCatalogItem item : ClientCatalog
-					.getClientCatalog(getLoggedUser())) {
-				String v = item.getIndexName();
-				if (!v.equals(currentName))
-					list.add(v);
-			}
-			return list;
+			List<String> indices = new ArrayList<String>();
+			ClientCatalog.populateClientName(getLoggedUser(), indices,
+					client.getIndexName());
+			return indices;
 		}
 	}
 

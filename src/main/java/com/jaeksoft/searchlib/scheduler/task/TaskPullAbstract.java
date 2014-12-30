@@ -34,7 +34,6 @@ import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
@@ -86,11 +85,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 
 	protected void populateSourceIndexValues(Config config, List<String> values)
 			throws SearchLibException {
-		for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null)) {
-			String v = item.getIndexName();
-			if (!v.equals(config.getIndexName()))
-				values.add(v);
-		}
+		ClientCatalog.populateClientName(null, values, config.getIndexName());
 	}
 
 	protected void populateFieldValues(Config config, List<String> values) {

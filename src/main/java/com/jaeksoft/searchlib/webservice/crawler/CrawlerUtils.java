@@ -24,7 +24,7 @@
 package com.jaeksoft.searchlib.webservice.crawler;
 
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.web.WebCrawlerServlet.InfoStatus;
+import com.jaeksoft.searchlib.web.servlet.restv1.WebCrawlerServlet.InfoStatus;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class CrawlerUtils {

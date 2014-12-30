@@ -58,7 +58,7 @@ public enum CrawlStatus {
 
 	WAITING_CHILD("Waiting for child processes to terminate");
 
-	public String name;
+	private final String name;
 
 	private CrawlStatus(String name) {
 		this.name = name;

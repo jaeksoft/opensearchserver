@@ -45,9 +45,9 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.web.ScreenshotServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
+import com.jaeksoft.searchlib.web.servlet.restv1.ScreenshotServlet;
 
 @AfterCompose(superclass = true)
 public class ScreenshotController extends CrawlerController {

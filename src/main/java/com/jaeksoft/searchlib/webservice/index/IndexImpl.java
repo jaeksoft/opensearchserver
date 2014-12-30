@@ -33,7 +33,6 @@ import javax.naming.NamingException;
 import javax.ws.rs.core.Response.Status;
 
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexType;
@@ -108,9 +107,7 @@ public class IndexImpl extends CommonServices implements RestIndex {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<String> indexList = new ArrayList<String>();
-			for (ClientCatalogItem catalogItem : ClientCatalog
-					.getClientCatalog(user))
-				indexList.add(catalogItem.getIndexName());
+			ClientCatalog.populateClientName(user, indexList, null);
 			return new ResultIndexList(true, indexList);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);

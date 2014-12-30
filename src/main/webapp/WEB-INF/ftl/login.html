@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><#include "inc/head.html">
+</head>
+<body>
+	<#include "inc/nav.html"/> <#include "inc/messages.html"/>
+	<div class="container">
+		<div class="login text-center">
+			<form id="form" name="form" method="post" role="form"
+				class="vertical-form">
+				<img alt="OpenSearchServer Logo"
+					src="${request.contextPath}/images/oss_logo.png" />
+				<h4 class="text-center">
+					WELCOME TO <span class="text-info">OPENSEARCHSERVER</span>
+				</h4>
+				<br /> <input value="" name="login" placeholder="Login" type="text"
+					autofocus="autofocus" class="form-control text-center"
+					required="required" /><input name="password"
+					placeholder="Password" type="password"
+					class="form-control text-center" required="required" />
+				<button type="submit" class="btn btn-primary btn-block">LOG
+					IN</button>
+			</form>
+		</div>
+	</div>
+	<#include "inc/foot.html"/>
+</body>
+</html>

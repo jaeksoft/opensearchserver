@@ -29,7 +29,6 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.SearchLibException.AbortException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -80,8 +79,7 @@ public class TaskOtherScheduler extends TaskAbstract {
 			throws SearchLibException {
 		List<String> nameList = new ArrayList<String>(0);
 		if (propertyDef == propIndexName) {
-			for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null))
-				nameList.add(item.getIndexName());
+			ClientCatalog.populateClientName(null, nameList, null);
 		} else if (propertyDef == propSchedulerName) {
 			String indexName = properties.getValue(propIndexName);
 			Client indexClient = ClientCatalog.getClient(indexName);

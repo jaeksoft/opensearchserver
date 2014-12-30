@@ -48,9 +48,9 @@ import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.api.OpenSearchApi;
 import com.jaeksoft.searchlib.api.OpenSearchTypes;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.web.SearchServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.servlet.restv1.SearchServlet;
 
 @AfterCompose(superclass = true)
 public class OpenSearchController extends CommonController {

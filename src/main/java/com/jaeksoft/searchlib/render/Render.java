@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.render;
 
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
 public interface Render {
 
