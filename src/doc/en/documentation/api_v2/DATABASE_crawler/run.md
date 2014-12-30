@@ -40,8 +40,8 @@ The crawl has been executed.
 **Content (application/json):**
 
     {
-        "successful": true,
-        "info": "STARTING"
+      "successful": true,
+      "info": "5 document(s) indexed"
     }
     
 
