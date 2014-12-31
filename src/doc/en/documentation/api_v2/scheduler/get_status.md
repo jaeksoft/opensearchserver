@@ -1,6 +1,6 @@
-## Getting the status of a job of scheduler
+## Getting the status of a task in the scheduler
 
-Use this API to retrieve last status for a job of scheduler.
+Use this API to retrieve the last status of a task in the scheduler.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -20,7 +20,7 @@ Use this API to retrieve last status for a job of scheduler.
 - _**index_name**_ (required): The name of the index.
 
 ### Success response
-Information about this job.
+Information about this task.
 
 **HTTP code:**
 200
