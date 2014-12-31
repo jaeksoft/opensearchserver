@@ -35,8 +35,7 @@
 				<toolbar>
 					<hbox align="center">
 						<label value="@load(viewer.message)" />
-						<progressmeter
-							visible="@load(viewer.downloading)"
+						<label visible="@load(viewer.downloading)"
 							value="@load(viewer.downloadPercent)" />
 					</hbox>
 				</toolbar>
