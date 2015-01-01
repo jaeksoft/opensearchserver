@@ -5,57 +5,45 @@
 <body>
 	[#include "inc/nav.html"][#include "inc/messages.html"]
 	<div class="container-fluid">
-		<table class="table">
-			<tr>
-				<th>List of indices</th>
-				<th colspan="5">Crawler</th>
-				<th colspan="3">Scheduler</th>
-				<th colspan="2">Replication</th>
-				<th colspan="3">Information</th>
-				<th>Action</th>
-			</tr>
+		<table class="table table-condensed table-hover table-striped">
 			<tr>
 				<th>Name</th>
-				<th>Web</th>
-				<th>Db</th>
-				<th>File</th>
-				<th>Email</th>
-				<th>Rest</th>
-				<th>R</th>
-				<th>A</th>
-				<th>N</th>
-				<th>R</th>
-				<th>N</th>
-				<th>Doc</th>
+				<th>Loaded</th>
+				<th>Doc count</th>
 				<th>Updated</th>
 				<th>Size</th>
-				<th></th>
+				<th>Threads</th>
+				<th>Action</th>
 			</tr>
 			[#list indexlist as item]
 			<tr>
-				<td><a href="?select=${item.indexName?url}">${item.indexName}</a></td>[#if
-				(item.client??)]
-				<td>${item.client.webCrawlMaster.status.name()!}</td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>[#else]
-				<td colspan="10">&nbsp;</td>[/#if]
+				<td><a href="?select=${item.indexName?url}&page=${page}">${item.indexName}</a></td>
+				<td>${item.loaded?c}</td>
 				<td>${item.numDocs!}</td>
-				<td>${item.lastModifiedString!}</td>
-				<td>${item.sizeString!}</td>
-				<td><a href="?info=${item.indexName?url}"><button
+				<td>[#if
+					item.lastModified??]${item.lastModified?datetime}[/#if]</td>
+				<td>${item.humanSize!}</td>
+				<td>${item.threadCount!}</td>
+				<td><a href="?info=${item.indexName?url}&page=${page}"><button
 							type="button" class="btn btn-info btn-xs">info</button></a> <a
-					href="?del=${item.indexName?url}"><button type="button"
-							class="btn btn-danger btn-xs">delete</button></a></td>
+					href="?del=${item.indexName?url}&page=${page}"><button
+							type="button" class="btn btn-danger btn-xs">delete</button></a></td>
 			</tr>
 			[/#list]
 		</table>
+		<nav class="text-center">
+			<ul class="pagination pagination-sm">
+				[#if page > 0]
+				<li class="disabled"><a href="?page=${page - 1}"
+					aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+				[/#if] [#list 0..pagenumber as i]
+				<li [#if page=i]class="active"[/#if]><a href="?page=${i}">${i+1}
+						<span class="sr-only">(current)</span>
+				</a></li>[/#list] [#if page < pagenumber]
+				<li class="disabled"><a href="?page=${page + 1}"
+					aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>[/#if]
+			</ul>
+		</nav>
 	</div>
 	[#include "inc/foot.html"]
 </body>

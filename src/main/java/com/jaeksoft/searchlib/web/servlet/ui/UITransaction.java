@@ -30,6 +30,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
+
 import freemarker.template.TemplateException;
 
 class UITransaction {
@@ -59,4 +61,43 @@ class UITransaction {
 		TemplateManager.INSTANCE.template(templatePath, variables, response);
 	}
 
+	Integer getRequestParameterInteger(String name, Integer defaultValue) {
+		String s = request.getParameter(name);
+		if (s == null)
+			return defaultValue;
+		try {
+			return Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			session.addMessage(new UIMessage(Css.DANGER,
+					"Wrong parameters format (number expected): " + name));
+			return defaultValue;
+		}
+	}
+
+	Long getRequestParameterLong(String name, Long defaultValue) {
+		String s = request.getParameter(name);
+		if (s == null)
+			return defaultValue;
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			session.addMessage(new UIMessage(Css.DANGER,
+					"Wrong parameters format (number expected): " + name));
+			return defaultValue;
+		}
+	}
+
+	Boolean getRequestParameterBoolean(String name, Boolean defaultValue) {
+		String s = request.getParameter(name);
+		if (s == null)
+			return defaultValue;
+		try {
+			return s.equalsIgnoreCase("true") || s.equals("1")
+					|| s.equals("yes");
+		} catch (NumberFormatException e) {
+			session.addMessage(new UIMessage(Css.DANGER,
+					"Wrong parameters format (number expected): " + name));
+			return defaultValue;
+		}
+	}
 }

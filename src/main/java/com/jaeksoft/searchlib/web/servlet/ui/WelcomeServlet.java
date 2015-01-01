@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,8 @@
 package com.jaeksoft.searchlib.web.servlet.ui;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.servlet.annotation.WebServlet;
@@ -35,6 +36,7 @@ import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
+import com.jaeksoft.searchlib.webservice.index.IndexInfo;
 
 import freemarker.template.TemplateException;
 
@@ -58,13 +60,15 @@ public class WelcomeServlet extends AbstractUIServlet {
 			return;
 		}
 		@SuppressWarnings("unchecked")
-		Set<ClientCatalogItem> catalogItems = transaction.session.getAttribute(
-				UISession.Attributes.CLIENT_CATALOG, Set.class);
+		List<ClientCatalogItem> catalogItems = transaction.session
+				.getAttribute(UISession.Attributes.CLIENT_CATALOG, List.class);
+		if (transaction.getRequestParameterBoolean("refresh", false))
+			catalogItems = null;
 		if (catalogItems == null) {
 			TreeSet<String> indexList = new TreeSet<String>();
 			ClientCatalog.populateClientName(
 					transaction.session.getLoggedUser(), indexList, null);
-			catalogItems = new TreeSet<ClientCatalogItem>();
+			catalogItems = new ArrayList<ClientCatalogItem>(indexList.size());
 			for (String indexName : indexList)
 				catalogItems.add(new ClientCatalogItem(indexName));
 			transaction.session.setAttribute(
@@ -73,9 +77,11 @@ public class WelcomeServlet extends AbstractUIServlet {
 		String s;
 		if ((s = transaction.request.getParameter("info")) != null) {
 			ClientCatalogItem catalogItem = new ClientCatalogItem(s);
-			catalogItems.remove(catalogItem);
-			catalogItem.computeInfos();
-			catalogItems.add(catalogItem);
+			int i = catalogItems.indexOf(catalogItem);
+			if (i >= 0) {
+				catalogItems.set(i, catalogItem);
+				catalogItem.computeInfos();
+			}
 		}
 		try {
 			if ((s = transaction.request.getParameter("select")) != null) {
@@ -89,7 +95,20 @@ public class WelcomeServlet extends AbstractUIServlet {
 					.getMessage()));
 			Logging.error(e);
 		}
-		transaction.variables.put("indexlist", catalogItems);
+		int pageNumber = catalogItems.size() / 15;
+		Integer page = transaction.getRequestParameterInteger("page", 0);
+		if (page > pageNumber)
+			page = pageNumber;
+		int start = page * 15;
+		int end = start + 15;
+		if (end > catalogItems.size())
+			end = catalogItems.size();
+		List<IndexInfo> indexList = new ArrayList<IndexInfo>(end - start);
+		for (int i = start; i < end; i++)
+			indexList.add(new IndexInfo(catalogItems.get(i)));
+		transaction.variables.put("indexlist", indexList);
+		transaction.variables.put("pagenumber", pageNumber);
+		transaction.variables.put("page", page);
 		transaction.template(TEMPLATE);
 	}
 }

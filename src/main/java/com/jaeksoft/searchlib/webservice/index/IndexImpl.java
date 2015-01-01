@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,7 @@ import javax.naming.NamingException;
 import javax.ws.rs.core.Response.Status;
 
 import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexType;
@@ -109,6 +110,28 @@ public class IndexImpl extends CommonServices implements RestIndex {
 			List<String> indexList = new ArrayList<String>();
 			ClientCatalog.populateClientName(user, indexList, null);
 			return new ResultIndexList(true, indexList);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public ResultIndex getIndex(String login, String key, String name,
+			Boolean infos) {
+		try {
+			User user = getLoggedUser(login, key);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (!ClientCatalog.exists(user, name))
+				throw new CommonServiceException(Status.NOT_FOUND, "The index "
+						+ name + " has not been found");
+			ClientCatalogItem clientCatalogItem = new ClientCatalogItem(name);
+			if (infos != null && infos)
+				clientCatalogItem.computeInfos();
+			return new ResultIndex(clientCatalogItem);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

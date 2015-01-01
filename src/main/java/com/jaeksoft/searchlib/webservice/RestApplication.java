@@ -25,7 +25,9 @@
 package com.jaeksoft.searchlib.webservice;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -33,6 +35,8 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.user.User;
@@ -48,10 +52,18 @@ public class RestApplication extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		classes.add(RestException.class);
-		classes.add(JacksonJsonProvider.class);
+		classes.add(JsonProvider.class);
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			classes.add(webServiceEnum.getServiceClass());
 		return classes;
+	}
+
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put("SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS",
+				true);
+		return properties;
 	}
 
 	public static String getRestURL(String path, User user, Client client,
@@ -82,5 +94,20 @@ public class RestApplication extends Application {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static class JsonProvider extends JacksonJsonProvider {
+
+		private final static ObjectMapper mapper;
+
+		static {
+			mapper = new ObjectMapper();
+			mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+					false);
+		}
+
+		public JsonProvider() {
+			super(mapper);
+		}
 	}
 }

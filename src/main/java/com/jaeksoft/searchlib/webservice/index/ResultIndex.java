@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,28 +23,35 @@
  **/
 package com.jaeksoft.searchlib.webservice.index;
 
-import java.util.List;
+import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.ClientCatalogItem;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
-public class ResultIndexList extends CommonResult {
+@JsonInclude(Include.NON_EMPTY)
+public class ResultIndex extends CommonResult {
 
-	@XmlElement(name = "index")
-	final public List<String> indexList;
+	final public String name;
+	final public IndexInfo infos;
 
-	public ResultIndexList() {
-		indexList = null;
+	public ResultIndex() {
+		name = null;
+		infos = null;
 	}
 
-	public ResultIndexList(Boolean successful, List<String> indexList) {
-		super(successful, indexList.size() + " index(es)");
-		this.indexList = indexList;
+	public ResultIndex(ClientCatalogItem clientCatalogItem) throws IOException,
+			SearchLibException {
+		super(true, null);
+		name = clientCatalogItem.getIndexName();
+		this.infos = new IndexInfo(clientCatalogItem);
 	}
 }
