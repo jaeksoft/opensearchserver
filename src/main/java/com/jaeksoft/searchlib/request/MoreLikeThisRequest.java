@@ -57,7 +57,7 @@ import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
 public class MoreLikeThisRequest extends AbstractRequest implements
 		RequestInterfaces.FilterListInterface,

@@ -56,7 +56,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.RendererServlet;
+import com.jaeksoft.searchlib.web.servlet.restv1.RendererServlet;
 
 public class Renderer implements Comparable<Renderer> {
 

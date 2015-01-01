@@ -26,9 +26,12 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
+import com.jaeksoft.searchlib.util.StringUtils;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
@@ -54,10 +57,16 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		}
 	}
 
-	public long getSize() {
+	public Long getSize() {
 		if (lastModifiedAndSize == null)
-			return -1;
+			return null;
 		return lastModifiedAndSize.getSize();
+	}
+
+	public String getSizeString() {
+		if (lastModifiedAndSize == null)
+			return null;
+		return StringUtils.humanBytes(lastModifiedAndSize.getSize());
 	}
 
 	public Integer getNumDocs() throws IOException, SearchLibException {
@@ -70,10 +79,24 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return (int) stats.getNumDocs();
 	}
 
-	public long getLastModified() {
+	public Long getLastModified() {
 		if (lastModifiedAndSize == null)
-			return -1;
+			return null;
 		return lastModifiedAndSize.getLastModified();
+	}
+
+	public Date getLastModifiedDate() {
+		if (lastModifiedAndSize == null)
+			return null;
+		return new Date(lastModifiedAndSize.getLastModified());
+	}
+
+	public String getLastModifiedString() {
+		Date dt = getLastModifiedDate();
+		if (dt == null)
+			return null;
+		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
+				DateFormat.MEDIUM).format(dt);
 	}
 
 	public File getLastModifiedFile() {

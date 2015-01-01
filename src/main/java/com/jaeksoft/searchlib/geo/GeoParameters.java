@@ -32,7 +32,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
 public class GeoParameters implements Comparable<GeoParameters> {
 

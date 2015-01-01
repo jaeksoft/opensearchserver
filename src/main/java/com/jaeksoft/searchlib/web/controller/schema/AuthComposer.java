@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.web.controller.schema;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.zkoss.bind.annotation.AfterCompose;
@@ -35,7 +34,6 @@ import org.zkoss.bind.annotation.Command;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.web.controller.CommonController;
@@ -65,13 +63,9 @@ public class AuthComposer extends CommonController {
 	}
 
 	public List<String> getIndexList() throws SearchLibException {
-		List<String> indexes = new ArrayList<String>();
-		Set<ClientCatalogItem> clientCatalog = ClientCatalog
-				.getClientCatalog(getLoggedUser());
-		if (clientCatalog != null)
-			for (ClientCatalogItem item : clientCatalog)
-				indexes.add(item.getIndexName());
-		return indexes;
+		List<String> indices = new ArrayList<String>();
+		ClientCatalog.populateClientName(getLoggedUser(), indices, null);
+		return indices;
 	}
 
 	@Override

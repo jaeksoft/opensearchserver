@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,7 +25,9 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 
@@ -52,7 +54,7 @@ public class HomeController extends CommonController {
 
 	private IndexType indexType;
 
-	private Set<ClientCatalogItem> catalogItems;
+	private List<ClientCatalogItem> catalogItems;
 
 	private ClientCatalogItem selectedClientCatalogItem;
 
@@ -68,10 +70,15 @@ public class HomeController extends CommonController {
 		catalogItems = null;
 	}
 
-	public Set<ClientCatalogItem> getClientCatalog() throws SearchLibException {
+	public List<ClientCatalogItem> getClientCatalog() throws SearchLibException {
 		if (catalogItems != null)
 			return catalogItems;
-		catalogItems = ClientCatalog.getClientCatalog(getLoggedUser());
+		TreeSet<String> indexCollection = new TreeSet<String>();
+		ClientCatalog
+				.populateClientName(getLoggedUser(), indexCollection, null);
+		catalogItems = new ArrayList<ClientCatalogItem>();
+		for (String indexName : indexCollection)
+			catalogItems.add(new ClientCatalogItem(indexName));
 		return catalogItems;
 	}
 

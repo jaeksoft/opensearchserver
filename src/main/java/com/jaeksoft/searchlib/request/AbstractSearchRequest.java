@@ -82,7 +82,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public abstract class AbstractSearchRequest extends AbstractRequest implements

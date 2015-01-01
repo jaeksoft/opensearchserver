@@ -47,7 +47,7 @@ public class UserList {
 
 	private User firstAdmin;
 
-	private Map<String, User> users;
+	private final Map<String, User> users;
 
 	private String key;
 

@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.web.ActionServlet;
+import com.jaeksoft.searchlib.web.servlet.restv1.ActionServlet;
 
 public class ClusterNotification {
 

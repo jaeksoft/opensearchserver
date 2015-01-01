@@ -28,7 +28,7 @@ import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderJsp;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
 public abstract class AbstractResult<T extends AbstractRequest> {
 

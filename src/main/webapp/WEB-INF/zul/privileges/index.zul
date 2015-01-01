@@ -82,10 +82,10 @@
 								selectedItem="@bind(privileges.selectedIndex)"
 								model="@load(privileges.indexList)">
 								<template name="model"
-									var="catalogitem">
+									var="indexName">
 									<listitem>
 										<listcell
-											label="@load(catalogitem.indexName)" />
+											label="@load(indexName)" />
 									</listitem>
 								</template>
 							</listbox>

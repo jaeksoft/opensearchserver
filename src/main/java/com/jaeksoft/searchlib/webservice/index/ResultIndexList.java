@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -35,6 +36,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @XmlRootElement(name = "result")
 public class ResultIndexList extends CommonResult {
 
+	@XmlElement(name = "index")
 	final public List<String> indexList;
 
 	public ResultIndexList() {

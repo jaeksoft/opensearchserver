@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib.render;
 
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
 public class RenderJsp implements Render {
 

@@ -39,7 +39,6 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -57,8 +56,7 @@ public class Logging {
 
 	private static void configure() {
 		try {
-			PropertyConfigurator.configure(getLoggerProperties(ClusterManager
-					.getInstanceId()));
+			PropertyConfigurator.configure(getLoggerProperties());
 		} catch (Exception e) {
 			BasicConfigurator.configure();
 			e.printStackTrace();
@@ -76,7 +74,7 @@ public class Logging {
 		return dirLog.listFiles();
 	}
 
-	private final static Properties getLoggerProperties(String instanceId)
+	private final static Properties getLoggerProperties()
 			throws SearchLibException {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
@@ -88,8 +86,8 @@ public class Logging {
 			props.put("log4j.rootLogger", "INFO, R");
 		props.put("log4j.appender.R",
 				"org.apache.log4j.DailyRollingFileAppender");
-		String logPath = StringUtils.fastConcat("logs", File.separator, "oss.",
-				instanceId, ".log");
+		String logPath = StringUtils.fastConcat("logs", File.separator,
+				"oss.log");
 		File logFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 				logPath);
 		props.put("log4j.appender.R.File", logFile.getAbsolutePath());

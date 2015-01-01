@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
-import com.jaeksoft.searchlib.web.PushServlet;
+import com.jaeksoft.searchlib.web.servlet.restv1.PushServlet;
 
 public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 		implements RecursiveDirectoryBrowser.CallBack {

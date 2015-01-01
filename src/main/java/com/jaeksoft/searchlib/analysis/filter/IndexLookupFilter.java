@@ -38,7 +38,6 @@ import org.apache.lucene.search.TermQuery;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -65,8 +64,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		List<String> values = new ArrayList<String>(0);
-		for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null))
-			values.add(item.getIndexName());
+		ClientCatalog.populateClientName(null, values, null);
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray(), 0, 0);
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.REQUESTED_FIELD, "", null, 20, 1);

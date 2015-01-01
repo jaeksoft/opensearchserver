@@ -1,0 +1,30 @@
+<nav class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed"
+				data-toggle="collapse" data-target="#oss-navbar">
+				<span class="sr-only">Toggle navigation</span> <span
+					class="icon-bar"></span> <span class="icon-bar"></span> <span
+					class="icon-bar"></span>
+			</button>
+			<img alt="Brand" src="${request.contextPath}/images/oss_logo_48.png" />
+		</div>
+		<div class="collapse navbar-collapse" id="oss-navbar">
+			<ul class="nav navbar-nav">
+				<li [#if request.servletPath="/ui" ]class="active"[/#if]><a
+					href="${request.contextPath}/">OpenSearchServer</a></li>
+				<li><a href="http://www.opensearchserver.com/documentation">Documentation</a></li>
+				<li><a href="http://www.opensearchserver.com/#support">Support</a></li>
+			</ul>
+			[#if !session.noUsers]
+			<ul class="nav navbar-nav navbar-right">
+				[#if !session.logged]
+				<li [#if request.servletPath="/ui/login" ]class="active"[/#if]><a
+					href="${request.contextPath}/ui/login">Log in </a></li> [#else]
+				<li><a href="${request.contextPath}/ui/logout">Log out </a></li>
+				[/#if]
+			</ul>
+			[/#if]
+		</div>
+	</div>
+</nav>

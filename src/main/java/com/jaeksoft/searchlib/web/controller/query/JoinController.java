@@ -36,7 +36,6 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterAbstract.FilterType;
@@ -115,10 +114,8 @@ public class JoinController extends AbstractQueryController {
 	}
 
 	public List<String> getIndexList() throws SearchLibException {
-		List<String> indexList = new ArrayList<String>(0);
-		for (ClientCatalogItem item : ClientCatalog
-				.getClientCatalog(getLoggedUser()))
-			indexList.add(item.getIndexName());
+		List<String> indexList = new ArrayList<String>();
+		ClientCatalog.populateClientName(getLoggedUser(), indexList, null);
 		return indexList;
 	}
 

@@ -42,10 +42,10 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
+import com.jaeksoft.searchlib.web.servlet.restv1.AbstractServlet;
 
 @AfterCompose(superclass = true)
 public class DeleteController extends CommonController {

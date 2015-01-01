@@ -126,7 +126,7 @@
 						<listcell
 							label="@load(item.lastThread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
 						<listcell>
-							<progressmeter width="95%"
+							<label width="95%"
 								visible="@load(item.lastThread.running)"
 								value="@load(item.lastThread.progress)" />
 						</listcell>

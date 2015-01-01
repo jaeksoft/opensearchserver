@@ -60,9 +60,9 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.web.AbstractServlet;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
+import com.jaeksoft.searchlib.web.servlet.restv1.AbstractServlet;
 
 public abstract class CommonController implements EventInterface,
 		EventListener<Event> {

@@ -32,7 +32,6 @@ import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
@@ -48,8 +47,7 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		List<String> values = new ArrayList<String>(0);
-		for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null))
-			values.add(item.getIndexName());
+		ClientCatalog.populateClientName(null, values, null);
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray(), 0, 0);
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null, 30, 1);

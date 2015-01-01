@@ -41,8 +41,8 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.PushServlet;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import com.jaeksoft.searchlib.web.servlet.restv1.PushServlet;
 
 public class ReplicationItem extends
 		ThreadItem<ReplicationItem, ReplicationThread> {

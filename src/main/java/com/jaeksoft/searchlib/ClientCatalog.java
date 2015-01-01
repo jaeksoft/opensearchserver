@@ -30,7 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Set;
+import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +52,6 @@ import com.jaeksoft.searchlib.cluster.ClusterNotification;
 import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
-import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
@@ -254,23 +253,28 @@ public class ClientCatalog {
 			PushEvent.eventClientSwitch.publish(client);
 	}
 
-	public static final Set<ClientCatalogItem> getClientCatalog(User user)
-			throws SearchLibException {
+	public static final int populateClientName(User user,
+			Collection<String> indexCollection, String exclude) {
 		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
 				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
 		if (files == null)
-			return null;
+			return 0;
+		int count = 0;
 		for (File file : files) {
 			if (!file.isDirectory())
 				continue;
 			String indexName = file.getName();
 			if (!isValidIndexName(indexName))
 				continue;
-			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX))
-				set.add(new ClientCatalogItem(indexName));
+			if (exclude != null && exclude.equals(indexName))
+				continue;
+			if (user == null || user.hasAnyRole(indexName, Role.GROUP_INDEX)) {
+				if (indexCollection != null)
+					indexCollection.add(indexName);
+				count++;
+			}
 		}
-		return set;
+		return count;
 	}
 
 	/**
@@ -293,8 +297,9 @@ public class ClientCatalog {
 		if (!isValidIndexName(indexName))
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
-		return getClientCatalog(null)
-				.contains(new ClientCatalogItem(indexName));
+		TreeSet<String> set = new TreeSet<String>();
+		populateClientName(null, set, null);
+		return set.contains(indexName);
 	}
 
 	public static synchronized final OcrManager getOcrManager()
