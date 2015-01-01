@@ -1,6 +1,6 @@
-## Running a job of scheduler
+## Running a task in the Scheduler
 
-Use this API to run a job of scheduler.
+Use this API to run a task in the Scheduler.
 
 **Requirement:** OpenSearchServer v1.5
 
@@ -23,7 +23,7 @@ Use this API to run a job of scheduler.
 
 **Body of request:**
 
-Variables can be sent to the job of scheduler, which will in turn give them to the tasks which need them (like the `Database crawler - run` task). Variables must be given as a JSON array.
+Variables can be sent to the Scheduler, which will pass them on to the relevant tasks (like the `Database crawler - run` task). Variables must be given as a JSON array.
 
 ```json
     {
@@ -31,7 +31,7 @@ Variables can be sent to the job of scheduler, which will in turn give them to t
     }
 ``` 
 
-Empty variable can be sent as empty string:
+Empty variables can be given as an empty string:
 
 ```json
     {
@@ -41,7 +41,7 @@ Empty variable can be sent as empty string:
 
 
 ### Success response
-The job of scheduler has been started. Status is returned.
+The task in the Scheduler has been started. Its status is returned.
 
 **HTTP code:**
 200

@@ -6,15 +6,15 @@ Using this image allows for the quick creation of any number of parallel systems
 
 ### Run a container
 
-`/path/to/local/folder` must be a directory, and must contain a directory named `opensearchserver/data`. **This is the directory that will be used by OpenSearchServer as its data folder**.
+In the command line below, `/path/to/local/folder` must be a directory, which must contain a directory named `opensearchserver/data`. **This is the directory that will be used by OpenSearchServer as its data folder**.
 
     docker run -d -P -v </path/to/local/folder>:/srv alexandretoyer/opensearchserver
 
-* parameter `-d` tells docker to daemonize this container (so it runs in the background)
-* parameter `-P` tells docker to map those ports exposed in the container
+* parameter `-d` tells Docker to daemonize this container (so it runs in the background)
+* parameter `-P` tells Docker to map those ports exposed in the container
 * parameter `-v` is used to map a local folder to the `/srv` folder within the container
 
-#### Configure memory
+#### Configure the memory allocation
 
 To determine how much memory OpenSearchServer can access, you can set the variable called `MEMORY`.
 
@@ -22,34 +22,34 @@ Its value can be expressed using these three units - `k`, `m` or `g`. For instan
 
     docker run -d -P -v </path/to/local/folder>:/srv -e MEMORY=4g alexandretoyer/opensearchserver
 
-### Get the port used by Docker
+### Determine the port used by Docker
 
     docker ps -l
 
-Here is an output example for this:
+Here is a typical output for this command:
 
     CONTAINER ID        IMAGE                                    COMMAND                CREATED             STATUS              PORTS                     NAMES
     3b49cb1c7fed        alexandretoyer/opensearchserver:latest   /bin/sh -c '/start_o   23 minutes ago      Up 23 minutes       0.0.0.0:49185->9090/tcp   backstabbing_mayer
 
-The value in the `PORTS` column is the port to use. In this example it's `49185`.
+The value in the `PORTS` column is the port to use. In this example it is port `49185`.
 
-#### Use a particular port
+#### Using a particular port
 
-Instead of using option `-P` one can use option `-p` with parameters `<public port>:<exposed port>`. For example: 
+Instead of using option `-P` one can use option `-p` with the additional parameters `<public port>:<exposed port>`. For example: 
 
     docker run -d -p 9091:9090 -v </path/to/local/folder>:/srv -e MEMORY=4g alexandretoyer/opensearchserver
 
-This would allow OpenSearchServer to be accessed with port 9091.
+This would allow OpenSearchServer to be accessed through port 9091.
 
 ### Give a specific name to the container
 
-A name can be given to the container with option `--name`. For example:
+A name can be given to the container by using the `--name` option. For example:
 
     docker run --name oss -d -P -v </path/to/local/folder>:/srv -e MEMORY=4g alexandretoyer/opensearchserver
 
 ### Open a browser to access OpenSearchServer
 
-Browse to `127.0.0.1:<port used by docker>`. In the above example: `127.0.0.1:49185`.
+Browse to `127.0.0.1:<port used by Docker>`. In the above example that would be: `127.0.0.1:49185`.
 
 
 OpenSearchServer now runs within a Docker container:
@@ -61,9 +61,9 @@ The data folder is stored on the host system. For instance, after having created
 
 ![OpenSearchServer and Docker](docker_oss_2.png)
 
-#### When using boot2docker
+#### When using Boot2docker
 
-Start by using the command `boot2docker ip` to know which IP address is used by boot2docker. Then use this IP address and the port used by Docker to access OpenSearchServer. For example - `192.168.59.103:49185`.
+Start by using the command `boot2docker ip` to know which IP address is used by Boot2docker. Then use this IP address and the port used by Docker to access OpenSearchServer. For example - `192.168.59.103:49185`.
 
 ### Managing OpenSearchServer within a running container
 
@@ -71,7 +71,7 @@ It may be useful to manage an OpenSearchServer instance that is embedded within 
 
 To do so use [jpetazzo/nsenter program](https://github.com/jpetazzo/nsenter).
 
-In this example (which uses _boot2docker_ on a Windows system), a container gets created and is then accessed to stop and restart OpenSearchServer:
+In this example (which uses _Boot2docker_ on a Windows system), a container gets created and is then accessed to stop and restart OpenSearchServer:
 
     docker@boot2docker:~/DockerOSS$ docker run -P -d -v ~/DockerOSS/OSS1:/srv alexandretoyer/opensearchserver
     3e9442f18a6abe12513e12ddd8206f1c2e3008912039202b0bd631f4923b78c0
@@ -131,15 +131,14 @@ Indexes are created within two different folders, like this:
 
 ## FAQ
 
-#### When trying to create an index I get error `Exception inconnue: java.lang.NullPointerException.`
+#### When trying to create an index I get the following error: `Exception inconnue: java.lang.NullPointerException.`
 * Try running the container with more memory (for example `-e MEMORY=2g`).
-* Check that directory `opensearchserver/data` (mapped to `/srv`) has succifient permission.
+* Check that the `opensearchserver/data` directory (mapped to `/srv`) has sufficient access rights.
 
 
 #### When accessing OpenSearchServer's interface I see a red message saying `There is an issue with the data directory. Please check that the OPENSEARCHSERVER_DATA environment variable points to a valid directory.`
-
-* Check that container has been run with a correct mapping between a local folder and `/srv`. This local folder must contain a directory named `opensearchserver` and this `opensearchserver` directory must contain a directory named `data`.
-* Check that directory `opensearchserver/data` has succifient permission.
+* Check that this container is running using a correct mapping between a local folder and `/srv`. This local folder must contain a directory named `opensearchserver` and this `opensearchserver` directory must contain a directory named `data`.
+* Check that the `opensearchserver/data` directory has sufficient access rights.
 
 ---
 
