@@ -37,17 +37,17 @@ import com.jaeksoft.searchlib.webservice.index.IndexInfo;
 
 import freemarker.template.TemplateException;
 
-@WebServlet(urlPatterns = { "/ui" })
-public class WelcomeServlet extends AbstractUIServlet {
+@WebServlet(urlPatterns = { "/ui/indices" })
+public class IndicesServlet extends AbstractUIServlet {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7046086366628095949L;
 
-	public final static String TEMPLATE = "welcome.ftl";
+	public final static String TEMPLATE = "indices.ftl";
 
-	public final static String PATH = "/ui";
+	public final static String PATH = "/ui/indices";
 
 	@Override
 	protected void service(UITransaction transaction) throws IOException,

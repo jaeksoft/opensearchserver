@@ -53,7 +53,7 @@ public class LoginServlet extends AbstractUIServlet {
 			TemplateException {
 		if (ClientCatalog.getUserList().isEmpty()
 				|| transaction.session.getLoggedUser() != null) {
-			transaction.redirectContext(WelcomeServlet.PATH);
+			transaction.redirectContext(ClusterServlet.PATH);
 			return;
 		}
 		if ("post".equalsIgnoreCase(transaction.request.getMethod())) {
@@ -68,7 +68,7 @@ public class LoginServlet extends AbstractUIServlet {
 				return;
 			}
 			transaction.session.setLoggedUser(user);
-			transaction.redirectContext(WelcomeServlet.PATH);
+			transaction.redirectContext(ClusterServlet.PATH);
 			return;
 		}
 		transaction.template(TEMPLATE);

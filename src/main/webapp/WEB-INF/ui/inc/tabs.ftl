@@ -10,7 +10,9 @@ language governing permissions and limitations under the License. --]
 <div class="container-fluid">
 	<ul class="nav nav-tabs nav-pills">
 		<li role="presentation"[#if request.servletPath="/ui"] class="active"[/#if]>
-			<a href="${request.contextPath}/ui">Indices</a></li>
+			<a href="${request.contextPath}/ui">Cluster</a></li>
+		<li role="presentation"[#if request.servletPath="/ui/indices"] class="active"[/#if]>
+			<a href="${request.contextPath}/ui/indices">Indices</a></li>
 		<li role="presentation"[#if request.servletPath="/ui/queries"] class="active"[/#if]>
 			<a href="${request.contextPath}/ui/queries">Queries</a></li>
 		<li role="presentation"[#if request.servletPath="/ui/analyzers"] class="active"[/#if]>
@@ -44,6 +46,8 @@ language governing permissions and limitations under the License. --]
 			href="${request.contextPath}/ui/classifiers">Classifiers</a></li>
 		<li role="presentation"[#if request.servletPath="/ui/affinities"] class="active"[/#if]><a
 			href="${request.contextPath}/ui/affinities">Affinities</a></li>
+		<li role="presentation"[#if request.servletPath="/ui/users"] class="active"[/#if]>
+			<a href="${request.contextPath}/ui/users">Users</a></li>
 	</ul>
 	<br />
 </div>
