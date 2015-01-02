@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,19 +27,25 @@ import java.io.IOException;
 
 import javax.servlet.annotation.WebServlet;
 
-@WebServlet(urlPatterns = { "/ui/logout" })
-public class LogoutServlet extends AbstractUIServlet {
+import com.jaeksoft.searchlib.SearchLibException;
+
+import freemarker.template.TemplateException;
+
+@WebServlet(urlPatterns = { "/ui", "/ui/" })
+public class ClusterServlet extends AbstractUIServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3224561259138243673L;
+	private static final long serialVersionUID = -7812343371229063879L;
 
-	public static final String PATH = "/ui/logout";
+	public final static String TEMPLATE = "cluster.ftl";
+
+	public final static String PATH = "/ui";
 
 	@Override
-	protected void service(UITransaction transaction) throws IOException {
-		transaction.session.setLoggedUser(null);
-		transaction.redirectContext(LoginServlet.PATH);
+	protected void service(UITransaction transaction) throws IOException,
+			TemplateException, SearchLibException {
+		transaction.template(TEMPLATE);
 	}
 }

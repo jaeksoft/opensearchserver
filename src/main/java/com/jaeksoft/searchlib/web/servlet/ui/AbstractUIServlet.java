@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,15 +38,30 @@ public abstract class AbstractUIServlet extends HttpServlet {
 
 	protected abstract void service(UITransaction transaction) throws Exception;
 
+	private final boolean requireLogging;
+
+	protected AbstractUIServlet() {
+		requireLogging = true;
+	}
+
+	protected AbstractUIServlet(boolean requireLogging) {
+		this.requireLogging = requireLogging;
+	}
+
 	@Override
 	final public void service(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 		try {
 			UITransaction transaction = new UITransaction(request, response);
+			if (requireLogging) {
+				if (!transaction.session.isLogged()) {
+					transaction.redirectContext(LoginServlet.PATH);
+					return;
+				}
+			}
 			service(transaction);
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
-
 }

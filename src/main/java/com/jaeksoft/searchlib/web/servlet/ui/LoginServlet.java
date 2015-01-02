@@ -39,9 +39,13 @@ public class LoginServlet extends AbstractUIServlet {
 
 	private static final long serialVersionUID = 7046086366628095949L;
 
-	public static final String TEMPLATE = "login.html";
+	public static final String TEMPLATE = "login.ftl";
 
 	public static final String PATH = "/ui/login";
+
+	public LoginServlet() {
+		super(false);
+	}
 
 	@Override
 	protected void service(UITransaction transaction)
@@ -49,7 +53,7 @@ public class LoginServlet extends AbstractUIServlet {
 			TemplateException {
 		if (ClientCatalog.getUserList().isEmpty()
 				|| transaction.session.getLoggedUser() != null) {
-			transaction.redirectContext(WelcomeServlet.PATH);
+			transaction.redirectContext(ClusterServlet.PATH);
 			return;
 		}
 		if ("post".equalsIgnoreCase(transaction.request.getMethod())) {
@@ -64,7 +68,7 @@ public class LoginServlet extends AbstractUIServlet {
 				return;
 			}
 			transaction.session.setLoggedUser(user);
-			transaction.redirectContext(WelcomeServlet.PATH);
+			transaction.redirectContext(ClusterServlet.PATH);
 			return;
 		}
 		transaction.template(TEMPLATE);

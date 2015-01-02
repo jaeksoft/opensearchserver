@@ -30,14 +30,16 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
 
 import freemarker.template.TemplateException;
 
-class UITransaction {
+public class UITransaction {
 
 	final static String SERVLET_KEY = "request";
 	final static String SESSION_KEY = "session";
+	final static String VERSION_KEY = "version";
 
 	final HttpServletRequest request;
 	final HttpServletResponse response;
@@ -51,17 +53,19 @@ class UITransaction {
 		variables = new HashMap<String, Object>();
 		variables.put(SERVLET_KEY, request);
 		variables.put(SESSION_KEY, session);
+		variables.put(VERSION_KEY, StartStopListener.getVersion());
 	}
 
-	void redirectContext(String url) throws IOException {
+	public void redirectContext(String url) throws IOException {
 		response.sendRedirect(request.getContextPath() + url);
 	}
 
-	void template(String templatePath) throws IOException, TemplateException {
+	public void template(String templatePath) throws IOException,
+			TemplateException {
 		TemplateManager.INSTANCE.template(templatePath, variables, response);
 	}
 
-	Integer getRequestParameterInteger(String name, Integer defaultValue) {
+	public Integer getRequestParameterInteger(String name, Integer defaultValue) {
 		String s = request.getParameter(name);
 		if (s == null)
 			return defaultValue;
@@ -74,7 +78,7 @@ class UITransaction {
 		}
 	}
 
-	Long getRequestParameterLong(String name, Long defaultValue) {
+	public Long getRequestParameterLong(String name, Long defaultValue) {
 		String s = request.getParameter(name);
 		if (s == null)
 			return defaultValue;
@@ -87,7 +91,7 @@ class UITransaction {
 		}
 	}
 
-	Boolean getRequestParameterBoolean(String name, Boolean defaultValue) {
+	public Boolean getRequestParameterBoolean(String name, Boolean defaultValue) {
 		String s = request.getParameter(name);
 		if (s == null)
 			return defaultValue;
@@ -100,4 +104,5 @@ class UITransaction {
 			return defaultValue;
 		}
 	}
+
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,25 +21,20 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.web.servlet.ui;
 
-import java.io.IOException;
+package com.jaeksoft.searchlib.web.servlet;
 
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
-@WebServlet(urlPatterns = { "/ui/logout" })
-public class LogoutServlet extends AbstractUIServlet {
+import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+
+@WebServlet(loadOnStartup = 1, urlPatterns = { "/services/rest/*", "/rest/*" }, initParams = { @WebInitParam(name = "javax.ws.rs.Application", value = "com.jaeksoft.searchlib.webservice.RestApplication") })
+public class RestServlet extends CXFNonSpringJaxrsServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3224561259138243673L;
+	private static final long serialVersionUID = 4673061148192337149L;
 
-	public static final String PATH = "/ui/logout";
-
-	@Override
-	protected void service(UITransaction transaction) throws IOException {
-		transaction.session.setLoggedUser(null);
-		transaction.redirectContext(LoginServlet.PATH);
-	}
 }
