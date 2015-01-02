@@ -45,7 +45,7 @@ public class TemplateManager implements TemplateLoader {
 	private final long lastModified;
 	private final Configuration cfg;
 
-	protected final static String TEMPLATE_PREFIX = "/WEB-INF/ftl/";
+	protected final static String TEMPLATE_PREFIX = "/WEB-INF/ui/";
 
 	static public TemplateManager INSTANCE = null;
 

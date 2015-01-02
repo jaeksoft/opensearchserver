@@ -25,43 +25,27 @@ package com.jaeksoft.searchlib.web.servlet.ui;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.annotation.WebServlet;
 
-public abstract class AbstractUIServlet extends HttpServlet {
+import com.jaeksoft.searchlib.SearchLibException;
+
+import freemarker.template.TemplateException;
+
+@WebServlet(urlPatterns = { "/ui/analyzers" })
+public class AnalyzersServlet extends AbstractUIServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -9091818818966940410L;
+	private static final long serialVersionUID = 6323151986963875011L;
 
-	protected abstract void service(UITransaction transaction) throws Exception;
+	public final static String TEMPLATE = "analyzers.ftl";
 
-	private final boolean requireLogging;
-
-	protected AbstractUIServlet() {
-		requireLogging = true;
-	}
-
-	protected AbstractUIServlet(boolean requireLogging) {
-		this.requireLogging = requireLogging;
-	}
+	public final static String PATH = "/ui/analyzers";
 
 	@Override
-	final public void service(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		try {
-			UITransaction transaction = new UITransaction(request, response);
-			if (requireLogging) {
-				if (!transaction.session.isLogged()) {
-					transaction.redirectContext(LoginServlet.PATH);
-					return;
-				}
-			}
-			service(transaction);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+	protected void service(UITransaction transaction) throws IOException,
+			TemplateException, SearchLibException {
+		transaction.template(TEMPLATE);
 	}
 }

@@ -30,12 +30,9 @@ import java.util.TreeSet;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
 import com.jaeksoft.searchlib.webservice.index.IndexInfo;
 
 import freemarker.template.TemplateException;
@@ -48,17 +45,13 @@ public class WelcomeServlet extends AbstractUIServlet {
 	 */
 	private static final long serialVersionUID = 7046086366628095949L;
 
-	public final static String TEMPLATE = "index.html";
+	public final static String TEMPLATE = "welcome.ftl";
 
 	public final static String PATH = "/ui";
 
 	@Override
 	protected void service(UITransaction transaction) throws IOException,
 			TemplateException, SearchLibException {
-		if (!transaction.session.isLogged()) {
-			transaction.redirectContext(LoginServlet.PATH);
-			return;
-		}
 		@SuppressWarnings("unchecked")
 		List<ClientCatalogItem> catalogItems = transaction.session
 				.getAttribute(UISession.Attributes.CLIENT_CATALOG, List.class);
@@ -83,32 +76,15 @@ public class WelcomeServlet extends AbstractUIServlet {
 				catalogItem.computeInfos();
 			}
 		}
-		try {
-			if ((s = transaction.request.getParameter("select")) != null) {
-				Client client = ClientCatalog.getClient(s);
-				if (client == null)
-					transaction.session.addMessage(new UIMessage(Css.WARNING,
-							"Unknown index."));
-			}
-		} catch (SearchLibException e) {
-			transaction.session.addMessage(new UIMessage(Css.DANGER, e
-					.getMessage()));
-			Logging.error(e);
-		}
-		int pageNumber = catalogItems.size() / 15;
-		Integer page = transaction.getRequestParameterInteger("page", 0);
-		if (page > pageNumber)
-			page = pageNumber;
-		int start = page * 15;
-		int end = start + 15;
-		if (end > catalogItems.size())
-			end = catalogItems.size();
-		List<IndexInfo> indexList = new ArrayList<IndexInfo>(end - start);
-		for (int i = start; i < end; i++)
+		UIPagination pagination = new UIPagination(transaction, "page", 15,
+				catalogItems);
+		List<IndexInfo> indexList = pagination.getNewPageList();
+		for (int i = pagination.start; i < pagination.end; i++)
 			indexList.add(new IndexInfo(catalogItems.get(i)));
 		transaction.variables.put("indexlist", indexList);
-		transaction.variables.put("pagenumber", pageNumber);
-		transaction.variables.put("page", page);
+		transaction.variables.put("pagination", pagination);
+		transaction.variables.put("selectedIndex",
+				transaction.request.getParameter("select"));
 		transaction.template(TEMPLATE);
 	}
 }
