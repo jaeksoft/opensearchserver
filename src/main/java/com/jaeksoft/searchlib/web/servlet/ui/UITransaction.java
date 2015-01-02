@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
 
 import freemarker.template.TemplateException;
@@ -38,6 +39,7 @@ class UITransaction {
 
 	final static String SERVLET_KEY = "request";
 	final static String SESSION_KEY = "session";
+	final static String VERSION_KEY = "version";
 
 	final HttpServletRequest request;
 	final HttpServletResponse response;
@@ -51,6 +53,7 @@ class UITransaction {
 		variables = new HashMap<String, Object>();
 		variables.put(SERVLET_KEY, request);
 		variables.put(SESSION_KEY, session);
+		variables.put(VERSION_KEY, StartStopListener.getVersion());
 	}
 
 	void redirectContext(String url) throws IOException {

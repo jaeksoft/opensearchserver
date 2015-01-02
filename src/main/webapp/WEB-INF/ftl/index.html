@@ -31,19 +31,7 @@
 			</tr>
 			[/#list]
 		</table>
-		<nav class="text-center">
-			<ul class="pagination pagination-sm">
-				[#if page > 0]
-				<li class="disabled"><a href="?page=${page - 1}"
-					aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-				[/#if] [#list 0..pagenumber as i]
-				<li [#if page=i]class="active"[/#if]><a href="?page=${i}">${i+1}
-						<span class="sr-only">(current)</span>
-				</a></li>[/#list] [#if page < pagenumber]
-				<li class="disabled"><a href="?page=${page + 1}"
-					aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>[/#if]
-			</ul>
-		</nav>
+		[#include "inc/pagination.html"]
 	</div>
 	[#include "inc/foot.html"]
 </body>

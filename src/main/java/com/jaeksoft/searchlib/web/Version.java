@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,6 +33,8 @@ import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Version {
 
 	private final String title;
@@ -40,6 +42,10 @@ public class Version {
 	private final String version;
 
 	private final String build;
+
+	private final String updateUrl;
+
+	private final String versionString;
 
 	public Version(ServletContext servletContext) throws IOException {
 		InputStream is = null;
@@ -56,38 +62,48 @@ public class Version {
 				version = null;
 				build = null;
 			}
+			updateUrl = toUpdateUrl();
+			versionString = toVersionString();
 		} finally {
 			if (is != null)
 				is.close();
 		}
 	}
 
-	public String getUpdateUrl() throws UnsupportedEncodingException {
+	private String toUpdateUrl() throws UnsupportedEncodingException {
 		StringBuilder sb = new StringBuilder(
 				"http://www.open-search-server.com/updatecheck?check");
-		if (version != null) {
+		if (!StringUtils.isEmpty(version)) {
 			sb.append("&v=");
 			sb.append(URLEncoder.encode(version, "UTF-8"));
 		}
-		if (build != null) {
+		if (!StringUtils.isEmpty(build)) {
 			sb.append("&b=");
 			sb.append(URLEncoder.encode(build, "UTF-8"));
 		}
 		return sb.toString();
 	}
 
-	@Override
-	public String toString() {
+	public String getUpdateUrl() {
+		return updateUrl;
+	}
+
+	private String toVersionString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(title == null ? "OpenSearchServer" : title);
-		if (version != null) {
+		sb.append(StringUtils.isEmpty(title) ? "OpenSearchServer" : title);
+		if (!StringUtils.isEmpty(version)) {
 			sb.append(" v");
 			sb.append(version);
 		}
-		if (build != null) {
+		if (!StringUtils.isEmpty(build)) {
 			sb.append(" - build ");
 			sb.append(build);
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return versionString;
 	}
 }

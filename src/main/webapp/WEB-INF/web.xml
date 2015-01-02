@@ -24,28 +24,6 @@
 		<welcome-file>default.jsp</welcome-file>
 		<welcome-file>index.zul</welcome-file>
 	</welcome-file-list>
-	<!-- Begin CXF -->
-	<servlet>
-		<description>Apache CXF</description>
-		<display-name>CXF WS</display-name>
-		<servlet-name>cxf ws</servlet-name>
-		<servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
-		<init-param>
-			<param-name>javax.ws.rs.Application</param-name>
-			<param-value>com.jaeksoft.searchlib.webservice.RestApplication</param-value>
-		</init-param>
-		<init-param>
-			<param-name>jaxrs.providers</param-name>
-			<param-value>org.codehaus.jackson.jaxrs.JacksonJsonProvider</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>cxf ws</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
-		<url-pattern>/services/rest/*</url-pattern>
-	</servlet-mapping>
-	<!-- End CXF -->
 
 	<session-config>
 		<session-timeout>60</session-timeout>
