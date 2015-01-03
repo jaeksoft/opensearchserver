@@ -66,7 +66,11 @@ public class TemplateManager implements TemplateLoader {
 
 	@Override
 	final public Object findTemplateSource(String name) throws IOException {
-		return context.getResourceAsStream(TEMPLATE_PREFIX + name);
+		Object stream = context.getResourceAsStream(TEMPLATE_PREFIX + name);
+		if (stream == null)
+			stream = TemplateLoader.class.getResourceAsStream(TEMPLATE_PREFIX
+					+ name);
+		return stream;
 	}
 
 	@Override

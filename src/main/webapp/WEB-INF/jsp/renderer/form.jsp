@@ -24,7 +24,7 @@
 		%>
 		<input class="osscmnrdr ossinputrdr" size="60" type="text"
 			id="osssearchbox" name="query"
-			value="<%=StringEscapeUtils.escapeXml(query)%>"
+			value="<%=StringEscapeUtils.escapeXml11(query)%>"
 			onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
 			autocomplete="off" /> <input class="osscmnrdr ossbuttonrdr"
 			type="submit" value="<%=renderer.getSearchButtonLabel()%>" />

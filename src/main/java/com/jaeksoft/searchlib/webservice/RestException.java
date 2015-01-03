@@ -28,11 +28,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.jaeksoft.searchlib.Logging;
 
 public class RestException implements ExceptionMapper<JsonProcessingException> {
 
 	@Override
 	public Response toResponse(JsonProcessingException exception) {
+		Logging.error(exception);
 		return Response.status(Response.Status.NOT_ACCEPTABLE)
 				.entity(exception.getMessage()).type("text/plain").build();
 	}

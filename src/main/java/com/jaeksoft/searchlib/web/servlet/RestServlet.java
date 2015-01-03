@@ -32,9 +32,6 @@ import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 @WebServlet(loadOnStartup = 1, urlPatterns = { "/services/rest/*", "/rest/*" }, initParams = { @WebInitParam(name = "javax.ws.rs.Application", value = "com.jaeksoft.searchlib.webservice.RestApplication") })
 public class RestServlet extends CXFNonSpringJaxrsServlet {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4673061148192337149L;
 
 }

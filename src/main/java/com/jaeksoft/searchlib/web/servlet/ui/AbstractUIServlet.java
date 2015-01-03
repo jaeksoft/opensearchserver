@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jaeksoft.searchlib.Logging;
+
 public abstract class AbstractUIServlet extends HttpServlet {
 
 	/**
@@ -61,6 +63,7 @@ public abstract class AbstractUIServlet extends HttpServlet {
 			}
 			service(transaction);
 		} catch (Exception e) {
+			Logging.error(e);
 			throw new IOException(e);
 		}
 	}

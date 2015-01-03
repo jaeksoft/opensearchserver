@@ -24,7 +24,7 @@
 		%>
 		<div class="form-group form-group-lg has-feedback">
 			<input class="form-control input-lg" type="text" id="osssearchbox"
-				name="query" value="<%=StringEscapeUtils.escapeXml(query)%>"
+				name="query" value="<%=StringEscapeUtils.escapeXml11(query)%>"
 				onkeyup="OpenSearchServer.autosuggest(event, '<%=request.getAttribute("autocompUrl")%>&query=', 'osssearchform', 'osssearchbox', 'ossautocomplete')"
 				autocomplete="off"
 				placeholder="<%=renderer.getSearchButtonLabel()%>"> <span

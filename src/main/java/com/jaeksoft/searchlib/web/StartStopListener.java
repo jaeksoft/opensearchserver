@@ -24,6 +24,9 @@
 
 package com.jaeksoft.searchlib.web;
 
+import io.undertow.servlet.ServletExtension;
+import io.undertow.servlet.api.DeploymentInfo;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -44,7 +47,8 @@ import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
 import com.jaeksoft.searchlib.web.servlet.ui.TemplateManager;
 
 @WebListener
-public class StartStopListener implements ServletContextListener {
+public class StartStopListener implements ServletContextListener,
+		ServletExtension {
 
 	public static File OPENSEARCHSERVER_DATA_FILE = null;
 
@@ -62,7 +66,8 @@ public class StartStopListener implements ServletContextListener {
 		if (multi_data == null)
 			multi_data = System.getenv("OPENSHIFT_DATA_DIR");
 		if (multi_data != null) {
-			String p = servletContext.getContextPath();
+			String p = servletContext != null ? servletContext.getContextPath()
+					: "";
 			if ("".equals(p) || "/".equals(p))
 				p = "ROOT";
 			OPENSEARCHSERVER_DATA_FILE = new File(new File(multi_data), p);
@@ -171,7 +176,10 @@ public class StartStopListener implements ServletContextListener {
 	}
 
 	public static void start(File data_directory) {
-		initDataDir(data_directory);
+		if (data_directory != null)
+			initDataDir(data_directory);
+		else
+			initDataDir((ServletContext) null);
 		start();
 	}
 
@@ -189,5 +197,11 @@ public class StartStopListener implements ServletContextListener {
 		}
 		TemplateManager.init(servletContext);
 		start();
+	}
+
+	@Override
+	public void handleDeployment(DeploymentInfo deploymentInfo,
+			ServletContext servletContext) {
+		contextInitialized(new ServletContextEvent(servletContext));
 	}
 }
