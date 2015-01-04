@@ -60,6 +60,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.Version;
 import com.jaeksoft.searchlib.web.servlet.restv1.AbstractServlet;
@@ -258,7 +259,7 @@ public abstract class CommonController implements EventInterface,
 	}
 
 	public boolean isNoUserList() throws SearchLibException {
-		return ClientCatalog.getUserList().isEmpty();
+		return UserManager.getInstance().isEmpty();
 	}
 
 	public boolean isAdminOrNoUser() throws SearchLibException {

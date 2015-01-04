@@ -35,12 +35,10 @@ import org.zkoss.bind.annotation.NotifyChange;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.cluster.ClusterStatus;
-import com.jaeksoft.searchlib.util.properties.PropertyItem;
 
 @AfterCompose(superclass = true)
 public class ClusterComposer extends CommonController {
@@ -54,10 +52,6 @@ public class ClusterComposer extends CommonController {
 	@Override
 	protected void reset() throws SearchLibException {
 		current = null;
-	}
-
-	public PropertyItem<Integer> getClusterInstanceId() {
-		return ClientFactory.INSTANCE.getClusterInstanceId();
 	}
 
 	public ClusterManager getClusterManager() throws SearchLibException {
@@ -78,7 +72,7 @@ public class ClusterComposer extends CommonController {
 		URI uri = new URI(uriString);
 		ClusterManager manager = getClusterManager();
 		manager.getMe().setUri(uri);
-		manager.saveMe();
+		manager.save();
 	}
 
 	@Command
@@ -87,7 +81,7 @@ public class ClusterComposer extends CommonController {
 			JsonGenerationException, JsonMappingException, IOException {
 		ClusterManager manager = getClusterManager();
 		manager.getMe().setStatus(ClusterStatus.OFFLINE);
-		manager.saveMe();
+		manager.save();
 	}
 
 	@Command
@@ -96,6 +90,6 @@ public class ClusterComposer extends CommonController {
 			JsonGenerationException, JsonMappingException, IOException {
 		ClusterManager manager = getClusterManager();
 		manager.getMe().setStatus(ClusterStatus.ONLINE);
-		manager.saveMe();
+		manager.save();
 	}
 }

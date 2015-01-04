@@ -115,7 +115,7 @@ public class JoinController extends AbstractQueryController {
 
 	public List<String> getIndexList() throws SearchLibException {
 		List<String> indexList = new ArrayList<String>();
-		ClientCatalog.populateClientName(getLoggedUser(), indexList, null);
+		ClientCatalog.populateIndexName(getLoggedUser(), indexList, null);
 		return indexList;
 	}
 

@@ -48,76 +48,77 @@ import com.jaeksoft.searchlib.webservice.screenshot.ScreenshotImpl;
 import com.jaeksoft.searchlib.webservice.script.ScriptImpl;
 import com.jaeksoft.searchlib.webservice.stopwords.StopWordsImpl;
 import com.jaeksoft.searchlib.webservice.synonyms.SynonymsImpl;
+import com.jaeksoft.searchlib.webservice.user.UserImpl;
 
 public enum WebServiceEnum {
 
-	Analyzer(AnalyzerImpl.class, "/analyzer"),
+	Analyzer(AnalyzerImpl.class),
 
-	AutoCompletion(AutoCompletionImpl.class, "/autocompletion"),
+	AutoCompletion(AutoCompletionImpl.class),
 
-	Cluster(ClusterImpl.class, "/cluster"),
+	Cluster(ClusterImpl.class),
 
-	Command(CommandImpl.class, "/command"),
+	Command(CommandImpl.class),
 
-	Database(DatabaseImpl.class, "/crawler/database"),
+	Database(DatabaseImpl.class),
 
-	Document(DocumentImpl.class, "/document"),
+	Document(DocumentImpl.class),
 
-	Documents(DocumentsImpl.class, "/documents"),
+	Documents(DocumentsImpl.class),
 
-	Field(FieldImpl.class, "/field"),
+	Field(FieldImpl.class),
 
-	FileCrawler(FileCrawlerImpl.class, "/crawler/file"),
+	FileCrawler(FileCrawlerImpl.class),
 
-	Index(IndexImpl.class, "/index"),
+	Index(IndexImpl.class),
 
-	Learner(LearnerImpl.class, "/learner"),
+	Learner(LearnerImpl.class),
 
-	Monitor(MonitorImpl.class, "/monitor"),
+	Monitor(MonitorImpl.class),
 
-	MoreLikeThis(MoreLikeThisImpl.class, "/morelikethis"),
+	MoreLikeThis(MoreLikeThisImpl.class),
 
-	NamedEntity(NamedEntityImpl.class, "/namedentity"),
+	NamedEntity(NamedEntityImpl.class),
 
-	Parser(ParserImpl.class, "/parser"),
+	Parser(ParserImpl.class),
 
-	RestCrawler(RestCrawlerImpl.class, "/crawler/rest"),
+	RestCrawler(RestCrawlerImpl.class),
 
-	Scheduler(SchedulerImpl.class, "/scheduler"),
+	Scheduler(SchedulerImpl.class),
 
-	Screenshot(ScreenshotImpl.class, "/screenshot"),
+	Screenshot(ScreenshotImpl.class),
 
-	Script(ScriptImpl.class, "/script"),
+	Script(ScriptImpl.class),
 
-	Search(SearchImpl.class, "/search"),
+	Search(SearchImpl.class),
 
-	Spellcheck(SpellcheckImpl.class, "/spellcheck"),
+	Spellcheck(SpellcheckImpl.class),
 
-	Synonyms(SynonymsImpl.class, "/synonyms"),
+	Synonyms(SynonymsImpl.class),
 
-	Stopwords(StopWordsImpl.class, "/stopwords"),
+	Stopwords(StopWordsImpl.class),
 
-	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
+	User(UserImpl.class),
+
+	WebCrawler(WebCrawlerImpl.class);
 
 	final public Class<?> serviceClass;
 
-	final public String defaultPath;
-
-	private WebServiceEnum(Class<?> serviceClass, String defaultPath) {
+	private WebServiceEnum(Class<?> serviceClass) {
 		this.serviceClass = serviceClass;
-		this.defaultPath = defaultPath;
 	}
 
-	final public Object getNewInstance() throws InstantiationException,
-			IllegalAccessException {
-		return serviceClass.newInstance();
+	@SuppressWarnings("unchecked")
+	final public <T> T getNewInstance() {
+		try {
+			return (T) serviceClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	final public Class<?> getServiceClass() {
 		return serviceClass;
 	}
 
-	final public String getDefaultPath() {
-		return defaultPath;
-	}
 }

@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
 
@@ -71,7 +72,7 @@ public class TaskMergeDataIndex extends TaskAbstract {
 
 	protected void populateSourceIndexValues(Config config, List<String> values)
 			throws SearchLibException {
-		ClientCatalog.populateClientName(null, values, config.getIndexName());
+		ClientCatalog.populateIndexName(null, values, config.getIndexName());
 	}
 
 	@Override
@@ -109,8 +110,9 @@ public class TaskMergeDataIndex extends TaskAbstract {
 		String login = properties.getValue(propLogin);
 		String apiKey = properties.getValue(propApiKey);
 
-		if (!ClientCatalog.getUserList().isEmpty()) {
-			User user = ClientCatalog.authenticateKey(login, apiKey);
+		UserManager userManager = UserManager.getInstance();
+		if (!userManager.isEmpty()) {
+			User user = userManager.authenticateKey(login, apiKey);
 			if (user == null)
 				throw new SearchLibException("Authentication failed");
 			if (!user.hasAnyRole(index, Role.GROUP_INDEX))

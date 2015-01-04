@@ -49,7 +49,7 @@ public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_REST_CRAWLER);
+					Role.GROUP_CRAWLER);
 			List<String> nameList = new ArrayList<String>(0);
 			RestCrawlItem[] items = client.getRestCrawlList().getArray();
 			if (items != null)
@@ -71,7 +71,7 @@ public class RestCrawlerImpl extends CommonServices implements RestRestCrawler {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(index, login, key,
-					Role.REST_CRAWLER_EXECUTE);
+					Role.CRAWLER_EXECUTE);
 			RestCrawlItem restCrawlItem = client.getRestCrawlList().get(
 					crawl_name);
 			if (restCrawlItem == null)

@@ -58,20 +58,17 @@ public class ServletArray {
 			com.jaeksoft.searchlib.web.servlet.ui.AnalyzersServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.ClassifiersServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.ClusterServlet.class,
+			com.jaeksoft.searchlib.web.servlet.ui.CrawlersServlet.class,
+			com.jaeksoft.searchlib.web.servlet.ui.DictionariesServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.IndicesServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.JobsServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.LoginServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.LogoutServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.ParsersServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.QueriesServlet.class,
+			com.jaeksoft.searchlib.web.servlet.ui.RenderersServlet.class,
 			com.jaeksoft.searchlib.web.servlet.ui.ReplicationsServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.TermsServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.UsersServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.crawler.DatabaseCrawlerServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.crawler.FileCrawlerServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.crawler.MailboxesCrawlerServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.crawler.RestWSCrawlerServlet.class,
-			com.jaeksoft.searchlib.web.servlet.ui.crawler.WebCrawlerServlet.class };
+			com.jaeksoft.searchlib.web.servlet.ui.UsersServlet.class };
 
 	@SuppressWarnings("unchecked")
 	public static void register(DeploymentInfo di) {

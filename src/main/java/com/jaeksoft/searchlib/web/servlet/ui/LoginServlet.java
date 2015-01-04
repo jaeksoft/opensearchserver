@@ -27,9 +27,9 @@ import java.io.IOException;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
 
 import freemarker.template.TemplateException;
@@ -51,7 +51,8 @@ public class LoginServlet extends AbstractUIServlet {
 	protected void service(UITransaction transaction)
 			throws SearchLibException, InterruptedException, IOException,
 			TemplateException {
-		if (ClientCatalog.getUserList().isEmpty()
+		UserManager userManager = UserManager.getInstance();
+		if (userManager.isEmpty()
 				|| transaction.session.getLoggedUser() != null) {
 			transaction.redirectContext(ClusterServlet.PATH);
 			return;
@@ -59,7 +60,7 @@ public class LoginServlet extends AbstractUIServlet {
 		if ("post".equalsIgnoreCase(transaction.request.getMethod())) {
 			String login = transaction.request.getParameter("login");
 			String password = transaction.request.getParameter("password");
-			User user = ClientCatalog.authenticate(login, password);
+			User user = userManager.authenticate(login, password);
 			if (user == null) {
 				Thread.sleep(2000);
 				transaction.session.addMessage(new UIMessage(Css.WARNING,

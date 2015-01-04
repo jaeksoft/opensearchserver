@@ -51,7 +51,7 @@ public class DatabaseImpl extends CommonServices implements RestDatabase {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_DATABASE_CRAWLER);
+					Role.GROUP_CRAWLER);
 			List<String> nameList = new ArrayList<String>(0);
 			DatabaseCrawlAbstract[] items = client.getDatabaseCrawlList()
 					.getArray();
@@ -74,7 +74,7 @@ public class DatabaseImpl extends CommonServices implements RestDatabase {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			Client client = getLoggedClient(index, login, key,
-					Role.DATABASE_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			if (StringUtils.isEmpty(databaseName))
 				throw new CommonServiceException(
 						"The database crawler name is missing");

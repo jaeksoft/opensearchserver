@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,35 +21,43 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.cluster;
+package com.jaeksoft.searchlib.webservice.user;
 
-import java.io.IOException;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.cluster.ClusterInstance;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
-public class ClusterInfoResult extends CommonResult {
+@JsonInclude(Include.NON_EMPTY)
+public class ResultUser extends CommonResult {
 
-	public final Integer id;
-	public final long time;
-	public final int instancesNumber;
+	final public String name;
+	final public String apiKey;
+	final public Boolean isAdmin;
+	final public HashMap<Role, TreeSet<String>> rights;
 
-	public ClusterInfoResult() throws SearchLibException, IOException {
-		id = ClientFactory.INSTANCE.getClusterInstanceId().getValue();
-		time = System.currentTimeMillis();
-		Collection<ClusterInstance> list = ClientCatalog.getClusterManager()
-				.getInstances();
-		instancesNumber = list == null ? 0 : list.size();
+	public ResultUser() {
+		name = null;
+		apiKey = null;
+		isAdmin = null;
+		rights = null;
 	}
 
+	public ResultUser(Boolean successful, User user) {
+		super(successful, null);
+		this.name = user.getName();
+		this.apiKey = user.getApiKey();
+		this.isAdmin = user.isAdmin();
+		this.rights = user.cloneRights();
+	}
 }

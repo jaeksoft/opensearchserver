@@ -91,7 +91,7 @@ public class WebCrawlerServlet extends AbstractServlet {
 			User user = transaction.getLoggedUser();
 			if (user != null
 					&& !user.hasRole(transaction.getIndexName(),
-							Role.WEB_CRAWLER_START_STOP))
+							Role.CRAWLER_EXECUTE))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();

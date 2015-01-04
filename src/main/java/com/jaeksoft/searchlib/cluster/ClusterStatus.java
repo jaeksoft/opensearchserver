@@ -26,5 +26,5 @@ package com.jaeksoft.searchlib.cluster;
 
 public enum ClusterStatus {
 
-	ONLINE, OFFLINE;
+	ONLINE, OFFLINE, UNKOWN;
 }

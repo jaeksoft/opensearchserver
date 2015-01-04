@@ -47,7 +47,7 @@ public class NamedEntityExtractionFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		List<String> values = new ArrayList<String>(0);
-		ClientCatalog.populateClientName(null, values, null);
+		ClientCatalog.populateIndexName(null, values, null);
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray(), 0, 0);
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.RETURN_FIELD, "", null, 30, 1);

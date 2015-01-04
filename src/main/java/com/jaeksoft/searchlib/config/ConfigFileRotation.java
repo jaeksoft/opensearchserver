@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -120,6 +120,18 @@ public class ConfigFileRotation {
 		} finally {
 			lock.rl.unlock();
 		}
+	}
+
+	public File getTempFile() throws IOException {
+		lock.rl.lock();
+		try {
+			if (!tempFile.exists())
+				FileUtils.touch(tempFile);
+			return tempFile;
+		} finally {
+			lock.rl.unlock();
+		}
+
 	}
 
 }

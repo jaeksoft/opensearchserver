@@ -52,6 +52,7 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
@@ -109,11 +110,12 @@ public class ServletTransaction {
 	public User getLoggedUser() throws SearchLibException, InterruptedException {
 		if (loggedUser != null)
 			return loggedUser;
-		if (ClientCatalog.getUserList().isEmpty())
+		UserManager userManager = UserManager.getInstance();
+		if (userManager.isEmpty())
 			return null;
 		String login = request.getParameter("login");
 		String key = request.getParameter("key");
-		loggedUser = ClientCatalog.authenticateKey(login, key);
+		loggedUser = userManager.authenticateKey(login, key);
 		if (loggedUser == null) {
 			Thread.sleep(500);
 			throw new SearchLibException("Bad credential");

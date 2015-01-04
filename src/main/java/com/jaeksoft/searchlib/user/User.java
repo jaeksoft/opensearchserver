@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,49 +25,55 @@ package com.jaeksoft.searchlib.user;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class User implements Comparable<User> {
 
-	final private ReadWriteLock rwl = new ReadWriteLock();
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@JsonInclude(Include.NON_EMPTY)
+	public static class Record {
 
-	public final static String userElement = "user";
-
-	private String name;
-	private String password;
-	private String apiKey;
-	private Set<IndexRole> indexRoles;
-	private boolean isAdmin;
-	private boolean isMonitoring;
-	private boolean readOnly;
-
-	public User() {
-		indexRoles = new TreeSet<IndexRole>();
+		public String name = null;
+		public String digestPassword = null;
+		public String apiKey = null;
+		public boolean isAdmin = false;
+		public boolean isMonitoring = false;
+		public HashMap<Role, TreeSet<String>> rights = null;
 	}
 
-	public User(String name, String password, boolean isAdmin,
-			boolean isMonitoring, boolean readOnly) {
-		this();
-		this.name = name;
-		this.password = password;
-		this.apiKey = null;
-		this.isAdmin = isAdmin;
-		this.isMonitoring = isMonitoring;
-		this.readOnly = readOnly;
+	final private ReadWriteLock rwl = new ReadWriteLock();
+
+	private final Record record;
+
+	public User() {
+		record = new Record();
+		record.rights = new HashMap<Role, TreeSet<String>>();
+	}
+
+	User(Record record) {
+		this.record = record;
+		if (record.rights == null)
+			record.rights = new HashMap<Role, TreeSet<String>>();
 	}
 
 	public User(User user) {
@@ -80,14 +86,13 @@ public class User implements Comparable<User> {
 		try {
 			user.rwl.w.lock();
 			try {
-				user.name = name;
-				user.password = password;
-				user.isAdmin = isAdmin;
-				user.isMonitoring = isMonitoring;
-				user.readOnly = readOnly;
-				user.indexRoles.clear();
-				for (IndexRole indexRole : indexRoles)
-					user.addRoleNoLock(indexRole);
+				user.record.name = record.name;
+				user.record.digestPassword = record.digestPassword;
+				user.record.isAdmin = record.isAdmin;
+				user.record.isMonitoring = record.isMonitoring;
+				user.record.apiKey = record.apiKey;
+				user.record.rights.clear();
+				copyRights(record.rights, user.record.rights);
 			} finally {
 				user.rwl.w.unlock();
 			}
@@ -96,93 +101,24 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public boolean hasRole(String indexName, Role role) {
+	private static void copyRights(HashMap<Role, TreeSet<String>> src,
+			HashMap<Role, TreeSet<String>> dest) {
+		for (Map.Entry<Role, TreeSet<String>> entry : src.entrySet())
+			dest.put(entry.getKey(), new TreeSet<String>(entry.getValue()));
+	}
+
+	public HashMap<Role, TreeSet<String>> cloneRights() {
 		rwl.r.lock();
 		try {
-			if (isAdmin)
-				return true;
-			return indexRoles.contains(new IndexRole(indexName, role));
+			HashMap<Role, TreeSet<String>> newRights = new HashMap<Role, TreeSet<String>>();
+			copyRights(record.rights, newRights);
+			return newRights;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public boolean hasAnyRole(String indexName, Role... roles) {
-		rwl.r.lock();
-		try {
-			if (isAdmin)
-				return true;
-			for (Role role : roles)
-				if (indexRoles.contains(new IndexRole(indexName, role)))
-					return true;
-			return false;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean hasAnyRole(String indexName, Role[]... groupRoles) {
-		for (Role[] roles : groupRoles)
-			if (hasAnyRole(indexName, roles))
-				return true;
-		return false;
-	}
-
-	public boolean hasAllRole(String indexName, Role... roles) {
-		rwl.r.lock();
-		try {
-			if (isAdmin)
-				return true;
-			for (Role role : roles)
-				if (!indexRoles.contains(new IndexRole(indexName, role)))
-					return false;
-			return true;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean hasAllRole(String indexName, Role[]... groupRoles) {
-		for (Role[] roles : groupRoles)
-			if (!hasAllRole(indexName, roles))
-				return false;
-		return true;
-	}
-
-	private void addRoleNoLock(IndexRole indexRole) {
-		indexRoles.add(indexRole);
-	}
-
-	public void removeRole(IndexRole indexRole) {
-		rwl.w.lock();
-		try {
-			indexRoles.remove(indexRole);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void addRole(String indexName, String roleName)
-			throws SearchLibException {
-		rwl.w.lock();
-		try {
-			checkWritable();
-			addRoleNoLock(new IndexRole(indexName, roleName));
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public Set<IndexRole> getRoles() {
-		rwl.r.lock();
-		try {
-			return indexRoles;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public static User fromXml(XPathParser xpp, Node node)
+	static User fromXml(XPathParser xpp, Node node)
 			throws XPathExpressionException {
 		if (node == null)
 			return null;
@@ -196,43 +132,41 @@ public class User implements Comparable<User> {
 				.getAttributeString(node, "isAdmin"));
 		boolean isMonitoring = "yes".equalsIgnoreCase(XPathParser
 				.getAttributeString(node, "isMonitoring"));
-		boolean readOnly = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "readOnly"));
-		User user = new User(name, password, isAdmin, isMonitoring, readOnly);
+		User user = new User();
+		user.setName(name);
+		user.record.isAdmin = isAdmin;
+		user.record.isMonitoring = isMonitoring;
+		user.setPassword(password);
 		NodeList nodes = xpp.getNodeList(node, "role");
 		if (nodes != null) {
 			int l = nodes.getLength();
 			for (int i = 0; i < l; i++) {
-				IndexRole indexRole = IndexRole.fromXml(xpp, nodes.item(i));
-				if (indexRole != null)
-					user.addRoleNoLock(indexRole);
+				Node n = nodes.item(i);
+				String indexName = XPathParser.getAttributeString(n,
+						"indexName");
+				String roleName = XPathParser.getAttributeString(n, "role");
+				Role role = Role.find(roleName);
+				if (role != null)
+					user.addRoleNoLock(indexName, role);
 			}
 		}
 		return user;
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
-		rwl.r.lock();
-		try {
-			String encodedPassword = StringUtils.base64encode(password);
-			xmlWriter.startElement(userElement, "name", name, "password",
-					encodedPassword, "isAdmin", isAdmin ? "yes" : "no",
-					"isMonitoring", isMonitoring ? "yes" : "no", "readOnly",
-					readOnly ? "yes" : "no");
-			for (IndexRole indexRole : indexRoles)
-				indexRole.writeXml(xmlWriter);
-			xmlWriter.endElement();
-		} finally {
-			rwl.r.unlock();
-		}
+	static List<User.Record> getRecordList(Collection<User> users) {
+		List<User.Record> recordList = new ArrayList<User.Record>(
+				users == null ? 0 : users.size());
+		if (users != null)
+			for (User user : users)
+				recordList.add(user.record);
+		return recordList;
 	}
 
 	@Override
 	public int compareTo(User u) {
 		if (u == null)
 			return -1;
-		return name.compareTo(u.name);
+		return record.name.compareTo(u.record.name);
 	}
 
 	@Override
@@ -240,60 +174,56 @@ public class User implements Comparable<User> {
 		User u = (User) o;
 		if (u == null)
 			return false;
-		return name.equals(u.name);
+		return record.name.equals(u.record.name);
 	}
 
 	public String getName() {
 		rwl.r.lock();
 		try {
-			return name;
+			return record.name;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public void setName(String name) throws SearchLibException {
+	public void setName(String name) {
 		rwl.w.lock();
 		try {
-			checkWritable();
-			this.name = name;
-			this.apiKey = null;
+			this.record.name = name;
+			this.record.apiKey = null;
+			this.record.digestPassword = null;
 		} finally {
 			rwl.w.unlock();
-		}
-	}
-
-	public String getPassword() {
-		rwl.r.lock();
-		try {
-			return password;
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
 	public String getApiKey() {
 		rwl.r.lock();
 		try {
-			if (apiKey != null)
-				return apiKey;
-			apiKey = StringUtils.EMPTY;
-			if (name != null || password != null)
-				if (name.length() > 0 && password.length() > 0)
-					apiKey = DigestUtils.md5Hex("ossacc" + name + password);
-			return apiKey;
+			return record.apiKey;
 		} finally {
 			rwl.r.unlock();
 		}
-
 	}
 
-	public void setPassword(String password) throws SearchLibException {
+	private final String digestPassword(String pass) {
+		return DigestUtils.md5Hex("ossacc2" + record.name + pass);
+	}
+
+	private final String digestApiKey(String pass) {
+		return DigestUtils.md5Hex("ossacc" + record.name + pass);
+	}
+
+	public void setPassword(String password) {
 		rwl.w.lock();
 		try {
-			checkWritable();
-			this.password = password;
-			this.apiKey = null;
+			if (StringUtils.isEmpty(password)) {
+				this.record.digestPassword = null;
+				this.record.apiKey = null;
+			} else {
+				this.record.digestPassword = digestPassword(password);
+				this.record.apiKey = digestApiKey(password);
+			}
 		} finally {
 			rwl.w.unlock();
 		}
@@ -302,45 +232,47 @@ public class User implements Comparable<User> {
 	public boolean isAdmin() {
 		rwl.r.lock();
 		try {
-			return isAdmin;
+			return record.isAdmin;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		rwl.w.lock();
+		try {
+			this.record.isAdmin = isAdmin;
+		} finally {
+			rwl.w.unlock();
 		}
 	}
 
 	public boolean isMonitoring() {
 		rwl.r.lock();
 		try {
-			return isMonitoring;
+			return record.isMonitoring;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public void setAdmin(boolean isAdmin) throws SearchLibException {
+	public void setMonitoring(boolean monitoring) {
 		rwl.w.lock();
 		try {
-			checkWritable();
-			this.isAdmin = isAdmin;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public void setMonitoring(boolean isMonitoring) throws SearchLibException {
-		rwl.w.lock();
-		try {
-			checkWritable();
-			this.isMonitoring = isMonitoring;
+			this.record.isMonitoring = monitoring;
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
 	public boolean authenticate(String password) {
+		if (StringUtils.isEmpty(password))
+			return false;
 		rwl.r.lock();
 		try {
-			return this.password.equals(password);
+			if (StringUtils.isEmpty(record.digestPassword))
+				return false;
+			return digestPassword(password).equals(record.digestPassword);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -358,45 +290,92 @@ public class User implements Comparable<User> {
 	public void appendApiCallParameters(StringBuilder sb)
 			throws UnsupportedEncodingException {
 		sb.append("&login=");
-		sb.append(URLEncoder.encode(name, "UTF-8"));
+		sb.append(URLEncoder.encode(record.name, "UTF-8"));
 		sb.append("&key=");
 		sb.append(getApiKey());
 	}
 
-	/**
-	 * @return the readOnly
-	 */
-	public boolean isReadOnly() {
+	private boolean hasRoleNoLock(String resourceName, Role role) {
+		Set<String> set = record.rights.get(role);
+		if (set == null)
+			return false;
+		return set.contains(resourceName);
+	}
+
+	public boolean hasRole(String resourceName, Role role) {
 		rwl.r.lock();
 		try {
-			return readOnly;
+			if (record.isAdmin)
+				return true;
+			return hasRoleNoLock(resourceName, role);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public boolean isEditable() {
-		return !isReadOnly();
+	public boolean hasAnyRole(String resourceName, Role... roles) {
+		rwl.r.lock();
+		try {
+			if (record.isAdmin)
+				return true;
+			if (roles == null)
+				return true;
+			for (Role role : roles)
+				if (hasRoleNoLock(resourceName, role))
+					return true;
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
 	}
 
-	/**
-	 * @param readOnly
-	 *            the readOnly to set
-	 * @throws SearchLibException
-	 */
-	public void setReadOnly(boolean readOnly) throws SearchLibException {
+	public boolean hasAllRole(String resourceName, Role[] roles) {
+		rwl.r.lock();
+		try {
+			if (record.isAdmin)
+				return true;
+			if (roles == null)
+				return false;
+			for (Role role : roles)
+				if (hasRoleNoLock(resourceName, role))
+					return false;
+			return true;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	private boolean addRoleNoLock(String resourceName, Role role) {
+		TreeSet<String> set = record.rights.get(role);
+		if (set == null) {
+			set = new TreeSet<String>();
+			record.rights.put(role, set);
+		}
+		return set.add(resourceName);
+	}
+
+	public boolean addRole(String resourceName, Role role) {
 		rwl.w.lock();
 		try {
-			checkWritable();
-			this.readOnly = readOnly;
+			return addRoleNoLock(resourceName, role);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private void checkWritable() throws SearchLibException {
-		if (!readOnly)
-			return;
-		throw new SearchLibException("User is not editable");
+	public boolean removeRole(String resourceName, Role role) {
+		rwl.w.lock();
+		try {
+			TreeSet<String> set = record.rights.get(role);
+			if (set == null)
+				return false;
+			boolean res = set.remove(resourceName);
+			if (set.isEmpty())
+				record.rights.remove(role);
+			return res;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
+
 }

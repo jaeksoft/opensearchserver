@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,9 +43,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.cluster.ClusterManager;
-import com.jaeksoft.searchlib.cluster.ClusterNotification;
-import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -68,15 +65,12 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	private final IndexConfig indexConfig;
 
-	final private File configDir;
-
 	private final ReaderInterface reader;
 	private final WriterInterface writer;
 
 	protected IndexAbstract(File configDir, IndexConfig indexConfig,
 			boolean createIfNotExists) throws IOException, SearchLibException {
 		this.indexConfig = indexConfig;
-		this.configDir = configDir;
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
 		if (!indexDir.exists() || !FileUtils.containsFile(indexDir, true)) {
@@ -93,11 +87,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		initIndexDirectory(indexDir, bCreate);
 		writer = getNewWriter(indexConfig, bCreate);
 		reader = getNewReader(indexConfig);
-	}
-
-	protected void sendNotifReloadData() {
-		ClusterManager.notify(new ClusterNotification(Type.RELOAD_DATA,
-				configDir));
 	}
 
 	/**
@@ -154,7 +143,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			writer.optimize();
 			if (reader != null)
 				reader.reload();
-			sendNotifReloadData();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -176,7 +164,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		try {
 			if (writer != null) {
 				writer.deleteAll();
-				sendNotifReloadData();
 			}
 		} finally {
 			rwl.r.unlock();
@@ -191,7 +178,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			long d = 0;
 			if (writer != null) {
 				d = writer.deleteDocuments(request);
-				sendNotifReloadData();
 			}
 			return d;
 		} finally {
@@ -219,7 +205,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			boolean b = false;
 			if (writer != null) {
 				b = writer.updateDocument(schema, document);
-				sendNotifReloadData();
 			}
 			return b;
 		} finally {
@@ -236,7 +221,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			int d = 0;
 			if (writer != null) {
 				d = writer.updateDocuments(schema, documents);
-				sendNotifReloadData();
 			}
 			return d;
 		} finally {
@@ -253,7 +237,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 			int d = 0;
 			if (writer != null) {
 				d = writer.updateIndexDocuments(schema, documents);
-				sendNotifReloadData();
 			}
 			return d;
 		} finally {
@@ -571,7 +554,6 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 				writer.mergeData(sourceIndex.writer);
 				if (reader != null)
 					reader.reload();
-				sendNotifReloadData();
 			} finally {
 				sourceIndex.rwl.r.unlock();
 			}

@@ -24,27 +24,38 @@
 package com.jaeksoft.searchlib.webservice.index;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
+@JsonInclude(Include.NON_EMPTY)
 public class ResultIndexList extends CommonResult {
 
 	@XmlElement(name = "index")
 	final public List<String> indexList;
 
+	@XmlElement(name = "index")
+	final public Map<String, IndexInfo> indexMap;
+
 	public ResultIndexList() {
 		indexList = null;
+		indexMap = null;
 	}
 
-	public ResultIndexList(Boolean successful, List<String> indexList) {
-		super(successful, indexList.size() + " index(es)");
+	public ResultIndexList(Boolean successful, List<String> indexList,
+			Map<String, IndexInfo> indexMap) {
+		super(successful, (indexList != null ? indexList.size() : indexMap
+				.size()) + " index(es)");
 		this.indexList = indexList;
+		this.indexMap = indexMap;
 	}
 }

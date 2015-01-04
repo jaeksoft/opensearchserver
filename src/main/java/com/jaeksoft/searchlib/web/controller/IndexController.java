@@ -27,10 +27,9 @@ package com.jaeksoft.searchlib.web.controller;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.zk.ui.Executions;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 
 @AfterCompose(superclass = true)
 public class IndexController extends CommonController {
@@ -42,7 +41,8 @@ public class IndexController extends CommonController {
 		String username = getExecutionParameter("username");
 		String password = getExecutionParameter("password");
 		if (username != null && password != null) {
-			User user = ClientCatalog.authenticate(username, password);
+			User user = UserManager.getInstance().authenticate(username,
+					password);
 			if (user != null) {
 				getSession().setAttribute(ScopeAttribute.LOGGED_USER.name(),
 						user);
@@ -71,9 +71,7 @@ public class IndexController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_WEB_CRAWLER, Role.GROUP_FILE_CRAWLER,
-				Role.GROUP_DATABASE_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isSchedulerRights() throws SearchLibException {

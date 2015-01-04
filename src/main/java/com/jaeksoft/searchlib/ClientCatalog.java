@@ -33,25 +33,15 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.search.BooleanQuery;
-import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 
-import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
-import com.jaeksoft.searchlib.cluster.ClusterNotification;
-import com.jaeksoft.searchlib.cluster.ClusterNotification.Type;
-import com.jaeksoft.searchlib.config.ConfigFileRotation;
-import com.jaeksoft.searchlib.config.ConfigFiles;
 import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
@@ -60,13 +50,10 @@ import com.jaeksoft.searchlib.template.TemplateAbstract;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.user.UserList;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 
@@ -82,12 +69,6 @@ public class ClientCatalog {
 	private static transient volatile TreeSet<File> OLD_CLIENTS = new TreeSet<File>();
 
 	private static final ReadWriteLock clientsLock = new ReadWriteLock();
-
-	private static final ReadWriteLock usersLock = new ReadWriteLock();
-
-	private static UserList userList = null;
-
-	private static final ConfigFiles configFiles = new ConfigFiles();
 
 	private static final RendererResults rendererResults = new RendererResults();
 
@@ -253,7 +234,7 @@ public class ClientCatalog {
 			PushEvent.eventClientSwitch.publish(client);
 	}
 
-	public static final int populateClientName(User user,
+	public static final int populateIndexName(User user,
 			Collection<String> indexCollection, String exclude) {
 		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
 				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
@@ -298,29 +279,17 @@ public class ClientCatalog {
 			throw new SearchLibException("The name '" + indexName
 					+ "' is not allowed");
 		TreeSet<String> set = new TreeSet<String>();
-		populateClientName(null, set, null);
+		populateIndexName(null, set, null);
 		return set.contains(indexName);
 	}
 
-	public static synchronized final OcrManager getOcrManager()
-			throws SearchLibException {
+	public static final OcrManager getOcrManager() throws SearchLibException {
 		return OcrManager.getInstance();
 	}
 
-	public static synchronized final ClusterManager getClusterManager()
+	public static final ClusterManager getClusterManager()
 			throws SearchLibException {
 		return ClusterManager.getInstance();
-	}
-
-	public static ClusterInstance getAnyClusterInstance(String indexName)
-			throws SearchLibException {
-		File clientDir = getClientDir(indexName);
-		ClusterManager clusterManager = getClusterManager();
-		String[] instanceIds = clusterManager.getClientInstances(clientDir);
-		if (instanceIds == null || instanceIds.length == 0)
-			return null;
-		return clusterManager.getInstance(instanceIds[ThreadLocalRandom
-				.current().nextInt(instanceIds.length)]);
 	}
 
 	final private static boolean isValidIndexName(String name) {
@@ -411,105 +380,6 @@ public class ClientCatalog {
 				}
 				PushEvent.eventClientSwitch.publish(client);
 			}
-		}
-	}
-
-	public static UserList getUserList() throws SearchLibException {
-		usersLock.r.lock();
-		try {
-			if (userList == null) {
-				File userFile = new File(
-						StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-						"users.xml");
-				if (userFile.exists()) {
-					XPathParser xpp = new XPathParser(userFile);
-					userList = UserList.fromXml(xpp,
-							xpp.getNode("/" + UserList.usersElement));
-				} else
-					userList = new UserList();
-			}
-			return userList;
-		} catch (ParserConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (XPathExpressionException e) {
-			throw new SearchLibException(e);
-		} finally {
-			usersLock.r.unlock();
-		}
-	}
-
-	public static void flushPrivileges() {
-		usersLock.w.lock();
-		try {
-			userList = null;
-		} finally {
-			usersLock.w.unlock();
-		}
-	}
-
-	private static void saveUserListWithoutLock()
-			throws TransformerConfigurationException, SAXException,
-			IOException, SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
-		try {
-			XmlWriter xmlWriter = new XmlWriter(
-					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
-			getUserList().writeXml(xmlWriter);
-			xmlWriter.endDocument();
-			cfr.rotate();
-			ClusterManager.notify(new ClusterNotification(Type.RELOAD_USER));
-		} finally {
-			cfr.abort();
-		}
-	}
-
-	public static void saveUserList() throws SearchLibException {
-		usersLock.w.lock();
-		try {
-			saveUserListWithoutLock();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (TransformerConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} finally {
-			usersLock.w.unlock();
-		}
-	}
-
-	public static User authenticate(String login, String password)
-			throws SearchLibException {
-		usersLock.r.lock();
-		try {
-			User user = getUserList().get(login);
-			if (user == null)
-				return null;
-			if (!user.authenticate(password))
-				return null;
-			return user;
-		} finally {
-			usersLock.r.unlock();
-		}
-	}
-
-	public static User authenticateKey(String login, String key)
-			throws SearchLibException {
-		usersLock.r.lock();
-		try {
-			User user = getUserList().get(login);
-			if (user == null)
-				return null;
-			if (!user.authenticateKey(key))
-				return null;
-			return user;
-		} finally {
-			usersLock.r.unlock();
 		}
 	}
 

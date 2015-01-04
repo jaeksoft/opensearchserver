@@ -207,7 +207,7 @@ public class CommandsController extends CommonController {
 			if (client == null)
 				return null;
 			List<String> indices = new ArrayList<String>();
-			ClientCatalog.populateClientName(getLoggedUser(), indices,
+			ClientCatalog.populateIndexName(getLoggedUser(), indices,
 					client.getIndexName());
 			return indices;
 		}

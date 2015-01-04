@@ -154,7 +154,7 @@ public class Monitor {
 	}
 
 	public int getIndexCount() throws SearchLibException {
-		return ClientCatalog.populateClientName(null, null, null);
+		return ClientCatalog.populateIndexName(null, null, null);
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException,

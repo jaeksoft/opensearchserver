@@ -32,7 +32,6 @@ import org.zkoss.bind.annotation.Command;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
-import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 @AfterCompose(superclass = true)
@@ -75,8 +74,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_WEB_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isWebCrawlerParametersRights() throws SearchLibException {
@@ -84,8 +82,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.WEB_CRAWLER_EDIT_PARAMETERS);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isWebCrawlerEditPatternsRights() throws SearchLibException {
@@ -93,8 +90,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isWebCrawlerStartStopRights() throws SearchLibException {
@@ -102,8 +98,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.WEB_CRAWLER_START_STOP);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isFileCrawlerRights() throws SearchLibException {
@@ -111,8 +106,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_FILE_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isFileCrawlerParametersRights() throws SearchLibException {
@@ -120,8 +114,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.FILE_CRAWLER_EDIT_PARAMETERS);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isFileCrawlerEditPatternsRights() throws SearchLibException {
@@ -129,8 +122,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.FILE_CRAWLER_EDIT_PATTERN_LIST);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isFileCrawlerStartStopRights() throws SearchLibException {
@@ -138,8 +130,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.FILE_CRAWLER_START_STOP);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isDatabaseCrawlerRights() throws SearchLibException {
@@ -147,8 +138,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_DATABASE_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isDatabaseCrawlerEditPatternsRights()
@@ -157,8 +147,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.DATABASE_CRAWLER_EDIT_PARAMETERS);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isDatabaseCrawlerStartStopRights() throws SearchLibException {
@@ -166,8 +155,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.DATABASE_CRAWLER_START_STOP);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isMailboxCrawlerRights() throws SearchLibException {
@@ -175,8 +163,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_MAILBOX_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isMailboxCrawlerEditRights() throws SearchLibException {
@@ -184,8 +171,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.MAILBOX_CRAWLER_EDIT);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isMailboxCrawlerExecuteRights() throws SearchLibException {
@@ -193,8 +179,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.MAILBOX_CRAWLER_EXECUTE);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isRestCrawlerRights() throws SearchLibException {
@@ -202,8 +187,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.GROUP_REST_CRAWLER);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isRestCrawlerEditRights() throws SearchLibException {
@@ -211,8 +195,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.REST_CRAWLER_EDIT);
+		return getLoggedUser().isAdmin();
 	}
 
 	public boolean isRestCrawlerExecuteRights() throws SearchLibException {
@@ -220,8 +203,7 @@ public class CrawlerController extends CommonController {
 			return false;
 		if (isNoUserList())
 			return true;
-		return getLoggedUser().hasAnyRole(getIndexName(),
-				Role.REST_CRAWLER_EXECUTE);
+		return getLoggedUser().isAdmin();
 	}
 
 	public RunMode[] getRunModes() {

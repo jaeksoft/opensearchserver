@@ -35,7 +35,9 @@ public class ConfigFiles {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	public ConfigFiles() {
+	private static ConfigFiles INSTANCE = null;
+
+	private ConfigFiles() {
 		lock.rl.lock();
 		try {
 			configFiles = new TreeMap<String, ConfigFileRotation>();
@@ -46,6 +48,15 @@ public class ConfigFiles {
 
 	private String getKey(File directory, String masterName) {
 		return new File(directory, masterName).getAbsolutePath();
+	}
+
+	public static ConfigFiles getInstance() {
+		synchronized (ConfigFiles.class) {
+			if (INSTANCE != null)
+				return INSTANCE;
+			INSTANCE = new ConfigFiles();
+			return INSTANCE;
+		}
 	}
 
 	public ConfigFileRotation get(File directory, String masterName) {

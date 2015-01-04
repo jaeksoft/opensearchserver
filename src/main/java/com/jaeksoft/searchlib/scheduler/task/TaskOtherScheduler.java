@@ -79,7 +79,7 @@ public class TaskOtherScheduler extends TaskAbstract {
 			throws SearchLibException {
 		List<String> nameList = new ArrayList<String>(0);
 		if (propertyDef == propIndexName) {
-			ClientCatalog.populateClientName(null, nameList, null);
+			ClientCatalog.populateIndexName(null, nameList, null);
 		} else if (propertyDef == propSchedulerName) {
 			String indexName = properties.getValue(propIndexName);
 			Client indexClient = ClientCatalog.getClient(indexName);

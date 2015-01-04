@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,7 @@ import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class TaskPullAbstract extends TaskAbstract {
@@ -85,7 +86,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 
 	protected void populateSourceIndexValues(Config config, List<String> values)
 			throws SearchLibException {
-		ClientCatalog.populateClientName(null, values, config.getIndexName());
+		ClientCatalog.populateIndexName(null, values, config.getIndexName());
 	}
 
 	protected void populateFieldValues(Config config, List<String> values) {
@@ -156,8 +157,9 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 			String login = properties.getValue(propLogin);
 			String apiKey = properties.getValue(propApiKey);
 
-			if (!ClientCatalog.getUserList().isEmpty()) {
-				User user = ClientCatalog.authenticateKey(login, apiKey);
+			UserManager userManager = UserManager.getInstance();
+			if (!userManager.isEmpty()) {
+				User user = userManager.authenticateKey(login, apiKey);
 				if (user == null)
 					throw new SearchLibException("Authentication failed");
 				if (!user.hasAnyRole(sourceIndex, Role.GROUP_INDEX))

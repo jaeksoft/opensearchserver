@@ -28,6 +28,8 @@ import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.webservice.WebServiceEnum;
+import com.jaeksoft.searchlib.webservice.user.RestUser;
 
 import freemarker.template.TemplateException;
 
@@ -46,6 +48,8 @@ public class UsersServlet extends AbstractUIServlet {
 	@Override
 	protected void service(UITransaction transaction) throws IOException,
 			TemplateException, SearchLibException {
+		RestUser restUser = WebServiceEnum.User.getNewInstance();
+
 		transaction.template(TEMPLATE);
 	}
 }

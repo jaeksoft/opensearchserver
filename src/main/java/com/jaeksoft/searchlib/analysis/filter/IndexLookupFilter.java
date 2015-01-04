@@ -64,7 +64,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
 		List<String> values = new ArrayList<String>(0);
-		ClientCatalog.populateClientName(null, values, null);
+		ClientCatalog.populateIndexName(null, values, null);
 		addProperty(ClassPropertyEnum.INDEX_LIST, "", values.toArray(), 0, 0);
 		addProperty(ClassPropertyEnum.SEARCH_REQUEST, "", null, 20, 1);
 		addProperty(ClassPropertyEnum.REQUESTED_FIELD, "", null, 20, 1);

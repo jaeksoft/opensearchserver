@@ -64,7 +64,7 @@ public class AuthComposer extends CommonController {
 
 	public List<String> getIndexList() throws SearchLibException {
 		List<String> indices = new ArrayList<String>();
-		ClientCatalog.populateClientName(getLoggedUser(), indices, null);
+		ClientCatalog.populateIndexName(getLoggedUser(), indices, null);
 		return indices;
 	}
 

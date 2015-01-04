@@ -35,9 +35,9 @@ import org.zkoss.zul.Button;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Window;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 
 public class LoginComposer extends SelectorComposer<Window> {
 
@@ -70,7 +70,7 @@ public class LoginComposer extends SelectorComposer<Window> {
 
 	private void login() throws WrongValueException, SearchLibException,
 			InterruptedException {
-		User user = ClientCatalog.authenticate(login.getValue(),
+		User user = UserManager.getInstance().authenticate(login.getValue(),
 				password.getValue());
 		if (user == null) {
 			Thread.sleep(2000);

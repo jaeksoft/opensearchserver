@@ -51,7 +51,7 @@ public class SchedulerImpl extends CommonServices implements RestScheduler {
 	public CommonResult status(String use, String login, String key, String name) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_SCHEDULER);
+					Role.GROUP_JOB);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return new SchedulerResult(getJobItem(client, name));
 		} catch (SearchLibException e) {
@@ -68,7 +68,7 @@ public class SchedulerImpl extends CommonServices implements RestScheduler {
 	public CommonResult run(String use, String login, String key, String name,
 			Map<String, String> variables) {
 		try {
-			Client client = getLoggedClient(use, login, key, Role.SCHEDULER_RUN);
+			Client client = getLoggedClient(use, login, key, Role.JOB_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			JobItem jobItem = getJobItem(client, name);
 			TaskManager.getInstance().executeJob(client, jobItem,

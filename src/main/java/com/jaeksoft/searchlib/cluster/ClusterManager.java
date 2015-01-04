@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,80 +25,48 @@
 package com.jaeksoft.searchlib.cluster;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.TreeMap;
 
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ClusterManager {
 
+	@XmlTransient
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private final ClusterInstance me;
+	@XmlTransient
+	private static File clusterFile = null;
 
-	private final File clusterDirectory;
+	@XmlTransient
+	private static ClusterManager INSTANCE = null;
 
-	private final File clusterFile;
-
-	public final static String OSS_CLUSTER_NODES_DIRNAME = ".oss_cluster_nodes";
+	@XmlTransient
+	public final static String OSS_CLUSTER_NODES_FILENAME = "cluster.json";
 
 	public final TreeMap<String, ClusterInstance> instancesMap;
 
-	public List<ClusterInstance> instancesList;
+	@XmlTransient
+	private ClusterInstance me;
 
-	public long listVersion = -1;
-
-	private ClusterManager(File instanceDataDir) throws JsonParseException,
-			JsonMappingException, IOException, URISyntaxException {
-		clusterDirectory = new File(instanceDataDir, OSS_CLUSTER_NODES_DIRNAME);
-		if (!clusterDirectory.exists())
-			clusterDirectory.mkdir();
-		String instanceId = getInstanceId();
-		clusterFile = new File(clusterDirectory, instanceId);
-		if (clusterFile.exists() && clusterFile.length() > 0)
-			me = JsonUtils.getObject(clusterFile, ClusterInstance.class);
-		else {
-			me = new ClusterInstance(instanceId);
-			saveMe();
-		}
+	private ClusterManager() {
 		instancesMap = new TreeMap<String, ClusterInstance>();
-		instancesList = null;
-		getInstances();
 	}
-
-	private static ClusterManager INSTANCE = null;
 
 	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
 
 	public final static String OSS_CLUSTER_ID = "oss.cluster.id";
-
-	public static final String getInstanceId() throws UnknownHostException,
-			SocketException, URISyntaxException {
-		String clusterId = System.getProperty(OSS_CLUSTER_ID);
-		if (clusterId == null)
-			clusterId = NetworksUtils.getFirstHardwareAddress();
-		return clusterId;
-	}
 
 	public static final ClusterManager getInstance() throws SearchLibException {
 		rwlInstance.r.lock();
@@ -112,151 +80,45 @@ public class ClusterManager {
 		try {
 			if (INSTANCE != null)
 				return INSTANCE;
-			return INSTANCE = new ClusterManager(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+			clusterFile = new File(
+					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+					OSS_CLUSTER_NODES_FILENAME);
+			INSTANCE = JsonUtils.getObject(clusterFile, ClusterManager.class);
+			return INSTANCE;
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwlInstance.w.unlock();
 		}
 	}
 
+	public void populateInstances(Collection<ClusterInstance> instances) {
+		rwl.r.lock();
+		try {
+			if (instancesMap != null)
+				instances.addAll(instancesMap.values());
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	public ClusterInstance getMe() {
-		return me;
-	}
-
-	public Collection<ClusterInstance> getInstances() throws IOException {
 		rwl.r.lock();
 		try {
-			if (instancesList != null)
-				return instancesList;
+			return me;
 		} finally {
 			rwl.r.unlock();
 		}
-		rwl.w.lock();
-		try {
-			if (instancesList != null)
-				return instancesList;
-			File[] files = clusterDirectory
-					.listFiles((FileFilter) FileFilterUtils.fileFileFilter());
-			for (File file : files) {
-				String name = file.getName();
-				try {
-					instancesMap.put(name,
-							JsonUtils.getObject(file, ClusterInstance.class));
-				} catch (JsonParseException e) {
-					Logging.warn(e);
-				} catch (JsonMappingException e) {
-					Logging.warn(e);
-				} catch (IOException e) {
-					Logging.warn(e);
-				}
-			}
-			instancesList = new ArrayList<ClusterInstance>(
-					instancesMap.values());
-			return instancesList;
-		} finally {
-			rwl.w.unlock();
-		}
 	}
 
-	public void saveMe() throws JsonGenerationException, JsonMappingException,
+	public void save() throws JsonGenerationException, JsonMappingException,
 			IOException {
-		rwl.w.lock();
-		try {
-			JsonUtils.jsonToFile(me, clusterFile);
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private File getClientDir(File indexDir) {
-		File dir = new File(indexDir, OSS_CLUSTER_NODES_DIRNAME);
-		if (!dir.exists())
-			dir.mkdir();
-		return dir;
-	}
-
-	private File getClientFile(File indexDir) {
-		return new File(getClientDir(indexDir), me.getId());
-	}
-
-	public void openClient(File indexDir) throws IOException {
 		rwl.r.lock();
 		try {
-			File file = getClientFile(indexDir);
-			if (!file.exists())
-				file.createNewFile();
+			JsonUtils.jsonToFile(this, clusterFile);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	/**
-	 * Return the list of instances which already opened the client
-	 * 
-	 * @param indexDir
-	 *            The directory of the client
-	 * @return
-	 */
-	public String[] getClientInstances(File indexDir) {
-		rwl.r.lock();
-		try {
-			File dir = getClientDir(indexDir);
-			return dir.list(FileFileFilter.FILE);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public ClusterInstance getInstance(String id) {
-		rwl.r.lock();
-		try {
-			return instancesMap.get(id);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public void closeClient(File indexDir) {
-		rwl.r.lock();
-		try {
-			File file = getClientFile(indexDir);
-			if (!file.exists())
-				return;
-			file.delete();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	private void sendNotification(ClusterNotification notification)
-			throws IOException, SearchLibException {
-		File[] files = getClientDir(notification.indexDir).listFiles(
-				(FileFilter) FileFilterUtils.fileFileFilter());
-		if (files == null)
-			return;
-		getInstances();
-		User user = ClientCatalog.getUserList().getFirstAdmin();
-		for (File file : files) {
-			String id = file.getName();
-			if (id.equals(me.getId()))
-				continue;
-			try {
-				notification.send(instancesMap.get(id), user);
-			} catch (Throwable t) {
-				Logging.warn(t);
-			}
-		}
-	}
-
-	public static void notify(ClusterNotification notification) {
-		try {
-			getInstance().sendNotification(notification);
-		} catch (Throwable e) {
-			Logging.warn(e);
-		}
-	}
 }

@@ -74,7 +74,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult run(String use, String login, String key, boolean once) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (once)
 				return CrawlerUtils.runOnce(client.getWebCrawlMaster());
@@ -95,7 +95,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult stop(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
 			return CrawlerUtils.stop(client.getWebCrawlMaster());
@@ -112,7 +112,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult status(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getWebCrawlMaster());
 		} catch (SearchLibException e) {
@@ -137,7 +137,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public byte[] exportURLs(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			File file = client.getUrlManager().exportURLs(
 					getRequest(client.getUrlManager(), null));
@@ -159,7 +159,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			File file = client.getUrlManager().exportSiteMap(
 					getRequest(client.getUrlManager(), host));
@@ -181,7 +181,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			boolean replaceAll, List<String> patterns, boolean inclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+					Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<PatternItem> patternList = PatternManager
 					.getPatternList(patterns);
@@ -227,7 +227,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult getPatternStatus(String index, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebPropertyManager webPropertyManager = client
 					.getWebPropertyManager();
@@ -246,7 +246,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String key, Boolean inclusion, Boolean exclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+					Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebPropertyManager webPropertyManager = client
 					.getWebPropertyManager();
@@ -269,7 +269,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			List<String> patterns, boolean inclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+					Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			PatternManager patternManager = inclusion ? client
 					.getInclusionPatternManager() : client
@@ -301,7 +301,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String key, String startsWith, boolean inclusion) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			PatternManager patternManager = inclusion ? client
 					.getInclusionPatternManager() : client
@@ -335,7 +335,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			Boolean returnData) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebCrawlThread webCrawlThread = client.getWebCrawlMaster()
 					.manualCrawl(LinkUtils.newEncodedURL(url),
@@ -415,7 +415,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			CredentialManager credentialManager = client
@@ -441,7 +441,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			String message = ScreenshotServlet.doCheck(screenshotManager,
@@ -477,7 +477,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 			boolean replaceAll, List<String> urls) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PARAMETERS);
+					Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			UrlManager urlManager = client.getUrlManager();
 			CommonResult result = new CommonResult(true, null);
@@ -498,7 +498,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	public CommonResult getUrls(String index, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_WEB_CRAWLER);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return null;
 		} catch (InterruptedException e) {

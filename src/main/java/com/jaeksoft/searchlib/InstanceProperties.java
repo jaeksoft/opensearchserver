@@ -244,7 +244,7 @@ public class InstanceProperties {
 			IOException {
 		if (maxIndexNumber == 0)
 			return;
-		long count = ClientCatalog.populateClientName(null, null, null);
+		long count = ClientCatalog.populateIndexName(null, null, null);
 		if (count < maxIndexNumber)
 			return;
 		throw new SearchLibException(

@@ -50,8 +50,8 @@ public class DatabaseServlet extends AbstractServlet {
 
 			User user = transaction.getLoggedUser();
 			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.DATABASE_CRAWLER_START_STOP))
+					&& !user.hasAnyRole(transaction.getIndexName(),
+							Role.GROUP_CRAWLER))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();

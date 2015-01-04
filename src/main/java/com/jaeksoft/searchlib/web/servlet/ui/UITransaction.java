@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.servlet.ui.UIMessage.Css;
 
@@ -45,11 +46,13 @@ public class UITransaction {
 	final HttpServletResponse response;
 	final Map<String, Object> variables;
 	final UISession session;
+	final User user;
 
 	UITransaction(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
 		this.session = new UISession(request.getSession());
+		this.user = session.getLoggedUser();
 		variables = new HashMap<String, Object>();
 		variables.put(SERVLET_KEY, request);
 		variables.put(SESSION_KEY, session);
@@ -103,6 +106,14 @@ public class UITransaction {
 					"Wrong parameters format (number expected): " + name));
 			return defaultValue;
 		}
+	}
+
+	public String getUserLogin() {
+		return user == null ? null : user.getName();
+	}
+
+	public String getUserApiKey() {
+		return user == null ? null : user.getApiKey();
 	}
 
 }

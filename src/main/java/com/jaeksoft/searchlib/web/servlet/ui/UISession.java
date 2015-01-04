@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,14 +29,14 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 
 public class UISession {
 
 	public enum Attributes {
-		MESSAGES_LIST, LOGGED_USER, CLIENT_CATALOG;
+		MESSAGES_LIST, LOGGED_USER;
 	}
 
 	private final HttpSession session;
@@ -76,7 +76,7 @@ public class UISession {
 	}
 
 	public boolean isNoUsers() throws SearchLibException {
-		return ClientCatalog.getUserList().isEmpty();
+		return UserManager.getInstance().isEmpty();
 	}
 
 	void setLoggedUser(User user) {

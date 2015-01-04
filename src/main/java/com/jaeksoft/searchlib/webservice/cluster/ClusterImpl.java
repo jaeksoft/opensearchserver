@@ -24,25 +24,32 @@
 package com.jaeksoft.searchlib.webservice.cluster;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cluster.ClusterInstance;
+import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class ClusterImpl extends CommonServices implements RestCluster {
 
 	@Override
-	public ClusterInfoResult info(String login, String key) {
+	public CommonListResult<ClusterInstance> info(String login, String key) {
 		try {
 			User user = getLoggedUser(login, key);
 			if (user != null)
 				if (!user.isMonitoring() && !user.isAdmin())
 					throw new CommonServiceException("Not allowed");
 			ClientFactory.INSTANCE.properties.checkApi();
-			return new ClusterInfoResult();
+			List<ClusterInstance> instances = new ArrayList<ClusterInstance>();
+			ClusterManager.getInstance().populateInstances(instances);
+			return new CommonListResult<ClusterInstance>(instances);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

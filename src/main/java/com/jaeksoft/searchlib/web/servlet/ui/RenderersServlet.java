@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,12 +21,31 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.web.servlet.ui;
 
-package com.jaeksoft.searchlib.webservice;
+import java.io.IOException;
 
-public class RestClient {
+import javax.servlet.annotation.WebServlet;
 
-	// TODO
-	private RestClient() {
+import com.jaeksoft.searchlib.SearchLibException;
+
+import freemarker.template.TemplateException;
+
+@WebServlet(urlPatterns = { "/ui/renderers" })
+public class RenderersServlet extends AbstractUIServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2315746155681376082L;
+
+	public final static String TEMPLATE = "renderers.ftl";
+
+	public final static String PATH = "/ui/renderers";
+
+	@Override
+	protected void service(UITransaction transaction) throws IOException,
+			TemplateException, SearchLibException {
+		transaction.template(TEMPLATE);
 	}
 }

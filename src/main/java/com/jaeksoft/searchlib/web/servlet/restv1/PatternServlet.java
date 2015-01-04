@@ -107,7 +107,7 @@ public class PatternServlet extends AbstractServlet {
 			User user = transaction.getLoggedUser();
 			if (user != null
 					&& !user.hasRole(transaction.getIndexName(),
-							Role.WEB_CRAWLER_EDIT_PATTERN_LIST))
+							Role.CRAWLER_EDIT))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();

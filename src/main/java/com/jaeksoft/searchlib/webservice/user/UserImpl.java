@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,23 +21,36 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.webservice.cluster;
+package com.jaeksoft.searchlib.webservice.user;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
-import com.jaeksoft.searchlib.cluster.ClusterInstance;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
+import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.CommonServices;
 
-@Path("/cluster")
-public interface RestCluster {
+public class UserImpl extends CommonServices implements RestUser {
 
-	@GET
-	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	public CommonListResult<ClusterInstance> info(
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	@Override
+	public CommonResult createUser(String login, String key, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CommonResult deleteUser(String login, String key, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CommonListResult<ResultUser> indexList(String login, String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResultUser getIndex(String login, String key, String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

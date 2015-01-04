@@ -74,8 +74,7 @@ public class HomeController extends CommonController {
 		if (catalogItems != null)
 			return catalogItems;
 		TreeSet<String> indexCollection = new TreeSet<String>();
-		ClientCatalog
-				.populateClientName(getLoggedUser(), indexCollection, null);
+		ClientCatalog.populateIndexName(getLoggedUser(), indexCollection, null);
 		catalogItems = new ArrayList<ClientCatalogItem>();
 		for (String indexName : indexCollection)
 			catalogItems.add(new ClientCatalogItem(indexName));

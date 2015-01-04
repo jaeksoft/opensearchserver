@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.user.UserManager;
 
 public class CommonServices {
 
@@ -43,8 +44,9 @@ public class CommonServices {
 
 	private final void checkClientAndUser(String use, String login, String key)
 			throws SearchLibException, NamingException {
-		if (!ClientCatalog.getUserList().isEmpty()) {
-			user = ClientCatalog.authenticateKey(login, key);
+		UserManager userManager = UserManager.getInstance();
+		if (!userManager.isEmpty()) {
+			user = userManager.authenticateKey(login, key);
 			if (user == null)
 				throw new CommonServiceException("Authentication failed");
 		}
@@ -55,9 +57,10 @@ public class CommonServices {
 
 	protected final User getLoggedUser(String login, String key)
 			throws SearchLibException {
-		if (ClientCatalog.getUserList().isEmpty())
+		UserManager userManager = UserManager.getInstance();
+		if (userManager.isEmpty())
 			return null;
-		user = ClientCatalog.authenticateKey(login, key);
+		user = userManager.authenticateKey(login, key);
 		if (user == null)
 			throw new CommonServiceException("Authentication failed");
 		return user;

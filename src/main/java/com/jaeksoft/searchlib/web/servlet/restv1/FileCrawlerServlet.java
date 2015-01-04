@@ -125,8 +125,8 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 		try {
 			User user = transaction.getLoggedUser();
 			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.FILE_CRAWLER_START_STOP))
+					&& !user.hasAnyRole(transaction.getIndexName(),
+							Role.GROUP_CRAWLER))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
@@ -140,5 +140,4 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 			throw new ServletException(e);
 		}
 	}
-
 }

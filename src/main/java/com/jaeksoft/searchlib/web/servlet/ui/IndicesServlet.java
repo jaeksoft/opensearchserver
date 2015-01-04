@@ -26,14 +26,15 @@ package com.jaeksoft.searchlib.web.servlet.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.webservice.WebServiceEnum;
 import com.jaeksoft.searchlib.webservice.index.IndexInfo;
+import com.jaeksoft.searchlib.webservice.index.RestIndex;
+import com.jaeksoft.searchlib.webservice.index.ResultIndexList;
 
 import freemarker.template.TemplateException;
 
@@ -52,36 +53,24 @@ public class IndicesServlet extends AbstractUIServlet {
 	@Override
 	protected void service(UITransaction transaction) throws IOException,
 			TemplateException, SearchLibException {
-		@SuppressWarnings("unchecked")
-		List<ClientCatalogItem> catalogItems = transaction.session
-				.getAttribute(UISession.Attributes.CLIENT_CATALOG, List.class);
-		if (transaction.getRequestParameterBoolean("refresh", false))
-			catalogItems = null;
-		if (catalogItems == null) {
-			TreeSet<String> indexList = new TreeSet<String>();
-			ClientCatalog.populateClientName(
-					transaction.session.getLoggedUser(), indexList, null);
-			catalogItems = new ArrayList<ClientCatalogItem>(indexList.size());
-			for (String indexName : indexList)
-				catalogItems.add(new ClientCatalogItem(indexName));
-			transaction.session.setAttribute(
-					UISession.Attributes.CLIENT_CATALOG, catalogItems);
-		}
+
+		RestIndex restIndex = WebServiceEnum.Index.getNewInstance();
+		ResultIndexList resultIndexList = restIndex.indexList(
+				transaction.getUserLogin(), transaction.getUserApiKey(), true);
+
 		String s;
 		if ((s = transaction.request.getParameter("info")) != null) {
 			ClientCatalogItem catalogItem = new ClientCatalogItem(s);
-			int i = catalogItems.indexOf(catalogItem);
-			if (i >= 0) {
-				catalogItems.set(i, catalogItem);
-				catalogItem.computeInfos();
-			}
+			catalogItem.computeInfos();
+			resultIndexList.indexMap.put(s, new IndexInfo(catalogItem));
 		}
+		List<IndexInfo> indexInfoList = new ArrayList<IndexInfo>(
+				resultIndexList.indexMap.size());
+		indexInfoList.addAll(resultIndexList.indexMap.values());
 		UIPagination pagination = new UIPagination(transaction, "page", 15,
-				catalogItems);
-		List<IndexInfo> indexList = pagination.getNewPageList();
-		for (int i = pagination.start; i < pagination.end; i++)
-			indexList.add(new IndexInfo(catalogItems.get(i)));
-		transaction.variables.put("indexlist", indexList);
+				indexInfoList);
+		transaction.variables.put("indexlist",
+				indexInfoList.subList(pagination.start, pagination.end));
 		transaction.variables.put("pagination", pagination);
 		transaction.variables.put("selectedIndex",
 				transaction.request.getParameter("select"));

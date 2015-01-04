@@ -78,7 +78,8 @@ public interface RestIndex {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public ResultIndexList indexList(@QueryParam("login") String login,
-			@QueryParam("key") String key);
+			@QueryParam("key") String key,
+			@QueryParam("details") Boolean details);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

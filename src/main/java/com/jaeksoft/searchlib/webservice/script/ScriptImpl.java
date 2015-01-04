@@ -83,7 +83,7 @@ public class ScriptImpl extends CommonServices implements RestScript {
 		protected CommonResult run(String index, String login, String key,
 				List<ScriptLine> scriptLines) {
 			try {
-				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				getLoggedClient(index, login, key, Role.JOB_EXECUTE);
 				ClientFactory.INSTANCE.properties.checkApi();
 				return run(scriptLines, null);
 			} catch (InterruptedException e) {
@@ -96,7 +96,7 @@ public class ScriptImpl extends CommonServices implements RestScript {
 		protected CommonResult run(String index, String login, String key,
 				String name, Map<String, String> vars) {
 			try {
-				getLoggedClient(index, login, key, Role.SCRIPT_RUN);
+				getLoggedClient(index, login, key, Role.JOB_EXECUTE);
 				ClientFactory.INSTANCE.properties.checkApi();
 				Variables variables = MapUtils.isEmpty(vars) ? null
 						: new Variables(vars);

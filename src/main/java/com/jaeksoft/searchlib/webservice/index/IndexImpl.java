@@ -28,6 +28,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.ws.rs.core.Response.Status;
@@ -103,13 +105,21 @@ public class IndexImpl extends CommonServices implements RestIndex {
 	}
 
 	@Override
-	public ResultIndexList indexList(String login, String key) {
+	public ResultIndexList indexList(String login, String key, Boolean details) {
 		try {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<String> indexList = new ArrayList<String>();
-			ClientCatalog.populateClientName(user, indexList, null);
-			return new ResultIndexList(true, indexList);
+			ClientCatalog.populateIndexName(user, indexList, null);
+			Map<String, IndexInfo> indexMap = null;
+			if (details != null && details) {
+				indexMap = new TreeMap<String, IndexInfo>();
+				for (String indexName : indexList)
+					indexMap.put(indexName, new IndexInfo(
+							new ClientCatalogItem(indexName)));
+				indexList = null;
+			}
+			return new ResultIndexList(true, indexList, indexMap);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

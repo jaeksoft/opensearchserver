@@ -21,29 +21,27 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
-package com.jaeksoft.searchlib.web.servlet.ui.crawler;
+package com.jaeksoft.searchlib.web.servlet.ui;
 
 import java.io.IOException;
 
 import javax.servlet.annotation.WebServlet;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.web.servlet.ui.AbstractUIServlet;
-import com.jaeksoft.searchlib.web.servlet.ui.UITransaction;
 
 import freemarker.template.TemplateException;
 
-@WebServlet(urlPatterns = { "/ui/crawlers/mailboxes" })
-public class MailboxesCrawlerServlet extends AbstractUIServlet {
+@WebServlet(urlPatterns = { "/ui/dictionaries" })
+public class DictionariesServlet extends AbstractUIServlet {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3269593913651080582L;
+	private static final long serialVersionUID = 946927975253881462L;
 
-	public final static String TEMPLATE = "crawlers/mailboxes.ftl";
+	public final static String TEMPLATE = "dictionaries.ftl";
 
-	public final static String PATH = "/ui/crawlers/mailboxes";
+	public final static String PATH = "/ui/dictionaries";
 
 	@Override
 	protected void service(UITransaction transaction) throws IOException,

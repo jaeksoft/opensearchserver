@@ -45,7 +45,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 	public CommonResult runOnce(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.runOnce(client.getFileCrawlMaster());
 		} catch (IOException e) {
@@ -60,7 +60,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 	public CommonResult runForever(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(true);
 			return CrawlerUtils.runForever(client.getFileCrawlMaster());
@@ -76,7 +76,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 	public CommonResult stop(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+					Role.CRAWLER_EXECUTE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(false);
 			return CrawlerUtils.stop(client.getFileCrawlMaster());
@@ -92,7 +92,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 	public CommonResult status(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+					Role.GROUP_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getFileCrawlMaster());
 		} catch (IOException e) {
@@ -111,8 +111,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 			String swiftContainer, String swiftTenant, String swiftAuthURL,
 			AuthType swiftAuthType) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClient(use, login, key, Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			FilePathItem filePathItem = new FilePathItem(client);
 			filePathItem.setType(type);
@@ -165,8 +164,7 @@ public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
 			String key, FileInstanceType type, String path, String username,
 			String domain, String host, String swiftContainer) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClient(use, login, key, Role.CRAWLER_EDIT);
 			ClientFactory.INSTANCE.properties.checkApi();
 			FilePathItem filePathItem = new FilePathItem(client);
 			filePathItem.setType(type);

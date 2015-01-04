@@ -60,7 +60,6 @@ import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.autocompletion.AutoCompletionManager;
 import com.jaeksoft.searchlib.classifier.Classifier;
 import com.jaeksoft.searchlib.classifier.ClassifierManager;
-import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
@@ -210,8 +209,6 @@ public abstract class Config implements ThreadFactory {
 
 	private JobList jobList = null;
 
-	protected ConfigFiles configFiles = null;
-
 	private String urlManagerClass = null;
 
 	private LogReportManager logReportManager = null;
@@ -263,8 +260,6 @@ public abstract class Config implements ThreadFactory {
 			schema = Schema.fromXmlConfig(this,
 					xppConfig.getNode("/configuration/schema"), xppConfig);
 
-			configFiles = new ConfigFiles();
-
 			urlManagerClass = xppConfig.getAttributeString(
 					"/configuration/urlManager", "class");
 			if (urlManagerClass == null)
@@ -281,8 +276,6 @@ public abstract class Config implements ThreadFactory {
 			indexAbstract.addUpdateInterface(getClassifierManager());
 			indexAbstract.addUpdateInterface(getLearnerManager());
 			indexAbstract.addUpdateInterface(getAuthManager());
-
-			ClusterManager.getInstance().openClient(indexDir);
 
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -310,7 +303,8 @@ public abstract class Config implements ThreadFactory {
 	private void saveConfigWithoutLock() throws IOException,
 			TransformerConfigurationException, SAXException,
 			SearchLibException, XPathExpressionException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"config.xml");
 		try {
 			XmlWriter xmlWriter = new XmlWriter(
 					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -336,7 +330,8 @@ public abstract class Config implements ThreadFactory {
 	private final ReadWriteLock parsersLock = new ReadWriteLock();
 
 	public void saveParsers() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "parsers.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"parsers.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -365,7 +360,8 @@ public abstract class Config implements ThreadFactory {
 	private final ReadWriteLock jobsLock = new ReadWriteLock();
 
 	public void saveJobs() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "jobs.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"jobs.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -397,7 +393,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void saveReplicationList() throws IOException,
 			TransformerConfigurationException, SAXException, SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"replication.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -418,7 +415,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveRequests() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "requests.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"requests.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -689,7 +687,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void saveClassifier(Classifier classifier)
 			throws SearchLibException, UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
+				getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -719,7 +718,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void deleteClassifier(Classifier classifier)
 			throws SearchLibException, IOException {
-		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
+				getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -738,7 +738,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void saveLearner(Learner learner) throws SearchLibException,
 			UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
+				getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -768,7 +769,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void deleteLearner(Learner learner) throws SearchLibException,
 			IOException {
-		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
+				getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -817,7 +819,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveDatabaseCrawlList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
 				"databaseCrawlList.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -875,7 +877,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveRestCrawlList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir, "restCrawlList.xml");
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
+				"restCrawlList.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -933,7 +936,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveMailboxCrawlList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
 				"mailboxCrawlList.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -1285,7 +1288,8 @@ public abstract class Config implements ThreadFactory {
 
 	public void save(Renderer renderer) throws SearchLibException,
 			UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
+				getRendererDirectory(),
 				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -1320,7 +1324,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			rendererLock.w.lock();
 			try {
-				cfr = configFiles
+				cfr = ConfigFiles.getInstance()
 						.get(getRendererDirectory(),
 								URLEncoder.encode(renderer.getName(), "UTF-8")
 										+ ".xml");
@@ -1777,7 +1781,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveSiteMapList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
 				"webcrawler-sitemap.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -1826,7 +1830,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveUrlFilterList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
+		ConfigFileRotation cfr = ConfigFiles.getInstance().get(indexDir,
 				"webcrawler-urlfilter.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");

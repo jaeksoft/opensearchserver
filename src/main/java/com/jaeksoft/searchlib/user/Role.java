@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,57 +32,24 @@ public enum Role {
 
 	INDEX_SCHEMA("Index: edit the schema"),
 
-	WEB_CRAWLER_EDIT_PATTERN_LIST("Web crawler: edit then pattern list"),
+	CRAWLER_EDIT("Crawler: edit parameters"),
 
-	WEB_CRAWLER_EDIT_PARAMETERS("Web crawler: edit parameters"),
+	CRAWLER_EXECUTE("Execute a crawler"),
 
-	WEB_CRAWLER_START_STOP("Web crawler: start and stop"),
+	PARSER_EDIT("Crawler: edit parameters"),
 
-	FILE_CRAWLER_EDIT_PATTERN_LIST("File crawler: edit the pattern list"),
+	JOB_EDIT("Create / edit a job"),
 
-	FILE_CRAWLER_EDIT_PARAMETERS("File crawler: edit parameters"),
-
-	FILE_CRAWLER_START_STOP("File crawler: start  and stop"),
-
-	DATABASE_CRAWLER_EDIT_PARAMETERS("Database crawler: edit parameters"),
-
-	DATABASE_CRAWLER_START_STOP("Database crawler: start  and stop"),
-
-	SCHEDULER_EDIT("Create / edit a scheduler"),
-
-	SCHEDULER_RUN("Run a scheduler"),
-
-	SCRIPT_RUN("Run a script"),
-
-	MAILBOX_CRAWLER_EDIT("Mail crawler: edit"),
-
-	MAILBOX_CRAWLER_EXECUTE("Mail crawler: execute"),
-
-	REST_CRAWLER_EDIT("REST crawler: edit"),
-
-	REST_CRAWLER_EXECUTE("REST crawler: execute");
+	JOB_EXECUTE("Run a job");
 
 	private String label;
 
 	public static Role[] GROUP_INDEX = { INDEX_QUERY, INDEX_UPDATE,
 			INDEX_SCHEMA };
 
-	public static Role[] GROUP_WEB_CRAWLER = { WEB_CRAWLER_EDIT_PATTERN_LIST,
-			WEB_CRAWLER_EDIT_PARAMETERS, WEB_CRAWLER_START_STOP };
+	public static Role[] GROUP_CRAWLER = { CRAWLER_EDIT, CRAWLER_EXECUTE };
 
-	public static Role[] GROUP_FILE_CRAWLER = { FILE_CRAWLER_EDIT_PATTERN_LIST,
-			FILE_CRAWLER_EDIT_PARAMETERS, FILE_CRAWLER_START_STOP };
-
-	public static Role[] GROUP_DATABASE_CRAWLER = {
-			DATABASE_CRAWLER_EDIT_PARAMETERS, DATABASE_CRAWLER_START_STOP };
-
-	public static Role[] GROUP_MAILBOX_CRAWLER = { MAILBOX_CRAWLER_EDIT,
-			MAILBOX_CRAWLER_EXECUTE };
-
-	public static Role[] GROUP_REST_CRAWLER = { REST_CRAWLER_EDIT,
-			REST_CRAWLER_EXECUTE };
-
-	public static Role[] GROUP_SCHEDULER = { SCHEDULER_EDIT, SCHEDULER_RUN };
+	public static Role[] GROUP_JOB = { JOB_EDIT, JOB_EXECUTE };
 
 	private Role(String label) {
 		this.label = label;

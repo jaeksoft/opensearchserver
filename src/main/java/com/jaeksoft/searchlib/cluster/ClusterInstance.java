@@ -30,20 +30,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class ClusterInstance {
 
-	private final String id;
-	private URI uri = null;
-	private ClusterStatus status = ClusterStatus.OFFLINE;
-	private Long fileTime = null;
-
-	public ClusterInstance(String id) {
-		this.id = id;
-	}
+	private URI uri;
+	private ClusterStatus status;
+	private Long fileTime;
 
 	public ClusterInstance() {
-		this(null);
+		uri = null;
+		status = ClusterStatus.UNKOWN;
+		fileTime = null;
 	}
 
 	/**
@@ -94,13 +91,6 @@ public class ClusterInstance {
 	 */
 	void setFileTime(Long fileTime) {
 		this.fileTime = fileTime;
-	}
-
-	/**
-	 * @return the hardwareAddress
-	 */
-	public String getId() {
-		return id;
 	}
 
 }

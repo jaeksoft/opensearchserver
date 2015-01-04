@@ -168,7 +168,7 @@ public class SchemaServlet extends AbstractServlet {
 				"UTF-8");
 		xmlWriter.startElement("response");
 		List<String> indices = new ArrayList<String>();
-		ClientCatalog.populateClientName(user, indices, null);
+		ClientCatalog.populateIndexName(user, indices, null);
 		for (String indexName : indices) {
 			xmlWriter.startElement("index", "name", indexName);
 			xmlWriter.endElement();
