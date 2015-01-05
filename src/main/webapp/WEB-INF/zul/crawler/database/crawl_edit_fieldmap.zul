@@ -17,7 +17,9 @@
 <listbox width="99%" selectedItem="@bind(dbCrawlList.selectedField)"
 	model="@load(dbCrawlList.currentCrawl.fieldMap.list)">
 	<listhead>
-		<listheader label="SQL column" align="center" width="180px" />
+		<listheader
+			label="@load(dbCrawlList.currentCrawl.type.fieldMapColumnName)"
+			align="center" width="180px" />
 		<listheader label="Index field" align="center" width="180px" />
 		<listheader width="50px" label="Tags" tooltiptext="Remove tag"
 			align="center" />

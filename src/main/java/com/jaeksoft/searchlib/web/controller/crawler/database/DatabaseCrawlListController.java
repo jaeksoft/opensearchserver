@@ -145,16 +145,11 @@ public class DatabaseCrawlListController
 	}
 
 	@Command
-	public void onCheckSqlSelect() throws SearchLibException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException {
+	public void onCheckSqlSelect() throws Exception {
 		DatabaseCrawlAbstract crawl = getCurrentCrawl();
 		if (crawl == null)
 			throw new SearchLibException("No crawl selected");
-		if (!(crawl instanceof DatabaseCrawlSql))
-			throw new SearchLibException("Wrong crawl type (expecting DB SQL)");
-		DatabaseCrawlSql crawlSql = (DatabaseCrawlSql) crawl;
-		new AlertController(crawlSql.checkSqlSelect());
+		new AlertController(crawl.test());
 	}
 
 	public DatabaseCrawlEnum[] getDatabaseCrawlTypes() {
