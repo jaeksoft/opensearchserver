@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,7 +28,7 @@ public enum DatabaseCrawlEnum {
 
 	DB_SQL("JDBC SQL"),
 
-	DB_NO_SQL("No SQL");
+	DB_MONGO_DB("MongoDB");
 
 	private final String label;
 
