@@ -38,15 +38,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.webservice.replication.ReplicationResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonInclude(Include.NON_NULL)
 public class CommonListResult<T> extends CommonResult {
 
-	@XmlElementWrapper(name = "item")
+	@XmlElementWrapper(name = "items")
 	@XmlElements({ @XmlElement(name = "item", type = String.class),
-			@XmlElement(name = "item", type = NameLinkItem.class) })
+			@XmlElement(name = "item", type = NameLinkItem.class),
+			@XmlElement(name = "item", type = ReplicationResult.class) })
 	public final Collection<T> items;
 
 	public CommonListResult() {
