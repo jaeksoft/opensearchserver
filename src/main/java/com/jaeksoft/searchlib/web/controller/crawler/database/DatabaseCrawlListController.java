@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlAbstract;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlEnum;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlList;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMaster;
+import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlMongoDb;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlThread;
@@ -117,8 +118,9 @@ public class DatabaseCrawlListController
 		case DB_SQL:
 			newCrawl = new DatabaseCrawlSql(getCrawlMaster(), getProperties());
 			break;
-		case DB_NO_SQL:
-			newCrawl = null;
+		case DB_MONGO_DB:
+			newCrawl = new DatabaseCrawlMongoDb(getCrawlMaster(),
+					getProperties());
 			break;
 		}
 		setCurrentCrawl(newCrawl);
