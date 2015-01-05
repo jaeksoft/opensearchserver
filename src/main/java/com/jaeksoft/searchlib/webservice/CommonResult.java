@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class CommonResult implements InfoCallback {
 
 	protected final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
