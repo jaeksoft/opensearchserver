@@ -319,8 +319,9 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		return jdbcCnx.getNewTransaction(false, isolationLevel.value);
 	}
 
-	public String checkSqlSelect() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException {
+	@Override
+	public String test() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException {
 		JDBCConnection jdbcCnx = getNewJdbcConnection();
 		Transaction transaction = null;
 		StringWriter sw = null;

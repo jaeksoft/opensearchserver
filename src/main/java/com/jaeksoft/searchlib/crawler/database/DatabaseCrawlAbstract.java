@@ -259,4 +259,6 @@ public abstract class DatabaseCrawlAbstract
 		return getName();
 	}
 
+	public abstract String test() throws Exception;
+
 }

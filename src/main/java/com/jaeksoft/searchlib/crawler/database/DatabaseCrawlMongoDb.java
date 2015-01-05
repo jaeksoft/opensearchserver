@@ -24,25 +24,39 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Set;
+
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
+import com.mongodb.util.JSON;
 
 public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 
 	private String databaseName;
+	private String collectionName;
 	private String collectionQuery;
 
 	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
 			DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, propertyManager, name);
 		databaseName = null;
+		collectionName = null;
 		collectionQuery = null;
 	}
 
@@ -50,6 +64,7 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		if (variables == null)
 			return;
 		databaseName = variables.replace(databaseName);
+		collectionName = variables.replace(collectionName);
 		collectionQuery = variables.replace(collectionQuery);
 	}
 
@@ -73,6 +88,7 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		super.copyTo(crawlAbstract);
 		DatabaseCrawlMongoDb crawl = (DatabaseCrawlMongoDb) crawlAbstract;
 		crawl.databaseName = this.databaseName;
+		crawl.collectionName = this.collectionName;
 		crawl.collectionQuery = this.collectionQuery;
 	}
 
@@ -82,6 +98,7 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 	}
 
 	protected final static String DBCRAWL_ATTR_DB_NAME = "databaseName";
+	protected final static String DBCRAWL_ATTR_COLLECTION_NAME = "collectionName";
 	protected final static String DBCRAWL_NODE_NAME_COLLECTION_QUERY = "collectionQuery";
 
 	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
@@ -90,6 +107,8 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		super(crawlMaster, propertyManager, xpp, item);
 		setDatabaseName(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_DB_NAME));
+		setCollectionName(XPathParser.getAttributeString(item,
+				DBCRAWL_ATTR_COLLECTION_NAME));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_COLLECTION_QUERY);
 		if (sqlNode != null)
 			setCollectionQuery(xpp.getNodeString(sqlNode, true));
@@ -103,7 +122,8 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
 						.getCode(), DBCRAWL_ATTR_BUFFER_SIZE, Integer
 						.toString(getBufferSize()), DBCRAWL_ATTR_MSSLEEP,
-				Integer.toString(getMsSleep()));
+				Integer.toString(getMsSleep()), DBCRAWL_ATTR_DB_NAME,
+				getDatabaseName());
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
@@ -146,4 +166,81 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		this.collectionQuery = collectionQuery;
 	}
 
+	/**
+	 * @return the collectionName
+	 */
+	public String getCollectionName() {
+		return collectionName;
+	}
+
+	/**
+	 * @param collectionName
+	 *            the collectionName to set
+	 */
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
+
+	@Override
+	public String test() throws Exception {
+		String user = getUser();
+		String password = getPassword();
+		URI uri = new URI(getUrl());
+		StringBuilder sb = new StringBuilder();
+		if (!"mongodb".equals(uri.getScheme()))
+			throw new SearchLibException("Wrong scheme: " + uri.getScheme()
+					+ ". The URL should start with: mongodb://");
+		MongoCredential credential = null;
+		MongoClient mongoClient = null;
+		try {
+			if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
+				credential = MongoCredential.createMongoCRCredential(user,
+						databaseName, password.toCharArray());
+				mongoClient = new MongoClient(new ServerAddress(uri.getHost(),
+						uri.getPort()), Arrays.asList(credential));
+			} else
+				mongoClient = new MongoClient(new ServerAddress(uri.getHost(),
+						uri.getPort()));
+			sb.append("Connection established.");
+			sb.append(StringUtils.LF);
+			if (!StringUtils.isEmpty(databaseName)) {
+				DB db = mongoClient.getDB(databaseName);
+				if (db == null)
+					throw new SearchLibException("Database not found: "
+							+ databaseName);
+				Set<String> collections = db.getCollectionNames();
+				if (collections == null)
+					throw new SearchLibException("No collection found.");
+				sb.append("Collections found:");
+				sb.append(StringUtils.LF);
+				for (String collection : collections) {
+					sb.append(collection);
+					sb.append(StringUtils.LF);
+				}
+				if (!StringUtils.isEmpty(collectionName)) {
+					DBCollection dbCollection = db
+							.getCollection(collectionName);
+					if (dbCollection == null)
+						throw new SearchLibException("Collection "
+								+ collectionName + " not found.");
+					sb.append("Collection " + collectionName + " contains "
+							+ dbCollection.count() + " document(s).");
+					sb.append(StringUtils.LF);
+					if (!StringUtils.isEmpty(collectionQuery)) {
+						DBObject queryObject = (DBObject) JSON
+								.parse(collectionQuery);
+						dbCollection.count(queryObject);
+						sb.append("Query returns "
+								+ dbCollection.count(queryObject)
+								+ " document(s).");
+						sb.append(StringUtils.LF);
+					}
+				}
+			}
+		} finally {
+			if (mongoClient != null)
+				mongoClient.close();
+		}
+		return sb.toString();
+	}
 }

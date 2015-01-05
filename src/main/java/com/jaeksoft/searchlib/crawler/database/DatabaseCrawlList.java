@@ -79,7 +79,9 @@ public class DatabaseCrawlList {
 				dbCrawl = new DatabaseCrawlSql(crawlMaster, propertyManager,
 						xpp, nodes.item(i));
 				break;
-			default:
+			case DB_MONGO_DB:
+				dbCrawl = new DatabaseCrawlMongoDb(crawlMaster,
+						propertyManager, xpp, nodes.item(i));
 				break;
 			}
 			if (dbCrawl != null)

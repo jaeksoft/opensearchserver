@@ -26,18 +26,33 @@ package com.jaeksoft.searchlib.crawler.database;
 
 public enum DatabaseCrawlEnum {
 
-	DB_SQL("JDBC SQL"),
+	DB_SQL("JDBC SQL", "SQL column",
+			"/WEB-INF/zul/crawler/database/crawl_edit_sql.zul"),
 
-	DB_MONGO_DB("MongoDB");
+	DB_MONGO_DB("MongoDB", "Query",
+			"/WEB-INF/zul/crawler/database/crawl_edit_mongodb.zul");
 
 	private final String label;
+	private final String fieldMapColumnName;
+	private final String generalTemplate;
 
-	private DatabaseCrawlEnum(String label) {
+	private DatabaseCrawlEnum(String label, String fieldMapColumnName,
+			String generalTemplate) {
 		this.label = label;
+		this.fieldMapColumnName = fieldMapColumnName;
+		this.generalTemplate = generalTemplate;
 	}
 
 	public String getLabel() {
 		return label;
+	}
+
+	public String getGeneralTemplate() {
+		return generalTemplate;
+	}
+
+	public String getFieldMapColumnName() {
+		return fieldMapColumnName;
 	}
 
 	public static DatabaseCrawlEnum find(String name) {
