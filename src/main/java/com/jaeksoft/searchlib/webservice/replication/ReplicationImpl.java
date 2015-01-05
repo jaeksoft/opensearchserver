@@ -74,6 +74,7 @@ public class ReplicationImpl extends CommonServices implements RestReplication {
 					.getReplicationMaster());
 			ReplicationItem oldItem = replicationList.get(newItem.getName());
 			replicationList.save(oldItem, newItem);
+			client.saveReplicationList();
 			String message = oldItem == null ? "Item created: "
 					: "Item updated: ";
 			return new CommonResult(true, message + newItem.getName());
@@ -123,6 +124,7 @@ public class ReplicationImpl extends CommonServices implements RestReplication {
 				throw new CommonServiceException(Status.NOT_FOUND,
 						"Replication item not found");
 			replicationList.save(replicationItem, null);
+			client.saveReplicationList();
 			return new CommonResult(true, "Item " + replication_name
 					+ " deleted.");
 		} catch (Exception e) {
