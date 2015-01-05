@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -26,7 +26,7 @@
 			<tabpanels>
 				<tabpanel>
 					<include
-						src="/WEB-INF/zul/crawler/database/crawl_edit_sql.zul" />
+						src="@load(dbCrawlList.currentCrawl.type.generalTemplate)" />
 				</tabpanel>
 				<tabpanel>
 					<include

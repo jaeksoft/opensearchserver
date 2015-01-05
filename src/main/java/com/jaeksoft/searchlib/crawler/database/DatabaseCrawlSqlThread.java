@@ -103,7 +103,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		if (i == 0 || i < limit)
 			return false;
 		setStatus(CrawlStatus.DELETION);
-		client.deleteDocuments(null, deleteDocumentList);
+		client.deleteDocuments(client.getSchema().getUniqueField(),
+				deleteDocumentList);
 		rwl.w.lock();
 		try {
 			pendingDeleteDocumentCount -= i;

@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -19,6 +19,15 @@
 		title="List of existing database crawl - click on an crawl name to edit it"
 		border="normal" visible="@load(dbCrawlList.notEditing)">
 		<toolbar>
+			<label value="Type: " />
+			<listbox mold="select"
+				model="@load(dbCrawlList.databaseCrawlTypes)"
+				selectedItem="@bind(dbCrawlList.dbCrawlType)">
+				<template name="model" var="type">
+					<listitem label="@load(type.label)"
+						value="@load(type)" />
+				</template>
+			</listbox>
 			<button label="New crawl..." onClick="@command('onNew')" />
 		</toolbar>
 		<panelchildren>
