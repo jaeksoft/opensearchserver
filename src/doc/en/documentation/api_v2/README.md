@@ -4,6 +4,7 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 
 * [Authentication](authentication.md)
 * [Auto-completion](auto-completion/README.md)
+* [DATABASE Crawler](DATABASE_crawler/README.md)
 * [Document](document/README.md): insert and delete records.
 * [Field](field/README.md): manage the schema.
 * [Index](index/README.md): create, list, delete indexes.
