@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,10 @@ public class DatabaseCrawlMaster extends
 		if (databaseCrawl instanceof DatabaseCrawlSql)
 			return new DatabaseCrawlSqlThread(client, this,
 					(DatabaseCrawlSql) databaseCrawl, variables, infoCallback);
+		if (databaseCrawl instanceof DatabaseCrawlMongoDb)
+			return new DatabaseCrawlMongoDbThread(client, this,
+					(DatabaseCrawlMongoDb) databaseCrawl, variables,
+					infoCallback);
 		return null;
 	}
 

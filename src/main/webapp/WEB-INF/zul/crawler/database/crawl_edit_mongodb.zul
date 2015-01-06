@@ -61,15 +61,22 @@
 			<label value="Enter the name of the collection" />
 		</row>
 		<row>
-			<label value="Query (json format): " />
-			<vlayout>
-				<textbox rows="10"
-					value="@bind(dbCrawlList.currentCrawl.collectionQuery)"
-					width="95%" />
-				<button label="Check"
-					onClick="@command('onCheckSqlSelect')" />
-			</vlayout>
+			<label value="Ref Query (json format): " />
+			<textbox rows="10"
+				value="@bind(dbCrawlList.currentCrawl.refQuery)" width="95%" />
 			<label value="Enter the query to retrieve data" />
+		</row>
+		<row>
+			<label value="Key Query (json format): " />
+			<textbox rows="10"
+				value="@bind(dbCrawlList.currentCrawl.keyQuery)" width="95%" />
+			<label value="Enter the query to retrieve data" />
+		</row>
+		<row>
+			<cell />
+			<button label="Check query"
+				onClick="@command('onCheckSqlSelect')" />
+			<cell />
 		</row>
 		<row>
 			<label value="Language: " />
