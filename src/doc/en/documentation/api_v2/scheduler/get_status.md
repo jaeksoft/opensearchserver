@@ -18,6 +18,7 @@ Use this API to retrieve the last status of a task in the scheduler.
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
+- _**scheduler_name**_ (required): The name of the scheduler.
 
 ### Success response
 Information about this task.
