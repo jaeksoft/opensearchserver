@@ -20,6 +20,7 @@ Use this API to run a task in the Scheduler.
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
+- _**scheduler_name**_ (required): The name of the scheduler.
 
 **Body of request:**
 
