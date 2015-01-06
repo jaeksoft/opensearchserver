@@ -24,27 +24,14 @@
 
 package com.jaeksoft.searchlib.crawler.rest;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import net.minidev.json.JSONArray;
-
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
 
 public class RestFieldMap extends
 		FieldMapGeneric<SourceField, CommonFieldTarget> {
@@ -74,34 +61,4 @@ public class RestFieldMap extends
 		return false;
 	}
 
-	public void mapJson(FieldMapContext context, Object jsonObject,
-			IndexDocument target) throws SearchLibException, IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
-		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
-			String jsonPath = link.getSource().getUniqueName();
-			try {
-				Object jsonContent = JsonPath.read(jsonObject, jsonPath);
-				if (jsonContent == null)
-					continue;
-				if (jsonContent instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonContent;
-					for (Object content : jsonArray) {
-						if (content != null)
-							this.mapFieldTarget(context, link.getTarget(),
-									content.toString(), target, null);
-					}
-				} else
-					this.mapFieldTarget(context, link.getTarget(),
-							jsonContent.toString(), target, null);
-			} catch (PathNotFoundException e) {
-				continue;
-			} catch (IllegalArgumentException e) {
-				Logging.warn(e);
-				continue;
-			}
-		}
-
-	}
 }
