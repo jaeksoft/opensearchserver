@@ -23,17 +23,21 @@ Information about the replication.
 
 **Content (application/json):**
 
-    {
-      "successful":true,
-      "name":"http://localhost:8080/articles_backup",
-      "replicationType":"BACKUP_INDEX",
-      "remoteUrl":"http://localhost:8080",
-      "remoteIndexName":"articles_backup",
-      "secTimeOut":120,
-      "isActiveThread":false
-    }
-
-    
+	{  
+	   "successful":true,
+	   "name":"http://localhost:8080/articles_backup",
+	   "replicationType":"BACKUP_INDEX",
+	   "remoteUrl":"http://localhost:8080",
+	   "remoteIndexName":"articles_backup",
+	   "secTimeOut":120,
+	   "isActiveThread":false,
+	   "lastThread":{  
+		  "info":"100% completed - 0 file(s) sent - 0 bytes sent",
+		  "durationMs":2324,
+		  "startDate":"2015-01-06T13:36:23.912+0000"
+	   }
+	}
+ 
 ### Error response
 
 The request failed. The reason is provided in the content.
