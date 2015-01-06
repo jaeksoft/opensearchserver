@@ -284,7 +284,6 @@ public class RestCrawlThread extends
 			if (documents == null)
 				return;
 			for (Object document : documents) {
-				setStatus(CrawlStatus.CRAWL);
 				IndexDocument newIndexDocument = new IndexDocument(
 						fieldMapContext.lang);
 				restFieldMap.mapJson(fieldMapContext, document,
@@ -296,7 +295,8 @@ public class RestCrawlThread extends
 				} finally {
 					rwl.w.unlock();
 				}
-				index(downloader, indexDocumentList, limit);
+				if (index(downloader, indexDocumentList, limit))
+					setStatus(CrawlStatus.CRAWL);
 			}
 			index(downloader, indexDocumentList, 0);
 
