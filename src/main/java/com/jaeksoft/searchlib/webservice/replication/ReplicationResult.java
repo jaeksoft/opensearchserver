@@ -28,6 +28,7 @@ import java.lang.Thread.State;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -55,8 +56,31 @@ public class ReplicationResult extends CommonResult {
 	public final String remoteIndexName;
 	public final Integer secTimeOut;
 	public final Boolean isActiveThread;
-	public final String lastThreadInfo;
-	public final State lastThreadState;
+	public final ThreadResult lastThread;
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	@JsonInclude(Include.NON_EMPTY)
+	public static class ThreadResult {
+
+		public final String info;
+		public final State state;
+		public final Long durationMs;
+		public final Date startDate;
+
+		public ThreadResult() {
+			info = null;
+			state = null;
+			durationMs = null;
+			startDate = null;
+		}
+
+		public ThreadResult(ReplicationThread thread) {
+			info = thread.getStatInfo();
+			state = thread.getThreadState();
+			durationMs = thread.getDuration();
+			startDate = new Date(thread.getStartTime());
+		}
+	}
 
 	public ReplicationResult() {
 		name = null;
@@ -67,8 +91,7 @@ public class ReplicationResult extends CommonResult {
 		remoteIndexName = null;
 		secTimeOut = null;
 		isActiveThread = null;
-		lastThreadInfo = null;
-		lastThreadState = null;
+		lastThread = null;
 	}
 
 	ReplicationResult(Boolean successful, ReplicationItem replicationItem)
@@ -82,15 +105,8 @@ public class ReplicationResult extends CommonResult {
 		remoteIndexName = replicationItem.getIndexName();
 		secTimeOut = replicationItem.getSecTimeOut();
 		isActiveThread = replicationItem.isThread();
-		ReplicationThread lastThread = replicationItem.getLastThread();
-		if (lastThread == null) {
-			lastThreadInfo = null;
-			lastThreadState = null;
-		} else {
-			lastThreadInfo = lastThread.getStatInfo();
-			lastThreadState = lastThread.getThreadState();
-		}
-
+		ReplicationThread lt = replicationItem.getLastThread();
+		lastThread = lt == null ? null : new ThreadResult(lt);
 	}
 
 	static List<ReplicationResult> toArray(
