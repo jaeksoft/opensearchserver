@@ -55,7 +55,7 @@ public interface RestReplication {
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/run()")
+	@Path("/run")
 	public CommonResult replicationRun(@QueryParam("login") String login,
 			@QueryParam("key") String key,
 			@PathParam("index_name") String index_name,

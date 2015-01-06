@@ -48,6 +48,7 @@ public class RestApplication extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		classes.add(RestException.class);
+		classes.add(JacksonConfig.class);
 		classes.add(JacksonJsonProvider.class);
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			classes.add(webServiceEnum.getServiceClass());
