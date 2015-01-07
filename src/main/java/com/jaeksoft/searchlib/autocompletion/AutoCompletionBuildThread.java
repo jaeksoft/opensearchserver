@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -57,12 +57,11 @@ public class AutoCompletionBuildThread extends
 	private volatile String searchRequest;
 	private volatile String[] fieldNames;
 	private volatile TermEnum termEnum;
-	private volatile InfoCallback infoCallBack;
 	private volatile int bufferSize;
 
 	protected AutoCompletionBuildThread(Client sourceClient,
-			Client autoCompClient) {
-		super(sourceClient, null, null);
+			Client autoCompClient, InfoCallback infoCallBack) {
+		super(sourceClient, null, null, infoCallBack);
 		this.sourceClient = sourceClient;
 		this.autoCompClient = autoCompClient;
 		this.fieldNames = null;
@@ -93,8 +92,8 @@ public class AutoCompletionBuildThread extends
 			return docCount;
 		docCount += autoCompClient.updateDocuments(buffer);
 		buffer.clear();
-		if (infoCallBack != null)
-			infoCallBack.setInfo(docCount + " term(s) indexed");
+		if (infoCallback != null)
+			infoCallback.setInfo(docCount + " term(s) indexed");
 		return docCount;
 	}
 
@@ -205,10 +204,9 @@ public class AutoCompletionBuildThread extends
 	}
 
 	public void init(Collection<String> fieldNames, String searchRequest,
-			int bufferSize, InfoCallback infoCallBack) {
+			int bufferSize) {
 		this.fieldNames = fieldNames.toArray(new String[fieldNames.size()]);
 		this.searchRequest = searchRequest;
-		this.infoCallBack = infoCallBack;
 		this.bufferSize = bufferSize;
 	}
 

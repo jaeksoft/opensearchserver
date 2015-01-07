@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,18 +46,15 @@ public abstract class DatabaseCrawlThread extends
 
 	protected long updatedDeleteDocumentCount;
 
-	protected final InfoCallback infoCallback;
-
 	public DatabaseCrawlThread(Client client, DatabaseCrawlMaster crawlMaster,
 			DatabaseCrawlAbstract databaseCrawl, InfoCallback infoCallback) {
-		super(client, crawlMaster, databaseCrawl);
+		super(client, crawlMaster, databaseCrawl, infoCallback);
 		this.databaseCrawl = databaseCrawl;
 		this.client = client;
 		pendingIndexDocumentCount = 0;
 		updatedIndexDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
-		this.infoCallback = infoCallback;
 	}
 
 	public String getCountInfo() {

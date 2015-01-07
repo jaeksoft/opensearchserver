@@ -68,8 +68,6 @@ public class RestCrawlThread extends
 
 	protected long updatedDeleteDocumentCount;
 
-	protected final InfoCallback infoCallback;
-
 	private final Collection<String> idsCallback;
 
 	private final FieldMapContext fieldMapContext;
@@ -78,7 +76,7 @@ public class RestCrawlThread extends
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
 			RestCrawlItem restCrawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
-		super(client, crawlMaster, restCrawlItem);
+		super(client, crawlMaster, restCrawlItem, infoCallback);
 		this.restCrawlItem = restCrawlItem.duplicate();
 		this.restCrawlItem.apply(variables);
 		this.client = client;
@@ -87,7 +85,6 @@ public class RestCrawlThread extends
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		fieldMapContext = new FieldMapContext(client, restCrawlItem.getLang());
-		this.infoCallback = infoCallback;
 		this.idsCallback = infoCallback != null
 				&& infoCallback instanceof CommonListResult<?> ? ((CommonListResult<String>) infoCallback).items
 				: null;

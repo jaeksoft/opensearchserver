@@ -71,7 +71,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 			ReplicationMaster replicationMaster,
 			ReplicationItem replicationItem, InfoCallback infoCallback)
 			throws SearchLibException, IOException {
-		super(client, replicationMaster, replicationItem);
+		super(client, replicationMaster, replicationItem, infoCallback);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.replicationType = replicationItem.getReplicationType();
 		this.client = client;
