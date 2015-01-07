@@ -26,8 +26,6 @@ package com.jaeksoft.searchlib.crawler.database;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,14 +34,17 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
+import com.jayway.jsonpath.Configuration;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.util.JSON;
 
 public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 
@@ -61,9 +62,7 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 	}
 
 	private boolean index(List<IndexDocument> indexDocumentList, int limit)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException {
+			throws IOException, SearchLibException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -85,24 +84,34 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 	}
 
 	final private void runner_update(DBCursor cursor)
-			throws SearchLibException, NoSuchAlgorithmException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException, URISyntaxException,
-			SQLException {
-		final int bf = databaseCrawl.getBufferSize();
-		cursor.batchSize(bf);
+			throws SearchLibException, ClassNotFoundException,
+			InstantiationException, IllegalAccessException, IOException,
+			ParseException, SyntaxError, URISyntaxException,
+			InterruptedException {
+		final int limit = databaseCrawl.getBufferSize();
+		cursor.batchSize(limit);
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		LanguageEnum lang = databaseCrawl.getLang();
-		FieldMapContext context = new FieldMapContext(client, lang);
+		FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
 
 		while (cursor.hasNext() && !isAborted()) {
+
+			String json = JSON.serialize(cursor.next());
+			Object document = Configuration.defaultConfiguration()
+					.jsonProvider().parse(json);
 			IndexDocument indexDocument = new IndexDocument(lang);
-			databaseFieldMap.mapDBRrsult(context, cursor, indexDocument);
+			databaseFieldMap.mapJson(fieldMapContext, document, indexDocument);
 			indexDocumentList.add(indexDocument);
-			pendingIndexDocumentCount++;
-			if (index(indexDocumentList, bf))
+			rwl.w.lock();
+			try {
+				pendingIndexDocumentCount++;
+			} finally {
+				rwl.w.unlock();
+			}
+			if (index(indexDocumentList, limit))
 				setStatus(CrawlStatus.CRAWL);
+
 		}
 		index(indexDocumentList, 0);
 	}
@@ -115,9 +124,9 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		try {
 			mongoClient = databaseCrawl.getMongoClient();
 			DBCollection collection = databaseCrawl.getCollection(mongoClient);
-			DBObject ref = databaseCrawl.getRefObject();
-			DBObject key = databaseCrawl.getKeyObject();
-			DBCursor cursor = collection.find(ref, key);
+			DBCursor cursor = collection.find(
+					databaseCrawl.getCriteriaObject(),
+					databaseCrawl.getProjectionObject());
 			try {
 				setStatus(CrawlStatus.CRAWL);
 				if (cursor != null)

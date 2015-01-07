@@ -36,6 +36,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import net.minidev.json.JSONArray;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -64,6 +66,8 @@ import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.GenericMap;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
 public abstract class FieldMapGeneric<S extends SourceField, T extends TargetField>
 		extends GenericMap<S, T> {
@@ -240,6 +244,37 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		content = mapFieldTarget(dfTarget, content);
 		target.add(dfTarget.getName(), new FieldValueItem(
 				FieldValueOriginEnum.EXTERNAL, content));
+	}
 
+	public void mapJson(FieldMapContext context, Object jsonObject,
+			IndexDocument target) throws SearchLibException, IOException,
+			ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException,
+			InstantiationException, IllegalAccessException {
+		for (GenericLink<S, T> link : getList()) {
+			String jsonPath = link.getSource().getUniqueName();
+			try {
+				Object jsonContent = JsonPath.read(jsonObject, jsonPath);
+				if (jsonContent == null)
+					continue;
+				if (jsonContent instanceof JSONArray) {
+					JSONArray jsonArray = (JSONArray) jsonContent;
+					for (Object content : jsonArray) {
+						if (content != null)
+							mapFieldTarget(context,
+									(CommonFieldTarget) link.getTarget(),
+									content.toString(), target, null);
+					}
+				} else
+					mapFieldTarget(context,
+							(CommonFieldTarget) link.getTarget(),
+							jsonContent.toString(), target, null);
+			} catch (PathNotFoundException e) {
+				continue;
+			} catch (IllegalArgumentException e) {
+				Logging.warn(e);
+				continue;
+			}
+		}
 	}
 }

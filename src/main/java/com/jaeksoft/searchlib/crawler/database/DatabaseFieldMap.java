@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
-import com.mongodb.DBCursor;
 
 public class DatabaseFieldMap extends
 		FieldMapGeneric<SourceField, CommonFieldTarget> {
@@ -89,13 +88,6 @@ public class DatabaseFieldMap extends
 			mapFieldTarget(context, link.getTarget(), content, target,
 					filePathSet);
 		}
-	}
-
-	// TODO MongoDB mapping
-	final public void mapDBRrsult(FieldMapContext context, DBCursor cursor,
-			IndexDocument indexDocument) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
