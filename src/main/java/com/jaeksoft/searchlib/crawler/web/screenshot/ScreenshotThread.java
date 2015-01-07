@@ -59,7 +59,7 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
 			URL url, CredentialItem credentialItem,
 			BrowserDriverEnum browserDriverEnum) {
-		super(config, null, null);
+		super(config, null, null, null);
 		this.browserDriverEnum = browserDriverEnum;
 		this.url = url;
 		this.screenshotManager = screenshotManager;
@@ -74,7 +74,7 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 	public ScreenshotThread(Dimension capture, int reduction,
 			boolean visiblePartOnly, URL url, int waitSec,
 			BrowserDriverEnum browserDriverEnum) {
-		super(null, null, null);
+		super(null, null, null, null);
 		this.browserDriverEnum = browserDriverEnum;
 		this.url = url;
 		this.screenshotManager = null;

@@ -58,7 +58,7 @@ public class CrawlFileThread extends
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
 			CrawlStatistics sessionStats, FilePathItem filePathItem)
 			throws SearchLibException {
-		super(config, crawlMaster, null);
+		super(config, crawlMaster, null, null);
 		this.fileManager = config.getFileManager();
 		currentStats = new CrawlStatistics(sessionStats);
 		delayBetweenAccesses = filePathItem.getDelay();

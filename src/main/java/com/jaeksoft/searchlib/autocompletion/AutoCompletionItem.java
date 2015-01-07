@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -118,10 +118,11 @@ public class AutoCompletionItem implements Closeable,
 		propRows = Integer.parseInt(properties.getProperty(
 				autoCompletionPropertyRows, autoCompletionPropertyRowsDefault));
 		searchRequest = properties.getProperty(autoCompletionSearchRequest);
-		checkIndexAndThread();
+		checkIndexAndThread(null);
 	}
 
-	private void checkIndexAndThread() throws SearchLibException {
+	private void checkIndexAndThread(InfoCallback infoCallback)
+			throws SearchLibException {
 		if (autoCompClient == null) {
 			if (!autoCompClientDir.exists())
 				autoCompClientDir.mkdir();
@@ -130,7 +131,7 @@ public class AutoCompletionItem implements Closeable,
 		}
 		if (buildThread == null)
 			buildThread = new AutoCompletionBuildThread((Client) config,
-					autoCompClient);
+					autoCompClient, infoCallback);
 	}
 
 	public Client getAutoCompletionClient() {
@@ -222,7 +223,7 @@ public class AutoCompletionItem implements Closeable,
 		rwl.w.lock();
 		try {
 			saveProperties();
-			checkIndexAndThread();
+			checkIndexAndThread(null);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -282,11 +283,10 @@ public class AutoCompletionItem implements Closeable,
 		rwl.w.lock();
 		try {
 			checkIfRunning();
-			checkIndexAndThread();
+			checkIndexAndThread(infoCallBack);
 			if (infoCallBack != null)
 				infoCallBack.setInfo("Build starts");
-			buildThread.init(propFields, searchRequest, bufferSize,
-					infoCallBack);
+			buildThread.init(propFields, searchRequest, bufferSize);
 			buildThread.execute(300);
 		} finally {
 			rwl.w.unlock();

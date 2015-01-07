@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.util.InfoCallback;
 
 public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M extends CrawlMasterAbstract<M, T>>
 		extends ThreadAbstract<T> {
@@ -37,8 +38,8 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 	protected volatile CrawlStatistics currentStats;
 
 	protected CrawlThreadAbstract(Config config, M crawlMaster,
-			ThreadItem<?, T> uniqueThreadItem) {
-		super(config, crawlMaster, uniqueThreadItem);
+			ThreadItem<?, T> uniqueThreadItem, InfoCallback infoCallback) {
+		super(config, crawlMaster, uniqueThreadItem, infoCallback);
 		currentStats = null;
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}

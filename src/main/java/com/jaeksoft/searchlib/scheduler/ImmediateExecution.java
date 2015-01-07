@@ -38,7 +38,7 @@ public class ImmediateExecution extends ThreadAbstract<HttpDownloadThread> {
 	private TaskLog taskLog;
 
 	private ImmediateExecution(Client client) {
-		super(client, null, null);
+		super(client, null, null, null);
 		this.client = client;
 		this.variables = null;
 	}
