@@ -21,25 +21,25 @@ If OpenSearchServer was installed by uncompressing a `.zip` or `.tar.gz` file, u
 Steps are:
 
 1. stop OpenSearchServer
-* in the root folder where OpenSearchServer was uncompressed go to subfolder `server/webapps`
-* rename file `ROOT.war` to `ROOT.war.backup` to create a backup of the previous version
-* **delete folder `server/webapps/ROOT`**
-* download the `.war` file for the new version you want to install and copy it to `server/webapps`
-* **rename the new `.war` file to `ROOT.war`**
-* start OpenSearchServer
+2. in the root folder where OpenSearchServer was uncompressed go to subfolder `server/webapps`
+3. rename file `ROOT.war` to `ROOT.war.backup` to create a backup of the previous version
+4. **delete folder `server/webapps/ROOT`**
+5. download the `.war` file for the new version you want to install and copy it to `server/webapps`
+6. **rename the new `.war` file to `ROOT.war`**
+7. start OpenSearchServer
 
 OpenSearchServer is now upgraded! Check new version number at the top of the interface. 
 
 
 It is a best practice to **first test a new version of OpenSearchServer on a test server** with your data. To do so you can make a fresh install of OpenSearchServer and copy your data there:
 
-* download the `.zip` or `.tar.gz` package, 
-* uncompress it on your test server
-* copy your data from your current `data` folder to the `data` folder of this fresh install,
-* start the new OpenSearchServer,
-* check the behaviour of this new version before applying real upgrade to your production environment. 
+1. download the `.zip` or `.tar.gz` package, 
+2. uncompress it on your test server
+3. copy your data from your current `data` folder to the `data` folder of this fresh install,
+4. start the new OpenSearchServer,
+5. check the behaviour of this new version before applying real upgrade to your production environment. 
 
-##### Restoring previous version
+**Restoring previous version**
 
 If you notice some trouble after upgrading you can restore previous version. Since some versions of OpenSearchServer apply some transformation to the index you may also need to restore your data if restoring previous version of OpenSearchServer does not solve the issues. 
 
@@ -50,5 +50,5 @@ To restore previous version simply use the upgrading steps but use your backuped
 To update OpenSearchServer installed as a debian package steps are:
 
 1. stop OpenSearchServer
-* download new `.deb` file and run command `dpkg -i <downloaded_package.deb>`
-* start OpenSearchServer 
+2. download new `.deb` file and run command `dpkg -i <downloaded_package.deb>`
+3. start OpenSearchServer 
