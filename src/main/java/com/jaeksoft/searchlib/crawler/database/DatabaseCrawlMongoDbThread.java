@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jayway.jsonpath.Configuration;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 
@@ -125,9 +124,9 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		try {
 			mongoClient = databaseCrawl.getMongoClient();
 			DBCollection collection = databaseCrawl.getCollection(mongoClient);
-			DBObject ref = databaseCrawl.getRefObject();
-			DBObject key = databaseCrawl.getKeyObject();
-			DBCursor cursor = collection.find(ref, key);
+			DBCursor cursor = collection.find(
+					databaseCrawl.getCriteriaObject(),
+					databaseCrawl.getProjectionObject());
 			try {
 				setStatus(CrawlStatus.CRAWL);
 				if (cursor != null)

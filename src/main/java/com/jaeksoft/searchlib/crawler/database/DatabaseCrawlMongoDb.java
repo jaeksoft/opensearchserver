@@ -54,16 +54,16 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 
 	private String databaseName;
 	private String collectionName;
-	private String refQuery;
-	private String keyQuery;
+	private String criteria;
+	private String projection;
 
 	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
 			DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, propertyManager, name);
 		databaseName = null;
 		collectionName = null;
-		refQuery = null;
-		keyQuery = null;
+		criteria = null;
+		projection = null;
 	}
 
 	public void applyVariables(Variables variables) {
@@ -71,8 +71,8 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 			return;
 		databaseName = variables.replace(databaseName);
 		collectionName = variables.replace(collectionName);
-		refQuery = variables.replace(refQuery);
-		keyQuery = variables.replace(keyQuery);
+		criteria = variables.replace(criteria);
+		projection = variables.replace(projection);
 	}
 
 	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
@@ -96,8 +96,8 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		DatabaseCrawlMongoDb crawl = (DatabaseCrawlMongoDb) crawlAbstract;
 		crawl.databaseName = this.databaseName;
 		crawl.collectionName = this.collectionName;
-		crawl.refQuery = this.refQuery;
-		crawl.keyQuery = this.keyQuery;
+		crawl.criteria = this.criteria;
+		crawl.projection = this.projection;
 	}
 
 	@Override
@@ -107,8 +107,8 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 
 	protected final static String DBCRAWL_ATTR_DB_NAME = "databaseName";
 	protected final static String DBCRAWL_ATTR_COLLECTION_NAME = "collectionName";
-	protected final static String DBCRAWL_NODE_NAME_REF_QUERY = "refQuery";
-	protected final static String DBCRAWL_NODE_NAME_KEY_QUERY = "keyQuery";
+	protected final static String DBCRAWL_NODE_NAME_CRITERIA = "criteria";
+	protected final static String DBCRAWL_NODE_NAME_PROJECTION = "projection";
 
 	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
 			DatabasePropertyManager propertyManager, XPathParser xpp, Node item)
@@ -118,12 +118,12 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 				DBCRAWL_ATTR_DB_NAME));
 		setCollectionName(XPathParser.getAttributeString(item,
 				DBCRAWL_ATTR_COLLECTION_NAME));
-		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_REF_QUERY);
+		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_CRITERIA);
 		if (sqlNode != null)
-			setRefQuery(xpp.getNodeString(sqlNode, true));
-		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_KEY_QUERY);
+			setCriteria(xpp.getNodeString(sqlNode, true));
+		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_PROJECTION);
 		if (sqlNode != null)
-			setKeyQuery(xpp.getNodeString(sqlNode, true));
+			setProjection(xpp.getNodeString(sqlNode, true));
 	}
 
 	@Override
@@ -140,16 +140,16 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
-		// Ref query
-		if (!StringUtils.isEmpty(getRefQuery())) {
-			xmlWriter.startElement(DBCRAWL_NODE_NAME_REF_QUERY);
-			xmlWriter.textNode(getRefQuery());
+		String criteria = getCriteria();
+		if (!StringUtils.isEmpty(criteria)) {
+			xmlWriter.startElement(DBCRAWL_NODE_NAME_CRITERIA);
+			xmlWriter.textNode(criteria);
 			xmlWriter.endElement();
 		}
-		// Key query
-		if (!StringUtils.isEmpty(getKeyQuery())) {
-			xmlWriter.startElement(DBCRAWL_NODE_NAME_KEY_QUERY);
-			xmlWriter.textNode(getKeyQuery());
+		String projection = getProjection();
+		if (!StringUtils.isEmpty(projection)) {
+			xmlWriter.startElement(DBCRAWL_NODE_NAME_PROJECTION);
+			xmlWriter.textNode(projection);
 			xmlWriter.endElement();
 		}
 		xmlWriter.endElement();
@@ -171,33 +171,33 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @return the refQuery
+	 * @return the criteria
 	 */
-	public String getRefQuery() {
-		return refQuery;
+	public String getCriteria() {
+		return criteria;
 	}
 
 	/**
-	 * @param refQuery
-	 *            the refQuery to set
+	 * @param criteria
+	 *            the criteria to set
 	 */
-	public void setRefQuery(String refQuery) {
-		this.refQuery = refQuery;
+	public void setCriteria(String criteria) {
+		this.criteria = criteria;
 	}
 
 	/**
-	 * @return the keyQuery
+	 * @return the projection
 	 */
-	public String getKeyQuery() {
-		return keyQuery;
+	public String getProjection() {
+		return projection;
 	}
 
 	/**
-	 * @param keyQuery
-	 *            the keyQuery to set
+	 * @param projection
+	 *            the projection to set
 	 */
-	public void setKeyQuery(String keyQuery) {
-		this.keyQuery = keyQuery;
+	public void setProjection(String projection) {
+		this.projection = projection;
 	}
 
 	/**
@@ -239,16 +239,16 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		return db.getCollection(collectionName);
 	}
 
-	DBObject getRefObject() {
-		if (StringUtils.isEmpty(refQuery))
+	DBObject getCriteriaObject() {
+		if (StringUtils.isEmpty(criteria))
 			return null;
-		return (DBObject) JSON.parse(refQuery);
+		return (DBObject) JSON.parse(criteria);
 	}
 
-	DBObject getKeyObject() {
-		if (StringUtils.isEmpty(keyQuery))
+	DBObject getProjectionObject() {
+		if (StringUtils.isEmpty(projection))
 			return null;
-		return (DBObject) JSON.parse(keyQuery);
+		return (DBObject) JSON.parse(projection);
 	}
 
 	@Override
@@ -286,9 +286,9 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 					sb.append("Collection " + collectionName + " contains "
 							+ dbCollection.count() + " document(s).");
 					sb.append(StringUtils.LF);
-					if (!StringUtils.isEmpty(refQuery)) {
-						DBCursor cursor = dbCollection.find(getRefObject(),
-								getKeyObject());
+					if (!StringUtils.isEmpty(criteria)) {
+						DBCursor cursor = dbCollection.find(
+								getCriteriaObject(), getProjectionObject());
 						try {
 							sb.append("Query returns " + cursor.count()
 									+ " document(s).");
