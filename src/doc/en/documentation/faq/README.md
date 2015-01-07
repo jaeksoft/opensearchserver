@@ -28,3 +28,4 @@
     * [How to use synonyms](querying/how_to_use_synonyms.md)
     * [How to use filters on a query](querying/how_to_use_filters_on_query.md)
     * [How to replicate and merge indexes](querying/how_to_replicate_and_merge_indexes.md)
+    * [How to delete documents](querying/how_to_delete_documents.md)
