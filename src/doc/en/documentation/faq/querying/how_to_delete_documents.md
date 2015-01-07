@@ -2,7 +2,7 @@
 
 ### Deleting documents from the UI
 
-To delete from from the interface use the main tab `Delete`.
+To delete from the interface use the main tab `Delete`.
 
 You need to provide a query that will **search for documents to delete**. This query must be written with the standard query language used by OpenSearchServer, which is the one used by Lucene (see [Lucene doc](http://lucene.apache.org/core/2_9_4/queryparsersyntax.html)).
 
