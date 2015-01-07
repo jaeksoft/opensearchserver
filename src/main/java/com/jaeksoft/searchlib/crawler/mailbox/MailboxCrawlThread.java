@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
@@ -85,17 +84,10 @@ public class MailboxCrawlThread extends
 
 	private final SearchFieldRequest uniqueSearchRequest;
 
-	protected final InfoCallback infoCallback;
-
-	protected final TaskLog taskLog;
-
 	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster,
 			MailboxCrawlItem crawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
-		super(client, crawlMaster, crawlItem);
-		this.infoCallback = infoCallback;
-		this.taskLog = infoCallback instanceof TaskLog ? (TaskLog) infoCallback
-				: null;
+		super(client, crawlMaster, crawlItem, infoCallback);
 		this.client = client;
 		this.mailboxCrawlItem = crawlItem;
 
@@ -301,15 +293,6 @@ public class MailboxCrawlThread extends
 		setInfo(sb.toString());
 		if (infoCallback != null)
 			infoCallback.setInfo(getStatusInfo());
-	}
-
-	@Override
-	public boolean isAborted() {
-		if (taskLog != null)
-			if (taskLog.isAbortRequested())
-				if (!super.isAborted())
-					abort();
-		return super.isAborted();
 	}
 
 	public boolean isAlreadyIndexed(String messageId) throws SearchLibException {

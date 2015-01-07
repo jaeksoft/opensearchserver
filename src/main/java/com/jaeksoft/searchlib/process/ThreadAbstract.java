@@ -29,6 +29,7 @@ import java.util.Date;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -60,11 +61,19 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	private volatile Exception exception;
 
+	protected final InfoCallback infoCallback;
+
+	protected final TaskLog taskLog;
+
 	protected ThreadAbstract(Config config,
-			ThreadMasterAbstract<?, T> threadMaster, ThreadItem<?, T> threadItem) {
+			ThreadMasterAbstract<?, T> threadMaster,
+			ThreadItem<?, T> threadItem, InfoCallback infoCallback) {
 		this.config = config;
 		this.threadItem = threadItem;
 		this.threadMaster = threadMaster;
+		this.infoCallback = infoCallback;
+		taskLog = infoCallback != null && infoCallback instanceof TaskLog ? (TaskLog) infoCallback
+				: null;
 		exception = null;
 		abort = false;
 		thread = null;
@@ -99,11 +108,14 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	}
 
 	public boolean isAborted() {
-		rwl.r.lock();
+		rwl.w.lock();
 		try {
+			if (!abort && taskLog != null)
+				if (taskLog.isAbortRequested())
+					abort = true;
 			return abort;
 		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
 

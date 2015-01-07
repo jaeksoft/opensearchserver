@@ -68,7 +68,7 @@ public class WebCrawlThread extends
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
 			CrawlStatistics sessionStats, HostUrlList hostUrlList)
 			throws SearchLibException {
-		super(config, crawlMaster, null);
+		super(config, crawlMaster, null, null);
 		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
 		this.currentCrawl = null;

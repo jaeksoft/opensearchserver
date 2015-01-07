@@ -50,7 +50,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 	private volatile T[] threadArray;
 
 	protected ThreadMasterAbstract(Config config) {
-		super(config, null, null);
+		super(config, null, null, null);
 		threadArray = null;
 		threads = new LinkedHashSet<T>();
 		threadMap = new TreeMap<ThreadItem<?, T>, T>();

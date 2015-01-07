@@ -70,7 +70,7 @@ public abstract class AbstractUploadController extends CommonController {
 
 		protected AbstractUpdateThread(Client client,
 				StreamSource streamSource, String mediaName) {
-			super(client, null, null);
+			super(client, null, null, null);
 			this.client = client;
 			this.mediaName = mediaName;
 			tempResult = null;
