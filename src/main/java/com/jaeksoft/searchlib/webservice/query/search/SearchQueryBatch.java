@@ -50,6 +50,12 @@ import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SearchQueryBatch {
 
+	public enum Mode {
+		all, first
+	}
+
+	final public Mode mode;
+
 	@XmlElements({
 			@XmlElement(name = "SearchField", type = SearchFieldQuery.class),
 			@XmlElement(name = "SearchPattern", type = SearchPatternQuery.class),
@@ -65,6 +71,7 @@ public class SearchQueryBatch {
 
 	public SearchQueryBatch() {
 		queries = null;
+		mode = Mode.all;
 	}
 
 	@XmlAccessorType(XmlAccessType.FIELD)
@@ -104,7 +111,7 @@ public class SearchQueryBatch {
 	public List<SearchResult> result(Client client) throws SearchLibException {
 		if (queries == null)
 			return null;
-		List<SearchResult> searchResult = new ArrayList<SearchResult>(
+		List<SearchResult> searchResults = new ArrayList<SearchResult>(
 				queries.size());
 		for (SearchQueryAbstract query : queries) {
 			AbstractSearchRequest searchRequest = null;
@@ -119,9 +126,13 @@ public class SearchQueryBatch {
 			else if (query instanceof SearchPatternQuery)
 				searchRequest = new SearchPatternRequest(client);
 			query.apply(searchRequest);
-			searchResult.add(new SearchResult((AbstractResultSearch) client
-					.request(searchRequest)));
+			SearchResult searchResult = new SearchResult(
+					(AbstractResultSearch) client.request(searchRequest));
+			searchResults.add(searchResult);
+			if (mode != null && mode == Mode.first)
+				if (searchResult.numFound > 0)
+					break;
 		}
-		return searchResult;
+		return searchResults;
 	}
 }
