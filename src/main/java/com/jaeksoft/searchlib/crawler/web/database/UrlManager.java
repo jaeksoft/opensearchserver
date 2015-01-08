@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -202,7 +202,8 @@ public class UrlManager extends AbstractManager {
 
 	private int getFacetLimit(ItemField field,
 			AbstractSearchRequest searchRequest, int urlLimit,
-			int maxUrlPerHost, List<NamedItem> list) throws SearchLibException {
+			int maxUrlPerHost, List<NamedItem> list, Set<String> hostSet)
+			throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
 		List<FacetItem> facetItems = result.getFacetList()
@@ -223,9 +224,12 @@ public class UrlManager extends AbstractManager {
 				continue;
 			if (term.length() == 0)
 				continue;
-			synchronized (list) {
-				list.add(new NamedItem(term, facetItem.getCount()));
+			if (hostSet != null) {
+				if (hostSet.contains(term))
+					continue;
+				hostSet.add(term);
 			}
+			list.add(new NamedItem(term, facetItem.getCount()));
 		}
 		return urlLimit;
 	}
@@ -240,8 +244,8 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public int getHostToFetch(FetchStatus fetchStatus, Date before, Date after,
-			int urlLimit, int maxUrlPerHost, List<NamedItem> hostList)
-			throws SearchLibException {
+			int urlLimit, int maxUrlPerHost, List<NamedItem> hostList,
+			Set<String> hostSet) throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setEmptyReturnsAll(true);
 		try {
@@ -250,7 +254,7 @@ public class UrlManager extends AbstractManager {
 			throw new SearchLibException(e);
 		}
 		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest,
-				urlLimit, maxUrlPerHost, hostList);
+				urlLimit, maxUrlPerHost, hostList, hostSet);
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
@@ -264,7 +268,7 @@ public class UrlManager extends AbstractManager {
 		searchRequest.getFilterList().add(
 				new QueryFilter(field + ":" + start + "*", false,
 						FilterAbstract.Source.REQUEST, null));
-		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, list);
+		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, list, null);
 	}
 
 	public final UrlItem getNewUrlItem(LinkItem linkItem) {
