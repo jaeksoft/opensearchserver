@@ -1,6 +1,6 @@
 ## Create or update a "FTP" repository (location)
 
-Use this API to create a new location to crawl files located a FTP server.
+Use this API to create a new location to crawl files located on a FTP server.
 
 **Requirement:** OpenSearchServer v1.5
 
