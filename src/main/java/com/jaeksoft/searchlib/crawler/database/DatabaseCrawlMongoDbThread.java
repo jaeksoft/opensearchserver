@@ -66,7 +66,6 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
-		setStatus(CrawlStatus.INDEXATION);
 		client.updateDocuments(indexDocumentList);
 		rwl.w.lock();
 		try {
@@ -94,7 +93,7 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		LanguageEnum lang = databaseCrawl.getLang();
 		FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
-
+		String uniqueField = client.getSchema().getUniqueField();
 		while (cursor.hasNext() && !isAborted()) {
 
 			String json = JSON.serialize(cursor.next());
@@ -102,6 +101,15 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 					.jsonProvider().parse(json);
 			IndexDocument indexDocument = new IndexDocument(lang);
 			databaseFieldMap.mapJson(fieldMapContext, document, indexDocument);
+			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
+				rwl.w.lock();
+				try {
+					ignoredDocumentCount++;
+				} finally {
+					rwl.w.unlock();
+				}
+				continue;
+			}
 			indexDocumentList.add(indexDocument);
 			rwl.w.lock();
 			try {
