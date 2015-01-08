@@ -32,7 +32,8 @@ JSON values:
     * `SearchField` or `SearchPattern`: query is fully detailed directly (see [searching using fields](http://www.opensearchserver.com/documentation/api_v2/searching_using_fields/search.md) and [searching using patterns](http://www.opensearchserver.com/documentation/api_v2/searching_using_patterns/search.md)).
 
 Example of a batch of queries where first and third queries would not return any result.
- 
+
+```json
     { 
 	  "mode": "first",
 	  "queries": [
@@ -59,7 +60,7 @@ Example of a batch of queries where first and third queries would not return any
 	    }
 	  ]
     }
-
+```
 
 ### Success response
 Results are returned.
@@ -115,7 +116,7 @@ Results are returned.
    
 Third query was not used since the second query returned results. If `mode` would have been `all` results would have been:
 	
-```
+```json
 	[  
 	   {  
 	      "successful":true,
