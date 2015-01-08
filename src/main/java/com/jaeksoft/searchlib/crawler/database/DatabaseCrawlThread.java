@@ -46,6 +46,8 @@ public abstract class DatabaseCrawlThread extends
 
 	protected long updatedDeleteDocumentCount;
 
+	protected long ignoredDocumentCount;
+
 	public DatabaseCrawlThread(Client client, DatabaseCrawlMaster crawlMaster,
 			DatabaseCrawlAbstract databaseCrawl, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl, infoCallback);
@@ -55,6 +57,7 @@ public abstract class DatabaseCrawlThread extends
 		updatedIndexDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
 		pendingDeleteDocumentCount = 0;
+		ignoredDocumentCount = 0;
 	}
 
 	public String getCountInfo() {
@@ -67,6 +70,8 @@ public abstract class DatabaseCrawlThread extends
 		sb.append(" (");
 		sb.append(getPendingDeleteDocumentCount());
 		sb.append(')');
+		sb.append(" / ");
+		sb.append(getIgnoredDocumentCount());
 		return sb.toString();
 	}
 
@@ -101,6 +106,15 @@ public abstract class DatabaseCrawlThread extends
 		rwl.r.lock();
 		try {
 			return updatedDeleteDocumentCount;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public long getIgnoredDocumentCount() {
+		rwl.r.lock();
+		try {
+			return ignoredDocumentCount;
 		} finally {
 			rwl.r.unlock();
 		}
