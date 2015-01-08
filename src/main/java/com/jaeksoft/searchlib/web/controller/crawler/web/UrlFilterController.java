@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,6 +22,9 @@
  **/
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
@@ -65,6 +68,8 @@ public class UrlFilterController extends CrawlerController {
 
 	private transient String hostname;
 
+	private transient String testResult;
+
 	public UrlFilterController() throws SearchLibException {
 		super();
 	}
@@ -73,6 +78,7 @@ public class UrlFilterController extends CrawlerController {
 	protected void reset() throws SearchLibException {
 		selectedFilter = null;
 		currentFilter = new UrlFilterItem(null, null);
+		testResult = null;
 	}
 
 	public UrlFilterList getUrlFilterList() throws SearchLibException {
@@ -107,6 +113,10 @@ public class UrlFilterController extends CrawlerController {
 
 	public boolean isNotSelected() {
 		return !isSelected();
+	}
+
+	public UrlFilterItem.Type[] getTypes() {
+		return UrlFilterItem.Type.values();
 	}
 
 	/**
@@ -168,6 +178,23 @@ public class UrlFilterController extends CrawlerController {
 	 */
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
+	}
+
+	@Command
+	@NotifyChange("testResult")
+	public void onTest(String url) throws SearchLibException,
+			MalformedURLException {
+		Client client = getClient();
+		if (client == null)
+			return;
+		testResult = null;
+		URL u = new URL(url);
+		testResult = UrlFilterList.doReplace(u.getHost(), u.toString(), client
+				.getUrlFilterList().getArray());
+	}
+
+	public String getTestResult() {
+		return testResult;
 	}
 
 }

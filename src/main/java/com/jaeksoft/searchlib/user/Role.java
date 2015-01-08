@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.user;
 
+import com.jaeksoft.searchlib.util.EnumerationUtils;
+
 public enum Role {
 
 	INDEX_QUERY("Index: query the index"),
@@ -93,11 +95,7 @@ public enum Role {
 	}
 
 	public static Role find(String roleName) {
-		try {
-			return Role.valueOf(roleName);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
+		return EnumerationUtils.lookup(Role.class, roleName, null);
 	}
 
 }
