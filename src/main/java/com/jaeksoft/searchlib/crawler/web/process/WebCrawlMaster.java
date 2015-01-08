@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -198,6 +199,8 @@ public class WebCrawlMaster extends
 		urlManager.reload(false, null);
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 
+		Set<String> hostSet = new TreeSet<String>();
+
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		fetchIntervalDate = AbstractManager.getPastDate(propertyManager
 				.getFetchInterval().getValue(), propertyManager
@@ -209,25 +212,22 @@ public class WebCrawlMaster extends
 				FetchStatus.FETCH_FIRST, null, null);
 		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
 				selection.beforeDate, selection.afterDate, urlLimit,
-				maxUrlPerHost, hostList);
+				maxUrlPerHost, hostList, hostSet);
 
 		// Second try old URLs
-		if (hostList.size() == 0) {
-			selection = new Selection(ListType.OLD_URL, null,
-					fetchIntervalDate, null);
-			urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
-					selection.beforeDate, selection.afterDate, urlLimit,
-					maxUrlPerHost, hostList);
-		}
+		selection = new Selection(ListType.OLD_URL, null, fetchIntervalDate,
+				null);
+		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
+				selection.beforeDate, selection.afterDate, urlLimit,
+				maxUrlPerHost, hostList, hostSet);
 
 		// Finally try new unfetched URLs
-		if (hostList.size() == 0) {
-			selection = new Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED,
-					null, fetchIntervalDate);
-			urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
-					selection.beforeDate, selection.afterDate, urlLimit,
-					maxUrlPerHost, hostList);
-		}
+		selection = new Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED,
+				null, fetchIntervalDate);
+		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
+				selection.beforeDate, selection.afterDate, urlLimit,
+				maxUrlPerHost, hostList, hostSet);
+
 		currentStats.addHostListSize(hostList.size());
 
 	}
