@@ -131,4 +131,15 @@
 			</listitem>
 		</template>
 	</listbox>
+	<separator />
+	<vbox>
+		<hbox align="center">
+			<label value="Testing: " />
+			<textbox value="@bind(urlfilter.testUrl)" cols="100"
+				placeholder="Enter an URL" />
+			<button label="Test" onClick="@command('onTest')" />
+		</hbox>
+		<separator />
+		<label value="@load(urlfilter.testResult)" />
+	</vbox>
 </window>
