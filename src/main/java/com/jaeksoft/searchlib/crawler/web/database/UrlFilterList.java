@@ -225,7 +225,7 @@ public class UrlFilterList {
 				break;
 			}
 		}
-		return bReplace ? uriString.substring(i1) : uriString;
+		return bReplace ? uriString.substring(0, i1) : uriString;
 	}
 
 	public static final String doReplace(String hostname, String uriString,

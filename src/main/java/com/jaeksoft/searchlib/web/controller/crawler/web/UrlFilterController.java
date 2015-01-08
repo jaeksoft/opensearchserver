@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.web.controller.crawler.web;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.lang3.StringUtils;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
@@ -69,6 +70,8 @@ public class UrlFilterController extends CrawlerController {
 	private transient String hostname;
 
 	private transient String testResult;
+
+	private transient String testUrl;
 
 	public UrlFilterController() throws SearchLibException {
 		super();
@@ -180,15 +183,31 @@ public class UrlFilterController extends CrawlerController {
 		this.hostname = hostname;
 	}
 
+	/**
+	 * @return the testUrl
+	 */
+	public String getTestUrl() {
+		return testUrl;
+	}
+
+	/**
+	 * @param testUrl
+	 *            the testUrl to set
+	 */
+	public void setTestUrl(String testUrl) {
+		this.testUrl = testUrl;
+	}
+
 	@Command
 	@NotifyChange("testResult")
-	public void onTest(String url) throws SearchLibException,
-			MalformedURLException {
+	public void onTest() throws SearchLibException, MalformedURLException {
 		Client client = getClient();
 		if (client == null)
 			return;
+		if (StringUtils.isEmpty(testUrl))
+			throw new SearchLibException("Please enter an URL.");
 		testResult = null;
-		URL u = new URL(url);
+		URL u = new URL(testUrl);
 		testResult = UrlFilterList.doReplace(u.getHost(), u.toString(), client
 				.getUrlFilterList().getArray());
 	}
