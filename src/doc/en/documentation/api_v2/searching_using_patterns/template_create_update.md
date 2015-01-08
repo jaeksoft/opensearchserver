@@ -1,4 +1,6 @@
-Use this API to create or update a search template.
+## Create or update a search template based on a query pattern
+
+Use this API to create or update a search template based on a query pattern.
 
 **Requirement:** OpenSearchServer v1.5
 

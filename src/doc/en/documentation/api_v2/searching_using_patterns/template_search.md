@@ -1,3 +1,5 @@
+## Executing a search based on a query pattern using an existing template
+
 Use this API to search documents using a "search pattern" template request.
 
 **Requirement:** OpenSearchServer v1.5

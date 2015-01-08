@@ -155,6 +155,7 @@
 		* [Search](api_v2/searching_using_patterns/search.md)
 		* [Template search](api_v2/searching_using_patterns/template_search.md)
 		* [Create/update template](api_v2/searching_using_patterns/template_create_update.md)
+	* [Search batch](api_v2/search_batch/batch_queries.md)
 	* [Synonyms](api_v2/synonyms/README.md)
 		* [Listing](api_v2/synonyms/lists.md)
 		* [Delete list](api_v2/synonyms/delete.md)
