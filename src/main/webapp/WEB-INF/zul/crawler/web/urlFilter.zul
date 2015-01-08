@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -43,6 +43,19 @@
 				<vbox width="95%">
 					<textbox value="@bind(urlfilter.currentFilter.name)"
 						width="100%" />
+				</vbox>
+			</listheader>
+			<listheader label="Type" hflex="min" align="left"
+				tooltiptext="The type of the filter">
+				<vbox width="95%">
+					<listbox mold="select"
+						model="@load(urlfilter.types)"
+						selectedItem="@bind(urlfilter.currentFilter.type)">
+						<template name="model" var="item">
+							<listitem value="@load(item)"
+								label="@load(item)" />
+						</template>
+					</listbox>
 				</vbox>
 			</listheader>
 			<listheader label="Regexp pattern" align="left"
@@ -100,6 +113,7 @@
 		<template name="model" var="urlfilteritem">
 			<listitem>
 				<listcell label="@load(urlfilteritem.name)" />
+				<listcell label="@load(urlfilteritem.type)" />
 				<listcell label="@load(urlfilteritem.pattern)" />
 				<listcell>
 					<vlayout
@@ -117,4 +131,15 @@
 			</listitem>
 		</template>
 	</listbox>
+	<separator />
+	<vbox>
+		<hbox align="center">
+			<label value="Testing: " />
+			<textbox value="@bind(urlfilter.testUrl)" cols="100"
+				placeholder="Enter an URL" />
+			<button label="Test" onClick="@command('onTest')" />
+		</hbox>
+		<separator />
+		<label value="@load(urlfilter.testResult)" />
+	</vbox>
 </window>

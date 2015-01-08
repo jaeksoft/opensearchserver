@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem.Type;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -154,8 +155,6 @@ public class UrlFilterList {
 
 	private static final String doReplaceQuery(String hostname,
 			String uriString, UrlFilterItem[] urlFilterArray) {
-		if (urlFilterArray == null)
-			return uriString;
 		int i = uriString.indexOf('?');
 		if (i == -1)
 			return uriString;
@@ -168,7 +167,8 @@ public class UrlFilterList {
 			return uriString;
 
 		for (UrlFilterItem urlFilter : urlFilterArray)
-			urlFilter.doReplaceQuery(hostname, queryParts);
+			if (urlFilter.getType() == Type.QUERY)
+				urlFilter.doReplaceQuery(hostname, queryParts);
 		boolean first = true;
 		for (String queryPart : queryParts) {
 			if (queryPart != null) {
@@ -183,10 +183,8 @@ public class UrlFilterList {
 		return newUrl.toString();
 	}
 
-	private static final String doReplaceProspero(String hostname,
+	private static final String doReplaceResource(String hostname,
 			String uriString, UrlFilterItem[] urlFilterArray) {
-		if (urlFilterArray == null)
-			return uriString;
 		int i1 = uriString.indexOf(';');
 		if (i1 == -1)
 			return uriString;
@@ -199,7 +197,8 @@ public class UrlFilterList {
 			part = part.substring(0, i2);
 		boolean bReplace = false;
 		for (UrlFilterItem urlFilter : urlFilterArray) {
-			if (urlFilter.isReplaceProspero(hostname, part)) {
+			if (urlFilter.getType() == Type.QUERY
+					&& urlFilter.isReplacePart(hostname, part)) {
 				bReplace = true;
 				break;
 			}
@@ -212,10 +211,30 @@ public class UrlFilterList {
 		return newUrl.toString();
 	}
 
+	private static final String doReplaceFragment(String hostname,
+			String uriString, UrlFilterItem[] urlFilterArray) {
+		int i1 = uriString.indexOf('#');
+		if (i1 == -1)
+			return uriString;
+		String part = uriString.substring(i1 + 1);
+		boolean bReplace = false;
+		for (UrlFilterItem urlFilter : urlFilterArray) {
+			if (urlFilter.getType() == Type.FRAGMENT
+					&& urlFilter.isReplacePart(hostname, part)) {
+				bReplace = true;
+				break;
+			}
+		}
+		return bReplace ? uriString.substring(0, i1) : uriString;
+	}
+
 	public static final String doReplace(String hostname, String uriString,
 			UrlFilterItem[] urlFilterArray) {
+		if (urlFilterArray == null)
+			return uriString;
 		uriString = doReplaceQuery(hostname, uriString, urlFilterArray);
-		uriString = doReplaceProspero(hostname, uriString, urlFilterArray);
+		uriString = doReplaceResource(hostname, uriString, urlFilterArray);
+		uriString = doReplaceFragment(hostname, uriString, urlFilterArray);
 		return uriString;
 	}
 }

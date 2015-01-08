@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,9 +35,18 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.EnumerationUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UrlFilterItem implements Comparable<UrlFilterItem> {
+
+	public enum Type {
+		QUERY, FRAGMENT;
+
+		public final static Type find(String type) {
+			return EnumerationUtils.lookup(Type.class, type, QUERY);
+		}
+	}
 
 	private transient Pattern compiledPattern;
 
@@ -47,11 +56,14 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 
 	private Set<String> hostnames;
 
+	private Type type;
+
 	private UrlFilterItem() {
 		compiledPattern = null;
 		name = null;
 		pattern = null;
 		hostnames = null;
+		type = Type.QUERY;
 	}
 
 	public UrlFilterItem(String name, String pattern) {
@@ -63,6 +75,7 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 	public UrlFilterItem(Node node) {
 		this();
 		setName(DomUtils.getAttributeText(node, "name"));
+		setType(Type.find(DomUtils.getAttributeText(node, "type")));
 		List<Node> nodes = DomUtils.getNodes(node, "pattern");
 		if (nodes != null && nodes.size() > 0)
 			setPattern(StringEscapeUtils.unescapeXml(DomUtils.getText(nodes
@@ -81,6 +94,7 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		filter.compiledPattern = this.compiledPattern;
 		filter.hostnames = this.hostnames == null ? null : new TreeSet<String>(
 				this.hostnames);
+		filter.type = this.type;
 	}
 
 	/**
@@ -96,6 +110,21 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public Type getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(Type type) {
+		this.type = type == null ? Type.QUERY : type;
 	}
 
 	private void compilePattern() {
@@ -164,7 +193,7 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("urlFilter", "name", name);
+		xmlWriter.startElement("urlFilter", "name", name, "type", type.name());
 		xmlWriter.startElement("pattern");
 		xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
@@ -183,7 +212,7 @@ public class UrlFilterItem implements Comparable<UrlFilterItem> {
 		return this.name.compareTo(o.name);
 	}
 
-	public final boolean isReplaceProspero(String hostname, String part) {
+	public final boolean isReplacePart(String hostname, String part) {
 		if (compiledPattern == null)
 			return false;
 		if (part == null)
