@@ -17,5 +17,6 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 * [Scheduler](scheduler/README.md): schedule jobs.
 * [Synonyms](synonyms/README.md): manage list of synonyms.
 * [DATABASE crawler](DATABASE_crawler/README.md): explore and index database.
+* [FILE crawler](FILE_crawler/README.md): explore and index file-systems.
 * [REST crawler](REST_crawler/README.md): access a REST API and index specific content.
 * [WEB crawler](WEB_crawler/README.md): crawl websites in parallel and index pages and documents.
