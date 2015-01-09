@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -70,6 +70,8 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT = "oneResultFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT = "resultsFoundText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT = "logoutText";
+	private final static String RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT = "clearFiltersText";
+	private final static String RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT = "filtersTitleText";
 	private final static String RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH = "facetWidth";
 	private final static String RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP = "defaultJsp";
 	private final static String RENDERER_ITEM_NODE_CSS = "css";
@@ -107,6 +109,10 @@ public class Renderer implements Comparable<Renderer> {
 	private String noResultFoundText;
 
 	private String logoutText;
+
+	private String clearFiltersText;
+
+	private String filtersTitleText;
 
 	private String facetWidth;
 
@@ -161,6 +167,8 @@ public class Renderer implements Comparable<Renderer> {
 		resultsFoundText = "results found";
 		noResultFoundText = "No results found";
 		logoutText = "Logout";
+		clearFiltersText = "Clear all";
+		filtersTitleText = "Active filters";
 		facetWidth = "200px";
 		logEnabled = false;
 		fields = new ArrayList<RendererField>();
@@ -205,6 +213,10 @@ public class Renderer implements Comparable<Renderer> {
 				RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
 		setLogoutText(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT));
+		setClearFiltersText(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT));
+		setFiltersTitleText(XPathParser.getAttributeString(rootNode,
+				RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT));
 		setContentTypeField(XPathParser.getAttributeString(rootNode,
 				RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE));
 		setFilenameField(XPathParser.getAttributeString(rootNode,
@@ -427,6 +439,8 @@ public class Renderer implements Comparable<Renderer> {
 				target.oneResultFoundText = oneResultFoundText;
 				target.resultsFoundText = resultsFoundText;
 				target.logoutText = logoutText;
+				target.clearFiltersText = clearFiltersText;
+				target.filtersTitleText = filtersTitleText;
 				target.facetWidth = facetWidth;
 				target.filters.clear();
 				target.fields.clear();
@@ -763,6 +777,8 @@ public class Renderer implements Comparable<Renderer> {
 					oneResultFoundText,
 					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
 					RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT, logoutText,
+					RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT, clearFiltersText,
+					RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT, filtersTitleText,
 					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth,
 					RENDERER_ITEM_ROOT_ATTR_LOGENABLED,
 					Boolean.toString(logEnabled),
@@ -1356,5 +1372,35 @@ public class Renderer implements Comparable<Renderer> {
 	public void setDefaultJsp(RendererJspEnum defaultJsp) {
 		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml
 				: defaultJsp;
+	}
+
+	/**
+	 * @return the clearFiltersText
+	 */
+	public String getClearFiltersText() {
+		return clearFiltersText;
+	}
+
+	/**
+	 * @param clearFiltersText
+	 *            the clearFiltersText to set
+	 */
+	public void setClearFiltersText(String clearFiltersText) {
+		this.clearFiltersText = clearFiltersText;
+	}
+
+	/**
+	 * @return the filtersTitleText
+	 */
+	public String getFiltersTitleText() {
+		return filtersTitleText;
+	}
+
+	/**
+	 * @param filtersTitleText
+	 *            the filtersTitleText to set
+	 */
+	public void setFiltersTitleText(String filtersTitleText) {
+		this.filtersTitleText = filtersTitleText;
 	}
 }
