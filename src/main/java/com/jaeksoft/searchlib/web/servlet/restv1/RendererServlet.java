@@ -35,7 +35,6 @@ import javax.servlet.http.HttpSession;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.renderer.PagingSearchResult;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
@@ -92,6 +91,8 @@ public class RendererServlet extends AbstractServlet {
 					.getNewRequest(renderer.getRequestName());
 			if (searchRequest == null)
 				throw new SearchLibException("No search request has been found");
+			AbstractSearchRequest facetRequest = searchRequest.isFacet() ? (AbstractSearchRequest) searchRequest
+					.duplicate() : null;
 			HttpServletRequest servletRequest = transaction.getRequest();
 			setLog(renderer, searchRequest, servletRequest);
 			searchRequest.setFromServlet(transaction, "");
@@ -135,11 +136,7 @@ public class RendererServlet extends AbstractServlet {
 															.getQueryString(),
 													loggedUser));
 				}
-				if (searchRequest.isFacet()) {
-					AbstractSearchRequest facetRequest = (AbstractSearchRequest) searchRequest
-							.duplicate();
-					facetRequest
-							.removeFilterSource(FilterAbstract.Source.REQUEST);
+				if (facetRequest != null) {
 					renderer.configureAuthRequest(facetRequest, servletRequest);
 					AbstractResultSearch facetResult = (AbstractResultSearch) client
 							.request(facetRequest);

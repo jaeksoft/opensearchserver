@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -52,13 +52,34 @@ public class RendererFilterQueries {
 		filterQueries = new TreeMap<String, String>();
 	}
 
-	private Set<String> getTermSet(String fieldName) {
+	public Set<String> getTermSet(String fieldName) {
 		Set<String> queries = filterTerms.get(fieldName);
 		if (queries != null)
 			return queries;
 		queries = new TreeSet<String>();
 		filterTerms.put(fieldName, queries);
 		return queries;
+	}
+
+	public Set<String> getTermsFilterSet() {
+		return filterTerms.keySet();
+	}
+
+	public boolean isEmpty() {
+		for (String filterQuery : filterQueries.values())
+			if (!StringUtils.isEmpty(filterQuery))
+				return false;
+		for (Set<String> termSet : filterTerms.values())
+			if (!termSet.isEmpty())
+				return false;
+		return true;
+	}
+
+	public boolean isEmpty(String fieldName) {
+		Set<String> queries = filterTerms.get(fieldName);
+		if (queries == null)
+			return true;
+		return queries.isEmpty();
 	}
 
 	private void addTerm(String fieldName, String[] values) {
@@ -85,8 +106,10 @@ public class RendererFilterQueries {
 	}
 
 	public void applyServletRequest(HttpServletRequest servletRequest) {
-		if (servletRequest.getParameter("fqc") != null)
+		if (servletRequest.getParameter("fqc") != null) {
 			filterQueries.clear();
+			filterTerms.clear();
+		}
 		Enumeration<String> en = servletRequest.getParameterNames();
 		if (en != null) {
 			while (en.hasMoreElements()) {
@@ -199,6 +222,12 @@ public class RendererFilterQueries {
 				URLEncoder.encode(query, "UTF-8"));
 	}
 
+	public String getFilterClearParam(String fieldName)
+			throws UnsupportedEncodingException {
+		return StringUtils.fastConcat("&amp;fqc.",
+				URLEncoder.encode(fieldName, "UTF-8"));
+	}
+
 	private String getFilterParam(boolean current, String fieldName,
 			Collection<String> terms) throws UnsupportedEncodingException {
 		if (terms == null)
@@ -209,7 +238,7 @@ public class RendererFilterQueries {
 		return sb.toString();
 	}
 
-	private String getFilterParamTerm(boolean current, String fieldName,
+	public String getFilterParamTerm(boolean current, String fieldName,
 			String term) throws UnsupportedEncodingException {
 		if (term == null)
 			return StringUtils.EMPTY;
