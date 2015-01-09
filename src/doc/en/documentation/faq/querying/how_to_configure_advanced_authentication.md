@@ -1,21 +1,23 @@
 ## How to configure advanced authentication
 
+**Requires OpenSearchServer > 1.5.10**
+
 OpenSearchServer embed a powerful authentication feature. It allows for returning different results for the same query depending on the user or groups used for the query.
 
-### How the authentication work
+### How the authentication works
 
 Access information related to each document must be indexed alongside the documents. This information must go into 4 specific fields:
 
 * one will store a _white list_ of users (commonly called `userAllow`)
-* one will store a _black list_ of users (commonly called `groupDeny`)
+* one will store a _black list_ of users (commonly called `userDeny`)
 * one will store a _white list_ of groups (commonly called `groupAllow`)
 * the last one will store a _black list_ of groups (commonly called `groupDeny`)
 
-When querying, you will need to pass two additionnal parameters: `user` and `groups`. OpenSearchServer will run the query as usual but will also compare values from these parameters to the values indexed in the specific fields.
+When querying, you will need to **pass two additionnal parameters: `user` and `groups`**. OpenSearchServer will run the query as usual but will also **compare values from these parameters to the values indexed in the specific fields**.
 
-* for a document, if value from the `user` parameter is found in the black list of users, **or** if one value of the `groups` parameter is found in the black list of groups then this result **will never be returned** for this query.
+* for a document, if value from the `user` parameter is found in the _black list_ of users, **or** if one value of the `groups` parameter is found in the _black list_ of groups then this result **will never be returned** for this query.
     * for a document to be filtered out from the results set there is no need to match both `userDeny` and `groupDeny`: as soon as one of the field match one of the given parameters the document is excluded from the results.
-* on the other hand, if value from the `user` parameter is found in the white list of users, **or** if one value of the `groups` parameter is found in the white list of groups for a document then this result will be returned.
+* on the other hand, if value from the `user` parameter is found in the _white list_ of users, **or** if one value of the `groups` parameter is found in the _white list_ of groups for a document then this result will be returned.
 
 ### Configuring schema
 
@@ -23,7 +25,8 @@ When querying, you will need to pass two additionnal parameters: `user` and `gro
 
 ![Fields for authentication](auth_fields.png)
 
-Then, going to tab Schema / Authentication, you will need to tell OpenSearchServer which field should have which role:
+Then, going to tab Schema / Authentication, you will need to tell OpenSearchServer **which field should have which role**
+:
 
 ![Mapping fields](auth_role.png)
 
@@ -41,7 +44,7 @@ Let's imagine an index with these 3 documents:
 
 Let's run some test queries:
 
-See at the end of the page for details about the simple search template used for this example. "Postman" extension for Chrome is used.
+See below for details about the simple search template used for this example. "Postman" extension for Chrome is used.
 
 * If a query is run without any parameters related to the authentication, no results will be returned :
 
@@ -125,3 +128,71 @@ Search template used for this example:
 }
 ```
 
+## Using an external index for storing authentication information
+
+Storing authentication information with each document can leads to an hard to maintain index in case rights often change. Re-indexing of the whole document would be needed each time a right changes.
+
+This issue can be easily solved **by using a dedicated index for storing authentication information**.
+
+This index must have 5 fields : the 4 fields described above (`userAllow`,`userDeny`,`groupAllow`,`groupDeny`) plus a field that would be used to join information with the index storing the documents. In our example, that field would be `url`.
+
+Here would be the schema for such an index:
+
+`GET` on `http://localhost:9090/services/rest/index/articles_auth_access_info/field`:
+
+```json
+{  
+   "successful":true,
+   "info":"5 field(s)",
+   "fields":[  
+      {  
+         "name":"userAllow",
+         "indexed":"YES",
+         "stored":"NO",
+         "termVector":"YES"
+      },
+      {  
+         "name":"userDeny",
+         "indexed":"YES",
+         "stored":"NO",
+         "termVector":"YES"
+      },
+      {  
+         "name":"groupAllow",
+         "indexed":"YES",
+         "stored":"NO",
+         "termVector":"YES"
+      },
+      {  
+         "name":"groupDeny",
+         "indexed":"YES",
+         "stored":"NO",
+         "termVector":"YES"
+      },
+      {  
+         "name":"url",
+         "indexed":"YES",
+         "stored":"NO",
+         "termVector":"NO"
+      }
+   ],
+   "unique":"url",
+   "default":"url"
+}
+```
+
+Field `url` is marked as **default** and **unique** field.
+
+Fields `userAllow`,`userDeny`,`groupAllow` and `groupDeny` are deleted from first index `articles_auth` and its Authentication settings are changed:
+
+![Auth settings](auth_settings.png)
+
+Authentication settings are configured on the second index `article_auth_access_info`:
+
+![Auth settings](auth_settings2.png)
+
+Finally, authentication information is indexed:
+
+![Add docs](auth_add_docs2.png)
+
+That's all! Now when rights of documents change **you will only need to update the dedicated index** without having to index again all the document.
