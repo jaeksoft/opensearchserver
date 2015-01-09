@@ -135,6 +135,9 @@ public class RendererServlet extends AbstractServlet {
 													loggedUser));
 				}
 				if (facetRequest != null) {
+					facetRequest.setQueryString(query);
+					facetRequest.setStart(searchRequest.getStart());
+					facetRequest.setRows(searchRequest.getRows());
 					renderer.configureAuthRequest(facetRequest, servletRequest);
 					AbstractResultSearch facetResult = (AbstractResultSearch) client
 							.request(facetRequest);
