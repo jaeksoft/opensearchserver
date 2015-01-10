@@ -91,7 +91,7 @@ public class SwiftProtocol {
 			isHidden = name.startsWith(".");
 		}
 
-		private ObjectMeta(final String path, final DownloadItem downloadItem) {
+		public ObjectMeta(final String path, final DownloadItem downloadItem) {
 			lastModified = downloadItem.getLastModified();
 			contentType = downloadItem.getContentBaseType();
 			contentLength = downloadItem.getContentLength();

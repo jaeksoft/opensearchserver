@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,14 +24,11 @@
 
 package com.jaeksoft.searchlib.logreport;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
-import com.jaeksoft.searchlib.util.IOUtils;
 
 public class ErrorParserLogger {
 
@@ -50,36 +47,6 @@ public class ErrorParserLogger {
 			logger.close();
 	}
 
-	public final static String getLocation(StackTraceElement[] stackTrace) {
-		for (StackTraceElement element : stackTrace)
-			if (element.getClassName().startsWith("com.jaeksoft"))
-				return element.toString();
-		return null;
-	}
-
-	public final static String getFirstLocation(StackTraceElement[] stackTrace) {
-		for (StackTraceElement element : stackTrace) {
-			String ele = element.toString();
-			if (ele != null && ele.length() > 0)
-				return ele;
-		}
-		return null;
-	}
-
-	public final static String getFullStackTrace(StackTraceElement[] stackTrace) {
-		StringWriter sw = null;
-		PrintWriter pw = null;
-		try {
-			sw = new StringWriter();
-			pw = new PrintWriter(sw);
-			for (StackTraceElement element : stackTrace)
-				pw.println(element);
-			return sw.toString();
-		} finally {
-			IOUtils.close(pw, sw);
-		}
-	}
-
 	public static class ErrorInfo {
 
 		public final String errorMessage;
@@ -92,7 +59,8 @@ public class ErrorParserLogger {
 			String codeLocation = null;
 			while (throwable != null) {
 				causeMessage = throwable.getMessage();
-				String cl = getLocation(throwable.getStackTrace());
+				String cl = ExceptionUtils.getLocation(throwable
+						.getStackTrace());
 				if (cl != null)
 					codeLocation = cl;
 				throwable = throwable.getCause();

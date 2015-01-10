@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,24 +22,28 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.spellcheck;
 
-import it.unimi.dsi.fastutil.Swapper;
+import org.apache.lucene.search.spell.SpellChecker;
 
-public interface CollectorInterface extends Swapper {
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cache.LRUCache;
+import com.jaeksoft.searchlib.index.ReaderLocal;
 
-	int getSize();
+public class SpellCheckCache extends LRUCache<SpellCheckCacheItem> {
 
-	<T extends CollectorInterface> T getCollector(Class<T> collectorType);
+	public SpellCheckCache(int maxSize) {
+		super("Spellcheck", maxSize);
+	}
 
-	CollectorInterface getParent();
-
-	CollectorInterface duplicate(AbstractBaseCollector<?> base);
-
-	CollectorInterface duplicate();
-
-	void doSwap(final int pos1, final int pos2);
-
-	int getClassType();
+	public SpellChecker get(ReaderLocal reader, String fieldName)
+			throws SearchLibException {
+		try {
+			return getAndJoin(new SpellCheckCacheItem(reader, fieldName), null)
+					.getSpellChecker();
+		} catch (Exception e) {
+			throw new SearchLibException(e);
+		}
+	}
 
 }

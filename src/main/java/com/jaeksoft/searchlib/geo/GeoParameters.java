@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -280,7 +280,7 @@ public class GeoParameters implements Comparable<GeoParameters> {
 	}
 
 	@Override
-	public int compareTo(GeoParameters geo) {
+	final public int compareTo(GeoParameters geo) {
 		int c;
 		if ((c = StringUtils.compareNullString(this.latitudeField,
 				geo.latitudeField)) != 0)
@@ -299,23 +299,14 @@ public class GeoParameters implements Comparable<GeoParameters> {
 		return 0;
 	}
 
-	final public static String getCacheKey(GeoParameters geo) {
-		if (geo == null)
-			return StringUtils.EMPTY;
-		StringBuilder sb = new StringBuilder();
-		sb.append(geo.latitudeField);
-		sb.append('|');
-		sb.append(geo.longitudeField);
-		sb.append('|');
-		sb.append(geo.latitude);
-		sb.append('|');
-		sb.append(geo.longitude);
-		sb.append('|');
-		if (geo.coordUnit != null)
-			sb.append(geo.coordUnit.ordinal());
-		sb.append('|');
-		if (geo.distanceReturn != null)
-			sb.append(geo.distanceReturn.ordinal());
-		return sb.toString();
+	final public static int compare(GeoParameters geo1, GeoParameters geo2) {
+		if (geo1 == null)
+			if (geo2 == null)
+				return 0;
+			else
+				return -1;
+		if (geo2 == null)
+			return 1;
+		return geo1.compareTo(geo2);
 	}
 }

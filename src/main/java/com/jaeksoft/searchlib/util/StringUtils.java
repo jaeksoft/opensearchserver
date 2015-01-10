@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2009-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -237,6 +237,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return v1.compareTo(v2);
 	}
 
+	public static int compareNullHashCode(Object o1, Object o2) {
+		if (o1 == null) {
+			if (o2 == null)
+				return 0;
+			return -1;
+		}
+		if (o2 == null)
+			return 1;
+		return o2.hashCode() - o1.hashCode();
+	}
+
 	public final static String leftPad(int value, int size) {
 		return org.apache.commons.lang.StringUtils.leftPad(
 				Integer.toString(value), size, '0');
@@ -399,4 +410,5 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		String url = "file://Users/ekeller/Moteur/infotoday_enterprisesearchsourcebook08/Open_on_Windows.exe?test=2";
 		System.out.println(urlHostPathWrapReduce(url, 80));
 	}
+
 }
