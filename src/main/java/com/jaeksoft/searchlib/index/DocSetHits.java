@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.cache.LRUItemAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
@@ -43,75 +44,67 @@ import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInter
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
+import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
-public class DocSetHits {
+public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 
-	public static class Params {
+	final ReaderAbstract reader;
+	final Query query;
+	final String queryKey;
+	final FilterHits filterHits;
+	final GeoParameters geoParameters;
+	final DocSetHitBaseCollector docSetHitCollector;
+	final DocIdBufferCollector docIdBufferCollector;
+	final DistanceCollector distanceCollector;
+	final ScoreBufferCollector scoreBufferCollector;
+	final DocSetHitCollectorInterface lastCollector;
 
-		final ReaderAbstract reader;
-		final Query query;
-		final GeoParameters geoParameters;
-		final AdvancedScore advancedScore;
-		final FilterHits filterHits;
-		final boolean isScoreRequired;
-		final boolean isDistanceRequired;
-		final boolean isDocIdRequired;
-		final boolean forFilterHits;
-
-		public Params(ReaderAbstract reader,
-				AbstractSearchRequest searchRequest, FilterHits filterHits)
-				throws ParseException, SyntaxError, SearchLibException,
-				IOException {
-			this.reader = reader;
-			this.query = searchRequest.getQuery();
-			this.isScoreRequired = searchRequest.isScoreRequired();
-			this.isDistanceRequired = searchRequest.isDistanceRequired();
-			this.geoParameters = searchRequest.getGeoParameters();
-			this.advancedScore = searchRequest.getAdvancedScore();
-			this.isDocIdRequired = searchRequest.isDocIdRequired();
-			this.filterHits = filterHits;
-			this.forFilterHits = searchRequest.isForFilter();
-		}
-	}
-
-	private final DocSetHitBaseCollector docSetHitCollector;
-	private final DocIdBufferCollector docIdBufferCollector;
-	private final DistanceCollector distanceCollector;
-	private final ScoreBufferCollector scoreBufferCollector;
-	private final DocSetHitCollectorInterface lastCollector;
-
-	protected DocSetHits(Params params, Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+	DocSetHits(ReaderAbstract reader, AbstractSearchRequest searchRequest,
+			FilterHits filterHits) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
+		this.reader = reader;
+		this.filterHits = filterHits;
+		this.query = searchRequest.getQuery();
+		this.queryKey = query == null ? null : query.toString();
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
-				params.reader.maxDoc(), params.forFilterHits);
-		if (params.isScoreRequired)
+				reader.maxDoc(), searchRequest.isForFilter());
+		if (searchRequest.isScoreRequired())
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
-		if (params.isDistanceRequired)
+		if (searchRequest.isDistanceRequired()) {
+			geoParameters = searchRequest.getGeoParameters();
 			last = distanceCollector = new DistanceCollector(
-					docSetHitCollector, params.reader, params.geoParameters);
-		else
+					docSetHitCollector, reader, geoParameters);
+		} else {
 			distanceCollector = null;
-		if (params.advancedScore != null && !params.advancedScore.isEmpty()) {
-			last = sc = new ScoreBufferAdvancedCollector(params.reader,
-					params.advancedScore, docSetHitCollector, sc,
-					distanceCollector);
+			geoParameters = null;
 		}
-		if (params.isDocIdRequired)
+		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
+		if (advancedScore != null && !advancedScore.isEmpty()) {
+			last = sc = new ScoreBufferAdvancedCollector(reader, advancedScore,
+					docSetHitCollector, sc, distanceCollector);
+		}
+		if (searchRequest.isDocIdRequired())
 			last = docIdBufferCollector = new DocIdBufferCollector(
 					docSetHitCollector);
 		else
 			docIdBufferCollector = null;
-		Timer t = new Timer(timer, "DocSetHits: " + params.query.toString());
-		if (params.reader.numDocs() > 0)
-			params.reader.search(params.query, params.filterHits,
-					docSetHitCollector.collector);
-		t.end(null);
-		last.endCollection();
 		lastCollector = last;
 		scoreBufferCollector = sc;
+	}
+
+	@Override
+	protected void populate(Timer timer) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
+		Timer t = (timer == null) ? null : new Timer(timer, "DocSetHits: "
+				+ queryKey);
+		if (reader.numDocs() > 0)
+			reader.search(query, filterHits, docSetHitCollector.collector);
+		if (t != null)
+			t.end(null);
+		lastCollector.endCollection();
 	}
 
 	final public int getNumFound() {
@@ -154,4 +147,32 @@ public class DocSetHits {
 				: null);
 	}
 
+	final public static int compare(CollectorInterface c1, CollectorInterface c2) {
+		if (c1 == null)
+			if (c2 == null)
+				return 0;
+			else
+				return -1;
+		if (c2 == null)
+			return 1;
+		return c2.getClassType() - c1.getClassType();
+	}
+
+	@Override
+	public int compareTo(DocSetHits dsh) {
+		int c;
+		if ((c = compare(docSetHitCollector, dsh.docSetHitCollector)) != 0)
+			return c;
+		if ((c = compare(docIdBufferCollector, dsh.docIdBufferCollector)) != 0)
+			return c;
+		if ((c = compare(distanceCollector, dsh.distanceCollector)) != 0)
+			return c;
+		if ((c = compare(scoreBufferCollector, dsh.scoreBufferCollector)) != 0)
+			return c;
+		if ((c = StringUtils.compareNullString(queryKey, dsh.queryKey)) != 0)
+			return c;
+		if ((c = GeoParameters.compare(geoParameters, dsh.geoParameters)) != 0)
+			return c;
+		return StringUtils.compareNullHashCode(filterHits, dsh.filterHits);
+	}
 }

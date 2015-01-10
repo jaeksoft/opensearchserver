@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -22,24 +22,35 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft.searchlib.result.collector;
+package com.jaeksoft.searchlib.cache;
 
-import it.unimi.dsi.fastutil.Swapper;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Timer;
 
-public interface CollectorInterface extends Swapper {
+public abstract class LRUItemAbstract<K> implements Comparable<K> {
 
-	int getSize();
+	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	<T extends CollectorInterface> T getCollector(Class<T> collectorType);
+	private Boolean populated = false;
 
-	CollectorInterface getParent();
+	protected abstract void populate(Timer timer) throws Exception;
 
-	CollectorInterface duplicate(AbstractBaseCollector<?> base);
-
-	CollectorInterface duplicate();
-
-	void doSwap(final int pos1, final int pos2);
-
-	int getClassType();
-
+	final public void join(Timer timer) throws Exception {
+		rwl.r.lock();
+		try {
+			if (populated)
+				return;
+		} finally {
+			rwl.r.unlock();
+		}
+		rwl.w.lock();
+		try {
+			if (populated)
+				return;
+			populate(timer);
+			populated = true;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
 }

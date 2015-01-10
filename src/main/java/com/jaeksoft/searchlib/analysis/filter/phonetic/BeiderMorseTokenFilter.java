@@ -55,7 +55,8 @@ public class BeiderMorseTokenFilter extends AbstractTermFilter {
 	}
 
 	private final void createTokens() throws EncoderException {
-		wordQueue = BeiderMorseCache.get(encoderKey, termAtt.toString());
+		wordQueue = BeiderMorseCache.INSTANCE.get(encoderKey,
+				termAtt.toString());
 		currentPos = 0;
 	}
 

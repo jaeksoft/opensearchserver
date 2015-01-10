@@ -1,6 +1,6 @@
 /**   
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,7 +32,6 @@ import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 
 public class ThreadUtils {
 
@@ -64,10 +63,10 @@ public class ThreadUtils {
 		public ThreadInfo(Thread thread) {
 			this.name = thread.getName();
 			StackTraceElement[] elements = thread.getStackTrace();
-			String l = ErrorParserLogger.getLocation(elements);
+			String l = ExceptionUtils.getLocation(elements);
 			if (l == null)
-				l = ErrorParserLogger.getFirstLocation(elements);
-			this.fullStackTrace = ErrorParserLogger.getFullStackTrace(elements);
+				l = ExceptionUtils.getFirstLocation(elements);
+			this.fullStackTrace = ExceptionUtils.getFullStackTrace(elements);
 			this.location = l;
 			this.state = thread.getState();
 		}

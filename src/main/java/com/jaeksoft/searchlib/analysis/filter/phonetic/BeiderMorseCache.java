@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,16 +26,18 @@ package com.jaeksoft.searchlib.analysis.filter.phonetic;
 
 import java.util.TreeMap;
 
+import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.bm.NameType;
 import org.apache.commons.codec.language.bm.PhoneticEngine;
 import org.apache.commons.codec.language.bm.RuleType;
 
 import com.jaeksoft.searchlib.cache.LRUCache;
+import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
 
-public class BeiderMorseCache extends
-		LRUCache<BeiderMorseCache.TermKey, String[]> {
+public class BeiderMorseCache extends LRUCache<BeiderMorseCacheItem> {
+
+	final static BeiderMorseCache INSTANCE = new BeiderMorseCache();
 
 	public static class EncoderKey implements Comparable<EncoderKey> {
 
@@ -56,30 +58,11 @@ public class BeiderMorseCache extends
 		}
 	}
 
-	public static class TermKey implements Comparable<TermKey> {
-
-		final public EncoderKey encoderKey;
-		final public String term;
-
-		public TermKey(EncoderKey encoderKey, final String term) {
-			this.encoderKey = encoderKey;
-			this.term = term;
-		}
-
-		@Override
-		public int compareTo(TermKey key) {
-			int c;
-			if ((c = encoderKey.compareTo(key.encoderKey)) != 0)
-				return c;
-			return StringUtils.compareNullString(term, key.term);
-		}
-	}
-
 	private final TreeMap<EncoderKey, PhoneticEngine> encoders = new TreeMap<EncoderKey, PhoneticEngine>();
 
 	private final ReadWriteLock encodersLock = new ReadWriteLock();
 
-	public PhoneticEngine getEncoder(EncoderKey encoderKey) {
+	PhoneticEngine getEncoder(EncoderKey encoderKey) {
 		PhoneticEngine encoder;
 		encodersLock.r.lock();
 		try {
@@ -102,28 +85,16 @@ public class BeiderMorseCache extends
 	}
 
 	public BeiderMorseCache() {
-		super(null, 10000);
+		super("BeiderMorse", 10000);
 	}
 
-	private final String[] get(final TermKey termKey) {
-		String[] tokens = getAndPromote(termKey);
-		if (tokens != null)
-			return tokens;
-		PhoneticEngine encoder = getEncoder(termKey.encoderKey);
-		String terms = null;
-		synchronized (encoder) {
-			terms = encoder.encode(termKey.term);
+	public String[] get(EncoderKey encoderKey, String term)
+			throws EncoderException {
+		try {
+			return getAndJoin(new BeiderMorseCacheItem(encoderKey, term), null).tokens;
+		} catch (Exception e) {
+			throw ExceptionUtils.<EncoderException> trowException(e,
+					EncoderException.class);
 		}
-		if (terms == null)
-			return null;
-		tokens = StringUtils.split(terms, '|');
-		put(termKey, tokens);
-		return tokens;
-	}
-
-	private final static BeiderMorseCache INSTANCE = new BeiderMorseCache();
-
-	public final static String[] get(EncoderKey encoderKey, String term) {
-		return INSTANCE.get(new TermKey(encoderKey, term));
 	}
 }
