@@ -359,7 +359,7 @@ public class ObjectStorageDirectory extends Directory {
 			try {
 				return getAndJoin(new ByteCacheItem(name), null);
 			} catch (Exception e) {
-				throw ExceptionUtils.<IOException> trowException(e,
+				throw ExceptionUtils.<IOException> throwException(e,
 						IOException.class);
 			}
 		}

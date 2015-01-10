@@ -27,7 +27,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 
-public class ExceptionUtils {
+public class ExceptionUtils extends
+		org.apache.commons.lang.exception.ExceptionUtils {
 
 	public final static String getLocation(StackTraceElement[] stackTrace) {
 		for (StackTraceElement element : stackTrace)
@@ -60,7 +61,7 @@ public class ExceptionUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Exception> T trowException(Exception exception,
+	public static <T extends Exception> T throwException(Exception exception,
 			Class<T> exceptionClass) throws T {
 		if (exception == null)
 			return null;
