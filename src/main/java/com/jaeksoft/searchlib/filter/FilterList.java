@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.filter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,15 +32,9 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.ImmutableSet;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
@@ -108,6 +101,12 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 			item.setParamPosition(i++);
 	}
 
+	FilterAbstract<?> first() {
+		if (filterList == null)
+			return null;
+		return filterList.get(0);
+	}
+
 	public int size() {
 		return filterList == null ? 0 : filterList.size();
 	}
@@ -116,22 +115,6 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	public Iterator<FilterAbstract<?>> iterator() {
 		return filterList == null ? ImmutableSet.<FilterAbstract<?>> of()
 				.iterator() : filterList.iterator();
-	}
-
-	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			Timer timer) throws IOException, ParseException,
-			SearchLibException, SyntaxError {
-
-		if (size() == 0)
-			return null;
-
-		FilterHits finalFilterHits = new FilterHits(true);
-		for (FilterAbstract<?> filter : filterList)
-			finalFilterHits.operate(filter.getFilterHits(defaultField,
-					analyzer, request, timer), filter
-					.getOperator(defaultOperator));
-		return finalFilterHits;
 	}
 
 	public Object[] getArray() {

@@ -50,8 +50,11 @@ public class Timer {
 
 	public Timer(Timer parent, String info) {
 		this(info);
-		if (parent != null)
-			parent.childs.add(this);
+		if (parent != null) {
+			synchronized (parent.childs) {
+				parent.childs.add(this);
+			}
+		}
 	}
 
 	final public void reset() {
@@ -90,8 +93,10 @@ public class Timer {
 	final public long getDuration() {
 		if (this.endTime == 0) {
 			this.endTime = System.currentTimeMillis();
-			for (Timer timer : childs)
-				timer.getDuration();
+			synchronized (childs) {
+				for (Timer timer : childs)
+					timer.getDuration();
+			}
 		}
 		return this.endTime - this.startTime;
 	}
@@ -130,8 +135,10 @@ public class Timer {
 		writer.print("\" duration=\"");
 		writer.print(d);
 		writer.println("\">");
-		for (Timer timer : childs)
-			timer.writeXml(writer, minTime, maxLevel);
+		synchronized (childs) {
+			for (Timer timer : childs)
+				timer.writeXml(writer, minTime, maxLevel);
+		}
 		writer.println("</timer>");
 	}
 

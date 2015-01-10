@@ -93,7 +93,7 @@ public class BeiderMorseCache extends LRUCache<BeiderMorseCacheItem> {
 		try {
 			return getAndJoin(new BeiderMorseCacheItem(encoderKey, term), null).tokens;
 		} catch (Exception e) {
-			throw ExceptionUtils.<EncoderException> trowException(e,
+			throw ExceptionUtils.<EncoderException> throwException(e,
 					EncoderException.class);
 		}
 	}
