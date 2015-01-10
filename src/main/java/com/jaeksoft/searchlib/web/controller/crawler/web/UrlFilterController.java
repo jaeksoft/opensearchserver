@@ -23,6 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 

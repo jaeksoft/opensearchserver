@@ -70,7 +70,7 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 		this.queryKey = query == null ? null : query.toString();
 		ScoreBufferCollector sc = null;
 		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
-				reader.maxDoc(), searchRequest.isForFilter());
+				(int) reader.maxDoc(), searchRequest.isForFilter());
 		if (searchRequest.isScoreRequired())
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
 		if (searchRequest.isDistanceRequired()) {
