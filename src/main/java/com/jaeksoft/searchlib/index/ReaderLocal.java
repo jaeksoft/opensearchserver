@@ -61,7 +61,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
-import com.jaeksoft.searchlib.filter.FilterList;
+import com.jaeksoft.searchlib.filter.FilterListExecutor;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
@@ -70,7 +70,6 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
-import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -470,13 +469,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			SearchLibException {
 		rwl.r.lock();
 		try {
-			Schema schema = searchRequest.getConfig().getSchema();
-			SchemaField defaultField = schema.getFieldList().getDefaultField();
-			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
-			FilterList filterList = searchRequest.getFilterList();
-			FilterHits filterHits = filterList == null ? null
-					: filterList.getFilterHits(defaultField, analyzer,
-							searchRequest, timer);
+			FilterHits filterHits = new FilterListExecutor(searchRequest, timer)
+					.getFilterHits();
 			DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits);
 			return docSetHitsCache.getAndJoin(dsh, timer);
 		} catch (Exception e) {
