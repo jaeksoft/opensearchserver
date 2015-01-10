@@ -51,8 +51,6 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Similarity;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
@@ -61,12 +59,10 @@ import org.apache.lucene.util.ReaderUtil;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.cache.SpellCheckerCache;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.filter.FilterList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.index.DocSetHits.Params;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -76,6 +72,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
@@ -89,11 +86,14 @@ public class ReaderLocal extends ReaderAbstract {
 	private IndexSearcher indexSearcher;
 	private IndexReader indexReader;
 
-	private SpellCheckerCache spellCheckerCache;
+	private final SpellCheckCache spellCheckCache;
+	private final DocSetHitsCache docSetHitsCache;
 
 	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory,
 			boolean bOnline) throws IOException, SearchLibException {
 		super(indexConfig);
+		spellCheckCache = new SpellCheckCache(100);
+		docSetHitsCache = new DocSetHitsCache();
 		indexSearcher = null;
 		indexReader = null;
 		this.indexDirectory = indexDirectory;
@@ -110,8 +110,8 @@ public class ReaderLocal extends ReaderAbstract {
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			indexSearcher.setSimilarity(similarity);
-		// TODO replace value 100 by number of field in schema
-		this.spellCheckerCache = new SpellCheckerCache(100);
+		spellCheckCache.clear();
+		docSetHitsCache.clear();
 	}
 
 	@Override
@@ -304,23 +304,6 @@ public class ReaderLocal extends ReaderAbstract {
 		}
 	}
 
-	public TopDocs search(Query query, Filter filter, Sort sort, int nTop)
-			throws IOException {
-		rwl.r.lock();
-		try {
-			if (sort == null) {
-				if (filter == null)
-					return indexSearcher.search(query, nTop);
-				else
-					return indexSearcher.search(query, filter, nTop);
-			} else {
-				return indexSearcher.search(query, filter, nTop, sort);
-			}
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml)
 			throws SearchLibException {
@@ -473,7 +456,6 @@ public class ReaderLocal extends ReaderAbstract {
 		rwl.w.lock();
 		try {
 			closeNoLock();
-			spellCheckerCache.clear();
 			openNoLock();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -495,8 +477,10 @@ public class ReaderLocal extends ReaderAbstract {
 			FilterHits filterHits = filterList == null ? null
 					: filterList.getFilterHits(defaultField, analyzer,
 							searchRequest, timer);
-			return new DocSetHits(new Params(this, searchRequest, filterHits),
-					timer);
+			DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits);
+			return docSetHitsCache.getAndJoin(dsh, timer);
+		} catch (Exception e) {
+			throw new SearchLibException(e);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -714,7 +698,7 @@ public class ReaderLocal extends ReaderAbstract {
 			SearchLibException {
 		rwl.r.lock();
 		try {
-			return spellCheckerCache.get(this, fieldName);
+			return spellCheckCache.get(this, fieldName);
 		} finally {
 			rwl.r.unlock();
 		}

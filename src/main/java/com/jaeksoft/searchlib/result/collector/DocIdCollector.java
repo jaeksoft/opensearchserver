@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	private final int[] ids;
 	private int currentPos;
 	private BitSetInterface bitSet;
+	private final int classType = getClass().hashCode();
 
 	public DocIdCollector(final int maxDoc, final int maxSize) {
 		this.maxDoc = maxDoc;
@@ -52,6 +53,11 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 		this.ids = ArrayUtils.clone(source.ids);
 		this.currentPos = source.currentPos;
 		this.bitSet = source.bitSet.clone();
+	}
+
+	@Override
+	public final int getClassType() {
+		return classType;
 	}
 
 	@Override

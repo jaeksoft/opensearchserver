@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,10 +30,17 @@ public abstract class AbstractExtendsCollector<C extends CollectorInterface, B e
 	final protected B base;
 	final protected C parent;
 
+	private final int classType = getClass().hashCode();
+
 	@SuppressWarnings("unchecked")
 	protected AbstractExtendsCollector(B base) {
 		this.base = (B) base;
 		parent = base.setLastCollector((C) this);
+	}
+
+	@Override
+	final public int getClassType() {
+		return classType;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,9 +29,16 @@ public abstract class AbstractBaseCollector<C extends CollectorInterface>
 
 	protected C lastCollector;
 
+	private final int classType = getClass().hashCode();
+
 	@SuppressWarnings("unchecked")
 	protected AbstractBaseCollector() {
 		setLastCollector((C) this);
+	}
+
+	@Override
+	public final int getClassType() {
+		return classType;
 	}
 
 	final C setLastCollector(final C collectorInterface) {
@@ -71,4 +78,5 @@ public abstract class AbstractBaseCollector<C extends CollectorInterface>
 	final public void swap(final int pos1, final int pos2) {
 		lastCollector.doSwap(pos1, pos2);
 	}
+
 }

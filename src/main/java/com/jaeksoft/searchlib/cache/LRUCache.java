@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,71 +30,51 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class LRUCache<K extends Comparable<K>, V> {
+public abstract class LRUCache<K extends LRUItemAbstract<K>> {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private class EvictionQueue extends LinkedHashMap<K, V> {
-
-		private static final long serialVersionUID = -2384951296369306995L;
-
-		protected final SimpleLock lock = new SimpleLock();
-
-		protected EvictionQueue(int maxSize) {
-			super(maxSize);
-		}
-
-		@Override
-		protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-			if (size() <= maxSize)
-				return false;
-			tree.remove(eldest.getKey());
-			evictions++;
-			return true;
-		}
-
-		final private V promote(K key) {
-			lock.rl.lock();
-			try {
-				V value = queue.remove(key);
-				queue.put(key, value);
-				return value;
-			} finally {
-				lock.rl.unlock();
-			}
-
-		}
-	}
-
-	private final TreeMap<K, Thread> keyThread;
-	private final TreeMap<K, K> tree;
-	private EvictionQueue queue;
+	private TreeMap<K, K> cacheMap;
+	private EvictionQueue evictionQueue;
 
 	private final String name;
 
-	private volatile int size;
-	private volatile int maxSize;
-	private volatile long evictions;
-	private volatile long lookups;
-	private volatile long hits;
-	private volatile long inserts;
+	private int maxSize;
+	private long evictions;
+	private long lookups;
+	private long hits;
+	private long inserts;
+
+	private class EvictionQueue extends LinkedHashMap<K, K> {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2876891913920705107L;
+
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<K, K> eldest) {
+			if (size() <= maxSize)
+				return false;
+			cacheMap.remove(eldest);
+			return true;
+		}
+	}
 
 	protected LRUCache(String name, int maxSize) {
 		this.name = name;
-		queue = (maxSize == 0) ? null : new EvictionQueue(maxSize);
-		tree = new TreeMap<K, K>();
-		keyThread = new TreeMap<K, Thread>();
-		this.maxSize = maxSize;
 		this.evictions = 0;
 		this.lookups = 0;
 		this.inserts = 0;
 		this.hits = 0;
-		this.size = 0;
+		this.maxSize = 0;
+		this.cacheMap = null;
+		this.evictionQueue = null;
+		setMaxSize_noLock(maxSize);
 	}
 
 	private void setMaxSize_noLock(int newMaxSize) {
@@ -102,10 +82,17 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 			return;
 		if (newMaxSize == 0) {
 			clear_nolock();
-			queue = null;
+			cacheMap = null;
+			evictionQueue = null;
 		} else {
-			if (queue == null || newMaxSize < maxSize)
-				queue = new EvictionQueue(maxSize);
+			if (newMaxSize < maxSize) {
+				cacheMap = null;
+				evictionQueue = null;
+			}
+			if (cacheMap == null)
+				cacheMap = new TreeMap<K, K>();
+			if (evictionQueue == null)
+				evictionQueue = new EvictionQueue();
 		}
 		maxSize = newMaxSize;
 	}
@@ -119,125 +106,73 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		}
 	}
 
-	final private Thread getLockThread(K key) {
-		rwl.r.lock();
-		try {
-			return keyThread.get(key);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	final private Thread putLockThreadIfEmpty(K key, Thread currentThread) {
+	final protected K getAndPromote(final K newItem) {
 		rwl.w.lock();
 		try {
-			Thread thread = keyThread.get(key);
-			if (thread != null)
-				return thread;
-			keyThread.put(key, currentThread);
-			return currentThread;
-		} finally {
-			rwl.w.unlock();
-		}
-
-	}
-
-	final protected void lockKeyThread(K key, int attempt)
-			throws SearchLibException {
-		Thread currentThread = Thread.currentThread();
-		Thread thread = putLockThreadIfEmpty(key, currentThread);
-		if (thread == currentThread)
-			return;
-		try {
-			while (thread != null) {
-				synchronized (thread) {
-					thread.wait(100);
-				}
-				thread = getLockThread(key);
-			}
-		} catch (InterruptedException e) {
-			throw new SearchLibException(e);
-		}
-		if (attempt == 0)
-			throw new SearchLibException("Cache lock failed");
-		lockKeyThread(key, attempt - 1);
-	}
-
-	final protected void unlockKeyThred(K key) {
-		rwl.w.lock();
-		try {
-			Thread thread = keyThread.remove(key);
-			if (thread != null)
-				synchronized (thread) {
-					thread.notify();
-				}
-			Thread ct = Thread.currentThread();
-			if (ct != thread)
-				synchronized (ct) {
-					ct.notify();
-				}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	final protected V getAndPromote(K key) {
-		if (queue == null)
-			return null;
-		rwl.r.lock();
-		try {
+			if (cacheMap == null)
+				return newItem;
 			lookups++;
-			K key2 = tree.get(key);
-			if (key2 == null)
-				return null;
-			hits++;
-			return queue.promote(key2);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	final public void remove(K key) {
-		if (queue == null)
-			return;
-		rwl.w.lock();
-		try {
-			K key2 = tree.remove(key);
-			queue.remove(key2);
-			evictions++;
-		} finally {
-			rwl.w.unlock();
-		}
-
-	}
-
-	final protected void put(K key, V value) {
-		if (queue == null)
-			return;
-		rwl.w.lock();
-		try {
+			K prevItem = cacheMap.get(newItem);
+			if (prevItem != null) {
+				evictionQueue.remove(prevItem);
+				evictionQueue.put(prevItem, prevItem);
+				hits++;
+				return prevItem;
+			}
+			evictionQueue.put(newItem, newItem);
+			cacheMap.put(newItem, newItem);
 			inserts++;
-			queue.put(key, value);
-			tree.put(key, key);
-			size = queue.size();
+			return newItem;
 		} finally {
 			rwl.w.unlock();
 		}
+	}
+
+	final public void put(final K item) {
+		rwl.w.lock();
+		try {
+			if (cacheMap == null)
+				return;
+			evictionQueue.put(item, item);
+			cacheMap.put(item, item);
+			inserts++;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	final public boolean remove(final K key) {
+		rwl.w.lock();
+		try {
+			if (cacheMap == null)
+				return false;
+			K item1 = cacheMap.remove(key);
+			K item2 = evictionQueue.remove(key);
+			if (item1 == null && item2 == null)
+				return false;
+			evictions++;
+			return true;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	public K getAndJoin(K item, Timer timer) throws Exception {
+		item = getAndPromote(item);
+		item.join(timer);
+		return item;
 	}
 
 	final private void clear_nolock() {
-		if (queue == null)
-			return;
-		queue.clear();
-		tree.clear();
-		size = queue.size();
+		if (cacheMap != null)
+			cacheMap.clear();
+		if (evictionQueue != null)
+			evictionQueue.clear();
 	}
 
 	final public void clear() {
 		rwl.w.lock();
 		try {
-			if (queue == null)
-				return;
 			clear_nolock();
 		} finally {
 			rwl.w.unlock();
@@ -249,10 +184,18 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		rwl.r.lock();
 		try {
 			return StringUtils
-					.fastConcat(this.getClass().getName(), " - Size: ",
-							Integer.toString(size), " - MaxSize: ",
-							Integer.toString(maxSize), " - Lookup: ",
-							Long.toString(lookups), " HitRatio: ",
+					.fastConcat(
+							name,
+							" - Size: ",
+							cacheMap == null ? 0 : Integer.toString(cacheMap
+									.size()),
+							'/',
+							evictionQueue == null ? 0 : Integer
+									.toString(evictionQueue.size())
+									+ " - MaxSize: ",
+							Integer.toString(maxSize), " - Lookup: ", Long
+									.toString(lookups), " - Insert: ", Long
+									.toString(inserts), " HitRatio: ",
 							getHitRatioPercent());
 		} finally {
 			rwl.r.unlock();
@@ -264,10 +207,11 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 		try {
 			float hitRatio = getHitRatio();
 			writer.println("<cache class=\"" + this.getClass().getName()
-					+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + size
-					+ "\" hitRatio=\"" + hitRatio + "\" lookups=\"" + lookups
-					+ "\" hits=\"" + hits + "\" inserts=\"" + inserts
-					+ "\" evictions=\"" + evictions + "\">");
+					+ "\" maxSize=\"" + this.maxSize + "\" size=\"" + cacheMap == null ? "0"
+					: cacheMap.size() + "\" hitRatio=\"" + hitRatio
+							+ "\" lookups=\"" + lookups + "\" hits=\"" + hits
+							+ "\" inserts=\"" + inserts + "\" evictions=\""
+							+ evictions + "\">");
 			writer.println("</cache>");
 		} finally {
 			rwl.r.unlock();
@@ -286,7 +230,7 @@ public abstract class LRUCache<K extends Comparable<K>, V> {
 	final public int getSize() {
 		rwl.r.lock();
 		try {
-			return size;
+			return cacheMap == null ? 0 : cacheMap.size();
 		} finally {
 			rwl.r.unlock();
 		}

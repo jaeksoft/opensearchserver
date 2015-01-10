@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,13 +39,16 @@ import org.apache.lucene.store.NoSuchDirectoryException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.LRUCache;
+import com.jaeksoft.searchlib.cache.LRUItemAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProtocol;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProtocol.ObjectMeta;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.array.BytesOutputStream;
 
 public class ObjectStorageDirectory extends Directory {
@@ -87,19 +90,9 @@ public class ObjectStorageDirectory extends Directory {
 	@Override
 	public boolean fileExists(String name) throws IOException {
 		try {
-			if (inputCache.get(name) != null)
-				return true;
-			ObjectMeta meta = SwiftProtocol.headObject(httpDownloader,
-					swiftToken, container, name);
-			if (meta == null)
-				return false;
-			inputCache.add(name, new ByteCacheItem().set(meta.contentLength,
-					meta.lastModified));
-			return true;
-		} catch (IOException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new IOException(e);
+			return inputCache.get(name) != null;
+		} catch (FileNotFoundException e) {
+			return false;
 		}
 	}
 
@@ -119,19 +112,10 @@ public class ObjectStorageDirectory extends Directory {
 
 	@Override
 	final public long fileModified(final String name) throws IOException {
-
-		ByteCacheItem byteCacheItem = inputCache.get(name);
-		if (byteCacheItem != null && byteCacheItem.lastModified != null)
-			return byteCacheItem.lastModified;
-
-		ObjectMeta meta = getObjectMeta(name);
-		if (meta.lastModified == null)
+		ByteCacheItem item = inputCache.get(name);
+		if (item.meta.lastModified == null)
 			throw new IOException("No lastModified information");
-
-		if (byteCacheItem == null)
-			byteCacheItem = inputCache.add(name, new ByteCacheItem());
-		byteCacheItem.set(meta.contentLength, meta.lastModified);
-		return meta.lastModified;
+		return item.meta.lastModified;
 	}
 
 	@Override
@@ -162,20 +146,10 @@ public class ObjectStorageDirectory extends Directory {
 
 	@Override
 	public long fileLength(String name) throws IOException {
-
-		ByteCacheItem byteCacheItem = inputCache.get(name);
-		if (byteCacheItem != null && byteCacheItem.length != null)
-			return byteCacheItem.length;
-
-		ObjectMeta meta = getObjectMeta(name);
-		if (meta.contentLength == null)
+		ByteCacheItem item = inputCache.get(name);
+		if (item.meta.contentLength == null)
 			throw new IOException("No contentLength information");
-
-		if (byteCacheItem == null)
-			byteCacheItem = inputCache.add(name, new ByteCacheItem());
-		byteCacheItem.set(meta.contentLength, meta.lastModified);
-
-		return meta.contentLength;
+		return item.meta.contentLength;
 	}
 
 	@Override
@@ -187,27 +161,22 @@ public class ObjectStorageDirectory extends Directory {
 	public IndexInput openInput(String name) throws IOException {
 		InputStream inputStream = null;
 		try {
-			ByteCacheItem byteCacheItem = inputCache.get(name);
-			if (byteCacheItem != null && byteCacheItem.bytes != null)
-				return new Input(name, byteCacheItem.bytes);
+			ByteCacheItem item = inputCache.get(name);
+			if (item.bytes != null)
+				return new Input(name, item.bytes);
 
 			DownloadItem downloadItem = SwiftProtocol.readObject(
 					httpDownloader, swiftToken, container, name);
 			Long length = downloadItem.getContentLength();
 			if (length == null)
 				throw new IOException("No content length");
-			if (byteCacheItem == null)
-				byteCacheItem = new ByteCacheItem();
-			byteCacheItem.set(downloadItem.getContentLength(),
-					downloadItem.getLastModified());
-			if (byteCacheItem.length > 0) {
+			if (length > 0) {
 				inputStream = downloadItem.getContentInputStream();
-				byteCacheItem.bytes = IOUtils.toByteArray(inputStream);
+				item.bytes = IOUtils.toByteArray(inputStream);
 				inputStream.read();
 			} else
-				byteCacheItem.bytes = ArrayUtils.EMPTY_BYTE_ARRAY;
-			inputCache.add(name, byteCacheItem);
-			return new Input(name, byteCacheItem.bytes);
+				item.bytes = ArrayUtils.EMPTY_BYTE_ARRAY;
+			return new Input(name, item.bytes);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
@@ -291,14 +260,13 @@ public class ObjectStorageDirectory extends Directory {
 					return;
 				DownloadItem downloadItem = SwiftProtocol.writeObject(
 						httpDownloader, swiftToken, container, pathName, bytes);
-				ByteCacheItem byteCacheItem = new ByteCacheItem();
-				byteCacheItem.set(downloadItem.getContentLength(),
-						downloadItem.getLastModified());
+				ByteCacheItem item = new ByteCacheItem(pathName);
+				item.meta = new ObjectMeta(pathName, downloadItem);
 				if (length > 0)
-					byteCacheItem.bytes = bytes.toByteArray();
+					item.bytes = bytes.toByteArray();
 				else
-					byteCacheItem.bytes = ArrayUtils.EMPTY_BYTE_ARRAY;
-				inputCache.add(pathName, byteCacheItem);
+					item.bytes = ArrayUtils.EMPTY_BYTE_ARRAY;
+				inputCache.put(item);
 				bytes = null;
 				length = 0;
 			} catch (IOException e) {
@@ -352,42 +320,52 @@ public class ObjectStorageDirectory extends Directory {
 
 	}
 
-	private class ByteCacheItem {
+	private class ByteCacheItem extends LRUItemAbstract<ByteCacheItem> {
 
-		private Long length = null;
-		private Long lastModified = null;
+		private final String name;
+		private ObjectMeta meta;
 		private byte[] bytes = null;
 
-		private ByteCacheItem set(Long length, Long lastModified) {
-			if (length != null)
-				this.length = length;
-			if (lastModified != null)
-				this.lastModified = lastModified;
-			return this;
+		private ByteCacheItem(String name) {
+			this.name = name;
+			this.meta = null;
 		}
 
 		@Override
 		final public String toString() {
-			return StringUtils.fastConcat(length, ' ', lastModified, ' ',
+			return meta == null ? "Empty" : StringUtils.fastConcat(
+					meta.contentLength, ' ', meta.lastModified, ' ',
 					bytes != null ? bytes.length : 0);
+		}
+
+		@Override
+		public int compareTo(ByteCacheItem o) {
+			return StringUtils.compareNullString(name, o.name);
+		}
+
+		@Override
+		protected void populate(Timer timer) throws Exception {
+			meta = getObjectMeta(name);
 		}
 	}
 
-	private class ByteCache extends LRUCache<String, ByteCacheItem> {
+	private class ByteCache extends LRUCache<ByteCacheItem> {
 
 		private ByteCache(int maxSize) {
-			super("ObjectStorageCache", maxSize);
+			super("ObjectStorage", maxSize);
 		}
 
-		private ByteCacheItem get(String name) {
-			ByteCacheItem byteCacheItem = super.getAndPromote(name);
-			return byteCacheItem;
+		private ByteCacheItem get(String name) throws IOException {
+			try {
+				return getAndJoin(new ByteCacheItem(name), null);
+			} catch (Exception e) {
+				throw ExceptionUtils.<IOException> trowException(e,
+						IOException.class);
+			}
 		}
 
-		private ByteCacheItem add(String name, ByteCacheItem byteCacheItem) {
-			put(name, byteCacheItem);
-			return byteCacheItem;
+		private boolean remove(String name) {
+			return remove(new ByteCacheItem(name));
 		}
-
 	}
 }
