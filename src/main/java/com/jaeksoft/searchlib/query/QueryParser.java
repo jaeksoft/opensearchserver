@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
@@ -50,23 +52,27 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class QueryParser extends BooleanQueryBaseListener {
 
-	private final String field;
+	private final Set<String> fields;
+	private final String defaultField;
 	private final int defaultOperator;
 	private final CompiledAnalyzer analyzer;
 	private final int phraseSlop;
 	private final Double termBoost;
 	private final Double phraseBoost;
 
+	private String currentField;
 	private int currentOperator;
 	private Query holdQuery;
 	private BooleanQuery booleanQuery;
 
 	private IOException ioError;
 
-	public QueryParser(final String field, final Occur occur,
-			final CompiledAnalyzer analyzer, final int phraseSlop,
-			final Double termBoost, final Double phraseBoost) {
-		this.field = field;
+	public QueryParser(final String defaultField, final Set<String> fields,
+			final Occur occur, final CompiledAnalyzer analyzer,
+			final int phraseSlop, final Double termBoost,
+			final Double phraseBoost) {
+		this.defaultField = defaultField;
+		this.fields = fields;
 		this.defaultOperator = getOperator(occur);
 		this.analyzer = analyzer;
 		this.phraseSlop = phraseSlop;
@@ -120,7 +126,7 @@ public class QueryParser extends BooleanQueryBaseListener {
 		currentOperator = defaultOperator;
 	}
 
-	final private List<String> getWords(String text) throws IOException {
+	final private List<String> getWords(final String text) throws IOException {
 		List<String> words = new ArrayList<String>(1);
 		if (analyzer != null)
 			analyzer.extractTerms(text, words);
@@ -129,17 +135,18 @@ public class QueryParser extends BooleanQueryBaseListener {
 		return words;
 	}
 
-	final private void addTermQuery(String text) throws IOException {
+	final private void addTermQuery(final String text) throws IOException {
 		for (String word : getWords(text)) {
-			Term term = new Term(field, word);
+			Term term = new Term(currentField, word);
 			TermQuery termQuery = new TermQuery(term);
 			if (termBoost != null)
 				termQuery.setBoost(termBoost.floatValue());
 			addBooleanClause(termQuery);
 		}
+		currentField = defaultField;
 	}
 
-	private void addPhraseQuery(String text) throws IOException {
+	final private void addPhraseQuery(String text) throws IOException {
 		int s = 0;
 		if (text.startsWith("\""))
 			s = 1;
@@ -153,8 +160,18 @@ public class QueryParser extends BooleanQueryBaseListener {
 		if (phraseBoost != null)
 			phraseQuery.setBoost(phraseBoost.floatValue());
 		for (String word : getWords(text))
-			phraseQuery.add(new Term(field, word));
+			phraseQuery.add(new Term(currentField, word));
 		addBooleanClause(phraseQuery);
+		currentField = defaultField;
+	}
+
+	final private void setCurrentField(final String text) throws IOException {
+		String field = text.endsWith(":") ? text
+				.substring(0, text.length() - 1) : text;
+		if (fields != null && fields.contains(field))
+			currentField = field;
+		else
+			addTermQuery(text);
 	}
 
 	@Override
@@ -172,6 +189,12 @@ public class QueryParser extends BooleanQueryBaseListener {
 				break;
 			case BooleanQueryLexer.STRING:
 				addTermQuery(node.getText());
+				break;
+			case BooleanQueryLexer.FIELD:
+				setCurrentField(node.getText());
+				break;
+			case BooleanQueryLexer.WS:
+				currentField = defaultField;
 				break;
 			default:
 				break;
@@ -196,6 +219,7 @@ public class QueryParser extends BooleanQueryBaseListener {
 	public final Query parse(String query) throws IOException {
 		try {
 			currentOperator = -1;
+			currentField = defaultField;
 			holdQuery = null;
 			booleanQuery = new BooleanQuery();
 			ioError = null;
@@ -229,9 +253,17 @@ public class QueryParser extends BooleanQueryBaseListener {
 	}
 
 	public final static void main(String[] arvs) throws IOException {
-		QueryParser queryParser = new QueryParser("field", Occur.MUST, null, 1,
-				null, null);
+		TreeSet<String> fields = new TreeSet<String>();
+		fields.add("field2");
+		fields.add("field3");
+		QueryParser queryParser = new QueryParser("field", fields, Occur.MUST,
+				null, 1, null, null);
+
 		System.out.println(queryParser.parse("word"));
+		System.out
+				.println(queryParser
+						.parse("word1 field2:word2 fauxfield\\:fauxword field:field3:\"quoted words\""));
+		System.out.println(queryParser.parse("field:\"quoted words\""));
 		System.out.println(queryParser.parse("\"quoted words\""));
 		System.out.println(queryParser.parse("\"quoted words\" word"));
 		System.out.println(queryParser.parse("word OR \"quoted words\""));

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -130,6 +131,7 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	@Override
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
+		Set<String> fields = config.getSchema().getFieldList().getFieldSet();
 		SnippetFieldList snippetFieldList = getSnippetFieldList();
 		List<Query> queries = new ArrayList<Query>(searchFields.size());
 		for (SearchField searchField : searchFields) {
@@ -138,8 +140,8 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			if (query == null)
 				query = queryString;
 			if (snippetFieldList.get(field) != null) {
-				searchField.addQuery(analyzer, query, queries, phraseSlop,
-						Occur.SHOULD);
+				searchField.addQuery(fields, analyzer, query, queries,
+						phraseSlop, Occur.SHOULD);
 			}
 		}
 		return getComplexQuery(queries);
@@ -149,12 +151,14 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 			throws ParseException, SyntaxError, SearchLibException, IOException {
 		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
 			return new MatchAllDocsQuery();
+		Set<String> fields = config.getSchema().getFieldList().getFieldSet();
 		List<Query> queries = new ArrayList<Query>(searchFields.size());
 		for (SearchField searchField : searchFields) {
 			String query = getQueryString(searchField.getField());
 			if (query == null)
 				query = queryString;
-			searchField.addQuery(analyzer, query, queries, phraseSlop, occur);
+			searchField.addQuery(fields, analyzer, query, queries, phraseSlop,
+					occur);
 		}
 		return getComplexQuery(queries);
 	}

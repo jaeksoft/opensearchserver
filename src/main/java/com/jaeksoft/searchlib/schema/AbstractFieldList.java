@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.xml.sax.SAXException;
 
@@ -40,9 +41,10 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		Comparable<AbstractFieldList<T>>, Iterable<T> {
 
-	private List<T> fieldList;
-	private Map<String, T> fieldMap;
+	private final List<T> fieldList;
+	private final Map<String, T> fieldMap;
 	private String cacheKey;
+	private volatile TreeSet<String> cachedFieldSet;
 	private final boolean cacheKeySorted;
 
 	private ReadWriteLock rwl = new ReadWriteLock();
@@ -54,13 +56,13 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		this.fieldMap = new TreeMap<String, T>();
 		this.fieldList = new ArrayList<T>(0);
 		this.cacheKeySorted = cacheKeySorted;
-		buildCacheKey();
+		buildCache();
 	}
 
 	public void clear() {
 		this.fieldList.clear();
 		this.fieldMap.clear();
-		buildCacheKey();
+		buildCache();
 	}
 
 	/**
@@ -79,26 +81,30 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		try {
 			for (T field : fl)
 				addNoLockNoCache(field.duplicate());
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final void buildCacheKey() {
+	private final void buildCache() {
+		TreeSet<String> newFieldSet = new TreeSet<String>();
 		StringBuilder sb = new StringBuilder();
 		if (cacheKeySorted) {
 			for (T f : fieldList) {
 				sb.append(f.toString());
 				sb.append('|');
+				newFieldSet.add(f.name);
 			}
 		} else {
 			for (T f : fieldMap.values()) {
 				sb.append(f.toString());
 				sb.append('|');
+				newFieldSet.add(f.name);
 			}
 		}
 		cacheKey = sb.toString();
+		cachedFieldSet = newFieldSet;
 	}
 
 	private void addNoLockNoCache(T field) {
@@ -111,7 +117,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	public void rebuildCacheKey() {
 		rwl.w.lock();
 		try {
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -121,7 +127,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		rwl.w.lock();
 		try {
 			addNoLockNoCache(field);
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -136,7 +142,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 			if (i == fieldList.size() - 1)
 				return;
 			Collections.swap(fieldList, i, i + 1);
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -151,7 +157,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 			if (i == 0)
 				return;
 			Collections.swap(fieldList, i, i - 1);
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -239,7 +245,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		try {
 			T field = fieldMap.remove(fieldName);
 			fieldList.remove(field);
-			buildCacheKey();
+			buildCache();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -289,6 +295,15 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		rwl.r.lock();
 		try {
 			return cacheKey;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public Set<String> getFieldSet() {
+		rwl.r.lock();
+		try {
+			return cachedFieldSet;
 		} finally {
 			rwl.r.unlock();
 		}
