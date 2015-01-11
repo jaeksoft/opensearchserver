@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -212,12 +213,12 @@ public class SearchField implements Cloneable {
 		return sb.toString();
 	}
 
-	final private Query getPatternQuery(final CompiledAnalyzer analyzer,
-			final Occur occur, final int phraseSlop, final String queryString)
-			throws IOException {
-		QueryParser queryParser = new QueryParser(field, occur, analyzer,
-				this.phraseSlop != null ? this.phraseSlop : phraseSlop,
-				termBoost, phraseBoost);
+	final private Query getPatternQuery(final Set<String> fields,
+			final CompiledAnalyzer analyzer, final Occur occur,
+			final int phraseSlop, final String queryString) throws IOException {
+		QueryParser queryParser = new QueryParser(field, fields, occur,
+				analyzer, this.phraseSlop != null ? this.phraseSlop
+						: phraseSlop, termBoost, phraseBoost);
 		return queryParser.parse(queryString);
 	}
 
@@ -279,9 +280,10 @@ public class SearchField implements Cloneable {
 		return phraseQuery;
 	}
 
-	final public void addQuery(PerFieldAnalyzer perFieldAnalyzer,
-			String queryString, Collection<Query> queries, int phraseSlop,
-			Occur occur) throws IOException {
+	final public void addQuery(Set<String> fields,
+			PerFieldAnalyzer perFieldAnalyzer, String queryString,
+			Collection<Query> queries, int phraseSlop, Occur occur)
+			throws IOException {
 		CompiledAnalyzer compiledAnalyzer = null;
 		try {
 			if (StringUtils.isEmpty(queryString))
@@ -289,7 +291,7 @@ public class SearchField implements Cloneable {
 			compiledAnalyzer = perFieldAnalyzer.getCompiledAnalyzer(field);
 
 			if (mode == Mode.PATTERN) {
-				queries.add(getPatternQuery(compiledAnalyzer, occur,
+				queries.add(getPatternQuery(fields, compiledAnalyzer, occur,
 						phraseSlop, queryString));
 				return;
 			}

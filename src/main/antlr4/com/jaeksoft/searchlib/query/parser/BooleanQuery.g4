@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,17 +27,20 @@ grammar BooleanQuery;
 
 expression : term+ ;
 
-term : (AND|OR|NOT|QSTRING|STRING)+ ;
+term : (AND|OR|NOT|STRING|QSTRING|FIELD)+ ;
 
 // LEXER
 
-AND : ('AND'|'ET'|'UND') ;
-OR : ('OR'|'OU'|'ODER') ;
-NOT : ('NOT'|'NON'|'NICHTS') ;
-STRING : StringElement+ EOF? ;
-QSTRING : '"' (StringElement|WhiteSpaces)* ('"'|EOF) ;
-WS : WhiteSpaces -> channel(HIDDEN) ;
+AND     : ('AND'|'ET'|'UND') ;
+OR      : ('OR'|'OU'|'ODER') ;
+NOT     : ('NOT'|'NON'|'NICHTS') ;
+STRING  : StringElement+ EOF? ;
+QSTRING : '"' (QStringElement|WhiteSpaces)* ('"'|EOF) ;
+FIELD   : KeywordElement+ ':' ;
+WS      : WhiteSpaces -> channel(HIDDEN) ;
  
-fragment StringElement    : '\u0021'|'\u0023' .. '\uFFFF' |  CharEscapeSeq ;
-fragment WhiteSpaces      : ( '\u0020' | '\u0009' | '\u000D' | '\u000A' ) ; 
-fragment CharEscapeSeq    : '\\' ('b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\');
+fragment KeywordElement : [a-zA-Z_0-9] ;
+fragment StringElement  : '\u0021' | '\u0023' .. '\u0039' | '\u003B' .. '\uFFFF' |  CharEscapeSeq ;
+fragment QStringElement : '\u0021' | '\u0023' .. '\uFFFF' |  CharEscapeSeq ;
+fragment WhiteSpaces    : ( '\u0020' | '\u0009' | '\u000D' | '\u000A' ) ; 
+fragment CharEscapeSeq  : '\\' ('b' | 't' | 'n' | 'f' | 'r' | ':' | '"' | '\'' | '\\') ;

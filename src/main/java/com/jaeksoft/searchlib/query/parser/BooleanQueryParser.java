@@ -17,9 +17,9 @@ public class BooleanQueryParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		AND=1, OR=2, NOT=3, STRING=4, QSTRING=5, WS=6;
+		AND=1, OR=2, NOT=3, STRING=4, QSTRING=5, FIELD=6, WS=7;
 	public static final String[] tokenNames = {
-		"<INVALID>", "AND", "OR", "NOT", "STRING", "QSTRING", "WS"
+		"<INVALID>", "AND", "OR", "NOT", "STRING", "QSTRING", "FIELD", "WS"
 	};
 	public static final int
 		RULE_expression = 0, RULE_term = 1;
@@ -86,7 +86,7 @@ public class BooleanQueryParser extends Parser {
 				setState(7); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING) | (1L << FIELD))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -116,8 +116,12 @@ public class BooleanQueryParser extends Parser {
 		public TerminalNode AND(int i) {
 			return getToken(BooleanQueryParser.AND, i);
 		}
-		public List<TerminalNode> STRING() { return getTokens(BooleanQueryParser.STRING); }
+		public TerminalNode FIELD(int i) {
+			return getToken(BooleanQueryParser.FIELD, i);
+		}
+		public List<TerminalNode> FIELD() { return getTokens(BooleanQueryParser.FIELD); }
 		public List<TerminalNode> QSTRING() { return getTokens(BooleanQueryParser.QSTRING); }
+		public List<TerminalNode> STRING() { return getTokens(BooleanQueryParser.STRING); }
 		public TerminalNode OR(int i) {
 			return getToken(BooleanQueryParser.OR, i);
 		}
@@ -153,7 +157,7 @@ public class BooleanQueryParser extends Parser {
 					{
 					setState(9);
 					_la = _input.LA(1);
-					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING))) != 0)) ) {
+					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING) | (1L << FIELD))) != 0)) ) {
 					_errHandler.recoverInline(this);
 					}
 					consume();
@@ -181,9 +185,9 @@ public class BooleanQueryParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\b\21\4\2\t\2\4\3"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\t\21\4\2\t\2\4\3"+
 		"\t\3\3\2\6\2\b\n\2\r\2\16\2\t\3\3\6\3\r\n\3\r\3\16\3\16\3\3\2\2\4\2\4"+
-		"\2\3\3\2\3\7\20\2\7\3\2\2\2\4\f\3\2\2\2\6\b\5\4\3\2\7\6\3\2\2\2\b\t\3"+
+		"\2\3\3\2\3\b\20\2\7\3\2\2\2\4\f\3\2\2\2\6\b\5\4\3\2\7\6\3\2\2\2\b\t\3"+
 		"\2\2\2\t\7\3\2\2\2\t\n\3\2\2\2\n\3\3\2\2\2\13\r\t\2\2\2\f\13\3\2\2\2\r"+
 		"\16\3\2\2\2\16\f\3\2\2\2\16\17\3\2\2\2\17\5\3\2\2\2\4\t\16";
 	public static final ATN _ATN =
