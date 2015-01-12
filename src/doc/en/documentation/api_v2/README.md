@@ -10,9 +10,9 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 * [Analyzers](analyzers/README.md): create, list, delete analyzers.
 * [More Like This](more-like-this/README.md): find similar documents.
 * [Parsers](parsers/README.md): parse documents.
-* [Replication](replication/README.md): replicate index.
+* [Replication](replication/README.md): replicate indexes.
 * [Scheduler](scheduler/README.md): schedule jobs.
-* [Synonyms](synonyms/README.md): manage list of synonyms.
+* [Synonyms](synonyms/README.md): manage lists of synonyms.
 * Searching:
 	* [Searching using fields](searching_using_fields/README.md)
 	* [Searching with patterns](searching_using_patterns/README.md)
