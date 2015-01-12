@@ -2,53 +2,54 @@
 
 Upgrading OpenSearchServer to a newer version is a quick and easy process.
 
-### Backuping data
+### Backing up your data
 
-Before upgrading OpenSearchServer **it is a good practice to backup all your data**. To do so, locate the `data` folder used by OpenSearchServer. This is the folder where all index and configuration are stored.
+Before upgrading OpenSearchServer **it is strongly recommended to back up all your data**. To do so, locate the `data` folder used by OpenSearchServer. This is the folder where all indexes and settings are stored.
 
-Location of this folder can be found in script `start.bat` (Windows) or `start.sh`, in line `set OPENSEARCHSERVER_DATA=%cd%\data` or `OPENSEARCHSERVER_DATA=data`. `data` folder is usually located in the root folder where the `.zip` or `.tar.gz` was uncompressed. 
+The location of this folder is written in the `start.bat` script (used on Windows) or `start.sh`, on the `set OPENSEARCHSERVER_DATA=%cd%\data` or `OPENSEARCHSERVER_DATA=data` line. Generally, the `data` folder is located in the root folder wherein the `.zip` or `.tar.gz` was uncompressed. 
 
-To backup this folder, first stop OpenSearchServer and then merely copy the whole `data` folder to a backup location.
+If using the Debian package you will find the location of the `data` folder in the file `/etc/opensearchserver`. Location is defined in the `OPENSEARCHSERVER_DATA` variable. The default value in the Debian package is `/var/lib/opensearchserver/data`.
 
-If you are using the Debian package you will find the location of the `data` folder in the file `/etc/opensearchserver`. Location is defined in variable `OPENSEARCHSERVER_DATA`. Default value for Debian package is `/var/lib/opensearchserver/data`.
+To actually make your backup, stop OpenSearchServer then simply copy the whole `data` folder to a safe location.
 
 ### Upgrading OpenSearchServer
 
-#### Upgrading default install
+#### Upgrading a default install
 
-If OpenSearchServer was installed by uncompressing a `.zip` or `.tar.gz` file, upgrading simply consist in replacing the current `.war` file by a new one.
+If OpenSearchServer was installed by uncompressing a `.zip` or `.tar.gz` file, upgrading simply consists in replacing the existing `.war` with the new one.
 
-Steps are:
+To do so:
 
 1. stop OpenSearchServer
-2. in the root folder where OpenSearchServer was uncompressed go to subfolder `server/webapps`
-3. rename file `ROOT.war` to `ROOT.war.backup` to create a backup of the previous version
-4. **delete folder `server/webapps/ROOT`**
-5. download the `.war` file for the new version you want to install and copy it to `server/webapps`
+2. in the root folder wherein OpenSearchServer was uncompressed, open the `server/webapps` subfolder
+3. rename the `ROOT.war` file to `ROOT.war.backup` to create a backup of the existing version
+4. **delete the `server/webapps/ROOT` folder**
+5. download the `.war` file for the new version
+6. copy it into the `server/webapps`folder
 6. **rename the new `.war` file to `ROOT.war`**
 7. start OpenSearchServer
 
-OpenSearchServer is now upgraded! Check new version number at the top of the interface. 
+OpenSearchServer is now upgraded! You can verify by checking the version number at the top of the interface. 
 
 
-It is a best practice to **first test a new version of OpenSearchServer on a test server** with your data. To do so you can make a fresh install of OpenSearchServer and copy your data there:
+It is recommended to **first test a new version of OpenSearchServer on a test server**, using your data. To do so you can make a fresh install of OpenSearchServer and copy your data there:
 
-1. download the `.zip` or `.tar.gz` package, 
+1. download the `.zip` or `.tar.gz` package
 2. uncompress it on your test server
-3. copy your data from your current `data` folder to the `data` folder of this fresh install,
-4. start the new OpenSearchServer,
-5. check the behaviour of this new version before applying real upgrade to your production environment. 
+3. copy your data from your current `data` folder to the `data` folder of this fresh install
+4. start your test version of OpenSearchServer
+5. check the behaviour of this new version before actually upgrading your production environment. 
 
-**Restoring previous version**
+**Restoring a previous version of OSS**
 
-If you notice some trouble after upgrading you can restore previous version. Since some versions of OpenSearchServer apply some transformation to the index you may also need to restore your data if restoring previous version of OpenSearchServer does not solve the issues. 
+If you notice irregularities after upgrading you can restore a previous version of the software. Since some versions of OpenSearchServer modify the index, you may also need to restore your data.
 
-To restore previous version simply use the upgrading steps but use your backuped `.war` file (`ROOT.war.backup`) as the "new `.war` file".
+To resume running an older version follow the upgrading steps above -- but with your backup `.war` file (`ROOT.war.backup`) being the one that becomes active.
 
-#### Upgrading debian package
+#### Upgrading a Debian package
 
-To update OpenSearchServer installed as a debian package steps are:
+To update a version of OpenSearchServer installed with a Debian package:
 
 1. stop OpenSearchServer
-2. download new `.deb` file and run command `dpkg -i <downloaded_package.deb>`
-3. start OpenSearchServer 
+2. download the new `.deb` file and run the `dpkg -i <downloaded_package.deb>` command
+3. start OpenSearchServer
