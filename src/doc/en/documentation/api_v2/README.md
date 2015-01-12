@@ -20,6 +20,6 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 	* [Batch queries](search_batch/batch_queries.md): run several queries at once.
 * Crawlers:
 	* [DATABASE crawler](DATABASE_crawler/README.md): explore and index databases.
-	* [FILE crawler](FILE_crawler/README.md): explore and index file-systems.
+	* [FILE crawler](FILE_crawler/README.md): explore and index file systems.
 	* [REST crawler](REST_crawler/README.md): access a REST API and index specific content.
 	* [WEB crawler](WEB_crawler/README.md): crawl websites in parallel and index pages and documents.
