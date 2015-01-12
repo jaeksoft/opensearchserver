@@ -1,11 +1,11 @@
 ## FILE Crawler API
 
-The FILE crawler indexes files, locally or on a remote location.
+The FILE crawler indexes files, whether local or remote.
 
-* [Running the crawler once](run_once.md): make one crawling session and stops.
-* [Starting the crawler](run_forever.md): start the crawler and leave it running indefinitely.
+* [Running the crawler once](run_once.md): makes one crawling session then stops.
+* [Starting the crawler](run_forever.md): starts the crawler and leaves it running indefinitely.
 * [Stopping the crawler](stop.md)
-* [Getting status of the crawler](status.md)
+* [Crawler status report](status.md)
 * Creating or updating repositories:
     * [Local files](create_local.md)
 	* [SMB/CIFS](create_smb.md)
