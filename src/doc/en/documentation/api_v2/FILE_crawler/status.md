@@ -1,10 +1,10 @@
-## Getting status of the file crawler
+## File crawler status report
 
-Use this API to get current status of the file crawler.
+Use this API to get the file crawler's current status.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
