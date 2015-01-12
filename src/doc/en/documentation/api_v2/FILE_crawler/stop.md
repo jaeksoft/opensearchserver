@@ -4,7 +4,7 @@ Use this API to stop the file crawler.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
@@ -15,7 +15,7 @@ Use this API to stop the file crawler.
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
-- _**result_type**_ (required): Type of returned result (`json` or `xml`).
+- _**result_type**_ (required): The type of returned result (`json` or `xml`).
 
 ### Success response
 The crawler is stopping.
