@@ -1,10 +1,10 @@
-## Create or update a "FTP" repository (location)
+## Create or update a repository over FTP (location)
 
 Use this API to create a new location to crawl files located on a FTP server.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
@@ -16,18 +16,18 @@ Use this API to create a new location to crawl files located on a FTP server.
 
 - _**index_name**_ (required): The name of the index.
 - _**result_type**_ (required): Type of returned result (`json` or `xml`).
-- _**path**_: path to root folder where crawler must start. 
-- _**ignoreHiddenFile**_: whether hidden files should be ignored or not during crawling (`true` or `false`).
-- _**includeSubDirectory**_: whether sub directories should be crawled or not (`true` or `false`).
-- _**enabled**_: whether this new location should be enabled in order to be taken into account for crawling (`true` or `false`).
+- _**path**_: path to the root folder where the crawler must start. 
+- _**ignoreHiddenFile**_: whether hidden files should be ignored during crawling (`true` or `false`).
+- _**includeSubDirectory**_: whether sub-directories should be crawled (`true` or `false`).
+- _**enabled**_: whether this new location should be eligible for crawling (`true` or `false`).
 - _**delay**_: delay between each file access in ms (defaults to 0).
 - _**username**_: username to connect to the FTP server.
 - _**password**_: password to connect to the FTP server.
 - _**host**_: host for the FTP server.
-- _**ssl**_: whether SSL should be used or not.
+- _**ssl**_: whether SSL should be used.
 
 ### Success response
-New location has been created or updated.
+The new location has been created or updated.
 
 **HTTP code:**
 200
