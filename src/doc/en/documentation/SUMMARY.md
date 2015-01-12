@@ -7,7 +7,7 @@
     * [Windows](installation/windows.md)
     * [Docker](installation/docker.md)
     * [Upgrading OpenSearchServer](installation/upgrading_opensearchserver.md)
-* [Compile and build](building_opensearchserver.md)
+* [Compile and build](building_opensearchserver.md)i
 * [Getting started](tutorials/README.md)
 	* [Discovering](tutorials/functionalities.md)
 	* [Crawling a website](tutorials/crawling_a_website.md)
@@ -35,7 +35,7 @@
 	* [Querying](faq/querying/README.md)
 		* [Improving relevancy with "Mirror AND filter"](faq/querying/improving_relevancy_with_mirrorandfilter.md)
 		* [Geolocation](faq/querying/geolocation.md)
-		* [Searching into words](faq/querying/how_to_allow_search_into_words.md)
+		* [Searching within words](faq/querying/how_to_allow_search_into_words.md)
 		* [Sorting on field](faq/querying/how_to_sort_on_specific_field_then_on_relevance.md)
 		* [How to use the More Like This feature](faq/querying/how_to_use_more_like_this_feature.md)
 		* [How to use synonyms](faq/querying/how_to_use_synonyms.md)
