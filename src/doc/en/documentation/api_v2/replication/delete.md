@@ -16,7 +16,7 @@ Use this API to delete a replication.
 - _**replication_name**_ (required): The name of the replication.
 
 ### Success response
-Replication has been deleted.
+The replication has been deleted.
 
     {
       "successful": true,
