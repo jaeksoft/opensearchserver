@@ -28,8 +28,16 @@ import com.jaeksoft.searchlib.cache.LRUCache;
 
 public class DocSetHitsCache extends LRUCache<DocSetHits> {
 
-	public DocSetHitsCache() {
-		super("Search", 1000);
+	private final IndexConfig indexConfig;
+
+	public DocSetHitsCache(IndexConfig indexConfig) {
+		super("Search", indexConfig.getSearchCache());
+		this.indexConfig = indexConfig;
 	}
 
+	@Override
+	public void setMaxSize(int newMaxSize) {
+		super.setMaxSize(newMaxSize);
+		indexConfig.setSearchCache(newMaxSize);
+	}
 }

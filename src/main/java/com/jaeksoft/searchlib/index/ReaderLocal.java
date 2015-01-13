@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -92,7 +92,7 @@ public class ReaderLocal extends ReaderAbstract {
 			boolean bOnline) throws IOException, SearchLibException {
 		super(indexConfig);
 		spellCheckCache = new SpellCheckCache(100);
-		docSetHitsCache = new DocSetHitsCache();
+		docSetHitsCache = new DocSetHitsCache(indexConfig);
 		indexSearcher = null;
 		indexReader = null;
 		this.indexDirectory = indexDirectory;
@@ -693,6 +693,15 @@ public class ReaderLocal extends ReaderAbstract {
 		rwl.r.lock();
 		try {
 			return spellCheckCache.get(this, fieldName);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	protected DocSetHitsCache getDocSetHitsCache() {
+		rwl.r.lock();
+		try {
+			return docSetHitsCache;
 		} finally {
 			rwl.r.unlock();
 		}
