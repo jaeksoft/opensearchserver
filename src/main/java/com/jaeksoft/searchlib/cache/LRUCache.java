@@ -60,7 +60,8 @@ public abstract class LRUCache<K extends LRUItemAbstract<K>> {
 		protected boolean removeEldestEntry(Map.Entry<K, K> eldest) {
 			if (size() <= maxSize)
 				return false;
-			cacheMap.remove(eldest);
+			cacheMap.remove(eldest.getKey());
+			evictions++;
 			return true;
 		}
 	}

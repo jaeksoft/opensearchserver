@@ -502,6 +502,19 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	public DocSetHitsCache getSearchCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			checkOnline(true);
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getDocSetHitsCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	public String[] getDocTerms(String field) throws SearchLibException,
 			IOException {
