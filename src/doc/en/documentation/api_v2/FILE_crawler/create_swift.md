@@ -1,10 +1,10 @@
-## Create or update a "Swift" repository (location)
+## Create or update a Swift repository (location)
 
 Use this API to create a new location to crawl files located on a Swift server.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
@@ -15,11 +15,11 @@ Use this API to create a new location to crawl files located on a Swift server.
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
-- _**result_type**_ (required): Type of returned result (`json` or `xml`).
-- _**path**_: path.
-- _**ignoreHiddenFile**_: whether hidden files should be ignored or not during crawling (`true` or `false`).
-- _**includeSubDirectory**_: whether sub directories should be crawled or not (`true` or `false`).
-- _**enabled**_: whether this new location should be enabled in order to be taken into account for crawling (`true` or `false`).
+- _**result_type**_ (required): The type of returned result (`json` or `xml`).
+- _**path**_: The path.
+- _**ignoreHiddenFile**_: Whether hidden files should be ignored during crawling (`true` or `false`).
+- _**includeSubDirectory**_: Whether sub-directories should be crawled (`true` or `false`).
+- _**enabled**_: Whether this new location should be eligible for crawling (`true` or `false`).
 - _**delay**_: delay between each file access in ms (defaults to 0).
 - _**username**_: username.
 - _**password**_: password.
@@ -29,7 +29,7 @@ Use this API to create a new location to crawl files located on a Swift server.
 - _**authType**_: authentication type.
 
 ### Success response
-New location has been created or updated.
+The new location has been created or updated.
 
 **HTTP code:**
 200

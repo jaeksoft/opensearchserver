@@ -1,10 +1,10 @@
-## Deleting a repository of type "Local files"
+## Deleting a local files repository
 
-Use this API to delete a repository of type "Local files".
+Use this API to delete a files repository located on the same server as the OSS instance. 
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
@@ -15,11 +15,11 @@ Use this API to delete a repository of type "Local files".
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
-- _**result_type**_ (required): Type of returned result (`json` or `xml`).
-- _**path**_ (required): path used by this repository.
+- _**result_type**_ (required): The type of returned result (`json` or `xml`).
+- _**path**_ (required): The path used by this repository.
 
 ### Success response
-Repository has been deleted.
+The repository has been deleted.
 
 **HTTP code:**
 200

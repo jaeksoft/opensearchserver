@@ -13,7 +13,7 @@ Use this API to run a task in the Scheduler.
 **Header**:
 
 - _**Content-Type**_ (required): ```application/json```
-- Optionnal return type:
+- Optional return type:
   * Accept: ```application/json```
   * Accept: ```application/xml```
 

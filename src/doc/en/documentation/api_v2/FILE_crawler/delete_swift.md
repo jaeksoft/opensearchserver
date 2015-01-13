@@ -1,10 +1,10 @@
-## Deleting a repository of type "Swift"
+## Deleting a Swift repository
 
-Use this API to delete a repository of type "Swift".
+Use this API to delete a repository stored on a Swift system.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 
@@ -22,7 +22,7 @@ Use this API to delete a repository of type "Swift".
 
 
 ### Success response
-Repository has been deleted.
+The repository has been deleted.
 
 **HTTP code:**
 200

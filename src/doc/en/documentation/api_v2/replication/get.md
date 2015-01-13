@@ -1,4 +1,4 @@
-## Retrivieving a replication
+## Getting information about a replication
 
 Use this API to retrieve details about a replication.
 
@@ -61,4 +61,3 @@ The request failed. The reason is provided in the content.
     }).done(function (data) {
        console.log(data);
     });
-    

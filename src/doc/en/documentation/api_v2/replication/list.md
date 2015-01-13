@@ -1,4 +1,4 @@
-## Retrivieving list of replications
+## Listing replications
 
 Use this API to retrieve a list of existing replications.
 
@@ -15,7 +15,7 @@ Use this API to retrieve a list of existing replications.
 - _**index_name**_ (required): The name of the index.
 
 ### Success response
-List of replications.
+A list of replications.
 
 **HTTP code:**
 200

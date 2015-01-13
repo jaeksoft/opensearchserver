@@ -21,7 +21,7 @@
     * [How to use analyzers](indexing/how_to_use_analyzers.md)
 * [Querying](querying/README.md)
     * [Improving relevancy with "Mirror AND filter"](querying/improving_relevancy_with_mirrorandfilter.md)
-    * [Indexing your document with geolocation information](querying/geolocation.md)
+    * [Indexing your documents with geolocation information](querying/geolocation.md)
     * [Allowing search within words](querying/how_to_allow_search_into_words.md)
     * [Sorting on a specific field then on relevance](querying/how_to_sort_on_specific_field_then_on_relevance.md)
     * [How to use the More Like This feature](querying/how_to_use_more_like_this_feature.md)

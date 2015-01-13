@@ -1,10 +1,10 @@
 ## Starting the file crawler
 
-Use this API to start the file crawler and leave it running endlessly.
+Use this API to launch the file crawler and leave it running endlessly.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read.**
 
 ### Call parameters
 

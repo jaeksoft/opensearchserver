@@ -1,10 +1,10 @@
-## Deleting a repository of type "FTP"
+## Deleting a FTP repository
 
-Use this API to delete a repository of type "FTP".
+Use this API to delete a repository accessed over FTP.
 
 **Requirement:** OpenSearchServer v1.5
 
-**This API has several differences with the others APIs in the URLs and HTTP methods it uses, please carefully read this doc.**
+**The URLs and HTTP methods used by this API are different from other OSS APIs, please give this document a careful read..**
 
 ### Call parameters
 
@@ -15,11 +15,11 @@ Use this API to delete a repository of type "FTP".
 **URL parameters:**
 
 - _**index_name**_ (required): The name of the index.
-- _**result_type**_ (required): Type of returned result (`json` or `xml`).
+- _**result_type**_ (required): The type of returned result (`json` or `xml`).
 - _**path**_ (required): path used by this repository.
 - _**username**_ (required): username used by this repository.
 - _**host**_ (required): host used by this repository.
-- _**ssl**_ (required): whether the repository to delete is configured for using SSL or not (`true` or `false`)
+- _**ssl**_ (required): whether the repository to delete is configured for SSL (`true` or `false`)
 
 
 ### Success response
