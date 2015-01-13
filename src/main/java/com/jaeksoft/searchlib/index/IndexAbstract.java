@@ -443,6 +443,18 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		}
 	}
 
+	public DocSetHitsCache getSearchCache() throws SearchLibException {
+		rwl.r.lock();
+		try {
+			if (reader != null)
+				if (reader instanceof ReaderLocal)
+					return ((ReaderLocal) reader).getDocSetHitsCache();
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 	@Override
 	final public TermPositions getTermPositions() throws IOException,
 			SearchLibException {

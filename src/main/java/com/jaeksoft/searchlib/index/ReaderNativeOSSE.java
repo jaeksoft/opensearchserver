@@ -196,10 +196,10 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 			Schema schema = searchRequest.getConfig().getSchema();
 			SchemaField defaultField = schema.getFieldList().getDefaultField();
 			PerFieldAnalyzer analyzer = searchRequest.getAnalyzer();
-			FilterHits filterHits = searchRequest
-					.getFilterList()
-					.getFilterHits(defaultField, analyzer, searchRequest, timer);
-			return new DocSetHits(this, searchRequest, filterHits);
+			// FilterHits filterHits = searchRequest
+			// .getFilterList()
+			// .getFilterHits(defaultField, analyzer, searchRequest, timer);
+			return new DocSetHits(this, searchRequest, null/* filterHits */);
 		} catch (Exception e) {
 			throw new SearchLibException(e);
 		} finally {
