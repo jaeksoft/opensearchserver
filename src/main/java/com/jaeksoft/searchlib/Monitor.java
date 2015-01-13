@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,13 +26,13 @@ package com.jaeksoft.searchlib;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileSystemUtils;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -224,47 +224,38 @@ public class Monitor {
 		xmlWriter.endElement();
 	}
 
-	private final void addIfNotNull(MultipartEntityBuilder entityBuilder,
-			String name, String value) throws UnsupportedEncodingException {
+	private final void addIfNotNull(List<NameValuePair> list, String name,
+			String value) throws UnsupportedEncodingException {
 		if (value == null)
 			return;
-		entityBuilder.addPart(name.replace('.', '_'), new StringBody(value,
-				ContentType.TEXT_PLAIN));
+		list.add(new BasicNameValuePair(name.replace('.', '_'), value));
 	}
 
-	public void writeToPost(MultipartEntityBuilder entityBuilder)
-			throws SearchLibException {
+	public void writeToPost(List<NameValuePair> list) throws SearchLibException {
 
 		try {
-			addIfNotNull(entityBuilder, "version", getVersion());
-			addIfNotNull(entityBuilder, "availableProcessors",
+			addIfNotNull(list, "version", getVersion());
+			addIfNotNull(list, "availableProcessors",
 					Integer.toString(getAvailableProcessors()));
-			addIfNotNull(entityBuilder, "freeMemory",
-					Long.toString(getFreeMemory()));
-			addIfNotNull(entityBuilder, "freeMemoryRate",
+			addIfNotNull(list, "freeMemory", Long.toString(getFreeMemory()));
+			addIfNotNull(list, "freeMemoryRate",
 					Double.toString(getMemoryRate()));
-			addIfNotNull(entityBuilder, "maxMemory",
-					Long.toString(getMaxMemory()));
-			addIfNotNull(entityBuilder, "totalMemory",
-					Long.toString(getTotalMemory()));
-			addIfNotNull(entityBuilder, "indexCount",
-					Integer.toString(getIndexCount()));
-			addIfNotNull(entityBuilder, "freeDiskSpace", getFreeDiskSpace()
-					.toString());
+			addIfNotNull(list, "maxMemory", Long.toString(getMaxMemory()));
+			addIfNotNull(list, "totalMemory", Long.toString(getTotalMemory()));
+			addIfNotNull(list, "indexCount", Integer.toString(getIndexCount()));
+			addIfNotNull(list, "freeDiskSpace", getFreeDiskSpace().toString());
 
 			Double rate = getDiskRate();
 			if (rate != null)
-				addIfNotNull(entityBuilder, "freeDiskRate", rate.toString());
+				addIfNotNull(list, "freeDiskRate", rate.toString());
 
-			addIfNotNull(entityBuilder, "dataDirectoryPath",
-					getDataDirectoryPath());
+			addIfNotNull(list, "dataDirectoryPath", getDataDirectoryPath());
 
 			for (Entry<Object, Object> prop : getProperties())
-				addIfNotNull(entityBuilder, "property_"
-						+ prop.getKey().toString(), prop.getValue().toString());
+				addIfNotNull(list, "property_" + prop.getKey().toString(), prop
+						.getValue().toString());
 
-			addIfNotNull(entityBuilder, "apiWaitRate",
-					Double.toString(getApiWaitRate()));
+			addIfNotNull(list, "apiWaitRate", Double.toString(getApiWaitRate()));
 
 		} catch (SecurityException e) {
 			throw new SearchLibException(e);
