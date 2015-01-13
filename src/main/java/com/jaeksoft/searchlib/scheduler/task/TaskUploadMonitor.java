@@ -27,12 +27,14 @@ package com.jaeksoft.searchlib.scheduler.task;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Monitor;
@@ -111,13 +113,12 @@ public class TaskUploadMonitor extends TaskAbstract {
 		HttpDownloader downloader = client.getWebCrawlMaster()
 				.getNewHttpDownloader(true);
 		try {
-			MultipartEntityBuilder entityBuilder = MultipartEntityBuilder
-					.create().addPart("instanceId",
-							new StringBody(instanceId, ContentType.TEXT_PLAIN));
 
-			new Monitor().writeToPost(entityBuilder);
+			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+			nvps.add(new BasicNameValuePair("instanceId", instanceId));
+			new Monitor().writeToPost(nvps);
 			DownloadItem downloadItem = downloader.post(uri, credentialItem,
-					null, null, entityBuilder.build());
+					null, null, new UrlEncodedFormEntity(nvps));
 			if (downloadItem.getStatusCode() != 200)
 				throw new SearchLibException("Wrong code status:"
 						+ downloadItem.getStatusCode() + " "
