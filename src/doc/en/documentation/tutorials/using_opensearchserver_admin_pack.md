@@ -17,32 +17,30 @@ Admin Pack is a new service from OpenSearchServer that you can use to easily mon
 
 _More features will come soon in version 2 of Admin Pack._
 
-Several Admin Pack can be subscribed. Each Admin Pack allow for using with one OpenSearchServer instance.
-
-### Subscribing to an Admin Pack
-
-_- TODO, with screenshot -_
+Several Admin Pack can be subscribed. Each Admin Pack allow for using **with 5 OpenSearchServer instances**.
 
 ### Configuring an Admin Pack
 
-When logged in to your dashboard on [http://www.opensearchserver.com](http://www.opensearchserver.com) go to tab **Monitoring**.
+When logged in to your dashboard on [http://www.opensearchserver.com](http://www.opensearchserver.com) go to tab **Admin Pack**.
 
-If you just subscribed to an Admin Pack you will see only one line here. Click on button **Manage**.
+If you just subscribed to an Admin Pack you will see 5 lines here. Click on button **Manage** on the first line.
 
-_- Add screenshot here -_
+![List](oss_monitor_list.png)
 
 On this page you will be able to:
 
 * get the `UUID` that you will need for configuring your OpenSearchServer instance.
-* give a `name` to this monitoring plan. This name will be used in the notification emails sent.
+* give a `name` to this monitoring. This name will be used in the notification emails sent.
 * choose the email that will receive notifications.
 * choose a `Timezone`. This timezone will be used for every date information related to the notifications.
-* get the last `Status` for this monitoring plan.
+* configure a `Free memory threshold`. If you do not want to enable the free memory threshold notification leave this field empty.
+* configure a `Free disk space threshold`. If you do not want to enable the free disk space threshold notification leave this field empty.
+* get the last `Status` for this monitoring.
 * get the last time the status changed.
 
-Give a name to this Admin Pack, configure an email address and a timezone, and copy the `UUID`.
+![Edit a monitoring](oss_monitor_edit.png)
 
-_- Add screenshot here -_
+Give a name to this monitoring, configure an email address, a timezone, some thresholds if you want to, and copy the `UUID`.
 
 ### Configuring an OpenSearchServer instance
 
@@ -53,7 +51,7 @@ The OpenSearchServer instance you want to monitor must now be configured to regu
 2. Go to tab Scheduler, click on button "Create new scheduler job":
 	* Give a name to the job, for example "**Monitoring**".
 	* Check **checkbox `Enabled`**.
-	* In CRON expression, write `0/4` in field `Minutes` and leave the other fields with default values (full expression is: `0 0/10 * * * ? *`
+	* In CRON expression, write `0/4` in field `Minutes` and leave the other fields with default values (full expression is: `0 0/4 * * * ? *`
 	* Add one task: `Monitoring upload`
 		* Leave default value for field `URL`: `https://cloud.opensearchserver.com/oss-monitor/`.
 		* Leave fields `Login` and `Password` empty.  
@@ -64,4 +62,4 @@ The OpenSearchServer instance you want to monitor must now be configured to regu
 
 That's it! This job will now run every 4 minutes. It will post some monitoring information to your Admin Pack. You will receive immediate email notification as soon as status changes.  
 
-Information received by the monitoring service can be seen by clicking on button "**History**" in the "**Monitoring**" tab of your dashboard on http://www.opensearchserver.com.
+Information received by the monitoring service can be seen by clicking on button "**History**" in the "**Admin Pack**" tab of your dashboard on http://www.opensearchserver.com.
