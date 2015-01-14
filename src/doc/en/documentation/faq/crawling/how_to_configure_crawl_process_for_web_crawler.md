@@ -1,6 +1,6 @@
 ## How to configure the crawl process of the Web crawler
 
-When opening first the tab `Crawl process` in the Web Crawler, you can feel a bit lost. This page will explain the main parameters.
+When opening for the first time the tab `Crawl process` in the Web Crawler, you can feel a bit lost. This page will explain the main parameters.
 
 ### Understanding how the web crawler works
 
@@ -8,7 +8,7 @@ When opening first the tab `Crawl process` in the Web Crawler, you can feel a bi
 
 One main concept you need to properly understand is the "crawl session". When started, the crawler **runs an unlimited number of "crawl sessions"**. 
 
-During each session it will crawl a particular number of pages, and will follow the rules you gave it. Those rules will for example **limit the number of websites it visits in parallel**, the **number of pages it accesses for one website**, etc.
+During each session it will crawl a particular number of pages, and will follow the rules you gave it. Those rules will for example **limit the number of websites visited in parallel**, the **number of pages accessed for one website**, etc.
 
 When the number of URL is reached, the crawler "flushes" its "buffer": this is where documents are really indexed. A new session is automatically started afterwards.
 
