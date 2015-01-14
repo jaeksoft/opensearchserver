@@ -10,8 +10,8 @@ You will get lots of useful data, such as free disk space, memory use, etc.:
 
 ![Monitoring](oss_api_monitor_result.png)
 
-If you want to get only basic information do not send the `full=true` parameter.
-If you want to get results as XML use `http://<host>:<port>/services/rest/monitor/xml?full=true` instead.
+If you want to get only basic information do not send the `?full=true` parameter.
+If you want to get results in XML instead of JSON use `http://<host>:<port>/services/rest/monitor/xml?full=true`.
 
 ### Using OpenSearchServer to regularly post data to an URL
 
@@ -34,7 +34,7 @@ To do so:
 		* Here is an example (truncated) of the body of a request:
  
 ```  
-instanceId=productionInstance&version=OpenSearchServer+v1.5.10-SNAPSHOT+-+build+98d156cdbb&availableProcessors=4&freeMemory=424985328&freeMemoryRate=22.61705313410078&maxMemory=1879048192&totalMemory=698875904&indexCount=61&freeDiskSpace=30216572928&freeDiskRate=28.81705882750464&dataDirectoryPath=E%3A%5CMes+documents%5CBoulot%5Copensearchserver%5Cdata&property_java_runtime_name=Java%28TM%29+SE+Runtime+Environment
+instanceId=productionInstance&version=OpenSearchServer+v1.5.10-SNAPSHOT+-+build+98d156cdbb&availableProcessors=4&freeMemory=424985328&freeMemoryRate=22.61705313410078&maxMemory=1879048192&totalMemory=698875904&indexCount=61&freeDiskSpace=30216572928&freeDiskRate=28.81705882750464&dataDirectoryPath=E%3A%5CCopensearchserver%5Cdata&property_java_runtime_name=Java%28TM%29+SE+Runtime+Environment...
 ```
 
 Example of a job that will make a `POST` request every 10 minutes:
