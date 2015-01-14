@@ -5,3 +5,4 @@
 * [How to reset a forgotten username or password](how_to_reset_forgotten_username_or_password.md)
 * [Known exceptions and error messages](known_exceptions_and_error_messages.md)
 * [Out of memory issue](out_of_memory_issue.md)
+* [How to monitor an OpenSearchServer instance](how_to_monitor_an_opensearchserver_instance.md)
