@@ -56,7 +56,7 @@ Simple call:
     $.ajax({ 
        type: "PUT",
        dataType: "json",
-       url: "http://localhost:8080/services/rest/crawler/file/status/my_index/json"
+       url: "http://localhost:8080/services/rest/crawler/file/repository/inject/localfile/my_index/json?path=E:/_temp&ignoreHiddenFile=true&includeSubDirectory=false&enabled=true&delay=2"
     }).done(function (data) {
        console.log(data);
     });
