@@ -33,6 +33,6 @@ SELECT title, author, content, date_modification FROM articles %whereClause%
 Two jobs of schedulers using the `Database crawler - run` task would be created:
 
 * In one of the job the variable `%whereClause%` would be replaced by "nothing" (`whereClause=`)
-* In the second job the variable would be replace by `WHERE date_modification > subdate(CURRENT_DATE, 1)`
+* In the second job the variable would be replace by `WHERE date_modification > subdate(CURRENT_DATE, 1)` (`whereClause=WHERE date_modification > subdate(CURRENT_DATE, 1)`)
 
 Read the [How to use variables with the Database Crawler](http://www.opensearchserver.com/documentation/faq/crawling/how_to_use_variables_with_database_crawler.md) page to learn it all.  
