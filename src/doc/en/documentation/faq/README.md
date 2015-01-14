@@ -6,6 +6,7 @@
     * [How to reset a forgotten username or password](installation/how_to_reset_forgotten_username_or_password.md)
     * [Known exceptions and error messages](installation/known_exceptions_and_error_messages.md)
     * [Out of memory issue](installation/out_of_memory_issue.md)
+	* [How to monitor an OpenSearchServer instance](installation/how_to_monitor_an_opensearchserver_instance.md)
 * [Crawling](crawling/README.md)
     * [How to exclude part of a Web page from being crawled](crawling/how_to_exclude_some_part_of_webpage_from_crawling.md)
     * [How to use Selenium to crawl websites](crawling/how_to_use_selenium_to_crawl_websites.md)
