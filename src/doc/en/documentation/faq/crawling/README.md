@@ -7,3 +7,4 @@
 * [How to use URL filter feature](how_to_use_URL_filter_feature.md)
 * [How to use variables with Database Crawler](how_to_use_variables_with_database_crawler.md)
 * [How to configure an incremental Database crawl process](how_to_configure_an_incremental_database_crawler.md)
+* [How to configure the crawl process of the Web crawler](how_to_configure_crawl_process_for_web_crawler)

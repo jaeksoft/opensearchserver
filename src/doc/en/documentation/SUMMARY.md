@@ -27,6 +27,7 @@
 		* [How to use the URL filter feature](faq/crawling/how_to_use_URL_filter_feature.md)
 		* [How to use variables with the Database Crawler](faq/crawling/how_to_use_variables_with_database_crawler.md)
 		* [How to configure an incremental Database crawl process](faq/crawling/how_to_configure_an_incremental_database_crawler.md)
+		* [How to configure the crawl process of the Web crawler](faq/crawling/how_to_configure_crawl_process_for_web_crawler)
 	* [Parsing](faq/parsing/README.md)
 		* [XPATH parsing](faq/parsing/configure_an_XPATH_parser.md)
 		* [How to parse YouTube URLs and extract data](faq/parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
