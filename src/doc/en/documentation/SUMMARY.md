@@ -1,13 +1,13 @@
 ## Summary
 
 * [Installation Guide](installation/README.md)
-    * [Debian](installation/debian.md)
+    * [Debian](installation/debian.md)bu
     * [Linux (generic)](installation/linux.md)
     * [Mac OS X](installation/mac_os_x.md)
     * [Windows](installation/windows.md)
     * [Docker](installation/docker.md)
     * [Upgrading OpenSearchServer](installation/upgrading_opensearchserver.md)
-* [Compile and build](building_opensearchserver.md)i
+* [Compile and build](building_opensearchserver.md)
 * [Getting started](tutorials/README.md)
 	* [Discovering](tutorials/functionalities.md)
 	* [Crawling a website](tutorials/crawling_a_website.md)
