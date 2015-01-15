@@ -19,7 +19,7 @@ Use this API to search documents using a "search pattern" template request.
 - _**template_name**_ (required): The name of the template.
 
 **Raw data (POST):**
-The overridden search parameters either in JSON or XML format.
+The overridden search parameters in either JSON or XML format.
 
     {
         "query": "open search server",
@@ -29,7 +29,7 @@ The overridden search parameters either in JSON or XML format.
     }
     
 
-It is possible to add more parameters. In this example we add a filter.
+It is possible to add parameters. In this example we add a filter.
 
     {
         "query": "open search server",
