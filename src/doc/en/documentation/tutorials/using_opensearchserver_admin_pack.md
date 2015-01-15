@@ -45,17 +45,17 @@ The OpenSearchServer instance you want to monitor must now be configured to regu
 1. Choose an existing index. 
     * _You may want to create a dedicated empty index for this process. It will only use one job in the scheduler._
 2. Go to the Scheduler tab, click on the "Create new scheduler job" button
-	* Give a name to the job, for example "**Monitoring**".
+	* Give a name to the job, for example **Monitoring**.
 	* Tick the **`Enabled` checkbox**.
 	* For the CRON expression, write `0/4` in the `Minutes` field and leave the other fields with their default values. The full expression is thus `0 0/4 * * * ? *`
 	* Add one task: `Monitoring upload`
 		* Leave the default value in the `URL` field -- `https://cloud.opensearchserver.com/oss-monitor/`.
 		* Leave the `Login` and `Password` fields empty.  
 		* Paste the previously copied `UUID` in the `Instance ID` field
-	* Click the "**Create**" button.
+	* Click the **Create** button.
 
 ![Creating job](oss_job_monitor.png)
 
 That's it! This job will now run every 4 minutes. It will post monitoring information to your Admin Pack. You will receive immediate e-mail notification when the status changes.  
 
-Information received by the monitoring service can be seen by clicking on the "**History**" button in the "**Admin Pack**" tab of your dashboard on http://www.opensearchserver.com.
+Information received by the monitoring service can be seen by clicking on the **History** button in the **Admin Pack** tab of your dashboard on http://www.opensearchserver.com.
