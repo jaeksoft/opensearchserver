@@ -1,65 +1,61 @@
-## Using OpenSearchServer Admin Pack
+## What is OpenSearchServer Admin Pack
 
-Admin Pack is a great service that will allow for easy and reliable monitoring of your OpenSearchServer instances.
+Admin Pack is a reliable, easy-to-use monitoring service for your OpenSearchServer instances.
 
-### What is OpenSearchServer Admin Pack
+**You have to use OpenSearchServer version 1.5.10 or greater** to be able to use this service.
 
-Admin Pack is a new service from OpenSearchServer that you can use to easily monitor your OpenSearchServer instances.
+## Features
 
-**OpenSearchServer version 1.5.10 at least is needed** to be able to use this service.
-
-**Features are:**
-
-1. Getting an **email status notification** when **status of your instance changes**. Status are:
+1. Getting an **status notification via e-mail** when **the status of your instance changes**. The statuses are:
     * `No data`: if no data has been received from your instance in the last 5 minutes.
     * `OK`: if previous status was `No data` and new data has been received in the last 5 minutes.
-2. Getting an **email threshold notification** as soon as **free memory** or **free disk space** drop **under a configurable threshold**.
+2. Getting an **threshold notification via e-mail** as soon as **free memory** or **free disk space** drops **under a configurable threshold**.
 
 _More features will come soon in version 2 of Admin Pack._
 
-Several Admin Pack can be subscribed. Each Admin Pack allow for using **with 5 OpenSearchServer instances**.
+Each Admin Pack can monitor **5 OpenSearchServer instances**. You can get multiple Admin Packs.
 
 ### Configuring an Admin Pack
 
-When logged in to your dashboard on [http://www.opensearchserver.com](http://www.opensearchserver.com) go to tab **Admin Pack**.
+When logged in to your dashboard on [http://www.opensearchserver.com](http://www.opensearchserver.com) go to the **Admin Pack** tab.
 
-If you just subscribed to an Admin Pack you will see 5 lines here. Click on button **Manage** on the first line.
+If you just subscribed to an Admin Pack you will see 5 lines here. Click on the **Manage** button on the first line.
 
 ![List](oss_monitor_list.png)
 
 On this page you will be able to:
 
-* get the `UUID` that you will need for configuring your OpenSearchServer instance.
-* give a `name` to this monitoring. This name will be used in the notification emails sent.
-* choose the email that will receive notifications.
-* choose a `Timezone`. This timezone will be used for every date information related to the notifications.
-* configure a `Free memory threshold`. If you do not want to enable the free memory threshold notification leave this field empty.
-* configure a `Free disk space threshold`. If you do not want to enable the free disk space threshold notification leave this field empty.
-* get the last `Status` for this monitoring.
+* get the `UUID` needed to configure your OpenSearchServer instance.
+* give a `name` to this monitoring tool. This name will be used in the notification e-mails.
+* choose the e-mail address to send notifications to.
+* choose a `Timezone`. This timezone will be used for all date information in the notifications.
+* configure a `Free memory threshold`. If you do not want to enable the free memory threshold notification, just leave this field empty.
+* configure a `Free disk space threshold`. If you do not want to enable the free disk space threshold notification, just leave this field empty.
+* get the last `Status` for this monitoring tool.
 * get the last time the status changed.
 
-![Edit a monitoring](oss_monitor_edit.png)
+![Edit a monitoring tool](oss_monitor_edit.png)
 
-Give a name to this monitoring, configure an email address, a timezone, some thresholds if you want to, and copy the `UUID`.
+Give a name to this monitoring tool, configure an e-mail address, a timezone, some thresholds if desired, and copy the `UUID`.
 
 ### Configuring an OpenSearchServer instance
 
-The OpenSearchServer instance you want to monitor must now be configured to regularly send data to the monitoring service of OpenSearchServer. This is a quick and easy process.
+The OpenSearchServer instance you want to monitor must now be configured to regularly send data to the OpenSearchServer monitoring service. This is a quick and easy process.
 
-1. Choose one existing index. 
-    * _You may want to create a dedicated empty index for this process. It will only use one job of scheduler._
-2. Go to tab Scheduler, click on button "Create new scheduler job":
+1. Choose an existing index. 
+    * _You may want to create a dedicated empty index for this process. It will only use one job in the scheduler._
+2. Go to the Scheduler tab, click on the "Create new scheduler job" button
 	* Give a name to the job, for example "**Monitoring**".
-	* Check **checkbox `Enabled`**.
-	* In CRON expression, write `0/4` in field `Minutes` and leave the other fields with default values (full expression is: `0 0/4 * * * ? *`
+	* Tick the **`Enabled` checkbox**.
+	* For the CRON expression, write `0/4` in the `Minutes` field and leave the other fields with their default values. The full expression is thus `0 0/4 * * * ? *`
 	* Add one task: `Monitoring upload`
-		* Leave default value for field `URL`: `https://cloud.opensearchserver.com/oss-monitor/`.
-		* Leave fields `Login` and `Password` empty.  
-		* Paste the previously copied `UUID` in field `Instance ID`
-	* Click button "**Create**".
+		* Leave the default value in the `URL` field -- `https://cloud.opensearchserver.com/oss-monitor/`.
+		* Leave the `Login` and `Password` fields empty.  
+		* Paste the previously copied `UUID` in the `Instance ID` field
+	* Click the "**Create**" button.
 
 ![Creating job](oss_job_monitor.png)
 
-That's it! This job will now run every 4 minutes. It will post some monitoring information to your Admin Pack. You will receive immediate email notification as soon as status changes.  
+That's it! This job will now run every 4 minutes. It will post monitoring information to your Admin Pack. You will receive immediate e-mail notification when the status changes.  
 
-Information received by the monitoring service can be seen by clicking on button "**History**" in the "**Admin Pack**" tab of your dashboard on http://www.opensearchserver.com.
+Information received by the monitoring service can be seen by clicking on the "**History**" button in the "**Admin Pack**" tab of your dashboard on http://www.opensearchserver.com.
