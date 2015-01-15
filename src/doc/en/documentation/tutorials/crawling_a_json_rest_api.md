@@ -92,9 +92,9 @@ This API returns this kind of result (truncated here):
   },
 ```
 
-We see an array named `items`, containing several `item` objects.
+We see an array named `items`, containing several objects.
 
-Foreach of this `item` we will create one document in the index.
+Foreach of these objects we will create one document in the index.
 
 ### Creating the schema
 
@@ -134,8 +134,8 @@ Go to the `FieldMap` tab and add these mappings:
  
 ![Configuring the crawler](oss-json-api-crawler2.png)
 
-Here we simply connect different information from each `item` to their related fields in the schema. 
-JSONPath is used to easily get value from a complex JSON structure. For instance assume this JSON:
+Here we simply connect different information from each object to their related fields in the schema. 
+JSONPath is used to easily get value from a complex JSON structure. For instance, assuming this JSON:
 
 ```
   {
@@ -185,7 +185,7 @@ This is a fairly standard setup:
 
 You may test it directly:
 
-![Testing the query](oss-json-api-query5.png)
+![Testing the query](oss-json-api-query6.png)
  
 ## Creating a renderer
 
