@@ -19,7 +19,7 @@ Use this API to create or update a search template based on a query pattern.
 - _**template_name**_ (required): The name of the search template.
 
 **Raw data (PUT):**
-The search pattern query either in JSON or XML format.
+The search pattern query in either JSON or XML format.
 
     {
             "start": 0,
