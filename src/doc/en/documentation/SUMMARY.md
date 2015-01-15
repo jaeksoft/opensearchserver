@@ -12,6 +12,7 @@
 	* [Discovering](tutorials/functionalities.md)
 	* [Crawling a website](tutorials/crawling_a_website.md)
 	* [Crawling a database](tutorials/crawling_a_database.md)
+	* [Crawling a JSON REST API](tutorials/crawling_a_json_rest_api.md)
 	* [Using OpenSearchServer Admin Pack](tutorials/using_opensearchserver_admin_pack.md)
 * [Frequently Asked Questions](faq/README.md)
 	* [Installation](faq/installation/README.md)
