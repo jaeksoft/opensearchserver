@@ -1,6 +1,6 @@
 ## Batch queries
 
-Use this API to run several queries in one HTTP call.
+Use this API to run multiple queries in a single HTTP call.
 
 Queries are given as a JSON array, and results are returned for each query.
 
@@ -25,13 +25,13 @@ Queries are given as a JSON array, and results are returned for each query.
 JSON values:
 
 * **mode**: 
-    * `first`: as soon as a query returns at least 1 result the batch stops and return results up to this query.
-    * `all` (default value): results for every query are returned.
-* **queries**: must be an array of queries as JSON objects. Query must have a type:
-    * `SearchFieldTemplate` or `SearchPatternTemplate`: query uses an existing search template (see [creating a search template based on fields](http://www.opensearchserver.com/documentation/api_v2/searching_using_fields/template_create_update.md) and [creating a search template based on a query pattern](http://www.opensearchserver.com/documentation/api_v2/searching_using_patterns/template_create_update.md)).
-    * `SearchField` or `SearchPattern`: query is fully detailed directly (see [searching using fields](http://www.opensearchserver.com/documentation/api_v2/searching_using_fields/search.md) and [searching using patterns](http://www.opensearchserver.com/documentation/api_v2/searching_using_patterns/search.md)).
+    * `first`: as soon as a query returns at least 1 result, the batch stops then return its results up to and including this query.
+    * `all` (default value): results for all queries get returned.
+* **queries**: must be an array of queries as JSON objects. Queries must have a type:
+    * `SearchFieldTemplate` or `SearchPatternTemplate`: the query uses an existing search template (see [creating a search template based on fields](http://www.opensearchserver.com/documentation/api_v2/searching_using_fields/template_create_update.md) and [creating a search template based on a query pattern](http://www.opensearchserver.com/documentation/api_v2/searching_using_patterns/template_create_update.md)).
+    * `SearchField` or `SearchPattern`: the query is fully detailed directly (see [searching using fields](http://www.opensearchserver.com/documentation/api_v2/searching_using_fields/search.md) and [searching using patterns](http://www.opensearchserver.com/documentation/api_v2/searching_using_patterns/search.md)).
 
-Example of a batch of queries where first and third queries would not return any result.
+Here is an example of a batch of queries where the first and third queries did not return any result.
 
 ```json
     { 
@@ -114,7 +114,7 @@ Results are returned.
 	]
 ```
    
-Third query was not used since the second query returned results. If `mode` would have been `all` results would have been:
+The third query was not used since the second query returned results. Had the `mode` been `all`, the results would have been:
 	
 ```json
 	[  
