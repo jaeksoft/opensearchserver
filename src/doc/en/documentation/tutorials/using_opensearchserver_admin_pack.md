@@ -6,10 +6,10 @@ Admin Pack is a reliable, easy-to-use monitoring service for your OpenSearchServ
 
 ## Features
 
-1. Getting an **status notification via e-mail** when **the status of your instance changes**. The statuses are:
+1. Getting a **status notification via e-mail** when **the status of your instance changes**. The statuses are:
     * `No data`: if no data has been received from your instance in the last 5 minutes.
     * `OK`: if previous status was `No data` and new data has been received in the last 5 minutes.
-2. Getting an **threshold notification via e-mail** as soon as **free memory** or **free disk space** drops **under a configurable threshold**.
+2. Getting a **threshold notification via e-mail** as soon as **free memory** or **free disk space** drops **under a configurable threshold**.
 
 _More features will come soon in version 2 of Admin Pack._
 
