@@ -33,3 +33,4 @@
     * [How to replicate and merge indexes](querying/how_to_replicate_and_merge_indexes.md)
     * [How to delete documents](querying/how_to_delete_documents.md)
 	* [How to configure advanced authentication](querying/how_to_configure_advanced_authentication.md)
+	* [How to make exact search](querying/how_to_make_exact_search.md)
