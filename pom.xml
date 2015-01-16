@@ -833,6 +833,7 @@
 						</goals>
 						<configuration>
 							<deb>${project.build.directory}/${project.build.finalName}.deb</deb>
+							<controlDir>${basedir}/src/deb/control</controlDir>
 							<dataSet>
 								<data>
 									<src>${project.build.directory}/${project.build.finalName}-war-exec.jar</src>
@@ -864,6 +865,7 @@
 								<data>
 									<src>${basedir}/src/deb/etc/opensearchserver</src>
 									<type>file</type>
+									<conffile>true</conffile>
 									<mapper>
 										<type>perm</type>
 										<prefix>/etc</prefix>

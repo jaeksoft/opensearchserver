@@ -11,5 +11,5 @@ Description: full-text search-engine software
 Depends: default-jre-headless | java6-runtime-headless | java7-runtime-headless
 Recommends: ghostscript, tesseract-ocr
 Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
-Homepage: http://www.open-search-server.com
+Homepage: http://www.opensearchserver.com
 Vcs-Git: https://github.com/jaeksoft/opensearchserver.git
