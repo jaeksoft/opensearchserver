@@ -1,17 +1,19 @@
-release date=12:00 11.12.2015,version=1.5.9,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
- * GH-1233: Add time out to the autocompletion task
- * GH-1225: Hunspell suggest performances
- * GH-1211: JDBC cursor size (setFetchSize) should be set with the buffer size
- * GH-1207: Take a different query string for each field
- * GH-1188: Execute a Groovy when a crawl thread starts
- * GH-1183: Add a Czech stemmer
- * GH-1179: a REST API to disable or enable the pattern lists
- * GH-1152: Parser JSON API
- * GH-1139: The "Manual Crawl "API should return the index document
- * GH-1135: Spell check filter
- * GH-1122: A keyword analyser with lower case and diacritic removal
- * GH-1114: Control of crawl cache in manual crawl
- * GH 1105: Add mailbox crawl scheduler task
- * GH-1054: Support of Content-Disposition filename parameter
- * GH-716: Ability to enable crawl cache by index instead of for whole instance
- * GH-266: Multiple proxies
+release date=12:00 01.04.2016,version=1.5.10,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1365: Search field should support the field term syntax in pattern mode
+ * GH-1363: Subqueries (filters) should be processed in parallels using threads
+ * GH-1361: Faster cache implementation
+ * GH-1336: URL fragments filtering
+ * GH-1332: REST API - More information about Indexes
+ * GH-1255: Query - send batch
+ * GH-1253: Term filter - it should be possible to use operator OR
+ * GH-1213: Renderer - ability to choose to reset facets when a new search is made
+ * GH-1290: Scheduler - add a task for searching, transforming and sending content
+ * GH-1162: Search API - be able to give parameter for Boosting queries
+ * GH-1093: Replication -  add an API to at least list existing replications
+ * GH-963: Scheduler - change link to documentation for CRON expression
+ * GH-923: Be able to pass variables to a database crawler via a scheduler job
+ * GH-598: Support of MongoDB indexing
+ * GH-298: Web crawler - crawl URL new in parallel to the old ones
+ * GH-1376: The monitoring upload task uses an erroneous POST format
+ * GH-1348: Some scheduler tasks cannot be stopped
+ * GH-1126: Database crawler - deletion - error No field has been given

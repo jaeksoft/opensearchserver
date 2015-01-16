@@ -23,9 +23,9 @@ New features:
 - GH-1162: Search API: be able to give parameter for Boosting queries
 - GH-1093: Replication: add an API to at least list existing replications
 - GH-963: Scheduler: change link to documentation for CRON expression
-- GH-923: Be able to pass viarables to a database crawler via a scheduler job
+- GH-923: Be able to pass variables to a database crawler via a scheduler job
 - GH-598: Support of MongoDB indexing
-- GH-298: Web crawler: crawl url "new" in parallel to the "old" ones
+- GH-298: Web crawler: crawl URL "new" in parallel to the "old" ones
 
 Bug fixes:
 - GH-1376: The monitoring upload task uses an erroneous POST format
