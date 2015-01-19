@@ -25,24 +25,37 @@ package com.jaeksoft.searchlib.web.servlet.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class UIPagination {
 
 	final int listSize;
-	final int pageNumber;
+	final int lastPageNumber;
 	final int currentPage;
 	final int start;
 	final int end;
+	final List<Integer> pages;
 
 	UIPagination(UITransaction transaction, String pageParameter, int pageSize,
 			Collection<?> collection) {
 		listSize = collection.size();
-		pageNumber = listSize / pageSize;
+		lastPageNumber = listSize == 0 ? 0 : (listSize - 1) / pageSize;
+		;
 		int p = transaction.getRequestParameterInteger(pageParameter, 0);
-		currentPage = p > pageNumber ? pageNumber : p;
+		currentPage = p > lastPageNumber ? lastPageNumber : p;
 		start = currentPage * pageSize;
 		int e = start + pageSize;
 		end = e > listSize ? listSize : e;
+
+		int pageStart = currentPage - 4;
+		if (pageStart < 0)
+			pageStart = 0;
+		int pageEnd = currentPage + 4;
+		if (pageEnd > lastPageNumber)
+			pageEnd = lastPageNumber;
+		pages = new ArrayList<Integer>();
+		for (p = pageStart; p <= pageEnd; p++)
+			pages.add(p);
 	}
 
 	/**
@@ -53,6 +66,18 @@ public class UIPagination {
 		return new ArrayList<T>(end - start);
 	}
 
+	public boolean isPrev() {
+		return lastPageNumber > 0 && currentPage > 0;
+	}
+
+	public boolean isNext() {
+		return lastPageNumber > 0 && currentPage < lastPageNumber;
+	}
+
+	public List<Integer> getPages() {
+		return pages;
+	}
+
 	/**
 	 * @return the listSize
 	 */
@@ -61,10 +86,10 @@ public class UIPagination {
 	}
 
 	/**
-	 * @return the pageNumber
+	 * @return the lastPageNumber
 	 */
-	public int getPageNumber() {
-		return pageNumber;
+	public int getLastPageNumber() {
+		return lastPageNumber;
 	}
 
 	/**

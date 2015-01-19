@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.LRUCache;
 import com.jaeksoft.searchlib.index.IndexAbstract;
-import com.jaeksoft.searchlib.index.IndexSingle;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 @AfterCompose(superclass = true)
@@ -52,7 +51,7 @@ public class CacheController extends CommonController {
 		cacheList = null;
 	}
 
-	public IndexSingle getIndexSingle() throws SearchLibException {
+	public IndexAbstract getIndexSingle() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
@@ -60,7 +59,7 @@ public class CacheController extends CommonController {
 			IndexAbstract indexAbstract = client.getIndexAbstract();
 			if (indexAbstract == null)
 				return null;
-			return (IndexSingle) indexAbstract;
+			return indexAbstract;
 		}
 	}
 
@@ -68,7 +67,7 @@ public class CacheController extends CommonController {
 		synchronized (this) {
 			if (cacheList != null)
 				return cacheList;
-			IndexSingle index = getIndexSingle();
+			IndexAbstract index = getIndexSingle();
 			if (index == null)
 				return null;
 			cacheList = new ArrayList<LRUCache<?>>(3);
