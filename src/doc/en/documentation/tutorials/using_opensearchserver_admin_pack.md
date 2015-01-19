@@ -58,4 +58,12 @@ The OpenSearchServer instance you want to monitor must now be configured to regu
 
 That's it! This job will now run every 4 minutes. It will post monitoring information to your Admin Pack. You will receive immediate e-mail notification when the status changes.  
 
-Information received by the monitoring service can be seen by clicking on the **History** button in the **Admin Pack** tab of your dashboard on http://www.opensearchserver.com.
+### Viewing history and reports
+
+In the Admin Pack tab of your dashboard you will also be able to access the **history** of the received monitoring information by clicking on the History button:
+
+![Viewing history](oss_monitoring_history.png)
+
+Clicking the **Report** button you will get an analysis of several values sent by the monitoring process. It can help you improving your experience with OpenSearchServer:
+
+![Viewing report](oss_monitoring_report.png)
