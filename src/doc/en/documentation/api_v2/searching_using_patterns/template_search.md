@@ -45,6 +45,7 @@ It is possible to add parameters. In this example we add a filter.
         ]
     }
     
+See page [List of available parameters for search queries](../search_parameters/README.md) for the full list of parameters.
 
 ### Success response
 The search result has been returned.

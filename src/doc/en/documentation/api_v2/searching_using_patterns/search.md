@@ -76,7 +76,8 @@ The search pattern query either in JSON or XML format.
         "patternSearchQuery": "title:($$)^10 OR titleExact:($$)^10 OR titlePhonetic:($$)^10 OR url:($$)^5 OR urlSplit:($$)^5 OR urlExact:($$)^5 OR urlPhonetic:($$)^5 OR content:($$) OR contentExact:($$) OR contentPhonetic:($$) OR full:($$)^0.1 OR fullExact:($$)^0.1 OR fullPhonetic:($$)^0.1",
         "patternSnippetQuery": "title:($$) OR content:($$)"
     }
-    
+   
+See page [List of available parameters for search queries](../search_parameters/README.md) for the full list of parameters. 
 
 ### Success response
 The search result has been returned.

@@ -16,6 +16,7 @@ API v2 is the new REST API. RESTFUL implementation using this API allows for con
 * Searching:
 	* [Searching using fields](searching_using_fields/README.md)
 	* [Searching with patterns](searching_using_patterns/README.md)
+	* [List of available parameters for search queries](search_parameters/README.md)
 	* [Search template](search_template/README.md): list, get and delete query templates.
 	* [Batch queries](search_batch/batch_queries.md): run several queries at once.
 * Crawlers:
