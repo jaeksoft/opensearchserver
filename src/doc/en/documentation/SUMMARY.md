@@ -162,6 +162,7 @@
 		* [Search](api_v2/searching_using_patterns/search.md)
 		* [Template search](api_v2/searching_using_patterns/template_search.md)
 		* [Create/update template](api_v2/searching_using_patterns/template_create_update.md)
+	* [List of available parameters for search queries](api_v2/search_parameters/README.md)
 	* [Search batch](api_v2/search_batch/batch_queries.md)
 	* [Synonyms](api_v2/synonyms/README.md)
 		* [Listing](api_v2/synonyms/lists.md)

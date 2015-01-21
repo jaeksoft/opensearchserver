@@ -8,6 +8,32 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
+
+OpenSearchServer 1.5.10
+
+New features:
+- GH-1365: Search field should support the field:term syntax in pattern mode
+- GH-1363: Subqueries (filters) should be processed in parallels using threads
+- GH-1361: Faster cache implementation
+- GH-1336: URL fragments filtering
+- GH-1323: REST API - More information about Indexes
+- GH-1290: Scheduler: add a task for searching, transforming and sending content
+- GH-1255: Query: send batch
+- GH-1253: Term filter: it should be possible to use operator OR
+- GH-1213: Renderer: ability to choose to reset facets when a new search is made
+- GH-1162: Search API: be able to give parameter for Boosting queries
+- GH-1093: Replication: add an API to at least list existing replications
+- GH-963: Scheduler: change link to documentation for CRON expression
+- GH-923: Be able to pass viarables to a database crawler via a scheduler job
+- GH-598: Support of MongoDB indexing
+- GH-298: Web crawler: crawl url "new" in parallel to the "old" ones
+
+Bug fixes:
+- GH-1367: The monitoring upload task uses an erroneous POST format
+- GH-1348: Some scheduler tasks cannot be stopped
+- GH-1126: Database crawler: deletion: error No field has been given
+
+
 OpenSearchServer 1.5.9
 
 New features:
