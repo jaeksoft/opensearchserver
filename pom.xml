@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jaeksoft</groupId>
 	<artifactId>opensearchserver</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>OpenSearchServer</name>
 	<url>http://www.open-search-server.com</url>
 	<licenses>
@@ -556,6 +556,9 @@
 			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
+			<resource>
+				<directory>src/main/webapp</directory>
+			</resource>
 		</resources>
 		<plugins>
 			<plugin>
@@ -609,18 +612,42 @@
 				<version>2.5</version>
 			</plugin>
 			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.jaeksoft.searchlib.Server</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
+							<Specification-Version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</Specification-Version>
+						</manifestEntries>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.6</version>
 				<configuration>
 					<archive>
 						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>WEB-INF/lib/</classpathPrefix>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
-							<Main-Class>com.jaeksoft.searchlib.Server</Main-Class>
 							<Implementation-Build>${buildNumber}</Implementation-Build>
 							<Specification-Version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</Specification-Version>
 						</manifestEntries>
