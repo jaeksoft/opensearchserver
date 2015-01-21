@@ -61,7 +61,7 @@ Collapsing can be in mode `ADJACENT` or `CLUSTER`. In adjacent mode it will only
 
 Type can be `FULL` or `OPTIMIZED`.
 
-### `geo`
+#### `geo`
 
     "geo": {
         "latitudeField": "latitude",
@@ -297,6 +297,8 @@ This parameter is used to tell OpenSearchServer which field must be used for the
 ```
 "patternSearchQuery": "title:($$)^10 OR titleExact:($$)^10 OR titlePhonetic:($$)^10 OR url:($$)^5 OR urlSplit:($$)^5 OR urlExact:($$)^5 OR urlPhonetic:($$)^5 OR content:($$) OR contentExact:($$) OR contentPhonetic:($$) OR full:($$)^0.1 OR fullExact:($$)^0.1 OR fullPhonetic:($$)^0.1",
 ```
+
+For query of type "Search pattern" parameter `patternSearchQuery` is used in place of `searchFields`. This parameter uses a particular syntax. `$$` stands for "searched keywords", and weight of each field is given by using `^{weight}`.
 
 #### `patternSnippetQuery`
 
