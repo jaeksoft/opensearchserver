@@ -11,8 +11,8 @@ Go to tab Crawler / Database, choose `MongoDB` in the select list `Type` and cli
 
 This crawler looks a bit like the [Database crawler](http://www.opensearchserver.com/documentation/tutorials/crawling_a_database.md). It has two tabs: 
 
-* first one (`General settings`) is for **configuring access to the MongoDB et parameters for indexing**,
-* second tab (`FieldMap`) is for defining **relations betweens information retrieved from the MongoDB and fields** of your schema.
+* first one (`General settings`) is for **configuring access to the MongoDB and some parameters for indexing**,
+* second tab (`FieldMap`) is for defining **relations between information retrieved from the MongoDB and fields** of your schema.
 
 ### Configuring the crawl process
 
