@@ -163,6 +163,11 @@ public class TaskQueryXsltPost extends TaskAbstract {
 		AbstractResultSearch resultSearch = (AbstractResultSearch) client
 				.request(searchRequest);
 
+		if (resultSearch == null || resultSearch.getNumFound() == 0) {
+			taskLog.setInfo("Empty result");
+			return;
+		}
+
 		StringWriter sw = null;
 		PrintWriter pw = null;
 		StringReader sr = null;
@@ -203,12 +208,12 @@ public class TaskQueryXsltPost extends TaskAbstract {
 				headerItems.add(new HeaderItem("Content-Type", contentType));
 			}
 
-			taskLog.setInfo("Uploading "
-					+ FileUtils.byteCountToDisplaySize(content.length()));
+			String size = FileUtils.byteCountToDisplaySize(content.length());
+			taskLog.setInfo("Uploading " + size);
 			DownloadItem downloadItem = downloader.post(uri, credentialItem,
 					headerItems, null, new StringEntity(content));
 			downloadItem.checkNoErrorRange(200, 201);
-			taskLog.setInfo("Done");
+			taskLog.setInfo("Done " + size);
 		} catch (Exception e) {
 			throw new SearchLibException(e);
 		} finally {
