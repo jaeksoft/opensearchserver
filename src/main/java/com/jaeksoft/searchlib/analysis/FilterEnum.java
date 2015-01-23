@@ -93,6 +93,8 @@ public enum FilterEnum {
 	PrefixSuffixStopFilter(
 			"This filter removes words which match with prefixes or suffixes of a given term list."),
 
+	ProperNounFilter("Apply various transformation to proper nouns"),
+
 	RegularExpressionFilter(
 			"This filter generates tokens by applying a regular expression"),
 

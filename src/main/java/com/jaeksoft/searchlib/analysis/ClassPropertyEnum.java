@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -333,6 +333,10 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static final ClassPropertyEnum XPATH_EXCLUSION = new ClassPropertyEnum(
 			true, "xPathExclusion", "XPATH Exclusion",
 			"Exclude matching node from indexation");
+
+	public static final ClassPropertyEnum PROPER_NOUN_TYPE = new ClassPropertyEnum(
+			true, "propernoun_type", "Proper noun type",
+			"The type of proper noun generation");
 
 	private boolean isUser;
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2009-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2009-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,59 +24,24 @@
 
 package com.jaeksoft.searchlib.analysis.synonym;
 
-import java.io.IOException;
-
 import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
+import com.jaeksoft.searchlib.analysis.filter.AbstractTermListFilter;
 
-public class SynonymTokenFilter extends AbstractTermFilter {
+public class SynonymTokenFilter extends AbstractTermListFilter {
 
 	private SynonymMap synonymMap = null;
 
-	private String[] wordQueue = null;
-
-	private String currentTerm = null;
-
-	private int currentPos = 0;
-
-	private final static String TYPE = "synonym";
+	private final static String TOKEN_TYPE = "synonym";
 
 	public SynonymTokenFilter(TokenStream input, SynonymMap synonymMap) {
-		super(input);
+		super(TOKEN_TYPE, input);
 		this.synonymMap = synonymMap;
 	}
 
-	private final boolean popToken() {
-		if (currentTerm != null) {
-			createToken(currentTerm);
-			currentTerm = null;
-			return true;
-		}
-		if (wordQueue == null)
-			return false;
-		if (currentPos == wordQueue.length)
-			return false;
-		createToken(wordQueue[currentPos++], 0, offsetAtt.startOffset(),
-				offsetAtt.endOffset(), TYPE, flagsAtt.getFlags());
-		return true;
-	}
-
-	private final void createTokens() {
-		currentTerm = termAtt.toString();
-		wordQueue = synonymMap.getSynonyms(currentTerm);
-		currentPos = 0;
-	}
-
 	@Override
-	public final boolean incrementToken() throws IOException {
-		for (;;) {
-			if (popToken())
-				return true;
-			if (!input.incrementToken())
-				return false;
-			createTokens();
-		}
+	protected final String[] createTokens(String term) {
+		return synonymMap.getSynonyms(term);
 	}
 
 	@Override

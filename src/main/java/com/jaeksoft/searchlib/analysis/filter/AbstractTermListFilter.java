@@ -66,7 +66,8 @@ public abstract class AbstractTermListFilter extends AbstractTermFilter {
 				return true;
 			if (!input.incrementToken())
 				return false;
-			wordQueue = createTokens(termAtt.toString());
+			currentTerm = termAtt.toString();
+			wordQueue = createTokens(currentTerm);
 			currentPos = 0;
 		}
 	}
