@@ -143,20 +143,17 @@ Facets are filters with counters. Returned response will have a `facets` section
          {  
             "type":"QueryFilter",
             "negative":true,
-            "type":"QueryFilter",
             "query":"status:archived"
          },
          {  
             "type":"TermFilter",
             "negative":false,
-            "type":"TermFilter",
             "field":"published",
             "term":"1"
          },
          {  
             "type":"RelativeDateFilter",
             "negative":false,
-            "type":"RelativeDateFilter",
             "from":{  
                "unit":"days",
                "interval":1
