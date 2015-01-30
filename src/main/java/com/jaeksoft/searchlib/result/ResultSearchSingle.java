@@ -199,12 +199,15 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		try {
 			int docId = docs.getIds()[pos];
 			float score = scores != null ? scores.getScores()[pos] : 0;
-			ResultDocument resultDocument = new ResultDocument(request,
-					fieldNameSet, docId, reader, score, null, timer);
-			if (!(docs instanceof CollapseDocInterface))
-				return resultDocument;
+			if (!(docs instanceof CollapseDocInterface)) {
+				return new ResultDocument(request, fieldNameSet, docId, reader,
+						score, null, 0, timer);
+			}
 			int[] collapsedDocs = ((CollapseDocInterface) docs)
 					.getCollapsedDocs(pos);
+			ResultDocument resultDocument = new ResultDocument(request,
+					fieldNameSet, docId, reader, score, null,
+					collapsedDocs == null ? 0 : collapsedDocs.length, timer);
 			Collection<CollapseFunctionField> functionFields = request
 					.getCollapseFunctionFields();
 			if (functionFields != null && collapsedDocs != null)
@@ -213,12 +216,13 @@ public class ResultSearchSingle extends AbstractResultSearch {
 							timer);
 			if (request.getCollapseMax() > 0)
 				return resultDocument;
-			if (collapsedDocs != null)
+			if (collapsedDocs != null) {
 				for (int doc : collapsedDocs) {
 					ResultDocument rd = new ResultDocument(request,
-							fieldNameSet, doc, reader, 0, null, timer);
-					resultDocument.appendIfStringDoesNotExist(rd);
+							fieldNameSet, doc, reader, 0, null, 0, timer);
+					resultDocument.addCollapsedDocument(rd);
 				}
+			}
 			return resultDocument;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

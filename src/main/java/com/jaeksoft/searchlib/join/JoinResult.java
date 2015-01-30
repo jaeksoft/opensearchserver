@@ -103,7 +103,7 @@ public class JoinResult {
 					.getForeignScore(pos, joinPosition) : 0;
 			return new ResultDocument(foreignResult.getRequest(), fieldNameSet,
 					joinDocInterface.getForeignDocId(pos, joinPosition),
-					foreignResult.getReader(), score, paramPosition, timer);
+					foreignResult.getReader(), score, paramPosition, 0, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

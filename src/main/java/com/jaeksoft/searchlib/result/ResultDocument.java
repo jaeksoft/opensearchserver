@@ -60,13 +60,15 @@ public class ResultDocument {
 	final private List<FunctionFieldValue> functionFieldValue;
 	final private List<VectorPosition> positions;
 	final private String joinParameter;
-	final private float score;
+	final private List<ResultDocument> collapsedDocuments;
+	private float score;
 
 	public ResultDocument(final AbstractSearchRequest searchRequest,
 			final TreeSet<String> fieldSet, final int docId,
 			final ReaderInterface reader, final float score,
-			final String joinParameter, final Timer timer) throws IOException,
-			ParseException, SyntaxError, SearchLibException {
+			final String joinParameter, final int collapsedDocumentCount,
+			final Timer timer) throws IOException, ParseException, SyntaxError,
+			SearchLibException {
 
 		this.docId = docId;
 
@@ -74,6 +76,8 @@ public class ResultDocument {
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
 		positions = new ArrayList<VectorPosition>(0);
+		collapsedDocuments = collapsedDocumentCount == 0 ? null
+				: new ArrayList<ResultDocument>(0);
 
 		this.joinParameter = joinParameter;
 		this.score = score;
@@ -125,6 +129,7 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		collapsedDocuments = null;
 		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
 		this.score = score;
@@ -135,6 +140,7 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		collapsedDocuments = null;
 		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
 		joinParameter = null;
@@ -272,6 +278,14 @@ public class ResultDocument {
 
 	public void addPosition(VectorPosition position) {
 		positions.add(position);
+	}
+
+	public void addCollapsedDocument(ResultDocument document) {
+		collapsedDocuments.add(document);
+	}
+
+	public List<ResultDocument> getCollapsedDocuments() {
+		return collapsedDocuments;
 	}
 
 	public void addFunctionField(CollapseFunctionField functionField,
