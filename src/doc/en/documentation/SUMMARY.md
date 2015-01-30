@@ -50,6 +50,7 @@
 		* [How to delete documents](faq/querying/how_to_delete_documents.md)
 		* [How to configure advanced authentication](faq/querying/how_to_configure_advanced_authentication.md)
 		* [How to make exact search](faq/querying/how_to_make_exact_search.md)
+		* [How to export data to an URL](faq/querying/how_to_export_data.md)
 * [Clients libraries](clients/README.md)
 	* [PHP - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [PHP - documentation for the previous version](clients/php_client/README.md)
