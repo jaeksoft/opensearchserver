@@ -55,8 +55,8 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.opensearchserver.utils.HtmlUtils;
 
 public class IndexDocument implements Iterable<FieldContent> {
 
@@ -144,7 +144,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 				if (convertHtmlEntities)
 					textContent = StringEscapeUtils.unescapeHtml(textContent);
 				if (removeTag)
-					textContent = StringUtils.removeTag(textContent);
+					textContent = HtmlUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
 				add(fieldName, textContent, boost);
 				if (copyFieldList != null)

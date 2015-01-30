@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 
 @AfterCompose(superclass = true)

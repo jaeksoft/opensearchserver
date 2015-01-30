@@ -34,7 +34,7 @@ import com.google.common.collect.ImmutableSet;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.filter.GeoFilter.Type;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;

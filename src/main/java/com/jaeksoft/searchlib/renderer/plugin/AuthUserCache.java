@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.renderer.plugin;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class AuthUserCache {
 

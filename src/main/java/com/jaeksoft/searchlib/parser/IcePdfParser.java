@@ -56,7 +56,7 @@ import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PdfCrack;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class IcePdfParser extends Parser {
 

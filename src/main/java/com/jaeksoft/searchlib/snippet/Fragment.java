@@ -28,7 +28,7 @@ import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.Query;
 
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.HtmlUtils;
 
 public class Fragment {
 
@@ -106,7 +106,7 @@ public class Fragment {
 		if (finalText != null)
 			return finalText;
 		if (highlightedText != null && searchScore > 0) {
-			finalText = StringUtils.removeTag(highlightedText, allowedTags);
+			finalText = HtmlUtils.removeTag(highlightedText, allowedTags);
 		} else
 			finalText = originalText;
 		return finalText;

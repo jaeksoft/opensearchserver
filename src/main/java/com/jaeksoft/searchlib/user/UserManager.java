@@ -44,10 +44,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class UserManager {
 
@@ -71,7 +71,7 @@ public class UserManager {
 		users = null;
 		if (jsonFile == null || !jsonFile.exists() || jsonFile.length() == 0)
 			return;
-		List<User.Record> recordList = JsonUtils.getObject(jsonFile,
+		List<User.Record> recordList = JsonMapper.MAPPER.readValue(jsonFile,
 				MapUserListRef);
 		if (recordList == null || recordList.isEmpty())
 			return;
@@ -209,8 +209,8 @@ public class UserManager {
 		ConfigFileRotation cfr = ConfigFiles.getInstance().get(
 				StartStopListener.OPENSEARCHSERVER_DATA_FILE, USERS_FILE_NAME);
 		try {
-			JsonUtils.jsonToFile(User.getRecordList(users.values()),
-					cfr.getTempFile());
+			JsonMapper.MAPPER.writeValue(cfr.getTempFile(),
+					User.getRecordList(users.values()));
 			cfr.rotate();
 		} finally {
 			cfr.abort();

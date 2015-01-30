@@ -29,7 +29,7 @@ import java.util.List;
 
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer;
 import com.jaeksoft.searchlib.index.osse.OsseTermBuffer.OsseTerm;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.sun.jna.Pointer;
 
 /**

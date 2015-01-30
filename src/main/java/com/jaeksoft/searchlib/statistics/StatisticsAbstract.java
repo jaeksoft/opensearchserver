@@ -38,12 +38,12 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public abstract class StatisticsAbstract {
 
@@ -184,7 +184,7 @@ public abstract class StatisticsAbstract {
 			return;
 		List<Aggregate> aggrList = null;
 		try {
-			aggrList = JsonUtils.getObject(file, AggregateListTypeRef);
+			aggrList = JsonMapper.MAPPER.readValue(file, AggregateListTypeRef);
 		} catch (JsonParseException e) {
 			Logging.warn(e);
 			return;
@@ -208,7 +208,7 @@ public abstract class StatisticsAbstract {
 			File file = getStatFile(statDir);
 			if (file.exists())
 				file.delete();
-			JsonUtils.jsonToFile(aggregateList, file);
+			JsonMapper.MAPPER.writeValue(file, aggregateList);
 		} finally {
 			rwl.r.unlock();
 		}

@@ -29,9 +29,10 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
+
 import com.jaeksoft.searchlib.index.IndexStatistics;
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 
@@ -66,7 +67,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 	public String getSizeString() {
 		if (lastModifiedAndSize == null)
 			return null;
-		return StringUtils.humanBytes(lastModifiedAndSize.getSize());
+		return FileUtils.byteCountToDisplaySize(lastModifiedAndSize.getSize());
 	}
 
 	public Integer getNumDocs() throws IOException, SearchLibException {

@@ -2,8 +2,6 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.field.RendererWidget"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
-<%@ page import="org.apache.commons.lang3.StringEscapeUtils"%>
-<%@ page import="com.jaeksoft.searchlib.util.StringUtils"%>
 
 <%
 	ResultDocument resultDocument = (ResultDocument) request

@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class AbstractDirectoryManager<T> {
 

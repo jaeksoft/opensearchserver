@@ -28,7 +28,7 @@ import java.io.IOException;
 
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class AbstractJoinStringIndexSorter extends
 		AbstractStringIndexSorter {

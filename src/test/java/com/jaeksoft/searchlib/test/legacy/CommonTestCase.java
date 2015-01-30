@@ -43,8 +43,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.opensearchserver.utils.StringUtils;
 
 /**
  * @author Ayyathurai N Naveen

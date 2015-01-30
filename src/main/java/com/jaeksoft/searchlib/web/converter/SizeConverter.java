@@ -28,7 +28,7 @@ import org.zkoss.bind.BindContext;
 import org.zkoss.bind.Converter;
 import org.zkoss.zk.ui.Component;
 
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.FileUtils;
 
 public class SizeConverter implements Converter<Object, Object, Component> {
 
@@ -47,6 +47,6 @@ public class SizeConverter implements Converter<Object, Object, Component> {
 		long l = (Long) value;
 		if (l == -1)
 			return IGNORED_VALUE;
-		return StringUtils.humanBytes(l);
+		return FileUtils.byteCountToDisplaySize(l);
 	}
 }

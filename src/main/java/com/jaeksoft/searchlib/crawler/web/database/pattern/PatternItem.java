@@ -30,7 +30,7 @@ import java.net.URL;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class PatternItem {
 

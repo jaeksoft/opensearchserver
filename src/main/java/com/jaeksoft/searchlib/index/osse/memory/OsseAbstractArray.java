@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.index.osse.memory;
 
 import java.io.Closeable;
 
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.sun.jna.Pointer;
 
 public abstract class OsseAbstractArray extends Pointer implements Closeable {

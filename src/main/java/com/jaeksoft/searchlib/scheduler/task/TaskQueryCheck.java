@@ -39,10 +39,10 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import com.jayway.jsonpath.JsonPath;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class TaskQueryCheck extends TaskAbstract {
 
@@ -133,7 +133,8 @@ public class TaskQueryCheck extends TaskAbstract {
 			SearchResult searchResult = new SearchResult(
 					(AbstractResultSearch) client.request(searchRequest));
 			if (jsonPath != null && jsonPath.length() > 0) {
-				String json = JsonUtils.toJsonString(searchResult);
+				String json = JsonMapper.MAPPER
+						.writeValueAsString(searchResult);
 				JsonPath jsonPathCompile = JsonPath.compile(jsonPath);
 				Object jsonPathResult = jsonPathCompile.read((String) json);
 				if (jsonPathResult == null)

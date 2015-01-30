@@ -40,7 +40,7 @@ import org.apache.commons.collections.CollectionUtils;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class RendererFilterQueries {
 

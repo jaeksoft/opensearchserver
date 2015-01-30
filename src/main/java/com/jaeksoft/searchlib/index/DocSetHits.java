@@ -44,7 +44,7 @@ import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitCollectorInter
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferAdvancedCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 

@@ -50,6 +50,8 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.opensearchserver.utils.StringUtils;
+
 public class DomUtils {
 
 	final private static void getNodes(final Node parent, final int pos,

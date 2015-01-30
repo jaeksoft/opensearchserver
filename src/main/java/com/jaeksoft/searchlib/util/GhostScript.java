@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opensearchserver.utils.StringUtils;
+
 public class GhostScript {
 
 	private final File gsExeFile;

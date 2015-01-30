@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,14 +24,8 @@
 package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.icepdf.core.tag.query.DocumentResult;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
@@ -39,72 +33,30 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
+import com.opensearchserver.client.v2.search.FacetResult2;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
-@XmlRootElement(name = "result")
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-public class SearchResult extends CommonResult {
+public class SearchResultUtils {
 
-	@XmlElement(name = "document")
-	final public List<DocumentResult> documents;
-
-	@XmlElement(name = "facet")
-	final public List<FacetResult> facets;
-
-	@XmlElement
-	final public String query;
-
-	@XmlAttribute
-	final public int rows;
-
-	@XmlAttribute
-	final public int start;
-
-	@XmlAttribute
-	final public int numFound;
-
-	@XmlAttribute
-	final public long time;
-
-	@XmlAttribute
-	final public long collapsedDocCount;
-
-	@XmlAttribute
-	final public float maxScore;
-
-	public SearchResult() {
-		documents = null;
-		query = null;
-		facets = null;
-		rows = 0;
-		start = 0;
-		numFound = 0;
-		time = 0;
-		collapsedDocCount = 0;
-		maxScore = 0;
-	}
-
-	public SearchResult(AbstractResultSearch result) {
-		super(true, null);
+	public SearchResult2 getSearchResult(AbstractResultSearch result) {
 		try {
+			SearchResult2 searchResult = new SearchResult2();
 			AbstractSearchRequest searchRequest = result.getRequest();
-			documents = new ArrayList<DocumentResult>(0);
-			facets = new ArrayList<FacetResult>(0);
-			query = searchRequest.getQueryParsed();
-			start = searchRequest.getStart();
-			rows = searchRequest.getRows();
-			numFound = result.getNumFound();
-			collapsedDocCount = result.getCollapsedDocCount();
-			time = result.getTimer().tempDuration();
-			maxScore = result.getMaxScore();
+			searchResult.setQuery(searchRequest.getQueryParsed());
+			searchResult.setStart(searchRequest.getStart());
+			searchResult.setRows(searchRequest.getRows());
+			searchResult.setNumFound(result.getNumFound());
+			searchResult.setCollapsedDocCount(result.getCollapsedDocCount());
+			searchResult.setTime(result.getTimer().tempDuration());
+			searchResult.setMaxScore(result.getMaxScore());
 
 			DocumentResult.populateDocumentList(result, documents);
 
 			if (searchRequest.getFacetFieldList().size() > 0)
 				for (FacetField FacetField : searchRequest.getFacetFieldList())
-					facets.add(new FacetResult(result, FacetField.getName()));
+					searchResult.addFact(new FacetResult2(result, FacetField
+							.getName()));
 
 		} catch (ParseException e) {
 			throw new CommonServices.CommonServiceException(e);
@@ -116,5 +68,4 @@ public class SearchResult extends CommonResult {
 			throw new CommonServices.CommonServiceException(e);
 		}
 	}
-
 }

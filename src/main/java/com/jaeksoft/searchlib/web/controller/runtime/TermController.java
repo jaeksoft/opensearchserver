@@ -41,7 +41,7 @@ import org.zkoss.zul.Filedownload;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 @AfterCompose(superclass = true)

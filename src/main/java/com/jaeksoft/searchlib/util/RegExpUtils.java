@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.opensearchserver.utils.StringUtils;
+
 public class RegExpUtils {
 
 	private final static String[] REGEXPS = { "(?s)<div id=\"filAriane\">.*?<span itemprop=\"title\">.*?<span itemprop=\"title\">(.*?)</span>" };

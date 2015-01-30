@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Geospatial;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 

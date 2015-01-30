@@ -41,7 +41,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class Logging {

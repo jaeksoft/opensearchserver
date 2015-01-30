@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.sort.AscStringIndexSorter;
 import com.jaeksoft.searchlib.sort.SorterAbstract.NoCollectorException;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinUtils {

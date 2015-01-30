@@ -29,7 +29,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class PatternMatcher {
 

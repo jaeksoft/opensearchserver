@@ -45,10 +45,10 @@ import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.NetworksUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.webservice.ApiIdentifier;
+import com.opensearchserver.utils.StringUtils;
 
 public class InstanceProperties {
 
@@ -260,7 +260,7 @@ public class InstanceProperties {
 			return;
 		throw new SearchLibException(
 				"The maximum storage size has been reached ("
-						+ StringUtils.humanBytes(maxStorage) + ")");
+						+ FileUtils.byteCountToDisplaySize(maxStorage) + ")");
 	}
 
 	protected final void checkApiRate() throws InterruptedException {
@@ -432,7 +432,7 @@ public class InstanceProperties {
 		sb.append(" - maxDocumentLimit: ");
 		sb.append(maxDocumentLimit);
 		sb.append(" - maxStorage: ");
-		sb.append(StringUtils.humanBytes(maxStorage));
+		sb.append(FileUtils.byteCountToDisplaySize(maxStorage));
 		sb.append(" - maxIndexNumber: ");
 		sb.append(maxIndexNumber);
 		sb.append(" - minCrawlerDelay: ");

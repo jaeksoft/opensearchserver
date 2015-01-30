@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterString;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.CharsetUtils;
 
 public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 
@@ -71,7 +71,7 @@ public abstract class WebDriverParserAbstract extends HtmlDocumentProvider {
 			webDriver = getWebDriver();
 			String source = webDriver.getSourceCode(streamLimiter
 					.getOriginURL());
-			String newCharset = StringUtils.charsetDetector(source.getBytes());
+			String newCharset = CharsetUtils.charsetDetector(source.getBytes());
 			if (newCharset == null)
 				newCharset = charset;
 			newStreamLimiter = new StreamLimiterString(source,

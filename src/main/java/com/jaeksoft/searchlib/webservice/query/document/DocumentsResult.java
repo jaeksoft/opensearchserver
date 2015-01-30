@@ -25,25 +25,36 @@ package com.jaeksoft.searchlib.webservice.query.document;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.result.AbstractResultSearch;
+import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
+import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.opensearchserver.client.v2.search.DocumentResult2;
+import com.opensearchserver.client.v2.search.SnippetField2;
 
 @XmlRootElement(name = "result")
-@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonInclude(Include.NON_EMPTY)
 public class DocumentsResult {
 
 	@XmlElement(name = "document")
-	final public List<DocumentResult> documents;
+	final public List<DocumentResult2> documents;
 
 	@XmlElement(name = "indexDocument")
 	final public List<IndexDocumentResult> indexDocuments;
@@ -65,8 +76,8 @@ public class DocumentsResult {
 			indexDocuments = new ArrayList<IndexDocumentResult>(1);
 			result.populate(indexDocuments);
 		} else {
-			documents = DocumentResult.populateDocumentList(result,
-					new ArrayList<DocumentResult>(1));
+			documents = populateDocumentList(result,
+					new ArrayList<DocumentResult2>(1));
 			indexDocuments = null;
 		}
 	}
@@ -75,5 +86,89 @@ public class DocumentsResult {
 		this.documents = null;
 		this.indexDocuments = null;
 		this.uniqueKeys = uniqueKeys;
+	}
+
+	public final static DocumentResult2 newDocumentResult(
+			ResultDocument resultDocument, Integer collapseDocCount,
+			Integer position, Float docScore, Float docDistance,
+			List<ResultDocument> joinResultDocuments) {
+
+		DocumentResult2 documentResult = new DocumentResult2();
+		Map<String, FieldValue> returnFields = resultDocument.getReturnFields();
+		Map<String, List<String>> fields = MapUtils.isEmpty(returnFields) ? null
+				: new LinkedHashMap<String, List<String>>();
+		if (returnFields != null) {
+			for (FieldValue fieldValue : returnFields.values()) {
+				String field = fieldValue.getName().intern();
+				List<String> valueList = fieldValue.getValueStringList();
+				if (valueList != null) {
+					List<String> values = fields.get(field);
+					if (values == null) {
+						values = new ArrayList<String>(valueList.size());
+						fields.put(field, values);
+					}
+					values.addAll(valueList);
+				}
+			}
+		}
+		documentResult.setFields(fields);
+
+		Map<String, SnippetFieldValue> snippetFields = resultDocument
+				.getSnippetFields();
+		Map<String, SnippetField2> snippets = MapUtils.isEmpty(snippetFields) ? null
+				: new LinkedHashMap<String, SnippetField2>();
+		if (snippetFields != null) {
+			for (SnippetFieldValue snippetFiedValue : snippetFields.values()) {
+				String field = snippetFiedValue.getName().intern();
+				List<String> valueList = snippetFiedValue.getValueStringList();
+				if (valueList != null) {
+					SnippetField2 snippetField = new SnippetField2();
+					snippetField.setHighlighted(snippetFiedValue
+							.isHighlighted());
+					snippetField.setValues(valueList);
+					snippets.put(field, snippetField);
+				}
+			}
+			documentResult.setSnippets(snippets);
+		}
+
+		documentResult.setJoinParameter(resultDocument.getJoinParameter());
+		if (!CollectionUtils.isEmpty(joinResultDocuments)) {
+			List<DocumentResult2> joins = new ArrayList<DocumentResult2>(
+					joinResultDocuments.size());
+			for (ResultDocument joinResultDocument : joinResultDocuments)
+				joins.add(new DocumentResult2().setFields(joinResultDocument), null, null,
+						null, null, null));
+			documentResult.setJoins(joins);
+		}
+		documentResult.setFunctions(resultDocument.getFunctionFieldValues());
+		documentResult.setPositions(resultDocument.getPositions());
+		documentResult.collapseCount = collapseDocCount;
+		documentResult.pos = position;
+		documentResult.score = docScore;
+		documentResult.distance = docDistance;
+
+	}
+
+	public final static List<DocumentResult2> populateDocumentList(
+			ResultDocumentsInterface<?> result, List<DocumentResult2> documents)
+			throws SearchLibException {
+		int start = result.getRequestStart();
+		int end = result.getDocumentCount() + result.getRequestStart();
+		AbstractResultSearch resultSearch = result instanceof AbstractResultSearch ? (AbstractResultSearch) result
+				: null;
+		for (int i = start; i < end; i++) {
+			ResultDocument resultDocument = result.getDocument(i, null);
+			int collapseDocCount = result.getCollapseCount(i);
+			float docScore = result.getScore(i);
+			Float docDistance = result.getDistance(i);
+			List<ResultDocument> joinResultDocuments = resultSearch == null ? null
+					: resultSearch.getJoinDocumentList(i, null);
+			DocumentResult2 documentResult = newDocumentResult(resultDocument,
+					collapseDocCount, i, docScore, docDistance,
+					joinResultDocuments);
+			documents.add(documentResult);
+		}
+		return documents;
 	}
 }

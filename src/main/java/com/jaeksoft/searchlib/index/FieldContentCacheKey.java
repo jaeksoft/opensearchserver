@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class FieldContentCacheKey implements Comparable<FieldContentCacheKey> {
 

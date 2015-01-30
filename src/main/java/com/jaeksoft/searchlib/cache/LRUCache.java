@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
 public abstract class LRUCache<K extends LRUItemAbstract<K>> {

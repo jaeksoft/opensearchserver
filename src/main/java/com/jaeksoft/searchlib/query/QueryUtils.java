@@ -24,7 +24,7 @@
 
 package com.jaeksoft.searchlib.query;
 
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class QueryUtils {
 

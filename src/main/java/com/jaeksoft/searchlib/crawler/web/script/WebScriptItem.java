@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.crawler.web.database.AbstractPatternNameValueItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class WebScriptItem extends AbstractPatternNameValueItem {

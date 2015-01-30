@@ -65,7 +65,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
 import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
 

@@ -47,7 +47,7 @@ import org.json.JSONObject;
 
 import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class DownloadItem {
 

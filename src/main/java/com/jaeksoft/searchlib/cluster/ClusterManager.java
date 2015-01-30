@@ -36,9 +36,9 @@ import javax.xml.bind.annotation.XmlTransient;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import com.opensearchserver.utils.json.JsonMapper;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ClusterManager {
@@ -83,7 +83,8 @@ public class ClusterManager {
 			clusterFile = new File(
 					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
 					OSS_CLUSTER_NODES_FILENAME);
-			INSTANCE = JsonUtils.getObject(clusterFile, ClusterManager.class);
+			INSTANCE = JsonMapper.MAPPER.readValue(clusterFile,
+					ClusterManager.class);
 			return INSTANCE;
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -115,7 +116,7 @@ public class ClusterManager {
 			IOException {
 		rwl.r.lock();
 		try {
-			JsonUtils.jsonToFile(this, clusterFile);
+			JsonMapper.MAPPER.writeValue(clusterFile, this);
 		} finally {
 			rwl.r.unlock();
 		}

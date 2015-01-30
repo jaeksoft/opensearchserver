@@ -50,11 +50,11 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 
@@ -176,7 +176,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 			}
 			fieldValue.populate(list);
 		}
-		String json = JsonUtils.toJsonString(map);
+		String json = JsonMapper.MAPPER.writeValueAsString(map);
 		targetDocument.setString(target, json);
 	}
 

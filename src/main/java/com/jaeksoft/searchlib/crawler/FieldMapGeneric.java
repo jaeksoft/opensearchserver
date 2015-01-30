@@ -59,7 +59,6 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -68,6 +67,8 @@ import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.opensearchserver.utils.HtmlUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class FieldMapGeneric<S extends SourceField, T extends TargetField>
 		extends GenericMap<S, T> {
@@ -176,7 +177,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (dfTarget.isConvertHtmlEntities())
 			content = StringEscapeUtils.unescapeHtml(content);
 		if (dfTarget.isRemoveTag())
-			content = StringUtils.removeTag(content);
+			content = HtmlUtils.removeTag(content);
 		if (dfTarget.hasRegexpPattern())
 			content = dfTarget.applyRegexPattern(content);
 		return content;

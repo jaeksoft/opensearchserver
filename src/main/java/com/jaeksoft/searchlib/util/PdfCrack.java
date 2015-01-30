@@ -32,6 +32,8 @@ import java.io.StringReader;
 
 import org.apache.commons.exec.ExecuteException;
 
+import com.opensearchserver.utils.StringUtils;
+
 public class PdfCrack {
 
 	private final static String FOUND_USER_PASSWORD = "found user-password: '";

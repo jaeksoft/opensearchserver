@@ -34,7 +34,7 @@ import java.util.Properties;
 import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class RendererFilterDate extends RendererFilterAbstract {
 

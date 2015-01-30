@@ -55,9 +55,9 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.Stored;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class StandardLearner implements LearnerInterface {
 
@@ -476,8 +476,8 @@ public class StandardLearner implements LearnerInterface {
 		if (StringUtils.isEmpty(json))
 			return null;
 		try {
-			return JsonUtils.getObject(json,
-					JsonUtils.MapStringListStringTypeRef);
+			return JsonMapper.MAPPER.readValue(json,
+					JsonMapper.MapStringListStringTypeRef);
 		} catch (JsonParseException e) {
 			throw new SearchLibException(e);
 		} catch (JsonMappingException e) {

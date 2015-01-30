@@ -35,8 +35,8 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class AbstractPatternNameValueItem {
 

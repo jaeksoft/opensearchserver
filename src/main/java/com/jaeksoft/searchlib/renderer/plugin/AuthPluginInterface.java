@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 
 import com.jaeksoft.searchlib.renderer.Renderer;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public interface AuthPluginInterface {
 

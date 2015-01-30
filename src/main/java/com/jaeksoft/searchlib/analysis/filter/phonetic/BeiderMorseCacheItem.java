@@ -28,7 +28,7 @@ import org.apache.commons.codec.language.bm.PhoneticEngine;
 
 import com.jaeksoft.searchlib.analysis.filter.phonetic.BeiderMorseCache.EncoderKey;
 import com.jaeksoft.searchlib.cache.LRUItemAbstract;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class BeiderMorseCacheItem extends LRUItemAbstract<BeiderMorseCacheItem> {

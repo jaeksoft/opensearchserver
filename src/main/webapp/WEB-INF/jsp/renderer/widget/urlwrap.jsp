@@ -2,7 +2,7 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.field.RendererField"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
 <%@ page import="org.apache.commons.lang3.StringEscapeUtils"%>
-<%@ page import="com.jaeksoft.searchlib.util.StringUtils"%>
+<%@ page import="com.opensearchserver.utils.HtmlUtils"%>
 
 <%
 	ResultDocument resultDocument = (ResultDocument) request
@@ -17,7 +17,7 @@
 <%
 	} else {
 %>
-<span title="<%=StringEscapeUtils.escapeXml11(value)%>"><%=StringUtils.urlHostPathWrapReduce(value, 80)%></span>
+<span title="<%=StringEscapeUtils.escapeXml11(value)%>"><%=HtmlUtils.urlHostPathWrapReduce(value, 80)%></span>
 <%
 	}
 %>

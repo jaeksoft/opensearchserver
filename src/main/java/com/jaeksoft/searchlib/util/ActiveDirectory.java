@@ -43,6 +43,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.jaeksoft.searchlib.Logging;
+import com.opensearchserver.utils.StringUtils;
 
 public class ActiveDirectory implements Closeable {
 

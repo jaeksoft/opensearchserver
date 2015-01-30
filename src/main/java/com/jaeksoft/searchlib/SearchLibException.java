@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib;
 
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class SearchLibException extends Exception {
 

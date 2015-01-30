@@ -38,7 +38,7 @@ import org.apache.commons.io.FileUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.CharsetUtils;
 
 public abstract class StreamLimiter implements Closeable {
 
@@ -157,7 +157,7 @@ public abstract class StreamLimiter implements Closeable {
 			return detectedCharset;
 		InputStream is = getNewInputStream();
 		try {
-			detectedCharset = StringUtils.charsetDetector(is);
+			detectedCharset = CharsetUtils.charsetDetector(is);
 			return detectedCharset;
 		} finally {
 			if (is != null)

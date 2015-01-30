@@ -239,8 +239,8 @@ public class FileManager extends AbstractManager {
 		searchRequest.setRows(Integer.MAX_VALUE);
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
-		int l = result.getNumFound();
-		for (int i = 0; i < l; i++) {
+		long l = result.getNumFound();
+		for (long i = 0; i < l; i++) {
 			FileInfo fileInfo = new FileInfo(result.getDocument(i));
 			indexFileMap.put(fileInfo.getUri(), fileInfo);
 		}

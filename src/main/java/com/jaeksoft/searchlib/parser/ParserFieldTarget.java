@@ -37,9 +37,9 @@ import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import com.opensearchserver.utils.HtmlUtils;
 
 public class ParserFieldTarget extends TargetField {
 
@@ -137,7 +137,7 @@ public class ParserFieldTarget extends TargetField {
 			int pos = 0;
 			for (String value : values) {
 				if (removeTag)
-					value = StringUtils.removeTag(value);
+					value = HtmlUtils.removeTag(value);
 				if (convertHtmlEntities)
 					value = StringEscapeUtils.unescapeHtml(value);
 				values.set(pos++, value);

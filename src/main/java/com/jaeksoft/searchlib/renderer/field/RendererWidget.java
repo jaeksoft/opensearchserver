@@ -28,7 +28,7 @@ import java.io.StringReader;
 import java.util.Properties;
 
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class RendererWidget {
 

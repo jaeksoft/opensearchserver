@@ -33,12 +33,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.icepdf.core.tag.query.DocumentResult;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
+import com.opensearchserver.client.v2.search.DocumentResult2;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -48,7 +50,7 @@ public class MoreLikeThisResult extends CommonResult {
 	final public String query;
 
 	@XmlElement(name = "document")
-	final public List<DocumentResult> documents;
+	final public List<DocumentResult2> documents;
 
 	public MoreLikeThisResult() {
 		documents = null;

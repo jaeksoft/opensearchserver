@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
 import org.json.JSONException;
 
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class CrawlCacheProvider {
 

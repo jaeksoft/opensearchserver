@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -49,8 +49,8 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
-import com.jaeksoft.searchlib.webservice.query.document.FunctionFieldValue;
+import com.opensearchserver.client.common.search.result.FunctionFieldValue;
+import com.opensearchserver.client.common.search.result.VectorPosition;
 
 public class ResultDocument {
 
@@ -58,7 +58,7 @@ public class ResultDocument {
 	final private Map<String, SnippetFieldValue> snippetFields;
 	final private int docId;
 	final private List<FunctionFieldValue> functionFieldValue;
-	final private List<Position> positions;
+	final private List<VectorPosition> positions;
 	final private String joinParameter;
 	final private float score;
 
@@ -73,7 +73,7 @@ public class ResultDocument {
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
-		positions = new ArrayList<Position>(0);
+		positions = new ArrayList<VectorPosition>(0);
 
 		this.joinParameter = joinParameter;
 		this.score = score;
@@ -125,7 +125,7 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
-		positions = new ArrayList<Position>(0);
+		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
 		this.score = score;
 		this.joinParameter = joinParameter;
@@ -135,7 +135,7 @@ public class ResultDocument {
 		this.docId = docId;
 		returnFields = new TreeMap<String, FieldValue>();
 		snippetFields = new TreeMap<String, SnippetFieldValue>();
-		positions = new ArrayList<Position>(0);
+		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
 		joinParameter = null;
 		score = 0;
@@ -270,7 +270,7 @@ public class ResultDocument {
 		fieldValue.addValues(new FieldValueItem(origin, value));
 	}
 
-	public void addPosition(Position position) {
+	public void addPosition(VectorPosition position) {
 		positions.add(position);
 	}
 
@@ -278,7 +278,8 @@ public class ResultDocument {
 			ReaderAbstract reader, int pos, Timer timer) throws IOException,
 			java.text.ParseException, InstantiationException,
 			IllegalAccessException {
-		functionFieldValue.add(new FunctionFieldValue(functionField,
+		functionFieldValue.add(new FunctionFieldValue(functionField
+				.getFunction().function, functionField.getField(),
 				functionField.executeByPos(pos)));
 	}
 
@@ -312,11 +313,11 @@ public class ResultDocument {
 		return joinParameter;
 	}
 
-	public List<Position> getPositions() {
+	public List<VectorPosition> getPositions() {
 		return positions;
 	}
 
-	public void addPositions(Collection<Position> positions) {
+	public void addPositions(Collection<VectorPosition> positions) {
 		if (positions != null)
 			this.positions.addAll(positions);
 	}

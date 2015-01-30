@@ -33,6 +33,8 @@ import java.util.TreeMap;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.opensearchserver.utils.StringUtils;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class Variables {
 
@@ -54,7 +56,7 @@ public class Variables {
 
 	public Variables(String json) throws JsonParseException,
 			JsonMappingException, IOException {
-		Map<String, String> jsonMap = JsonUtils.getObject(json,
+		Map<String, String> jsonMap = JsonMapper.MAPPER.readValue(json,
 				new TypeReference<Map<String, String>>() {
 				});
 		for (Map.Entry<String, String> entry : jsonMap.entrySet())

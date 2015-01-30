@@ -63,7 +63,7 @@ import com.jaeksoft.searchlib.util.GhostScript;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.PdfCrack;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils;
 import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils.TolerantPDFTextStripper;
 

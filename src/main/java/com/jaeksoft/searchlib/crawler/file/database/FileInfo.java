@@ -39,8 +39,8 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public class FileInfo {
 
@@ -175,7 +175,7 @@ public class FileInfo {
 	public String getHumanSize() {
 		if (fileSize == null)
 			return null;
-		return StringUtils.humanBytes(fileSize);
+		return FileUtils.byteCountToDisplaySize(fileSize);
 	}
 
 	private void setUriFileNameExtension(URI uri) {

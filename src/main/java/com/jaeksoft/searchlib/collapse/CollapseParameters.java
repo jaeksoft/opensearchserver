@@ -33,6 +33,7 @@ import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMaximum;
 import com.jaeksoft.searchlib.collapse.CollapseFunction.FunctionMinimum;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
+import com.opensearchserver.client.common.search.query.CollapsingParameters.FunctionEnum;
 
 public class CollapseParameters {
 
@@ -93,21 +94,24 @@ public class CollapseParameters {
 
 	public static enum Function {
 
-		MIN("minimum", FunctionMinimum.class),
+		MIN("minimum", FunctionEnum.MIN, FunctionMinimum.class),
 
-		MAX("maximum", FunctionMaximum.class),
+		MAX("maximum", FunctionEnum.MAX, FunctionMaximum.class),
 
-		CONCAT("concatenate", FunctionConcat.class),
+		CONCAT("concatenate", FunctionEnum.CONCAT, FunctionConcat.class),
 
-		COUNT("count", FunctionCount.class);
+		COUNT("count", FunctionEnum.COUNT, FunctionCount.class);
 
 		final private String label;
 
+		final public FunctionEnum function;
+
 		final private Class<? extends FunctionExecutor> executorClass;
 
-		private Function(String label,
+		private Function(String label, FunctionEnum function,
 				Class<? extends FunctionExecutor> executorClass) {
 			this.label = label;
+			this.function = function;
 			this.executorClass = executorClass;
 		}
 

@@ -24,15 +24,19 @@
 
 package com.jaeksoft.searchlib.result;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.icepdf.core.tag.query.DocumentResult;
+
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
-import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinResult;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.render.RenderSearchJson;
@@ -42,6 +46,9 @@ import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.CommonServices;
+import com.opensearchserver.client.v2.search.FacetResult2;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 public abstract class AbstractResultSearch extends
 		AbstractResult<AbstractSearchRequest> implements
@@ -49,13 +56,13 @@ public abstract class AbstractResultSearch extends
 
 	protected final ReaderAbstract reader;
 	transient protected CollapseAbstract collapse;
-	protected FacetList facetList;
+	protected List<FacetResult2> facetResults;
 	protected DocIdInterface docs;
 	protected ScoreInterface scores;
 	protected DistanceInterface distances;
-	protected int numFound;
+	protected long numFound;
 	protected float maxScore;
-	protected int collapsedDocCount;
+	protected long collapsedDocCount;
 	private JoinResult[] joinResults;
 
 	protected AbstractResultSearch(ReaderAbstract reader,
@@ -68,7 +75,8 @@ public abstract class AbstractResultSearch extends
 		this.docs = null;
 		this.joinResults = JoinResult.EMPTY_ARRAY;
 		if (searchRequest.getFacetFieldList().size() > 0)
-			this.facetList = new FacetList();
+			this.facetResults = new ArrayList<FacetResult2>(searchRequest
+					.getFacetFieldList().size());
 		collapse = CollapseAbstract.newInstance(searchRequest);
 	}
 
@@ -76,8 +84,8 @@ public abstract class AbstractResultSearch extends
 		return reader;
 	}
 
-	public FacetList getFacetList() {
-		return this.facetList;
+	public List<FacetResult2> getFacetList() {
+		return facetResults;
 	}
 
 	protected void setJoinResults(JoinResult[] joinResults) {
@@ -108,7 +116,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	@Override
-	public int getNumFound() {
+	public long getNumFound() {
 		return numFound;
 	}
 
@@ -168,7 +176,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	@Override
-	public int getCollapsedDocCount() {
+	public long getCollapsedDocCount() {
 		return collapsedDocCount;
 	}
 
@@ -225,4 +233,29 @@ public abstract class AbstractResultSearch extends
 		return new RenderSearchJson(this, indent);
 	}
 
+	public SearchResult2 getSearchResult() {
+		try {
+			SearchResult2 searchResult = new SearchResult2();
+			searchResult.setQuery(request.getQueryParsed());
+			searchResult.setStart(request.getStart());
+			searchResult.setRows(request.getRows());
+			searchResult.setNumFound(numFound);
+			searchResult.setCollapsedDocCount(collapsedDocCount);
+			searchResult.setTime(timer.tempDuration());
+			searchResult.setMaxScore(maxScore);
+
+			DocumentResult.populateDocumentList(result, documents);
+
+			searchResult.setFacets(facetResults);
+			return searchResult;
+		} catch (ParseException e) {
+			throw new CommonServices.CommonServiceException(e);
+		} catch (SyntaxError e) {
+			throw new CommonServices.CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServices.CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServices.CommonServiceException(e);
+		}
+	}
 }

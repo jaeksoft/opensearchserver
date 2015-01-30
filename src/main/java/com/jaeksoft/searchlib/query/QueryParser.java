@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
 import com.jaeksoft.searchlib.query.parser.BooleanQueryBaseListener;
 import com.jaeksoft.searchlib.query.parser.BooleanQueryLexer;
 import com.jaeksoft.searchlib.query.parser.BooleanQueryParser;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class QueryParser extends BooleanQueryBaseListener {
 

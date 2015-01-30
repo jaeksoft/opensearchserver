@@ -39,8 +39,8 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 
 import com.jaeksoft.searchlib.index.osse.memory.DisposableMemory;
 import com.jaeksoft.searchlib.index.osse.memory.MemoryBuffer;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayList;
+import com.opensearchserver.utils.CharsetUtils;
 
 public class OsseTermBuffer implements Closeable {
 
@@ -67,7 +67,7 @@ public class OsseTermBuffer implements Closeable {
 		private OsseTerm(String term) throws IOException {
 			this(term.length());
 			try {
-				currentByteBuffer.put(term.getBytes(StringUtils.CharsetUTF8));
+				currentByteBuffer.put(term.getBytes(CharsetUtils.CharsetUTF8));
 				currentByteBuffer.put((byte) 0);
 			} catch (java.nio.BufferOverflowException e) {
 				throw e;
@@ -95,7 +95,7 @@ public class OsseTermBuffer implements Closeable {
 		this.offsets = new IntBufferedArrayList(1000);
 		this.positionIncrements = new IntBufferedArrayList(500);
 		this.byteArrays = new ArrayList<DisposableMemory>(1);
-		this.encoder = StringUtils.CharsetUTF8.newEncoder();
+		this.encoder = CharsetUtils.CharsetUTF8.newEncoder();
 		this.maxBytesPerChar = (int) encoder.maxBytesPerChar();
 		reset();
 	}

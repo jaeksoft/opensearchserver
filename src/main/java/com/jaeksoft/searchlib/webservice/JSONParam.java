@@ -32,8 +32,8 @@ import javax.ws.rs.WebApplicationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.jaeksoft.searchlib.util.JsonUtils;
 import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class JSONParam {
 
@@ -45,7 +45,7 @@ public class JSONParam {
 
 	public <T> T getObject(Class<T> objectClass) {
 		try {
-			return JsonUtils.getObject(json, objectClass);
+			return JsonMapper.MAPPER.readValue(json, objectClass);
 		} catch (JsonParseException e) {
 			throw new CommonServiceException(e);
 		} catch (JsonMappingException e) {
@@ -57,7 +57,7 @@ public class JSONParam {
 
 	public <T> T getObject(TypeReference<T> typeReference) {
 		try {
-			return JsonUtils.getObject(json, typeReference);
+			return JsonMapper.MAPPER.readValue(json, typeReference);
 		} catch (JsonParseException e) {
 			throw new CommonServiceException(e);
 		} catch (JsonMappingException e) {
@@ -68,7 +68,7 @@ public class JSONParam {
 	}
 
 	public Map<String, String> getVariables() {
-		return getObject(JsonUtils.MapStringStringTypeRef);
+		return getObject(JsonMapper.MapStringStringTypeRef);
 	}
 
 }

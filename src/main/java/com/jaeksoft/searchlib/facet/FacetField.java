@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.client.v2.search.FacetResult2;
 
 public class FacetField extends AbstractField<FacetField> {
 
@@ -130,7 +131,7 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	final public Facet getFacet(ReaderAbstract reader,
+	final public FacetResult2 getFacet(ReaderAbstract reader,
 			DocIdInterface notCollapsedDocs,
 			CollapseDocInterface collapsedDocs, Timer timer)
 			throws IOException, SearchLibException {
@@ -138,19 +139,19 @@ public class FacetField extends AbstractField<FacetField> {
 		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {
 			if (useCollapsing)
-				return Facet.facetMultivalued(reader, collapsedDocs, this,
+				return FacetUtils.facetMultivalued(reader, collapsedDocs, this,
 						timer);
 			else {
-				return Facet.facetMultivalued(reader, notCollapsedDocs, this,
-						timer);
+				return FacetUtils.facetMultivalued(reader, notCollapsedDocs,
+						this, timer);
 			}
 		} else {
 			if (useCollapsing)
-				return Facet.facetSingleValue(reader, collapsedDocs, this,
+				return FacetUtils.facetSingleValue(reader, collapsedDocs, this,
 						timer);
 			else {
-				return Facet.facetSingleValue(reader, notCollapsedDocs, this,
-						timer);
+				return FacetUtils.facetSingleValue(reader, notCollapsedDocs,
+						this, timer);
 
 			}
 		}

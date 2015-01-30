@@ -54,7 +54,7 @@ public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 
 	public float getMaxScore();
 
-	public int getCollapsedDocCount();
+	public long getCollapsedDocCount();
 
 	public int getCollapseCount(int pos);
 
@@ -62,6 +62,6 @@ public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 
 	public DocIdInterface getDocs();
 
-	public int getNumFound();
+	public long getNumFound();
 
 }

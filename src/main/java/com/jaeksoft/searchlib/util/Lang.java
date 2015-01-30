@@ -36,6 +36,7 @@ import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.opensearchserver.utils.StringUtils;
 
 public class Lang {
 

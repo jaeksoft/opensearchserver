@@ -29,21 +29,16 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
 import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
+import com.opensearchserver.utils.StringUtils;
 
-public class LinkUtils {
+public class LinkUtils extends com.opensearchserver.utils.LinkUtils {
 
 	public final static URL getLink(final URL currentURL, final String srcHref,
 			final UrlFilterItem[] urlFilterList, final boolean removeFragment) {
@@ -111,56 +106,7 @@ public class LinkUtils {
 
 	}
 
-	public final static String concatPath(String path1, String path2) {
-		if (path2 == null)
-			return path1;
-		if (path1 == null)
-			return path2;
-		StringBuilder sb = new StringBuilder(path1);
-		if (!path1.endsWith("/") && !path2.startsWith("/"))
-			sb.append('/');
-		sb.append(path2);
-		return sb.toString();
-	}
-
-	public final static String lastPart(String path) {
-		if (path == null)
-			return null;
-		String[] parts = StringUtils.split(path, '/');
-		if (parts == null)
-			return path;
-		if (parts.length == 0)
-			return path;
-		return parts[parts.length - 1];
-	}
-
-	public final static String UTF8_URL_Encode(String s)
-			throws UnsupportedEncodingException {
-		return URLEncoder.encode(s, "UTF-8").replace("+", "%20");
-	}
-
-	public final static String UTF8_URL_QuietDecode(String s) {
-		try {
-			return URLDecoder.decode(s, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			return s;
-		}
-	}
-
-	public final static URI newEncodedURI(String u)
-			throws MalformedURLException, URISyntaxException {
-		URL tmpUrl = new URL(u);
-		return new URI(tmpUrl.getProtocol(), tmpUrl.getUserInfo(),
-				tmpUrl.getHost(), tmpUrl.getPort(), tmpUrl.getPath(),
-				tmpUrl.getQuery(), tmpUrl.getRef());
-	}
-
-	public final static URL newEncodedURL(String u)
-			throws MalformedURLException, URISyntaxException {
-		return newEncodedURI(u).toURL();
-	}
-
-	public final static void main(String[] args) throws MalformedURLException,
+	public static void main(String[] args) throws MalformedURLException,
 			UnsupportedEncodingException {
 		System.out.println(getLink(new URL(
 				"http://www.example.com/test/in-75?l=75&co=FR&start=20"),
@@ -168,23 +114,6 @@ public class LinkUtils {
 		System.out.println(getLink(new URL("http://www.example.com/test/"),
 				"/category/index.jsp?categoryId=4955781&ab=denim & supply",
 				null, false));
-		System.out.println(lastPart("/my+folder/"));
-		System.out.println(lastPart("my folder/"));
-		System.out.println(lastPart("my folder/my+sub-folder/"));
-		System.out.println(lastPart("/my+file.png"));
-		System.out.println(lastPart("my+file.png"));
-		System.out.println(lastPart("my+folder/my+sub-folder/my+file.png"));
-		System.out.println(UTF8_URL_Encode("outlook:INBOX/~TEST TEST"));
-	}
-
-	public final static Map<String, String> getUniqueQueryParameters(
-			final URI uri, final String charset) {
-		final Map<String, String> map = new TreeMap<String, String>();
-		final List<NameValuePair> parameters = URLEncodedUtils.parse(uri,
-				"UTF-8");
-		for (NameValuePair parameter : parameters)
-			map.put(parameter.getName(), parameter.getValue());
-		return map;
 	}
 
 	public final static URL getURL(String urlString, boolean logError) {

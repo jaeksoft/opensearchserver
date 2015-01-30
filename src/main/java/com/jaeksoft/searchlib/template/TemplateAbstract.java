@@ -36,7 +36,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexType;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class TemplateAbstract {
 

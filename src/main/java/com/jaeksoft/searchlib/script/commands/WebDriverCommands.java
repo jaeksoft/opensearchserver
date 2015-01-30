@@ -57,7 +57,7 @@ import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
-import com.jaeksoft.searchlib.util.JsonUtils;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class WebDriverCommands {
 
@@ -240,8 +240,8 @@ public class WebDriverCommands {
 					ClickCapture.locate(browserDriver, clickCaptures);
 					ClickCapture.click(browserDriver, clickCaptures,
 							htmlArchiver, screenshot);
-					JsonUtils.jsonToFile(clickCaptures, new File(destFile,
-							"clickCapture.json"));
+					JsonMapper.MAPPER.writeValue(new File(destFile,
+							"clickCapture.json"), clickCaptures);
 					ClickCapture.sql(context, clickCaptureSql, clickCaptures);
 				}
 

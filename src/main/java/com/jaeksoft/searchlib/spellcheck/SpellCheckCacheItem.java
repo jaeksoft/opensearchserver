@@ -32,7 +32,7 @@ import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.cache.LRUItemAbstract;
 import com.jaeksoft.searchlib.index.ReaderLocal;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class SpellCheckCacheItem extends LRUItemAbstract<SpellCheckCacheItem> {

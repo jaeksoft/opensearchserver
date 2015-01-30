@@ -51,7 +51,7 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.Security
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class SmbFileInstance extends FileInstanceAbstract implements
 		SecurityInterface {

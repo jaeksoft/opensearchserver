@@ -52,7 +52,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public abstract class MailboxAbstractCrawler {
 

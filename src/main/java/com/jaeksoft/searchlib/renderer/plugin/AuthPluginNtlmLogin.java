@@ -49,7 +49,7 @@ import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
 import com.jaeksoft.searchlib.util.ActiveDirectory;
 import com.jaeksoft.searchlib.util.ActiveDirectory.ADGroup;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
+import com.opensearchserver.utils.StringUtils;
 
 public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 

@@ -39,12 +39,12 @@ import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
-import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.opensearchserver.utils.StringUtils;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class SearchCommands {
 
@@ -182,8 +182,8 @@ public class SearchCommands {
 			AbstractResultSearch result = this.search(context, template, query);
 			SearchResult searchResult = new SearchResult(result);
 			try {
-				Object object = jsonPath.read(JsonUtils
-						.toJsonString(searchResult));
+				Object object = jsonPath.read(JsonMapper.MAPPER
+						.writeValueAsString(searchResult));
 				checkAction(trigger, option, command, object != null);
 			} catch (PathNotFoundException e) {
 				checkAction(trigger, option, command, false);

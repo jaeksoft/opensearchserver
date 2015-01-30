@@ -49,12 +49,12 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
 import com.jaeksoft.searchlib.util.ExecuteUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.JsonUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
+import com.opensearchserver.utils.StringUtils;
+import com.opensearchserver.utils.json.JsonMapper;
 
 public class ExternalParser {
 
@@ -179,7 +179,7 @@ public class ExternalParser {
 			// Prepare the files JSON and XML
 			Command command = new Command(sourceDocument, streamLimiter, lang);
 			File commandFile = new File(tempDir, FILE_PARSER_COMMAND);
-			JsonUtils.jsonToFile(command, commandFile);
+			JsonMapper.MAPPER.writeValue(commandFile, command);
 			File configFile = new File(tempDir, FILE_PARSER_CONFIG);
 			configWriter = new PrintWriter(configFile, FILE_PARSER_ENCODING);
 			XmlWriter xmlWriter = new XmlWriter(configWriter,
@@ -202,7 +202,7 @@ public class ExternalParser {
 			File fileParserResults = new File(tempDir, FILE_PARSER_RESULTS);
 			if (!fileParserResults.exists())
 				return;
-			Results results = JsonUtils.getObject(fileParserResults,
+			Results results = JsonMapper.MAPPER.readValue(fileParserResults,
 					Results.class);
 			if (!StringUtils.isEmpty(results.error)) {
 				Logging.warn("External parser error: " + err.toString());
@@ -235,7 +235,7 @@ public class ExternalParser {
 			if (!fileParserCommand.exists())
 				throw new FileNotFoundException(
 						fileParserCommand.getAbsolutePath());
-			Command command = JsonUtils.getObject(fileParserCommand,
+			Command command = JsonMapper.MAPPER.readValue(fileParserCommand,
 					Command.class);
 			if (command == null)
 				throw new SearchLibException("Not parsing command found");
@@ -256,7 +256,7 @@ public class ExternalParser {
 			if (fileParserResults.exists())
 				fileParserResults.delete();
 			try {
-				JsonUtils.jsonToFile(results, fileParserResults);
+				JsonMapper.MAPPER.writeValue(fileParserResults, results);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
