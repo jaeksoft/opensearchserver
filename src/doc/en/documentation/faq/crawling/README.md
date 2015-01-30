@@ -9,4 +9,3 @@
 * [How to configure an incremental Database crawl process](how_to_configure_an_incremental_database_crawler.md)
 * [How to configure the crawl process of the Web crawler](how_to_configure_crawl_process_for_web_crawler.md)
 * [How to crawl a MongoDB server](how_to_crawl_mongodb.md)
-* [How to export data to an URL](how_to_export_data.md)
