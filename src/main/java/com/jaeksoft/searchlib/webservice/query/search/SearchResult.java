@@ -116,5 +116,4 @@ public class SearchResult extends CommonResult {
 			throw new CommonServices.CommonServiceException(e);
 		}
 	}
-
 }

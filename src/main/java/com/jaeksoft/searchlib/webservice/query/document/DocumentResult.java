@@ -79,6 +79,9 @@ public class DocumentResult {
 	@XmlElement(name = "join")
 	public final List<DocumentResult> joins;
 
+	@XmlElement(name = "collapsed")
+	public final List<DocumentResult> collapsedDocs;
+
 	public static class Position {
 		public final int start;
 		public final int end;
@@ -110,11 +113,13 @@ public class DocumentResult {
 		distance = null;
 		joins = null;
 		joinParameter = null;
+		collapsedDocs = null;
 	}
 
 	public DocumentResult(ResultDocument resultDocument,
 			Integer collapseDocCount, Integer position, Float docScore,
-			Float docDistance, List<ResultDocument> joinResultDocuments) {
+			Float docDistance, List<ResultDocument> joinResultDocuments,
+			List<ResultDocument> collapsedDocuments) {
 
 		Map<String, FieldValue> returnFields = resultDocument.getReturnFields();
 		fields = MapUtils.isEmpty(returnFields) ? null
@@ -137,7 +142,14 @@ public class DocumentResult {
 		if (joinResultDocuments != null) {
 			for (ResultDocument joinResultDocument : joinResultDocuments)
 				joins.add(new DocumentResult(joinResultDocument, null, null,
-						null, null, null));
+						null, null, null, null));
+		}
+		collapsedDocs = CollectionUtils.isEmpty(collapsedDocuments) ? null
+				: new ArrayList<DocumentResult>(collapsedDocuments.size());
+		if (collapsedDocuments != null) {
+			for (ResultDocument collapsedDocument : collapsedDocuments)
+				collapsedDocs.add(new DocumentResult(collapsedDocument, null,
+						null, null, null, null, null));
 		}
 		functions = resultDocument.getFunctionFieldValues();
 		positions = resultDocument.getPositions();
@@ -164,7 +176,7 @@ public class DocumentResult {
 					: resultSearch.getJoinDocumentList(i, null);
 			DocumentResult documentResult = new DocumentResult(resultDocument,
 					collapseDocCount, i, docScore, docDistance,
-					joinResultDocuments);
+					joinResultDocuments, resultDocument.getCollapsedDocuments());
 			documents.add(documentResult);
 		}
 		return documents;
