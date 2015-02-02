@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.jaeksoft.pojodbc.Transaction;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 
 public class DatabaseUtils {
@@ -76,8 +75,6 @@ public class DatabaseUtils {
 		error = escapeSqlChar(error);
 		sql = sql.replace(ERROR_VARIABLE_NAME, error);
 		transaction.update(sql);
-		transaction.commit();
-		// Logging.info("SQL UPDATE: " + sql);
 	}
 
 	final public static void update(Transaction transaction,
@@ -104,7 +101,5 @@ public class DatabaseUtils {
 			lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 			transaction.update(lastSql);
 		}
-		Logging.info("SQL UPDATE: " + lastSql);
-		transaction.commit();
 	}
 }
