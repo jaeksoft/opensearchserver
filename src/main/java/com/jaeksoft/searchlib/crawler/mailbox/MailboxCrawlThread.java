@@ -97,7 +97,7 @@ public class MailboxCrawlThread extends
 		if (uniqueFieldTarget != null) {
 			uniqueSearchRequest = new SearchFieldRequest(client);
 			uniqueSearchRequest.addSearchField(uniqueFieldTarget.getName(),
-					Mode.TERM, 1.0F, 1.0F, 1);
+					Mode.TERM, 1.0F, 1.0F, 1, null);
 			uniqueSearchRequest.setRows(0);
 		} else
 			uniqueSearchRequest = null;

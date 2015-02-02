@@ -121,46 +121,73 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 					searchFieldRequest.queryStringMap);
 	}
 
-	final private Query getComplexQuery(final Collection<Query> queries) {
-		BooleanQuery complexQuery = new BooleanQuery();
-		for (Query query : queries)
-			complexQuery.add(query, Occur.SHOULD);
-		return complexQuery;
+	final private static Query getBooleanShouldQuery(Collection<Query> queries) {
+		if (queries == null)
+			return null;
+		switch (queries.size()) {
+		case 1:
+			return queries.iterator().next();
+		default:
+			BooleanQuery booleanQuery = new BooleanQuery();
+			for (Query query : queries)
+				booleanQuery.add(query, Occur.SHOULD);
+			return booleanQuery;
+		}
+	}
+
+	final private static Query getBooleanMustQuery(
+			final Map<Integer, List<Query>> queriesMap) {
+		switch (queriesMap.size()) {
+		case 0:
+			return null;
+		case 1:
+			return getBooleanShouldQuery(queriesMap.values().iterator().next());
+		default:
+			BooleanQuery booleanQuery = new BooleanQuery();
+			for (Collection<Query> queries : queriesMap.values())
+				booleanQuery.add(getBooleanShouldQuery(queries), Occur.MUST);
+			return booleanQuery;
+		}
+	}
+
+	final private Query buildQuery(String queryString, Occur occur,
+			boolean snippet) throws IOException {
+		Set<String> fields = config.getSchema().getFieldList().getFieldSet();
+		SnippetFieldList snippetFieldList = snippet ? getSnippetFieldList()
+				: null;
+		Map<Integer, List<Query>> queriesMap = new TreeMap<Integer, List<Query>>();
+		for (SearchField searchField : searchFields) {
+			Integer booleanGroup = searchField.getBooleanGroup();
+			if (booleanGroup == null)
+				booleanGroup = 0;
+			List<Query> queries = queriesMap.get(booleanGroup);
+			if (queries == null) {
+				queries = new ArrayList<Query>(5);
+				queriesMap.put(booleanGroup, queries);
+			}
+			String field = searchField.getField();
+			String query = getQueryString(field);
+			if (query == null)
+				query = queryString;
+			if (snippetFieldList != null && snippetFieldList.get(field) == null)
+				continue;
+			searchField.addQuery(fields, analyzer, query, queries, phraseSlop,
+					occur);
+		}
+		return getBooleanMustQuery(queriesMap);
 	}
 
 	@Override
 	protected Query newSnippetQuery(String queryString) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
-		Set<String> fields = config.getSchema().getFieldList().getFieldSet();
-		SnippetFieldList snippetFieldList = getSnippetFieldList();
-		List<Query> queries = new ArrayList<Query>(searchFields.size());
-		for (SearchField searchField : searchFields) {
-			String field = searchField.getField();
-			String query = getQueryString(field);
-			if (query == null)
-				query = queryString;
-			if (snippetFieldList.get(field) != null) {
-				searchField.addQuery(fields, analyzer, query, queries,
-						phraseSlop, Occur.SHOULD);
-			}
-		}
-		return getComplexQuery(queries);
+		return buildQuery(queryString, Occur.SHOULD, true);
 	}
 
 	private Query newComplexQuery(String queryString, Occur occur)
 			throws ParseException, SyntaxError, SearchLibException, IOException {
 		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
 			return new MatchAllDocsQuery();
-		Set<String> fields = config.getSchema().getFieldList().getFieldSet();
-		List<Query> queries = new ArrayList<Query>(searchFields.size());
-		for (SearchField searchField : searchFields) {
-			String query = getQueryString(searchField.getField());
-			if (query == null)
-				query = queryString;
-			searchField.addQuery(fields, analyzer, query, queries, phraseSlop,
-					occur);
-		}
-		return getComplexQuery(queries);
+		return buildQuery(queryString, occur, false);
 	}
 
 	@Override
@@ -238,12 +265,13 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	 *            Set the boost for the phrase search
 	 */
 	public void addSearchField(String fieldName, Mode mode, double termBoost,
-			double phraseBoost, Integer phraseSlop) {
-		add(new SearchField(fieldName, mode, termBoost, phraseBoost, phraseSlop));
+			double phraseBoost, Integer phraseSlop, Integer booleanGroup) {
+		add(new SearchField(fieldName, mode, termBoost, phraseBoost,
+				phraseSlop, booleanGroup));
 	}
 
 	public void addSearchField(String fieldName, double termBoost) {
-		add(new SearchField(fieldName, Mode.PATTERN, termBoost, 1.0, null));
+		add(new SearchField(fieldName, Mode.PATTERN, termBoost, 1.0, null, null));
 	}
 
 	public void remove(SearchField searchField) {

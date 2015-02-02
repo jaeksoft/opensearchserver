@@ -83,6 +83,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 		final public Double boost;
 		final public Double phraseBoost;
 		final public Integer phraseSlop;
+		final public Integer booleanGroup;
 
 		public SearchField() {
 			field = null;
@@ -90,6 +91,7 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 			boost = null;
 			phraseBoost = null;
 			phraseSlop = null;
+			booleanGroup = null;
 		}
 
 		public SearchField(
@@ -99,12 +101,13 @@ public class SearchFieldQuery extends SearchQueryAbstract {
 			boost = searchField.getTermBoost();
 			phraseBoost = searchField.getPhraseBoost();
 			phraseSlop = searchField.getPhraseSlop();
+			booleanGroup = searchField.getBooleanGroup();
 		}
 
 		@JsonIgnore
 		protected com.jaeksoft.searchlib.request.SearchField newSearchField() {
 			return new com.jaeksoft.searchlib.request.SearchField(field, mode,
-					boost, phraseBoost, phraseSlop);
+					boost, phraseBoost, phraseSlop, booleanGroup);
 		}
 	}
 

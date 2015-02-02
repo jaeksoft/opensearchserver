@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -23,6 +23,7 @@
 			<column label="Term boost" />
 			<column label="Phrase Boost" />
 			<column label="Phrase Slop" />
+			<column label="Boolean group" />
 			<column label="Action" />
 		</columns>
 		<rows>
@@ -39,13 +40,14 @@
 					<doublebox value="@bind(each.termBoost)" />
 					<doublebox value="@bind(each.phraseBoost)" />
 					<intbox value="@bind(each.phraseSlop)" />
+					<intbox value="@bind(each.booleanGroup)" />
 					<button image="images/action_delete.png"
 						onClick="@command('onSearchFieldRemove', searchfield=each)" />
 				</row>
 			</template>
 		</rows>
 		<foot>
-			<footer span="6">
+			<footer span="7">
 				<listbox mold="select"
 					selectedItem="@bind(searchfields.selectedSearchField)"
 					model="@load(searchfields.searchableFields)">
