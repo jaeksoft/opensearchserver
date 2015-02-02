@@ -201,6 +201,7 @@ public class DatabaseScript extends AbstractScriptRunner {
 		try {
 			DatabaseUtils.update(transaction, pkList, lastScriptError,
 					sqlUpdateMode, context.replaceVariables(sqlUpdate));
+			transaction.commit();
 		} catch (SQLException e) {
 			throw new ScriptException(e);
 		}

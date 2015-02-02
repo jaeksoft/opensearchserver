@@ -235,8 +235,10 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			else
 				runner_update(transaction, resultSet, columns);
 
-			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
+			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
+				transaction.commit();
 				client.reload();
+			}
 		} finally {
 			if (transaction != null)
 				transaction.close();
