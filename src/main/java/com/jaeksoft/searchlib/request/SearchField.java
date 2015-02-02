@@ -61,12 +61,14 @@ public class SearchField implements Cloneable {
 	public final static String SEARCHFIELD_ATTRIBUTE_TERM_BOOST = "boost";
 	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST = "phraseBoost";
 	public final static String SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP = "phraseSlop";
+	public final static String SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP = "booleanGroup";
 
 	private String field;
 	private Mode mode;
 	private double termBoost;
 	private double phraseBoost;
 	private Integer phraseSlop;
+	private Integer booleanGroup;
 
 	private SearchField(SearchField searchField) {
 		this.field = searchField.field;
@@ -74,15 +76,17 @@ public class SearchField implements Cloneable {
 		this.termBoost = searchField.termBoost;
 		this.phraseBoost = searchField.phraseBoost;
 		this.phraseSlop = searchField.phraseSlop;
+		this.booleanGroup = searchField.booleanGroup;
 	}
 
 	public SearchField(String field, Mode mode, Double termBoost,
-			Double phraseBoost, Integer phraseSlop) {
+			Double phraseBoost, Integer phraseSlop, Integer booleanGroup) {
 		this.field = field;
 		this.mode = mode == null ? Mode.TERM : mode;
 		this.termBoost = termBoost == null ? 1.0F : termBoost;
 		this.phraseBoost = phraseBoost == null ? this.termBoost : phraseBoost;
 		this.phraseSlop = phraseSlop;
+		this.booleanGroup = booleanGroup;
 	}
 
 	public SearchField(Node fieldNode) {
@@ -102,6 +106,8 @@ public class SearchField implements Cloneable {
 				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, this.termBoost);
 		this.phraseSlop = DomUtils.getAttributeInteger(fieldNode,
 				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, this.phraseSlop);
+		this.booleanGroup = DomUtils.getAttributeInteger(fieldNode,
+				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP, this.booleanGroup);
 	}
 
 	@Override
@@ -184,6 +190,21 @@ public class SearchField implements Cloneable {
 		this.phraseSlop = phraseSlop;
 	}
 
+	/**
+	 * @return the booleanGroup
+	 */
+	public Integer getBooleanGroup() {
+		return booleanGroup;
+	}
+
+	/**
+	 * @param booleanGroup
+	 *            the booleanGroup to set
+	 */
+	public void setBooleanGroup(Integer booleanGroup) {
+		this.booleanGroup = booleanGroup;
+	}
+
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement(SEARCHFIELD_NODE_NAME,
 				SEARCHFIELD_ATTRIBUTE_FIELD_NAME, field,
@@ -192,7 +213,9 @@ public class SearchField implements Cloneable {
 				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, Double
 						.toString(phraseBoost),
 				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, phraseSlop == null ? null
-						: Integer.toString(phraseSlop));
+						: Integer.toString(phraseSlop),
+				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP,
+				booleanGroup == null ? null : Integer.toString(booleanGroup));
 		xmlWriter.endElement();
 
 	}
@@ -209,6 +232,10 @@ public class SearchField implements Cloneable {
 		if (phraseSlop != null) {
 			sb.append("/");
 			sb.append(phraseSlop);
+		}
+		if (booleanGroup != null) {
+			sb.append("/");
+			sb.append(booleanGroup);
 		}
 		return sb.toString();
 	}
@@ -315,4 +342,5 @@ public class SearchField implements Cloneable {
 			IOUtils.close(compiledAnalyzer);
 		}
 	}
+
 }

@@ -101,7 +101,7 @@ public class SearchFieldsController extends AbstractQueryController {
 				return;
 			getSearchFieldRequest().add(
 					new SearchField(selectedSearchField, Mode.PATTERN, 1.0,
-							1.0, null));
+							1.0, null, null));
 		}
 	}
 
