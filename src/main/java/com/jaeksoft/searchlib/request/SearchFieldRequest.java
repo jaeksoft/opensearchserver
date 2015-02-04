@@ -183,9 +183,20 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 		return buildQuery(queryString, Occur.SHOULD, true);
 	}
 
+	private boolean queryIsEmpty(String queryString) {
+		if (!StringUtils.isEmpty(queryString))
+			return false;
+		if (queryStringMap == null)
+			return true;
+		for (String query : queryStringMap.values())
+			if (!StringUtils.isEmpty(query))
+				return false;
+		return true;
+	}
+
 	private Query newComplexQuery(String queryString, Occur occur)
 			throws ParseException, SyntaxError, SearchLibException, IOException {
-		if (emptyReturnsAll && StringUtils.isEmpty(queryString))
+		if (emptyReturnsAll && queryIsEmpty(queryString))
 			return new MatchAllDocsQuery();
 		return buildQuery(queryString, occur, false);
 	}
