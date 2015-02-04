@@ -966,7 +966,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
 				requestNode, "lang")));
 		setEmptyReturnsAll(!"no".equalsIgnoreCase(DomUtils.getAttributeText(
-				requestNode, "emtpyReturnsAll")));
+				requestNode, "emptyReturnsAll")));
 
 		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
 				requestNode);
