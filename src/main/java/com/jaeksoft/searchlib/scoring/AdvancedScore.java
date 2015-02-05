@@ -179,7 +179,7 @@ public class AdvancedScore {
 
 	public final static String getCacheKey(AdvancedScore advancedScore) {
 		if (advancedScore == null)
-			return "";
+			return null;
 		return advancedScore.getCacheKey();
 	}
 

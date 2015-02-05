@@ -137,4 +137,5 @@ public class BoostQuery {
 		}
 		return sb.toString();
 	}
+
 }

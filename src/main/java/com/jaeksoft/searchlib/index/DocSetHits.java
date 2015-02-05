@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.BoostQuery;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.docsethit.DistanceCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocIdBufferCollector;
@@ -53,6 +54,8 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 	final ReaderAbstract reader;
 	final Query query;
 	final String queryKey;
+	final String boostQueryKey;
+	final String advancedScoringKey;
 	final FilterHits filterHits;
 	final GeoParameters geoParameters;
 	final DocSetHitBaseCollector docSetHitCollector;
@@ -86,11 +89,14 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 			last = sc = new ScoreBufferAdvancedCollector(reader, advancedScore,
 					docSetHitCollector, sc, distanceCollector);
 		}
+		advancedScoringKey = AdvancedScore.getCacheKey(advancedScore);
 		if (searchRequest.isDocIdRequired())
 			last = docIdBufferCollector = new DocIdBufferCollector(
 					docSetHitCollector);
 		else
 			docIdBufferCollector = null;
+		boostQueryKey = BoostQuery.getCacheKey(searchRequest
+				.getBoostingQueries());
 		lastCollector = last;
 		scoreBufferCollector = sc;
 	}
@@ -172,6 +178,12 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 		if ((c = StringUtils.compareNullString(queryKey, dsh.queryKey)) != 0)
 			return c;
 		if ((c = GeoParameters.compare(geoParameters, dsh.geoParameters)) != 0)
+			return c;
+		if ((c = StringUtils
+				.compareNullString(boostQueryKey, dsh.boostQueryKey)) != 0)
+			return c;
+		if ((c = StringUtils.compareNullString(advancedScoringKey,
+				dsh.advancedScoringKey)) != 0)
 			return c;
 		return StringUtils.compareNullHashCode(filterHits, dsh.filterHits);
 	}
