@@ -113,6 +113,22 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public Boolean enableLog;
 	final public List<String> customLogs;
 
+	public static enum BatchAction {
+
+		/**
+		 * The batch is stopped if the request found documents. IF not document
+		 * was found, the batch execute the next request.
+		 */
+		STOP_IF_FOUND,
+
+		/**
+		 * Go to the next request even if the request found documents.
+		 */
+		CONTINUE
+	}
+
+	final public BatchAction batchAction;
+
 	public SearchQueryAbstract() {
 		query = null;
 		start = null;
@@ -133,6 +149,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		enableLog = null;
 		customLogs = null;
 		emptyReturnsAll = true;
+		batchAction = null;
 	}
 
 	public enum OperatorEnum {
@@ -1042,6 +1059,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		boostingQueries = newBoostingQueryList(request.getBoostingQueries());
 		enableLog = request.isLogReport();
 		customLogs = newLogList(request.getCustomLogs());
+		batchAction = null;
 	}
 
 	public static SearchQueryAbstract newInstance(AbstractSearchRequest request) {

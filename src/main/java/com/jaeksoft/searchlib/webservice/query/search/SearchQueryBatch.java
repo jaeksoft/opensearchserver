@@ -51,7 +51,20 @@ import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 public class SearchQueryBatch {
 
 	public enum Mode {
-		all, first
+		/**
+		 * All queries are executed
+		 */
+		all,
+
+		/**
+		 * The batch is stopped when a query found a result
+		 */
+		first,
+
+		/**
+		 * The behavior is managed by the batchAction parameter for each query
+		 */
+		manual
 	}
 
 	final public Mode mode;
@@ -129,9 +142,28 @@ public class SearchQueryBatch {
 			SearchResult searchResult = new SearchResult(
 					(AbstractResultSearch) client.request(searchRequest));
 			searchResults.add(searchResult);
-			if (mode != null && mode == Mode.first)
-				if (searchResult.numFound > 0)
+			if (mode != null) {
+				switch (mode) {
+				case all:
 					break;
+				case first:
+					if (searchResult.numFound > 0)
+						return searchResults;
+					break;
+				case manual:
+					if (query.batchAction != null) {
+						switch (query.batchAction) {
+						case CONTINUE:
+							break;
+						case STOP_IF_FOUND:
+							if (searchResult.numFound > 0)
+								return searchResults;
+							break;
+						}
+					}
+					break;
+				}
+			}
 		}
 		return searchResults;
 	}
