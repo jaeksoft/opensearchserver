@@ -163,7 +163,8 @@ public class CommonQuery extends CommonServices {
 			if (type == request.requestType)
 				return request;
 		throw new CommonServiceException(Status.BAD_REQUEST,
-				"Wrong request type: " + request.requestType.getLabel());
+				"Wrong request type: " + request.requestType.getLabel()
+						+ " template:" + template);
 	}
 
 	protected AbstractRequest queryTemplateGet(String index, String login,
