@@ -33,29 +33,6 @@
 	<prerequisites>
 		<maven>3.2.1</maven>
 	</prerequisites>
-	<repositories>
-		<repository>
-			<id>oss-sonatype</id>
-			<name>oss-sonatype</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>apache.snapshots</id>
-			<name>Apache Snapshots</name>
-			<url>https://repository.apache.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -113,16 +90,6 @@
 					<groupId>commons-codec</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>${httpclient.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore-nio</artifactId>
-			<version>${httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
@@ -498,12 +465,11 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cxf.version>2.7.13</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
-		<httpclient.version>4.4</httpclient.version>
+		<httpclient.version>4.3.6</httpclient.version>
 		<poi.version>3.11</poi.version>
 		<selenium.version>2.44.0</selenium.version>
 		<zk.version>6.5.4</zk.version>
 		<jackson.version>2.5.1</jackson.version>
-		<tomcat.version>7.0.57</tomcat.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>
@@ -605,99 +571,7 @@
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.3-SNAPSHOT</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-core</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-util</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-coyote</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jdbc</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-dbcp</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-servlet-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jsp-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-jasper-el</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-el-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-tribes</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-catalina-ha</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-annotations-api</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat</groupId>
-						<artifactId>tomcat-juli</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-log4j</artifactId>
-						<version>${tomcat.version}</version>
-					</dependency>
-				</dependencies>
+				<version>2.1</version>
 				<executions>
 					<execution>
 						<id>tomcat-package</id>
