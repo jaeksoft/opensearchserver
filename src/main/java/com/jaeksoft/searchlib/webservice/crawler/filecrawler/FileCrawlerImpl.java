@@ -24,6 +24,8 @@
 package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jws.WebParam;
 import javax.xml.ws.WebServiceException;
@@ -36,6 +38,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.user.Role;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
@@ -427,5 +430,25 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	public CommonResult removeSwiftRepositoryXML(String use, String login,
 			String key, String path, String username, String container) {
 		return removeSwiftRepository(use, login, key, path, username, container);
+	}
+
+	@Override
+	public CommonListResult<FilePathResult> getList(String use, String login,
+			String key) {
+		try {
+			Client client = getLoggedClientAnyRole(use, login, key,
+					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			ClientFactory.INSTANCE.properties.checkApi();
+			List<FilePathItem> filePathItems = new ArrayList<FilePathItem>();
+			client.getFilePathManager().getAllFilePaths(filePathItems);
+			return new CommonListResult<FilePathResult>(
+					FilePathResult.create(filePathItems));
+		} catch (IOException e) {
+			throw new WebServiceException(e);
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		} catch (InterruptedException e) {
+			throw new WebServiceException(e);
+		}
 	}
 }
