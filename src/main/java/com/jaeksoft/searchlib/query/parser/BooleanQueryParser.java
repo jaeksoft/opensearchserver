@@ -1,4 +1,4 @@
-// Generated from com/jaeksoft/searchlib/query/parser/BooleanQuery.g4 by ANTLR 4.3
+// Generated from com/jaeksoft/searchlib/query/parser/BooleanQuery.g4 by ANTLR 4.5
 package com.jaeksoft.searchlib.query.parser;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -11,27 +11,59 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BooleanQueryParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.3", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.5", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
 		AND=1, OR=2, NOT=3, STRING=4, QSTRING=5, FIELD=6, WS=7;
-	public static final String[] tokenNames = {
-		"<INVALID>", "AND", "OR", "NOT", "STRING", "QSTRING", "FIELD", "WS"
-	};
 	public static final int
 		RULE_expression = 0, RULE_term = 1;
 	public static final String[] ruleNames = {
 		"expression", "term"
 	};
 
-	@Override
-	public String getGrammarFileName() { return "BooleanQuery.g4"; }
+	private static final String[] _LITERAL_NAMES = {
+	};
+	private static final String[] _SYMBOLIC_NAMES = {
+		null, "AND", "OR", "NOT", "STRING", "QSTRING", "FIELD", "WS"
+	};
+	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
+
+	/**
+	 * @deprecated Use {@link #VOCABULARY} instead.
+	 */
+	@Deprecated
+	public static final String[] tokenNames;
+	static {
+		tokenNames = new String[_SYMBOLIC_NAMES.length];
+		for (int i = 0; i < tokenNames.length; i++) {
+			tokenNames[i] = VOCABULARY.getLiteralName(i);
+			if (tokenNames[i] == null) {
+				tokenNames[i] = VOCABULARY.getSymbolicName(i);
+			}
+
+			if (tokenNames[i] == null) {
+				tokenNames[i] = "<INVALID>";
+			}
+		}
+	}
 
 	@Override
-	public String[] getTokenNames() { return tokenNames; }
+	@Deprecated
+	public String[] getTokenNames() {
+		return tokenNames;
+	}
+
+	@Override
+
+	public Vocabulary getVocabulary() {
+		return VOCABULARY;
+	}
+
+	@Override
+	public String getGrammarFileName() { return "BooleanQuery.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }
@@ -80,7 +112,8 @@ public class BooleanQueryParser extends Parser {
 			do {
 				{
 				{
-				setState(4); term();
+				setState(4);
+				term();
 				}
 				}
 				setState(7); 
@@ -101,29 +134,29 @@ public class BooleanQueryParser extends Parser {
 	}
 
 	public static class TermContext extends ParserRuleContext {
-		public TerminalNode STRING(int i) {
-			return getToken(BooleanQueryParser.STRING, i);
-		}
-		public TerminalNode QSTRING(int i) {
-			return getToken(BooleanQueryParser.QSTRING, i);
-		}
-		public TerminalNode NOT(int i) {
-			return getToken(BooleanQueryParser.NOT, i);
-		}
 		public List<TerminalNode> AND() { return getTokens(BooleanQueryParser.AND); }
-		public List<TerminalNode> OR() { return getTokens(BooleanQueryParser.OR); }
-		public List<TerminalNode> NOT() { return getTokens(BooleanQueryParser.NOT); }
 		public TerminalNode AND(int i) {
 			return getToken(BooleanQueryParser.AND, i);
 		}
-		public TerminalNode FIELD(int i) {
-			return getToken(BooleanQueryParser.FIELD, i);
-		}
-		public List<TerminalNode> FIELD() { return getTokens(BooleanQueryParser.FIELD); }
-		public List<TerminalNode> QSTRING() { return getTokens(BooleanQueryParser.QSTRING); }
-		public List<TerminalNode> STRING() { return getTokens(BooleanQueryParser.STRING); }
+		public List<TerminalNode> OR() { return getTokens(BooleanQueryParser.OR); }
 		public TerminalNode OR(int i) {
 			return getToken(BooleanQueryParser.OR, i);
+		}
+		public List<TerminalNode> NOT() { return getTokens(BooleanQueryParser.NOT); }
+		public TerminalNode NOT(int i) {
+			return getToken(BooleanQueryParser.NOT, i);
+		}
+		public List<TerminalNode> STRING() { return getTokens(BooleanQueryParser.STRING); }
+		public TerminalNode STRING(int i) {
+			return getToken(BooleanQueryParser.STRING, i);
+		}
+		public List<TerminalNode> QSTRING() { return getTokens(BooleanQueryParser.QSTRING); }
+		public TerminalNode QSTRING(int i) {
+			return getToken(BooleanQueryParser.QSTRING, i);
+		}
+		public List<TerminalNode> FIELD() { return getTokens(BooleanQueryParser.FIELD); }
+		public TerminalNode FIELD(int i) {
+			return getToken(BooleanQueryParser.FIELD, i);
 		}
 		public TermContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -159,8 +192,9 @@ public class BooleanQueryParser extends Parser {
 					_la = _input.LA(1);
 					if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << AND) | (1L << OR) | (1L << NOT) | (1L << STRING) | (1L << QSTRING) | (1L << FIELD))) != 0)) ) {
 					_errHandler.recoverInline(this);
+					} else {
+						consume();
 					}
-					consume();
 					}
 					}
 					break;

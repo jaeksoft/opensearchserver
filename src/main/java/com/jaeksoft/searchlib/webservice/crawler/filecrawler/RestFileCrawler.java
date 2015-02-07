@@ -33,6 +33,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
+import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @Path("/crawler/file")
@@ -265,4 +266,12 @@ public interface RestFileCrawler {
 			@QueryParam("key") String key, @QueryParam("path") String path,
 			@QueryParam("username") String username,
 			@QueryParam("container") String container);
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/index/{index_name}")
+	public CommonListResult<FilePathResult> getList(
+			@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key);
+
 }

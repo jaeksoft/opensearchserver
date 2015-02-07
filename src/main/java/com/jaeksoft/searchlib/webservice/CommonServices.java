@@ -46,11 +46,13 @@ public class CommonServices {
 		if (!ClientCatalog.getUserList().isEmpty()) {
 			user = ClientCatalog.authenticateKey(login, key);
 			if (user == null)
-				throw new CommonServiceException("Authentication failed");
+				throw new CommonServiceException(Response.Status.FORBIDDEN,
+						"Authentication failed");
 		}
 		client = ClientCatalog.getClient(use);
 		if (client == null)
-			throw new CommonServiceException("Index not found");
+			throw new CommonServiceException(Response.Status.NOT_FOUND,
+					"Index not found: " + use);
 	}
 
 	protected final User getLoggedUser(String login, String key)
@@ -59,7 +61,8 @@ public class CommonServices {
 			return null;
 		user = ClientCatalog.authenticateKey(login, key);
 		if (user == null)
-			throw new CommonServiceException("Authentication failed");
+			throw new CommonServiceException(Response.Status.FORBIDDEN,
+					"Authentication failed");
 		return user;
 	}
 
@@ -69,7 +72,8 @@ public class CommonServices {
 		if (user == null)
 			return null;
 		if (!user.isAdmin())
-			throw new CommonServiceException("Not allowed");
+			throw new CommonServiceException(Response.Status.FORBIDDEN,
+					"Not allowed");
 		return user;
 	}
 
@@ -81,7 +85,8 @@ public class CommonServices {
 				return client;
 			if (user.hasRole(client.getIndexName(), role))
 				return client;
-			throw new CommonServiceException("Not allowed");
+			throw new CommonServiceException(Response.Status.FORBIDDEN,
+					"Not allowed");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {
@@ -97,7 +102,8 @@ public class CommonServices {
 				return client;
 			if (user.hasAnyRole(client.getIndexName(), roles))
 				return client;
-			throw new CommonServiceException("Not allowed");
+			throw new CommonServiceException(Response.Status.FORBIDDEN,
+					"Not allowed");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {
@@ -113,7 +119,8 @@ public class CommonServices {
 				return client;
 			if (user.hasAllRole(client.getIndexName(), roles))
 				return client;
-			throw new CommonServiceException("Not allowed");
+			throw new CommonServiceException(Response.Status.FORBIDDEN,
+					"Not allowed");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (NamingException e) {

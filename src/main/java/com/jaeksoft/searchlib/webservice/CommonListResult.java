@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.jaeksoft.searchlib.webservice.crawler.filecrawler.FilePathResult;
 import com.jaeksoft.searchlib.webservice.replication.ReplicationResult;
 
 @XmlRootElement(name = "result")
@@ -48,7 +49,8 @@ public class CommonListResult<T> extends CommonResult {
 	@XmlElementWrapper(name = "items")
 	@XmlElements({ @XmlElement(name = "item", type = String.class),
 			@XmlElement(name = "item", type = NameLinkItem.class),
-			@XmlElement(name = "item", type = ReplicationResult.class) })
+			@XmlElement(name = "item", type = ReplicationResult.class),
+			@XmlElement(name = "item", type = FilePathResult.class) })
 	public final Collection<T> items;
 
 	public CommonListResult() {
