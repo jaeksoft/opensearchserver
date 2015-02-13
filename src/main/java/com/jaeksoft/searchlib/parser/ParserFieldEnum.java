@@ -162,7 +162,15 @@ public enum ParserFieldEnum {
 
 	email_recipient_address,
 
-	email_conversation_topic;
+	email_conversation_topic,
+
+	email_sent_date,
+
+	email_received_date,
+
+	email_attachment_name,
+
+	email_attachment_type;
 
 	public static ParserFieldEnum find(String fieldName) {
 		for (ParserFieldEnum pfe : values())
