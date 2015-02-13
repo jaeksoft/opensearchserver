@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.web.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +50,10 @@ import com.jaeksoft.searchlib.renderer.filter.RendererFilterType;
 import com.jaeksoft.searchlib.renderer.log.RendererLogField;
 import com.jaeksoft.searchlib.renderer.log.RendererLogParameterEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
+import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
+import com.jaeksoft.searchlib.util.IOUtils;
 
 @AfterCompose(superclass = true)
 public class RendererController extends CommonController {
@@ -64,6 +68,8 @@ public class RendererController extends CommonController {
 	private transient RendererLogField currentRendererLogField;
 	private transient RendererSort currentRendererSort;
 	private transient RendererSort selectedRendererSort;
+	private transient String testLogin;
+	private transient String testPassword;
 
 	private class DeleteAlert extends AlertController {
 
@@ -100,6 +106,8 @@ public class RendererController extends CommonController {
 		selectedRenderer = null;
 		isTestable = false;
 		currentRendererLogField = null;
+		testLogin = null;
+		testPassword = null;
 	}
 
 	public Renderer[] getRenderers() throws SearchLibException {
@@ -551,4 +559,61 @@ public class RendererController extends CommonController {
 			RendererLogField currentRendererLogField) {
 		this.currentRendererLogField = currentRendererLogField;
 	}
+
+	/**
+	 * @return the testLogin
+	 */
+	public String getTestLogin() {
+		return testLogin;
+	}
+
+	/**
+	 * @param testLogin
+	 *            the testLogin to set
+	 */
+	public void setTestLogin(String testLogin) {
+		this.testLogin = testLogin;
+	}
+
+	/**
+	 * @return the testPassword
+	 */
+	public String getTestPassword() {
+		return testPassword;
+	}
+
+	/**
+	 * @param testPassword
+	 *            the testPassword to set
+	 */
+	public void setTestPassword(String testPassword) {
+		this.testPassword = testPassword;
+	}
+
+	@Command
+	public void onTestAuth() throws SearchLibException, IOException,
+			InterruptedException {
+		AuthPluginInterface.User user = currentRenderer.testAuthRequest(
+				testLogin, testPassword);
+		if (user == null)
+			throw new IOException("Authentication failed.");
+		StringWriter sw = null;
+		PrintWriter pw = null;
+		try {
+			sw = new StringWriter();
+			pw = new PrintWriter(sw);
+			pw.print("User ID: ");
+			pw.println(user.userId);
+			pw.print("Username: ");
+			pw.println(user.username);
+			pw.print("Groups: ");
+			if (user.groups != null)
+				for (String group : user.groups)
+					pw.println(group);
+		} finally {
+			IOUtils.close(pw, sw);
+		}
+		new AlertController(sw.toString());
+	}
+
 }

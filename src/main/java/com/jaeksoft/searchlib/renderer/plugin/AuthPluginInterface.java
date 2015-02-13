@@ -82,4 +82,7 @@ public interface AuthPluginInterface {
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException;
 
+	public User getUser(Renderer renderer, String login, String password)
+			throws IOException;
+
 }

@@ -119,4 +119,10 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 			IOUtils.close(activeDirectory);
 		}
 	}
+
+	@Override
+	public User getUser(Renderer renderer, String login, String password)
+			throws IOException {
+		throw new IOException("Not implemented");
+	}
 }
