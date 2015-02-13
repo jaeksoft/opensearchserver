@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,9 +66,13 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+		return getUser(renderer, request.getParameter("username"),
+				request.getParameter("password"));
+	}
 
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
+	@Override
+	public User getUser(Renderer renderer, String username, String password)
+			throws IOException {
 		if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
 			throw new AuthException("Username or password is empty");
 		if (StringUtils.isEmpty(renderer.getAuthServer()))
