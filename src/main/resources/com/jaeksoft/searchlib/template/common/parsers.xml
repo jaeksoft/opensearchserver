@@ -93,6 +93,17 @@
 			<link source="subject" target="title" />
 		</map>
 	</parser>
+	<parser name="EML parser" class="com.jaeksoft.searchlib.parser.EmlParser">
+		<contentType>message/rfc822</contentType>
+		<extension>eml</extension>
+		<map>
+			<link source="content" target="content" />
+			<link source="htmlSource" target="content">
+				<removeTag />
+			</link>
+			<link source="subject" target="title" />
+		</map>
+	</parser>
 	<parser name="PDF parser" class="com.jaeksoft.searchlib.parser.PdfParser"
 		sizeLimit="33554432">
 		<extension>pdf</extension>

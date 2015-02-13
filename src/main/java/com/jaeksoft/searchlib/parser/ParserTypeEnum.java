@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -32,6 +32,7 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 		new ParserType(this, "Audio", AudioParser.class);
 		new ParserType(this, "DOC", DocParser.class);
 		new ParserType(this, "DOCX", DocxParser.class);
+		new ParserType(this, "EML", EmlParser.class);
 		new ParserType(this, "File system", FileSystemParser.class);
 		new ParserType(this, "HTML", HtmlParser.class);
 		new ParserType(this, "Image", ImageParser.class);
