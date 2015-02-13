@@ -1328,6 +1328,14 @@ public class Renderer implements Comparable<Renderer> {
 		return user;
 	}
 
+	public AuthPluginInterface.User testAuthRequest(String login,
+			String password) throws IOException, SearchLibException {
+		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
+		if (authPlugin == null)
+			return null;
+		return authPlugin.getUser(this, login, password);
+	}
+
 	/**
 	 * @return the authPluginClass
 	 */

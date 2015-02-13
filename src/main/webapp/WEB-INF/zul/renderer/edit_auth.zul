@@ -59,5 +59,29 @@
 				</row>
 			</rows>
 		</grid>
+		<separator />
+		<grid>
+			<columns sizable="false">
+				<column align="right" hflex="min" />
+				<column align="left" hflex="min" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Login: " />
+					<textbox value="@bind(renderer.testLogin)" />
+				</row>
+				<row>
+					<label value="Password: " />
+					<textbox type="password"
+						value="@bind(renderer.testPassword)" />
+				</row>
+				<row>
+					<cell colspan="2" align="center">
+						<button label="Test"
+							onClick="@command('onTestAuth')" />
+					</cell>
+				</row>
+			</rows>
+		</grid>
 	</panelchildren>
 </panel>

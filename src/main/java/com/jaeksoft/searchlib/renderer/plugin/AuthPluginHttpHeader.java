@@ -54,4 +54,11 @@ public class AuthPluginHttpHeader implements AuthPluginInterface {
 				+ (groups == null ? 0 : groups.length));
 		return user;
 	}
+
+	@Override
+	public User getUser(Renderer renderer, String login, String password)
+			throws IOException {
+		throw new IOException("Not implemented");
+	}
+
 }
