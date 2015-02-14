@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -47,6 +47,8 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class Parser extends ParserFactory {
 
+	protected ParserSelector parserSelector;
+
 	private IndexDocument sourceDocument;
 
 	private StreamLimiter streamLimiter;
@@ -72,10 +74,6 @@ public abstract class Parser extends ParserFactory {
 
 	public IndexDocument getSourceDocument() {
 		return sourceDocument;
-	}
-
-	private void setSourceDocument(IndexDocument sourceDocument) {
-		this.sourceDocument = sourceDocument;
 	}
 
 	protected ParserResultItem getNewParserResultItem() {
@@ -132,12 +130,12 @@ public abstract class Parser extends ParserFactory {
 			final IndexDocument sourceDocument,
 			final StreamLimiter streamLimiter, final LanguageEnum lang) {
 		if (!externalAllowed) {
-			doParserContent(sourceDocument, streamLimiter, lang);
+			doParserContent(null, sourceDocument, streamLimiter, lang);
 			return;
 		}
 		this.streamLimiter = streamLimiter;
 		if (sourceDocument != null)
-			setSourceDocument(sourceDocument);
+			this.sourceDocument = sourceDocument;
 		File tempDir = null;
 		try {
 			tempDir = FileUtils.createTempDirectory("oss-external-parser", "");
@@ -163,10 +161,12 @@ public abstract class Parser extends ParserFactory {
 		}
 	}
 
-	final public void doParserContent(final IndexDocument sourceDocument,
+	final public void doParserContent(final ParserSelector parserSelector,
+			final IndexDocument sourceDocument,
 			final StreamLimiter streamLimiter, final LanguageEnum lang) {
+		this.parserSelector = parserSelector;
 		if (sourceDocument != null)
-			setSourceDocument(sourceDocument);
+			this.sourceDocument = sourceDocument;
 		try {
 			this.streamLimiter = streamLimiter;
 			parseContent(streamLimiter, lang);
