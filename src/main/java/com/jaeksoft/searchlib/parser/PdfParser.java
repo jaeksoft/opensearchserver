@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -68,6 +68,10 @@ import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils;
 import com.jaeksoft.searchlib.util.pdfbox.PDFBoxUtils.TolerantPDFTextStripper;
 
 public class PdfParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/pdf" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "pdf" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.title, ParserFieldEnum.author,

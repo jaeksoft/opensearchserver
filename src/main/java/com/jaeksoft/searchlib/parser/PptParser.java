@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,10 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.opensearchserver.utils.StringUtils;
 
 public class PptParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/vnd.ms-powerpoint" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "ppt" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.title, ParserFieldEnum.note, ParserFieldEnum.body,

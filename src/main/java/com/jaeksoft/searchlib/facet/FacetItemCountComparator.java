@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -21,19 +21,20 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
+package com.jaeksoft.searchlib.facet;
 
-package com.jaeksoft.searchlib.parser;
+import java.util.Comparator;
+import java.util.Map;
 
-public class OdpParser extends OdfParser {
+public class FacetItemCountComparator implements
+		Comparator<Map.Entry<String, Long>> {
 
-	public static final String[] DEFAULT_MIMETYPES = {
-			"application/vnd.oasis.opendocument.presentation",
-			"application/vnd.oasis.opendocument.presentation-template" };
-
-	public static final String[] DEFAULT_EXTENSIONS = { "odp", "otp" };
-
-	public OdpParser() {
-		super();
+	@Override
+	final public int compare(Map.Entry<String, Long> item1,
+			Map.Entry<String, Long> item2) {
+		int c = item1.getValue().compareTo(item2.getValue());
+		if (c != 0)
+			return c;
+		return item1.getKey().compareTo(item2.getKey());
 	}
-
 }

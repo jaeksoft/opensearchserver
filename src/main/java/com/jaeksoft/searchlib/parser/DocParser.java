@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,10 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.opensearchserver.utils.StringUtils;
 
 public class DocParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/msword" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "doc", "dot" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.title, ParserFieldEnum.author,

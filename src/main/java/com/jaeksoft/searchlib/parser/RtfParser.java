@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,11 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class RtfParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/rtf",
+			"text/richtext" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "rtf", "rtx" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.content };

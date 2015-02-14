@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -61,6 +61,16 @@ public interface RestParser {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("parser_name") String parser_name,
 			@QueryParam("lang") LanguageEnum language,
+			@QueryParam("path") String path, InputStream inputStream);
+
+	@PUT
+	@Path("/parser")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public ParserDocumentsResult putMagic(@Context UriInfo uriInfo,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("lang") LanguageEnum language,
+			@QueryParam("name") String fileName,
+			@QueryParam("type") String mimeType,
 			@QueryParam("path") String path, InputStream inputStream);
 
 }

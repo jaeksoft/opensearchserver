@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 

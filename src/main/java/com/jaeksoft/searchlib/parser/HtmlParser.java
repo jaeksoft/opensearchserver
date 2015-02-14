@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -69,6 +69,11 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.opensearchserver.utils.StringUtils;
 
 public class HtmlParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "text/html",
+			"application/xhtml+xml" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "html", "xhtml" };
 
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
