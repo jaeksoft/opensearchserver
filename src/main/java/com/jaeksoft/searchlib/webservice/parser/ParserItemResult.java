@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,34 +42,38 @@ import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class ParserItemResult extends CommonResult {
 
 	public final String name;
 	public final Map<String, PropertyDefinition> properties;
 	public final String[] fields;
+	public final String[] file_extensions;
+	public final String[] mime_types;
 
 	public ParserItemResult() {
 		name = null;
 		properties = null;
 		fields = null;
+		file_extensions = null;
+		mime_types = null;
 	}
 
 	public ParserItemResult(ParserType parserType, ParserFactory parserFactory) {
 		name = parserType.getName();
+		file_extensions = parserType.getDefaultExtensions();
+		mime_types = parserType.getDefaultMimeTypes();
 		List<ClassProperty> props = parserFactory.getUserProperties();
-		if (props == null) {
+		if (props != null) {
+			properties = new HashMap<String, PropertyDefinition>();
+			for (ClassProperty prop : props) {
+				ClassPropertyEnum propEnum = prop.getClassPropertyEnum();
+				properties.put(propEnum.getName(), new PropertyDefinition(prop,
+						propEnum));
+			}
+		} else
 			properties = null;
-			fields = null;
-			return;
-		}
-		properties = new HashMap<String, PropertyDefinition>();
-		for (ClassProperty prop : props) {
-			ClassPropertyEnum propEnum = prop.getClassPropertyEnum();
-			properties.put(propEnum.getName(), new PropertyDefinition(prop,
-					propEnum));
-		}
 		ParserFieldEnum[] fieldList = parserFactory.getFieldList();
 		if (fieldList == null)
 			fields = null;

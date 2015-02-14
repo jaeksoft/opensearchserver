@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,6 +44,14 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class AudioParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "audio/ogg",
+			"audio/mpeg", "audio/mpeg3", "audio/flac", "audio/mp4",
+			"audio/vnd.rn-realaudio", "audio/x-pn-realaudio",
+			"audio/x-realaudio", "audio/wav", "audio/x-wav" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "ogg", "mp3", "flac",
+			"mp4", "m4a", "m4p", "wma", "wav", "ra", "rm", "m4b" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.artist, ParserFieldEnum.album,

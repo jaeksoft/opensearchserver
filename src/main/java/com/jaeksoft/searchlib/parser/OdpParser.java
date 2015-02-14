@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,12 +24,13 @@
 
 package com.jaeksoft.searchlib.parser;
 
-/**
- * 
- * @author Emmanuel Gosse (philCube)
- * 
- */
 public class OdpParser extends OdfParser {
+
+	public static final String[] DEFAULT_MIMETYPES = {
+			"application/vnd.oasis.opendocument.presentation",
+			"application/vnd.oasis.opendocument.presentation-template" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "odp", "otp" };
 
 	public OdpParser() {
 		super();
