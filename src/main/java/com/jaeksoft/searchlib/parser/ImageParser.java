@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,6 +46,12 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.ImagePHash;
 
 public class ImageParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = ImageIO
+			.getReaderMIMETypes();
+
+	public static final String[] DEFAULT_EXTENSIONS = ImageIO
+			.getReaderFileSuffixes();
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.image_width, ParserFieldEnum.image_height,

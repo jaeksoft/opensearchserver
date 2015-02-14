@@ -24,36 +24,81 @@
 
 package com.jaeksoft.searchlib.parser;
 
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+
 import com.jaeksoft.searchlib.util.ExtensibleEnum;
 
 public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 
+	private final MultivaluedHashMap<String, ParserType> mimeTypesMap;
+	private final MultivaluedHashMap<String, ParserType> extensionsMap;
+
 	private ParserTypeEnum() {
-		new ParserType(this, "Audio", AudioParser.class);
-		new ParserType(this, "DOC", DocParser.class);
-		new ParserType(this, "DOCX", DocxParser.class);
-		new ParserType(this, "EML", EmlParser.class);
-		new ParserType(this, "File system", FileSystemParser.class);
-		new ParserType(this, "HTML", HtmlParser.class);
-		new ParserType(this, "Image", ImageParser.class);
-		new ParserType(this, "ODS (OpenOffice spreadsheet)", OdsParser.class);
-		new ParserType(this, "ODT (OpenOffice text file)", OdtParser.class);
-		new ParserType(this, "ODP (OpenOffice presentation)", OdtParser.class);
-		new ParserType(this, "MAPI Msg (Outlook message)", MapiMsgParser.class);
-		new ParserType(this, "PDF (Pdfbox)", PdfParser.class);
-		new ParserType(this, "PDF (IcePdf)", IcePdfParser.class);
-		new ParserType(this, "PPT", PptParser.class);
-		new ParserType(this, "PPTX", PptxParser.class);
-		new ParserType(this, "PUB", PublisherParser.class);
-		new ParserType(this, "RSS", RssParser.class);
-		new ParserType(this, "RTF", RtfParser.class);
-		new ParserType(this, "Text", TextParser.class);
-		new ParserType(this, "Torrent", TorrentParser.class);
-		new ParserType(this, "VSD", VisioParser.class);
-		new ParserType(this, "XLS", XlsParser.class);
-		new ParserType(this, "XLSX", XlsxParser.class);
-		new ParserType(this, "XML", XmlParser.class);
-		new ParserType(this, "XML (XPATH)", XmlXPathParser.class);
+		new ParserType(this, "Audio", AudioParser.class,
+				AudioParser.DEFAULT_MIMETYPES, AudioParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "DOC", DocParser.class,
+				DocParser.DEFAULT_MIMETYPES, DocParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "DOCX", DocxParser.class,
+				DocxParser.DEFAULT_MIMETYPES, DocxParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "EML", EmlParser.class,
+				EmlParser.DEFAULT_MIMETYPES, EmlParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "File system", FileSystemParser.class, null, null);
+		new ParserType(this, "HTML", HtmlParser.class,
+				HtmlParser.DEFAULT_MIMETYPES, HtmlParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "Image", ImageParser.class,
+				ImageParser.DEFAULT_MIMETYPES, ImageParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "ODS (OpenOffice spreadsheet)", OdsParser.class,
+				OdsParser.DEFAULT_MIMETYPES, OdsParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "ODT (OpenOffice text file)", OdtParser.class,
+				OdtParser.DEFAULT_MIMETYPES, OdtParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "ODP (OpenOffice presentation)", OdpParser.class,
+				OdpParser.DEFAULT_MIMETYPES, OdpParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "MAPI Msg (Outlook message)", MapiMsgParser.class,
+				MapiMsgParser.DEFAULT_MIMETYPES,
+				MapiMsgParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "PDF (Pdfbox)", PdfParser.class,
+				PdfParser.DEFAULT_MIMETYPES, PdfParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "PDF (IcePdf)", IcePdfParser.class, null, null);
+		new ParserType(this, "PPT", PptParser.class,
+				PptParser.DEFAULT_MIMETYPES, PptParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "PPTX", PptxParser.class,
+				PptxParser.DEFAULT_MIMETYPES, PptxParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "PUB", PublisherParser.class,
+				PublisherParser.DEFAULT_MIMETYPES,
+				PublisherParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "RSS", RssParser.class,
+				RssParser.DEFAULT_MIMETYPES, RssParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "RTF", RtfParser.class,
+				RtfParser.DEFAULT_MIMETYPES, RtfParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "Text", TextParser.class,
+				TextParser.DEFAULT_MIMETYPES, TextParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "Torrent", TorrentParser.class,
+				TorrentParser.DEFAULT_MIMETYPES,
+				TorrentParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "VSD", VisioParser.class,
+				VisioParser.DEFAULT_MIMETYPES, VisioParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "XLS", XlsParser.class,
+				XlsParser.DEFAULT_MIMETYPES, XlsParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "XLSX", XlsxParser.class,
+				XlsParser.DEFAULT_MIMETYPES, XlsParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "XML", XmlParser.class,
+				XmlParser.DEFAULT_MIMETYPES, XmlParser.DEFAULT_EXTENSIONS);
+		new ParserType(this, "XML (XPATH)", XmlXPathParser.class, null, null);
+
+		mimeTypesMap = new MultivaluedHashMap<String, ParserType>();
+		extensionsMap = new MultivaluedHashMap<String, ParserType>();
+		for (ParserType parserType : getList()) {
+			String[] mimeTypes = parserType.getDefaultMimeTypes();
+			if (mimeTypes != null)
+				for (String mimeType : mimeTypes)
+					mimeTypesMap.add(mimeType.intern(), parserType);
+			String[] extensions = parserType.getDefaultExtensions();
+			if (extensions != null)
+				for (String extension : extensions)
+					extensionsMap.add(extension.intern(), parserType);
+		}
 	}
 
 	public ParserType find(Class<? extends ParserFactory> classRef) {
@@ -68,6 +113,30 @@ public class ParserTypeEnum extends ExtensibleEnum<ParserType> {
 			if (pt.simpleName.equalsIgnoreCase(name))
 				return pt;
 		return null;
+	}
+
+	public List<ParserType> findByExtension(String extension) {
+		if (extension == null)
+			return null;
+		return extensionsMap.get(extension.intern());
+	}
+
+	public ParserType findByExtensionFirst(String extension) {
+		if (extension == null)
+			return null;
+		return extensionsMap.getFirst(extension.intern());
+	}
+
+	public List<ParserType> findByMimeType(String mimeType) {
+		if (mimeType == null)
+			return null;
+		return mimeTypesMap.get(mimeType.intern());
+	}
+
+	public ParserType findByMimeTypeFirst(String mimeType) {
+		if (mimeType == null)
+			return null;
+		return mimeTypesMap.getFirst(mimeType.intern());
 	}
 
 	public final static ParserTypeEnum INSTANCE = new ParserTypeEnum();

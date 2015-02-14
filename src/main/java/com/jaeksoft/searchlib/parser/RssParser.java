@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,6 +41,10 @@ import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
 public class RssParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/rss+xml" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "rss" };
 
 	private static ParserFieldEnum[] fieldList = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.channel_title, ParserFieldEnum.channel_link,

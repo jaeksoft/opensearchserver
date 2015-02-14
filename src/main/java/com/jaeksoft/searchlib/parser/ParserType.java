@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,12 +33,19 @@ public class ParserType extends ExtensibleEnumItem<ParserType> {
 
 	public final String simpleName;
 
+	public final String[] defaultMimeTypes;
+
+	public final String[] defaultExtensions;
+
 	public ParserType(ExtensibleEnum<ParserType> en, String name,
-			Class<? extends Parser> parserClass) {
+			Class<? extends Parser> parserClass, String[] defaultMimeTypes,
+			String[] defaultExtensions) {
 		super(en, name);
 		this.parserClass = parserClass;
 		String n = parserClass.getSimpleName().toLowerCase();
 		simpleName = n.endsWith("parser") ? n.substring(0, n.length() - 6) : n;
+		this.defaultMimeTypes = defaultMimeTypes;
+		this.defaultExtensions = defaultExtensions;
 	}
 
 	/**
@@ -55,4 +62,11 @@ public class ParserType extends ExtensibleEnumItem<ParserType> {
 		return simpleName;
 	}
 
+	public String[] getDefaultMimeTypes() {
+		return defaultMimeTypes;
+	}
+
+	public String[] getDefaultExtensions() {
+		return defaultExtensions;
+	}
 }

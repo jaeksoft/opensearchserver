@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,6 +34,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import net.sf.jmimemagic.Magic;
+import net.sf.jmimemagic.MagicException;
+import net.sf.jmimemagic.MagicMatch;
+import net.sf.jmimemagic.MagicMatchNotFoundException;
+import net.sf.jmimemagic.MagicParseException;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.ClientFactory;
@@ -114,6 +121,31 @@ public class ParserImpl extends CommonServices implements RestParser {
 		}
 	}
 
+	private StreamLimiter getStreamLimiter(String path, InputStream inputStream)
+			throws IOException {
+		if (StringUtils.isEmpty(path) && inputStream == null)
+			throw new CommonServiceException(Status.NOT_ACCEPTABLE,
+					"You should either provide a path or upload a file");
+		if (StringUtils.isEmpty(path))
+			return new StreamLimiterInputStream(0, inputStream, null, null);
+		return new StreamLimiterFile(0, new File(path));
+	}
+
+	private void setParserParams(UriInfo uriInfo, ParserFactory parserFactory)
+			throws SearchLibException {
+		if (parserFactory == null)
+			throw new CommonServiceException(Status.NOT_ACCEPTABLE,
+					"No parser found");
+		MultivaluedMap<String, String> parserParams = uriInfo
+				.getQueryParameters();
+		for (String propKey : parserParams.keySet()) {
+			if (!propKey.startsWith("p."))
+				continue;
+			parserFactory.setUserProperty(propKey.substring(2),
+					parserParams.getFirst(propKey));
+		}
+	}
+
 	@Override
 	public ParserDocumentsResult put(UriInfo uriInfo, String login, String key,
 			String parserName, LanguageEnum language, String path,
@@ -124,27 +156,82 @@ public class ParserImpl extends CommonServices implements RestParser {
 			ClientFactory.INSTANCE.properties.checkApi();
 			ParserType parserType = checkParserType(parserName);
 			ParserFactory parserFactory = checkParserFactory(parserType);
-			MultivaluedMap<String, String> parserParams = uriInfo
-					.getQueryParameters();
-			for (String propKey : parserParams.keySet()) {
-				if (!propKey.startsWith("p."))
-					continue;
-				parserFactory.setUserProperty(propKey.substring(2),
-						parserParams.getFirst(propKey));
-			}
-			if (StringUtils.isEmpty(path) && inputStream == null)
-				throw new CommonServiceException(Status.NOT_ACCEPTABLE,
-						"You should either provide a path or upload a file");
+			setParserParams(uriInfo, parserFactory);
+			streamLimiter = getStreamLimiter(path, inputStream);
 			Parser parser = (Parser) ParserFactory.create(parserFactory);
-			if (StringUtils.isEmpty(path))
-				streamLimiter = new StreamLimiterInputStream(
-						parser.getSizeLimit(), inputStream, null, null);
-			else
-				streamLimiter = new StreamLimiterFile(parser.getSizeLimit(),
-						new File(path));
 			parser.doParserContent(null, null, streamLimiter, language);
 			List<ParserResultItem> parserResultList = parser.getParserResults();
-			return new ParserDocumentsResult(parserResultList);
+			return new ParserDocumentsResult(null, null, parserResultList);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (ClassNotFoundException e) {
+			throw new CommonServiceException(e);
+		} finally {
+			IOUtils.close(streamLimiter);
+		}
+	}
+
+	@Override
+	public ParserDocumentsResult putMagic(UriInfo uriInfo, String login,
+			String key, LanguageEnum language, String fileName,
+			String mimeType, String path, InputStream inputStream) {
+		StreamLimiter streamLimiter = null;
+		try {
+			getLoggedUser(login, key);
+			ClientFactory.INSTANCE.properties.checkApi();
+			streamLimiter = getStreamLimiter(path, inputStream);
+
+			// Find parser from extension
+			ParserType parserTypeFromExtension = null;
+			String extension = null;
+			if (!StringUtils.isEmpty(fileName))
+				extension = FilenameUtils.getExtension(fileName);
+			else if (!StringUtils.isEmpty(path))
+				extension = FilenameUtils.getExtension(path);
+			if (extension != null)
+				parserTypeFromExtension = ParserTypeEnum.INSTANCE
+						.findByExtensionFirst(extension);
+
+			// Find a parser from the mime type
+			ParserType parserTypeFromMime = null;
+			MagicMatch match = null;
+			if (mimeType == null) {
+				match = Magic
+						.getMagicMatch(streamLimiter.getFile(), true, true);
+				if (match != null)
+					mimeType = match.getMimeType();
+			}
+			if (mimeType != null)
+				parserTypeFromMime = ParserTypeEnum.INSTANCE
+						.findByMimeTypeFirst(mimeType);
+
+			// Choose a parser
+			ParserType parserType = parserTypeFromExtension;
+			if (parserType == null)
+				parserType = parserTypeFromMime;
+
+			if (parserType == null)
+				throw new CommonServiceException(Status.NOT_ACCEPTABLE,
+						"Unable to find a parser");
+
+			// Do the extraction
+			ParserFactory parserFactory = checkParserFactory(parserType);
+			setParserParams(uriInfo, parserFactory);
+			Parser parser = (Parser) ParserFactory.create(parserFactory);
+			parser.doParserContent(null, null, streamLimiter, language);
+			List<ParserResultItem> parserResultList = parser.getParserResults();
+			return new ParserDocumentsResult(mimeType, parserType.simpleName,
+					parserResultList);
+		} catch (MagicParseException e) {
+			throw new CommonServiceException(e);
+		} catch (MagicMatchNotFoundException e) {
+			throw new CommonServiceException(e);
+		} catch (MagicException e) {
+			throw new CommonServiceException(e);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

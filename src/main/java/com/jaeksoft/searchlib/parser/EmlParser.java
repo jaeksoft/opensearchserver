@@ -42,6 +42,10 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class EmlParser extends Parser {
 
+	public static final String[] DEFAULT_MIMETYPES = { "message/rfc822" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "eml" };
+
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.email_display_from,
 			ParserFieldEnum.email_display_to, ParserFieldEnum.email_display_cc,

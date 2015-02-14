@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -44,14 +44,23 @@ import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class ParserDocumentsResult extends CommonResult {
 
+	final public String mimeType;
+
+	final public String parserName;
+
 	@XmlElement(name = "document")
 	final public List<ParserDocument> documents;
 
 	public ParserDocumentsResult() {
 		documents = null;
+		mimeType = null;
+		parserName = null;
 	}
 
-	public ParserDocumentsResult(List<ParserResultItem> parserResultList) {
+	public ParserDocumentsResult(String mimeType, String parserName,
+			List<ParserResultItem> parserResultList) {
+		this.mimeType = mimeType;
+		this.parserName = parserName;
 		if (CollectionUtils.isEmpty(parserResultList)) {
 			documents = null;
 			return;

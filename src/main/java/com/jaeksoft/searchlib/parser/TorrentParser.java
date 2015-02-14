@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,10 @@ import com.jaeksoft.searchlib.parser.torrent.MetaInfo;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 public class TorrentParser extends Parser {
+
+	public static final String[] DEFAULT_MIMETYPES = { "application/x-bittorrent" };
+
+	public static final String[] DEFAULT_EXTENSIONS = { "torrent" };
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.name, ParserFieldEnum.announce,
