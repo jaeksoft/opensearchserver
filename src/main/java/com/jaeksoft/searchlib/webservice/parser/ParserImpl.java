@@ -142,7 +142,7 @@ public class ParserImpl extends CommonServices implements RestParser {
 			else
 				streamLimiter = new StreamLimiterFile(parser.getSizeLimit(),
 						new File(path));
-			parser.doParserContent(null, streamLimiter, language);
+			parser.doParserContent(null, null, streamLimiter, language);
 			List<ParserResultItem> parserResultList = parser.getParserResults();
 			return new ParserDocumentsResult(parserResultList);
 		} catch (SearchLibException e) {

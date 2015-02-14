@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataSource;
@@ -48,9 +49,10 @@ public class EmlParser extends Parser {
 			ParserFieldEnum.email_conversation_topic, ParserFieldEnum.subject,
 			ParserFieldEnum.content, ParserFieldEnum.email_sent_date,
 			ParserFieldEnum.email_received_date,
-			ParserFieldEnum.email_recipient_address,
-			ParserFieldEnum.email_recipient_name, ParserFieldEnum.htmlSource,
-			ParserFieldEnum.lang };
+			ParserFieldEnum.email_attachment_name,
+			ParserFieldEnum.email_attachment_type,
+			ParserFieldEnum.email_attachment_content,
+			ParserFieldEnum.htmlSource, ParserFieldEnum.lang };
 
 	public EmlParser() {
 		super(fl);
@@ -104,6 +106,21 @@ public class EmlParser extends Parser {
 						dataSource.getName());
 				result.addField(ParserFieldEnum.email_attachment_type,
 						dataSource.getContentType());
+				if (parserSelector != null) {
+					Parser attachParser = parserSelector.parseStream(
+							getSourceDocument(), dataSource.getName(),
+							dataSource.getContentType(), null,
+							dataSource.getInputStream(), null, null, null);
+					if (attachParser != null) {
+						List<ParserResultItem> parserResults = attachParser
+								.getParserResults();
+						if (parserResults != null)
+							for (ParserResultItem parserResult : parserResults)
+								result.addField(
+										ParserFieldEnum.email_attachment_content,
+										parserResult);
+					}
+				}
 			}
 			if (StringUtils.isEmpty(mimeMessageParser.getHtmlContent()))
 				result.langDetection(10000, ParserFieldEnum.content);

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -499,7 +499,8 @@ public class ParserSelector {
 					parser.doParserContentExternal(sourceDocument,
 							streamLimiter, lang);
 				else
-					parser.doParserContent(sourceDocument, streamLimiter, lang);
+					parser.doParserContent(this, sourceDocument, streamLimiter,
+							lang);
 				if (parser.getError() == null)
 					return parser;
 				// Try any declared failover

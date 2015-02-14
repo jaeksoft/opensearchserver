@@ -246,8 +246,8 @@ public class ExternalParser {
 			StreamLimiterFile streamLimiterFile = new StreamLimiterFile(
 					parser.getSizeLimit(), new File(command.filePath),
 					command.originalURL);
-			parser.doParserContent(indexSourceDocument, streamLimiterFile,
-					command.lang);
+			parser.doParserContent(null, indexSourceDocument,
+					streamLimiterFile, command.lang);
 			results = parser.getExternalResults();
 		} catch (Exception e) {
 			results = new Results(e);
