@@ -98,6 +98,7 @@
 		<extension>eml</extension>
 		<map>
 			<link source="content" target="content" />
+			<link source="email_attachment_content" target="content" />
 			<link source="htmlSource" target="content">
 				<removeTag />
 			</link>

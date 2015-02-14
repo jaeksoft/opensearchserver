@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -127,6 +127,17 @@ public class ParserResultItem {
 			return;
 		for (Object object : list)
 			addField(field, object.toString());
+	}
+
+	protected void addField(ParserFieldEnum field, ParserResultItem parserResult) {
+		if (parserResult == null || parserResult.parserDocument == null)
+			return;
+		FieldContent[] fieldContentArray = parserResult.parserDocument
+				.getFieldContentArray();
+		if (fieldContentArray == null)
+			return;
+		for (FieldContent fieldContent : fieldContentArray)
+			parserDocument.add(field.name(), fieldContent);
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {

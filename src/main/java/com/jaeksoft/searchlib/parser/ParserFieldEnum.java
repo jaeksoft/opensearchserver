@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -170,7 +170,9 @@ public enum ParserFieldEnum {
 
 	email_attachment_name,
 
-	email_attachment_type;
+	email_attachment_type,
+
+	email_attachment_content;
 
 	public static ParserFieldEnum find(String fieldName) {
 		for (ParserFieldEnum pfe : values())
