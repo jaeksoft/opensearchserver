@@ -136,11 +136,7 @@ public class ParserResultItem {
 	protected void addField(ParserFieldEnum field, ParserResultItem parserResult) {
 		if (parserResult == null || parserResult.parserDocument == null)
 			return;
-		FieldContent[] fieldContentArray = parserResult.parserDocument
-				.getFieldContentArray();
-		if (fieldContentArray == null)
-			return;
-		for (FieldContent fieldContent : fieldContentArray)
+		for (FieldContent fieldContent : parserResult.parserDocument)
 			parserDocument.add(field.name(), fieldContent);
 	}
 

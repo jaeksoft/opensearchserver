@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -46,6 +46,10 @@ public enum MailboxFieldEnum {
 
 	send_date,
 
+	html_content,
+
+	plain_content,
+
 	recipient_to_address,
 
 	recipient_to_personal,
@@ -62,7 +66,13 @@ public enum MailboxFieldEnum {
 
 	reply_to_personal,
 
-	flags;
+	flags,
+
+	email_attachment_name,
+
+	email_attachment_type,
+
+	email_attachment_content;
 
 	public static final String[] labelArray;
 
