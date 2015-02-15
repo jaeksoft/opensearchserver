@@ -379,7 +379,7 @@ public class Classifier implements Comparable<Classifier> {
 			LanguageEnum lang = document.getLang();
 			Analyzer analyzer = client.getSchema().getIndexPerFieldAnalyzer(
 					lang);
-			for (FieldContent fieldContent : document.getFieldContentArray()) {
+			for (FieldContent fieldContent : document) {
 				String fieldName = fieldContent.getField();
 				String concatValues = fieldContent.getMergedValues(" ");
 				index.addField(fieldName, concatValues, analyzer);

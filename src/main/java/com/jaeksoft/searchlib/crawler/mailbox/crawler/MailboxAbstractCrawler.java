@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,35 +27,41 @@ package com.jaeksoft.searchlib.crawler.mailbox.crawler;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.List;
 
+import javax.activation.DataSource;
 import javax.mail.Address;
-import javax.mail.BodyPart;
 import javax.mail.FetchProfile;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.mail.util.MimeMessageParser;
+
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class MailboxAbstractCrawler {
 
+	protected ParserSelector parserSelector;
 	protected MailboxCrawlThread thread;
 	protected MailboxProtocolEnum protocol;
 	protected MailboxCrawlItem item;
@@ -65,6 +71,10 @@ public abstract class MailboxAbstractCrawler {
 		this.thread = thread;
 		this.protocol = protocol;
 		this.item = item;
+		FieldMapContext fieldMapContext = thread == null ? null : thread
+				.getFieldMapContext();
+		this.parserSelector = fieldMapContext == null ? null
+				: fieldMapContext.parserSelector;
 	}
 
 	protected abstract Store getStore() throws MessagingException;
@@ -216,46 +226,10 @@ public abstract class MailboxAbstractCrawler {
 		}
 	}
 
-	private void multipartIterator(Multipart multipart, IndexDocument document)
-			throws MessagingException, IOException, SearchLibException,
-			ClassNotFoundException {
-		for (int j = 0; j < multipart.getCount(); j++) {
-			BodyPart bodyPart = multipart.getBodyPart(j);
-			String disposition = bodyPart.getDisposition();
-			if (disposition != null
-					&& (disposition.equalsIgnoreCase("ATTACHMENT"))) {
-				doBodyPart(bodyPart.getContent(), bodyPart.getContentType(),
-						document);
-			} else
-				mimeDispatch(bodyPart.getContent(), bodyPart.getContentType(),
-						document);
-		}
-	}
-
-	private void doBodyPart(Object content, String contentType,
-			IndexDocument document) throws SearchLibException, IOException,
-			ClassNotFoundException {
-		thread.indexContent(content, contentType, document);
-	}
-
-	private void mimeDispatch(Object content, String contentType,
-			IndexDocument document) throws MessagingException, IOException,
-			SearchLibException, ClassNotFoundException {
-		String lowerContentType = contentType.toLowerCase();
-		if (lowerContentType.startsWith("multipart/alternative"))
-			multipartIterator((Multipart) content, document);
-		else if (lowerContentType.startsWith("multipart/related"))
-			multipartIterator((Multipart) content, document);
-		else if (lowerContentType.startsWith("multipart/mixed"))
-			multipartIterator((Multipart) content, document);
-		else
-			doBodyPart(content, contentType, document);
-	}
-
 	final public void readMessage(IndexDocument crawlIndexDocument,
 			IndexDocument parserIndexDocument, Folder folder, Message message,
-			String id) throws MessagingException, IOException,
-			SearchLibException, ClassNotFoundException {
+			String id) throws Exception {
+
 		crawlIndexDocument.addString(MailboxFieldEnum.message_id.name(), id);
 		crawlIndexDocument.addString(MailboxFieldEnum.message_number.name(),
 				Integer.toString(message.getMessageNumber()));
@@ -305,11 +279,37 @@ public abstract class MailboxAbstractCrawler {
 		if (message.isSet(Flag.SEEN))
 			crawlIndexDocument.addString(MailboxFieldEnum.flags.name(), "SEEN");
 
-		try {
-			mimeDispatch(message.getContent(), message.getContentType(),
-					parserIndexDocument);
-		} catch (UnsupportedEncodingException e) {
-			Logging.warn("Message " + id, e);
+		if (message instanceof MimeMessage) {
+			MimeMessageParser mimeMessageParser = new MimeMessageParser(
+					(MimeMessage) message).parse();
+
+			crawlIndexDocument.addString(MailboxFieldEnum.html_content.name(),
+					mimeMessageParser.getHtmlContent());
+			crawlIndexDocument.addString(MailboxFieldEnum.plain_content.name(),
+					mimeMessageParser.getPlainContent());
+			for (DataSource dataSource : mimeMessageParser.getAttachmentList()) {
+				crawlIndexDocument.addString(
+						MailboxFieldEnum.email_attachment_name.name(),
+						dataSource.getName());
+				crawlIndexDocument.addString(
+						MailboxFieldEnum.email_attachment_type.name(),
+						dataSource.getContentType());
+				if (parserSelector == null)
+					continue;
+				Parser attachParser = parserSelector.parseStream(null,
+						dataSource.getName(), dataSource.getContentType(),
+						null, dataSource.getInputStream(), null, null, null);
+				if (attachParser == null)
+					continue;
+				List<ParserResultItem> parserResults = attachParser
+						.getParserResults();
+				if (parserResults != null)
+					for (ParserResultItem parserResult : parserResults)
+						crawlIndexDocument.addFieldIndexDocument(
+								MailboxFieldEnum.email_attachment_content
+										.name(), parserResult
+										.getParserDocument());
+			}
 		}
 	}
 }

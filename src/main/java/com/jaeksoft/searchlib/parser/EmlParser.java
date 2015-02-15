@@ -110,21 +110,21 @@ public class EmlParser extends Parser {
 						dataSource.getName());
 				result.addField(ParserFieldEnum.email_attachment_type,
 						dataSource.getContentType());
-				if (parserSelector != null) {
-					Parser attachParser = parserSelector.parseStream(
-							getSourceDocument(), dataSource.getName(),
-							dataSource.getContentType(), null,
-							dataSource.getInputStream(), null, null, null);
-					if (attachParser != null) {
-						List<ParserResultItem> parserResults = attachParser
-								.getParserResults();
-						if (parserResults != null)
-							for (ParserResultItem parserResult : parserResults)
-								result.addField(
-										ParserFieldEnum.email_attachment_content,
-										parserResult);
-					}
-				}
+				if (parserSelector == null)
+					continue;
+				Parser attachParser = parserSelector.parseStream(
+						getSourceDocument(), dataSource.getName(),
+						dataSource.getContentType(), null,
+						dataSource.getInputStream(), null, null, null);
+				if (attachParser == null)
+					continue;
+				List<ParserResultItem> parserResults = attachParser
+						.getParserResults();
+				if (parserResults != null)
+					for (ParserResultItem parserResult : parserResults)
+						result.addField(
+								ParserFieldEnum.email_attachment_content,
+								parserResult);
 			}
 			if (StringUtils.isEmpty(mimeMessageParser.getHtmlContent()))
 				result.langDetection(10000, ParserFieldEnum.content);
