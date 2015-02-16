@@ -140,6 +140,7 @@
         * [Retrieving details for a parser](api_v2/parsers/get.md)
         * [Parsing a file by uploading it](api_v2/parsers/parse_upload_file.md)
         * [Parsing a file located on the server](api_v2/parsers/parse_local_file.md)
+        * [Parsing a file and letting OpenSearchServer detect its type](api_v2/parsers/parse_detect_mime.md)
 	* [Replication](api_v2/replication/README.md)
 		* [List replications](api_v2/replication/list.md)
 		* [Get details about one replication](api_v2/replication/get.md)

@@ -6,6 +6,7 @@ Use this API to work with parsers.
 * [Retrieving details for a parser](get.md)
 * [Parsing a file by uploading it](parse_upload_file.md)
 * [Parsing a file located on the server](parse_local_file.md)
+* [Parsing a file and letting OpenSearchServer detect its type](parse_detect_mime.md)
 
 Parsers allow for extraction of information inside documents. Parsers can handle several types of documents: `.doc`, `.xsl`, `.xml`, `.html`, ...
 Depending on the parser (and on the type of document), different information will be returned. 
