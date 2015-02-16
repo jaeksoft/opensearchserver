@@ -32,9 +32,7 @@ import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.zk.ui.Executions;
-import org.zkoss.zul.AbstractTreeModel;
 import org.zkoss.zul.Html;
-import org.zkoss.zul.TreeModel;
 import org.zkoss.zul.Treecell;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.TreeitemRenderer;
@@ -50,9 +48,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 
 @AfterCompose(superclass = true)
 public class ResultDocumentController extends AbstractQueryController implements
@@ -67,11 +63,11 @@ public class ResultDocumentController extends AbstractQueryController implements
 	}
 
 	public class Document {
-		final int pos;
+		final long pos;
 		StringBuilder title;
 		ResultDocument resultDocument;
 
-		private Document(int pos) {
+		private Document(long pos) {
 			this.pos = pos;
 			title = null;
 			resultDocument = null;
@@ -103,7 +99,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 			}
 		}
 
-		public int getPos() {
+		public long getPos() {
 			return pos;
 		}
 
@@ -128,7 +124,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 			DocIdInterface docIdInterface = result.getDocs();
 			if (docIdInterface == null)
 				return 0;
-			return docIdInterface.getIds()[pos];
+			return docIdInterface.getIds()[(int) pos];
 		}
 
 		public ResultDocument getResultDocument() throws IOException,
@@ -168,67 +164,6 @@ public class ResultDocumentController extends AbstractQueryController implements
 			return resultDocument.getFunctionFieldValues().size() > 0;
 		}
 
-		public TreeModel<Object> getReturnTree() throws IOException,
-				ParseException, SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return null;
-			return new FieldTreeModel<FieldValue>(
-					ResultDocument.<FieldValue> toList(resultDocument
-							.getReturnFields()));
-		}
-
-		public TreeModel<Object> getSnippetTree() throws IOException,
-				ParseException, SyntaxError, SearchLibException {
-			ResultDocument resultDocument = getResultDocument();
-			if (resultDocument == null)
-				return null;
-			return new FieldTreeModel<SnippetFieldValue>(
-					ResultDocument.<SnippetFieldValue> toList(resultDocument
-							.getSnippetFields()));
-		}
-	}
-
-	public class FieldTreeModel<T extends FieldValue> extends
-			AbstractTreeModel<Object> {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -1438357359217617272L;
-
-		public FieldTreeModel(List<T> list) {
-			super(list);
-		}
-
-		@Override
-		public Object getChild(Object parent, int index) {
-			if (parent instanceof List<?>) {
-				List<?> fieldList = (List<?>) parent;
-				return fieldList.get(index);
-			} else if (parent instanceof FieldValue) {
-				FieldValue fieldValue = (FieldValue) parent;
-				return fieldValue.getValueList().get(index);
-			}
-			return null;
-		}
-
-		@Override
-		public int getChildCount(Object parent) {
-			if (parent instanceof List<?>) {
-				List<?> fieldList = (List<?>) parent;
-				return fieldList.size();
-			} else if (parent instanceof FieldValue) {
-				FieldValue fieldValue = (FieldValue) parent;
-				return fieldValue.getValuesCount();
-			}
-			return 0;
-		}
-
-		@Override
-		public boolean isLeaf(Object node) {
-			return node instanceof String;
-		}
 	}
 
 	private transient List<Document> documents;
@@ -267,9 +202,9 @@ public class ResultDocumentController extends AbstractQueryController implements
 			int docCount = result.getDocumentCount();
 			if (docCount <= 0)
 				return null;
-			int pos = result.getRequestStart();
+			long pos = result.getRequestStart();
 			documents = new ArrayList<Document>(docCount);
-			int end = pos + docCount;
+			long end = pos + docCount;
 			while (pos < end)
 				documents.add(new Document(pos++));
 			return documents;
@@ -305,23 +240,11 @@ public class ResultDocumentController extends AbstractQueryController implements
 		renderValue(treerow, value.getValue());
 	}
 
-	private void renderField(Treerow treerow, FieldValue fieldValue) {
-		new Treecell(fieldValue.getLabel()).setParent(treerow);
-		Treecell treecell;
-		if (fieldValue.getValuesCount() > 0)
-			treecell = new Treecell(fieldValue.getValueList().get(0).getValue());
-		else
-			treecell = new Treecell();
-		treecell.setParent(treerow);
-	}
-
 	@Override
 	public void render(Treeitem item, Object data, int index) throws Exception {
 		Treerow treerow = new Treerow();
 		if (data instanceof String)
 			renderValue(treerow, (String) data);
-		else if (data instanceof FieldValue)
-			renderField(treerow, (FieldValue) data);
 		else if (data instanceof FieldValueItem)
 			renderValue(treerow, (FieldValueItem) data);
 		treerow.setParent(item);

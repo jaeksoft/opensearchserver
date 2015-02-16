@@ -74,7 +74,7 @@ public class CollapseJoinDocCollector
 	}
 
 	@Override
-	final public int getForeignDocId(final int pos, final int joinPosition) {
+	final public int getForeignDocId(final long pos, final int joinPosition) {
 		return JoinDocCollector.getForeignDocIds(foreignDocIdsArray, pos,
 				joinPosition);
 	}

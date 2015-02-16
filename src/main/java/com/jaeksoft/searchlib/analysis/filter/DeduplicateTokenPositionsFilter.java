@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,38 +33,40 @@ import java.util.TreeMap;
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.analysis.FilterFactory;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
+import com.opensearchserver.client.common.search.result.VectorPosition;
 
 public class DeduplicateTokenPositionsFilter extends FilterFactory {
 
 	public static class DedupAllTokenPositionsFilter extends AbstractTermFilter {
 
-		private final Map<String, List<Position>> tokens;
+		private final Map<String, List<VectorPosition>> tokens;
 
 		protected DedupAllTokenPositionsFilter(TokenStream input) {
 			super(input);
-			this.tokens = new TreeMap<String, List<Position>>();
+			this.tokens = new TreeMap<String, List<VectorPosition>>();
 		}
 
 		@Override
 		public final boolean incrementToken() throws IOException {
 			while (input.incrementToken()) {
 				String term = termAtt.toString();
-				List<Position> positions = tokens.get(term);
+				List<VectorPosition> positions = tokens.get(term);
+				VectorPosition position = new VectorPosition(
+						offsetAtt.startOffset(), offsetAtt.endOffset());
 				if (positions == null) {
-					positions = new ArrayList<Position>(1);
-					positions.add(new Position(offsetAtt));
+					positions = new ArrayList<VectorPosition>(1);
+					positions.add(position);
 					tokens.put(term, positions);
 					createToken(term);
 					return true;
 				}
-				positions.add(new Position(offsetAtt));
+				positions.add(position);
 			}
 			return false;
 		}
 	}
 
-	private Map<String, List<Position>> lastTokenMap = null;
+	private Map<String, List<VectorPosition>> lastTokenMap = null;
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
@@ -74,7 +76,7 @@ public class DeduplicateTokenPositionsFilter extends FilterFactory {
 		return tokenFilter;
 	}
 
-	public Map<String, List<Position>> getLastTokenMap() {
+	public Map<String, List<VectorPosition>> getLastTokenMap() {
 		return lastTokenMap;
 	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,7 +23,7 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
-import java.util.List;
+import java.util.Map;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -31,14 +31,12 @@ import org.zkoss.bind.annotation.Command;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 @AfterCompose(superclass = true)
 public class HostsController extends CommonController {
 
-	private transient List<FacetItem> hostFacetList;
+	private transient Map<String, Long> hostFacetList;
 
 	private transient int minHostFacetCount;
 
@@ -69,17 +67,14 @@ public class HostsController extends CommonController {
 		}
 	}
 
-	public List<FacetItem> getHostFacetList() throws SearchLibException {
+	public Map<String, Long> getHostFacetList() throws SearchLibException {
 		synchronized (this) {
 			if (hostFacetList != null)
 				return hostFacetList;
 			UrlManager urlManager = getUrlManager();
 			if (urlManager == null)
 				return null;
-			Facet facet = urlManager.getHostFacetList(minHostFacetCount);
-			if (facet == null)
-				return null;
-			hostFacetList = facet.getList();
+			hostFacetList = urlManager.getHostFacetList(minHostFacetCount);
 			return hostFacetList;
 		}
 	}

@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.opensearchserver.client.common.CommonResult;
 
 public class RestDeleteIndexTest extends CommonRestAPI {
 

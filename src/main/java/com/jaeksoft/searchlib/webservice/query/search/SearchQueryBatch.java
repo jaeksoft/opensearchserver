@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 @JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -121,10 +122,10 @@ public class SearchQueryBatch {
 		}
 	}
 
-	public List<SearchResult> result(Client client) throws SearchLibException {
+	public List<SearchResult2> result(Client client) throws SearchLibException {
 		if (queries == null)
 			return null;
-		List<SearchResult> searchResults = new ArrayList<SearchResult>(
+		List<SearchResult2> searchResults = new ArrayList<SearchResult2>(
 				queries.size());
 		for (SearchQueryAbstract query : queries) {
 			AbstractSearchRequest searchRequest = null;
@@ -139,8 +140,8 @@ public class SearchQueryBatch {
 			else if (query instanceof SearchPatternQuery)
 				searchRequest = new SearchPatternRequest(client);
 			query.apply(searchRequest);
-			SearchResult searchResult = new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			SearchResult2 searchResult = ((AbstractResultSearch) client
+					.request(searchRequest)).getSearchResult();
 			searchResults.add(searchResult);
 			if (mode != null) {
 				switch (mode) {

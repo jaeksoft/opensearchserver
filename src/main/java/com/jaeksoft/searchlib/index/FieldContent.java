@@ -112,6 +112,15 @@ public class FieldContent implements Collecter<FieldValueItem> {
 		return values;
 	}
 
+	public List<String> getValueList() {
+		if (values == null)
+			return null;
+		List<String> valueList = new ArrayList<String>(values.size());
+		for (FieldValueItem value : values)
+			valueList.add(value.value);
+		return valueList;
+	}
+
 	final public int getValueCount() {
 		if (values == null)
 			return 0;

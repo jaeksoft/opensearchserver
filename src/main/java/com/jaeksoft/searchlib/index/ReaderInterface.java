@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,7 +47,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -68,11 +68,11 @@ public interface ReaderInterface {
 	public TermDocs getTermDocs(Term term) throws IOException,
 			SearchLibException;
 
-	public Map<String, FieldValue> getDocumentFields(final int docId,
+	public Map<String, List<String>> getDocumentFields(final int docId,
 			final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException;
 
-	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+	public Map<String, List<String>> getDocumentStoredField(final int docId)
 			throws IOException, SearchLibException;
 
 	public TermFreqVector getTermFreqVector(final int docId, final String field)

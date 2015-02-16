@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.FunctionTimer;
 import com.jaeksoft.searchlib.util.FunctionTimer.ExecutionToken;
 import com.sun.jna.Pointer;
@@ -52,12 +50,7 @@ public class OsseDocCursor implements Closeable {
 			error.throwError();
 	}
 
-	private final void addTerm(List<FieldValueItem> list, WString term) {
-		list.add(new FieldValueItem(FieldValueOriginEnum.TERM_ENUM, term
-				.toString()));
-	}
-
-	public List<FieldValueItem> getTerms(Pointer indexFieldPtr, long docId) {
+	public List<String> getTerms(Pointer indexFieldPtr, long docId) {
 		ExecutionToken et = FunctionTimer
 				.newExecutionToken("OSSCLib_DocTCursor_FindFirstTerm");
 		WString term = null; /*
@@ -68,8 +61,8 @@ public class OsseDocCursor implements Closeable {
 		et.end();
 		if (term == null)
 			return null;
-		List<FieldValueItem> list = new ArrayList<FieldValueItem>(0);
-		addTerm(list, term);
+		List<String> list = new ArrayList<String>(1);
+		list.add(term.toString());
 		IntByReference bError = new IntByReference();
 		for (;;) {
 			et = FunctionTimer
@@ -81,7 +74,7 @@ public class OsseDocCursor implements Closeable {
 				break;
 			if (bError.getValue() != 0)
 				break;
-			addTerm(list, term);
+			list.add(term.toString());
 		}
 		return list;
 	}

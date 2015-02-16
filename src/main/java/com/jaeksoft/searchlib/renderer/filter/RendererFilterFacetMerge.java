@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,9 +33,6 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.opensearchserver.utils.StringUtils;
@@ -100,23 +97,21 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 			List<RendererFilterItem> filterItem) {
 		if (facetResult == null)
 			return;
-		FacetList facetList = facetResult.getFacetList();
-		if (facetList == null)
+		Map<String, Map<String, Long>> facetResults = facetResult
+				.getFacetResults();
+		if (facetResults == null)
 			return;
-		Facet facet = facetList.getByField(fieldName);
-		if (facet == null)
-			return;
-		List<FacetItem> facetItems = facet.getList();
-		if (facetItems == null || facetItems.size() == 0)
+		Map<String, Long> terms = facetResult.getFacetTerms(fieldName);
+		if (terms == null)
 			return;
 		TreeMap<String, Item> facetMap = new TreeMap<String, Item>();
-		for (FacetItem facetItem : facetItems) {
-			String testedValue = facetItem.getTerm();
+		for (Map.Entry<String, Long> facetEntry : terms.entrySet()) {
+			String testedValue = facetEntry.getKey();
 			if (!caseSensitive)
 				testedValue = testedValue.toLowerCase();
 			String target = map.get(testedValue);
 			if (target == null) {
-				target = facetItem.getTerm();
+				target = facetEntry.getKey();
 				if (!patternList.isEmpty()) {
 					int p = 0;
 					for (Pattern pattern : patternList) {
@@ -136,7 +131,7 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 				item = new Item();
 				facetMap.put(target, item);
 			}
-			item.add(facetItem);
+			item.add(facetEntry);
 		}
 		for (Map.Entry<String, Item> entry : facetMap.entrySet())
 			filterItem.add(entry.getValue().getRendererFilterItem(
@@ -153,9 +148,9 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 			count = 0;
 		}
 
-		private void add(FacetItem facetItem) {
-			terms.add(facetItem.getTerm());
-			count += facetItem.getCount();
+		private void add(Map.Entry<String, Long> facetEntry) {
+			terms.add(facetEntry.getKey());
+			count += facetEntry.getValue();
 		}
 
 		private final RendererFilterItem getRendererFilterItem(String target) {

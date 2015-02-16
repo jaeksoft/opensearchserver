@@ -39,6 +39,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 @Path("/index/{index_name}/search")
 public interface RestSearch {
@@ -70,7 +71,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/pattern/{template_name}")
-	public SearchResult searchPatternTemplate(
+	public SearchResult2 searchPatternTemplate(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template,
@@ -90,7 +91,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/field/{template_name}")
-	public SearchResult searchFieldTemplate(
+	public SearchResult2 searchFieldTemplate(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("template_name") String template, SearchFieldQuery query);
@@ -108,7 +109,7 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/pattern")
-	public SearchResult searchPattern(@PathParam("index_name") String index,
+	public SearchResult2 searchPattern(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchPatternQuery query);
 
@@ -116,14 +117,14 @@ public interface RestSearch {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/field")
-	public SearchResult searchField(@PathParam("index_name") String index,
+	public SearchResult2 searchField(@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchFieldQuery query);
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/batch")
-	public List<SearchResult> searchBatch(
+	public List<SearchResult2> searchBatch(
 			@PathParam("index_name") String index,
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			SearchQueryBatch batch);

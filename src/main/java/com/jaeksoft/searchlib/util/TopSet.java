@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.util;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.TreeSet;
 
 public class TopSet<T> {
@@ -48,10 +48,10 @@ public class TopSet<T> {
 		generateTreeMap(array);
 	}
 
-	public TopSet(List<T> list, Comparator<T> comparator, int max) {
+	public TopSet(Collection<T> collection, Comparator<T> comparator, int max) {
 		this.max = max;
 		this.treeSet = new TreeSet<T>(comparator);
-		generateTreeMap(list);
+		generateTreeMap(collection);
 	}
 
 	private void generateTreeMap(T[] array) {
@@ -63,9 +63,9 @@ public class TopSet<T> {
 		}
 	}
 
-	private void generateTreeMap(List<T> list) {
+	private void generateTreeMap(Collection<T> collection) {
 		int i = 0;
-		for (T item : list) {
+		for (T item : collection) {
 			treeSet.add(item);
 			if (i++ > max)
 				treeSet.pollFirst();

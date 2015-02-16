@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,8 +41,6 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.AbstractField;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
@@ -289,9 +287,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	public boolean getSnippets(final int docId, final ReaderInterface reader,
-			final List<FieldValueItem> values,
-			final List<FieldValueItem> snippets, final Timer parentTimer)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+			final List<String> values, final List<String> snippets,
+			final Timer parentTimer) throws IOException, ParseException,
+			SyntaxError, SearchLibException {
 
 		if (values == null)
 			return false;
@@ -321,8 +319,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		int startOffset = 0;
 		FragmentList fragments = new FragmentList();
 		int vectorOffset = 0;
-		for (FieldValueItem valueItem : values) {
-			String value = valueItem.getValue();
+		for (String value : values) {
 			if (value != null) {
 				// VectorOffset++ depends of EndOffset bug #patch Lucene 579 and
 				// 1458
@@ -390,9 +387,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 						maxSnippetSize, unescapedSeparator, tags,
 						bestScoreFragment);
 				if (snippetBuilder.length() > 0)
-					snippets.add(new FieldValueItem(
-							FieldValueOriginEnum.SNIPPET, snippetBuilder
-									.toString()));
+					snippets.add(snippetBuilder.toString());
 				fragments.remove(snippetBuilder.getFragments());
 				result = true;
 				continue;
@@ -403,8 +398,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 			SnippetBuilder snippetBuilder = new SnippetBuilder(maxSnippetSize,
 					unescapedSeparator, tags, fragments.first());
 			if (snippetBuilder.length() > 0) {
-				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET,
-						snippetBuilder.toString()));
+				snippets.add(snippetBuilder.toString());
 				fragments.remove(snippetBuilder.getFragments());
 			}
 		}

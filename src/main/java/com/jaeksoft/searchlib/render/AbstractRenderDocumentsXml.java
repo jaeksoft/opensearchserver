@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,11 +41,9 @@ import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.opensearchserver.client.v2.search.SnippetField2;
 
 public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 extends AbstractResult<T1>>
 		extends AbstractRenderXml<T1, T2> {
@@ -60,8 +58,8 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 
 	final protected void renderDocuments() throws IOException, ParseException,
 			SyntaxError, SearchLibException {
-		int start = resultDocs.getRequestStart();
-		int end = resultDocs.getDocumentCount() + start;
+		long start = resultDocs.getRequestStart();
+		long end = resultDocs.getDocumentCount() + start;
 		writer.print("<result name=\"response\" numFound=\"");
 		writer.print(resultDocs.getNumFound());
 		writer.print("\" collapsedDocCount=\"");
@@ -75,7 +73,7 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		writer.print("\" time=\"");
 		writer.print(result.getTimer().tempDuration());
 		writer.println("\">");
-		for (int i = start; i < end; i++) {
+		for (long i = start; i < end; i++) {
 			ResultDocument doc = resultDocs.getDocument(i, renderingTimer);
 			this.renderDocument(i, doc);
 		}
@@ -106,17 +104,17 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 	}
 
 	final protected void renderDocument(ResultDocument doc) throws IOException {
-		Map<String, FieldValue> returnFields = doc.getReturnFields();
+		Map<String, List<String>> returnFields = doc.getReturnFields();
 		if (returnFields != null)
 			for (String fieldName : returnFields.keySet())
 				renderField(doc, fieldName);
-		Map<String, SnippetFieldValue> snippetFields = doc.getSnippetFields();
+		Map<String, SnippetField2> snippetFields = doc.getSnippetFields();
 		if (snippetFields != null)
 			for (String fieldName : snippetFields.keySet())
 				renderSnippetValue(doc, fieldName);
 	}
 
-	final protected void renderDocumentPrefix(int pos, ResultDocument doc) {
+	final protected void renderDocumentPrefix(long pos, ResultDocument doc) {
 		writer.print("\t<doc score=\"");
 		writeScore(writer, resultDocs.getScore(pos));
 		writer.print("\" pos=\"");
@@ -130,7 +128,7 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		writer.println("\t</doc>");
 	}
 
-	final protected void renderDocumentContent(int pos, ResultDocument doc)
+	final protected void renderDocumentContent(long pos, ResultDocument doc)
 			throws SearchLibException, IOException {
 		renderDocument(request, doc);
 		int cc = resultDocs.getCollapseCount(pos);
@@ -141,7 +139,7 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 		}
 	}
 
-	protected void renderDocument(int pos, ResultDocument doc)
+	protected void renderDocument(long pos, ResultDocument doc)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 		renderDocumentPrefix(pos, doc);
 		renderDocumentContent(pos, doc);
@@ -150,32 +148,26 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 
 	private void renderField(ResultDocument doc, String fieldName)
 			throws IOException {
-		List<FieldValueItem> values = doc.getValues(fieldName);
+		List<String> values = doc.getValues(fieldName);
 		if (CollectionUtils.isEmpty(values)) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print("\"/>");
 			return;
 		}
-		for (FieldValueItem v : values) {
+		for (String value : values) {
 			writer.print("\t\t<field name=\"");
 			writer.print(fieldName);
 			writer.print('"');
-			Float b = v.getBoost();
-			if (b != null) {
-				writer.print(" boost=\"");
-				writer.print(b);
-				writer.print('"');
-			}
 			writer.print('>');
-			writer.print(xmlTextRender(v.getValue()));
+			writer.print(xmlTextRender(value));
 			writer.println("</field>");
 		}
 	}
 
 	private void renderSnippetValue(ResultDocument doc, String fieldName)
 			throws IOException {
-		List<FieldValueItem> snippets = doc.getSnippetValues(fieldName);
+		List<String> snippets = doc.getSnippetValues(fieldName);
 		if (CollectionUtils.isEmpty(snippets)) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
@@ -183,14 +175,14 @@ public abstract class AbstractRenderDocumentsXml<T1 extends AbstractRequest, T2 
 			return;
 		}
 		boolean highlighted = doc.isHighlighted(fieldName);
-		for (FieldValueItem snippet : snippets) {
+		for (String snippet : snippets) {
 			writer.print("\t\t<snippet name=\"");
 			writer.print(fieldName);
 			writer.print('"');
 			if (highlighted)
 				writer.print(" highlighted=\"yes\"");
 			writer.print('>');
-			writer.print(xmlTextRender(snippet.getValue()));
+			writer.print(xmlTextRender(snippet));
 			writer.println("\t\t</snippet>");
 		}
 	}

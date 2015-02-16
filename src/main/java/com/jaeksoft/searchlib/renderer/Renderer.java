@@ -31,6 +31,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -42,7 +43,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.renderer.RendererException.NoUserException;
 import com.jaeksoft.searchlib.renderer.field.RendererField;
@@ -624,11 +624,12 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
-	public boolean isFilterListReplacement(Facet facet) {
+	public boolean isFilterListReplacement(
+			Map.Entry<String, Map<String, Long>> facet) {
 		if (facet == null)
 			return false;
 		for (RendererFilter filter : filters)
-			if (filter.isReplacement(facet.getFacetField().getName()))
+			if (filter.isReplacement(facet.getKey()))
 				return true;
 		return false;
 	}
@@ -922,21 +923,18 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
-	final public String getResultFoundText(int resultsCount) {
+	final public String getResultFoundText(long resultsCount) {
 		rwl.r.lock();
 		try {
-			switch (resultsCount) {
-			case 0:
+			if (resultsCount == 0)
 				return noResultFoundText;
-			case 1:
+			else if (resultsCount == 1)
 				return oneResultFoundText;
-			default:
-				StringBuilder sb = new StringBuilder();
-				sb.append(resultsCount);
-				sb.append(' ');
-				sb.append(resultsFoundText);
-				return sb.toString();
-			}
+			StringBuilder sb = new StringBuilder();
+			sb.append(resultsCount);
+			sb.append(' ');
+			sb.append(resultsFoundText);
+			return sb.toString();
 		} finally {
 			rwl.r.unlock();
 		}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,14 +36,13 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
@@ -157,8 +156,8 @@ public class ReportsManager {
 		return changeDateFormat.format(date);
 	}
 
-	public Facet getSearchReport(String topKeywords, Date startDate,
-			Date endDate, boolean withResult, int rows)
+	public Map<String, Long> getSearchReport(String topKeywords,
+			Date startDate, Date endDate, boolean withResult, int rows)
 			throws SearchLibException, ParseException {
 
 		SearchPatternRequest searchRequest;
@@ -173,8 +172,7 @@ public class ReportsManager {
 					dateTo, withResult, rows);
 			AbstractResultSearch result = (AbstractResultSearch) reportsClient
 					.request(searchRequest);
-			FacetList facet = result.getFacetList();
-			return facet.getByField("keywords");
+			return result.getFacetTerms("keywords");
 		} catch (java.text.ParseException e) {
 			throw new SearchLibException(e);
 		}

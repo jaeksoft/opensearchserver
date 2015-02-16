@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,6 +39,7 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.CommonQuery;
 import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 public class SearchImpl extends CommonQuery implements RestSearch {
 
@@ -69,7 +70,7 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public SearchResult searchPatternTemplate(String index, String login,
+	public SearchResult2 searchPatternTemplate(String index, String login,
 			String key, String template, SearchPatternQuery query) {
 		try {
 			SearchPatternRequest searchRequest = (SearchPatternRequest) super
@@ -77,8 +78,8 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 							RequestTypeEnum.SearchRequest);
 			if (query != null)
 				query.apply(searchRequest);
-			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			return ((AbstractResultSearch) client.request(searchRequest))
+					.getSearchResult();
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -94,7 +95,7 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public SearchResult searchFieldTemplate(String index, String login,
+	public SearchResult2 searchFieldTemplate(String index, String login,
 			String key, String template, SearchFieldQuery query) {
 		try {
 			SearchFieldRequest searchRequest = (SearchFieldRequest) super
@@ -102,8 +103,8 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 							RequestTypeEnum.SearchFieldRequest);
 			if (query != null)
 				query.apply(searchRequest);
-			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			return ((AbstractResultSearch) client.request(searchRequest))
+					.getSearchResult();
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -119,7 +120,7 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public SearchResult searchPattern(String index, String login, String key,
+	public SearchResult2 searchPattern(String index, String login, String key,
 			SearchPatternQuery query) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
@@ -129,8 +130,8 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 					client);
 			if (query != null)
 				query.apply(searchRequest);
-			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			return ((AbstractResultSearch) client.request(searchRequest))
+					.getSearchResult();
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -141,7 +142,7 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public SearchResult searchField(String index, String login, String key,
+	public SearchResult2 searchField(String index, String login, String key,
 			SearchFieldQuery query) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
@@ -150,8 +151,8 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 			SearchFieldRequest searchRequest = new SearchFieldRequest(client);
 			if (query != null)
 				query.apply(searchRequest);
-			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			return ((AbstractResultSearch) client.request(searchRequest))
+					.getSearchResult();
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -162,7 +163,7 @@ public class SearchImpl extends CommonQuery implements RestSearch {
 	}
 
 	@Override
-	public List<SearchResult> searchBatch(String index, String login,
+	public List<SearchResult2> searchBatch(String index, String login,
 			String key, SearchQueryBatch batch) {
 		try {
 			if (batch == null)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,6 +30,6 @@ public interface CollapseDocInterface extends DocIdInterface {
 
 	int[] getCollapseCounts();
 
-	int[] getCollapsedDocs(int pos);
+	int[] getCollapsedDocs(long pos);
 
 }

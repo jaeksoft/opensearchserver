@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -29,7 +29,7 @@ import java.util.List;
 public class NamedItem {
 
 	protected String name;
-	protected int count;
+	protected long count;
 	protected transient List<NamedItem> list;
 
 	public NamedItem() {
@@ -42,7 +42,7 @@ public class NamedItem {
 		this.count = 0;
 	}
 
-	public NamedItem(String name, int count) {
+	public NamedItem(String name, long count) {
 		this.name = name;
 		this.count = count;
 	}
@@ -55,11 +55,11 @@ public class NamedItem {
 		this.name = name;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int c) {
+	public void setCount(long c) {
 		this.count = c;
 	}
 

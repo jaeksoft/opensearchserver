@@ -36,7 +36,6 @@ import org.json.simple.JSONValue;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.parser.ParserFieldEnum;
 import com.jaeksoft.searchlib.parser.ParserResultItem;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class HocrPdf {
 
@@ -62,10 +61,8 @@ public class HocrPdf {
 			return Integer.parseInt(o.toString());
 		}
 
-		public HocrPage(FieldValueItem fieldValueItem)
-				throws SearchLibException {
-			JSONObject jsonObject = (JSONObject) JSONValue.parse(fieldValueItem
-					.getValue());
+		public HocrPage(String value) throws SearchLibException {
+			JSONObject jsonObject = (JSONObject) JSONValue.parse(value);
 			if (jsonObject == null)
 				throw new SearchLibException("JSON parsing failed");
 			pageNumber = getValue(jsonObject, "page");
@@ -131,18 +128,16 @@ public class HocrPdf {
 		pages = new TreeMap<Long, HocrPage>();
 	}
 
-	public HocrPdf(List<FieldValueItem> values) throws SearchLibException {
+	public HocrPdf(List<String> values) throws SearchLibException {
 		this();
 		if (values == null)
 			return;
-		for (FieldValueItem fieldValueItem : values) {
-			if (fieldValueItem == null)
+		for (String value : values) {
+			if (value == null)
 				continue;
-			if (fieldValueItem.getValue() == null)
+			if (value.length() == 0)
 				continue;
-			if (fieldValueItem.getValue().length() == 0)
-				continue;
-			HocrPage page = new HocrPage(fieldValueItem);
+			HocrPage page = new HocrPage(value);
 			pages.put(page.pageNumber, page);
 		}
 	}

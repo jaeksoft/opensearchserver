@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.facet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -45,7 +46,6 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.opensearchserver.client.v2.search.FacetResult2;
 
 public class FacetField extends AbstractField<FacetField> {
 
@@ -131,7 +131,7 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	final public FacetResult2 getFacet(ReaderAbstract reader,
+	final public Map<String, Long> getFacet(ReaderAbstract reader,
 			DocIdInterface notCollapsedDocs,
 			CollapseDocInterface collapsedDocs, Timer timer)
 			throws IOException, SearchLibException {

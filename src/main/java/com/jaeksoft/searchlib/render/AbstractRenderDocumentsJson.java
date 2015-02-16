@@ -42,7 +42,6 @@ import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.snippet.SnippetFieldList;
 
@@ -60,8 +59,8 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 	@SuppressWarnings("unchecked")
 	final protected void renderDocuments(JSONObject jsonResponse)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		int start = resultDocs.getRequestStart();
-		int end = resultDocs.getDocumentCount() + start;
+		long start = resultDocs.getRequestStart();
+		long end = resultDocs.getDocumentCount() + start;
 		JSONObject jsonResult = new JSONObject();
 		ArrayList<JSONObject> resultArrayList = new ArrayList<JSONObject>();
 		jsonResult.put("numFound", resultDocs.getNumFound());
@@ -70,14 +69,14 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 		jsonResult.put("rows", resultDocs.getRequestRows());
 		jsonResult.put("maxScore", resultDocs.getMaxScore());
 		jsonResult.put("time", result.getTimer().getDuration());
-		for (int i = start; i < end; i++)
+		for (long i = start; i < end; i++)
 			this.renderDocument(request, i, jsonResult, resultArrayList);
 		jsonResult.put("doc", resultArrayList);
 		jsonResponse.put("result", jsonResult);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void renderDocument(AbstractRequest abstractRequest, int pos,
+	private void renderDocument(AbstractRequest abstractRequest, long pos,
 			JSONObject jsonResult, ArrayList<JSONObject> resultArrayList)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 		JSONObject jsonDoc = new JSONObject();
@@ -119,16 +118,13 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 	private void renderField(ResultDocument doc, ReturnField field,
 			ArrayList<JSONObject> jsonFieldList) throws IOException {
 		String fieldName = field.getName();
-		List<FieldValueItem> values = doc.getValues(field);
+		List<String> values = doc.getValues(field);
 		JSONObject jsonField = new JSONObject();
 		if (CollectionUtils.isEmpty(values))
 			return;
-		for (FieldValueItem v : values) {
+		for (String v : values) {
 			jsonField.put("name", fieldName);
-			Float b = v.getBoost();
-			if (b != null)
-				jsonField.put("boost", b);
-			jsonField.put("value", v.getValue());
+			jsonField.put("value", v);
 			jsonFieldList.add(jsonField);
 		}
 	}
@@ -137,16 +133,16 @@ public abstract class AbstractRenderDocumentsJson<T1 extends AbstractRequest, T2
 	private void renderSnippetValue(ResultDocument doc, SnippetField field,
 			ArrayList<JSONObject> jsonSnippetList) throws IOException {
 		String fieldName = field.getName();
-		List<FieldValueItem> snippets = doc.getSnippetValues(field);
+		List<String> snippets = doc.getSnippetValues(field);
 		if (snippets == null)
 			return;
 		JSONObject jsonSnippet = new JSONObject();
 		boolean highlighted = doc.isHighlighted(field.getName());
-		for (FieldValueItem snippet : snippets) {
+		for (String snippet : snippets) {
 			jsonSnippet.put("name", fieldName);
 			if (highlighted)
 				jsonSnippet.put("highlighted", "yes");
-			jsonSnippet.put("value", snippet.getValue());
+			jsonSnippet.put("value", snippet);
 			jsonSnippetList.add(jsonSnippet);
 		}
 	}

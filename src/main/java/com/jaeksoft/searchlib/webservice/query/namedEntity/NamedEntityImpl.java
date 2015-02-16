@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -64,8 +64,8 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 							RequestTypeEnum.NamedEntityExtractionRequest);
 			if (query != null)
 				query.apply(request);
-			return new NamedEntityResult(
-					(ResultNamedEntityExtraction) client.request(request));
+			return ((ResultNamedEntityExtraction) client.request(request))
+					.getNamedEntityResult();
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -80,8 +80,8 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 							RequestTypeEnum.NamedEntityExtractionRequest);
 			if (text != null)
 				request.setText(text);
-			return new NamedEntityResult(
-					(ResultNamedEntityExtraction) client.request(request));
+			return ((ResultNamedEntityExtraction) client.request(request))
+					.getNamedEntityResult();
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -108,8 +108,8 @@ public class NamedEntityImpl extends CommonQuery implements RestNamedEntity {
 					client);
 			if (query != null)
 				query.apply(request);
-			return new NamedEntityResult(
-					(ResultNamedEntityExtraction) client.request(request));
+			return ((ResultNamedEntityExtraction) client.request(request))
+					.getNamedEntityResult();
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

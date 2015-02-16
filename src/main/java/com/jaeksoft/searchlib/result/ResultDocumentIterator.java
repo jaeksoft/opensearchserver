@@ -32,8 +32,8 @@ import com.jaeksoft.searchlib.util.Timer;
 public class ResultDocumentIterator implements Iterator<ResultDocument> {
 
 	private ResultDocumentsInterface<?> result;
-	private int pos;
-	private int end;
+	private long pos;
+	private long end;
 	private Timer timer;
 
 	public ResultDocumentIterator(ResultDocumentsInterface<?> result,

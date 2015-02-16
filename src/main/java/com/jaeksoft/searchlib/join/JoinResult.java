@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,11 +25,11 @@
 package com.jaeksoft.searchlib.join;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -59,7 +59,7 @@ public class JoinResult {
 
 	private TreeSet<String> fieldNameSet;
 
-	private FacetList facetList;
+	private Map<String, Map<String, Long>> facetList;
 
 	public JoinResult(int joinPosition, String paramPosition,
 			boolean returnFields) {
@@ -94,7 +94,7 @@ public class JoinResult {
 		return returnFields;
 	}
 
-	final public ResultDocument getDocument(int pos, Timer timer)
+	final public ResultDocument getDocument(long pos, Timer timer)
 			throws SearchLibException {
 		try {
 			if (joinDocInterface == null)
@@ -113,16 +113,17 @@ public class JoinResult {
 		}
 	}
 
-	public void add(Facet facet) {
+	public void addFacet(String name, Map<String, Long> terms) {
 		if (facetList == null)
-			facetList = new FacetList();
-		facetList.add(facet);
+			facetList = new LinkedHashMap<String, Map<String, Long>>();
+		facetList.put(name.intern(), terms);
 	}
 
-	public void populate(FacetList facets) {
+	public void populate(Map<String, Map<String, Long>> facetResults) {
 		if (facetList == null)
 			return;
-		for (Facet facet : facetList)
-			facets.add(facet);
+		for (Map.Entry<String, Map<String, Long>> facetResult : facetList
+				.entrySet())
+			facetResults.put(facetResult.getKey(), facetResult.getValue());
 	}
 }

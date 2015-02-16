@@ -1,15 +1,13 @@
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.facet.FacetField"%>
-<%@ page import="com.jaeksoft.searchlib.facet.FacetList"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%@ page import="com.jaeksoft.searchlib.renderer.filter.RendererFilter"%>
 <%@ page
 	import="com.jaeksoft.searchlib.renderer.filter.RendererFilterItem"%>
 <%@ page
 	import="com.jaeksoft.searchlib.renderer.filter.RendererFilterQueries"%>
-<%@ page import="com.jaeksoft.searchlib.facet.Facet"%>
-<%@ page import="com.jaeksoft.searchlib.facet.FacetItem"%>
 <%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.util.Map"%>
 <%@ page import="java.util.Set"%>
 <%@ page import="java.util.List"%>
 <%
@@ -94,14 +92,15 @@
 		}
 	%>
 	<%
-		FacetList facetList = null;
+		Map<String, Map<String, Long>> facetList = null;
 		if (facetResult != null)
-			facetList = facetResult.getFacetList();
-		if (facetList != null && facetList.getList().size() > 0) {
-			for (Facet facet : facetList) {
+			facetList = facetResult.getFacetResults();
+		if (facetList != null && facetList.size() > 0) {
+			for (Map.Entry<String, Map<String, Long>> facet : facetList
+					.entrySet()) {
 				if (renderer.isFilterListReplacement(facet))
 					continue;
-				String fieldName = facet.getFacetField().getName();
+				String fieldName = facet.getKey();
 	%>
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -110,7 +109,8 @@
 		<div class="panel-body">
 			<ul style="list-style-type: none">
 				<%
-					for (FacetItem facetItem : facet) {
+					for (Map.Entry<String, Long> facetItem : facet.getValue()
+									.entrySet()) {
 								boolean current = filterQueries.contains(fieldName,
 										facetItem);
 								String filterUrl = getUrl;
@@ -121,7 +121,7 @@
  	if (current) {
  %><strong> <%
  	}
- %><%=facetItem.getTerm()%> (<%=facetItem.getCount()%>) <%
+ %><%=facetItem.getKey()%> (<%=facetItem.getValue()%>) <%
  	if (current) {
  %>
 					</strong> <%

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,8 +40,8 @@ import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
 import com.jaeksoft.searchlib.util.Variables;
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import com.jayway.jsonpath.JsonPath;
+import com.opensearchserver.client.v2.search.SearchResult2;
 import com.opensearchserver.utils.json.JsonMapper;
 
 public class TaskQueryCheck extends TaskAbstract {
@@ -130,8 +130,8 @@ public class TaskQueryCheck extends TaskAbstract {
 		searchRequest.setQueryString(queryString);
 		try {
 			taskLog.setInfo("Execute request " + searchTemplate);
-			SearchResult searchResult = new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+			SearchResult2 searchResult = ((AbstractResultSearch) client
+					.request(searchRequest)).getSearchResult();
 			if (jsonPath != null && jsonPath.length() > 0) {
 				String json = JsonMapper.MAPPER
 						.writeValueAsString(searchResult);

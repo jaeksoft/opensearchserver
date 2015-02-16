@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -40,12 +40,12 @@ public class Pagination {
 
 	private int pageSize;
 
-	public Pagination(int totalCount, int currentCount, int pageSize,
+	public Pagination(long totalCount, long currentCount, int pageSize,
 			int pagesArround) {
 		this.pageSize = pageSize;
 		if (totalCount > 0)
-			totalPage = totalCount / pageSize + 1;
-		currentPage = currentCount / pageSize;
+			totalPage = (int) totalCount / pageSize + 1;
+		currentPage = (int) currentCount / pageSize;
 		int min = currentPage - pagesArround;
 		if (min < 1)
 			min = 1;

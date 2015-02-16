@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.http.client.ClientProtocolException;
@@ -35,9 +36,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.jaeksoft.searchlib.webservice.query.search.FacetFieldItem;
-import com.jaeksoft.searchlib.webservice.query.search.FacetResult;
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestFacetTest extends CommonRestAPI {
@@ -63,22 +62,24 @@ public class RestFacetTest extends CommonRestAPI {
 		for (int i = 0; i < expectedCounts.length; i++)
 			facetValues.put(CATEGORIES[i], expectedCounts[i]);
 
-		SearchResult searchResult = searchField(searchJson);
+		SearchResult2 searchResult = searchField(searchJson);
 		assertNotNull(searchResult.facets);
-		FacetResult facetCategory = null;
-		for (FacetResult facet : searchResult.facets) {
-			if (facet.fieldName.equals("category")) {
-				facetCategory = facet;
+
+		Map.Entry<String, Map<String, Long>> facetCategory = null;
+		for (Map.Entry<String, Map<String, Long>> facetEntry : searchResult.facets
+				.entrySet()) {
+			if (facetEntry.getKey().equals("category")) {
+				facetCategory = facetEntry;
 				break;
 			}
 		}
 		assertNotNull("Category facet not found", facetCategory);
-		for (FacetFieldItem facetFieldItem : facetCategory.terms) {
-			Long res = facetValues.get(facetFieldItem.term);
-			assertNotNull("Unexpected facet: " + facetFieldItem.term, res);
-			assertEquals("Facet count is wrong", (long) res,
-					facetFieldItem.count);
-			facetValues.remove(facetFieldItem.term);
+		for (Map.Entry<String, Long> facetTerm : facetCategory.getValue()
+				.entrySet()) {
+			Long res = facetValues.get(facetTerm.getKey());
+			assertNotNull("Unexpected facet: " + facetTerm.getKey(), res);
+			assertEquals("Facet count is wrong", res, facetTerm.getValue());
+			facetValues.remove(facetTerm.getKey());
 		}
 		assertEquals("Non-found facet remains", 0, facetValues.size());
 	}

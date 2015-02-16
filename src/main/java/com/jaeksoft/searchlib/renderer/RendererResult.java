@@ -37,7 +37,6 @@ import com.jaeksoft.searchlib.ocr.HocrPdf;
 import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class RendererResult {
@@ -108,8 +107,7 @@ public class RendererResult {
 			return null;
 		HocrPdf hocrPdf = null;
 		if (hocrField != null) {
-			List<FieldValueItem> fieldValueItem = resultDocument
-					.getValues(hocrField);
+			List<String> fieldValueItem = resultDocument.getValues(hocrField);
 			if (fieldValueItem != null)
 				hocrPdf = new HocrPdf(fieldValueItem);
 		}

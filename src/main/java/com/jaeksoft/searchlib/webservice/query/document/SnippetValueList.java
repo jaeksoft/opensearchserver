@@ -34,8 +34,6 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
-
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class SnippetValueList extends FieldValueList {
 
@@ -45,11 +43,6 @@ public class SnippetValueList extends FieldValueList {
 	public SnippetValueList() {
 		super();
 		highlighted = false;
-	}
-
-	public SnippetValueList(SnippetFieldValue snippetFiedValue) {
-		super(snippetFiedValue);
-		this.highlighted = snippetFiedValue.isHighlighted();
 	}
 
 	protected SnippetValueList(String fieldName) {

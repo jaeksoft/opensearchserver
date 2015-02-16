@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,9 +25,9 @@
 package com.jaeksoft.searchlib.join;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
@@ -56,10 +56,11 @@ public class JoinFacet {
 		try {
 			ReaderAbstract readerAbstract = resultSearch.getReader();
 			int maxDoc = (int) readerAbstract.maxDoc();
+
 			for (FacetField facetField : facetFieldList) {
 				DocIdInterface facetCollector;
-				Facet facet = resultSearch.getFacetList().getByField(
-						facetField.getName());
+				String fieldName = facetField.getName();
+				Map<String, Long> facet = resultSearch.getFacetTerms(fieldName);
 				if (collector instanceof JoinDocCollector) {
 					facetCollector = JoinDocCollector.getDocIdInterface(maxDoc,
 							joinResult.joinPosition,
@@ -68,7 +69,7 @@ public class JoinFacet {
 							null, timer);
 				}
 				if (facet != null)
-					joinResult.add(facet);
+					joinResult.addFacet(fieldName, facet);
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);

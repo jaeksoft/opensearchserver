@@ -44,9 +44,9 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
 
 public class ClassifierItem implements Comparable<ClassifierItem> {
 
@@ -217,7 +217,7 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 		return searchRequest;
 	}
 
-	public int query(Client client, LanguageEnum lang)
+	public long query(Client client, LanguageEnum lang)
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getSearchRequest(client, lang);
 		searchRequest.setRows(0);

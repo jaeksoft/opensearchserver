@@ -49,7 +49,6 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -143,13 +142,13 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos, Timer timer)
+	public ResultDocument getDocument(long pos, Timer timer)
 			throws SearchLibException {
 		if (docArray == null || pos < 0 || pos > docArray.length)
 			return null;
 		try {
-			return new ResultDocument(fieldNameSet, docArray[pos], reader,
-					getScore(pos), null, timer);
+			return new ResultDocument(fieldNameSet, docArray[(int) pos],
+					reader, getScore(pos), null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
@@ -167,7 +166,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 		for (int docId : docArray) {
 			IndexDocumentResult indexDocument = new IndexDocumentResult(
 					schemaFieldList.size());
-			Map<String, FieldValue> storedFieldMap = reader
+			Map<String, List<String>> storedFieldMap = reader
 					.getDocumentStoredField(docId);
 			for (SchemaField schemaField : schemaFieldList) {
 				String fieldName = schemaField.getName();
@@ -191,22 +190,22 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	}
 
 	@Override
-	public float getScore(int pos) {
+	public float getScore(long pos) {
 		return 0;
 	}
 
 	@Override
-	public Float getDistance(int pos) {
+	public Float getDistance(long pos) {
 		return null;
 	}
 
 	@Override
-	public int getCollapseCount(int pos) {
+	public int getCollapseCount(long pos) {
 		return 0;
 	}
 
 	@Override
-	public int getNumFound() {
+	public long getNumFound() {
 		if (docArray == null)
 			return 0;
 		return docArray.length;
@@ -239,7 +238,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	}
 
 	@Override
-	public int getRequestStart() {
+	public long getRequestStart() {
 		return 0;
 	}
 
@@ -263,7 +262,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest> implements
 	}
 
 	@Override
-	public int getCollapsedDocCount() {
+	public long getCollapsedDocCount() {
 		return 0;
 	}
 

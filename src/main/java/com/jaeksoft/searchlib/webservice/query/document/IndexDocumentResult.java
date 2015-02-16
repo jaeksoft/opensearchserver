@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -42,7 +42,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.ReaderInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @JsonInclude(Include.NON_EMPTY)
@@ -74,11 +73,10 @@ public class IndexDocumentResult {
 			this(null, null, null);
 		}
 
-		public IndexField(String field, FieldValue storedFieldValue,
+		public IndexField(String field, List<String> storedFieldValue,
 				List<IndexTerm> terms) {
 			this.field = field;
-			this.stored = storedFieldValue == null ? null : storedFieldValue
-					.getValueStringList();
+			this.stored = storedFieldValue == null ? null : storedFieldValue;
 			this.terms = terms;
 		}
 	}

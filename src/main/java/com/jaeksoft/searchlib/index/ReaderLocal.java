@@ -27,8 +27,10 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,9 +69,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -481,34 +480,33 @@ public class ReaderLocal extends ReaderAbstract {
 	}
 
 	@Override
-	final public Map<String, FieldValue> getDocumentStoredField(final int docId)
-			throws IOException {
+	final public Map<String, List<String>> getDocumentStoredField(
+			final int docId) throws IOException {
 		rwl.r.lock();
 		try {
-			Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
+			Map<String, List<String>> documentFields = new LinkedHashMap<String, List<String>>();
 			Document doc = indexReader.document(docId,
 					FieldSelectors.LoadFieldSelector.INSTANCE);
 			String currentFieldName = null;
-			FieldValue currentFieldValue = null;
+			List<String> currentFieldValues = null;
 			for (Fieldable field : doc.getFields()) {
 				if (!field.isStored())
 					continue;
-				FieldValue fieldValue = null;
-				String fieldName = field.name();
+				List<String> fieldValues = null;
+				String fieldName = field.name().intern();
 				if (currentFieldName != null
 						&& currentFieldName.equals(fieldName))
-					fieldValue = currentFieldValue;
+					fieldValues = currentFieldValues;
 				else {
-					fieldValue = documentFields.get(fieldName);
-					if (fieldValue == null) {
-						fieldValue = new FieldValue(fieldName);
-						documentFields.put(fieldName, fieldValue);
+					fieldValues = documentFields.get(fieldName);
+					if (fieldValues == null) {
+						fieldValues = new ArrayList<String>();
+						documentFields.put(fieldName, fieldValues);
 					}
 					currentFieldName = fieldName;
-					currentFieldValue = fieldValue;
+					currentFieldValues = fieldValues;
 				}
-				currentFieldValue.addValue(new FieldValueItem(
-						FieldValueOriginEnum.STORAGE, field.stringValue()));
+				currentFieldValues.add(field.stringValue());
 			}
 			return documentFields;
 		} catch (IllegalArgumentException e) {
@@ -519,13 +517,13 @@ public class ReaderLocal extends ReaderAbstract {
 	}
 
 	@Override
-	final public Map<String, FieldValue> getDocumentFields(final int docId,
+	final public Map<String, List<String>> getDocumentFields(final int docId,
 			final Set<String> fieldNameSet, final Timer timer)
 			throws IOException, ParseException, SyntaxError {
 		rwl.r.lock();
 		try {
 
-			Map<String, FieldValue> documentFields = new TreeMap<String, FieldValue>();
+			Map<String, List<String>> documentFields = new TreeMap<String, List<String>>();
 			Set<String> vectorField = null;
 			Set<String> indexedField = null;
 			Set<String> missingField = null;
@@ -537,12 +535,14 @@ public class ReaderLocal extends ReaderAbstract {
 				vectorField = new TreeSet<String>();
 				Document document = getDocFields(docId, fieldNameSet);
 				for (String fieldName : fieldNameSet) {
+					fieldName = fieldName.intern();
 					Fieldable[] fieldables = document.getFieldables(fieldName);
 					if (fieldables != null && fieldables.length > 0) {
-						FieldValueItem[] valueItems = FieldValueItem
-								.buildArray(fieldables);
-						documentFields.put(fieldName, new FieldValue(fieldName,
-								valueItems));
+						List<String> values = new ArrayList<String>(
+								fieldables.length);
+						for (Fieldable fieldable : fieldables)
+							values.add(fieldable.stringValue());
+						documentFields.put(fieldName, values);
 					} else
 						vectorField.add(fieldName);
 				}
@@ -557,13 +557,10 @@ public class ReaderLocal extends ReaderAbstract {
 				indexedField = new TreeSet<String>();
 				for (String fieldName : vectorField) {
 					TermFreqVector tfv = getTermFreqVector(docId, fieldName);
-					if (tfv != null) {
-						FieldValueItem[] valueItems = FieldValueItem
-								.buildArray(FieldValueOriginEnum.TERM_VECTOR,
-										tfv.getTerms());
-						documentFields.put(fieldName, new FieldValue(fieldName,
-								valueItems));
-					} else
+					if (tfv != null)
+						documentFields.put(fieldName,
+								Arrays.asList(tfv.getTerms()));
+					else
 						indexedField.add(fieldName);
 				}
 			}
@@ -580,12 +577,7 @@ public class ReaderLocal extends ReaderAbstract {
 					if (stringIndex != null) {
 						String term = stringIndex.lookup[stringIndex.order[docId]];
 						if (term != null) {
-							FieldValueItem[] valueItems = FieldValueItem
-									.buildArray(
-											FieldValueOriginEnum.STRING_INDEX,
-											term);
-							documentFields.put(fieldName, new FieldValue(
-									fieldName, valueItems));
+							documentFields.put(fieldName, Arrays.asList(term));
 							continue;
 						}
 					}
@@ -597,18 +589,19 @@ public class ReaderLocal extends ReaderAbstract {
 
 			if (missingField != null && missingField.size() > 0)
 				for (String fieldName : missingField)
-					documentFields.put(fieldName, new FieldValue(fieldName));
+					documentFields.put(fieldName,
+							Collections.<String> emptyList());
 			return documentFields;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public Set<FieldValue> getTermsVectorFields(int docId,
+	public Map<String, List<String>> getTermsVectorFields(int docId,
 			Set<String> fieldNameSet) throws IOException {
 		rwl.r.lock();
 		try {
-			Set<FieldValue> fieldValueList = new HashSet<FieldValue>();
+			Map<String, List<String>> fieldValuesMap = new LinkedHashMap<String, List<String>>();
 			for (String fieldName : fieldNameSet) {
 				TermFreqVector termFreqVector = indexReader.getTermFreqVector(
 						docId, fieldName);
@@ -617,31 +610,26 @@ public class ReaderLocal extends ReaderAbstract {
 				String[] terms = termFreqVector.getTerms();
 				if (terms == null)
 					continue;
-				FieldValueItem[] fieldValueItem = new FieldValueItem[terms.length];
-				int i = 0;
-				for (String term : terms)
-					fieldValueItem[i++] = new FieldValueItem(
-							FieldValueOriginEnum.TERM_VECTOR, term);
-				fieldValueList.add(new FieldValue(fieldName, fieldValueItem));
+				fieldValuesMap.put(fieldName.intern(), Arrays.asList(terms));
 			}
-			return fieldValueList;
+			return fieldValuesMap;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	public Set<FieldValue> getTerms(int docId, Set<String> fieldNameSet)
-			throws IOException {
+	public Map<String, List<String>> getTerms(int docId,
+			Set<String> fieldNameSet) throws IOException {
 		rwl.r.lock();
 		try {
 			TermPositions termPosition = indexReader.termPositions();
-			Set<FieldValue> fieldValueSet = new HashSet<FieldValue>();
+			Map<String, List<String>> fieldValuesMap = new LinkedHashMap<String, List<String>>();
 			for (String fieldName : fieldNameSet) {
-				List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
 				TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
 				Term term = termEnum.term();
 				if (termEnum == null || !term.field().equals(fieldName))
 					continue;
+				List<String> values = new ArrayList<String>();
 				do {
 					term = termEnum.term();
 					if (!term.field().equals(fieldName))
@@ -650,15 +638,13 @@ public class ReaderLocal extends ReaderAbstract {
 					if (!termPosition.skipTo(docId)
 							|| termPosition.doc() != docId)
 						continue;
-					fieldValueItemList.add(new FieldValueItem(
-							FieldValueOriginEnum.TERM_ENUM, term.text()));
+					values.add(term.text());
 				} while (termEnum.next());
 				termEnum.close();
-				if (fieldValueItemList.size() > 0)
-					fieldValueSet.add(new FieldValue(fieldName,
-							fieldValueItemList));
+				if (values.size() > 0)
+					fieldValuesMap.put(fieldName.intern(), values);
 			}
-			return fieldValueSet;
+			return fieldValuesMap;
 		} finally {
 			rwl.r.unlock();
 		}

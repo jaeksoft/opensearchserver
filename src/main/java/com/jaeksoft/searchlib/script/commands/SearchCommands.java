@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.script.commands;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,15 +36,14 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.script.CommandAbstract;
 import com.jaeksoft.searchlib.script.CommandEnum;
 import com.jaeksoft.searchlib.script.ScriptCommandContext;
 import com.jaeksoft.searchlib.script.ScriptException;
 import com.jaeksoft.searchlib.util.Variables;
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.opensearchserver.client.v2.search.SearchResult2;
 import com.opensearchserver.utils.StringUtils;
 import com.opensearchserver.utils.json.JsonMapper;
 
@@ -100,20 +101,25 @@ public class SearchCommands {
 				AbstractResultSearch result = this.search(context, template,
 						query);
 				searchVariables.put("search:numfound",
-						Integer.toString(result.getNumFound()));
-				int pos = ((AbstractSearchRequest) result.getRequest())
+						Long.toString(result.getNumFound()));
+				long pos = ((AbstractSearchRequest) result.getRequest())
 						.getStart();
 				if (!StringUtils.isEmpty(sqlByDoc)) {
 					for (ResultDocument document : result) {
 						documentVariables.clear();
-						for (FieldValue fieldValue : document.getReturnFields()
-								.values()) {
-							if (fieldValue.getValuesCount() == 0)
+						Map<String, List<String>> returnedFields = document
+								.getReturnFields();
+						if (returnedFields == null || returnedFields.isEmpty())
+							continue;
+						for (Map.Entry<String, List<String>> fieldValues : returnedFields
+								.entrySet()) {
+							if (fieldValues == null
+									|| fieldValues.getValue() == null
+									|| fieldValues.getValue().isEmpty())
 								continue;
-							documentVariables
-									.put(StringUtils.fastConcat("search:",
-											fieldValue.getName()), fieldValue
-											.getValueList().get(0).getValue());
+							documentVariables.put(StringUtils.fastConcat(
+									"search:", fieldValues.getKey()),
+									fieldValues.getValue().get(0));
 						}
 						documentVariables.put("search:score",
 								Float.toString(result.getScore(pos++)));
@@ -180,7 +186,7 @@ public class SearchCommands {
 					.find(cmd);
 
 			AbstractResultSearch result = this.search(context, template, query);
-			SearchResult searchResult = new SearchResult(result);
+			SearchResult2 searchResult = result.getSearchResult();
 			try {
 				Object object = jsonPath.read(JsonMapper.MAPPER
 						.writeValueAsString(searchResult));

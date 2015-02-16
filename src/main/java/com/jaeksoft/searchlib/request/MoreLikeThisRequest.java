@@ -54,10 +54,10 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
+import com.opensearchserver.utils.StringUtils;
 
 public class MoreLikeThisRequest extends AbstractRequest implements
 		RequestInterfaces.FilterListInterface,

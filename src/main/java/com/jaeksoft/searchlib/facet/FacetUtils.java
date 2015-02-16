@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,16 +38,13 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
-import com.opensearchserver.client.v2.search.FacetResult2;
 
 public class FacetUtils {
 
-	final static private FacetResult2 newFacetResult(FacetField facetField,
-			String[] terms, long[] counts) {
-		FacetResult2 facetResult = new FacetResult2().setFieldName(facetField
-				.getName());
+	final static private Map<String, Long> newFacetResult(
+			FacetField facetField, String[] terms, long[] counts) {
 		if (terms == null || counts == null)
-			return facetResult;
+			return Collections.<String, Long> emptyMap();
 		int i = 0;
 		int minCount = facetField.getMinCount();
 		LinkedHashMap<String, Long> facetMap = new LinkedHashMap<String, Long>();
@@ -56,24 +54,25 @@ public class FacetUtils {
 				facetMap.put(term.intern(), count);
 			i++;
 		}
-		return facetResult.setTerms(facetMap);
+		return facetMap;
 	}
 
-	protected void sum(FacetResult2 facet1, FacetResult2 facet2) {
+	protected void sum(Map<String, Long> facet1, Map<String, Long> facet2) {
 		if (facet2 == null)
 			return;
-		for (Map.Entry<String, Long> entry : facet2.terms.entrySet()) {
+		for (Map.Entry<String, Long> entry : facet2.entrySet()) {
 			String term = entry.getKey();
-			Long count1 = facet1.terms.get(term);
+			Long count1 = facet1.get(term);
 			Long count2 = entry.getValue();
 			count1 = count1 == null ? count2 : count1 + count2;
-			facet1.terms.put(term, count1);
+			facet1.put(term, count1);
 		}
 	}
 
-	final static protected FacetResult2 facetMultivalued(ReaderAbstract reader,
-			DocIdInterface docIdInterface, FacetField facetField, Timer timer)
-			throws IOException, SearchLibException {
+	final static protected Map<String, Long> facetMultivalued(
+			ReaderAbstract reader, DocIdInterface docIdInterface,
+			FacetField facetField, Timer timer) throws IOException,
+			SearchLibException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		long[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
@@ -81,9 +80,9 @@ public class FacetUtils {
 		return newFacetResult(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final static protected FacetResult2 facetSingleValue(ReaderAbstract reader,
-			DocIdInterface collector, FacetField facetField, Timer timer)
-			throws IOException {
+	final static protected Map<String, Long> facetSingleValue(
+			ReaderAbstract reader, DocIdInterface collector,
+			FacetField facetField, Timer timer) throws IOException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		long[] countIndex = computeSinglevalued(stringIndex, collector);

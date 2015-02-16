@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.opensearchserver.utils.StringUtils;
@@ -196,8 +195,8 @@ public class RendererFilterQueries {
 		return false;
 	}
 
-	public boolean contains(String fieldName, FacetItem facetItem) {
-		return containsAny(fieldName, facetItem.getTerm());
+	public boolean contains(String fieldName, Map.Entry<String, Long> facetEntry) {
+		return containsAny(fieldName, facetEntry.getKey());
 	}
 
 	private StringBuilder append(StringBuilder sb, boolean current,
@@ -256,7 +255,8 @@ public class RendererFilterQueries {
 	}
 
 	public String getFilterParam(boolean current, String fieldName,
-			FacetItem facetItem) throws UnsupportedEncodingException {
-		return getFilterParamTerm(current, fieldName, facetItem.getTerm());
+			Map.Entry<String, Long> facetEntry)
+			throws UnsupportedEncodingException {
+		return getFilterParamTerm(current, fieldName, facetEntry.getKey());
 	}
 }

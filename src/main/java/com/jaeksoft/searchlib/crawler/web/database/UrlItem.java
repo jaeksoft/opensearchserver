@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -39,7 +39,6 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
@@ -73,7 +72,7 @@ public class UrlItem {
 	private String redirectionUrl;
 	private LinkItem.Origin origin;
 	private List<String> headers;
-	private int backlinkCount;
+	private long backlinkCount;
 	private String urlWhen;
 
 	protected UrlItem() {
@@ -161,13 +160,12 @@ public class UrlItem {
 				UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
 	}
 
-	private void addHeaders(List<FieldValueItem> headersList) {
+	private void addHeaders(List<String> headersList) {
 		if (headersList == null)
 			return;
 		if (headers == null)
 			headers = new ArrayList<String>();
-		for (FieldValueItem item : headersList)
-			headers.add(item.getValue());
+		headers.addAll(headersList);
 	}
 
 	public List<String> getSubHost() {
@@ -182,13 +180,8 @@ public class UrlItem {
 		return inLinks;
 	}
 
-	public void setSubHost(List<FieldValueItem> subhostlist) {
-		this.subhost = null;
-		if (subhostlist == null)
-			return;
-		this.subhost = new ArrayList<String>();
-		for (FieldValueItem item : subhostlist)
-			this.subhost.add(item.getValue());
+	public void setSubHost(List<String> subhostlist) {
+		this.subhost = subhostlist;
 	}
 
 	public void clearOutLinks() {
@@ -197,19 +190,14 @@ public class UrlItem {
 		outLinks.clear();
 	}
 
-	public void addOutLinks(List<FieldValueItem> linkList) {
-		if (linkList == null)
-			return;
-		if (outLinks == null)
-			outLinks = new ArrayList<String>();
-		for (FieldValueItem item : linkList)
-			outLinks.add(item.getValue());
+	public void addOutLinks(List<String> linkList) {
+		this.outLinks = linkList;
 	}
 
 	public void addOutLinks(FieldContent fieldContent) {
-		if (fieldContent == null)
+		if (fieldContent == null || fieldContent.getValues() == null)
 			return;
-		addOutLinks(fieldContent.getValues());
+		addOutLinks(fieldContent.getValueList());
 	}
 
 	public void clearInLinks() {
@@ -218,19 +206,19 @@ public class UrlItem {
 		inLinks.clear();
 	}
 
-	public void addInLinks(List<FieldValueItem> linkList) {
+	public void addInLinks(List<String> linkList) {
 		if (linkList == null)
 			return;
 		if (inLinks == null)
-			inLinks = new ArrayList<String>();
-		for (FieldValueItem item : linkList)
-			inLinks.add(item.getValue());
+			inLinks = linkList;
+		else
+			inLinks.addAll(linkList);
 	}
 
 	public void addInLinks(FieldContent fieldContent) {
-		if (fieldContent == null)
+		if (fieldContent == null || fieldContent.getValues() == null)
 			return;
-		addInLinks(fieldContent.getValues());
+		addInLinks(fieldContent.getValueList());
 	}
 
 	public String getHost() {
@@ -685,7 +673,7 @@ public class UrlItem {
 	/**
 	 * @return the backLinkCount
 	 */
-	public int getBacklinkCount() {
+	public long getBacklinkCount() {
 		return backlinkCount;
 	}
 
@@ -709,7 +697,7 @@ public class UrlItem {
 	 * @param backLinkCount
 	 *            the backLinkCount to set
 	 */
-	public void setBacklinkCount(int backLinkCount) {
+	public void setBacklinkCount(long backLinkCount) {
 		this.backlinkCount = backLinkCount;
 	}
 

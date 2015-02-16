@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.scheduler.TaskProperties;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyDef;
 import com.jaeksoft.searchlib.scheduler.TaskPropertyType;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -122,9 +121,9 @@ public class TaskPullFields extends TaskPullAbstract {
 					break;
 
 				for (ResultDocument document : result) {
-					List<FieldValueItem> fieldValueItems = document
+					List<String> values = document
 							.getValues(executionData.sourceField);
-					if (CollectionUtils.isEmpty(fieldValueItems))
+					if (CollectionUtils.isEmpty(values))
 						continue;
 
 					IndexDocument mappedDocument = new IndexDocument(
@@ -133,9 +132,8 @@ public class TaskPullFields extends TaskPullAbstract {
 						sourceFieldMap.mapIndexDocument(document,
 								mappedDocument);
 
-					for (FieldValueItem fieldValueItem : fieldValueItems) {
+					for (String value : values) {
 
-						String value = fieldValueItem.getValue();
 						if (value == null)
 							continue;
 						if (value.length() == 0)

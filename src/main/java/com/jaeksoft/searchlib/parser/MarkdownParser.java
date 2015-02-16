@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -56,7 +56,7 @@ public class MarkdownParser extends Parser {
 
 		Markdown mdParser = new Markdown();
 		ParserResult parserResult = mdParser.doParsing(null,
-				streamLimiter.getNewInputStream());
+				streamLimiter.getNewInputStream(), null, null);
 
 		if (parserResult.documents == null)
 			return;

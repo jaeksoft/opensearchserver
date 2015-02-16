@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,8 +24,6 @@
 
 package com.jaeksoft.searchlib.webservice.query.morelikethis;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -33,12 +31,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.icepdf.core.tag.query.DocumentResult;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.opensearchserver.client.v2.search.DocumentResult2;
 
@@ -57,10 +51,9 @@ public class MoreLikeThisResult extends CommonResult {
 		query = null;
 	}
 
-	public MoreLikeThisResult(ResultMoreLikeThis result)
-			throws SearchLibException, IOException {
-		query = result.getRequest().getQuery().toString();
-		documents = DocumentResult.populateDocumentList(result,
-				new ArrayList<DocumentResult>(1));
+	public MoreLikeThisResult(String query, List<DocumentResult2> documents) {
+		this.documents = documents;
+		this.query = query;
 	}
+
 }

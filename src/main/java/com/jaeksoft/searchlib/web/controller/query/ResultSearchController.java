@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.web.controller.query;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -34,15 +35,13 @@ import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.render.RenderCSV;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 @AfterCompose(superclass = true)
 public class ResultSearchController extends AbstractQueryController {
 
-	private transient Facet selectedFacet;
+	private transient Map.Entry<String, Map<String, Long>> selectedFacet;
 
 	public ResultSearchController() throws SearchLibException {
 		super();
@@ -62,18 +61,19 @@ public class ResultSearchController extends AbstractQueryController {
 		}
 	}
 
-	public FacetList getFacetList() throws SearchLibException {
+	public Map<String, Map<String, Long>> getFacetList()
+			throws SearchLibException {
 		synchronized (this) {
 			AbstractResultSearch result = (AbstractResultSearch) getResult();
 			if (result == null)
 				return null;
-			FacetList facetList = result.getFacetList();
+			Map<String, Map<String, Long>> facetList = result.getFacetResults();
 			if (facetList == null)
 				return null;
-			if (facetList.getList().size() > 0)
+			if (facetList.size() > 0)
 				if (selectedFacet == null)
-					selectedFacet = facetList.getList().get(0);
-			return result.getFacetList();
+					selectedFacet = facetList.entrySet().iterator().next();
+			return facetList;
 		}
 	}
 
@@ -105,13 +105,13 @@ public class ResultSearchController extends AbstractQueryController {
 		}
 	}
 
-	public void setSelectedFacet(Facet facet) {
+	public void setSelectedFacet(Map.Entry<String, Map<String, Long>> facet) {
 		synchronized (this) {
 			selectedFacet = facet;
 		}
 	}
 
-	public Facet getSelectedFacet() {
+	public Map.Entry<String, Map<String, Long>> getSelectedFacet() {
 		synchronized (this) {
 			return selectedFacet;
 		}

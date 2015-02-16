@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,13 +25,10 @@
 package com.jaeksoft.searchlib.render;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
@@ -48,16 +45,17 @@ public class RenderSearchJson
 
 	@SuppressWarnings("unchecked")
 	private void renderFacets(JSONObject jsonResponse) throws Exception {
-		FacetList facetList = result.getFacetList();
-		if (facetList == null)
+		Map<String, Map<String, Long>> facetResults = result.getFacetResults();
+		if (facetResults == null)
 			return;
 		ArrayList<JSONObject> jsonFacetingList = new ArrayList<JSONObject>();
-		for (Facet facet : facetList) {
+		for (Map.Entry<String, Map<String, Long>> entry : facetResults
+				.entrySet()) {
 			JSONObject jsonFaceting = new JSONObject();
-			FacetField facetField = facet.getFacetField();
-			jsonFaceting.put("fieldName", facetField.getName());
+			String facetField = entry.getKey();
+			jsonFaceting.put("fieldName", facetField);
 			ArrayList<JSONObject> jsonFacetList = new ArrayList<JSONObject>();
-			renderFacet(facet, jsonFacetList);
+			renderFacet(entry.getValue(), jsonFacetList);
 			jsonFaceting.put("facet", jsonFacetList);
 			jsonFacetingList.add(jsonFaceting);
 		}
@@ -65,15 +63,14 @@ public class RenderSearchJson
 	}
 
 	@SuppressWarnings("unchecked")
-	private void renderFacet(Facet facet, ArrayList<JSONObject> jsonFacetList)
-			throws Exception {
-		for (FacetItem facetItem : facet) {
+	private void renderFacet(Map<String, Long> terms,
+			ArrayList<JSONObject> jsonFacetList) throws Exception {
+		for (Map.Entry<String, Long> term : terms.entrySet()) {
 			JSONObject jsonFacet = new JSONObject();
-			jsonFacet.put("name", facetItem.getTerm());
-			jsonFacet.put("value", facetItem.getCount());
+			jsonFacet.put("name", term.getKey());
+			jsonFacet.put("value", term.getValue());
 			jsonFacetList.add(jsonFacet);
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")

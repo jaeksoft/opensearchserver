@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.zkoss.bind.annotation.AfterCompose;
@@ -35,8 +36,6 @@ import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetItemCountComparator;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.report.ReportsManager;
@@ -52,7 +51,7 @@ public class QueryReportsController extends ReportsController {
 	private int numberOfQuery;
 	private String topKeywords;
 
-	private TreeSet<FacetItem> reportSet;
+	private TreeSet<Map.Entry<String, Long>> reportSet;
 
 	public QueryReportsController() throws SearchLibException {
 		super();
@@ -70,7 +69,7 @@ public class QueryReportsController extends ReportsController {
 	@Command
 	public void onCreateReport() throws SearchLibException, ParseException {
 		ReportsManager reports = getReportsManager();
-		Facet facetReportsList = null;
+		Map<String, Long> facetReportsList = null;
 		if ("topqueries".equals(queryType)) {
 			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
 					endDate, true, numberOfQuery);
@@ -78,14 +77,14 @@ public class QueryReportsController extends ReportsController {
 			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
 					endDate, false, numberOfQuery);
 		}
-		TopSet<FacetItem> topSet = new TopSet<FacetItem>(
-				facetReportsList.getList(), new FacetItemCountComparator(),
+		TopSet<Map.Entry<String, Long>> topSet = new TopSet<Map.Entry<String, Long>>(
+				facetReportsList.entrySet(), new FacetItemCountComparator(),
 				numberOfQuery);
 		reportSet = topSet.getTreeMap();
 		reload();
 	}
 
-	public TreeSet<FacetItem> getReportSet() {
+	public TreeSet<Map.Entry<String, Long>> getReportSet() {
 		return reportSet;
 	}
 
@@ -99,12 +98,12 @@ public class QueryReportsController extends ReportsController {
 		try {
 			File tempFile = File.createTempFile("OSS_Query_Reports", "csv");
 			pw = new PrintWriter(tempFile);
-			for (FacetItem facetItem : reportSet) {
+			for (Map.Entry<String, Long> facetItem : reportSet) {
 				pw.print('"');
-				pw.print(facetItem.getTerm().replaceAll("\"", "\"\""));
+				pw.print(facetItem.getKey().replaceAll("\"", "\"\""));
 				pw.print('"');
 				pw.print(',');
-				pw.println(facetItem.getCount());
+				pw.println(facetItem.getValue());
 			}
 			pw.close();
 			pw = null;

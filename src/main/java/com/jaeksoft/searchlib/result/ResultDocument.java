@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -43,19 +43,16 @@ import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.AbstractField;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.snippet.SnippetField;
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.jaeksoft.searchlib.util.Timer;
 import com.opensearchserver.client.common.search.result.FunctionFieldValue;
 import com.opensearchserver.client.common.search.result.VectorPosition;
+import com.opensearchserver.client.v2.search.SnippetField2;
 
 public class ResultDocument {
 
-	final private Map<String, FieldValue> returnFields;
-	final private Map<String, SnippetFieldValue> snippetFields;
+	final private Map<String, List<String>> returnFields;
+	final private Map<String, SnippetField2> snippetFields;
 	final private int docId;
 	final private List<FunctionFieldValue> functionFieldValue;
 	final private List<VectorPosition> positions;
@@ -72,8 +69,8 @@ public class ResultDocument {
 
 		this.docId = docId;
 
-		returnFields = new TreeMap<String, FieldValue>();
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		returnFields = new HashMap<String, List<String>>();
+		snippetFields = new HashMap<String, SnippetField2>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
 		positions = new ArrayList<VectorPosition>(0);
 		collapsedDocuments = collapsedDocumentCount == 0 ? null
@@ -89,14 +86,14 @@ public class ResultDocument {
 
 		Timer t = new Timer(mainTimer, "returnField(s)");
 
-		Map<String, FieldValue> documentFields = reader.getDocumentFields(
+		Map<String, List<String>> documentFields = reader.getDocumentFields(
 				docId, fieldSet, t);
 
 		for (ReturnField field : searchRequest.getReturnFieldList()) {
-			String fieldName = field.getName();
-			FieldValue fieldValue = documentFields.get(fieldName);
-			if (fieldValue != null)
-				returnFields.put(fieldName, fieldValue);
+			String fieldName = field.getName().intern();
+			List<String> fieldValues = documentFields.get(fieldName);
+			if (fieldValues != null)
+				returnFields.put(fieldName, fieldValues);
 		}
 
 		t.end(null);
@@ -104,17 +101,16 @@ public class ResultDocument {
 		t = new Timer(mainTimer, "snippetField(s)");
 
 		for (SnippetField field : searchRequest.getSnippetFieldList()) {
-			String fieldName = field.getName();
+			String fieldName = field.getName().intern();
 			field.initSearchTerms(searchRequest);
-			List<FieldValueItem> snippets = new ArrayList<FieldValueItem>();
+			List<String> snippets = new ArrayList<String>();
 			boolean isHighlighted = false;
-			FieldValue fieldValue = documentFields.get(fieldName);
-			if (fieldValue != null)
-				isHighlighted = field.getSnippets(docId, reader,
-						fieldValue.getValueList(), snippets, t);
-			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
-					fieldName, snippets, isHighlighted);
-			snippetFields.put(fieldName, snippetFieldValue);
+			List<String> fieldValues = documentFields.get(fieldName);
+			if (fieldValues != null)
+				isHighlighted = field.getSnippets(docId, reader, fieldValues,
+						snippets, t);
+			snippetFields.put(fieldName, new SnippetField2()
+					.setValues(snippets).setHighlighted(isHighlighted));
 		}
 
 		t.end(null);
@@ -128,7 +124,7 @@ public class ResultDocument {
 			SearchLibException {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		snippetFields = new HashMap<String, SnippetField2>();
 		collapsedDocuments = null;
 		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
@@ -138,8 +134,8 @@ public class ResultDocument {
 
 	public ResultDocument(Integer docId) {
 		this.docId = docId;
-		returnFields = new TreeMap<String, FieldValue>();
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		returnFields = new HashMap<String, List<String>>();
+		snippetFields = new HashMap<String, SnippetField2>();
 		collapsedDocuments = null;
 		positions = new ArrayList<VectorPosition>(0);
 		functionFieldValue = null;
@@ -154,79 +150,34 @@ public class ResultDocument {
 		return list;
 	}
 
-	public Map<String, FieldValue> getReturnFields() {
+	public Map<String, List<String>> getReturnFields() {
 		return returnFields;
 	}
 
-	public Map<String, SnippetFieldValue> getSnippetFields() {
+	public Map<String, SnippetField2> getSnippetFields() {
 		return snippetFields;
 	}
 
-	public List<FieldValueItem> getValues(AbstractField<?> field) {
+	public List<String> getValues(AbstractField<?> field) {
 		if (field == null)
 			return null;
 		return getValues(field.getName());
 	}
 
-	public List<FieldValueItem> getValues(String fieldName) {
+	public List<String> getValues(String fieldName) {
 		if (fieldName == null)
 			return null;
-		FieldValue fieldValue = returnFields.get(fieldName);
-		if (fieldValue == null)
-			return null;
-		return fieldValue.getValueList();
+		return returnFields.get(fieldName.intern());
 	}
 
 	public String getValueContent(AbstractField<?> field, int pos) {
-		List<FieldValueItem> values = getValues(field);
-		if (values == null)
+		if (field == null)
 			return null;
-		if (pos >= values.size())
-			return null;
-		return values.get(pos).getValue();
+		return getValueContent(field.getName(), pos);
 	}
 
 	public String getValueContent(String fieldName, int pos) {
-		FieldValue field = returnFields.get(fieldName);
-		if (field == null)
-			return null;
-		return getValueContent(field, pos);
-	}
-
-	final public List<FieldValueItem> getSnippetValues(SnippetField field) {
-		if (field == null)
-			return null;
-		return getSnippetValues(field.getName());
-	}
-
-	final public List<FieldValueItem> getSnippetValue(SnippetField field) {
-		if (field == null)
-			return null;
-		return getSnippetValues(field.getName());
-	}
-
-	final public List<FieldValueItem> getSnippetValues(String fieldName) {
-		SnippetFieldValue fieldValue = snippetFields.get(fieldName);
-		if (fieldValue == null)
-			return null;
-		return fieldValue.getValueList();
-	}
-
-	public List<FieldValueItem> getSnippetList(String fieldName) {
-		SnippetFieldValue snippetFieldValue = snippetFields.get(fieldName);
-		if (snippetFieldValue == null)
-			return null;
-		return snippetFieldValue.getValueList();
-	}
-
-	final public List<FieldValueItem> getSnippetList(AbstractField<?> field) {
-		if (field == null)
-			return null;
-		return getSnippetList(field.getName());
-	}
-
-	final public FieldValueItem getSnippet(String fieldName, int pos) {
-		List<FieldValueItem> values = getSnippetValues(fieldName);
+		List<String> values = returnFields.get(fieldName.intern());
 		if (values == null)
 			return null;
 		if (pos >= values.size())
@@ -234,46 +185,87 @@ public class ResultDocument {
 		return values.get(pos);
 	}
 
-	final public String getSnippetContent(String fieldName, int pos) {
-		FieldValueItem fieldValue = getSnippet(fieldName, pos);
-		if (fieldValue == null)
+	final public List<String> getSnippetValues(SnippetField field) {
+		if (field == null)
 			return null;
-		return fieldValue.getValue();
+		return getSnippetValues(field.getName());
+	}
+
+	final public List<String> getSnippetValues(String fieldName) {
+		SnippetField2 snippetField = getSnippets(fieldName);
+		if (snippetField == null)
+			return null;
+		return snippetField.values;
+	}
+
+	final public SnippetField2 getSnippets(String fieldName) {
+		if (fieldName == null)
+			return null;
+		return snippetFields.get(fieldName.intern());
+	}
+
+	final public SnippetField2 getSnippets(AbstractField<?> field) {
+		if (field == null)
+			return null;
+		return getSnippets(field.getName());
+	}
+
+	final public String getSnippet(String fieldName, int pos) {
+		List<String> values = getSnippetValues(fieldName);
+		if (values == null)
+			return null;
+		if (pos >= values.size())
+			return null;
+		return values.get(pos);
 	}
 
 	final public boolean isHighlighted(String fieldName) {
-		return snippetFields.get(fieldName).isHighlighted();
+		SnippetField2 snippetField = getSnippets(fieldName);
+		if (snippetField == null)
+			return false;
+		return snippetField.highlighted;
 	}
 
 	public void appendIfStringDoesNotExist(ResultDocument rd) {
-		for (FieldValue newFieldValue : rd.returnFields.values()) {
-			String fieldName = newFieldValue.getName();
-			FieldValue fieldValue = returnFields.get(fieldName);
-			if (fieldValue == null)
-				returnFields.put(fieldName, fieldValue);
+		for (Map.Entry<String, List<String>> entry : rd.returnFields.entrySet()) {
+			String fieldName = entry.getKey();
+			List<String> fieldValues = entry.getValue();
+			List<String> values = returnFields.get(fieldName);
+			if (values == null)
+				returnFields.put(fieldName, new ArrayList<String>(fieldValues));
 			else
-				fieldValue
-						.addIfStringDoesNotExist(newFieldValue.getValueList());
+				for (String fieldValue : fieldValues)
+					if (!values.contains(fieldValue))
+						values.add(fieldValue);
 		}
-		for (SnippetFieldValue newFieldValue : rd.snippetFields.values()) {
-			String fieldName = newFieldValue.getName();
-			SnippetFieldValue fieldValue = snippetFields.get(fieldName);
-			if (fieldValue == null)
-				snippetFields.put(fieldName, fieldValue);
+		for (Map.Entry<String, SnippetField2> entry : rd.snippetFields
+				.entrySet()) {
+			String fieldName = entry.getKey();
+			SnippetField2 fieldSnippet = entry.getValue();
+			SnippetField2 snippetField = snippetFields.get(fieldName);
+			if (snippetField == null)
+				snippetFields.put(
+						fieldName,
+						new SnippetField2().setHighlighted(
+								fieldSnippet.highlighted).setValues(
+								new ArrayList<String>(fieldSnippet.values)));
 			else
-				fieldValue
-						.addIfStringDoesNotExist(newFieldValue.getValueList());
+				for (String fieldValue : fieldSnippet.values)
+					if (!snippetField.values.contains(fieldValue))
+						snippetField.values.add(fieldValue);
 		}
 	}
 
-	public void addReturnedField(FieldValueOriginEnum origin, String field,
-			String value) {
-		FieldValue fieldValue = returnFields.get(field);
-		if (fieldValue == null) {
-			fieldValue = new FieldValue(field);
-			returnFields.put(field, fieldValue);
+	final public void addReturnedField(String field, String value) {
+		if (field == null || value == null)
+			return;
+		field = field.intern();
+		List<String> values = returnFields.get(field);
+		if (values == null) {
+			values = new ArrayList<String>(1);
+			returnFields.put(field, values);
 		}
-		fieldValue.addValues(new FieldValueItem(origin, value));
+		values.add(value);
 	}
 
 	public void addPosition(VectorPosition position) {
@@ -289,7 +281,7 @@ public class ResultDocument {
 	}
 
 	public void addFunctionField(CollapseFunctionField functionField,
-			ReaderAbstract reader, int pos, Timer timer) throws IOException,
+			ReaderAbstract reader, long pos, Timer timer) throws IOException,
 			java.text.ParseException, InstantiationException,
 			IllegalAccessException {
 		functionFieldValue.add(new FunctionFieldValue(functionField
@@ -307,12 +299,12 @@ public class ResultDocument {
 		return docs.getIds();
 	}
 
-	final public static int getCollapseCount(DocIdInterface docs, int pos) {
+	final public static int getCollapseCount(DocIdInterface docs, long pos) {
 		if (docs == null)
 			return 0;
 		if (!(docs instanceof CollapseDocInterface))
 			return 0;
-		return ((CollapseDocInterface) docs).getCollapseCounts()[pos];
+		return ((CollapseDocInterface) docs).getCollapseCounts()[(int) pos];
 	}
 
 	public int getDocId() {

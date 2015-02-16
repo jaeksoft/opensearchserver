@@ -48,7 +48,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class IndexLookupFilter extends FilterFactory {
 
@@ -147,13 +146,12 @@ public class IndexLookupFilter extends FilterFactory {
 		private final void extractTokens(TokenTerm tokenTerm, int docId,
 				ResultDocument resultDoc) {
 			for (String returnField : returnFields) {
-				List<FieldValueItem> fieldValueItems = resultDoc
-						.getValues(returnField);
-				if (fieldValueItems == null)
+				List<String> values = resultDoc.getValues(returnField);
+				if (values == null)
 					continue;
-				for (FieldValueItem fieldValueItem : fieldValueItems)
-					tokenQueue.add(new TokenTerm(fieldValueItem.getValue(),
-							tokenTerm, returnField, docId));
+				for (String value : values)
+					tokenQueue.add(new TokenTerm(value, tokenTerm, returnField,
+							docId));
 			}
 		}
 
@@ -172,7 +170,7 @@ public class IndexLookupFilter extends FilterFactory {
 			collectedTokenBuffer.clear();
 			if (result.getNumFound() == 0)
 				return;
-			int max = searchRequest.getEnd();
+			long max = searchRequest.getEnd();
 			if (max > result.getNumFound())
 				max = result.getNumFound();
 			tokenQueue.clear();

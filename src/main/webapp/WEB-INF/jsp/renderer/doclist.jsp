@@ -12,13 +12,13 @@
 		Renderer renderer = (Renderer) request.getAttribute("renderer");
 		if (result.getDocumentCount() > 0) {
 			AbstractSearchRequest searchRequest = result.getRequest();
-			int start = searchRequest.getStart();
-			int end = searchRequest.getStart()
+			long start = searchRequest.getStart();
+			long end = searchRequest.getStart()
 					+ result.getDocumentCount();
 %>
 <div class="osscmnrdr oss-result">
 	<%
-		for (int i = start; i < end; i++) {
+		for (long i = start; i < end; i++) {
 					ResultDocument resultDocument = result.getDocument(i);
 					request.setAttribute("resultDocument", resultDocument);
 					Integer fieldPos = 0;

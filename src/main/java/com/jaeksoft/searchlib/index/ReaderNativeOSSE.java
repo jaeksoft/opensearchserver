@@ -26,10 +26,10 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.lucene.index.Term;
@@ -56,8 +56,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -157,11 +155,11 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 		return null;
 	}
 
-	public Map<String, FieldValue> getDocumentFields(long docId,
+	public Map<String, List<String>> getDocumentFields(long docId,
 			TreeSet<String> fieldSet, Timer timer) throws SearchLibException {
 		OsseErrorHandler error = null;
 		OsseDocCursor docCursor = null;
-		Map<String, FieldValue> fieldValueMap = new TreeMap<String, FieldValue>();
+		Map<String, List<String>> fieldValueMap = new LinkedHashMap<String, List<String>>();
 		rwl.r.lock();
 		try {
 			error = new OsseErrorHandler();
@@ -171,12 +169,10 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 				// TODO FIX
 				if (fieldInfo != null) {
 					docCursor = new OsseDocCursor(index, error);
-					List<FieldValueItem> valueList = docCursor.getTerms(null,
-							docId);
+					List<String> valueList = docCursor.getTerms(null, docId);
 					docCursor.close();
 					if (valueList != null)
-						fieldValueMap.put(fieldName, new FieldValue(fieldName,
-								valueList));
+						fieldValueMap.put(fieldName.intern(), valueList);
 				}
 			}
 			return fieldValueMap;
@@ -285,7 +281,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public Map<String, FieldValue> getDocumentFields(int docId,
+	public Map<String, List<String>> getDocumentFields(int docId,
 			Set<String> fieldNameSet, Timer timer) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
 		// TODO Auto-generated method stub
@@ -301,7 +297,7 @@ public class ReaderNativeOSSE extends ReaderAbstract {
 	}
 
 	@Override
-	public Map<String, FieldValue> getDocumentStoredField(int docId)
+	public Map<String, List<String>> getDocumentStoredField(int docId)
 			throws IOException, SearchLibException {
 		// TODO Auto-generated method stub
 		return null;

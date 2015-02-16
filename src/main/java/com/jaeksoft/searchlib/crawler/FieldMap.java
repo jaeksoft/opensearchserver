@@ -47,8 +47,6 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
@@ -144,8 +142,8 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
 			SourceField sourceField = link.getSource();
 			if (sourceField.isUnique()) {
-				List<FieldValueItem> fvi = sourceField.getUniqueString(source);
-				link.getTarget().addFieldValueItems(fvi, target);
+				List<String> fvi = sourceField.getUniqueString(source);
+				link.getTarget().addValues(fvi, target);
 			} else {
 				String value = sourceField.getConcatString(source, target);
 				link.getTarget().addValue(value, target);
@@ -163,18 +161,18 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				continue;
 			SourceField sourceField = link.getSource();
 			String source = sourceField.getUniqueName();
-			FieldValue fieldValue = sourceDocument.getReturnFields()
-					.get(source);
-			if (fieldValue == null)
+			List<String> fieldValues = sourceDocument.getReturnFields().get(
+					source);
+			if (fieldValues == null)
 				continue;
-			if (fieldValue.getValuesCount() == 0)
+			if (fieldValues.size() == 0)
 				continue;
 			List<String> list = map.get(source);
 			if (list == null) {
-				list = new ArrayList<String>(fieldValue.getValuesCount());
+				list = new ArrayList<String>(fieldValues.size());
 				map.put(source, list);
 			}
-			fieldValue.populate(list);
+			list.addAll(fieldValues);
 		}
 		String json = JsonMapper.MAPPER.writeValueAsString(map);
 		targetDocument.setString(target, json);

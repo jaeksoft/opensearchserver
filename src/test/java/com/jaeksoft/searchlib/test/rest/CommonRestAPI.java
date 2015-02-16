@@ -43,8 +43,8 @@ import org.apache.http.client.ClientProtocolException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.CommonResult;
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import com.opensearchserver.client.common.CommonResult;
+import com.opensearchserver.client.v2.search.SearchResult2;
 
 public abstract class CommonRestAPI {
 
@@ -61,8 +61,7 @@ public abstract class CommonRestAPI {
 		assertNotNull(response);
 		assertEquals((int) httpCode, response.getStatus());
 		T commonResult = response.readEntity(commonResultClass);
-		assertNotNull(commonResult.successful);
-		assertEquals(true, commonResult.successful);
+		assertNotNull(commonResult);
 		return commonResult;
 	}
 
@@ -81,20 +80,20 @@ public abstract class CommonRestAPI {
 		return res;
 	}
 
-	private SearchResult search(String json, String path)
+	private SearchResult2 search(String json, String path)
 			throws ClientProtocolException, IOException {
 		Response response = client().path(path, IntegrationTest.INDEX_NAME)
 				.accept(MediaType.APPLICATION_JSON)
 				.type(MediaType.APPLICATION_JSON).post(json);
-		return checkCommonResult(response, SearchResult.class, 200);
+		return checkCommonResult(response, SearchResult2.class, 200);
 	}
 
-	public SearchResult searchPattern(String json)
+	public SearchResult2 searchPattern(String json)
 			throws ClientProtocolException, IOException {
 		return search(json, "/services/rest/index/{index_name}/search/pattern");
 	}
 
-	public SearchResult searchField(String json)
+	public SearchResult2 searchField(String json)
 			throws ClientProtocolException, IOException {
 		return search(json, "/services/rest/index/{index_name}/search/field");
 	}

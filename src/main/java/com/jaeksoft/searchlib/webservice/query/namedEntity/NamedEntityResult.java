@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -23,7 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.namedEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,8 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.result.ResultNamedEntityExtraction;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
+import com.opensearchserver.client.v2.search.DocumentResult2;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -43,7 +41,7 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 public class NamedEntityResult {
 
 	@XmlElement(name = "document")
-	final public List<DocumentResult> documents;
+	final public List<DocumentResult2> documents;
 	final public String enrichedText;
 
 	public NamedEntityResult() {
@@ -51,11 +49,10 @@ public class NamedEntityResult {
 		enrichedText = null;
 	}
 
-	public NamedEntityResult(ResultNamedEntityExtraction result)
-			throws SearchLibException {
-		documents = new ArrayList<DocumentResult>(1);
-		DocumentResult.populateDocumentList(result, documents);
-		enrichedText = result.getEnrichedText();
+	public NamedEntityResult(String enrichedText,
+			List<DocumentResult2> documents) throws SearchLibException {
+		this.documents = documents;
+		this.enrichedText = enrichedText;
 	}
 
 }

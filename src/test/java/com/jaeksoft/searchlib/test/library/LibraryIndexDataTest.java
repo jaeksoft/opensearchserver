@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -40,8 +41,6 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -147,25 +146,25 @@ public class LibraryIndexDataTest {
 			assertEquals(category, "Article");
 
 			// Get and check snippet of the title
-			String title = document.getSnippetContent("title", 0);
-			assertNotNull(title);
-			assertTrue(title.trim().length() > 0);
+			List<String> snippets = document.getSnippetValues("title");
+			assertNotNull(snippets);
+			assertTrue(snippets.size() > 0);
+			assertTrue(snippets.get(0).length() > 0);
 
 			// Get and check snippet of the content
-			String content = document.getSnippetContent("content", 0);
-			assertNotNull(content);
-			assertTrue(content.trim().length() > 0);
+			snippets = document.getSnippetValues("content");
+			assertNotNull(snippets);
+			assertTrue(snippets.size() > 0);
+			assertTrue(snippets.get(0).length() > 0);
 		}
 
 		// Get the facet calculated over the category field
-		Facet facet = results.getFacetList().getByField("category");
-		assertNotNull(facet);
+		Map<String, Long> terms = results.getFacetTerms("category");
+		assertNotNull(terms);
+		assertTrue(!terms.isEmpty());
 		// Iterate over the facet items
-		for (FacetItem facetItem : facet) {
-			String term = facetItem.getTerm();
-			assertEquals(term, "Article");
-			int count = facetItem.getCount();
-			assertEquals(count, 2);
-		}
+		Map.Entry<String, Long> entry = terms.entrySet().iterator().next();
+		assertEquals(entry.getKey(), "Article");
+		assertEquals((long) entry.getValue(), 2);
 	}
 }

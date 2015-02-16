@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,13 +26,14 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
@@ -105,10 +106,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 			}
 			t.getDuration();
 			numFound = notCollapsedDocs.getSize();
-			if (this.facetList == null)
-				this.facetList = new FacetList();
+			if (this.facetResults == null)
+				this.facetResults = new LinkedHashMap<String, Map<String, Long>>();
 			for (JoinResult joinResult : joinResults)
-				joinResult.populate(this.facetList);
+				joinResult.populate(this.facetResults);
 			joinTimer.getDuration();
 		}
 
@@ -140,8 +141,9 @@ public class ResultSearchSingle extends AbstractResultSearch {
 				Timer t = new Timer(facetTimer, "facet - "
 						+ facetField.getName() + '(' + facetField.getMinCount()
 						+ ')');
-				this.facetList.add(facetField.getFacet(reader,
-						notCollapsedDocs, collapsedDocs, timer));
+				this.facetResults.put(facetField.getName(), facetField
+						.getFacet(reader, notCollapsedDocs, collapsedDocs,
+								timer));
 				t.getDuration();
 			}
 			facetTimer.getDuration();
@@ -192,13 +194,13 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	}
 
 	@Override
-	public ResultDocument getDocument(final int pos, final Timer timer)
+	public ResultDocument getDocument(final long pos, final Timer timer)
 			throws SearchLibException {
 		if (docs == null || pos < 0 || pos > docs.getSize())
 			return null;
 		try {
-			int docId = docs.getIds()[pos];
-			float score = scores != null ? scores.getScores()[pos] : 0;
+			int docId = docs.getIds()[(int) pos];
+			float score = scores != null ? scores.getScores()[(int) pos] : 0;
 			if (!(docs instanceof CollapseDocInterface)) {
 				return new ResultDocument(request, fieldNameSet, docId, reader,
 						score, null, 0, timer);

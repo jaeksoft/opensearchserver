@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -151,10 +151,10 @@ public class CollapseBaseCollector extends
 	}
 
 	@Override
-	public int[] getCollapsedDocs(int pos) {
+	public int[] getCollapsedDocs(long pos) {
 		if (collapseDocsArray == null)
 			return null;
-		return collapseDocsArray[pos];
+		return collapseDocsArray[(int) pos];
 	}
 
 	@Override

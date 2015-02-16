@@ -185,7 +185,7 @@ public abstract class CollapseAbstract {
 			ParseException, SyntaxError {
 
 		int searchRows = searchRequest.getRows();
-		int end = searchRequest.getEnd();
+		int end = (int) searchRequest.getEnd();
 		FieldCacheIndex collapseFieldStringIndex = reader
 				.getStringIndex(searchRequest.getCollapseField());
 		return collapseFromCollector(collector, searchRows, end,

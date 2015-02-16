@@ -263,7 +263,7 @@ public class ClassifierController extends CommonController {
 	@Command
 	public void onTestClassifierItem() throws SearchLibException,
 			InterruptedException {
-		int n = currentClassifierItem.query(getClient(), lang);
+		long n = currentClassifierItem.query(getClient(), lang);
 		new AlertController(n + " document(s) found.");
 	}
 

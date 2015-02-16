@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,9 +27,9 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-
-import org.icepdf.core.tag.query.DocumentResult;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseAbstract;
@@ -47,7 +47,8 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.CommonServices;
-import com.opensearchserver.client.v2.search.FacetResult2;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
+import com.opensearchserver.client.v2.search.DocumentResult2;
 import com.opensearchserver.client.v2.search.SearchResult2;
 
 public abstract class AbstractResultSearch extends
@@ -56,7 +57,7 @@ public abstract class AbstractResultSearch extends
 
 	protected final ReaderAbstract reader;
 	transient protected CollapseAbstract collapse;
-	protected List<FacetResult2> facetResults;
+	protected Map<String, Map<String, Long>> facetResults;
 	protected DocIdInterface docs;
 	protected ScoreInterface scores;
 	protected DistanceInterface distances;
@@ -75,8 +76,7 @@ public abstract class AbstractResultSearch extends
 		this.docs = null;
 		this.joinResults = JoinResult.EMPTY_ARRAY;
 		if (searchRequest.getFacetFieldList().size() > 0)
-			this.facetResults = new ArrayList<FacetResult2>(searchRequest
-					.getFacetFieldList().size());
+			this.facetResults = new LinkedHashMap<String, Map<String, Long>>();
 		collapse = CollapseAbstract.newInstance(searchRequest);
 	}
 
@@ -84,8 +84,12 @@ public abstract class AbstractResultSearch extends
 		return reader;
 	}
 
-	public List<FacetResult2> getFacetList() {
-		return facetResults;
+	public Map<String, Map<String, Long>> getFacetResults() {
+		return facetResults == null ? null : facetResults;
+	}
+
+	public Map<String, Long> getFacetTerms(String name) {
+		return facetResults == null ? null : facetResults.get(name.intern());
 	}
 
 	protected void setJoinResults(JoinResult[] joinResults) {
@@ -93,12 +97,12 @@ public abstract class AbstractResultSearch extends
 				: joinResults;
 	}
 
-	public ResultDocument getDocument(final int pos) throws SearchLibException {
+	public ResultDocument getDocument(final long pos) throws SearchLibException {
 		return getDocument(pos, null);
 	}
 
 	@Override
-	public abstract ResultDocument getDocument(final int pos, final Timer timer)
+	public abstract ResultDocument getDocument(final long pos, final Timer timer)
 			throws SearchLibException;
 
 	public Iterator<ResultDocument> iterator(Timer timer) {
@@ -121,7 +125,7 @@ public abstract class AbstractResultSearch extends
 	}
 
 	@Override
-	public int getRequestStart() {
+	public long getRequestStart() {
 		return request.getStart();
 	}
 
@@ -144,17 +148,17 @@ public abstract class AbstractResultSearch extends
 
 	@Override
 	public int getDocumentCount() {
-		int end = request.getEnd();
+		long end = request.getEnd();
 		int len = getDocLength();
 		if (end > len)
 			end = len;
-		int start = request.getStart();
+		long start = request.getStart();
 		if (start > end)
 			return 0;
-		return end - start;
+		return (int) (end - start);
 	}
 
-	public List<ResultDocument> getJoinDocumentList(int pos, Timer timer)
+	public List<ResultDocument> getJoinDocumentList(long pos, Timer timer)
 			throws SearchLibException {
 		if (joinResults == null)
 			return null;
@@ -181,21 +185,21 @@ public abstract class AbstractResultSearch extends
 	}
 
 	@Override
-	public float getScore(int pos) {
+	public float getScore(long pos) {
 		if (scores == null)
 			return 0;
-		return scores.getScores()[pos];
+		return scores.getScores()[(int) pos];
 	}
 
 	@Override
-	public Float getDistance(int pos) {
+	public Float getDistance(long pos) {
 		if (distances == null)
 			return null;
-		return distances.getDistances()[pos];
+		return distances.getDistances()[(int) pos];
 	}
 
 	@Override
-	public int getCollapseCount(int pos) {
+	public int getCollapseCount(long pos) {
 		return ResultDocument.getCollapseCount(docs, pos);
 	}
 
@@ -244,7 +248,9 @@ public abstract class AbstractResultSearch extends
 			searchResult.setTime(timer.tempDuration());
 			searchResult.setMaxScore(maxScore);
 
-			DocumentResult.populateDocumentList(result, documents);
+			List<DocumentResult2> documents = new ArrayList<DocumentResult2>();
+			DocumentsResult.populateDocumentList(this, documents);
+			searchResult.setDocuments(documents);
 
 			searchResult.setFacets(facetResults);
 			return searchResult;
@@ -258,4 +264,5 @@ public abstract class AbstractResultSearch extends
 			throw new CommonServices.CommonServiceException(e);
 		}
 	}
+
 }

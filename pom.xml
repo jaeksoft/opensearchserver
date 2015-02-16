@@ -494,7 +494,7 @@
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-text-extractor</artifactId>
-			<version>1.1</version>
+			<version>1.2-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackson-core</artifactId>

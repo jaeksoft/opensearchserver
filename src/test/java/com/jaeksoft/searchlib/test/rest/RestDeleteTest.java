@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.opensearchserver.client.common.CommonResult;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestDeleteTest extends CommonRestAPI {

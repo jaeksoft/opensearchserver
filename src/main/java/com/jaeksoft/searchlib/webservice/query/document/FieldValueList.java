@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,7 +38,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -56,13 +55,9 @@ public class FieldValueList {
 		values = null;
 	}
 
-	public FieldValueList(FieldValue fieldValue) {
-		this.fieldName = fieldValue.getName();
-		List<FieldValueItem> valueList = fieldValue.getValueList();
-		values = new ArrayList<String>(valueList == null ? 0 : valueList.size());
-		if (valueList != null)
-			for (FieldValueItem item : fieldValue.getValueList())
-				values.add(item.getValue());
+	public FieldValueList(String fieldName, List<String> values) {
+		this.fieldName = fieldName;
+		this.values = values;
 	}
 
 	protected FieldValueList(String fieldName) {

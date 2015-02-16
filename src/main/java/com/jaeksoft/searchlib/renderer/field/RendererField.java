@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -33,12 +33,11 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
 
 public class RendererField {
 
@@ -248,15 +247,14 @@ public class RendererField {
 		return fieldType;
 	}
 
-	private String[] getValues(List<FieldValueItem> fieldValueItems,
-			boolean replace, boolean urlDecode) {
-		if (fieldValueItems == null)
+	private String[] getValues(List<String> values, boolean replace,
+			boolean urlDecode) {
+		if (values == null)
 			return null;
 		replace = replace && !StringUtils.isEmpty(pattern);
-		String[] fields = new String[fieldValueItems.size()];
+		String[] fields = new String[values.size()];
 		int i = 0;
-		for (FieldValueItem fieldValueItem : fieldValueItems) {
-			String value = fieldValueItem.value;
+		for (String value : values) {
 			if (value != null) {
 				if (urlDecode)
 					value = LinkUtils.UTF8_URL_QuietDecode(value);

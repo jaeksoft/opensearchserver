@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -65,9 +66,7 @@ import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -200,26 +199,29 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	private int getFacetLimit(ItemField field,
-			AbstractSearchRequest searchRequest, int urlLimit,
+	private long getFacetLimit(ItemField field,
+			AbstractSearchRequest searchRequest, long urlLimit,
 			int maxUrlPerHost, List<NamedItem> list, Set<String> hostSet)
 			throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
-		List<FacetItem> facetItems = result.getFacetList()
-				.getByField(field.getName()).getList();
+		Map<String, Long> facetTerms = result.getFacetTerms(field.getName());
+		if (facetTerms == null || facetTerms.isEmpty())
+			return urlLimit;
+		List<Map.Entry<String, Long>> facetItems = new ArrayList<Map.Entry<String, Long>>(
+				facetTerms.size());
 		while (facetItems != null && facetItems.size() > 0) {
 			if (urlLimit <= 0)
 				break;
-			FacetItem facetItem = facetItems.remove(RandomUtils.nextInt(0,
-					facetItems.size()));
-			int nbURL = facetItem.getCount();
+			Map.Entry<String, Long> facetItem = facetItems.remove(RandomUtils
+					.nextInt(0, facetItems.size()));
+			long nbURL = facetItem.getValue();
 			if (nbURL == 0)
 				continue;
 			urlLimit -= nbURL > maxUrlPerHost ? maxUrlPerHost : nbURL;
 			if (urlLimit < 0)
 				urlLimit = 0;
-			String term = facetItem.getTerm();
+			String term = facetItem.getKey();
 			if (term == null)
 				continue;
 			if (term.length() == 0)
@@ -229,7 +231,7 @@ public class UrlManager extends AbstractManager {
 					continue;
 				hostSet.add(term);
 			}
-			list.add(new NamedItem(term, facetItem.getCount()));
+			list.add(new NamedItem(term, facetItem.getValue()));
 		}
 		return urlLimit;
 	}
@@ -243,9 +245,10 @@ public class UrlManager extends AbstractManager {
 		return searchRequest;
 	}
 
-	public int getHostToFetch(FetchStatus fetchStatus, Date before, Date after,
-			int urlLimit, int maxUrlPerHost, List<NamedItem> hostList,
-			Set<String> hostSet) throws SearchLibException {
+	public long getHostToFetch(FetchStatus fetchStatus, Date before,
+			Date after, long urlLimit, int maxUrlPerHost,
+			List<NamedItem> hostList, Set<String> hostSet)
+			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setEmptyReturnsAll(true);
 		try {
@@ -258,7 +261,7 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
-			String start, int urlLimit, int maxUrlPerHost, List<NamedItem> list)
+			String start, long urlLimit, int maxUrlPerHost, List<NamedItem> list)
 			throws ParseException, IOException, SyntaxError,
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, InstantiationException, IllegalAccessException {
@@ -332,7 +335,7 @@ public class UrlManager extends AbstractManager {
 				.name());
 	}
 
-	public int countBackLinks(String url) throws SearchLibException {
+	public long countBackLinks(String url) throws SearchLibException {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest("urlExport");
@@ -533,7 +536,8 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public Facet getHostFacetList(int minCount) throws SearchLibException {
+	public Map<String, Long> getHostFacetList(int minCount)
+			throws SearchLibException {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
@@ -547,8 +551,8 @@ public class UrlManager extends AbstractManager {
 					.request(searchRequest);
 			if (result == null)
 				return null;
-			return result.getFacetList().getByField(
-					UrlItemFieldEnum.INSTANCE.host.getName());
+			return result.getFacetTerms(UrlItemFieldEnum.INSTANCE.host
+					.getName());
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}

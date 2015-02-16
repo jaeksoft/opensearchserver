@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -51,18 +51,18 @@ public class CollapseFunction {
 			}
 		}
 
-		final String executeByPos(final int pos) {
+		final String executeByPos(final long pos) {
 			if (stringIndex != null) {
-				final int doc = collapseDocInterface.getIds()[pos];
+				final int doc = collapseDocInterface.getIds()[(int) pos];
 				final int[] collapsedDocs = collapseDocInterface
 						.getCollapsedDocs(pos);
 				return executeStringIndex(doc, collapsedDocs);
 			}
 			if (collapseDistanceInterface != null) {
 				final float docDistance = collapseDistanceInterface
-						.getDistances()[pos];
+						.getDistances()[(int) pos];
 				final float[] collapsedDistances = collapseDistanceInterface
-						.getCollapsedDistances(pos);
+						.getCollapsedDistances((int) pos);
 				return executeDistance(docDistance, collapsedDistances);
 			}
 			return null;

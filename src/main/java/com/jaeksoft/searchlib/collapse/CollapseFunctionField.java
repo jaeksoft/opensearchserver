@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,8 +37,8 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.util.DomUtils;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
 
 public class CollapseFunctionField implements Comparable<CollapseFunctionField> {
 
@@ -107,7 +107,7 @@ public class CollapseFunctionField implements Comparable<CollapseFunctionField> 
 		executor = function.newExecutor(this, reader, collapseDocCollector);
 	}
 
-	public String executeByPos(int pos) throws ParseException {
+	public String executeByPos(long pos) throws ParseException {
 		return executor.executeByPos(pos);
 	}
 

@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -133,9 +134,10 @@ public class LibraryIndexFileTest {
 		for (ResultDocument document : results) {
 
 			// Get and check snippet of the content
-			String content = document.getSnippetContent("content", 0);
+			List<String> content = document.getSnippetValues("content");
 			assertNotNull(content);
-			assertTrue(content.trim().length() > 0);
+			assertTrue(!content.isEmpty());
+			assertTrue(content.get(0).length() > 0);
 		}
 
 	}

@@ -114,7 +114,7 @@ public class SourceField implements Comparable<SourceField> {
 		return source.getField(names[0]);
 	}
 
-	final public List<FieldValueItem> getUniqueString(ResultDocument source) {
+	final public List<String> getUniqueString(ResultDocument source) {
 		return source.getValues(names[0]);
 	}
 

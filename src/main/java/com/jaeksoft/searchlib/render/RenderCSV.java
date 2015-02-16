@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.ReturnField;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.web.servlet.restv1.ServletTransaction;
 
@@ -59,14 +58,14 @@ public class RenderCSV implements Render {
 	private void renderDocuments() throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 		AbstractSearchRequest searchRequest = result.getRequest();
-		int start = searchRequest.getStart();
-		int end = result.getDocumentCount() + searchRequest.getStart();
+		long start = searchRequest.getStart();
+		long end = result.getDocumentCount() + searchRequest.getStart();
 
-		for (int i = start; i < end; i++)
+		for (long i = start; i < end; i++)
 			this.renderDocument(i);
 	}
 
-	private void renderDocument(int i) throws IOException, ParseException,
+	private void renderDocument(long i) throws IOException, ParseException,
 			SyntaxError, SearchLibException {
 		ResultDocument doc = result.getDocument(i, null);
 		for (ReturnField field : searchRequest.getReturnFieldList()) {
@@ -85,19 +84,19 @@ public class RenderCSV implements Render {
 	}
 
 	private void renderSnippetValue(ResultDocument doc, SnippetField field) {
-		List<FieldValueItem> snippets = doc.getSnippetValues(field);
+		List<String> snippets = doc.getSnippetValues(field);
 		if (snippets == null)
 			return;
-		for (FieldValueItem snippet : snippets)
-			writer.print(StringEscapeUtils.escapeCsv(snippet.getValue()));
+		for (String snippet : snippets)
+			writer.print(StringEscapeUtils.escapeCsv(snippet));
 	}
 
 	private void renderField(ResultDocument doc, ReturnField field) {
-		List<FieldValueItem> values = doc.getValues(field);
+		List<String> values = doc.getValues(field);
 		if (values == null)
 			return;
-		for (FieldValueItem v : values)
-			writer.print(StringEscapeUtils.escapeCsv(v.getValue()));
+		for (String v : values)
+			writer.print(StringEscapeUtils.escapeCsv(v));
 	}
 
 	public void render(PrintWriter writer) throws Exception {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,7 +41,6 @@ import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess.Grant;
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess.Type;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.result.ResultDocument;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
@@ -117,8 +116,8 @@ public class FileItem extends FileInfo {
 				FileItemFieldEnum.INSTANCE.repository.getName(), 0));
 		setDirectory(doc.getValueContent(
 				FileItemFieldEnum.INSTANCE.directory.getName(), 0));
-		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.subDirectory.getName())));
+		setSubDirectory(doc.getValues(FileItemFieldEnum.INSTANCE.subDirectory
+				.getName()));
 
 		setLang(doc.getValueContent(FileItemFieldEnum.INSTANCE.lang.getName(),
 				0));
@@ -138,14 +137,14 @@ public class FileItem extends FileInfo {
 		setTime(doc.getValueContent(FileItemFieldEnum.INSTANCE.time.getName(),
 				0));
 
-		setUserAllow(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.userAllow.getName())));
-		setUserDeny(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.userDeny.getName())));
-		setGroupAllow(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.groupAllow.getName())));
-		setGroupDeny(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
+		setUserAllow(doc.getValues(FileItemFieldEnum.INSTANCE.userAllow
+				.getName()));
+		setUserDeny(doc
+				.getValues(FileItemFieldEnum.INSTANCE.userDeny.getName()));
+		setGroupAllow(doc.getValues(FileItemFieldEnum.INSTANCE.groupAllow
+				.getName()));
+		setGroupDeny(doc.getValues(FileItemFieldEnum.INSTANCE.groupDeny
+				.getName()));
 	}
 
 	public FileItem(FileInstanceAbstract fileInstance)

@@ -157,8 +157,8 @@ public class JoinDocCollector extends
 	}
 
 	final public static int getForeignDocIds(final int[][] foreignDocIdsArray,
-			int pos, int joinPosition) {
-		int[] foreignDocIds = foreignDocIdsArray[pos];
+			long pos, int joinPosition) {
+		int[] foreignDocIds = foreignDocIdsArray[(int) pos];
 		if (foreignDocIds == null)
 			return -1;
 		if (joinPosition >= foreignDocIds.length)
@@ -167,8 +167,8 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	final public int getForeignDocId(final int pos, final int joinPosition) {
-		return getForeignDocIds(foreignDocIdsArray, pos, joinPosition);
+	final public int getForeignDocId(final long pos, final int joinPosition) {
+		return getForeignDocIds(foreignDocIdsArray, (int) pos, joinPosition);
 	}
 
 	final public static DocIdInterface getDocIdInterface(int maxDoc,

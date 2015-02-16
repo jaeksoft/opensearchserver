@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,8 +43,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
 import com.opensearchserver.client.v2.search.DocumentResult2;
 import com.opensearchserver.client.v2.search.SnippetField2;
 
@@ -90,17 +88,19 @@ public class DocumentsResult {
 
 	public final static DocumentResult2 newDocumentResult(
 			ResultDocument resultDocument, Integer collapseDocCount,
-			Integer position, Float docScore, Float docDistance,
+			Long position, Float docScore, Float docDistance,
 			List<ResultDocument> joinResultDocuments) {
 
 		DocumentResult2 documentResult = new DocumentResult2();
-		Map<String, FieldValue> returnFields = resultDocument.getReturnFields();
+		Map<String, List<String>> returnFields = resultDocument
+				.getReturnFields();
 		Map<String, List<String>> fields = MapUtils.isEmpty(returnFields) ? null
 				: new LinkedHashMap<String, List<String>>();
 		if (returnFields != null) {
-			for (FieldValue fieldValue : returnFields.values()) {
-				String field = fieldValue.getName().intern();
-				List<String> valueList = fieldValue.getValueStringList();
+			for (Map.Entry<String, List<String>> entry : returnFields
+					.entrySet()) {
+				String field = entry.getKey().intern();
+				List<String> valueList = entry.getValue();
 				if (valueList != null) {
 					List<String> values = fields.get(field);
 					if (values == null) {
@@ -113,19 +113,20 @@ public class DocumentsResult {
 		}
 		documentResult.setFields(fields);
 
-		Map<String, SnippetFieldValue> snippetFields = resultDocument
+		Map<String, SnippetField2> snippetFields = resultDocument
 				.getSnippetFields();
 		Map<String, SnippetField2> snippets = MapUtils.isEmpty(snippetFields) ? null
 				: new LinkedHashMap<String, SnippetField2>();
 		if (snippetFields != null) {
-			for (SnippetFieldValue snippetFiedValue : snippetFields.values()) {
-				String field = snippetFiedValue.getName().intern();
-				List<String> valueList = snippetFiedValue.getValueStringList();
-				if (valueList != null) {
+			for (Map.Entry<String, SnippetField2> entry : snippetFields
+					.entrySet()) {
+				String field = entry.getKey().intern();
+				SnippetField2 valueSnippet = entry.getValue();
+				if (valueSnippet != null) {
 					SnippetField2 snippetField = new SnippetField2();
-					snippetField.setHighlighted(snippetFiedValue
-							.isHighlighted());
-					snippetField.setValues(valueList);
+					snippetField.setHighlighted(valueSnippet.highlighted);
+					snippetField.setValues(new ArrayList<String>(
+							valueSnippet.values));
 					snippets.put(field, snippetField);
 				}
 			}
@@ -137,8 +138,8 @@ public class DocumentsResult {
 			List<DocumentResult2> joins = new ArrayList<DocumentResult2>(
 					joinResultDocuments.size());
 			for (ResultDocument joinResultDocument : joinResultDocuments)
-				joins.add(new DocumentResult2().setFields(joinResultDocument), null, null,
-						null, null, null));
+				joins.add(new DocumentResult2().setFields(joinResultDocument
+						.getReturnFields()));
 			documentResult.setJoins(joins);
 		}
 		documentResult.setFunctions(resultDocument.getFunctionFieldValues());
@@ -148,16 +149,17 @@ public class DocumentsResult {
 		documentResult.score = docScore;
 		documentResult.distance = docDistance;
 
+		return documentResult;
 	}
 
 	public final static List<DocumentResult2> populateDocumentList(
 			ResultDocumentsInterface<?> result, List<DocumentResult2> documents)
 			throws SearchLibException {
-		int start = result.getRequestStart();
-		int end = result.getDocumentCount() + result.getRequestStart();
+		long start = result.getRequestStart();
+		long end = result.getDocumentCount() + result.getRequestStart();
 		AbstractResultSearch resultSearch = result instanceof AbstractResultSearch ? (AbstractResultSearch) result
 				: null;
-		for (int i = start; i < end; i++) {
+		for (long i = start; i < end; i++) {
 			ResultDocument resultDocument = result.getDocument(i, null);
 			int collapseDocCount = result.getCollapseCount(i);
 			float docScore = result.getScore(i);

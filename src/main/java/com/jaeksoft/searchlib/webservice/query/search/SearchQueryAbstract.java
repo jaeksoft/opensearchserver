@@ -85,7 +85,7 @@ import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
 public abstract class SearchQueryAbstract extends QueryAbstract {
 
 	final public String query;
-	final public Integer start;
+	final public Long start;
 	final public Integer rows;
 	final public LanguageEnum lang;
 	final public OperatorEnum operator;

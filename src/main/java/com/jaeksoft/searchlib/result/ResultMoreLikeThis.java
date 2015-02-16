@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -46,7 +47,10 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.sort.DescScoreSorter;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.jaeksoft.searchlib.webservice.query.morelikethis.MoreLikeThisResult;
+import com.opensearchserver.client.v2.search.DocumentResult2;
 
 public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 		implements ResultDocumentsInterface<MoreLikeThisRequest> {
@@ -89,16 +93,16 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos, Timer timer)
+	public ResultDocument getDocument(long pos, Timer timer)
 			throws SearchLibException {
 		if (docs == null)
 			return null;
 		if (pos < 0 || pos >= docs.getSize())
 			return null;
 		try {
-			float score = scores != null ? scores.getScores()[pos] : 0;
-			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader,
-					score, null, timer);
+			float score = scores != null ? scores.getScores()[(int) pos] : 0;
+			return new ResultDocument(fieldNameSet, docs.getIds()[(int) pos],
+					reader, score, null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
@@ -109,24 +113,24 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	}
 
 	@Override
-	public float getScore(int pos) {
+	public float getScore(long pos) {
 		if (scores == null)
 			return 0;
-		return scores.getScores()[pos];
+		return scores.getScores()[(int) pos];
 	}
 
 	@Override
-	public Float getDistance(int pos) {
+	public Float getDistance(long pos) {
 		return null;
 	}
 
 	@Override
-	public int getCollapseCount(int pos) {
+	public int getCollapseCount(long pos) {
 		return ResultDocument.getCollapseCount(docs, pos);
 	}
 
 	@Override
-	public int getNumFound() {
+	public long getNumFound() {
 		if (docs == null)
 			return 0;
 		return docs.getSize();
@@ -155,15 +159,15 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	@Override
 	public int getDocumentCount() {
-		int end = request.getEnd();
-		int len = getNumFound();
+		long end = request.getEnd();
+		long len = getNumFound();
 		if (end > len)
 			end = len;
-		return end - request.getStart();
+		return (int) end - request.getStart();
 	}
 
 	@Override
-	public int getRequestStart() {
+	public long getRequestStart() {
 		return request.getStart();
 	}
 
@@ -185,7 +189,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	}
 
 	@Override
-	public int getCollapsedDocCount() {
+	public long getCollapsedDocCount() {
 		return 0;
 	}
 
@@ -193,6 +197,12 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	public void populate(List<IndexDocumentResult> indexDocuments)
 			throws IOException, SearchLibException {
 		throw new SearchLibException("Method not available");
+	}
+
+	public MoreLikeThisResult getMoreLikeThisResult() throws SearchLibException {
+		List<DocumentResult2> documents = new ArrayList<DocumentResult2>();
+		DocumentsResult.populateDocumentList(this, documents);
+		return new MoreLikeThisResult(null, documents);
 	}
 
 }

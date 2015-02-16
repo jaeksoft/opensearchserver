@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,7 +45,6 @@ import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.Timer;
 
 class SnippetVectors {
@@ -80,7 +79,7 @@ class SnippetVectors {
 	final static Iterator<SnippetVector> extractTermVectorIterator(
 			final int docId, final ReaderInterface reader,
 			final SnippetQueries snippetQueries, final String fieldName,
-			List<FieldValueItem> values, CompiledAnalyzer analyzer,
+			List<String> values, CompiledAnalyzer analyzer,
 			final Timer parentTimer, final long expiration) throws IOException,
 			ParseException, SyntaxError, SearchLibException {
 		if (ArrayUtils.isEmpty(snippetQueries.terms))
@@ -118,7 +117,7 @@ class SnippetVectors {
 
 	private static final TermPositionVector getTermPositionVector(
 			final String[] terms, final ReaderInterface readerInterface,
-			final int docId, final String field, List<FieldValueItem> values,
+			final int docId, final String field, List<String> values,
 			CompiledAnalyzer analyzer, Timer timer) throws IOException,
 			SearchLibException, ParseException, SyntaxError {
 		TermFreqVector termFreqVector = readerInterface.getTermFreqVector(
@@ -133,13 +132,13 @@ class SnippetVectors {
 		int positionOffset = 0;
 		int characterOffset = 0;
 		List<TokenTerm> tokenTerms = new ArrayList<TokenTerm>();
-		for (FieldValueItem fieldValueItem : values) {
-			if (fieldValueItem.value == null)
+		for (String value : values) {
+			if (value == null)
 				continue;
-			analyzer.populate(fieldValueItem.value, tokenTerms);
+			analyzer.populate(value, tokenTerms);
 			positionOffset = stpv.addCollection(tokenTerms, characterOffset,
 					positionOffset);
-			characterOffset += fieldValueItem.value.length() + 1;
+			characterOffset += value.length() + 1;
 			tokenTerms.clear();
 		}
 		stpv.compile();

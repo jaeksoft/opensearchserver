@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,10 +36,12 @@ import com.jaeksoft.searchlib.render.Render;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.webservice.query.document.DocumentResult.Position;
+import com.jaeksoft.searchlib.webservice.query.document.DocumentsResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.jaeksoft.searchlib.webservice.query.namedEntity.NamedEntityResult;
+import com.opensearchserver.client.common.search.result.VectorPosition;
+import com.opensearchserver.client.v2.search.DocumentResult2;
 
 public class ResultNamedEntityExtraction extends
 		AbstractResult<AbstractRequest> implements
@@ -64,16 +66,15 @@ public class ResultNamedEntityExtraction extends
 			docMap.put(docId, doc);
 			docList.add(doc);
 		}
-		doc.addReturnedField(FieldValueOriginEnum.ENTITY_EXTRACTION, field,
-				value);
+		doc.addReturnedField(field, value);
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos, Timer timer)
+	public ResultDocument getDocument(long pos, Timer timer)
 			throws SearchLibException {
 		if (docList == null || pos < 0 || pos > docList.size())
 			return null;
-		return docList.get(pos);
+		return docList.get((int) pos);
 	}
 
 	@Override
@@ -83,20 +84,20 @@ public class ResultNamedEntityExtraction extends
 	}
 
 	public void resolvePositions(String namedEntityField,
-			Map<String, List<Position>> tokenMap, String text) {
-		Map<Integer, Position> mapPositions = new TreeMap<Integer, Position>();
+			Map<String, List<VectorPosition>> tokenMap, String text) {
+		Map<Integer, VectorPosition> mapPositions = new TreeMap<Integer, VectorPosition>();
 		for (ResultDocument document : docList) {
 			String entity = document.getValueContent(namedEntityField, 0);
 			if (entity == null)
 				continue;
-			List<Position> positions = tokenMap.get(entity);
+			List<VectorPosition> positions = tokenMap.get(entity);
 			document.addPositions(positions);
 			if (positions != null)
-				for (Position position : positions)
+				for (VectorPosition position : positions)
 					mapPositions.put(position.start, position);
 		}
 		int lastPos = 0;
-		for (Position posDoc : mapPositions.values()) {
+		for (VectorPosition posDoc : mapPositions.values()) {
 			if (posDoc.start > lastPos)
 				enrichedText.append(text.substring(lastPos, posDoc.start));
 			enrichedText.append("<strong>");
@@ -113,22 +114,22 @@ public class ResultNamedEntityExtraction extends
 	}
 
 	@Override
-	public float getScore(int pos) {
+	public float getScore(long pos) {
 		return 0;
 	}
 
 	@Override
-	public Float getDistance(int pos) {
+	public Float getDistance(long pos) {
 		return null;
 	}
 
 	@Override
-	public int getCollapseCount(int pos) {
+	public int getCollapseCount(long pos) {
 		return 0;
 	}
 
 	@Override
-	public int getNumFound() {
+	public long getNumFound() {
 		if (docList == null)
 			return 0;
 		return docList.size();
@@ -162,7 +163,7 @@ public class ResultNamedEntityExtraction extends
 	}
 
 	@Override
-	public int getRequestStart() {
+	public long getRequestStart() {
 		return 0;
 	}
 
@@ -182,8 +183,14 @@ public class ResultNamedEntityExtraction extends
 	}
 
 	@Override
-	public int getCollapsedDocCount() {
+	public long getCollapsedDocCount() {
 		return 0;
+	}
+
+	public NamedEntityResult getNamedEntityResult() throws SearchLibException {
+		List<DocumentResult2> documents = new ArrayList<DocumentResult2>();
+		DocumentsResult.populateDocumentList(this, documents);
+		return new NamedEntityResult(getEnrichedText(), documents);
 	}
 
 }

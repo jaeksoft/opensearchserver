@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.result.collector;
 
 public interface JoinScoreInterface extends CollectorInterface {
 
-	float getForeignScore(final int pos, final int joinPosition);
+	float getForeignScore(final long pos, final int joinPosition);
 
 	float[][] getForeignDocScoreArray();
 

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,25 +38,25 @@ public interface ResultDocumentsInterface<T extends AbstractRequest> extends
 
 	public T getRequest();
 
-	public int getRequestStart();
+	public long getRequestStart();
 
 	public int getRequestRows();
 
-	public ResultDocument getDocument(int pos, Timer timer)
+	public ResultDocument getDocument(long pos, Timer timer)
 			throws SearchLibException;
 
 	public void populate(List<IndexDocumentResult> indexDocuments)
 			throws IOException, SearchLibException;
 
-	public float getScore(int pos);
+	public float getScore(long pos);
 
-	public Float getDistance(int pos);
+	public Float getDistance(long pos);
 
 	public float getMaxScore();
 
 	public long getCollapsedDocCount();
 
-	public int getCollapseCount(int pos);
+	public int getCollapseCount(long pos);
 
 	public int getDocumentCount();
 

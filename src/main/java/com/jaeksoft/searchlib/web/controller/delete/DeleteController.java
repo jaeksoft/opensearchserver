@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -41,18 +41,18 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.SearchPatternRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
 import com.jaeksoft.searchlib.web.servlet.restv1.AbstractServlet;
+import com.opensearchserver.utils.StringUtils;
 
 @AfterCompose(superclass = true)
 public class DeleteController extends CommonController {
 
 	private class DeleteAlert extends AlertController {
 
-		protected DeleteAlert(int num) throws InterruptedException {
+		protected DeleteAlert(long num) throws InterruptedException {
 			super(
 					"Please, confirm that you want to delete the documents matching this query: "
 							+ request.getQueryString() + ". " + num
@@ -99,7 +99,7 @@ public class DeleteController extends CommonController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		request.reset();
-		int numFound = ((AbstractResultSearch) getClient().request(request))
+		long numFound = ((AbstractResultSearch) getClient().request(request))
 				.getNumFound();
 		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
@@ -114,7 +114,7 @@ public class DeleteController extends CommonController {
 		if (!isChecked)
 			return;
 		request.reset();
-		int numFound = ((AbstractResultSearch) getClient().request(request))
+		long numFound = ((AbstractResultSearch) getClient().request(request))
 				.getNumFound();
 		new DeleteAlert(numFound);
 	}

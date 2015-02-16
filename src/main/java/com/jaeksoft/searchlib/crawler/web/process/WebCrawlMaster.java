@@ -206,7 +206,7 @@ public class WebCrawlMaster extends
 				.getFetchInterval().getValue(), propertyManager
 				.getFetchIntervalUnit().getValue());
 
-		int urlLimit = maxUrlPerSession;
+		long urlLimit = maxUrlPerSession;
 		// First try fetch priority
 		selection = new Selection(ListType.PRIORITY_URL,
 				FetchStatus.FETCH_FIRST, null, null);

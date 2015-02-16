@@ -36,8 +36,8 @@ public class PagingSearchResult {
 	public PagingSearchResult(AbstractResultSearch result, int maxPages) {
 
 		AbstractSearchRequest request = result.getRequest();
-		int numFound = result.getNumFound() - result.getCollapsedDocCount();
-		int start = request.getStart();
+		long numFound = result.getNumFound() - result.getCollapsedDocCount();
+		long start = request.getStart();
 		int rows = request.getRows();
 
 		if (numFound == 0) {
@@ -47,8 +47,8 @@ public class PagingSearchResult {
 			rightPage = 0;
 			return;
 		}
-		totalPages = (numFound + rows - 1) / rows;
-		currentPage = (start + rows) / rows;
+		totalPages = (int) (numFound + rows - 1) / rows;
+		currentPage = (int) (start + rows) / rows;
 		leftPage = currentPage - maxPages / 2;
 		if (leftPage < 1)
 			leftPage = 1;

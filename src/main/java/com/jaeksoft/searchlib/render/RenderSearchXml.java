@@ -26,14 +26,11 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -61,7 +58,7 @@ public class RenderSearchXml extends
 
 	}
 
-	private void renderJoinResults(int pos) throws IOException,
+	private void renderJoinResults(long pos) throws IOException,
 			SearchLibException {
 		List<ResultDocument> joinResultDocuments = result.getJoinDocumentList(
 				pos, renderingTimer);
@@ -72,7 +69,7 @@ public class RenderSearchXml extends
 	}
 
 	@Override
-	protected void renderDocument(int pos, ResultDocument doc)
+	protected void renderDocument(long pos, ResultDocument doc)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 		renderDocumentPrefix(pos, doc);
 		renderDocumentContent(pos, doc);
@@ -80,28 +77,29 @@ public class RenderSearchXml extends
 		renderDocumentSuffix();
 	}
 
-	private void renderFacet(Facet facet) throws Exception {
-		FacetField facetField = facet.getFacetField();
+	private void renderFacet(String field, Map<String, Long> terms)
+			throws Exception {
 		writer.print("\t\t<field name=\"");
-		writer.print(facetField.getName());
+		writer.print(field);
 		writer.println("\">");
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, Long> term : terms.entrySet()) {
 			writer.print("\t\t\t<facet name=\"");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(term.getKey()));
 			writer.print("\">");
-			writer.print(facetItem.getCount());
+			writer.print(term.getValue());
 			writer.print("</facet>");
 		}
 		writer.println("\t\t</field>");
 	}
 
 	private void renderFacets() throws Exception {
-		FacetList facetList = result.getFacetList();
-		if (facetList == null)
+		Map<String, Map<String, Long>> facetResults = result.getFacetResults();
+		if (facetResults == null)
 			return;
 		writer.println("<faceting>");
-		for (Facet facet : facetList)
-			renderFacet(facet);
+		for (Map.Entry<String, Map<String, Long>> entry : facetResults
+				.entrySet())
+			renderFacet(entry.getKey(), entry.getValue());
 		writer.println("</faceting>");
 	}
 

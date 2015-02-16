@@ -112,7 +112,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private CollapseParameters.Mode collapseMode;
 	private CollapseParameters.Type collapseType;
 	private Set<CollapseFunctionField> collapseFunctionFields;
-	private int start;
+	private long start;
 	private int rows;
 	private LanguageEnum lang;
 	private String queryString;
@@ -727,7 +727,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getStart() {
+	public long getStart() {
 		rwl.r.lock();
 		try {
 			return this.start;
@@ -736,7 +736,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setStart(int start) {
+	public void setStart(long start) {
 		rwl.w.lock();
 		try {
 			this.start = start;
@@ -790,7 +790,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getEnd() {
+	public long getEnd() {
 		rwl.r.lock();
 		try {
 			return this.start + this.rows;
@@ -1065,7 +1065,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 					getRequestName(), XML_ATTR_TYPE, getType().name(),
 					"phraseSlop", Integer.toString(phraseSlop),
 					"defaultOperator", getDefaultOperator(), "start",
-					Integer.toString(start), "rows", Integer.toString(rows),
+					Long.toString(start), "rows", Integer.toString(rows),
 					"lang", lang != null ? lang.getCode() : null,
 					"collapseMode", collapseMode.getLabel(), "collapseType",
 					collapseType.getLabel(), "collapseField", collapseField,

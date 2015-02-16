@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -73,11 +73,9 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis {
 							RequestTypeEnum.MoreLikeThisRequest);
 			if (query != null)
 				query.apply(request);
-			return new MoreLikeThisResult(
-					(ResultMoreLikeThis) client.request(request));
+			return ((ResultMoreLikeThis) client.request(request))
+					.getMoreLikeThisResult();
 		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -92,8 +90,8 @@ public class MoreLikeThisImpl extends CommonQuery implements RestMoreLikeThis {
 			MoreLikeThisRequest request = new MoreLikeThisRequest(client);
 			if (query != null)
 				query.apply(request);
-			return new MoreLikeThisResult(
-					(ResultMoreLikeThis) client.request(request));
+			return ((ResultMoreLikeThis) client.request(request))
+					.getMoreLikeThisResult();
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
