@@ -538,16 +538,6 @@
 			<version>${undertow.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>${httpcore.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore-nio</artifactId>
-			<version>${httpcore.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-java-client</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
@@ -557,19 +547,29 @@
 			<artifactId>oss-utils</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore-nio</artifactId>
+			<version>${httpcore.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>${httpcore.version}</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cxf.version>3.0.3</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
-		<httpclient.version>4.3.6</httpclient.version>
-		<httpcore.version>4.4</httpcore.version>
+		<httpclient.version>4.4</httpclient.version>
 		<selenium.version>2.44.0</selenium.version>
 		<zk.version>7.0.3</zk.version>
 		<jackson.version>2.5.0</jackson.version>
 		<tomcat.version>7.0.57</tomcat.version>
 		<undertow.version>1.1.2.Final</undertow.version>
+		<httpcore.version>4.4</httpcore.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>
