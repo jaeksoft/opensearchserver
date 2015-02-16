@@ -127,5 +127,5 @@ The parsing failed. The reason is provided in the content.
 **Using CURL:**
 
     curl -XPUT -H "Content-Type: application/json" \
-        http://localhost:8080/services/rest/parser?name=book.pdf&p.pdfCrackCommandLine=/usr/bin/pdfcrack
+        http://localhost:8080/services/rest/parser?path=/home/book.pdf&p.pdfCrackCommandLine=/usr/bin/pdfcrack
     
