@@ -20,7 +20,7 @@ This API returns details about a parser: which properties exist, which fields ar
 
 ### Success response
 
-Details of the parser are returned either in JSON or in XML format.
+Details of the parser are returned either in JSON or in XML format. Supported file types and file extensions are shown.
 
 **HTTP code:**
 200
@@ -60,6 +60,12 @@ Details of the parser are returned either in JSON or in XML format.
 		  "ocr_content",
 		  "image_ocr_boxes",
 		  "pdfcrack_password"
+	   ],
+	   "file_extensions":[
+			"pdf"
+	   ],
+	   "mime_types":[
+			"application/pdf"
 	   ]
 	}
 
