@@ -104,6 +104,10 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			String userId = ActiveDirectory.getObjectSID(attrs);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
+			String dnUser = ActiveDirectory.getStringAttribute(attrs,
+					"DistinguishedName");
+			if (!StringUtils.isEmpty(dnUser))
+				activeDirectory.findUserGroup(dnUser, groups);
 
 			Logging.info("USER authenticated: " + user);
 
