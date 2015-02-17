@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -60,14 +60,12 @@ import com.jaeksoft.searchlib.util.XPathParser;
 
 public class IndexDocument implements Iterable<FieldContent> {
 
-	private Map<String, FieldContent> fields;
+	private final Map<String, FieldContent> fields;
 	private LanguageEnum lang;
-	private FieldContent[] fieldContentArray;
 
 	public IndexDocument() {
 		fields = new TreeMap<String, FieldContent>();
 		this.lang = null;
-		fieldContentArray = null;
 	}
 
 	public IndexDocument(IndexDocument sourceDocument) {
@@ -286,7 +284,6 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void add(String field, FieldValueItem fieldValueItem) {
 		FieldContent fc = getFieldContent(field);
 		fc.add(fieldValueItem);
-		fieldContentArray = null;
 	}
 
 	public void add(String field, String value, Float boost) {
@@ -306,6 +303,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 		if (value == null)
 			return;
 		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value));
+	}
+
+	public void addFieldIndexDocument(String field, IndexDocument source) {
+		if (source == null)
+			return;
+		for (FieldContent fieldContent : source)
+			add(field, fieldContent);
 	}
 
 	public void addFieldValueList(String field, List<FieldValueItem> values) {
@@ -429,17 +433,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 		return fvi.getValue();
 	}
 
-	public FieldContent[] getFieldContentArray() {
-		if (fieldContentArray != null)
-			return fieldContentArray;
-		fieldContentArray = new FieldContent[fields.size()];
-		fields.values().toArray(fieldContentArray);
-		return fieldContentArray;
-	}
-
 	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
+	}
+
+	final public FieldContent[] getFieldContentArray() {
+		return fields.values().toArray(new FieldContent[fields.size()]);
 	}
 
 	@Override

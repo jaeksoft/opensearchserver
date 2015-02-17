@@ -86,6 +86,7 @@ public class MailboxCrawlItem
 	public void copyTo(MailboxCrawlItem item) {
 		super.copyTo(item);
 		item.name = this.name;
+		item.bufferSize = this.bufferSize;
 		item.serverName = this.serverName;
 		item.serverPort = this.serverPort;
 		item.serverProtocol = this.serverProtocol;

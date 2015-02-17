@@ -24,9 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.mailbox;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
@@ -43,8 +40,6 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.mailbox.crawler.MailboxAbstractCrawler;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -111,6 +106,10 @@ public class MailboxCrawlThread extends
 		this.documents = new ArrayList<IndexDocument>();
 	}
 
+	public FieldMapContext getFieldMapContext() {
+		return fieldMapContext;
+	}
+
 	@Override
 	public void runner() throws Exception {
 		setStatusInfo(CrawlStatus.STARTING);
@@ -126,35 +125,6 @@ public class MailboxCrawlThread extends
 	@Override
 	protected String getCurrentInfo() {
 		return getCountInfo();
-	}
-
-	public void indexContent(Object object, String contentType,
-			IndexDocument indexDocument) throws SearchLibException,
-			IOException, ClassNotFoundException {
-		int i = contentType.indexOf(';');
-		String contentBaseType = i == -1 ? contentType : contentType.substring(
-				0, i);
-		String fileName = null;
-		InputStream inputStream;
-		if (object instanceof String)
-			inputStream = new ByteArrayInputStream(((String) object).getBytes());
-		else if (object instanceof InputStream)
-			inputStream = (InputStream) object;
-		else {
-			Logging.warn("Unknown content: " + object.getClass().getName()
-					+ " ContentType: " + contentType);
-			return;
-		}
-		Parser parser = fieldMapContext.parserSelector.parseStream(null,
-				fileName, contentBaseType, null, inputStream,
-				fieldMapContext.lang, null, null);
-		if (parser == null)
-			return;
-		List<ParserResultItem> results = parser.getParserResults();
-		if (results == null)
-			return;
-		for (ParserResultItem result : results)
-			result.populate(indexDocument);
 	}
 
 	public String getCountInfo() {
