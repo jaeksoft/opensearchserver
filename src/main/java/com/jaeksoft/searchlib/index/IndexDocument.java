@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -436,6 +436,10 @@ public class IndexDocument implements Iterable<FieldContent> {
 	@Override
 	public Iterator<FieldContent> iterator() {
 		return fields.values().iterator();
+	}
+
+	final public FieldContent[] getFieldContentArray() {
+		return fields.values().toArray(new FieldContent[fields.size()]);
 	}
 
 	@Override

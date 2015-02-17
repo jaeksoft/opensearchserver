@@ -440,8 +440,8 @@ public class HtmlParser extends Parser {
 		// Check ContentType charset in meta http-equiv
 		String metaCharset = htmlProvider.getMetaCharset();
 
-		String selectedCharset = selectCharset(headerCharset, detectedCharset,
-				metaCharset);
+		String selectedCharset = selectCharset(headerCharset, metaCharset,
+				detectedCharset);
 
 		if (selectedCharset != null) {
 			if (!selectedCharset.equals(currentCharset)) {
