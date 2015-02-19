@@ -24,10 +24,15 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -49,10 +54,12 @@ import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 public class CrawlFileThread extends
 		CrawlThreadAbstract<CrawlFileThread, CrawlFileMaster> {
 
-	private FileItem currentFileItem;
-	private FileManager fileManager;
-	private long delayBetweenAccesses;
-	private FilePathItem filePathItem;
+	private final CrawlFileMaster crawlMaster;
+	private final FileCrawlQueue crawlQueue;
+	private final FileManager fileManager;
+	private final long delayBetweenAccesses;
+	private final FilePathItem filePathItem;
+	private volatile FileItem currentFileItem;
 	private long nextTimeTarget;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
@@ -60,10 +67,13 @@ public class CrawlFileThread extends
 			throws SearchLibException {
 		super(config, crawlMaster, null, null);
 		this.fileManager = config.getFileManager();
+		this.crawlMaster = (CrawlFileMaster) getThreadMaster();
+		this.crawlQueue = (FileCrawlQueue) crawlMaster.getCrawlQueue();
 		currentStats = new CrawlStatistics(sessionStats);
-		delayBetweenAccesses = filePathItem.getDelay();
+		this.delayBetweenAccesses = filePathItem.getDelay();
 		nextTimeTarget = 0;
 		this.filePathItem = filePathItem;
+		this.currentFileItem = null;
 	}
 
 	private void sleepInterval(long max) {
@@ -77,6 +87,39 @@ public class CrawlFileThread extends
 		sleepMs(ms);
 	}
 
+	private void browse(FileInstanceAbstract fileInstance)
+			throws SearchLibException, URISyntaxException,
+			NoSuchAlgorithmException, IOException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
+		if (isAborted() || crawlMaster.isAborted())
+			return;
+		if (fileInstance == null)
+			return;
+		FileItem fileItem = fileManager.getNewFileItem(fileInstance);
+		setCurrentFileItem(fileItem);
+		switch (fileItem.getFileType()) {
+		case directory:
+			FileInstanceAbstract[] files = checkDirectory(fileInstance);
+			if (files == null)
+				break;
+			for (FileInstanceAbstract file : files)
+				browse(file);
+			break;
+		case file:
+			if (!checkFile(fileItem))
+				return;
+			break;
+		default:
+			return;
+		}
+		CrawlFile crawl = crawl(fileInstance, fileItem);
+		if (crawl != null)
+			crawlQueue.add(currentStats, crawl);
+
+		setStatus(CrawlStatus.INDEXATION);
+		crawlQueue.index(false);
+	}
+
 	@Override
 	public void runner() throws Exception {
 
@@ -84,41 +127,15 @@ public class CrawlFileThread extends
 		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
 				.getCrawlQueue();
 
-		FilePathItemIterator filePathIterator = new FilePathItemIterator(
-				filePathItem);
+		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
+				filePathItem, null, filePathItem.getPath());
 
-		ItemIterator itemIterator;
+		browse(fileInstance);
 
-		while ((itemIterator = filePathIterator.next()) != null) {
-
-			if (isAborted() || crawlMaster.isAborted())
-				break;
-
-			FileInstanceAbstract fileInstance = itemIterator.getFileInstance();
-			currentFileItem = fileManager.getNewFileItem(fileInstance);
-
-			FileTypeEnum type = currentFileItem.getFileType();
-			if (type == FileTypeEnum.directory) {
-				if (!checkDirectory((ItemDirectoryIterator) itemIterator,
-						crawlQueue))
-					continue;
-			} else if (type == FileTypeEnum.file) {
-				if (!checkFile())
-					continue;
-			}
-
-			CrawlFile crawl = crawl(fileInstance);
-			if (crawl != null)
-				crawlQueue.add(currentStats, crawl);
-
-			setStatus(CrawlStatus.INDEXATION);
-			crawlQueue.index(false);
-
-		}
 		crawlQueue.index(!crawlMaster.isRunning());
 	}
 
-	private CrawlFile crawl(FileInstanceAbstract fileInstance)
+	private CrawlFile crawl(FileInstanceAbstract fileInstance, FileItem fileItem)
 			throws SearchLibException {
 
 		long startTime = System.currentTimeMillis();
@@ -128,23 +145,23 @@ public class CrawlFileThread extends
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		CrawlFile crawl = new CrawlFile(fileInstance, currentFileItem,
-				getConfig(), currentStats);
+		CrawlFile crawl = new CrawlFile(fileInstance, fileItem, getConfig(),
+				currentStats);
 
 		// Fetch started
 		currentStats.incFetchedCount();
 
 		crawl.download();
 
-		if (currentFileItem.getFetchStatus() == FetchStatus.FETCHED
-				&& currentFileItem.getParserStatus() == ParserStatus.PARSED
-				&& currentFileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
-			currentFileItem.setIndexStatus(IndexStatus.TO_INDEX);
+		if (fileItem.getFetchStatus() == FetchStatus.FETCHED
+				&& fileItem.getParserStatus() == ParserStatus.PARSED
+				&& fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
+			fileItem.setIndexStatus(IndexStatus.TO_INDEX);
 			currentStats.incParsedCount();
 		} else
 			currentStats.incIgnoredCount();
 
-		currentFileItem.setTime((int) (System.currentTimeMillis() - startTime));
+		fileItem.setTime((int) (System.currentTimeMillis() - startTime));
 		return crawl;
 	}
 
@@ -166,24 +183,26 @@ public class CrawlFileThread extends
 		}
 	}
 
-	private boolean checkDirectory(ItemDirectoryIterator itemDirectory,
-			FileCrawlQueue crawlQueue) throws UnsupportedEncodingException,
-			SearchLibException, URISyntaxException {
+	private FileInstanceAbstract[] checkDirectory(
+			FileInstanceAbstract fileInstance)
+			throws UnsupportedEncodingException, SearchLibException,
+			URISyntaxException {
 
 		// Load directory from Index
-		FileInstanceAbstract fileInstance = itemDirectory.getFileInstance();
-		FilePathItem filePathItem = fileInstance.getFilePathItem();
 		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
 		fileManager.getFileInfoList(fileInstance.getURI(), indexFileMap);
 
+		boolean withSubDir = filePathItem.isWithSubDir();
+
 		// If the filePathItem does not support subdir
-		if (!filePathItem.isWithSubDir())
+		if (!withSubDir)
 			for (FileInfo fileInfo : indexFileMap.values())
 				if (fileInfo.getFileType() == FileTypeEnum.directory)
 					smartDelete(crawlQueue, fileInfo);
 
 		// Remove existing files from the map
-		FileInstanceAbstract[] files = itemDirectory.getFiles();
+		FileInstanceAbstract[] files = withSubDir ? fileInstance
+				.listFilesAndDirectories() : fileInstance.listFilesOnly();
 		if (files != null)
 			for (FileInstanceAbstract file : files)
 				indexFileMap.remove(file.getURI().toASCIIString());
@@ -193,42 +212,37 @@ public class CrawlFileThread extends
 			for (FileInfo fileInfo : indexFileMap.values())
 				smartDelete(crawlQueue, fileInfo);
 
-		return checkFile();
+		return files;
 	}
 
-	private boolean checkFile() throws UnsupportedEncodingException,
-			SearchLibException, URISyntaxException {
-		FileInfo oldFileInfo = fileManager
-				.getFileInfo(currentFileItem.getUri());
+	private boolean checkFile(FileItem fileItem)
+			throws UnsupportedEncodingException, SearchLibException,
+			URISyntaxException {
+		FileInfo oldFileInfo = fileManager.getFileInfo(fileItem.getUri());
 		// The file is a new file
 		if (oldFileInfo == null) {
 			return true;
 		}
 		// The file has been modified
-		if (oldFileInfo.isNewCrawlNeeded(currentFileItem))
+		if (oldFileInfo.isNewCrawlNeeded(fileItem))
 			return true;
-		// The file has not changed, we don't need to craw it
+		// The file has not changed, we don't need to crawl it
 		currentStats.incIgnoredCount();
 		return false;
 	}
 
 	public FileItem getCurrentFileItem() {
-		synchronized (this) {
-			return currentFileItem;
-		}
+		return currentFileItem;
 	}
 
 	public void setCurrentFileItem(FileItem item) {
-		synchronized (this) {
-			currentFileItem = item;
-		}
+		currentFileItem = item;
 	}
 
 	@Override
 	public String getCurrentInfo() {
-		if (currentFileItem != null)
-			return currentFileItem.getDirectory();
-		return "";
+		FileItem fileItem = currentFileItem;
+		return fileItem == null ? StringUtils.EMPTY : fileItem.getDirectory();
 	}
 
 }
