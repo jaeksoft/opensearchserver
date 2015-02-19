@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * 
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -50,15 +50,15 @@ public class ActiveDirectory implements Closeable {
 	private DirContext dirContext = null;
 	private String domainSearchName = null;
 
-	public ActiveDirectory(String username, String password, String domain)
-			throws NamingException {
+	public ActiveDirectory(String serverName, String username, String password,
+			String domain) throws NamingException {
 		if (StringUtils.isEmpty(domain))
 			throw new NamingException("The domain is empty");
 		Properties properties = new Properties();
 		properties.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		properties.put(Context.PROVIDER_URL,
-				StringUtils.fastConcat("LDAP://", domain));
+				StringUtils.fastConcat("LDAP://", serverName));
 		properties.put(Context.SECURITY_PRINCIPAL,
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
@@ -96,20 +96,18 @@ public class ActiveDirectory implements Closeable {
 
 	public NamingEnumeration<SearchResult> findUser(String username)
 			throws NamingException {
-		return find(
-				StringUtils.fastConcat(
-						"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname=",
-						username, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
-				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
+		return find(StringUtils.fastConcat(
+				"(&(objectClass=User)(sAMAccountName=", username, "))"),
+				ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID,
+				ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private NamingEnumeration<SearchResult> findGroup(String group)
 			throws NamingException {
-		return find(
-				StringUtils.fastConcat(
-						"(&((&(objectCategory=Group)(objectClass=Group)))(samaccountname=",
-						group, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
-				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
+		return find(StringUtils.fastConcat(
+				"(&(objectClass=Group)(sAMAccountName=", group, "))"), ATTR_CN,
+				ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
+				ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private void findGroups(Collection<ADGroup> groups,
@@ -119,11 +117,11 @@ public class ActiveDirectory implements Closeable {
 			return;
 		List<ADGroup> newGroups = new ArrayList<ADGroup>();
 		for (ADGroup group : groups) {
-			if (searchedGroups.contains(group.cn))
+			if (searchedGroups.contains(group.cn1))
 				continue;
 			collector.add(group);
-			searchedGroups.add(group.cn);
-			NamingEnumeration<SearchResult> result = findGroup(group.cn);
+			searchedGroups.add(group.cn1);
+			NamingEnumeration<SearchResult> result = findGroup(group.cn1);
 			Attributes attrs = getAttributes(result);
 			if (attrs == null)
 				continue;
@@ -144,7 +142,6 @@ public class ActiveDirectory implements Closeable {
 			throws NamingException {
 		String filter = StringUtils.fastConcat(
 				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
-		Logging.info("FILTER:" + filter);
 		NamingEnumeration<SearchResult> results = find(filter, ATTR_DN);
 		while (results.hasMore()) {
 			SearchResult searchResult = results.next();
@@ -153,7 +150,6 @@ public class ActiveDirectory implements Closeable {
 			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
 					ATTR_DN));
 			collector.add(adGroup);
-			Logging.info("GROUP: " + adGroup.dcn);
 		}
 	}
 
@@ -169,7 +165,7 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	private static String getDomainName(String domain) {
-		String[] dcs = StringUtils.split(domain.toUpperCase(), '.');
+		String[] dcs = StringUtils.split(domain, '.');
 		return dcs != null && dcs.length > 0 ? dcs[0] : null;
 	}
 
@@ -183,7 +179,7 @@ public class ActiveDirectory implements Closeable {
 				sb.append('\\');
 			sb.append(user);
 		}
-		return sb.toString();
+		return sb.toString().toLowerCase();
 	}
 
 	public static void collectMemberOf(Attributes attrs,
@@ -201,33 +197,43 @@ public class ActiveDirectory implements Closeable {
 
 	public static class ADGroup {
 
-		public final String cn;
+		public final String cn1;
+		public final String cn2;
 		public final String dc;
-		public final String dcn;
 
 		private ADGroup(final String memberOf) {
 			String[] parts = StringUtils.split(memberOf, ',');
-			String lcn = null;
+			String lcn1 = null;
+			String lcn2 = null;
 			String ldc = null;
 			for (String part : parts) {
 				String[] pair = StringUtils.split(part, "=");
 				if (pair == null || pair.length != 2)
 					continue;
-				if (lcn == null && "CN".equals(pair[0]))
-					lcn = pair[1];
-				if (ldc == null && "DC".equals(pair[0]))
-					ldc = pair[1].toUpperCase();
+				if ("cn".equalsIgnoreCase(pair[0])) {
+					if (lcn1 == null)
+						lcn1 = pair[1];
+					else if (lcn2 == null)
+						lcn2 = pair[1];
+				}
+				if (ldc == null && "dc".equalsIgnoreCase(pair[0]))
+					ldc = pair[1];
 			}
-			this.cn = lcn;
+			this.cn1 = lcn1;
+			this.cn2 = lcn2;
 			this.dc = ldc;
-			this.dcn = StringUtils.fastConcat(dc, '\\', cn);
 		}
 	}
 
 	public static String[] toArray(Collection<ADGroup> groups) {
 		TreeSet<String> groupSet = new TreeSet<String>();
-		for (ADGroup group : groups)
-			groupSet.add(group.dcn);
+		for (ADGroup group : groups) {
+			if ("builtin".equalsIgnoreCase(group.cn2))
+				groupSet.add(group.cn1.toLowerCase());
+			else
+				groupSet.add(StringUtils.fastConcat(group.dc, '\\', group.cn1)
+						.toLowerCase());
+		}
 		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
@@ -239,12 +245,12 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	private static String getDomainSearch(String domain) {
-		String[] dcs = StringUtils.split(domain.toUpperCase(), '.');
+		String[] dcs = StringUtils.split(domain, '.');
 		StringBuilder sb = new StringBuilder();
 		for (String dc : dcs) {
 			if (sb.length() > 0)
 				sb.append(',');
-			sb.append("DC=");
+			sb.append("dc=");
 			sb.append(dc);
 		}
 		return sb.toString();

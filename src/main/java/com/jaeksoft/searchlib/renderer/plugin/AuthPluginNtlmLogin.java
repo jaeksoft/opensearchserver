@@ -82,6 +82,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		ActiveDirectory activeDirectory = null;
 		try {
 			String domain = renderer.getAuthDomain();
+			String authServer = renderer.getAuthServer();
 
 			User user = AuthUserCache.INSTANCE.get(username, domain);
 			if (user != null)
@@ -89,11 +90,11 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer,
 					username, password);
-			UniAddress dc = UniAddress
-					.getByName(renderer.getAuthServer(), true);
+			UniAddress dc = UniAddress.getByName(authServer, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(username, password, domain);
+			activeDirectory = new ActiveDirectory(authServer,
+					ntlmAuth.getUsername(), ntlmAuth.getPassword(), domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
@@ -111,8 +112,8 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 
 			Logging.info("USER authenticated: " + user);
 
-			user = new User(userId, username, password,
-					ActiveDirectory.toArray(groups),
+			user = new User(userId.toLowerCase(), username.toLowerCase(),
+					password, ActiveDirectory.toArray(groups),
 					ActiveDirectory.getDisplayString(domain, username));
 			AuthUserCache.INSTANCE.add(username, domain, user);
 			return user;
@@ -127,16 +128,60 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			throw new AuthException(
 					"Authentication error (UnknownHostException) : "
 							+ e.getMessage());
-		} catch (SmbException e) {
-			Logging.warn(e);
-			throw new AuthException("Authentication error (SmbException) : "
-					+ e.getMessage());
 		} catch (NamingException e) {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
 					+ e.getMessage());
 		} finally {
 			IOUtils.close(activeDirectory);
+		}
+	}
+
+	public static void main(String[] args) throws NamingException,
+			UnknownHostException, SmbException {
+
+		ActiveDirectory activeDirectory = null;
+		try {
+			String server = args[0];
+			String domain = args[1];
+			String username = args[2];
+			String password = args[3];
+
+			NtlmPasswordAuthentication ntlmAuth = new NtlmPasswordAuthentication(
+					domain, username, password);
+			UniAddress dc = UniAddress.getByName(server, true);
+			SmbSession.logon(dc, ntlmAuth);
+
+			activeDirectory = new ActiveDirectory(server, username, password,
+					domain);
+
+			NamingEnumeration<SearchResult> result = activeDirectory
+					.findUser(username);
+
+			Attributes attrs = ActiveDirectory.getAttributes(result);
+			if (attrs == null) {
+				System.out.println("no user found");
+				return;
+			}
+			String userId = ActiveDirectory.getObjectSID(attrs);
+			List<ADGroup> groups = new ArrayList<ADGroup>();
+			activeDirectory.findUserGroups(attrs, groups);
+
+			String dnUser = ActiveDirectory.getStringAttribute(attrs,
+					"DistinguishedName");
+			System.out.println(dnUser);
+			if (!StringUtils.isEmpty(dnUser))
+				activeDirectory.findUserGroup(dnUser, groups);
+
+			String[] groupArray = ActiveDirectory.toArray(groups);
+			System.out.println(new User(userId, username, password, groupArray,
+					ActiveDirectory.getDisplayString(domain, username)));
+			for (String group : groupArray)
+				System.out.println(group);
+
+		} finally {
+			if (activeDirectory != null)
+				activeDirectory.close();
 		}
 	}
 }
