@@ -272,7 +272,9 @@ public class IndexDocument implements Iterable<FieldContent> {
 	}
 
 	public FieldContent getFieldContent(String field) {
-		field = field == null ? null : field.intern();
+		if (field == null)
+			return null;
+		field = field.intern();
 		FieldContent fc = fields.get(field);
 		if (fc == null) {
 			fc = new FieldContent(field);
@@ -282,6 +284,8 @@ public class IndexDocument implements Iterable<FieldContent> {
 	}
 
 	public void add(String field, FieldValueItem fieldValueItem) {
+		if (field == null)
+			return;
 		FieldContent fc = getFieldContent(field);
 		fc.add(fieldValueItem);
 	}
@@ -383,6 +387,8 @@ public class IndexDocument implements Iterable<FieldContent> {
 	}
 
 	public void setSameValueItems(String field, List<FieldValueItem> values) {
+		if (field == null)
+			return;
 		FieldContent fc = getFieldContent(field);
 		fc.setValueItems(values);
 	}
