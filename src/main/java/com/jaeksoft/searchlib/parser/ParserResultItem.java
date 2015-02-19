@@ -141,6 +141,8 @@ public class ParserResultItem {
 	}
 
 	public FieldContent getFieldContent(ParserFieldEnum field) {
+		if (field == null)
+			return null;
 		return parserDocument.getFieldContent(field.name());
 	}
 
