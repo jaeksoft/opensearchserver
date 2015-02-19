@@ -149,7 +149,7 @@ public abstract class FileInstanceAbstract {
 	public String getURL() throws MalformedURLException {
 		if (uri == null)
 			return null;
-		return uri.toURL().toExternalForm();
+		return uri.toASCIIString();
 	}
 
 }

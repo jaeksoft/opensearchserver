@@ -89,8 +89,9 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 
 			NtlmPasswordAuthentication ntlmAuth = getNtlmAuth(renderer, null,
 					null);
-			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
-					ntlmAuth.getPassword(), ntlmAuth.getDomain());
+			activeDirectory = new ActiveDirectory(renderer.getAuthServer(),
+					ntlmAuth.getUsername(), ntlmAuth.getPassword(),
+					ntlmAuth.getDomain());
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(remoteUser);
