@@ -8,19 +8,19 @@ Use this API to work with parsers.
 * [Parsing a file located on the server](parse_local_file.md)
 * [Parsing a file and letting OpenSearchServer detect its type](parse_detect_mime.md)
 
-Parsers allow for extraction of information inside documents. Parsers can handle several types of documents: `.doc`, `.xsl`, `.xml`, `.html`, ...
-Depending on the parser (and on the type of document), different information will be returned. 
+Parsers allow for the extraction of information within documents. They can handle several types of documents: `.doc`, `.xsl`, `.xml`, `.html`, ...
 
-For example the PDF parser will be able to return, for a PDF file:
+The returned information depends on the parser and on the type of document. 
 
-* title,
-* author,
-* full text content,
-* producer,
-* creation date,
-* modification date,
-* language,
-* number of pages,
-* content detected with OCR,
+For example the PDF parser will return, for a PDF file:
+
+* the title,
+* the author,
+* the full text content,
+* the producer,
+* the creation date,
+* the modification date,
+* the language,
+* the number of pages,
+* the content detected with OCR,
 * and some other information.
-
