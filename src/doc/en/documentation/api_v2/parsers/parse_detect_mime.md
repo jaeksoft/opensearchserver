@@ -1,6 +1,6 @@
 ## Parse a document by automatically detecting its MIME type.
 
-Use this API to send a file or to parse a file located on the server: OpenSearchServer will try to automatically detect its MIME type to apply the correct parser on it.
+When this API is used to send a file (or to parse a file on the server), OpenSearchServer attempts to detect the file's MIME type to apply the correct parser.
 
 **Requirement:** OpenSearchServer v1.5.11
 
@@ -19,31 +19,31 @@ Use this API to send a file or to parse a file located on the server: OpenSearch
 
 - **_lang_** (optionnal): The language of the document.
 - **_p.{any_parser_property}_** (optionnal): Any property of the parser.
-- **_type_** (optionnal): MIME type of the file, if known. This will help OpenSearchServer detecting the correct parser.
+- **_type_** (optionnal): MIME type of the file, if known. This will help OpenSearchServer detect the correct parser.
 
 **If parsing a file located on the server:** 
 
-- **_path_**: File path for file to parse if it is located on the server.
+- **_path_**: File path to the file on the server.
 
 **If sending a file to parse:**
 
-- **_name_** (optionnal): The name of the file that is sent. This will help OpenSearchServer detecting the correct parser.
+- **_name_** (optional): The name of the file to send. This will help OpenSearchServer detect the correct parser.
 
 **Binary data (PUT):**
 
-If the file is sent to the server for parsing: body of the request is the file to parse.
+If the file is sent to the server for parsing, the body of the request is the file to parse.
 
 ### Success response
 
-OpenSearchServer will try to detect which parser to use on the file. It will use:
+OpenSearchServer will try to detect which parser to use on the file. The clues used to do so are:
 
-1. name of the file, if given as a parameter, and especially its extension.
-2. type of the file, if given as a parameter.
-3. header of the file.
+1. the name of the file, if given as a parameter, and in particular its extension.
+2. the type of the file, if given as a parameter.
+3. the file's header.
 
-It is a good practice to send at least the name of the file to ensure correct detection of the parser to use.
+We strongly suggest sending at least the name of the file to increase the odds of a correct detection.
 
-The parser has been applied to file (sent or the one whose path has been given as parameter). Appropriate parser has been automatically detected and used. Every extracted fields are returned.
+If the process suceeds, the appropriate parser gets applied to the designated file. Every extracted field then gets returned.
 
 **HTTP code:**
 200
@@ -117,7 +117,7 @@ The parser has been applied to file (sent or the one whose path has been given a
 
 ### Error response
 
-The parsing failed. The reason is provided in the content.
+The parsing failed. The reason why is provided in the content.
 
 **HTTP code:**
 500
