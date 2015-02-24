@@ -27,6 +27,8 @@ Details about the replication sent as JSON. The name will be automatically gener
       "replicationType":"BACKUP_INDEX",
       "remoteUrl":"http://localhost:8080",
       "remoteIndexName":"geo_repl2",
+      "remoteLogin": "admin",
+      "remoteApiKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "secTimeOut":120
     }
 

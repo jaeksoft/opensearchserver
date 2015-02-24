@@ -1,6 +1,6 @@
 ## Retrieving a parser
 
-This API returns details about a parser: which properties exist, which fields are returned.
+This API returns the properties of a parser, as well as a list of fields it returns.
 
 **Requirement:** OpenSearchServer v1.5.9
 
@@ -20,7 +20,7 @@ This API returns details about a parser: which properties exist, which fields ar
 
 ### Success response
 
-Details of the parser are returned either in JSON or in XML format.
+The data about the parser is returned either in JSON or in XML format. The supported file types and file extensions are shown.
 
 **HTTP code:**
 200
@@ -60,6 +60,12 @@ Details of the parser are returned either in JSON or in XML format.
 		  "ocr_content",
 		  "image_ocr_boxes",
 		  "pdfcrack_password"
+	   ],
+	   "file_extensions":[
+			"pdf"
+	   ],
+	   "mime_types":[
+			"application/pdf"
 	   ]
 	}
 

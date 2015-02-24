@@ -16,6 +16,7 @@
     * [How to use variables with the Database Crawler](crawling/how_to_use_variables_with_database_crawler.md)
 	* [How to configure an incremental Database crawl process](crawling/how_to_configure_an_incremental_database_crawler.md)
 	* [How to configure the crawl process of the Web crawler](crawling/how_to_configure_crawl_process_for_web_crawler.md)
+	* [How to crawl a MongoDB server](crawling/how_to_crawl_mongodb.md)
 * [Parsing](parsing/README.md)
     * [XPATH parsing](parsing/configure_an_XPATH_parser.md)
     * [How to parse YouTube URLs and extract data](parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
@@ -34,3 +35,4 @@
     * [How to delete documents](querying/how_to_delete_documents.md)
 	* [How to configure advanced authentication](querying/how_to_configure_advanced_authentication.md)
 	* [How to make an exact search](querying/how_to_make_exact_search.md)
+	* [How to export data to an URL](querying/how_to_export_data.md)

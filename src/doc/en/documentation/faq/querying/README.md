@@ -9,3 +9,4 @@
 * [How to use filters on a query](how_to_use_filters_on_query.md)
 * [How to replicate and merge indexes](how_to_replicate_and_merge_indexes.md)
 * [How to make exact search](how_to_make_exact_search.md)
+* [How to export data to an URL](how_to_export_data.md)
