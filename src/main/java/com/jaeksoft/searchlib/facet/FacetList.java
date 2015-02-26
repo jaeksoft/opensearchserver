@@ -32,8 +32,8 @@ import java.util.TreeMap;
 
 public class FacetList implements Iterable<Facet> {
 
-	private List<Facet> facetList;
-	private transient Map<String, Facet> facetMap;
+	private final List<Facet> facetList;
+	private final transient Map<String, Facet> facetMap;
 
 	public FacetList() {
 		this.facetMap = new TreeMap<String, Facet>();
@@ -41,7 +41,9 @@ public class FacetList implements Iterable<Facet> {
 	}
 
 	public Facet getByField(String fieldName) {
-		return facetMap.get(fieldName);
+		synchronized (this) {
+			return facetMap.get(fieldName);
+		}
 	}
 
 	@Override
@@ -50,8 +52,10 @@ public class FacetList implements Iterable<Facet> {
 	}
 
 	public void add(Facet facet) {
-		facetList.add(facet);
-		facetMap.put(facet.facetField.getName(), facet);
+		synchronized (this) {
+			facetList.add(facet);
+			facetMap.put(facet.facetField.getName(), facet);
+		}
 	}
 
 	public List<Facet> getList() {
