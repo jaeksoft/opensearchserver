@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,7 +36,7 @@ public class FirefoxBrowserDriver extends BrowserDriver<FirefoxDriver> {
 	@Override
 	public FirefoxDriver initialize() {
 		FirefoxProfile profile = new FirefoxProfile();
-		profile.setPreference("network.http.phishy-userpass-length", 255);
+		// profile.setPreference("network.http.phishy-userpass-length", 255);
 		profile.setEnableNativeEvents(false);
 		return new FirefoxDriver(profile);
 	}
