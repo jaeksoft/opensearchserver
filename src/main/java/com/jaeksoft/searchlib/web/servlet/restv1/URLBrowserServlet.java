@@ -93,8 +93,8 @@ public class URLBrowserServlet extends AbstractServlet {
 			throws SearchLibException, ParseException {
 		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportSiteMap(searchRequest);
-		transaction
-				.sendFile(file, "OSS_SiteMap.xml", "text/xml; charset-UTF-8");
+		transaction.sendFile(file, "OSS_SiteMap.xml",
+				"text/xml; charset-UTF-8", true);
 	}
 
 	private void exportURLs(UrlManager urlManager,
@@ -103,7 +103,7 @@ public class URLBrowserServlet extends AbstractServlet {
 		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportURLs(searchRequest);
 		transaction.sendFile(file, "OSS_URL_Export.txt",
-				"text/plain; charset-UTF-8");
+				"text/plain; charset-UTF-8", true);
 	}
 
 	private void deleteAll(UrlManager urlManager, ServletTransaction transaction)
