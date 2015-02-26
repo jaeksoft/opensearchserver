@@ -78,7 +78,8 @@ public class ScreenshotServlet extends AbstractServlet {
 		if (file == null)
 			throw new SearchLibException("File not found");
 		if (transaction != null)
-			transaction.sendFile(file, getPublicFileName(file), "image/png");
+			transaction.sendFile(file, getPublicFileName(file), "image/png",
+					false);
 	}
 
 	final public static String doCheck(ScreenshotManager screenshotManager,
