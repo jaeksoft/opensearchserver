@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
@@ -38,6 +37,8 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ExceptionUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils.ExceptionCatchThread;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
@@ -91,43 +92,31 @@ public class FilterListExecutor {
 	}
 
 	private void join() throws SearchLibException {
-		Exception exception = null;
-		for (FilterThread thread : threads) {
-			try {
-				thread.join();
-				if (exception == null && thread.exception != null)
-					exception = thread.exception;
-			} catch (InterruptedException e) {
-				Logging.warn(e);
-			}
-		}
-		if (exception != null)
-			ExceptionUtils.<SearchLibException> throwException(exception,
+		try {
+			ThreadUtils.join(threads);
+		} catch (Exception e) {
+			ExceptionUtils.<SearchLibException> throwException(e,
 					SearchLibException.class);
+		}
 	}
 
-	public class FilterThread extends Thread {
+	public class FilterThread extends ExceptionCatchThread {
 
 		private final FilterAbstract<?> filter;
-		private Exception exception;
 
 		public FilterThread(FilterAbstract<?> filter) {
 			super(threadGroup, "FilterThread");
 			this.filter = filter;
-			this.exception = null;
 		}
 
 		@Override
-		public void run() {
-			try {
-				FilterHits filterHits = filter.getFilterHits(defaultField,
-						analyzer, request, timer);
-				synchronized (finalFilterHits) {
-					finalFilterHits.operate(filterHits,
-							filter.getOperator(defaultOperator));
-				}
-			} catch (Exception e) {
-				exception = e;
+		public void runner() throws ParseException, IOException,
+				SearchLibException, SyntaxError {
+			FilterHits filterHits = filter.getFilterHits(defaultField,
+					analyzer, request, timer);
+			synchronized (finalFilterHits) {
+				finalFilterHits.operate(filterHits,
+						filter.getOperator(defaultOperator));
 			}
 		}
 	}
