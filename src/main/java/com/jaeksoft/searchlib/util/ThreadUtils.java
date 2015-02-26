@@ -193,4 +193,48 @@ public class ThreadUtils {
 		}
 
 	}
+
+	public static abstract class ExceptionCatchThread extends Thread {
+
+		protected Exception exception;
+
+		public ExceptionCatchThread() {
+			exception = null;
+		}
+
+		public ExceptionCatchThread(ThreadGroup threadGroup, String threadName) {
+			super(threadGroup, threadName);
+		}
+
+		public abstract void runner() throws Exception;
+
+		@Override
+		public void run() {
+			try {
+				runner();
+			} catch (Exception e) {
+				exception = e;
+			}
+		}
+	}
+
+	public static void join(
+			List<? extends ExceptionCatchThread> exceptionThreads)
+			throws Exception {
+		if (exceptionThreads == null)
+			return;
+		Exception exception = null;
+		for (ExceptionCatchThread thread : exceptionThreads) {
+			try {
+				thread.join();
+				if (exception == null && thread.exception != null)
+					exception = thread.exception;
+			} catch (InterruptedException e) {
+				Logging.warn(e);
+			}
+		}
+		if (exception != null)
+			throw exception;
+	}
+
 }

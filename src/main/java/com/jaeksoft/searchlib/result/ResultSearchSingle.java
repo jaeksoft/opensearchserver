@@ -31,8 +31,8 @@ import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
-import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.facet.FacetListExecutor;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.DocSetHits;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
@@ -134,18 +134,10 @@ public class ResultSearchSingle extends AbstractResultSearch {
 		}
 
 		// We compute facet
-		if (searchRequest.isFacet()) {
-			Timer facetTimer = new Timer(timer, "facet");
-			for (FacetField facetField : searchRequest.getFacetFieldList()) {
-				Timer t = new Timer(facetTimer, "facet - "
-						+ facetField.getName() + '(' + facetField.getMinCount()
-						+ ')');
-				this.facetList.add(facetField.getFacet(reader,
-						notCollapsedDocs, collapsedDocs, timer));
-				t.getDuration();
-			}
-			facetTimer.getDuration();
-		}
+		if (searchRequest.isFacet())
+			new FacetListExecutor(searchRequest.getConfig(), reader,
+					notCollapsedDocs, collapsedDocs,
+					searchRequest.getFacetFieldList(), facetList, timer);
 
 		// No collapsing
 		if (collapsedDocs == null) {
