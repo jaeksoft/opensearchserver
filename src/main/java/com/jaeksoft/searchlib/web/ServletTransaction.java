@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -256,11 +256,12 @@ public class ServletTransaction {
 		return WebManager.getWebApp(servlet.getServletContext());
 	}
 
-	public void sendFile(File file, String filename, String contentType)
-			throws SearchLibException {
+	public void sendFile(File file, String filename, String contentType,
+			boolean attach) throws SearchLibException {
 		response.setContentType(contentType);
-		response.addHeader("Content-Disposition", "attachment; filename="
-				+ filename);
+		if (attach)
+			response.addHeader("Content-Disposition", "attachment; filename="
+					+ filename);
 		FileInputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(file);
