@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.facet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -45,7 +46,7 @@ public class FacetListExecutor {
 	private final ThreadGroup threadGroup;
 	private final Timer facetTimer;
 	private final List<FacetThread> threads;
-	private final FacetList facetList;
+	private final Map<String, Map<String, Long>> facetList;
 	private final ReaderAbstract reader;
 	private final DocIdInterface notCollapsedDocs;
 	private final CollapseDocInterface collapsedDocs;
@@ -53,8 +54,8 @@ public class FacetListExecutor {
 	public FacetListExecutor(Config config, ReaderAbstract reader,
 			DocIdInterface notCollapsedDocs,
 			CollapseDocInterface collapsedDocs, FacetFieldList facetFieldList,
-			FacetList facetList, Timer timer) throws SearchLibException,
-			ParseException, IOException, SyntaxError {
+			Map<String, Map<String, Long>> facetList, Timer timer)
+			throws SearchLibException, ParseException, IOException, SyntaxError {
 		this.reader = reader;
 		this.collapsedDocs = collapsedDocs;
 		this.notCollapsedDocs = notCollapsedDocs;
@@ -100,8 +101,8 @@ public class FacetListExecutor {
 				SearchLibException, SyntaxError {
 			Timer t = new Timer(facetTimer, "facet - " + facetField.getName()
 					+ '(' + facetField.getMinCount() + ')');
-			facetList.add(facetField.getFacet(reader, notCollapsedDocs,
-					collapsedDocs, t));
+			facetList.put(facetField.getName(), facetField.getFacet(reader,
+					notCollapsedDocs, collapsedDocs, t));
 			t.getDuration();
 		}
 	}

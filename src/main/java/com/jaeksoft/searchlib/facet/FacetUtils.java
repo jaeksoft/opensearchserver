@@ -28,16 +28,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class FacetUtils {
 
@@ -51,9 +50,21 @@ public class FacetUtils {
 		for (long count : counts) {
 			String term = terms[i];
 			if (term != null && count >= minCount)
-				facetMap.put(term.intern(), count);
+				facetMap.put(term, count);
 			i++;
 		}
+		return facetMap;
+	}
+
+	final static private Map<String, Long> newFacetResult(
+			FacetField facetField, Map<String, Long> facets) {
+		if (facets == null || facets.isEmpty())
+			return Collections.<String, Long> emptyMap();
+		int minCount = facetField.getMinCount();
+		LinkedHashMap<String, Long> facetMap = new LinkedHashMap<String, Long>();
+		for (Map.Entry<String, Long> entry : facets.entrySet())
+			if (entry.getValue() >= minCount)
+				facetMap.put(entry.getKey(), entry.getValue());
 		return facetMap;
 	}
 
@@ -74,10 +85,9 @@ public class FacetUtils {
 			FacetField facetField, Timer timer) throws IOException,
 			SearchLibException {
 		String fieldName = facetField.getName();
-		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
-		long[] countIndex = computeMultivalued(reader, fieldName, stringIndex,
+		Map<String, Long> facets = computeMultivalued(reader, fieldName,
 				docIdInterface);
-		return newFacetResult(facetField, stringIndex.lookup, countIndex);
+		return newFacetResult(facetField, facets);
 	}
 
 	final static protected Map<String, Long> facetSingleValue(
@@ -89,28 +99,34 @@ public class FacetUtils {
 		return newFacetResult(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final private static long[] computeMultivalued(ReaderAbstract reader,
-			String fieldName, FieldCacheIndex stringIndex,
+	final private static Map<String, Long> computeMultivalued(
+			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
-		long[] countIndex = new long[stringIndex.lookup.length];
-		int i = 0;
+		Map<String, Long> termMap = new TreeMap<String, Long>();
 		if (docIdInterface.getSize() == 0)
-			return countIndex;
-		BitSetInterface bitset = docIdInterface.getBitSet();
-		for (String term : stringIndex.lookup) {
-			if (term != null) {
-				Term t = new Term(fieldName, term);
-				TermDocs termDocs = reader.getTermDocs(t);
-				while (termDocs.next())
-					if (termDocs.freq() > 0)
-						if (bitset.get(termDocs.doc()))
-							countIndex[i]++;
-				termDocs.close();
+			return termMap;
+		for (int docId : docIdInterface.getIds()) {
+			TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
+			if (tfv == null)
+				continue;
+			String[] terms = tfv.getTerms();
+			int[] freqs = tfv.getTermFrequencies();
+			if (terms == null || freqs == null)
+				continue;
+			int i = 0;
+			for (String term : terms) {
+				if (freqs[i++] > 0) {
+					Long count = termMap.get(term);
+					if (count == null)
+						count = 1L;
+					else
+						count++;
+					termMap.put(term, count);
+				}
 			}
-			i++;
 		}
-		return countIndex;
+		return termMap;
 	}
 
 	final private static long[] computeSinglevalued(
