@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +75,12 @@ public class Facet implements Iterable<FacetItem>,
 		}
 	}
 
-	private Facet(FacetField facetField, Map<String, Integer> treeMap) {
+	private Facet(FacetField facetField, Map<String, FacetItem> facetMap) {
 		this(facetField);
 		int minCount = facetField.getMinCount();
-		for (Map.Entry<String, Integer> entry : treeMap.entrySet())
-			if (entry.getValue() >= minCount)
-				facetMap.put(entry.getKey(), new FacetItem(entry.getKey(),
-						entry.getValue()));
+		for (FacetItem item : facetMap.values())
+			if (item.count >= minCount)
+				this.facetMap.put(item.term, item);
 	}
 
 	public FacetField getFacetField() {
@@ -141,7 +141,7 @@ public class Facet implements Iterable<FacetItem>,
 			DocIdInterface docIdInterface, FacetField facetField, Timer timer)
 			throws IOException, SearchLibException {
 		String fieldName = facetField.getName();
-		Map<String, Integer> facetMap = computeMultivalued(reader, fieldName,
+		Map<String, FacetItem> facetMap = computeMultivalued(reader, fieldName,
 				docIdInterface);
 		return new Facet(facetField, facetMap);
 	}
@@ -172,7 +172,6 @@ public class Facet implements Iterable<FacetItem>,
 		int[] freqs = new int[100];
 		BitSetInterface bitset = docIdInterface.getBitSet();
 		Term oTerm = new Term(fieldName);
-		int checkCount = 0;
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
 				Term t = oTerm.createTerm(term);
@@ -181,23 +180,20 @@ public class Facet implements Iterable<FacetItem>,
 				while ((l = termDocs.read(docs, freqs)) > 0)
 					for (int i = 0; i < l; i++)
 						if (freqs[i] > 0)
-							if (bitset.get(docs[i])) {
+							if (bitset.get(docs[i]))
 								countIndex[indexPos]++;
-								checkCount++;
-							}
 				termDocs.close();
 			}
 			indexPos++;
 		}
-		System.out.println("CheckCount: " + checkCount);
 		return countIndex;
 	}
 
-	final private static Map<String, Integer> computeMultivalued(
+	final private static Map<String, FacetItem> computeMultivalued(
 			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
-		Map<String, Integer> termMap = new TreeMap<String, Integer>();
+		Map<String, FacetItem> termMap = new HashMap<String, FacetItem>();
 		if (docIdInterface.getSize() == 0)
 			return termMap;
 		for (int docId : docIdInterface.getIds()) {
@@ -211,12 +207,11 @@ public class Facet implements Iterable<FacetItem>,
 			int i = 0;
 			for (String term : terms) {
 				if (freqs[i++] > 0) {
-					Integer count = termMap.get(term);
-					if (count == null)
-						count = 1;
+					FacetItem facetItem = termMap.get(term);
+					if (facetItem == null)
+						termMap.put(term, new FacetItem(term, 1));
 					else
-						count++;
-					termMap.put(term, count);
+						facetItem.count++;
 				}
 			}
 		}
