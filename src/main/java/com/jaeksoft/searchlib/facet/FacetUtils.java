@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.lucene.index.TermFreqVector;
 
@@ -103,7 +103,7 @@ public class FacetUtils {
 			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
-		Map<String, Long> termMap = new TreeMap<String, Long>();
+		Map<String, Long> termMap = new HashMap<String, Long>();
 		if (docIdInterface.getSize() == 0)
 			return termMap;
 		for (int docId : docIdInterface.getIds()) {
