@@ -274,8 +274,13 @@ public class Selectors {
 			List<WebElement> elements = runSelector(context, 1);
 			if (CollectionUtils.isEmpty(elements))
 				return;
-			for (WebElement element : elements)
-				indexDocument.add(field, element.getText(), null);
+			String attribute = getParameterString(2);
+			for (WebElement element : elements) {
+				String value = attribute != null ? element
+						.getAttribute(attribute) : element.getText();
+				if (value != null)
+					indexDocument.add(field, value, null);
+			}
 		}
 	}
 

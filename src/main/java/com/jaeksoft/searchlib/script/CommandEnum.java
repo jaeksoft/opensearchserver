@@ -108,6 +108,8 @@ public enum CommandEnum {
 
 	INDEX_DOCUMENT_ADD_VALUE(IndexDocumentCommands.AddValue.class),
 
+	INDEX_DOCUMENT_ADD_NOW(IndexDocumentCommands.AddNow.class),
+
 	INDEX_DOCUMENT_UPDATE(IndexDocumentCommands.Update.class),
 
 	VAR_NEW_REGEX(VarCommands.VarNewRegEx.class),
