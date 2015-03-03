@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.script.commands;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -71,6 +73,29 @@ public class IndexDocumentCommands {
 			String field = getParameterString(0);
 			String value = getParameterString(1);
 			value = context.replaceVariables(value);
+			Float boost = getParameterFloat(2);
+			indexDocument.add(field, value, boost == null ? 1.0F : boost);
+		}
+	}
+
+	public static class AddNow extends CommandAbstract {
+
+		public AddNow() {
+			super(CommandEnum.INDEX_DOCUMENT_ADD_NOW);
+		}
+
+		@Override
+		public void run(ScriptCommandContext context, String id,
+				String... parameters) throws ScriptException {
+			checkParameters(2, parameters);
+			IndexDocument indexDocument = context.getIndexDocument();
+			if (indexDocument == null)
+				throwError("No index document has been created. Call INDEX_DOCUMENT_NEW.");
+			String field = getParameterString(0);
+			String format = getParameterString(1);
+			format = context.replaceVariables(format);
+			SimpleDateFormat df = new SimpleDateFormat(format);
+			String value = df.format(new Date());
 			Float boost = getParameterFloat(2);
 			indexDocument.add(field, value, boost == null ? 1.0F : boost);
 		}
