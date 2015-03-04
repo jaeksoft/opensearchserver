@@ -6,7 +6,7 @@ rem Move to the directory containing this script
 cd %cd%
 
 set LANG=en_US.UTF-8
-set JAVA_OPTS=%JAVA_OPTS% -Dfile.encoding=UTF8
+set JAVA_OPTS=%JAVA_OPTS% -Dfile.encoding=UTF-8
 
 rem The directory containing the indexes
 set OPENSEARCHSERVER_DATA=%cd%\data

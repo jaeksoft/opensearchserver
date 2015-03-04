@@ -8,6 +8,32 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
+OpenSearchServer 1.5.11
+
+New features:
+- GH-1444: Add attribute option to script function XXX_IndexField
+- GH-1443: New function AddNow in script module
+- GH-1439: Multithreaded facets
+- GH-1424: Change priority order with the charset detection in the HTML parser
+- GH-1416: Add a test button in the renderer to check the authentication
+- GH-1413: Parser for EML Mime Mail messages
+- GH-1412: Let the parsing API decides which parser to use
+- GH-1404: Define a per query behavior for batch of queries
+- GH-1394: The collapsed documents should be fully visible when the size parameter is set to 0
+- GH-1390: Search fields should grouped as boolean queries
+- GH-1388: Analyzer: create a filter for applying various transformation to proper nouns
+
+-Bug fixes:
+- GH-1437: Broken image in screenshot capture
+- GH-1434: Cannot put a negative value in the geo parameters user interface
+- GH-1430: The file crawler recursive parsing misses some files
+- GH-1427: The LDAP and JCIFS records do not match when querying an Active Directory
+- GH-1414: Problem with special characters encoding when editing synonyms or stopwords on Windows
+- GH-1406: Scoring, boosting query: not working?
+- GH-1402: Empty query is not well evaluated in Search Field
+- GH-1400: In search requests, the "Empty return all" attribute is not persistent
+- GH-1397: ResultSet closed error when using SQL update with the database crawler
+
 OpenSearchServer 1.5.10
 
 New features:
