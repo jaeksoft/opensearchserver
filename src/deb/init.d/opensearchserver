@@ -24,7 +24,7 @@ OPENSEARCHSERVER_SHARE=/usr/share/opensearchserver
 OPENSEARCHSERVER_EXT=$OPENSEARCHSERVER_SHARE/ext
 OPENSEARCHSERVER_JAR=$OPENSEARCHSERVER_SHARE/opensearchserver.jar
 SERVER_DIR=$OPENSEARCHSERVER_DIR/server
-SERVER_OPTS="$JAVA_OPTS -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8 -Doss.externalparser.classpath=$OPENSEARCHSERVER_EXT/*"
+SERVER_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8 -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8 -Doss.externalparser.classpath=$OPENSEARCHSERVER_EXT/*"
 SERVER_LOG=/var/log/opensearchserver/server.out
 SERVER_PID="/var/run/opensearchserver.pid"
 export SERVER_USER=opensearchserver
