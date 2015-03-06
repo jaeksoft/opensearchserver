@@ -213,6 +213,27 @@ public class PdfParser extends Parser {
 		}
 	}
 
+	private String decrypt(PDDocument pdf, File pdfFile)
+			throws BadSecurityHandlerException, IOException,
+			CryptographyException {
+		// Let's try first with an empty password
+		String password = StringUtils.EMPTY;
+		try {
+			pdf.openProtection(new StandardDecryptionMaterial(password));
+		} catch (CryptographyException e) {
+			// New attempt with PDFCrack
+			String pdfCrackCommandLine = getStringProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
+			if (StringUtils.isEmpty(pdfCrackCommandLine))
+				throw e;
+			password = PdfCrack.findPassword(pdfCrackCommandLine, pdfFile);
+			if (password == null) // No password found
+				throw new IOException("Encrypted PDF.");
+			// Password found, let's open
+			pdf.openProtection(new StandardDecryptionMaterial(password));
+		}
+		return password;
+	}
+
 	@Override
 	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 			throws IOException {
@@ -226,36 +247,33 @@ public class PdfParser extends Parser {
 					ghostScriptBinaryPath);
 			fileName = streamLimiter.getFile().getName();
 			File pdfFile = streamLimiter.getFile();
-			pdf = PDDocument.loadNonSeq(pdfFile, null);
-			if (pdf.isEncrypted()) {
-				String pdfCrackCommandLine = getStringProperty(ClassPropertyEnum.PDFCRACK_COMMANDLINE);
-				if (!StringUtils.isEmpty(pdfCrackCommandLine))
-					password = PdfCrack.findPassword(pdfCrackCommandLine,
-							streamLimiter.getFile());
-				if (password == null)
-					throw new IOException("Encrypted PDF.");
-				pdf.openProtection(new StandardDecryptionMaterial(password));
+			pdf = PDDocument.load(pdfFile, null);
+			try {
+				if (pdf.isEncrypted())
+					password = decrypt(pdf, pdfFile);
+			} catch (Exception e) {
+				Logging.warn("PDFBox decryption failed " + fileName);
+				IOUtils.closeQuietly(pdf);
+				pdf = null;
 			}
 			ParserResultItem result = getNewParserResultItem();
 			result.addField(ParserFieldEnum.pdfcrack_password, password);
-			extractMetaData(result, pdf);
-			int charCount;
-			if (ghostScript == null)
-				charCount = extractTextContent(result, pdf);
-			else
+			if (pdf != null)
+				extractMetaData(result, pdf);
+			int charCount = 0;
+			if (ghostScript == null) {
+				if (pdf != null)
+					charCount = extractTextContent(result, pdf);
+			} else
 				charCount = extractTextContent(result, ghostScript, pdfFile,
 						password);
-			if (charCount == 0)
+			if (charCount == 0 && pdf != null)
 				extractImagesForOCR(result, pdf, lang, ghostScript, pdfFile,
 						password);
 			result.langDetection(10000, ParserFieldEnum.content);
 		} catch (SearchLibException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} catch (InterruptedException e) {
-			throw new IOException("Failed on " + fileName, e);
-		} catch (BadSecurityHandlerException e) {
-			throw new IOException("Failed on " + fileName, e);
-		} catch (CryptographyException e) {
 			throw new IOException("Failed on " + fileName, e);
 		} finally {
 			if (pdf != null)
