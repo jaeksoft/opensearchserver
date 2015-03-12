@@ -1,3 +1,4 @@
+<%@ page import="java.util.List"%>
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.request.AbstractSearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
