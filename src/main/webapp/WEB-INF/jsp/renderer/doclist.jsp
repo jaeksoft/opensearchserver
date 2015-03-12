@@ -1,3 +1,4 @@
+<%@ page import="java.util.List"%>
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%@ page import="com.jaeksoft.searchlib.request.AbstractSearchRequest"%>
 <%@ page import="com.jaeksoft.searchlib.result.ResultDocument"%>
@@ -11,6 +12,7 @@
 	if (result != null) {
 		Renderer renderer = (Renderer) request.getAttribute("renderer");
 		if (result.getDocumentCount() > 0) {
+			boolean isJoin = renderer.isFieldWithJoin();
 			AbstractSearchRequest searchRequest = result.getRequest();
 			int start = searchRequest.getStart();
 			int end = searchRequest.getStart()
@@ -19,8 +21,12 @@
 <div class="osscmnrdr oss-result">
 	<%
 		for (int i = start; i < end; i++) {
-					ResultDocument resultDocument = result.getDocument(i);
-					request.setAttribute("resultDocument", resultDocument);
+					ResultDocument mainResultDocument = result
+							.getDocument(i);
+					List<ResultDocument> joinResultDocuments = null;
+					if (isJoin)
+						joinResultDocuments = result.getJoinDocumentList(i,
+								null);
 					Integer fieldPos = 0;
 					boolean lastWasReplace = false;
 					String[] lastFieldValues = null;
@@ -32,6 +38,12 @@
 							if (lastFieldValues != null)
 								continue;
 						}
+						ResultDocument resultDocument = rendererField
+								.getResultDocument(mainResultDocument,
+										joinResultDocuments);
+						request.setAttribute("resultDocument",
+								resultDocument);
+
 						fieldPos++;
 						request.setAttribute("fieldPos", fieldPos);
 						RendererWidgetType widget = rendererField
