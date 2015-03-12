@@ -615,6 +615,23 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
+	public boolean isFieldWithJoin() {
+		rwl.r.lock();
+		try {
+			if (fields == null)
+				return false;
+			for (RendererField field : fields) {
+				Integer fieldSource = field.getFieldSource();
+				if (fieldSource != null && fieldSource > 0)
+					return true;
+			}
+			return false;
+		} finally {
+			rwl.r.unlock();
+		}
+
+	}
+
 	public List<RendererFilter> getFilters() {
 		rwl.r.lock();
 		try {
