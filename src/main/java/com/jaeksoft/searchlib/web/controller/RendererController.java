@@ -37,7 +37,10 @@ import org.zkoss.bind.annotation.Command;
 import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.join.JoinItem;
+import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererJspEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
@@ -491,14 +494,34 @@ public class RendererController extends CommonController {
 		return RendererFilterType.values();
 	}
 
-	public List<String> getFieldList() throws SearchLibException {
-		if (currentRendererField == null || currentRenderer == null)
+	private AbstractSearchRequest getRequest() throws SearchLibException {
+		if (currentRenderer == null)
 			return null;
 		Client client = getClient();
 		if (client == null)
 			return null;
-		AbstractSearchRequest request = (AbstractSearchRequest) client
-				.getRequestMap().get(currentRenderer.getRequestName());
+		return (AbstractSearchRequest) client.getRequestMap().get(
+				currentRenderer.getRequestName());
+	}
+
+	public List<Integer> getFieldSourceList() throws SearchLibException {
+		AbstractSearchRequest request = getRequest();
+		if (request == null)
+			return null;
+		List<Integer> namedList = new ArrayList<Integer>();
+		namedList.add(null);
+		JoinList joinList = request.getJoinList();
+		if (joinList == null)
+			return namedList;
+		for (JoinItem joinItem : joinList)
+			namedList.add(joinItem.getPosition());
+		return namedList;
+	}
+
+	public List<String> getFieldList() throws SearchLibException {
+		if (currentRendererField == null)
+			return null;
+		AbstractSearchRequest request = getRequest();
 		if (request == null)
 			return null;
 		List<String> nameList = new ArrayList<String>();
@@ -508,15 +531,24 @@ public class RendererController extends CommonController {
 	}
 
 	public List<String> getFieldOrSnippetList() throws SearchLibException {
-		if (currentRendererField == null || currentRenderer == null)
+		if (currentRendererField == null)
 			return null;
-		Client client = getClient();
-		if (client == null)
-			return null;
-		AbstractSearchRequest request = (AbstractSearchRequest) client
-				.getRequestMap().get(currentRenderer.getRequestName());
+		AbstractSearchRequest request = getRequest();
 		if (request == null)
 			return null;
+		Integer fieldSource = currentRendererField.getFieldSource();
+		if (fieldSource != null && fieldSource > 0) {
+			JoinItem joinItem = request.getJoinList().get(fieldSource - 1);
+			if (joinItem == null)
+				return null;
+			Client client = ClientCatalog.getClient(joinItem.getIndexName());
+			if (client == null)
+				return null;
+			request = (AbstractSearchRequest) client.getRequestMap().get(
+					joinItem.getQueryTemplate());
+			if (request == null)
+				return null;
+		}
 		List<String> nameList = new ArrayList<String>();
 		nameList.add(null);
 		if (currentRendererField.getFieldType() == RendererFieldType.FIELD)

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -99,6 +99,15 @@ public class JoinList implements Iterable<JoinItem> {
 
 	public void add(XPathParser xpp, Node node) throws XPathExpressionException {
 		joinList.add(new JoinItem(xpp, node));
+		renumbered();
+	}
+
+	public JoinItem get(int index) {
+		if (joinList == null)
+			return null;
+		if (index < 0 || index >= joinList.size())
+			return null;
+		return joinList.get(index);
 	}
 
 	public DocIdInterface apply(AbstractSearchRequest searchRequest,

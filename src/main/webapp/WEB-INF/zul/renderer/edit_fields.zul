@@ -19,6 +19,18 @@
 	<listhead>
 		<listheader label="Field / Snippet" hflex="min" valign="top">
 			<vlayout>
+				<hlayout>
+					<label value="join: " />
+					<listbox model="@load(renderer.fieldSourceList)"
+						onSelect="@command('reload')"
+						selectedItem="@bind(renderer.currentRendererField.fieldSource)"
+						mold="select">
+						<template name="model">
+							<listitem label="@load(each)"
+								value="@load(each)" />
+						</template>
+					</listbox>
+				</hlayout>
 				<listbox model="@load(renderer.fieldTypeList)"
 					onSelect="@command('reload')"
 					selectedItem="@bind(renderer.currentRendererField.fieldType)"
@@ -122,6 +134,7 @@
 	<template name="model" var="rendererFieldItem">
 		<listitem>
 			<listcell>
+				<label value="@load(rendererFieldItem.fieldSource)" />
 				<label value="@load(rendererFieldItem.fieldType)" />
 				<label value=": " />
 				<label value="@load(rendererFieldItem.fieldName)" />

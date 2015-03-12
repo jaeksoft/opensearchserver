@@ -54,6 +54,8 @@ public class RendererField {
 
 	private String urlFieldName;
 
+	private Integer fieldSource;
+
 	private boolean urlDecode;
 
 	private RendererWidgetType widgetName;
@@ -71,6 +73,8 @@ public class RendererField {
 	private final static String RENDERER_FIELD_ATTR_FIELDNAME = "fieldName";
 
 	private final static String RENDERER_FIELD_ATTR_REPLACEPREVIOUS = "replacePrevious";
+
+	private final static String RENDERER_FIELD_ATTR_FIELD_SOURCE = "fieldSource";
 
 	private final static String RENDERER_FIELD_ATTR_FIELD_TYPE = "fieldType";
 
@@ -90,6 +94,7 @@ public class RendererField {
 
 	public RendererField() {
 		fieldName = StringUtils.EMPTY;
+		fieldSource = null;
 		replacePrevious = false;
 		fieldType = RendererFieldType.FIELD;
 		oldStyle = StringUtils.EMPTY;
@@ -108,6 +113,8 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_FIELDNAME);
 		replacePrevious = DomUtils.getAttributeBoolean(node,
 				RENDERER_FIELD_ATTR_REPLACEPREVIOUS, false);
+		fieldSource = DomUtils.getAttributeInteger(node,
+				RENDERER_FIELD_ATTR_FIELD_SOURCE, null);
 		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
 				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
 		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
@@ -134,6 +141,7 @@ public class RendererField {
 	public void copyTo(RendererField target) {
 		target.fieldName = fieldName;
 		target.replacePrevious = replacePrevious;
+		target.fieldSource = fieldSource;
 		target.fieldType = fieldType;
 		target.oldStyle = oldStyle;
 		target.cssClass = cssClass;
@@ -266,7 +274,20 @@ public class RendererField {
 		return fields;
 	}
 
+	final public ResultDocument getResultDocument(
+			ResultDocument resultDocument,
+			List<ResultDocument> joinResultDocuments) {
+		if (fieldSource == null || fieldSource == 0)
+			return resultDocument;
+		if (joinResultDocuments != null
+				&& fieldSource <= joinResultDocuments.size())
+			return joinResultDocuments.get(fieldSource - 1);
+		return null;
+	}
+
 	final public String[] getFieldValue(ResultDocument resultDocument) {
+		if (resultDocument == null)
+			return null;
 		if (fieldType == RendererFieldType.FIELD) {
 			boolean isUrl = urlFieldName != null
 					&& urlFieldName.equals(fieldName);
@@ -280,7 +301,7 @@ public class RendererField {
 	}
 
 	final public String getOriginalUrl(ResultDocument resultDocument) {
-		if (urlFieldName == null)
+		if (urlFieldName == null || resultDocument == null)
 			return null;
 		String url = resultDocument.getValueContent(urlFieldName, 0);
 		if (url == null)
@@ -340,9 +361,11 @@ public class RendererField {
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException {
 		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
-				fieldName, RENDERER_FIELD_ATTR_REPLACEPREVIOUS,
-				Boolean.toString(replacePrevious),
+				fieldName, RENDERER_FIELD_ATTR_REPLACEPREVIOUS, Boolean
+						.toString(replacePrevious),
 				RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
+				RENDERER_FIELD_ATTR_FIELD_SOURCE, fieldSource == null ? null
+						: fieldSource.toString(),
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
 				RENDERER_FIELD_ATTR_URL_DECODE, Boolean.toString(urlDecode),
 				RENDERER_FIELD_ATTR_CSS_CLASS, cssClass,
@@ -381,6 +404,21 @@ public class RendererField {
 	 */
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
+	}
+
+	/**
+	 * @return the fieldSource
+	 */
+	public Integer getFieldSource() {
+		return fieldSource;
+	}
+
+	/**
+	 * @param fieldSource
+	 *            the fieldSource to set
+	 */
+	public void setFieldSource(Integer fieldSource) {
+		this.fieldSource = fieldSource;
 	}
 
 }
