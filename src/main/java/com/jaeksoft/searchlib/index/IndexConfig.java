@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.Similarity;
 import org.json.JSONException;
 import org.w3c.dom.Node;
@@ -59,6 +60,8 @@ public class IndexConfig {
 
 	private int maxNumSegments;
 
+	private long writeLockTimeout;
+
 	public IndexConfig(Node node) throws URISyntaxException {
 		maxNumSegments = 1;
 		searchCache = XPathParser.getAttributeValue(node, "searchCache");
@@ -77,6 +80,10 @@ public class IndexConfig {
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
 		if (maxNumSegments == 0)
 			maxNumSegments = 1;
+		writeLockTimeout = XPathParser.getAttributeValue(node,
+				"writeLockTimeout");
+		if (writeLockTimeout == 0)
+			writeLockTimeout = IndexWriterConfig.getDefaultWriteLockTimeout();
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
@@ -88,7 +95,8 @@ public class IndexConfig {
 				remoteURI != null ? remoteURI.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
 				similarityClass, "maxNumSegments",
-				Integer.toString(maxNumSegments));
+				Integer.toString(maxNumSegments), "writeLockTimeout",
+				Long.toString(writeLockTimeout));
 		xmlWriter.endElement();
 	}
 
@@ -245,6 +253,18 @@ public class IndexConfig {
 			boolean createIndexIfNotExists) throws IOException,
 			URISyntaxException, SearchLibException, JSONException {
 		return new IndexSingle(configDir, this, createIndexIfNotExists);
+	}
+
+	public long getWriteLockTimeout() {
+		return writeLockTimeout;
+	}
+
+	/**
+	 * @param writeLockTimeout
+	 *            the writeLockTimeout to set
+	 */
+	public void setWriteLockTimeout(long writeLockTimeout) {
+		this.writeLockTimeout = writeLockTimeout;
 	}
 
 }
