@@ -29,15 +29,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.Similarity;
 import org.json.JSONException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.opensearchserver.utils.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.utils.StringUtils;
 
 public class IndexConfig {
 
@@ -59,6 +60,8 @@ public class IndexConfig {
 
 	private int maxNumSegments;
 
+	private long writeLockTimeout;
+
 	private IndexType indexType;
 
 	public IndexConfig(Node node) throws URISyntaxException {
@@ -79,22 +82,25 @@ public class IndexConfig {
 		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
 		if (maxNumSegments == 0)
 			maxNumSegments = 1;
+		writeLockTimeout = XPathParser.getAttributeValue(node,
+				"writeLockTimeout");
+		if (writeLockTimeout == 0)
+			writeLockTimeout = IndexWriterConfig.getDefaultWriteLockTimeout();
 		indexType = IndexType.find(XPathParser.getAttributeString(node,
 				"indexType"));
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter
-				.startElement("index", "searchCache",
-						Integer.toString(searchCache), "filterCache",
-						Integer.toString(filterCache), "fieldCache",
-						Integer.toString(fieldCache), "termVectorCache",
-						Integer.toString(termVectorCache), "remoteURI",
-						remoteURI != null ? remoteURI.toString() : null,
-						"keyField", keyField, "keyMd5RegExp", keyMd5RegExp,
-						"similarityClass", similarityClass, "maxNumSegments",
-						Integer.toString(maxNumSegments), "indexType",
-						indexType.name());
+		xmlWriter.startElement("index", "searchCache",
+				Integer.toString(searchCache), "filterCache",
+				Integer.toString(filterCache), "fieldCache",
+				Integer.toString(fieldCache), "termVectorCache",
+				Integer.toString(termVectorCache), "remoteURI",
+				remoteURI != null ? remoteURI.toString() : null, "keyField",
+				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
+				similarityClass, "maxNumSegments",
+				Integer.toString(maxNumSegments), "writeLockTimeout",
+				Long.toString(writeLockTimeout), "indexType", indexType.name());
 		xmlWriter.endElement();
 	}
 
@@ -245,6 +251,18 @@ public class IndexConfig {
 		} catch (ClassNotFoundException e) {
 			throw new SearchLibException(e);
 		}
+	}
+
+	public long getWriteLockTimeout() {
+		return writeLockTimeout;
+	}
+
+	/**
+	 * @param writeLockTimeout
+	 *            the writeLockTimeout to set
+	 */
+	public void setWriteLockTimeout(long writeLockTimeout) {
+		this.writeLockTimeout = writeLockTimeout;
 	}
 
 	/**

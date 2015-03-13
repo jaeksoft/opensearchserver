@@ -30,12 +30,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.apache.commons.exec.OS;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.NoSuchDirectoryException;
 import org.json.JSONException;
 
@@ -53,10 +51,7 @@ public class IndexDirectory {
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected IndexDirectory(File indexDir) throws IOException {
-		if (OS.isFamilyWindows())
-			directory = FSDirectory.open(indexDir);
-		else
-			directory = NIOFSDirectory.open(indexDir);
+		directory = FSDirectory.open(indexDir);
 	}
 
 	/**

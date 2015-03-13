@@ -119,6 +119,7 @@ public class WriterLucene extends WriterAbstract {
 				null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
+		config.setWriteLockTimeout(indexConfig.getWriteLockTimeout());
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			config.setSimilarity(similarity);
