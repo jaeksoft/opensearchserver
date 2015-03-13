@@ -65,6 +65,17 @@ public class TaskProperties {
 		return prop.getValue();
 	}
 
+	public Integer getValueInteger(TaskPropertyDef propertyDef) {
+		String s = getValue(propertyDef);
+		return s == null ? null : Integer.parseInt(s);
+	}
+
+	public boolean getValueBoolean(TaskPropertyDef propertyDef,
+			boolean defaultValue) {
+		String s = getValue(propertyDef);
+		return s == null ? defaultValue : Boolean.parseBoolean(s);
+	}
+
 	public void setValue(TaskPropertyDef propertyDef, String value) {
 		TaskProperty prop = map.get(propertyDef);
 		if (prop == null)
