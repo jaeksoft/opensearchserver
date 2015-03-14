@@ -97,7 +97,10 @@ public class CrawlFileThread extends
 			return;
 		FileItem fileItem = fileManager.getNewFileItem(fileInstance);
 		setCurrentFileItem(fileItem);
-		switch (fileItem.getFileType()) {
+		FileTypeEnum fileType = fileItem.getFileType();
+		if (fileType == null)
+			return;
+		switch (fileType) {
 		case directory:
 			FileInstanceAbstract[] files = checkDirectory(fileInstance);
 			if (files == null)
