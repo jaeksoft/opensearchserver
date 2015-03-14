@@ -19,7 +19,7 @@
 	<grid model="@load(index.indices)">
 		<auxhead>
 			<auxheader colspan="3" label="Cache" align="center" />
-			<auxheader colspan="3" />
+			<auxheader colspan="4" />
 			<auxheader colspan="5" label="Statistics &amp; status"
 				align="center" />
 			<auxheader />
@@ -33,6 +33,7 @@
 			<column label="remoteUrl" hflex="min" />
 			<column label="keyField" hflex="min" />
 			<column label="keyMd5RegExp" hflex="min" />
+			<column label="writeLockTimeout" hflex="min" />
 			<column label="numDocs" hflex="min"
 				tooltiptext="Total number of documents" />
 			<column label="maxDoc" hflex="min"
@@ -55,6 +56,8 @@
 					<label value="@load(index.indexConfig.keyField)" />
 					<label
 						value="@load(index.indexConfig.keyMd5RegExp)" />
+					<label
+						value="@load(index.indexConfig.writeLockTimeout)" />
 					<label value="@load(index.statistics.numDocs)" />
 					<label value="@load(index.statistics.maxDoc)" />
 					<label value="@load(index.statistics.deletions)" />

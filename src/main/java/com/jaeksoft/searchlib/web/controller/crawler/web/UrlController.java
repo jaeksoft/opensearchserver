@@ -545,9 +545,10 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest,
-					FetchStatus.UN_FETCHED,
-					TaskUrlManagerAction.CommandOptimize, getBufferSize());
+			taskUrlManagerAction
+					.setManual(searchRequest,
+							TaskUrlManagerAction.CommandSetToUnfetched,
+							getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -558,8 +559,8 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
 			taskUrlManagerAction.setManual(searchRequest,
-					FetchStatus.FETCH_FIRST,
-					TaskUrlManagerAction.CommandOptimize, getBufferSize());
+					TaskUrlManagerAction.CommandSetToFetchFirst,
+					getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -567,7 +568,7 @@ public class UrlController extends CommonController {
 	public void onLoadSitemap() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null, null,
+			taskUrlManagerAction.setManual(null,
 					TaskUrlManagerAction.CommandLoadSitemap, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
@@ -577,7 +578,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest, null,
+			taskUrlManagerAction.setManual(searchRequest,
 					TaskUrlManagerAction.CommandDeleteSelection,
 					getBufferSize());
 			onTask(taskUrlManagerAction);
@@ -589,7 +590,7 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest, null,
+			taskUrlManagerAction.setManual(searchRequest,
 					TaskUrlManagerAction.CommandSynchronize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
@@ -599,7 +600,7 @@ public class UrlController extends CommonController {
 	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null, null,
+			taskUrlManagerAction.setManual(null,
 					TaskUrlManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
@@ -608,7 +609,7 @@ public class UrlController extends CommonController {
 	public void onDeleteAll() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null, null,
+			taskUrlManagerAction.setManual(null,
 					TaskUrlManagerAction.CommandDeleteAll, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
