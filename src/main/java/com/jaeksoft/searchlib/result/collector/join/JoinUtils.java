@@ -112,9 +112,9 @@ public class JoinUtils {
 				i1++;
 			} else if (c > 0) {
 				i2++;
+				// No more outer content, we can leave
 				if (i2 == ids2.length)
-					while (i1 != ids1.length)
-						ids1[i1++] = -1;
+					break;
 			} else {
 				if (scores2 != null)
 					score2 = scores2[i2];
