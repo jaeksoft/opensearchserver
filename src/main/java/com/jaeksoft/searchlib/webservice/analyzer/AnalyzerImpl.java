@@ -131,6 +131,27 @@ public class AnalyzerImpl extends CommonServices implements RestAnalyzer {
 		}
 	}
 
+	@Override
+	public CommonResult delete(String index, String login, String key,
+			String name, LanguageEnum lang) {
+		try {
+			Client client = getLoggedClient(index, login, key,
+					Role.INDEX_SCHEMA);
+			ClientFactory.INSTANCE.properties.checkApi();
+			Analyzer analyzer = getAnalyzer(client, name, lang);
+			client.getSchema().getAnalyzerList().remove(analyzer);
+			client.saveConfig();
+			return new CommonResult(true, "Analyzer deleted " + name + " "
+					+ lang);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
 	private static final Analyzer getAnalyzer(Client client, String name,
 			LanguageEnum lang) {
 		Analyzer analyzer = client.getSchema().getAnalyzerList()
