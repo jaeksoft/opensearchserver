@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.webservice.analyzer;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -61,6 +62,14 @@ public interface RestAnalyzer {
 			@QueryParam("login") String login, @QueryParam("key") String key,
 			@PathParam("analyzer_name") String analyzer_name,
 			@PathParam("lang") LanguageEnum language, AnalyzerItem analyzer);
+
+	@DELETE
+	@Path("/{analyzer_name}/lang/{lang}")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public CommonResult delete(@PathParam("index_name") String index_name,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@PathParam("analyzer_name") String analyzer_name,
+			@PathParam("lang") LanguageEnum language);
 
 	@GET
 	@Path("/{analyzer_name}")
