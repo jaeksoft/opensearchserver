@@ -73,27 +73,6 @@ public class WebCrawlMaster extends
 
 	private Date fetchIntervalDate;
 
-	public class Selection {
-
-		private final ListType listType;
-
-		private final Date beforeDate;
-
-		private final Date afterDate;
-
-		private final FetchStatus fetchStatus;
-
-		public Selection(ListType listType, FetchStatus fetchStatus,
-				Date beforeDate, Date afterDate) {
-			this.listType = listType;
-			this.fetchStatus = fetchStatus;
-			this.beforeDate = beforeDate;
-			this.afterDate = afterDate;
-		}
-	}
-
-	private Selection selection;
-
 	private int maxUrlPerSession;
 
 	private int maxUrlPerHost;
@@ -208,24 +187,21 @@ public class WebCrawlMaster extends
 
 		long urlLimit = maxUrlPerSession;
 		// First try fetch priority
-		selection = new Selection(ListType.PRIORITY_URL,
-				FetchStatus.FETCH_FIRST, null, null);
-		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
-				selection.beforeDate, selection.afterDate, urlLimit,
+		NamedItem.Selection selection = new NamedItem.Selection(
+				ListType.PRIORITY_URL, FetchStatus.FETCH_FIRST, null, null);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit,
 				maxUrlPerHost, hostList, hostSet);
 
 		// Second try old URLs
-		selection = new Selection(ListType.OLD_URL, null, fetchIntervalDate,
-				null);
-		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
-				selection.beforeDate, selection.afterDate, urlLimit,
+		selection = new NamedItem.Selection(ListType.OLD_URL, null,
+				fetchIntervalDate, null);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit,
 				maxUrlPerHost, hostList, hostSet);
 
 		// Finally try new unfetched URLs
-		selection = new Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED,
-				null, fetchIntervalDate);
-		urlLimit = urlManager.getHostToFetch(selection.fetchStatus,
-				selection.beforeDate, selection.afterDate, urlLimit,
+		selection = new NamedItem.Selection(ListType.NEW_URL,
+				FetchStatus.UN_FETCHED, null, fetchIntervalDate);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit,
 				maxUrlPerHost, hostList, hostSet);
 
 		currentStats.addHostListSize(hostList.size());
@@ -299,7 +275,6 @@ public class WebCrawlMaster extends
 			if (s > 0) {
 				NamedItem host = hostList.remove(new Random().nextInt(s));
 				if (host != null) {
-					host.setList(hostList);
 					currentStats.incHostCount();
 					return host;
 				}
@@ -332,10 +307,9 @@ public class WebCrawlMaster extends
 
 		List<UrlItem> urlList = new ArrayList<UrlItem>();
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);
-		hostUrlList.setListType(selection.listType);
+		hostUrlList.setListType(host.selection.listType);
 
-		urlManager.getUrlToFetch(host, selection.fetchStatus,
-				selection.beforeDate, selection.afterDate, count, urlList);
+		urlManager.getUrlToFetch(host, count, urlList);
 
 		setInfo(null);
 		return hostUrlList;

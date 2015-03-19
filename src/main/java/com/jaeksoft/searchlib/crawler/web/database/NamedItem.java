@@ -24,43 +24,33 @@
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import java.util.List;
+import java.util.Date;
+
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 
 public class NamedItem {
 
-	protected String name;
-	protected long count;
-	protected transient List<NamedItem> list;
-
-	public NamedItem() {
-		name = null;
-		count = 0;
-	}
+	final protected String name;
+	final protected long count;
+	final public Selection selection;
 
 	public NamedItem(String name) {
-		this.name = name;
-		this.count = 0;
+		this(name, 0, null);
 	}
 
-	public NamedItem(String name, long count) {
+	public NamedItem(String name, long count, Selection selection) {
 		this.name = name;
 		this.count = count;
+		this.selection = selection;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public long getCount() {
 		return count;
-	}
-
-	public void setCount(long c) {
-		this.count = c;
 	}
 
 	public String getNameAndCount() {
@@ -72,11 +62,22 @@ public class NamedItem {
 		return sb.toString();
 	}
 
-	public void setList(List<NamedItem> list) {
-		this.list = list;
-	}
+	public static class Selection {
 
-	public List<NamedItem> getList() {
-		return this.list;
+		public final ListType listType;
+
+		public final Date beforeDate;
+
+		public final Date afterDate;
+
+		public final FetchStatus fetchStatus;
+
+		public Selection(ListType listType, FetchStatus fetchStatus,
+				Date beforeDate, Date afterDate) {
+			this.listType = listType;
+			this.fetchStatus = fetchStatus;
+			this.beforeDate = beforeDate;
+			this.afterDate = afterDate;
+		}
 	}
 }
