@@ -176,25 +176,26 @@ public class UrlManager extends AbstractManager {
 	}
 
 	private void filterQueryToFetch(AbstractSearchRequest request,
-			FetchStatus fetchStatus, Date before, Date after)
-			throws ParseException {
-		if (fetchStatus != null) {
+			NamedItem.Selection selection) throws ParseException {
+		if (selection == null)
+			return;
+		if (selection.fetchStatus != null) {
 			StringBuilder query = new StringBuilder();
 			query.append("fetchStatus:");
-			query.append(fetchStatus.value);
+			query.append(selection.fetchStatus.value);
 			request.addFilter(query.toString(), false);
 		}
-		if (before != null) {
+		if (selection.beforeDate != null) {
 			StringBuilder query = new StringBuilder();
 			query.append("when:[00000000000000 TO ");
-			query.append(UrlItem.whenDateFormat.format(before));
+			query.append(UrlItem.whenDateFormat.format(selection.beforeDate));
 			query.append("]");
 			request.addFilter(query.toString(), false);
 		}
-		if (after != null) {
+		if (selection.afterDate != null) {
 			StringBuilder query = new StringBuilder();
 			query.append("when:[");
-			query.append(UrlItem.whenDateFormat.format(after));
+			query.append(UrlItem.whenDateFormat.format(selection.afterDate));
 			query.append(" TO 99999999999999]");
 			request.addFilter(query.toString(), false);
 		}
@@ -202,7 +203,8 @@ public class UrlManager extends AbstractManager {
 
 	private int getFacetLimit(ItemField field,
 			AbstractSearchRequest searchRequest, int urlLimit,
-			int maxUrlPerHost, List<NamedItem> list, Set<String> hostSet)
+			int maxUrlPerHost, NamedItem.Selection selection,
+			List<NamedItem> list, Set<String> hostSet)
 			throws SearchLibException {
 		AbstractResultSearch result = (AbstractResultSearch) dbClient
 				.request(searchRequest);
@@ -229,7 +231,7 @@ public class UrlManager extends AbstractManager {
 					continue;
 				hostSet.add(term);
 			}
-			list.add(new NamedItem(term, facetItem.getCount()));
+			list.add(new NamedItem(term, facetItem.getCount(), selection));
 		}
 		return urlLimit;
 	}
@@ -243,18 +245,18 @@ public class UrlManager extends AbstractManager {
 		return searchRequest;
 	}
 
-	public int getHostToFetch(FetchStatus fetchStatus, Date before, Date after,
-			int urlLimit, int maxUrlPerHost, List<NamedItem> hostList,
-			Set<String> hostSet) throws SearchLibException {
+	public int getHostToFetch(NamedItem.Selection selection, int urlLimit,
+			int maxUrlPerHost, List<NamedItem> hostList, Set<String> hostSet)
+			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setEmptyReturnsAll(true);
 		try {
-			filterQueryToFetch(searchRequest, fetchStatus, before, after);
+			filterQueryToFetch(searchRequest, selection);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
 		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest,
-				urlLimit, maxUrlPerHost, hostList, hostSet);
+				urlLimit, maxUrlPerHost, selection, hostList, hostSet);
 	}
 
 	public void getStartingWith(String queryString, ItemField field,
@@ -268,7 +270,8 @@ public class UrlManager extends AbstractManager {
 		searchRequest.getFilterList().add(
 				new QueryFilter(field + ":" + start + "*", false,
 						FilterAbstract.Source.REQUEST, null));
-		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, list, null);
+		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, null,
+				list, null);
 	}
 
 	public final UrlItem getNewUrlItem(LinkItem linkItem) {
@@ -299,9 +302,8 @@ public class UrlManager extends AbstractManager {
 		return ui;
 	}
 
-	public void getUrlToFetch(NamedItem host, FetchStatus fetchStatus,
-			Date before, Date after, long urlLimit, List<UrlItem> urlList)
-			throws SearchLibException {
+	public void getUrlToFetch(NamedItem host, long urlLimit,
+			List<UrlItem> urlList) throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 				.getNewRequest("urlSearch");
 		try {
@@ -309,7 +311,7 @@ public class UrlManager extends AbstractManager {
 					"host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"",
 					false);
 			searchRequest.setEmptyReturnsAll(true);
-			filterQueryToFetch(searchRequest, fetchStatus, before, after);
+			filterQueryToFetch(searchRequest, host.selection);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}

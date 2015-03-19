@@ -54,6 +54,7 @@ import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.ReaderUtil;
 
 import com.jaeksoft.searchlib.Logging;
@@ -103,7 +104,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private void openNoLock() throws IOException, SearchLibException {
 		if (this.indexReader != null && this.indexSearcher != null)
 			return;
-		this.indexReader = IndexReader.open(indexDirectory.getDirectory());
+		Directory directory = indexDirectory.getDirectory();
+		if (directory == null)
+			throw new IOException("The directory is closed");
+		this.indexReader = IndexReader.open(directory);
 		indexSearcher = new IndexSearcher(indexReader);
 
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
