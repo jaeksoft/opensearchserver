@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.naming.NamingException;
 import javax.ws.rs.core.Response.Status;
@@ -95,7 +97,7 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 	}
 
 	@Override
-	public ResultIndexList indexList(String login, String key) {
+	public ResultIndexList indexList(String login, String key, Boolean details) {
 		try {
 			User user = getLoggedUser(login, key);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -103,7 +105,37 @@ public class IndexImpl extends CommonServices implements SoapIndex, RestIndex {
 			for (ClientCatalogItem catalogItem : ClientCatalog
 					.getClientCatalog(user))
 				indexList.add(catalogItem.getIndexName());
-			return new ResultIndexList(true, indexList);
+			Map<String, IndexInfo> indexMap = null;
+			if (details != null && details) {
+				indexMap = new TreeMap<String, IndexInfo>();
+				for (String indexName : indexList)
+					indexMap.put(indexName, new IndexInfo(
+							new ClientCatalogItem(indexName)));
+				indexList = null;
+			}
+			return new ResultIndexList(true, indexList, indexMap);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public ResultIndex getIndex(String login, String key, String name,
+			Boolean infos) {
+		try {
+			User user = getLoggedUser(login, key);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (!ClientCatalog.exists(user, name))
+				throw new CommonServiceException(Status.NOT_FOUND, "The index "
+						+ name + " has not been found");
+			ClientCatalogItem clientCatalogItem = new ClientCatalogItem(name);
+			if (infos != null && infos)
+				clientCatalogItem.computeInfos();
+			return new ResultIndex(clientCatalogItem);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {

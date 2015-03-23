@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,6 +26,10 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+
+import org.apache.commons.io.FileUtils;
 
 import com.jaeksoft.searchlib.util.LastModifiedAndSize;
 
@@ -53,10 +57,16 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		}
 	}
 
-	public long getSize() {
+	public Long getSize() {
 		if (lastModifiedAndSize == null)
-			return -1;
+			return null;
 		return lastModifiedAndSize.getSize();
+	}
+
+	public String getSizeString() {
+		if (lastModifiedAndSize == null)
+			return null;
+		return FileUtils.byteCountToDisplaySize(lastModifiedAndSize.getSize());
 	}
 
 	public Integer getNumDocs() throws IOException, SearchLibException {
@@ -72,6 +82,20 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		if (lastModifiedAndSize == null)
 			return -1;
 		return lastModifiedAndSize.getLastModified();
+	}
+
+	public Date getLastModifiedDate() {
+		if (lastModifiedAndSize == null)
+			return null;
+		return new Date(lastModifiedAndSize.getLastModified());
+	}
+
+	public String getLastModifiedString() {
+		Date dt = getLastModifiedDate();
+		if (dt == null)
+			return null;
+		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
+				DateFormat.MEDIUM).format(dt);
 	}
 
 	public File getLastModifiedFile() {

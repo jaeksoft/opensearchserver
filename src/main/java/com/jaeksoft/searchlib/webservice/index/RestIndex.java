@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.webservice.index;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -65,9 +66,18 @@ public interface RestIndex {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/")
 	public ResultIndexList indexList(@QueryParam("login") String login,
-			@QueryParam("key") String key);
+			@QueryParam("key") String key,
+			@QueryParam("details") Boolean details);
 
 	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/{index_name}")
+	public ResultIndex getIndex(@QueryParam("login") String login,
+			@QueryParam("key") String key,
+			@PathParam("index_name") String name,
+			@QueryParam("infos") Boolean infos);
+
+	@HEAD
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/{index_name}")
 	public CommonResult indexExists(@QueryParam("login") String login,
