@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
+import com.jaeksoft.searchlib.webservice.index.ResultIndex;
 import com.jaeksoft.searchlib.webservice.index.ResultIndexList;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -73,7 +74,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 				.path("/services/rest/index/{index_name}",
 						IntegrationTest.INDEX_NAME)
 				.accept(MediaType.APPLICATION_JSON).get();
-		checkCommonResult(response, CommonResult.class, 200);
+		checkCommonResult(response, ResultIndex.class, 200);
 	}
 
 	@Test
