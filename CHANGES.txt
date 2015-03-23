@@ -1,21 +1,11 @@
-release date=12:00 03.01.2015,version=1.5.11,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
- * GH-1444: Add attribute option to script function XXX_IndexField
- * GH-1443: New function AddNow in script module
- * GH-1439: Multithreaded facets
- * GH-1424: Change priority order with the charset detection in the HTML parser
- * GH-1416: Add a test button in the renderer to check the authentication
- * GH-1413: Parser for EML Mime Mail messages
- * GH-1412: Let the parsing API decides which parser to use
- * GH-1404: Define a per query behavior for batch of queries
- * GH-1394: The collapsed documents should be fully visible when the size parameter is set to 0
- * GH-1390: Search fields should grouped as boolean queries
- * GH-1388: Analyzer: create a filter for applying various transformation to proper nouns
- * GH-1437: Broken image in screenshot capture
- * GH-1434: Cannot put a negative value in the geo parameters user interface
- * GH-1430: The file crawler recursive parsing misses some files
- * GH-1427: The LDAP and JCIFS records do not match when querying an Active Directory
- * GH-1414: Problem with special characters encoding when editing synonyms or stopwords on Windows
- * GH-1406: Scoring, boosting query: not working?
- * GH-1402: Empty query is not well evaluated in Search Field
- * GH-1400: In search requests, the "Empty return all" attribute is not persistent
- * GH-1397: ResultSet closed error when using SQL update with the database crawler
+release date=12:00 03.01.2017,version=1.5.12,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1453: The log should be less verbose by default
+ * GH-1452: writeLockTimeout should be configurable
+ * GH-1449: Renderer - display fields from a join
+ * GH-1441: API - delete an analyzer
+ * GH-1323: REST API - More information about Indexes
+ * GH-1149: java.io.IOException Encrypted PDF and others files-related error include filename 
+ * GH-1466: Multivalued facets are broken when using fields without term vectors
+ * GH-1458: The fetch first policy is no more applied
+ * GH-1455: Outer join is broken
+ * GH-639: File crawler - Crawls only 20% of the files
