@@ -8,6 +8,22 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
+OpenSearchServer 1.5.12
+
+New features:
+- GH-1453: The log should be less verbose by default
+- GH-1452: writeLockTimeout should be configurable
+- GH-1449: Renderer : display fields from a join
+- GH-1441: API : delete an analyzer
+- GH-1323: REST API - More information about Indexes
+- GH-1149: "java.io.IOException: Encrypted PDF" and others files-related error: include filename 
+
+Bug fixes:
+- GH-1466: Multivalued facets are broken when using fields without term vectors
+- GH-1458: The "fetch first" policy is no more applied
+- GH-1455: Outer join is broken
+- GH-639: File crawler: Crawls only 20% of the files
+
 OpenSearchServer 1.5.11
 
 New features:
