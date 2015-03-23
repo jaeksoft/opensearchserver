@@ -35,6 +35,8 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.ExceptionCatchThread;
@@ -68,8 +70,12 @@ public class FacetListExecutor {
 		}
 		facetTimer = new Timer(timer, "facet");
 		threads = new ArrayList<FacetThread>();
+		SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 		for (FacetField facetField : facetFieldList) {
-			FacetThread thread = new FacetThread(facetField);
+			SchemaField schemaField = schemaFieldList.get(facetField.getName());
+			if (schemaField == null)
+				continue;
+			FacetThread thread = new FacetThread(facetField, schemaField);
 			thread.start();
 			threads.add(thread);
 		}
@@ -89,10 +95,12 @@ public class FacetListExecutor {
 	public class FacetThread extends ExceptionCatchThread {
 
 		private final FacetField facetField;
+		private final SchemaField schemaField;
 
-		public FacetThread(FacetField facetField) {
+		public FacetThread(FacetField facetField, SchemaField schemaField) {
 			super(threadGroup, "FacetThread");
 			this.facetField = facetField;
+			this.schemaField = schemaField;
 		}
 
 		@Override
@@ -100,8 +108,8 @@ public class FacetListExecutor {
 				SearchLibException, SyntaxError {
 			Timer t = new Timer(facetTimer, "facet - " + facetField.getName()
 					+ '(' + facetField.getMinCount() + ')');
-			facetList.add(facetField.getFacet(reader, notCollapsedDocs,
-					collapsedDocs, t));
+			facetList.add(facetField.getFacet(reader, schemaField,
+					notCollapsedDocs, collapsedDocs, t));
 			t.getDuration();
 		}
 	}
