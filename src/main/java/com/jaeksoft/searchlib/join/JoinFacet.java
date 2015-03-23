@@ -34,6 +34,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.join.JoinDocCollector;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class JoinFacet {
@@ -59,17 +60,21 @@ public class JoinFacet {
 
 			for (FacetField facetField : facetFieldList) {
 				DocIdInterface facetCollector;
-				String fieldName = facetField.getName();
-				Map<String, Long> facet = resultSearch.getFacetTerms(fieldName);
+				String facetFieldName = facetField.getName();
+				Map<String, Long> facet = resultSearch
+						.getFacetTerms(facetFieldName);
 				if (collector instanceof JoinDocCollector) {
 					facetCollector = JoinDocCollector.getDocIdInterface(maxDoc,
 							joinResult.joinPosition,
 							(JoinDocCollector) collector);
-					facet = facetField.getFacet(readerAbstract, facetCollector,
-							null, timer);
+					SchemaField schemaField = resultSearch.getRequest()
+							.getConfig().getSchema().getField(facetFieldName);
+					if (schemaField != null)
+						facet = facetField.getFacet(readerAbstract,
+								schemaField, facetCollector, null, timer);
 				}
 				if (facet != null)
-					joinResult.addFacet(fieldName, facet);
+					joinResult.addFacet(facetFieldName, facet);
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);

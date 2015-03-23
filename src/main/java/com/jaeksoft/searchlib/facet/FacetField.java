@@ -131,7 +131,7 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
-	final public Map<String, Long> getFacet(ReaderAbstract reader,
+	final public Map<String, Long> getFacet(ReaderAbstract reader, SchemaField schemaField,
 			DocIdInterface notCollapsedDocs,
 			CollapseDocInterface collapsedDocs, Timer timer)
 			throws IOException, SearchLibException {
@@ -139,10 +139,10 @@ public class FacetField extends AbstractField<FacetField> {
 		boolean useCollapsing = postCollapsing && collapsedDocs != null;
 		if (multivalued) {
 			if (useCollapsing)
-				return FacetUtils.facetMultivalued(reader, collapsedDocs, this,
+				return FacetUtils.facetMultivalued(reader, schemaField, collapsedDocs, this,
 						timer);
 			else {
-				return FacetUtils.facetMultivalued(reader, notCollapsedDocs,
+				return FacetUtils.facetMultivalued(reader, schemaField, notCollapsedDocs,
 						this, timer);
 			}
 		} else {

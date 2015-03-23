@@ -30,13 +30,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
+import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class FacetUtils {
 
@@ -81,13 +86,21 @@ public class FacetUtils {
 	}
 
 	final static protected Map<String, Long> facetMultivalued(
-			ReaderAbstract reader, DocIdInterface docIdInterface,
-			FacetField facetField, Timer timer) throws IOException,
-			SearchLibException {
+			ReaderAbstract reader, SchemaField schemaField,
+			DocIdInterface docIdInterface, FacetField facetField, Timer timer)
+			throws IOException, SearchLibException {
 		String fieldName = facetField.getName();
-		Map<String, Long> facets = computeMultivalued(reader, fieldName,
-				docIdInterface);
-		return newFacetResult(facetField, facets);
+		if (schemaField.getTermVector() == TermVector.NO) {
+			FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
+			long[] countIndex = computeMultivaluedTD(reader, fieldName,
+					stringIndex, docIdInterface);
+			return newFacetResult(facetField, stringIndex.lookup, countIndex);
+		} else {
+			Map<String, Long> facets = computeMultivaluedTVF(reader, fieldName,
+					docIdInterface);
+			return newFacetResult(facetField, facets);
+		}
+
 	}
 
 	final static protected Map<String, Long> facetSingleValue(
@@ -99,7 +112,7 @@ public class FacetUtils {
 		return newFacetResult(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final private static Map<String, Long> computeMultivalued(
+	final private static Map<String, Long> computeMultivaluedTVF(
 			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
@@ -127,6 +140,35 @@ public class FacetUtils {
 			}
 		}
 		return termMap;
+	}
+
+	final private static long[] computeMultivaluedTD(ReaderAbstract reader,
+			String fieldName, FieldCacheIndex stringIndex,
+			DocIdInterface docIdInterface) throws IOException,
+			SearchLibException {
+		long[] countIndex = new long[stringIndex.lookup.length];
+		int indexPos = 0;
+		if (docIdInterface.getSize() == 0)
+			return countIndex;
+		int[] docs = new int[100];
+		int[] freqs = new int[100];
+		BitSetInterface bitset = docIdInterface.getBitSet();
+		Term oTerm = new Term(fieldName);
+		for (String term : stringIndex.lookup) {
+			if (term != null) {
+				Term t = oTerm.createTerm(term);
+				TermDocs termDocs = reader.getTermDocs(t);
+				int l;
+				while ((l = termDocs.read(docs, freqs)) > 0)
+					for (int i = 0; i < l; i++)
+						if (freqs[i] > 0)
+							if (bitset.get(docs[i]))
+								countIndex[indexPos]++;
+				termDocs.close();
+			}
+			indexPos++;
+		}
+		return countIndex;
 	}
 
 	final private static long[] computeSinglevalued(
