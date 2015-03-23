@@ -40,6 +40,8 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
@@ -138,12 +140,20 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	final static protected Facet facetMultivalued(ReaderAbstract reader,
-			DocIdInterface docIdInterface, FacetField facetField, Timer timer)
-			throws IOException, SearchLibException {
+			SchemaField schemaField, DocIdInterface docIdInterface,
+			FacetField facetField, Timer timer) throws IOException,
+			SearchLibException {
 		String fieldName = facetField.getName();
-		Map<String, FacetItem> facetMap = computeMultivalued(reader, fieldName,
-				docIdInterface);
-		return new Facet(facetField, facetMap);
+		if (schemaField.getTermVector() == TermVector.NO) {
+			FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
+			int[] countIndex = computeMultivaluedTD(reader, fieldName,
+					stringIndex, docIdInterface);
+			return new Facet(facetField, stringIndex.lookup, countIndex);
+		} else {
+			Map<String, FacetItem> facetMap = computeMultivaluedTFV(reader,
+					fieldName, docIdInterface);
+			return new Facet(facetField, facetMap);
+		}
 	}
 
 	final static protected Facet facetSingleValue(ReaderAbstract reader,
@@ -160,7 +170,7 @@ public class Facet implements Iterable<FacetItem>,
 		facetMap.put(facetItem.term, facetItem);
 	}
 
-	final private static int[] computeMultivaluedOld(ReaderAbstract reader,
+	final private static int[] computeMultivaluedTD(ReaderAbstract reader,
 			String fieldName, FieldCacheIndex stringIndex,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
@@ -189,7 +199,7 @@ public class Facet implements Iterable<FacetItem>,
 		return countIndex;
 	}
 
-	final private static Map<String, FacetItem> computeMultivalued(
+	final private static Map<String, FacetItem> computeMultivaluedTFV(
 			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
