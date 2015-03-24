@@ -114,7 +114,7 @@ public class WebCrawlThread extends
 		while (iterator.hasNext()) {
 
 			ListType listType = hostUrlList.getListType();
-			if (listType == ListType.NEW_URL || listType == ListType.OLD_URL) {
+			if (listType != ListType.MANUAL) {
 				if (crawlMaster.isAborted())
 					break;
 				if (crawlMaster.urlLeft() < 0)

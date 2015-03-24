@@ -44,6 +44,12 @@
 						value="Enter the domain to use when connecting to the authentication server" />
 				</row>
 				<row>
+					<label value="Index: " />
+					<textbox
+						value="@bind(renderer.currentRenderer.authIndex)" cols="40" />
+					<label value="Enter the index to request" />
+				</row>
+				<row>
 					<label value="Username: " />
 					<textbox
 						value="@bind(renderer.currentRenderer.authUsername)" cols="40" />

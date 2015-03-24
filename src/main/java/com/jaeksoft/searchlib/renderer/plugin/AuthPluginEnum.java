@@ -32,7 +32,9 @@ public enum AuthPluginEnum {
 
 	NTLM("NTLM", AuthPluginNtlm.class),
 
-	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class);
+	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class),
+
+	INDEX_LOGIN("INDEX with login", AuthPluginIndexLogin.class);
 
 	public final String label;
 
