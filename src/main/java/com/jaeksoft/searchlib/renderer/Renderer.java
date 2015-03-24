@@ -90,6 +90,7 @@ public class Renderer implements Comparable<Renderer> {
 	private final static String RENDERER_ITEM_AUTH_ATTR_USERNAME = "username";
 	private final static String RENDERER_ITEM_AUTH_ATTR_PASSWORD = "password";
 	private final static String RENDERER_ITEM_AUTH_ATTR_DOMAIN = "domain";
+	private final static String RENDERER_ITEM_AUTH_ATTR_INDEX = "authIndex";
 	private final static String RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS = "authPluginClass";
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
@@ -144,6 +145,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private String authDomain;
 
+	private String authIndex;
+
 	private String authServer;
 
 	private String authPluginClass;
@@ -184,6 +187,7 @@ public class Renderer implements Comparable<Renderer> {
 		authUsername = null;
 		authPassword = null;
 		authDomain = null;
+		authIndex = null;
 		authServer = null;
 		authPluginClass = null;
 		authUserAllowField = "userAllow";
@@ -236,6 +240,8 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_PASSWORD));
 			setAuthDomain(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN));
+			setAuthIndex(XPathParser.getAttributeString(authNode,
+					RENDERER_ITEM_AUTH_ATTR_INDEX));
 			setAuthServer(XPathParser.getAttributeString(authNode,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
 			setAuthPluginClass(XPathParser.getAttributeString(authNode,
@@ -457,6 +463,7 @@ public class Renderer implements Comparable<Renderer> {
 				target.authUsername = authUsername;
 				target.authPassword = authPassword;
 				target.authDomain = authDomain;
+				target.authIndex = authIndex;
 				target.authServer = authServer;
 				target.authPluginClass = authPluginClass;
 				target.authUserAllowField = authUserAllowField;
@@ -824,6 +831,7 @@ public class Renderer implements Comparable<Renderer> {
 					RENDERER_ITEM_AUTH_ATTR_USERNAME, authUsername,
 					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
 					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
+					RENDERER_ITEM_AUTH_ATTR_INDEX, authIndex,
 					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
 					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass);
 			xmlWriter.endElement();
@@ -1203,6 +1211,21 @@ public class Renderer implements Comparable<Renderer> {
 	 */
 	public void setAuthDomain(String authDomain) {
 		this.authDomain = authDomain;
+	}
+
+	/**
+	 * @return the authIndex
+	 */
+	public String getAuthIndex() {
+		return authIndex;
+	}
+
+	/**
+	 * @param authIndex
+	 *            the authIndex to set
+	 */
+	public void setAuthIndex(String authIndex) {
+		this.authIndex = authIndex;
 	}
 
 	/**
