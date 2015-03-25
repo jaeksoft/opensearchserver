@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,33 +24,19 @@
 
 package com.jaeksoft.searchlib.template;
 
-public enum TemplateList {
+public class UsersCredentialsIndex extends TemplateAbstract {
 
-	EMPTY_INDEX(new EmptyIndex()),
+	public final static String root = "users_credentials";
 
-	WEB_CRAWLER(new WebCrawler()),
+	public final static String[] resources = { "config.xml" };
 
-	FILE_CRAWLER(new FileCrawler()),
+	public final static String publicName = "Users credentials";
 
-	USERS_CREDENTIALS(new UsersCredentialsIndex());
+	public final static String description = "This index is built for storing users credentials - "
+			+ "It can be used by the renderer of another index as an authentication provider.";
 
-	private TemplateAbstract template;
-
-	private TemplateList(TemplateAbstract template) {
-		this.template = template;
-	}
-
-	public TemplateAbstract getTemplate() {
-		return template;
-	}
-
-	public static TemplateAbstract findTemplate(String name) {
-		if (name == null)
-			return EMPTY_INDEX.template;
-		TemplateList template = TemplateList.valueOf(name.toUpperCase());
-		if (template == null)
-			return EMPTY_INDEX.template;
-		return template.template;
+	protected UsersCredentialsIndex() {
+		super(root, resources, publicName, description);
 	}
 
 }

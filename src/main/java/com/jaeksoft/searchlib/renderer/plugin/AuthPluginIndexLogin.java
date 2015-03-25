@@ -74,12 +74,12 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 			SearchFieldRequest searchFieldRequest = new SearchFieldRequest(
 					authClient);
 			searchFieldRequest.setDefaultOperator(OperatorEnum.AND);
-			searchFieldRequest.addSearchField(USERNAME_FIELD, Mode.TERM, 1.0d,
+			searchFieldRequest.addSearchField(PASSWORD_FIELD, Mode.TERM, 1.0d,
 					1.0d, null, null);
-			searchFieldRequest.setQueryString(USERNAME_FIELD, username);
+			searchFieldRequest.setQueryString(PASSWORD_FIELD, password);
 			TermFilter tf = new TermFilter();
-			tf.setField(PASSWORD_FIELD);
-			tf.setTerm(password);
+			tf.setField(USERNAME_FIELD);
+			tf.setTerm(username);
 			searchFieldRequest.getFilterList().add(tf);
 			searchFieldRequest.setStart(0);
 			searchFieldRequest.setRows(1);
