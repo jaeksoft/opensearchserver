@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2015 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -21,7 +21,7 @@
 <configuration>
 	<indices>
 		<index name="index" searchCache="100" filterCache="100"
-			fieldCache="500" indexType="{indexType}" remoteURI="{remoteURI}" />
+			fieldCache="500" remoteURI="{remoteURI}" />
 	</indices>
 	<schema>
 
@@ -261,86 +261,13 @@
 
 		</analyzers>
 
-		<fields default="content" unique="url">
-			<field name="lang" indexed="yes" stored="no" termVector="no" />
-			<field name="title" analyzer="TextAnalyzer" indexed="yes"
-				stored="yes" termVector="positions_offsets" />
-			<field name="titleExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="yes">
-				<copyOf field="title" />
-			</field>
-			<field name="titlePhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no">
-				<copyOf field="title" />
-			</field>
-			<field name="content" analyzer="TextAnalyzer" indexed="yes"
-				stored="compress" termVector="positions_offsets" />
-			<field name="contentExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="yes">
-				<copyOf field="content" />
-			</field>
-			<field name="contentPhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no">
-				<copyOf field="content" />
-			</field>
-			<field name="url" indexed="yes" stored="no" termVector="no" />
-			<field name="urlSplit" indexed="yes" stored="no" analyzer="TextAnalyzer"
-				termVector="no">
-				<copyOf field="url" />
-			</field>
-			<field name="urlExact" indexed="yes" stored="no" analyzer="StandardAnalyzer"
-				termVector="no">
-				<copyOf field="url" />
-			</field>
-			<field name="urlPhonetic" indexed="yes" stored="no"
-				analyzer="PhoneticAnalyzer" termVector="no">
-				<copyOf field="url" />
-			</field>
-			<field name="fileName" analyzer="TextAnalyzer" indexed="yes"
-				stored="yes" termVector="positions_offsets" />
-			<field name="fileNamePhonetic" analyzer="PhoneticAnalyzer"
-				indexed="yes" stored="no" termVector="no">
-				<copyOf field="fileName" />
-			</field>
-			<field name="fileNameExact" analyzer="StandardAnalyzer"
-				indexed="yes" stored="no">
-				<copyOf field="fileName" />
-			</field>
-			<field name="full" analyzer="TextAnalyzer" indexed="yes"
-				stored="no" termVector="no">
-				<copyOf field="title" />
-				<copyOf field="content" />
-				<copyOf field="fileName" />
-				<copyOf field="url" />
-			</field>
-			<field name="fullExact" analyzer="StandardAnalyzer" indexed="yes"
-				stored="no" termVector="no">
-				<copyOf field="title" />
-				<copyOf field="content" />
-				<copyOf field="fileName" />
-				<copyOf field="url" />
-			</field>
-			<field name="fullPhonetic" analyzer="PhoneticAnalyzer" indexed="yes"
-				stored="no" termVector="no">
-				<copyOf field="title" />
-				<copyOf field="content" />
-				<copyOf field="fileName" />
-				<copyOf field="url" />
-			</field>
-			<field name="autocomplete" analyzer="AutoCompletionAnalyzer"
-				indexed="yes" stored="no" termVector="no">
-				<copyOf field="title" />
-				<copyOf field="fileName" />
-			</field>
-			<field name="metaDescription" indexed="no" stored="compress" />
-			<field name="metaKeywords" indexed="no" stored="compress" />
-			<field name="host" indexed="yes" stored="no" termVector="no" />
-			<field name="subhost" indexed="yes" stored="no" />
-			<field name="contentBaseType" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="backlinkCount" analyzer="IntegerAnalyzer" indexed="yes"
+		<fields default="username" unique="username">
+			<field name="password" analyzer="CryptAnalyzer" indexed="yes"
 				stored="no" termVector="no" />
+			<field name="username" indexed="yes" stored="no" termVector="no" />
+			<field name="groups" indexed="yes" stored="no" termVector="yes" />
 		</fields>
+		
 	</schema>
 
 	<statistics>

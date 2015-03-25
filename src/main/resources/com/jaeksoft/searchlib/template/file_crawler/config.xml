@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -33,15 +33,15 @@
 				<filter class="ISOLatin1AccentFilter" />
 			</analyzer>
 
+			<!-- Default text analyser -->
+			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
+				<filter class="LowerCaseFilter" />
+			</analyzer>
+
 			<!-- Phonetic analyzer -->
 			<analyzer name="PhoneticAnalyzer" tokenizer="StandardTokenizer">
 				<filter class="LowerCaseFilter" />
 				<filter class="PhoneticFilter" codec="Beider Morse" scope="QUERY_INDEX" />
-			</analyzer>
-
-			<!-- Default text analyser -->
-			<analyzer name="TextAnalyzer" tokenizer="LetterOrDigitTokenizerFactory">
-				<filter class="LowerCaseFilter" />
 			</analyzer>
 
 			<!-- Keyword analyzer -->
@@ -250,6 +250,13 @@
 				<filter class="DegreesRadiansFilter"
 					degrees_radians_conversion="Check radians" fault_tolerant="true"
 					scope="QUERY_INDEX" />
+			</analyzer>
+
+			<!-- Encryption -->
+			<analyzer name="CryptAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<queryTokenizer class="KeywordTokenizer" />
+				<filter class="CryptFilter" salt="oss2pepper" scope="QUERY_INDEX" />
 			</analyzer>
 
 		</analyzers>
