@@ -121,6 +121,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static final ClassPropertyEnum CODEC = new ClassPropertyEnum(true,
 			"codec", "Codec algorithm", "Select a encoder/decoder algorithm");
 
+	public static final ClassPropertyEnum SALT = new ClassPropertyEnum(true,
+			"salt", "SALT", "The salt string uses for encryption");
+
 	public static final ClassPropertyEnum MAX_PHONEMES = new ClassPropertyEnum(
 			true, "maxPhonenes", "Maximum number of phonemes",
 			"The maximum number of phonemes that will be handled");
