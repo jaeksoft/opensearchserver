@@ -60,10 +60,14 @@ public class CollapseBaseCollector extends
 	private CollapseBaseCollector(CollapseBaseCollector src) {
 		this.sourceIds = src.sourceIds;
 		this.totalCollapseCount = src.totalCollapseCount;
-		this.collapseDocsArray = new int[src.collapseDocsArray.length][];
-		int i = 0;
-		for (int[] collDocArray : src.collapseDocsArray)
-			this.collapseDocsArray[i++] = ArrayUtils.clone(collDocArray);
+		if (src.collapseDocsArray != null) {
+			this.collapseDocsArray = new int[src.collapseDocsArray.length][];
+			int i = 0;
+			for (int[] collDocArray : src.collapseDocsArray)
+				this.collapseDocsArray[i++] = ArrayUtils.clone(collDocArray);
+		} else {
+			this.collapseDocsArray = null;
+		}
 		this.collapseCounts = ArrayUtils.clone(src.collapseCounts);
 		this.ids = ArrayUtils.clone(src.ids);
 		this.currentPos = src.currentPos;
