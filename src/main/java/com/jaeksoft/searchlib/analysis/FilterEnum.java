@@ -36,6 +36,8 @@ public enum FilterEnum {
 
 	ChineseFilter("A filter that filter Chinese words."),
 
+	CryptFilter("This filter encrypt the content using a salt"),
+
 	CzechStemFilter("A filter that stems Czech words."),
 
 	DecodeHtmlEntitiesFilter("This filter decode the HTML entities"),

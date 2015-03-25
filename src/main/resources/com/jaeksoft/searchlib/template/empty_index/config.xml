@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
 <!-- -->
-<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft -->
 <!-- -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- http://www.open-search-server.com -->
@@ -24,6 +24,7 @@
 			fieldCache="500" remoteURI="{remoteURI}" />
 	</indices>
 	<schema>
+
 		<analyzers>
 
 			<!-- Default standard analyzer -->
@@ -249,6 +250,13 @@
 				<filter class="DegreesRadiansFilter"
 					degrees_radians_conversion="Check radians" fault_tolerant="true"
 					scope="QUERY_INDEX" />
+			</analyzer>
+
+			<!-- Encryption -->
+			<analyzer name="CryptAnalyzer" lang="">
+				<tokenizer class="KeywordTokenizer" />
+				<queryTokenizer class="KeywordTokenizer" />
+				<filter class="CryptFilter" salt="oss2pepper" scope="QUERY_INDEX" />
 			</analyzer>
 
 		</analyzers>
