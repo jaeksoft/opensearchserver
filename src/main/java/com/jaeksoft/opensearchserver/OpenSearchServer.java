@@ -22,7 +22,7 @@
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
-package com.jaeksoft;
+package com.jaeksoft.opensearchserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import com.jaeksoft.opensearchserver.ServerConfiguration.ServiceEnum;
 import com.opensearchserver.cluster.ClusterServer;
 import com.opensearchserver.cluster.ClusterServiceImpl;
 import com.opensearchserver.crawler.web.WebCrawlerServer;
@@ -57,6 +58,11 @@ public class OpenSearchServer extends AbstractServer {
 	private final static String MAIN_JAR = "opensearchserver.jar";
 	public final static String DEFAULT_DATADIR_NAME = "opensearchserver";
 
+	private final static String RENDERER_CONTEXT_PATH = "/";
+
+	private final static String SERVER_YAML_NAME = "server.yaml";
+	private static ServerConfiguration serverConfiguration = null;
+
 	private OpenSearchServer() {
 		super(DEFAULT_HOSTNAME, DEFAULT_PORT, MAIN_JAR, DEFAULT_DATADIR_NAME);
 	}
@@ -67,11 +73,16 @@ public class OpenSearchServer extends AbstractServer {
 		@Override
 		public Set<Class<?>> getClasses() {
 			Set<Class<?>> classes = super.getClasses();
-			classes.add(ClusterServiceImpl.class);
-			classes.add(ExtractorServiceImpl.class);
-			classes.add(ScriptServiceImpl.class);
-			classes.add(SchedulerServiceImpl.class);
-			classes.add(CrawlSessionServiceImpl.class);
+			if (ServiceEnum.cluster.isActive(serverConfiguration))
+				classes.add(ClusterServiceImpl.class);
+			if (ServiceEnum.extractor.isActive(serverConfiguration))
+				classes.add(ExtractorServiceImpl.class);
+			if (ServiceEnum.script.isActive(serverConfiguration))
+				classes.add(ScriptServiceImpl.class);
+			if (ServiceEnum.scheduler.isActive(serverConfiguration))
+				classes.add(SchedulerServiceImpl.class);
+			if (ServiceEnum.webcrawler.isActive(serverConfiguration))
+				classes.add(CrawlSessionServiceImpl.class);
 			return classes;
 		}
 	}
@@ -87,8 +98,6 @@ public class OpenSearchServer extends AbstractServer {
 		return dir;
 	}
 
-	private int maxThreads = 1000;
-
 	@Override
 	public void defineOptions(Options options) {
 		super.defineOptions(options);
@@ -97,23 +106,42 @@ public class OpenSearchServer extends AbstractServer {
 
 	@Override
 	public void commandLine(CommandLine cmd) throws IOException {
-		maxThreads = Integer
-				.parseInt(JobServer.THREADS_OPTION.getValue("1000"));
+		// Load the configuration file
+		File serverConfigurationFile = new File(getCurrentDataDir(),
+				SERVER_YAML_NAME);
+		if (serverConfigurationFile.exists()
+				&& serverConfigurationFile.isFile())
+			serverConfiguration = ServerConfiguration
+					.getNewInstance(serverConfigurationFile);
+		else
+			serverConfiguration = null;
 	}
 
 	@Override
 	public void load() throws IOException {
 		File data_directory = getCurrentDataDir();
-		ClusterServer.load(this, subDir(data_directory, "cluster"), null);
-		ExtractorServer.load(this, subDir(data_directory, "extractor"), null);
-		RendererServer.load("/", null, 1, subDir(data_directory, "renderer"));
-		JobServer.load(this, maxThreads);
-		WebCrawlerServer.load(this);
+		if (ServiceEnum.cluster.isActive(serverConfiguration))
+			ClusterServer.load(this, subDir(data_directory, "cluster"), null);
+		if (ServiceEnum.extractor.isActive(serverConfiguration))
+			ExtractorServer.load(this, subDir(data_directory, "extractor"),
+					null);
+		if (ServiceEnum.renderer.isActive(serverConfiguration))
+			RendererServer.load(RENDERER_CONTEXT_PATH, null, 1,
+					subDir(data_directory, "renderer"));
+		if (ServiceEnum.script.isActive(serverConfiguration))
+			JobServer.loadScript(this);
+		if (ServiceEnum.scheduler.isActive(serverConfiguration))
+			JobServer.loadScheduler(this,
+					serverConfiguration.getSchedulerMaxThreads());
+		if (ServiceEnum.webcrawler.isActive(serverConfiguration))
+			WebCrawlerServer.load(this);
 	}
 
 	@Override
 	public ServletApplication getServletApplication() {
-		return new RendererApplication("/");
+		if (ServiceEnum.renderer.isActive(serverConfiguration))
+			return new RendererApplication(RENDERER_CONTEXT_PATH);
+		return null;
 	}
 
 	@Override
