@@ -3,7 +3,7 @@ Upstream-Name: OpenSearchServer
 Source: https://github.com/jaeksoft/opensearchserver
 
 Files: *
-Copyright: Copyright 2008-2013 Jaeksoft<contact@open-search-server.com>
+Copyright: Copyright 2008-2015 Jaeksoft<contact@open-search-server.com>
 License: GPL-3+
  This file is part of OpenSearchServer
  OpenSearchServer is free software: you can redistribute it and/or modify
