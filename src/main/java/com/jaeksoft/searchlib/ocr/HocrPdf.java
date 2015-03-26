@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -149,24 +149,32 @@ public class HocrPdf {
 
 	public HocrPage createPage(long pageNumber, long pageWidth, long pageHeight) {
 		HocrPage page = new HocrPage(pageNumber, pageWidth, pageHeight);
-		pages.put(pageNumber, page);
+		synchronized (pages) {
+			pages.put(pageNumber, page);
+		}
 		return page;
 	}
 
 	public void putHocrToParserField(ParserResultItem result,
 			ParserFieldEnum parserField) {
-		for (HocrPage page : pages.values())
-			page.putHocrToParserField(result, parserField);
+		synchronized (pages) {
+			for (HocrPage page : pages.values())
+				page.putHocrToParserField(result, parserField);
+		}
 	}
 
 	public void putTextToParserField(ParserResultItem result,
 			ParserFieldEnum parserField) {
-		for (HocrPage page : pages.values())
-			page.putTextToParserField(result, parserField);
+		synchronized (pages) {
+			for (HocrPage page : pages.values())
+				page.putTextToParserField(result, parserField);
+		}
 	}
 
 	public HocrPage getPage(long pageNumber) {
-		return pages.get(pageNumber);
+		synchronized (pages) {
+			return pages.get(pageNumber);
+		}
 	}
 
 }

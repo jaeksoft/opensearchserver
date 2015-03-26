@@ -26,6 +26,8 @@ package com.jaeksoft.searchlib.util;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import javax.naming.NamingException;
@@ -229,6 +231,24 @@ public class ThreadUtils {
 				thread.join();
 				if (exception == null && thread.exception != null)
 					exception = thread.exception;
+			} catch (InterruptedException e) {
+				Logging.warn(e);
+			}
+		}
+		if (exception != null)
+			throw exception;
+	}
+
+	public static <T> void done(List<Future<T>> futures)
+			throws ExecutionException {
+		ExecutionException exception = null;
+		for (Future<?> future : futures) {
+			try {
+				future.get();
+			} catch (ExecutionException e) {
+				if (exception == null)
+					exception = e;
+				Logging.warn(e);
 			} catch (InterruptedException e) {
 				Logging.warn(e);
 			}

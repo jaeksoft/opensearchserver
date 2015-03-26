@@ -257,6 +257,7 @@ public class OcrManager implements Closeable {
 			args.add(tesseractPath);
 			args.add(input.getAbsolutePath());
 			args.add(checkOutputPath(outputFile, hocr));
+			args.add("-psm 1");
 			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
 			if (tle == null)
 				tle = defaultLanguage;

@@ -19,6 +19,7 @@
 <link href="css/renderer5.css" rel="stylesheet">
 <script type="text/javascript" src="js/opensearchserver.js"
 	charset="UTF-8"></script>
+<script src="js/jquery-1.11.1.min.js"></script>
 </head>
 <body>
 	<div class="container">
@@ -65,7 +66,6 @@
 			</div>
 		</div>
 	</div>
-	<script src="js/jquery-1.11.1.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 </body>
 </html>

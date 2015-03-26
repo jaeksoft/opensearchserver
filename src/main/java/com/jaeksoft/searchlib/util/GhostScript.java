@@ -60,6 +60,8 @@ public class GhostScript {
 		args.add("-dBATCH");
 		args.add("-dSAFER");
 		args.add("-sDEVICE=" + device);
+		args.add("-dINTERPOLATE");
+		args.add("-dNumRenderingThreads=8");
 		if (page != null) {
 			args.add("-dFirstPage=" + page);
 			args.add("-dLastPage=" + page);
