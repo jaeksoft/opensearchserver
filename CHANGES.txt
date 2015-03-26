@@ -1,17 +1,1 @@
-release date=12:00 11.12.2015,version=1.5.9,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
- * GH-1233: Add time out to the autocompletion task
- * GH-1225: Hunspell suggest performances
- * GH-1211: JDBC cursor size (setFetchSize) should be set with the buffer size
- * GH-1207: Take a different query string for each field
- * GH-1188: Execute a Groovy when a crawl thread starts
- * GH-1183: Add a Czech stemmer
- * GH-1179: a REST API to disable or enable the pattern lists
- * GH-1152: Parser JSON API
- * GH-1139: The "Manual Crawl "API should return the index document
- * GH-1135: Spell check filter
- * GH-1122: A keyword analyser with lower case and diacritic removal
- * GH-1114: Control of crawl cache in manual crawl
- * GH 1105: Add mailbox crawl scheduler task
- * GH-1054: Support of Content-Disposition filename parameter
- * GH-716: Ability to enable crawl cache by index instead of for whole instance
- * GH-266: Multiple proxies
+release date=12:00 03.01.2017,version=2.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown

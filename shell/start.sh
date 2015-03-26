@@ -6,6 +6,7 @@ cd `dirname "$0"`
 #
 LANG=en_US.UTF-8
 export LANG
+JAVA_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8"
 
 # The directory containing the indexes (must be exported)
 OPENSEARCHSERVER_DATA=data
@@ -15,7 +16,7 @@ export OPENSEARCHSERVER_DATA
 SERVER_PORT=9090
 
 # Any JAVA option. Often used to allocate more memory. Uncomment this line to allocate 1GB.
-#JAVA_OPTS="-Xms1G -Xmx1G"
+#JAVA_OPTS="$JAVA_OPTS -Xms1G -Xmx1G"
 
 # Starting the server
 eval java $JAVA_OPTS -jar opensearchserver.jar \
