@@ -116,8 +116,8 @@ public class OpenSearchServer extends AbstractServer {
 				&& serverConfigurationFile.isFile())
 			serverConfiguration = ServerConfiguration
 					.getNewInstance(serverConfigurationFile);
-		else
-			serverConfiguration = null;
+
+		serverConfiguration = ServerConfiguration.getDefaultConfiguration();
 	}
 
 	@Override
