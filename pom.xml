@@ -42,6 +42,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<resteasy.version>3.0.11.Final</resteasy.version>
+		<httpclient.version>4.4</httpclient.version>
+		<httpcore.version>4.4.1</httpcore.version>
 		<undertow.version>1.1.3.Final</undertow.version>
 		<skipTests>true</skipTests>
 	</properties>
@@ -87,6 +89,16 @@
 			<version>${undertow.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>${httpcore.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-utils</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
@@ -94,7 +106,7 @@
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-cluster</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
@@ -119,16 +131,11 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>2.4.0</version>
+			<version>2.5.1</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -199,7 +206,7 @@
 			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
-				<version>1.3</version>
+				<version>1.4</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -284,7 +291,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<license>GPLv3 (c) 2008-2014, Jaeksoft SARL</license>
+					<license>GPLv3 (c) 2008-2015, Jaeksoft SARL</license>
 					<group>Application/Internet</group>
 					<packager>OpenSearchServer</packager>
 					<version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
@@ -320,19 +327,6 @@
 						<mapping>
 							<directory>/var/lib/opensearchserver</directory>
 							<username>opensearchserver</username>
-						</mapping>
-						<mapping>
-							<directory>/var/lib/opensearchserver/data</directory>
-							<username>opensearchserver</username>
-						</mapping>
-						<mapping>
-							<directory>/var/lib/opensearchserver/data/logs</directory>
-							<username>opensearchserver</username>
-							<sources>
-								<softlinkSource>
-									<location>/var/log/opensearchserver</location>
-								</softlinkSource>
-							</sources>
 						</mapping>
 					</mappings>
 					<requires>
@@ -385,14 +379,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>4.4</version>
-				<configuration>
-					<outputDirectory>${basedir}/src/main/java</outputDirectory>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jasig.maven</groupId>
