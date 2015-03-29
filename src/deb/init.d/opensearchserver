@@ -13,14 +13,14 @@
 
 OSS_NAME=opensearchserver
 
-CONFIGFILE=/etc/opensearchserver
+CONFIGFILE=/etc/opensearchserver.conf
 if [ -f "$CONFIGFILE" ]; then
     . "$CONFIGFILE"
 fi
 
 OSS_SHARE=/usr/share/opensearchserver
 OSS_JAR=$OSS_SHARE/$OSS_NAME.jar
-OSS_OPTS="$JAVA_OPTS -jar $OSS_JAR -p $SERVER_PORT" -d $OPENSEARCHSERVER_DATA
+OSS_OPTS="$JAVA_OPTS -jar $OSS_JAR -p $SERVER_PORT -d $OPENSEARCHSERVER_DATA"
 OSS_LOG=/var/log/opensearchserver/server.out
 OSS_PID="/var/run/$OSS_NAME.pid"
 OSS_USER=opensearchserver
