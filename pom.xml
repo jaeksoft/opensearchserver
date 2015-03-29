@@ -277,7 +277,7 @@
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
-										<Main-Class>com.jaeksoft.searchlib.opensearchserver.OpenSearchServer</Main-Class>
+										<Main-Class>com.jaeksoft.opensearchserver.OpenSearchServer</Main-Class>
 									</manifestEntries>
 								</transformer>
 							</transformers>
@@ -406,7 +406,7 @@
 						</mapping>
 					</mappings>
 					<requires>
-						<require>java-headless</require>
+						<require>java-headless &gt;= 1.8.0</require>
 					</requires>
 					<preinstallScriptlet>
 						<scriptFile>src/rpm/preinst</scriptFile>
