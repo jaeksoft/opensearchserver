@@ -26,7 +26,10 @@ package com.jaeksoft.opensearchserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -67,7 +70,7 @@ public class ServerConfiguration {
 	/**
 	 * @return the number of allowed threads. The default value is 1000.
 	 */
-	public int getSchedulerMaxThreads() {
+	int getSchedulerMaxThreads() {
 		return scheduler_max_threads == null ? 1000 : scheduler_max_threads;
 	}
 
@@ -80,10 +83,34 @@ public class ServerConfiguration {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public static ServerConfiguration getNewInstance(File file)
+	static ServerConfiguration getNewInstance(File file)
 			throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		return mapper.readValue(file, ServerConfiguration.class);
 	}
 
+	/**
+	 * Read the configuration file from the resources
+	 * 
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
+	static ServerConfiguration getDefaultConfiguration()
+			throws JsonParseException, JsonMappingException, IOException {
+		InputStream stream = OpenSearchServer.class
+				.getResourceAsStream("server.yaml");
+		if (stream == null)
+			throw new IOException(
+					"Unable to load the default configuration resource: server.yaml");
+		try {
+			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+			return mapper.readValue(stream, ServerConfiguration.class);
+		} finally {
+			if (stream != null)
+				IOUtils.closeQuietly(stream);
+		}
+
+	}
 }
