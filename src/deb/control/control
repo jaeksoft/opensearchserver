@@ -5,10 +5,10 @@ Priority: optional
 Architecture: all
 Description: full-text search-engine software
  OpenSearchServer is an enterprise-class search engine program. Using the web
- user interface, the crawlers (web, file, database, ...) and the REST/RESTFul
- API you will be able to integrate advanced full-text search capabilities in
+ user interface, the crawlers (web, file, database, ...) and the REST API you
+ will be able to integrate advanced full-text search capabilities in 
  your application.
-Depends: default-jre-headless | java8-runtime-headless | java8-runtime-headless
+Depends: java-runtime-headless (>= 1.8)
 Recommends: ghostscript, tesseract-ocr
 Maintainer: Emmanuel Keller <ekeller@open-search-server.com>
 Homepage: http://www.opensearchserver.com

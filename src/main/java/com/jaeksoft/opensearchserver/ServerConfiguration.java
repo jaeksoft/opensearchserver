@@ -37,8 +37,6 @@ public class ServerConfiguration {
 
 	public static enum ServiceEnum {
 
-		cluster,
-
 		webcrawler,
 
 		extractor,

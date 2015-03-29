@@ -26,6 +26,7 @@ package com.jaeksoft.opensearchserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -37,7 +38,8 @@ import org.apache.commons.cli.ParseException;
 
 import com.jaeksoft.opensearchserver.ServerConfiguration.ServiceEnum;
 import com.opensearchserver.cluster.ClusterServer;
-import com.opensearchserver.cluster.ClusterServiceImpl;
+import com.opensearchserver.cluster.manager.ClusterManager;
+import com.opensearchserver.cluster.service.ClusterServiceImpl;
 import com.opensearchserver.crawler.web.WebCrawlerServer;
 import com.opensearchserver.crawler.web.session.CrawlSessionServiceImpl;
 import com.opensearchserver.extractor.ExtractorServer;
@@ -63,6 +65,8 @@ public class OpenSearchServer extends AbstractServer {
 	private final static String SERVER_YAML_NAME = "server.yaml";
 	private static ServerConfiguration serverConfiguration = null;
 
+	private final HashSet<String> services = new HashSet<String>();
+
 	private OpenSearchServer() {
 		super(DEFAULT_HOSTNAME, DEFAULT_PORT, MAIN_JAR, DEFAULT_DATADIR_NAME);
 	}
@@ -73,8 +77,7 @@ public class OpenSearchServer extends AbstractServer {
 		@Override
 		public Set<Class<?>> getClasses() {
 			Set<Class<?>> classes = super.getClasses();
-			if (ServiceEnum.cluster.isActive(serverConfiguration))
-				classes.add(ClusterServiceImpl.class);
+			classes.add(ClusterServiceImpl.class);
 			if (ServiceEnum.extractor.isActive(serverConfiguration))
 				classes.add(ExtractorServiceImpl.class);
 			if (ServiceEnum.script.isActive(serverConfiguration))
@@ -119,22 +122,39 @@ public class OpenSearchServer extends AbstractServer {
 
 	@Override
 	public void load() throws IOException {
+
 		File data_directory = getCurrentDataDir();
-		if (ServiceEnum.cluster.isActive(serverConfiguration))
-			ClusterServer.load(this, subDir(data_directory, "cluster"), null);
-		if (ServiceEnum.extractor.isActive(serverConfiguration))
+
+		ClusterServer.load(this, subDir(data_directory, "cluster"), null, null);
+
+		if (ServiceEnum.extractor.isActive(serverConfiguration)) {
 			ExtractorServer.load(this, subDir(data_directory, "extractor"),
 					null);
-		if (ServiceEnum.renderer.isActive(serverConfiguration))
+			services.add(ServiceEnum.extractor.name());
+		}
+
+		if (ServiceEnum.renderer.isActive(serverConfiguration)) {
 			RendererServer.load(RENDERER_CONTEXT_PATH, null, 1,
 					subDir(data_directory, "renderer"));
-		if (ServiceEnum.script.isActive(serverConfiguration))
+			services.add(ServiceEnum.extractor.name());
+		}
+
+		if (ServiceEnum.script.isActive(serverConfiguration)) {
 			JobServer.loadScript(this);
-		if (ServiceEnum.scheduler.isActive(serverConfiguration))
+			services.add(ServiceEnum.script.name());
+		}
+
+		if (ServiceEnum.scheduler.isActive(serverConfiguration)) {
 			JobServer.loadScheduler(this,
 					serverConfiguration.getSchedulerMaxThreads());
-		if (ServiceEnum.webcrawler.isActive(serverConfiguration))
+			services.add(ServiceEnum.scheduler.name());
+		}
+
+		if (ServiceEnum.webcrawler.isActive(serverConfiguration)) {
 			WebCrawlerServer.load(this);
+			services.add(ServiceEnum.webcrawler.name());
+		}
+
 	}
 
 	@Override
@@ -151,6 +171,10 @@ public class OpenSearchServer extends AbstractServer {
 
 	public static void main(String[] args) throws IOException,
 			ServletException, ParseException {
-		new OpenSearchServer().start(args);
+		// Start the server
+		OpenSearchServer server = new OpenSearchServer();
+		server.start(args);
+		// Register the services
+		ClusterManager.INSTANCE.registerMe(server.services);
 	}
 }
