@@ -9,7 +9,7 @@
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
-	<url>http://www.open-search-server.com</url>
+	<url>http://www.opensearchserver.com</url>
 	<licenses>
 		<license>
 			<name>General Public License, Version 3.0</name>
@@ -20,7 +20,7 @@
 	<version>2.0-SNAPSHOT</version>
 	<organization>
 		<name>Jaeksoft OpenSearchServer</name>
-		<url>http://www.open-search-server.com</url>
+		<url>http://www.opensearchserver.com</url>
 	</organization>
 	<scm>
 		<connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
@@ -42,10 +42,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<resteasy.version>3.0.11.Final</resteasy.version>
+		<undertow.version>1.1.3.Final</undertow.version>
+		<poi.version>3.11</poi.version>
 		<httpclient.version>4.4</httpclient.version>
 		<httpcore.version>4.4.1</httpcore.version>
-		<undertow.version>1.1.3.Final</undertow.version>
-		<skipTests>true</skipTests>
+		<jackson.version>2.5.1</jackson.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -89,16 +90,6 @@
 			<version>${undertow.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${httpclient.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>${httpcore.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-utils</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
@@ -129,9 +120,60 @@
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>fluent-hc</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>${httpcore.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-base</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>2.5.1</version>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.12</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -204,143 +246,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>jdeb</artifactId>
-				<groupId>org.vafer</groupId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jdeb</goal>
-						</goals>
-						<configuration>
-							<deb>${project.build.directory}/${project.build.finalName}.deb</deb>
-							<controlDir>${basedir}/src/deb/control</controlDir>
-							<dataSet>
-								<data>
-									<src>${project.build.directory}/${project.build.finalName}.jar</src>
-									<dst>opensearchserver.jar</dst>
-									<type>file</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/opensearchserver</prefix>
-										<user>daemon</user>
-										<group>daemon</group>
-									</mapper>
-								</data>
-								<data>
-									<src>${basedir}/src/deb/data/copyright</src>
-									<type>file</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/usr/share/doc/opensearchserver</prefix>
-									</mapper>
-								</data>
-								<data>
-									<src>${basedir}/src/deb/etc/opensearchserver</src>
-									<type>file</type>
-									<conffile>true</conffile>
-									<mapper>
-										<type>perm</type>
-										<prefix>/etc</prefix>
-									</mapper>
-								</data>
-								<data>
-									<src>${basedir}/src/deb/init.d</src>
-									<type>directory</type>
-									<mapper>
-										<type>perm</type>
-										<prefix>/etc/init.d</prefix>
-										<filemode>755</filemode>
-									</mapper>
-								</data>
-								<data>
-									<type>template</type>
-									<paths>
-										<path>/var/lib/${project.artifactId}/data</path>
-										<path>/var/log/${project.artifactId}</path>
-										<path>/var/run/${project.artifactId}</path>
-									</paths>
-									<mapper>
-										<type>perm</type>
-										<user>opensearchserver</user>
-										<group>daemon</group>
-									</mapper>
-								</data>
-								<data>
-									<type>link</type>
-									<symlink>true</symlink>
-									<linkName>/var/lib/${project.artifactId}/data/logs</linkName>
-									<linkTarget>/var/log/${project.artifactId}</linkTarget>
-								</data>
-							</dataSet>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>rpm-maven-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>generate-rpm</id>
-						<goals>
-							<goal>rpm</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<license>GPLv3 (c) 2008-2015, Jaeksoft SARL</license>
-					<group>Application/Internet</group>
-					<packager>OpenSearchServer</packager>
-					<version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
-					<prefix>/usr/local</prefix>
-					<mappings>
-						<mapping>
-							<directory>/usr/share/opensearchserver</directory>
-							<username>opensearchserver</username>
-							<groupname>daemon</groupname>
-							<sources>
-								<source>
-									<location>${project.build.directory}/${project.build.finalName}.jar</location>
-									<destination>opensearchserver.jar</destination>
-								</source>
-								<source>
-									<location>src/deb/init.d/opensearchserver</location>
-								</source>
-							</sources>
-						</mapping>
-						<mapping>
-							<directory>/etc</directory>
-							<configuration>true</configuration>
-							<sources>
-								<source>
-									<location>src/deb/etc/opensearchserver</location>
-								</source>
-							</sources>
-						</mapping>
-						<mapping>
-							<directory>/var/log/opensearchserver</directory>
-							<username>opensearchserver</username>
-						</mapping>
-						<mapping>
-							<directory>/var/lib/opensearchserver</directory>
-							<username>opensearchserver</username>
-						</mapping>
-					</mappings>
-					<requires>
-						<require>java &gt;= 1.8.0</require>
-					</requires>
-					<preinstallScriptlet>
-						<scriptFile>src/rpm/preinst</scriptFile>
-					</preinstallScriptlet>
-					<postinstallScriptlet>
-						<scriptFile>src/rpm/postinst</scriptFile>
-					</postinstallScriptlet>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.18.1</version>
@@ -379,6 +284,137 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>jdeb</artifactId>
+				<groupId>org.vafer</groupId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jdeb</goal>
+						</goals>
+						<configuration>
+							<deb>${project.build.directory}/${project.build.finalName}.deb</deb>
+							<controlDir>${basedir}/src/deb/control</controlDir>
+							<dataSet>
+								<data>
+									<src>${project.build.directory}/${project.build.finalName}-exec.jar</src>
+									<dst>opensearchserver.jar</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/opensearchserver</prefix>
+										<user>daemon</user>
+										<group>daemon</group>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/data/copyright</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/doc/opensearchserver</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/etc/opensearchserver.conf</src>
+									<type>file</type>
+									<conffile>true</conffile>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc</prefix>
+									</mapper>
+								</data>
+								<data>
+									<src>${basedir}/src/deb/init.d</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc/init.d</prefix>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+								<data>
+									<type>template</type>
+									<paths>
+										<path>/var/lib/${project.artifactId}</path>
+										<path>/var/log/${project.artifactId}</path>
+										<path>/var/run/${project.artifactId}</path>
+									</paths>
+									<mapper>
+										<type>perm</type>
+										<user>opensearchserver</user>
+										<group>daemon</group>
+									</mapper>
+								</data>
+							</dataSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>generate-rpm</id>
+						<goals>
+							<goal>rpm</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<license>GPLv3 (c) 2008-2015, Jaeksoft SARL</license>
+					<group>Application/Internet</group>
+					<packager>OpenSearchServer</packager>
+					<version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
+					<prefix>/usr/local</prefix>
+					<mappings>
+						<mapping>
+							<directory>/usr/share/opensearchserver</directory>
+							<username>opensearchserver</username>
+							<groupname>daemon</groupname>
+							<sources>
+								<source>
+									<location>${project.build.directory}/${project.build.finalName}-exec.jar</location>
+									<destination>opensearchserver.jar</destination>
+								</source>
+								<source>
+									<location>src/deb/init.d/opensearchserver</location>
+								</source>
+							</sources>
+						</mapping>
+						<mapping>
+							<directory>/etc</directory>
+							<configuration>true</configuration>
+							<sources>
+								<source>
+									<location>src/deb/etc/opensearchserver.conf</location>
+								</source>
+							</sources>
+						</mapping>
+						<mapping>
+							<directory>/var/log/opensearchserver</directory>
+							<username>opensearchserver</username>
+						</mapping>
+						<mapping>
+							<directory>/var/lib/opensearchserver</directory>
+							<username>opensearchserver</username>
+						</mapping>
+					</mappings>
+					<requires>
+						<require>java &gt;= 1.8.0</require>
+					</requires>
+					<preinstallScriptlet>
+						<scriptFile>src/rpm/preinst</scriptFile>
+					</preinstallScriptlet>
+					<postinstallScriptlet>
+						<scriptFile>src/rpm/postinst</scriptFile>
+					</postinstallScriptlet>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jasig.maven</groupId>
