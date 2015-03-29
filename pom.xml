@@ -406,7 +406,7 @@
 						</mapping>
 					</mappings>
 					<requires>
-						<require>java &gt;= 1.8.0</require>
+						<require>java-headless &gt;= 1.8</require>
 					</requires>
 					<preinstallScriptlet>
 						<scriptFile>src/rpm/preinst</scriptFile>
