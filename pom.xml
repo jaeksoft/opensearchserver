@@ -107,17 +107,17 @@
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-renderer</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-job</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opensearchserver</groupId>
 			<artifactId>oss-web-crawler</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -174,6 +174,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.12</version>
+		</dependency>
+		<dependency>
+			<groupId>com.opensearchserver</groupId>
+			<artifactId>oss-provider</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
