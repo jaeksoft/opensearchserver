@@ -41,7 +41,7 @@ import com.opensearchserver.cluster.ClusterServer;
 import com.opensearchserver.cluster.manager.ClusterManager;
 import com.opensearchserver.cluster.service.ClusterServiceImpl;
 import com.opensearchserver.crawler.web.WebCrawlerServer;
-import com.opensearchserver.crawler.web.session.CrawlSessionServiceImpl;
+import com.opensearchserver.crawler.web.service.WebCrawlerServiceImpl;
 import com.opensearchserver.extractor.ExtractorServer;
 import com.opensearchserver.extractor.ExtractorServiceImpl;
 import com.opensearchserver.job.JobServer;
@@ -85,7 +85,7 @@ public class OpenSearchServer extends AbstractServer {
 			if (ServiceEnum.scheduler.isActive(serverConfiguration))
 				classes.add(SchedulerServiceImpl.class);
 			if (ServiceEnum.webcrawler.isActive(serverConfiguration))
-				classes.add(CrawlSessionServiceImpl.class);
+				classes.add(WebCrawlerServiceImpl.class);
 			return classes;
 		}
 	}
