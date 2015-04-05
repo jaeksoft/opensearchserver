@@ -30,6 +30,11 @@ import com.opensearchserver.cluster.client.ClusterMultiClient;
 import com.opensearchserver.cluster.manager.ClusterManager;
 import com.opensearchserver.crawler.web.WebCrawlerServer;
 import com.opensearchserver.crawler.web.client.WebCrawlerMultiClient;
+import com.opensearchserver.extractor.ExtractorServiceImpl;
+import com.opensearchserver.extractor.ExtractorServiceInterface;
+import com.opensearchserver.extractor.ParserManager;
+import com.opensearchserver.job.JobServer;
+import com.opensearchserver.job.script.ScriptMultiClient;
 import com.opensearchserver.provider.AbstractProvider;
 import com.opensearchserver.provider.ProviderContext;
 
@@ -59,4 +64,14 @@ public class ServicesProvider extends AbstractProvider {
 						WebCrawlerServer.SERVICE_NAME), 60000);
 	}
 
+	public ScriptMultiClient getNewScriptClient() throws URISyntaxException {
+		return new ScriptMultiClient(ClusterManager.INSTANCE.getClusterClient()
+				.getActiveNodes(JobServer.SERVICE_NAME_SCRIPT), 60000);
+	}
+
+	public ExtractorServiceInterface getNewExtractorClient() {
+		if (ParserManager.INSTANCE == null)
+			throw new RuntimeException("Extractor service not available");
+		return new ExtractorServiceImpl();
+	}
 }
