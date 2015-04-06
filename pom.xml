@@ -359,6 +359,15 @@
 										<group>daemon</group>
 									</mapper>
 								</data>
+								<data>
+									<src>${basedir}/src/pkgs/linux/log4j.properties</src>
+									<type>file</type>
+									<conffile>true</conffile>
+									<mapper>
+										<type>perm</type>
+										<prefix>/var/lib/${project.artifactId}</prefix>
+									</mapper>
+								</data>
 							</dataSet>
 						</configuration>
 					</execution>
@@ -413,6 +422,12 @@
 						<mapping>
 							<directory>/var/lib/opensearchserver</directory>
 							<username>opensearchserver</username>
+							<configuration>true</configuration>
+							<sources>
+								<source>
+									<location>src/pkgs/linux/log4j.properties</location>
+								</source>
+							</sources>
 						</mapping>
 					</mappings>
 					<requires>
