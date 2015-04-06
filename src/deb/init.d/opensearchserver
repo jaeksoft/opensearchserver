@@ -20,6 +20,7 @@ fi
 
 OSS_SHARE=/usr/share/opensearchserver
 OSS_JAR=$OSS_SHARE/$OSS_NAME.jar
+JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$OPENSEARCHSERVER_DATA/log4j.properties"
 OSS_OPTS="$JAVA_OPTS -jar $OSS_JAR -n $SERVER_ADDR -p $SERVER_PORT -d $OPENSEARCHSERVER_DATA"
 OSS_LOG=/var/log/opensearchserver/server.out
 OSS_PID="/var/run/$OSS_NAME.pid"
