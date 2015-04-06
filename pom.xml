@@ -422,6 +422,7 @@
 						<mapping>
 							<directory>/var/lib/opensearchserver</directory>
 							<username>opensearchserver</username>
+							<groupname>daemon</groupname>
 							<configuration>true</configuration>
 							<sources>
 								<source>
