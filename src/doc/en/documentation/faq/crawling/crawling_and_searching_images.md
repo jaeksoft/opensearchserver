@@ -1,4 +1,4 @@
-## Crawling and querying images
+## Crawling and searching images
 
 This tutorial will explain how to set up crawling of images and how to build a search engine for images. It will be possible to search in image's name of `alt` text.
 
