@@ -12,7 +12,7 @@ Here are the main concepts that will be discussed in this tutorial:
 * Two indexes will be necessary:
   * Index 1: to index web pages and "meta data" (width, height, area) of images
   * Index 2: to index `alt` texts for images and run full-text search on images
-* Index 2 will be built from the `<img…/>` tags found when indexing pages in index 1
+* Index 2 will be built from the `<img.../>` tags found when indexing pages in index 1
 
 This tutoriel does not explain how to configure web crawling or web pages indexation. 
 Prerequisite is to have an index crawling several web pages and knowing how to work  with parsers, analyzers, queries, etc.
@@ -21,23 +21,23 @@ Prerequisite is to have an index crawling several web pages and knowing how to w
 
 This index is already configured to crawl, index and search web pages. To index images here are the necessary steps:
 
-1.	Create a new `imagesTags` fields that will be used to store for each page every `<img …/>` tags found 
+*	Create a new `imagesTags` fields that will be used to store for each page every `<img .../>` tags found 
   * Indexed: `yes`, stored: `no`, termvector: `no`
-2.	Configure a new mapping in HTML parser to extract the `<img…/>` tags from the page and store them in the `imageTags` field.
-3.	Configure a mapping in the HTML parser to extract tags `<img>` from the page and store them in the field `imageTags`:
+* Configure a new mapping in HTML parser to extract the `<img.../>` tags from the page and store them in the `imageTags` field.
+* Configure a mapping in the HTML parser to extract tags `<img>` from the page and store them in the field `imageTags`:
   *	Source: `htmlSource`
   *	Linked in: `imageTags`
   *	Reg. exp.: `(?s)(<img[^>]* alt="[^"]+"[^>]*>)`
 
 ![Mapping](oss_search_image_map_source.png)
 
-Now every tags `<img …/>` found in the pages will be stored in the field `imageTags` of the documents. Tags will be stored with this format: `<img src="{url image}" alt="{texte descriptif}" />`
+Now every tags `<img .../>` found in the pages will be stored in the field `imageTags` of the documents. Tags will be stored with this format: `<img src="{url image}" alt="{texte descriptif}" />`
 
 HTML parser will also be able to detect URL from the `src` attributes (because they are URL, like URLs found in `href` attribute of the `a` tag). Thus the web crawler will be able to crawl the image directly. We will need to configure a parser to index some information about those images (size).
 
 Index 1 will thus index two kinds of documents:
 
-* Web pages, from which tags `<img …>` will be extracted and stored in a particular field
+* Web pages, from which tags `<img ...>` will be extracted and stored in a particular field
 * Images, that will be stored with their dimensions but without their `alt` text, because when the image is crawled the `alt` text is not available (it is only displayed in the page where the image is displayed).
   * It’s in the index 2 that we will be able to associate each image to its `alt` text, and then able to run full-text search on images
 
@@ -50,7 +50,7 @@ To index those images we need to:
      * stored: `no`
      * term vector: `no`
   * **imageFormat**: 
-     * Will index type of the image (png, jpg, …)
+     * Will index type of the image (png, jpg, ...)
      * indexed: `yes`
      * stored: `no`
      * term vector: `no`
@@ -89,7 +89,7 @@ The "Field mapping" will give precise values to each field related to the image:
 
 # Index 2: full-text search on images
 
-Index 2 will use tags `<img …/>` stored in index 1 to create one document by image and associate it to its `alt` text.
+Index 2 will use tags `<img .../>` stored in index 1 to create one document by image and associate it to its `alt` text.
 We’ll see in this document how full information about an image (alt, url, area, format) coming from both index can be used in one query.
 
 
@@ -122,7 +122,7 @@ Create a new index with these fields:
 
 ![List of fields](oss_search_image_index_schema.png)
 
-Then come the part where we use the data from the first index (tags `<img …/`>) to create documents in the second index. This is done with a "job" of the Scheduler.
+Then come the part where we use the data from the first index (tags `<img .../`>) to create documents in the second index. This is done with a "job" of the Scheduler.
 
 But first some Analyzers need to be created to:
 
@@ -170,14 +170,14 @@ In tab "Scheduler", create a new job.
   * Tasks:
     * Add task "Delete all (truncate)"
     * Add task "Pull fields"
-      * This task can get data from another index. We are going to configure it to get every `<img …/>` tags stored in the first index for each crawled page, and to process those tags with the analyzers we just created in order to create one document by image.
+      * This task can get data from another index. We are going to configure it to get every `<img .../>` tags stored in the first index for each crawled page, and to process those tags with the analyzers we just created in order to create one document by image.
       * Index source: write name of first index
       * Login: a login that can read index 1
       * API Key: API key for the login
       * Source query: use `*:*` to get back all documents
       * Language: Undefined
       * Source field name: `imageTags`
-      * Target field name: `imageTag`: this is used to copy every `<img …/>` tags from the field imageTags of the index 1 to the field `imageTags` in the index 2. `imageTags` is multivalued: **task "Pull fields" will create one document for each value from the field `imageTags`.**
+      * Target field name: `imageTag`: this is used to copy every `<img .../>` tags from the field imageTags of the index 1 to the field `imageTags` in the index 2. `imageTags` is multivalued: **task "Pull fields" will create one document for each value from the field `imageTags`.**
       * Mapped fields on source: `url,url`: this will copy field `url` from index 1 to field `url` in index 2
       * Mapped fields on target:
          * `imageTag,alt,ImageAltAnalyzer`
