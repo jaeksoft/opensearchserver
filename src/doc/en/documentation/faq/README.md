@@ -17,6 +17,7 @@
 	* [How to configure an incremental Database crawl process](crawling/how_to_configure_an_incremental_database_crawler.md)
 	* [How to configure the crawl process of the Web crawler](crawling/how_to_configure_crawl_process_for_web_crawler.md)
 	* [How to crawl a MongoDB server](crawling/how_to_crawl_mongodb.md)
+    * [Crawling and searching images](crawling/crawling_and_searching_images.md)
 * [Parsing](parsing/README.md)
     * [XPATH parsing](parsing/configure_an_XPATH_parser.md)
     * [How to parse YouTube URLs and extract data](parsing/how_to_parse_YouTube_URLs_and_extract_data.md)
