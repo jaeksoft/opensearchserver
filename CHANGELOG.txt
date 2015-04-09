@@ -8,6 +8,19 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
+OpenSearchServer 1.5.13 (DEV)
+
+New features:
+- GH-1502: A scheduler task able to launch a crawl script
+- GH-1480: Multithreaded OCR 
+- GH-1476: New index template for credentials storing
+- GH-1475: Add an encryption filter 
+- GH-1471: Authentication based on external index
+- GH-1470: Renderer: Add range to date facet
+
+Bug fixes:
+- GH-1494: Error HttpHostConnectException should not abort the crawl session
+
 OpenSearchServer 1.5.12
 
 New features:
