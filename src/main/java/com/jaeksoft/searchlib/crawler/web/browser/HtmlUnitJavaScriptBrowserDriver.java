@@ -35,6 +35,6 @@ public class HtmlUnitJavaScriptBrowserDriver extends
 
 	@Override
 	public HtmlUnitDriver initialize() {
-		return new HtmlUnitDriver();
+		return new HtmlUnitDriver(true);
 	}
 }
