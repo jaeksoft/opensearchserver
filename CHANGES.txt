@@ -1,11 +1,8 @@
-release date=12:00 03.01.2017,version=1.5.12,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
- * GH-1453: The log should be less verbose by default
- * GH-1452: writeLockTimeout should be configurable
- * GH-1449: Renderer - display fields from a join
- * GH-1441: API - delete an analyzer
- * GH-1323: REST API - More information about Indexes
- * GH-1149: java.io.IOException Encrypted PDF and others files-related error include filename 
- * GH-1466: Multivalued facets are broken when using fields without term vectors
- * GH-1458: The fetch first policy is no more applied
- * GH-1455: Outer join is broken
- * GH-639: File crawler - Crawls only 20% of the files
+release date=12:00 04.01.2015,version=1.5.13,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1502: A scheduler task able to launch a crawl script
+ * GH-1494: Error HttpHostConnectException should not abort the crawl session
+ * GH-1480: Multithreaded OCR 
+ * GH-1476: New index template for credentials storing
+ * GH-1475: Add an encryption filter 
+ * GH-1471: Authentication based on external index
+ * GH-1470: Renderer: Add range to date facet
