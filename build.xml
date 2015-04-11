@@ -29,9 +29,14 @@
 	<property name="licenses" location="licenses" />
 	<property name="shelldir" location="shell" />
 	<property name="product" value="opensearchserver" />
-	<property name="env.BUILD_NUMBER" value="" />
 	<property name="oss_testing_instance" value="http://localhost:9090" />
 	<property name="temp" location="temp" />
+
+	<exec executable="git" outputproperty="git.revision">
+		<arg value="rev-parse" />
+		<arg value="--short"/>
+		<arg value="head" />
+	</exec>
 
 	<!-- Read the manifest from the WAR -->
 	<loadproperties>
@@ -44,7 +49,7 @@
 
 	<property name="productsrc" value="${product}-${Implementation-Version}" />
 	<property name="productsrcrpm" value="${product}-${Specification-Version}-1" />
-	<property name="productdest" value="${product}-${Implementation-Version}-b${env.BUILD_NUMBER}" />
+	<property name="productdest" value="${product}-${Implementation-Version}-${git.revision}" />
 
 	<!-- Start OpenSearchServer using the embedded Tomcat -->
 	<target name="start" description="Starts OpenSearchServer">
