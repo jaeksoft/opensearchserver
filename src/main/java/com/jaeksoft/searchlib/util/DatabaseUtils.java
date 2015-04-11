@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
+import com.opensearchserver.pojodbc.Transaction;
 
 public class DatabaseUtils {
 
