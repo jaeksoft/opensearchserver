@@ -39,7 +39,7 @@
 		<arg value="--no-merges" />
 		<arg value="-n" />
 		<arg value="1" />
-		<arg value="head" />
+		<arg value="HEAD" />
 	</exec>
 
 	<!-- Read the manifest from the WAR -->
