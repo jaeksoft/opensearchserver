@@ -32,9 +32,13 @@
 	<property name="oss_testing_instance" value="http://localhost:9090" />
 	<property name="temp" location="temp" />
 
+	<!-- Read the short hash from GIT -->
 	<exec executable="git" outputproperty="git.revision">
-		<arg value="rev-parse" />
-		<arg value="--short"/>
+		<arg value="rev-list" />
+		<arg value="--abbrev-commit" />
+		<arg value="--no-merges" />
+		<arg value="-n" />
+		<arg value="1" />
 		<arg value="head" />
 	</exec>
 
