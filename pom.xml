@@ -33,6 +33,13 @@
 	<prerequisites>
 		<maven>3.2.1</maven>
 	</prerequisites>
+	<repositories>
+		<repository>
+			<id>ice-maven-release</id>
+			<name>Ice Maven Release Repository</name>
+			<url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -187,6 +194,11 @@
 			<version>1.8.9</version>
 		</dependency>
 		<dependency>
+			<groupId>org.icepdf</groupId>
+			<artifactId>icepdf-core</artifactId>
+			<version>5.0.7</version>
+		</dependency>
+		<dependency>
 			<groupId>org.zkoss.zk</groupId>
 			<artifactId>zkbind</artifactId>
 			<version>${zk.version}</version>
@@ -288,24 +300,14 @@
 			<version>3.3</version>
 		</dependency>
 		<dependency>
-			<groupId>org.icepdf</groupId>
-			<artifactId>icepdf-core</artifactId>
-			<version>5.0.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.icepdf</groupId>
-			<artifactId>icepdf-viewer</artifactId>
-			<version>5.0.6</version>
-		</dependency>
-		<dependency>
 			<groupId>org</groupId>
 			<artifactId>jaudiotagger</artifactId>
 			<version>2.0.3</version>
 		</dependency>
 		<dependency>
-			<groupId>com.jaeksoft</groupId>
-			<artifactId>pojodbc</artifactId>
-			<version>1.1.2</version>
+			<groupId>com.opensearchserver</groupId>
+			<artifactId>oss-pojodbc</artifactId>
+			<version>1.3.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -396,11 +398,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>dk.dren</groupId>
-			<artifactId>hunspell-dren</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>net.java.dev.rome</groupId>
 			<artifactId>rome</artifactId>
 			<version>1.0.0</version>
@@ -441,11 +438,6 @@
 			<version>2.4.3</version>
 		</dependency>
 		<dependency>
-			<groupId>com.atlascopco</groupId>
-			<artifactId>hunspell-bridj</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.12.4</version>
@@ -454,6 +446,11 @@
 			<groupId>net.sf.jmimemagic</groupId>
 			<artifactId>jmimemagic</artifactId>
 			<version>0.1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.atlascopco</groupId>
+			<artifactId>hunspell-bridj</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 	</dependencies>
 	<properties>

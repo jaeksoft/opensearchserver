@@ -35,9 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.jaeksoft.pojodbc.Query;
-import com.jaeksoft.pojodbc.Transaction;
-import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -50,6 +47,9 @@ import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
+import com.opensearchserver.pojodbc.Query;
+import com.opensearchserver.pojodbc.Transaction;
+import com.opensearchserver.pojodbc.connection.JDBCConnection;
 
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 

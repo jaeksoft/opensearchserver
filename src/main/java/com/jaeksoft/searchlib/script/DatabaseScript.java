@@ -31,9 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import com.jaeksoft.pojodbc.Query;
-import com.jaeksoft.pojodbc.Transaction;
-import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
 import com.jaeksoft.searchlib.crawler.database.IsolationLevelEnum;
@@ -41,6 +38,9 @@ import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
+import com.opensearchserver.pojodbc.Query;
+import com.opensearchserver.pojodbc.Transaction;
+import com.opensearchserver.pojodbc.connection.JDBCConnection;
 
 public class DatabaseScript extends AbstractScriptRunner {
 

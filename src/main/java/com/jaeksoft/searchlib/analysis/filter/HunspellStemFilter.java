@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -37,16 +37,11 @@ import com.jaeksoft.searchlib.util.HunspellUtils;
 public class HunspellStemFilter extends FilterFactory {
 
 	private String dict_path = null;
-	private String dict_method = "jna";
-
-	private final static String[] HUNSPELL_METHODS = { "bridj", "jna" };
 
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.HUNSPELL_DICT_PATH, "", null, 30, 1);
-		addProperty(ClassPropertyEnum.HUNSPELL_METHOD, "jna", HUNSPELL_METHODS,
-				10, 1);
 	}
 
 	@Override
@@ -54,8 +49,6 @@ public class HunspellStemFilter extends FilterFactory {
 			throws SearchLibException {
 		if (prop == ClassPropertyEnum.HUNSPELL_DICT_PATH)
 			dict_path = value;
-		else if (prop == ClassPropertyEnum.HUNSPELL_METHOD)
-			dict_method = value;
 	}
 
 	protected TokenStream newTokenFilter(TokenStream input,
@@ -66,16 +59,8 @@ public class HunspellStemFilter extends FilterFactory {
 	@Override
 	final public TokenStream create(TokenStream input)
 			throws SearchLibException {
-		try {
-			HunspellUtils.Api hunspell;
-			if (dict_method.equalsIgnoreCase("jna"))
-				hunspell = HunspellUtils.getJna(dict_path);
-			else
-				hunspell = HunspellUtils.getBridj(dict_path);
-			return newTokenFilter(input, hunspell);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+		HunspellUtils.Api hunspell = HunspellUtils.getBridj(dict_path);
+		return newTokenFilter(input, hunspell);
 	}
 
 	public static class HunspellStemTokenFilter extends AbstractTermFilter {

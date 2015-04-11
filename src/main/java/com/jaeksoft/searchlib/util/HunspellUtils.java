@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,9 +24,7 @@
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -38,7 +36,6 @@ public class HunspellUtils {
 	private final static ReadWriteLock rwl = new ReadWriteLock();
 
 	private final static Map<String, Api> bridjMap = new TreeMap<String, Api>();
-	private final static Map<String, Api> jnaMap = new TreeMap<String, Api>();
 
 	/**
 	 * Return an Hunspell directory.
@@ -62,28 +59,6 @@ public class HunspellUtils {
 				return api;
 			api = new BridJApi(dict_path);
 			bridjMap.put(dict_path, api);
-			return api;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	final public static Api getJna(String dict_path) throws IOException {
-		rwl.r.lock();
-		try {
-			Api api = jnaMap.get(dict_path);
-			if (api != null)
-				return api;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			Api api = jnaMap.get(dict_path);
-			if (api != null)
-				return api;
-			api = new JnaApi(dict_path);
-			jnaMap.put(dict_path, api);
 			return api;
 		} finally {
 			rwl.w.unlock();
@@ -129,39 +104,6 @@ public class HunspellUtils {
 		}
 	}
 
-	private static class JnaApi implements Api {
-
-		private final dk.dren.hunspell.Hunspell.Dictionary hunspell;
-
-		private JnaApi(String dict_path) throws FileNotFoundException,
-				UnsupportedEncodingException, UnsatisfiedLinkError,
-				UnsupportedOperationException {
-			hunspell = dk.dren.hunspell.Hunspell.getInstance().getDictionary(
-					dict_path);
-		}
-
-		@Override
-		public boolean isCorrect(String word) {
-			synchronized (hunspell) {
-				return !hunspell.misspelled(word);
-			}
-		}
-
-		@Override
-		public List<String> stem(String word) {
-			synchronized (hunspell) {
-				return hunspell.stem(word);
-			}
-		}
-
-		@Override
-		public List<String> suggest(String word) {
-			synchronized (hunspell) {
-				return hunspell.suggest(word);
-			}
-		}
-	}
-
 	private final static void test(Api api) {
 		long t = System.currentTimeMillis();
 		final String[] WORDS = { "test", "la", "les", "ou", "quand", "comment",
@@ -182,7 +124,6 @@ public class HunspellUtils {
 		final String dict_path = "/var/local/dict/fr-toutesvariantes";
 		for (int i = 0; i < 5; i++) {
 			test(getBridj(dict_path));
-			test(getJna(dict_path));
 		}
 	}
 }

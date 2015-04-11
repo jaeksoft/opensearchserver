@@ -42,7 +42,6 @@ import java.util.TreeSet;
 
 import org.apache.http.client.ClientProtocolException;
 
-import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
@@ -55,6 +54,7 @@ import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Variables;
+import com.opensearchserver.pojodbc.Transaction;
 
 public class ScriptCommandContext implements Closeable {
 

@@ -36,14 +36,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.pojodbc.Query;
-import com.jaeksoft.pojodbc.Transaction;
-import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.opensearchserver.pojodbc.Query;
+import com.opensearchserver.pojodbc.Transaction;
+import com.opensearchserver.pojodbc.connection.JDBCConnection;
 
 public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
