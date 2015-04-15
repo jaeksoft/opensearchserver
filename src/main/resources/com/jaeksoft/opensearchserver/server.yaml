@@ -12,6 +12,8 @@ services:
 - script
 - scheduler
 - renderer
+- graph
+- search
 
 #
 # The maximum number of threads used by the scheduler service

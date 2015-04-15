@@ -44,11 +44,15 @@ import com.opensearchserver.crawler.web.WebCrawlerServer;
 import com.opensearchserver.crawler.web.service.WebCrawlerServiceImpl;
 import com.opensearchserver.extractor.ExtractorServer;
 import com.opensearchserver.extractor.ExtractorServiceImpl;
+import com.opensearchserver.graph.GraphServer;
+import com.opensearchserver.graph.GraphServiceImpl;
 import com.opensearchserver.job.JobServer;
 import com.opensearchserver.job.scheduler.SchedulerServiceImpl;
 import com.opensearchserver.job.script.ScriptServiceImpl;
 import com.opensearchserver.renderer.RendererServer;
 import com.opensearchserver.renderer.RendererServer.RendererApplication;
+import com.opensearchserver.search.SearchServer;
+import com.opensearchserver.search.index.IndexServiceImpl;
 import com.opensearchserver.utils.server.AbstractServer;
 import com.opensearchserver.utils.server.RestApplication;
 import com.opensearchserver.utils.server.ServletApplication;
@@ -86,6 +90,10 @@ public class OpenSearchServer extends AbstractServer {
 				classes.add(SchedulerServiceImpl.class);
 			if (ServiceEnum.webcrawler.isActive(serverConfiguration))
 				classes.add(WebCrawlerServiceImpl.class);
+			if (ServiceEnum.search.isActive(serverConfiguration))
+				classes.add(IndexServiceImpl.class);
+			if (ServiceEnum.graph.isActive(serverConfiguration))
+				classes.add(GraphServiceImpl.class);
 			return classes;
 		}
 	}
@@ -153,6 +161,16 @@ public class OpenSearchServer extends AbstractServer {
 		if (ServiceEnum.webcrawler.isActive(serverConfiguration)) {
 			WebCrawlerServer.load(this);
 			services.add(ServiceEnum.webcrawler.name());
+		}
+
+		if (ServiceEnum.search.isActive(serverConfiguration)) {
+			SearchServer.loadIndexManager(this);
+			services.add(ServiceEnum.search.name());
+		}
+
+		if (ServiceEnum.graph.isActive(serverConfiguration)) {
+			GraphServer.load(subDir(data_directory, "graph"));
+			services.add(ServiceEnum.graph.name());
 		}
 
 	}

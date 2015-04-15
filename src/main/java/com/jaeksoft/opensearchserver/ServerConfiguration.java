@@ -48,7 +48,11 @@ public class ServerConfiguration {
 
 		scheduler,
 
-		renderer;
+		renderer,
+
+		search,
+
+		graph;
 
 		/**
 		 * @param serverConfiguration
