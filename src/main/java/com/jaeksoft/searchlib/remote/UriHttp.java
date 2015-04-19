@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,6 +35,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -54,9 +55,13 @@ public abstract class UriHttp {
 	protected UriHttp(final int secTimeOut) {
 		final int timeOut = secTimeOut * 1000;
 		requestConfig = RequestConfig.custom().setSocketTimeout(timeOut)
-				.setConnectTimeout(timeOut).build();
+				.setConnectTimeout(timeOut)
+				.setConnectionRequestTimeout(timeOut).build();
+		SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(timeOut)
+				.build();
 		httpClient = HttpClientBuilder.create()
-				.setDefaultRequestConfig(requestConfig).build();
+				.setDefaultRequestConfig(requestConfig)
+				.setDefaultSocketConfig(socketConfig).build();
 	}
 
 	protected void execute(HttpUriRequest request)

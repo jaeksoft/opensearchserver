@@ -1,0 +1,1 @@
+L'API v1 est la version historique. Elle inclut des fonctions de bas niveau toujours utilisées en interne par OpenSearchServer, elles restent maintenues. Cependant, aucune nouvelle fonction devrait y être ajoutée. Cet API ne doit être utilisé que par ceux développant des fonctions internes à OpenSearchServer.

@@ -10,10 +10,6 @@ Dans ces pages nous nous référons à OpenSearchServer en utilisant l'acronyme 
 
 Les personnes intéressées peuvent se référer à la liste des marques déposées.
 
-
 ####Ces pages sont actuellement en cours d'intégration.
 
-En attendant la finalisation vous pouvez vous référer aux anciennes documentations (en anglais).
-
-- [Documentation Confluence](http://www.open-search-server.com/confluence/display/EN/Home/)
-- [Documentation des API REST](https://github.com/jaeksoft/opensearchserver/wiki)
+En attendant la finalisation vous pouvez vous référer aux anciennes documentations (en anglais): [Documentation Confluence](http://www.open-search-server.com/confluence/display/EN/Home/).

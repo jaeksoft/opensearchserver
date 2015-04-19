@@ -1,0 +1,1 @@
+L'API v2 est la nouvelle API REST. L'implémentation RESTFUL de cet API lui permet de controller la quasi totalité des fonctions d'OpenSearchServer. L'API v2 est fréquemment mise à jour et enrichie de nouvelles fonctions.
