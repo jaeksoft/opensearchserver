@@ -53,9 +53,9 @@ import com.opensearchserver.renderer.RendererServer;
 import com.opensearchserver.renderer.RendererServer.RendererApplication;
 import com.opensearchserver.search.SearchServer;
 import com.opensearchserver.search.index.IndexServiceImpl;
-import com.opensearchserver.utils.server.AbstractServer;
-import com.opensearchserver.utils.server.RestApplication;
-import com.opensearchserver.utils.server.ServletApplication;
+import com.qwazr.utils.server.AbstractServer;
+import com.qwazr.utils.server.RestApplication;
+import com.qwazr.utils.server.ServletApplication;
 
 public class OpenSearchServer extends AbstractServer {
 

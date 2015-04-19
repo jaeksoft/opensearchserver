@@ -35,8 +35,8 @@ import com.opensearchserver.extractor.ExtractorServiceInterface;
 import com.opensearchserver.extractor.ParserManager;
 import com.opensearchserver.job.JobServer;
 import com.opensearchserver.job.script.ScriptMultiClient;
-import com.opensearchserver.provider.AbstractProvider;
-import com.opensearchserver.provider.ProviderContext;
+import com.qwazr.provider.AbstractProvider;
+import com.qwazr.provider.ProviderContext;
 
 public class ServicesProvider extends AbstractProvider {
 
