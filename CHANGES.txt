@@ -1,4 +1,5 @@
-release date=12:00 04.01.2015,version=1.5.13,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+release date=12:00 04.19.2015,version=1.5.13,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1524: Add fetch size parameter in the database crawler
  * GH-1502: A scheduler task able to launch a crawl script
  * GH-1494: Error HttpHostConnectException should not abort the crawl session
  * GH-1480: Multithreaded OCR 
