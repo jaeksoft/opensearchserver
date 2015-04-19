@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -132,7 +132,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			SyntaxError, InterruptedException {
 		String dbPrimaryKey = databaseCrawl.getPrimaryKey();
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
-		int bf = databaseCrawl.getBufferSize();
+		int bufferSize = databaseCrawl.getBufferSize();
 
 		IndexDocument indexDocument = null;
 		IndexDocument lastFieldContent = null;
@@ -160,7 +160,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				lastPrimaryKey = pKey;
 			}
 			if (!merge) {
-				if (index(transaction, indexDocumentList, bf, pkList))
+				if (index(transaction, indexDocumentList, bufferSize, pkList))
 					setStatus(CrawlStatus.CRAWL);
 				indexDocument = new IndexDocument(context.lang);
 				indexDocumentList.add(indexDocument);
@@ -214,7 +214,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		try {
 			transaction = databaseCrawl.getNewTransaction(connectionManager);
 			Query query = transaction.prepare(databaseCrawl.getSqlSelect());
-			query.getStatement().setFetchSize(databaseCrawl.getBufferSize());
+			query.getStatement().setFetchSize(databaseCrawl.getFetchSize());
 			ResultSet resultSet = query.getResultSet();
 
 			setStatus(CrawlStatus.CRAWL);

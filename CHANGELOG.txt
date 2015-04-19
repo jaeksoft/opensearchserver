@@ -11,6 +11,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 OpenSearchServer 1.5.13 (DEV)
 
 New features:
+- GH-1524: Add fetch size parameter in the database crawler
 - GH-1502: A scheduler task able to launch a crawl script
 - GH-1480: Multithreaded OCR 
 - GH-1476: New index template for credentials storing

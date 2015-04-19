@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -66,6 +66,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		}
 	}
 
+	protected final static String DBCRAWL_ATTR_FETCH_SIZE = "fetchSize";
+
 	private String driverClass;
 
 	private IsolationLevelEnum isolationLevel;
@@ -80,6 +82,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
 	private String uniqueKeyDeleteField;
 
+	private int fetchSize;
+
 	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
 			DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, propertyManager, name);
@@ -90,6 +94,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		sqlUpdateMode = SqlUpdateMode.NO_CALL;
 		primaryKey = null;
 		uniqueKeyDeleteField = null;
+		fetchSize = 50;
 	}
 
 	public void applyVariables(Variables variables) {
@@ -125,6 +130,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		crawl.sqlUpdateMode = this.sqlUpdateMode;
 		crawl.primaryKey = this.primaryKey;
 		crawl.uniqueKeyDeleteField = this.uniqueKeyDeleteField;
+		crawl.fetchSize = this.fetchSize;
 	}
 
 	@Override
@@ -229,6 +235,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
 		setBufferSize(XPathParser.getAttributeValue(item,
 				DBCRAWL_ATTR_BUFFER_SIZE));
+		setFetchSize(DomUtils.getAttributeInteger(item,
+				DBCRAWL_ATTR_FETCH_SIZE, 50));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_SELECT);
 		if (sqlNode != null)
 			setSqlSelect(xpp.getNodeString(sqlNode, true));
@@ -251,6 +259,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
 				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
 				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()),
+				DBCRAWL_ATTR_FETCH_SIZE, Integer.toString(getFetchSize()),
 				DBCRAWL_ATTR_MSSLEEP, Integer.toString(getMsSleep()));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
@@ -300,6 +309,21 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		this.uniqueKeyDeleteField = uniqueKeyDeleteField;
 	}
 
+	/**
+	 * @return the fetchSize
+	 */
+	public int getFetchSize() {
+		return fetchSize;
+	}
+
+	/**
+	 * @param fetchSize
+	 *            the fetchSize to set
+	 */
+	public void setFetchSize(int fetchSize) {
+		this.fetchSize = fetchSize;
+	}
+
 	public JDBCConnection getNewJdbcConnection() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		JDBCConnection jdbcCnx = new JDBCConnection();
@@ -331,7 +355,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 			pw = new PrintWriter(sw);
 			transaction = getNewTransaction(jdbcCnx);
 			Query query = transaction.prepare(sqlSelect);
-			query.getStatement().setFetchSize(getBufferSize());
+			query.getStatement().setFetchSize(getFetchSize());
 			ResultSet resultSet = query.getResultSet();
 			ResultSetMetaData metaData = resultSet.getMetaData();
 			int columnCount = metaData.getColumnCount();
