@@ -1,0 +1,19 @@
+{
+	"title": "OpenSearchServer documentation",
+	"links": {
+        "home": "http://www.opensearchserver.com/"
+    },
+    "plugins": ["disqus", "ga", "piwik"],
+    "pluginsConfig": {
+        "disqus": {
+            "shortName": "opensearchserver"
+        },
+        "ga": {
+            "token": "UA-562876-6"
+        },
+        "piwik": {
+            "URL": "www.open-search-server.com/piwik/",
+            "siteId": 1
+        }
+    }
+}

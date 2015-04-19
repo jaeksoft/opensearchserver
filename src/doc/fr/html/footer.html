@@ -26,21 +26,43 @@
 	</a>
 </div>
 
-<footer>
-	<div style="float: right">
-		<a target="_blank" href="http://github.com/jaeksoft"> <img
-			alt="github logo" src="/wp-content/uploads/2013/08/GitHub_Logo.png" />
-		</a> &nbsp; <a target="_blank"
-			href="http://sourceforge.net/projects/opensearchserve"><img
-			src="http://sflogo.sourceforge.net/sflogo.php?group_id=260863&amp;type=9"
-			alt="Get OpenSearchServer at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
-		&nbsp; <a target="_blank"
-			href="http://www.ohloh.net/p/opensearchserver?ref=sample"><img
-			src="http://www.ohloh.net/p/opensearchserver/widgets/project_thin_badge.gif"
-			alt="Ohloh project report for OpenSearchServer" /></a>
-	</div>
-</footer>
+<!-- Zendesk -->
+<script type="text/javascript" src="//assets.zendesk.com/external/zenbox/v2.6/zenbox.js"></script>
+<style type="text/css" media="screen, projection">
+  @import url(//assets.zendesk.com/external/zenbox/v2.6/zenbox.css);
+</style>
+<script type="text/javascript">
+  if (typeof(Zenbox) !== "undefined") {
+    Zenbox.init({
+      dropboxID:   "20250872",
+      url:         "https://opensearchserver.zendesk.com",
+      tabTooltip:  "Suggestions",
+      tabImageURL: "https://assets.zendesk.com/external/zenbox/images/tab_fr_feedback_right.png",
+      tabColor:    "purple",
+      tabPosition: "Right"
+    });
+  }
+</script>
 
+
+<!-- Production -->
 <script src="https://code.jquery.com/jquery.js"></script>
 <script
-	src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<!-- Development
+<script
+	src="/bootstrap/js/bootstrap.min.js"></script>
+-->
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
+
+  (function() {
+    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://www.open-search-server.com/piwik/";
+    _paq.push(["setTrackerUrl", u+"piwik.php"]);
+    _paq.push(["setSiteId", "1"]);
+    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
+  })();
+</script>
